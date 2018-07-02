@@ -28,16 +28,18 @@ The functions fread() and fwrite() advance the file position indicator for
 */
 
 // Exception CorruptedStream?
-// curr step goal: redirect output to a file
+// curr step goal: read one [entry, timestamp, len, data] and redirect output to a file
 int main(int argc, char const *argv[])
 {   
 
-    char entryBuf[256];
-
+    char tmp_buf[256];
+    int entry;
+    int time_stamp;
+    int len;
     // char buf[256]; // warning: dont know how large one data chunk will be; 
     // char lenBuf[256];
     size_t dummy;
-    FILE* mystream= fopen("test_foo_stream","r");
+    FILE* mystream = fopen("test_foo_stream","r");
     FILE* output = fopen("output_test","w+");
     /*
         stream has the following format:
@@ -45,12 +47,25 @@ int main(int argc, char const *argv[])
     */
     // be careful: error handling 
     // temporary testing: read and print out first data 
-    // int i = fgetc(mystream);
-    dummy = fread(entryBuf, sizeof(int), 1, mystream);
-    // fread(lenBuf, 4, 1, mystream);
-    // fread(buf, 3, 1, mystream);// hardcoded here
-    dummy = fwrite(entryBuf, sizeof(int),1,output);
-    // printf("entry: %s, len: %s, data: %s\n", entryBuf, lenBuf, buf );
+
+    /* entry */
+    dummy = fread(tmp_buf, sizeof(int), 1, mystream);
+
+    sscanf(tmp_buf, "%d", &entry); // bug: always thought entry = 0
+    // probably because 00 is the null terminator so c thought it is empty string
+    /* timestamp */
+    dummy = fread(tmp_buf, sizeof(int), 1, mystream);
+    sscanf(tmp_buf, "%d", &time_stamp);
+    /* len */
+    dummy = fread(tmp_buf, sizeof(int), 1, mystream);
+    sscanf(tmp_buf, "%d", &len);
+    /* data */
+    fread(tmp_buf, len, 1, mystream);// hardcoded here
+    dummy = fwrite(tmp_buf, sizeof(int),1,output);
+   
+    printf("entry = %d, time_stamp = %d, len = %d\n", 
+        entry, time_stamp, len);
+    printf("please manually check the output_test file, the expected output is 4567abcdefgh\n");
     fclose(mystream);
     fclose(output);
     return 0;
