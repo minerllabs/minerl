@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
-// helper function: read entry, read len, read timestamp, read data
+// helper function: read entry, read len, read time_stamp, read data
 /*  library backup: fgetc and fread
 
 size_t
@@ -30,68 +30,78 @@ The functions fread() and fwrite() advance the file position indicator for
 
 /* HELPER FUNCTIONS */
 
+/* convert string to int 
+ * REQUIRES: 
+ */
+
+int string_to_int(char* buf)
+{
+    int result = 0;
+    int curr;
+    for (int i = 0; i < 4; i++)
+    {
+        curr = (int) buf[i];
+        result = (result << 8) + curr;
+    }
+    return result;
+}
+
 // return entry
-// int getEntry(char* buf, FILE* stream)
-// {
-//     /* entry */
-//     dummy = fread(buf, sizeof(int), 1, mystream);
-//     for i = 0,1,2,3
-//     printf("directly reading from tmp_buf: %s\n", buf );
-//     printf("tmp_buf[0]: %c\n", buf[0]);
-//     printf("tmp_buf[1]: %c\n", buf[1]);
-//     printf("tmp_buf[2]: %c\n", buf[2]);
-//     printf("tmp_buf[3]: %c\n", buf[3]);
-    
+int get_entry(char* buf, FILE* stream)
+{
+    return string_to_int(buf);
+}
 
-//     printf("new: %d",(int)buf)
-//     sscanf(buf, "%d", &entry); // bug: always thought entry = 0
-//     return;
-// }
+// return time_stamp
+int get_time_stamp(char* buf, FILE* stream)
+{
+    return string_to_int(buf);
+}
 
-
+// return time_stamp
+int get_len(char* buf, FILE* stream)
+{
+    return string_to_int(buf);
+}
 
 // Exception CorruptedStream?
-// curr step goal: read one [entry, timestamp, len, data] and redirect output to a file
+// curr step goal: read one [entry, time_stamp, len, data] and redirect output to a file
 int main(int argc, char const *argv[])
 {   
 
     char buf[256];
-    int entry;
-    int time_stamp;
-    int len;
-    // char buf[256]; // warning: dont know how large one data chunk will be; 
-    // char lenBuf[256];
-    size_t dummy;
-    FILE* mystream = fopen("test_foo_stream","r");
+    int entry, time_stamp, len;
+    FILE* input = fopen("test_foo_stream","r");
     FILE* output = fopen("output_test","w+");
     /*
         stream has the following format:
         [entry][len][json data]
     */
-    // be careful: error handling 
+    
+    // be careful: error handling, check return of fread value later 
     // temporary testing: read and print out first data 
 
     /* entry */
-    dummy = fread(tmp_buf, sizeof(int), 1, mystream);
-    printf("cast tmp_buf to int: %d,%d,%d,%d\n", (int)tmp_buf, (int)tmp_buf[1], (int)tmp_buf[2],(int)tmp_buf[3]);
-    sscanf(tmp_buf, "%d", &entry); // bug: always thought entry = 0
-
-    // probably because 00 is the null terminator so c thought it is empty string
-    /* timestamp */
-    dummy = fread(tmp_buf, sizeof(int), 1, mystream);
-    sscanf(tmp_buf, "%d", &time_stamp);
+    fread(buf, sizeof(int), 1, input);
+    entry = get_entry(buf, input);
+    /* time_stamp */
+    fread(buf, sizeof(int), 1, input);
+    time_stamp = get_time_stamp(buf, input);
     /* len */
-    dummy = fread(tmp_buf, sizeof(int), 1, mystream);
-    sscanf(tmp_buf, "%d", &len);
+    fread(buf, sizeof(int), 1, input);
+    len = get_len(buf, input);
     /* data */
-    fread(tmp_buf, len, 1, mystream);// hardcoded here
-    dummy = fwrite(tmp_buf, sizeof(int),1,output);
-   
-    printf("entry = %d, time_stamp = %d, len = %d\n", 
-        entry, time_stamp, len);
-    printf("please manually check the output_test file, the expected output is 4567abcdefgh\n");
-    fclose(mystream);
+    fread(buf, len, 1, input);
+    fwrite(buf,len, 1, output);
+
+    printf("entry = %d\n", entry);
+    printf("time_stamp = %d\n", time_stamp);
+    printf("len = %d\n", len);
+    printf("please open output_test to check data, the expected output is 456\n");
+    
+    fclose(input);
     fclose(output);
+
     return 0;
 }
 
