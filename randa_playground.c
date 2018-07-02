@@ -6,9 +6,9 @@
 
 /*  library backup: fgetc and fread
 
-int
-     fgetc(FILE *stream);
-
+size_t
+     fwrite(const void *restrict ptr, size_t size, size_t nitems,
+         FILE *restrict stream);
 size_t
      fread(void *restrict ptr, size_t size, size_t nitems,
          FILE *restrict stream);
@@ -28,33 +28,32 @@ The functions fread() and fwrite() advance the file position indicator for
 */
 
 // Exception CorruptedStream?
-
+// curr step goal: redirect output to a file
 int main(int argc, char const *argv[])
-{	
+{   
 
-	char entryBuf[256];
-	// char buf[256]; // warning: dont know how large one data chunk will be; 
-	// char lenBuf[256];
-	size_t dummy;
-	FILE* mystream= fopen("test_foo_stream","r");
-	FILE* output = fopen("output_test","w+")
-	/*
-		stream has the following format:
-		[entry][len][json data]
-	*/
-	// be careful: error handling 
-	// temporary testing: read and print out first data 
-	// int i = fgetc(mystream);
-	dummy = fread(entryBuf, sizeof(int)+1, 1, mystream);
-	// fread(lenBuf, 4, 1, mystream);
-	// fread(buf, 3, 1, mystream);// hardcoded here
-	printf("fread return: %zu\n", dummy);
+    char entryBuf[256];
 
-	printf("entryBuf:%s\n",entryBuf);
-	// printf("entry: %s, len: %s, data: %s\n", entryBuf, lenBuf, buf );
-	fclose(mystream);
-	fclose(output)
-	return 0;
+    // char buf[256]; // warning: dont know how large one data chunk will be; 
+    // char lenBuf[256];
+    size_t dummy;
+    FILE* mystream= fopen("test_foo_stream","r");
+    FILE* output = fopen("output_test","w+");
+    /*
+        stream has the following format:
+        [entry][len][json data]
+    */
+    // be careful: error handling 
+    // temporary testing: read and print out first data 
+    // int i = fgetc(mystream);
+    dummy = fread(entryBuf, sizeof(int), 1, mystream);
+    // fread(lenBuf, 4, 1, mystream);
+    // fread(buf, 3, 1, mystream);// hardcoded here
+    dummy = fwrite(entryBuf, sizeof(int),1,output);
+    // printf("entry: %s, len: %s, data: %s\n", entryBuf, lenBuf, buf );
+    fclose(mystream);
+    fclose(output);
+    return 0;
 }
 
 
