@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
+// helper function: read entry, read len, read timestamp, read data
 /*  library backup: fgetc and fread
 
 size_t
@@ -27,12 +27,35 @@ The functions fread() and fwrite() advance the file position indicator for
      occurred.
 */
 
+
+/* HELPER FUNCTIONS */
+
+// return entry
+// int getEntry(char* buf, FILE* stream)
+// {
+//     /* entry */
+//     dummy = fread(buf, sizeof(int), 1, mystream);
+//     for i = 0,1,2,3
+//     printf("directly reading from tmp_buf: %s\n", buf );
+//     printf("tmp_buf[0]: %c\n", buf[0]);
+//     printf("tmp_buf[1]: %c\n", buf[1]);
+//     printf("tmp_buf[2]: %c\n", buf[2]);
+//     printf("tmp_buf[3]: %c\n", buf[3]);
+    
+
+//     printf("new: %d",(int)buf)
+//     sscanf(buf, "%d", &entry); // bug: always thought entry = 0
+//     return;
+// }
+
+
+
 // Exception CorruptedStream?
 // curr step goal: read one [entry, timestamp, len, data] and redirect output to a file
 int main(int argc, char const *argv[])
 {   
 
-    char tmp_buf[256];
+    char buf[256];
     int entry;
     int time_stamp;
     int len;
@@ -50,8 +73,9 @@ int main(int argc, char const *argv[])
 
     /* entry */
     dummy = fread(tmp_buf, sizeof(int), 1, mystream);
-
+    printf("cast tmp_buf to int: %d,%d,%d,%d\n", (int)tmp_buf, (int)tmp_buf[1], (int)tmp_buf[2],(int)tmp_buf[3]);
     sscanf(tmp_buf, "%d", &entry); // bug: always thought entry = 0
+
     // probably because 00 is the null terminator so c thought it is empty string
     /* timestamp */
     dummy = fread(tmp_buf, sizeof(int), 1, mystream);
