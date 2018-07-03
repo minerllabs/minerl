@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 
-/*
-const char* FILES[12] =  {
+const char* src_stream = "muffins.bin";
+const char* Files[] =  {
     "meta_data.json",             
     "entity_positions.json",      
     "resource_pack.json",         
@@ -22,17 +22,13 @@ const char* FILES[12] =  {
     "end_of_stream.json",              
     "stream_meta_data.json"            
 };
-*/
 
-FILE_NUMBER = 2;
-const char* FILES[2] = {"output1.json", "output2.json"}
+const int FILE_NUM = 12;
+const int BUF_LEN = 5000;
 
 /* HELPER FUNCTIONS: read entry, read len, read time_stamp, read data */
 
-/* convert string to int 
- * REQUIRES: 
- */
-
+/* convert string to int REQUIRES: */
 unsigned int string_to_unsigned_int(char* buf)
 {
     unsigned int result = 0;
@@ -71,23 +67,15 @@ unsigned int get_len(char* buf, FILE* stream)
 // future: output a meta data json for my streaming. {error: false, eof: true, esg:...}
 int main(int argc, char const *argv[])
 {   
-    char buf[1000];
+    char buf[BUF_LEN];
     unsigned int entry, time_stamp, len;
+    int counter = 0;
     size_t dummy;
-    FILE* input, output
-    FILE* outputs[2];
+    FILE* input;
+    FILE* output;
 
-    
-    
-    input = fopen("test.bin","r");
-
-    for (int i = 0; i < 2; i++)
-    {
-        printf("try to open file '%s' ...", FILES[i])
-        outputs[i] = fopen(FILES[i],"w+");
-        if (outputs[i] != NULL) {printf("success\n");}
-        else{printf("failed\n");}
-    }
+    // init input
+    input = fopen(src_stream,"r");
 
     // be careful: error handling, check return of fread value later 
     // temporary testing: read and print out first data 
@@ -95,10 +83,9 @@ int main(int argc, char const *argv[])
     // to-do: distinguish EOF and error
     while ((dummy = fread(buf, 4, 1, input)) == 1)
     {
-        printf("fread(entry) returns  %zu\n",dummy);
+        printf("[%d]fread(entry) returns  %zu\n",counter,dummy);
         /* entry: first fread in while loop condition */
         entry = get_entry(buf, input);
-        output = outputs[entry];
         printf("entry = %u\n", entry);
 
         /* time_stamp */
@@ -113,17 +100,18 @@ int main(int argc, char const *argv[])
 
         /* data */
         fread(buf, len, 1, input);
-        printf("data = %s\n", buf);
-        fwrite(buf,len, 1, output);
-        printf("\n");
+        printf("data = %s, now try to write to output file\n", buf);
+        // open output
+        output = fopen(Files[entry], "w+");
+        if (output == NULL) printf("failed to open output file %d\n", entry);
+        if (fwrite(buf,len, 1, output)!= 1)
+            {printf("trouble writing to output\n" );}
+        fclose(output);
+        printf("file position: %ld\n\n", ftell(input));
+        counter++;
     }
     
     fclose(input);
-
-    for (int i = 0; i < 2; i++)
-    {
-        fclose(outputs[i]);
-    }
 
     return 0;
 }
