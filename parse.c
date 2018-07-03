@@ -7,6 +7,26 @@
 #include <stdio.h>
 #include <string.h>
 
+/*
+const char* FILES[12] =  {
+    "meta_data.json",             
+    "entity_positions.json",      
+    "resource_pack.json",         
+    "resource_pack_index.json" ,  
+    "thumb.json",                 
+    "visibility_old.json",        
+    "visibility.json" ,           
+    "markers.json",               
+    "asset.json",                 
+    "mods.json",                  
+    "end_of_stream.json",              
+    "stream_meta_data.json"            
+};
+*/
+
+FILE_NUMBER = 2;
+const char* FILES[2] = {"output1.json", "output2.json"}
+
 /* HELPER FUNCTIONS: read entry, read len, read time_stamp, read data */
 
 /* convert string to int 
@@ -44,48 +64,66 @@ unsigned int get_len(char* buf, FILE* stream)
     return string_to_unsigned_int(buf);
 }
 
-
 /* MAIN */
 // Exception CorruptedStream?
-// hard part: how to know the end? 
+// curr: different output file?
+// next: overwrite or append? 
+// future: output a meta data json for my streaming. {error: false, eof: true, esg:...}
 int main(int argc, char const *argv[])
 {   
     char buf[1000];
     unsigned int entry, time_stamp, len;
-    FILE* input = fopen("test_stream/test_foo_stream","r");
-    // FILE* input = fopen("test2","r");
-    // next: keep an output array, access which output by [entry]
-    FILE* output = fopen("output_test","w+");
+    size_t dummy;
+    FILE* input, output
+    FILE* outputs[2];
 
     
+    
+    input = fopen("test.bin","r");
+
+    for (int i = 0; i < 2; i++)
+    {
+        printf("try to open file '%s' ...", FILES[i])
+        outputs[i] = fopen(FILES[i],"w+");
+        if (outputs[i] != NULL) {printf("success\n");}
+        else{printf("failed\n");}
+    }
+
     // be careful: error handling, check return of fread value later 
     // temporary testing: read and print out first data 
-    size_t dummy;
+    
     // to-do: distinguish EOF and error
     while ((dummy = fread(buf, 4, 1, input)) == 1)
     {
-        printf("dummy = %zu\n",dummy);
+        printf("fread(entry) returns  %zu\n",dummy);
         /* entry: first fread in while loop condition */
         entry = get_entry(buf, input);
+        output = outputs[entry];
         printf("entry = %u\n", entry);
+
         /* time_stamp */
         fread(buf, 4, 1, input);
         time_stamp = get_time_stamp(buf, input);
         printf("time_stamp = %u\n", time_stamp);
+
         /* len */
         fread(buf, 4, 1, input);
         len = get_len(buf, input);
         printf("len = %u\n", len);
+
         /* data */
         fread(buf, len, 1, input);
-        printf("after read data, buf = %s\n", buf);
+        printf("data = %s\n", buf);
         fwrite(buf,len, 1, output);
-
+        printf("\n");
     }
     
-
     fclose(input);
-    fclose(output);
+
+    for (int i = 0; i < 2; i++)
+    {
+        fclose(outputs[i]);
+    }
 
     return 0;
 }
