@@ -1,0 +1,91 @@
+/* Yinglan Chen, July 2018 */
+/* Header comments go here: parse function */
+/*
+    stream has the following format:
+    [entry][len][json data]
+*/
+#include <stdio.h>
+#include <string.h>
+
+/* HELPER FUNCTIONS: read entry, read len, read time_stamp, read data */
+
+/* convert string to int 
+ * REQUIRES: 
+ */
+
+unsigned int string_to_unsigned_int(char* buf)
+{
+    unsigned int result = 0;
+    unsigned int curr;
+    for (int i = 0; i < 4; i++)
+    {
+        curr = (unsigned int)(unsigned char) buf[i];
+        // printf("curr: %u\n", curr );
+        result = (result << 8) + curr;
+    }
+    return result;
+}
+
+// return entry
+unsigned int get_entry(char* buf, FILE* stream)
+{
+    return string_to_unsigned_int(buf);
+}
+
+// return time_stamp
+unsigned int get_time_stamp(char* buf, FILE* stream)
+{
+    return string_to_unsigned_int(buf);
+}
+
+// return time_stamp
+unsigned int get_len(char* buf, FILE* stream)
+{
+    return string_to_unsigned_int(buf);
+}
+
+
+/* MAIN */
+// Exception CorruptedStream?
+// hard part: how to know the end? 
+int main(int argc, char const *argv[])
+{   
+    char buf[1000];
+    unsigned int entry, time_stamp, len;
+    FILE* input = fopen("test_stream/test_foo_stream","r");
+    // FILE* input = fopen("test2","r");
+    // next: keep an output array, access which output by [entry]
+    FILE* output = fopen("output_test","w+");
+
+    
+    // be careful: error handling, check return of fread value later 
+    // temporary testing: read and print out first data 
+    size_t dummy;
+    // to-do: distinguish EOF and error
+    while ((dummy = fread(buf, 4, 1, input)) == 1)
+    {
+        printf("dummy = %zu\n",dummy);
+        /* entry: first fread in while loop condition */
+        entry = get_entry(buf, input);
+        printf("entry = %u\n", entry);
+        /* time_stamp */
+        fread(buf, 4, 1, input);
+        time_stamp = get_time_stamp(buf, input);
+        printf("time_stamp = %u\n", time_stamp);
+        /* len */
+        fread(buf, 4, 1, input);
+        len = get_len(buf, input);
+        printf("len = %u\n", len);
+        /* data */
+        fread(buf, len, 1, input);
+        printf("after read data, buf = %s\n", buf);
+        fwrite(buf,len, 1, output);
+
+    }
+    
+
+    fclose(input);
+    fclose(output);
+
+    return 0;
+}
