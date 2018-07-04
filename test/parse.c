@@ -7,23 +7,25 @@
 #include <stdio.h>
 #include <string.h>
 
-const char* src_stream = "muffins.bin";
+const char* src_stream = "apple.bin";
 const char* Files[] =  {
-    "meta_data.json",             
-    "entity_positions.json",      
-    "resource_pack.json",         
+    "null",                         /* 0 */
+    "metaData.json",
+    "recording.tmcpr",          
+    "resource_pack.zip",         
     "resource_pack_index.json" ,  
     "thumb.json",                 
-    "visibility_old.json",        
+    "visibility",        
     "visibility.json" ,           
     "markers.json",               
-    "asset.json",                 
-    "mods.json",                  
+    "asset.zip",                 
+    "mods.json",      
     "end_of_stream.json",              
-    "stream_meta_data.json"            
+    "stream_meta_data.json" 
+           
 };
-
-const int FILE_NUM = 12;
+// entry: 1 to 12
+const int FILE_NUM = 13;
 const int BUF_LEN = 5000;
 
 /* HELPER FUNCTIONS: read entry, read len, read time_stamp, read data */
@@ -60,6 +62,12 @@ unsigned int get_len(char* buf, FILE* stream)
     return string_to_unsigned_int(buf);
 }
 
+// return sequence_number
+unsigned int get_sequence_number(char* buf, FILE* stream)
+{
+    return string_to_unsigned_int(buf);
+}
+
 /* MAIN */
 // Exception CorruptedStream?
 // curr: different output file?
@@ -68,7 +76,7 @@ unsigned int get_len(char* buf, FILE* stream)
 int main(int argc, char const *argv[])
 {   
     char buf[BUF_LEN];
-    unsigned int entry, time_stamp, len;
+    unsigned int entry, time_stamp, len, sequence_number;
     int counter = 0;
     size_t dummy;
     FILE* input;
@@ -93,6 +101,11 @@ int main(int argc, char const *argv[])
         time_stamp = get_time_stamp(buf, input);
         printf("time_stamp = %u\n", time_stamp);
 
+        /* sequence_number */
+        fread(buf, 4, 1, input);
+        sequence_number = get_sequence_number(buf, input);
+        printf("sequence_number = %u\n", sequence_number);
+
         /* len */
         fread(buf, 4, 1, input);
         len = get_len(buf, input);
@@ -102,7 +115,8 @@ int main(int argc, char const *argv[])
         fread(buf, len, 1, input);
         printf("data = %s, now try to write to output file\n", buf);
         // open output
-        output = fopen(Files[entry], "w+");
+        // if entry == blah, blah, or blah, open with "a", else (delete? and) "w+"
+        output = fopen(Files[entry], "w+"); // w+ or "a"
         if (output == NULL) printf("failed to open output file %d\n", entry);
         if (fwrite(buf,len, 1, output)!= 1)
             {printf("trouble writing to output\n" );}
