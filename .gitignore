@@ -3,3 +3,8 @@ a.out.dSYM/
 .DS_Store
 parse
 parse.dSYM/
+streams/
+*.sln
+*.vcxproj*
+.vs/
+.vscode/

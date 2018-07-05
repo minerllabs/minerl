@@ -5,9 +5,10 @@
     [entry][len][json data]
 */
 #include <stdio.h>
+#include <assert.h>
 #include <string.h>
 
-const char* src_stream = "muffins.bin";
+const char* src_stream = "./streams/toosmall.bin";
 const char* Files[] =  {
     "meta_data.json",             
     "entity_positions.json",      
@@ -24,7 +25,7 @@ const char* Files[] =  {
 };
 
 const int FILE_NUM = 12;
-const int BUF_LEN = 5000;
+#define BUF_LEN 50000
 
 /* HELPER FUNCTIONS: read entry, read len, read time_stamp, read data */
 
@@ -99,6 +100,7 @@ int main(int argc, char const *argv[])
         printf("len = %u\n", len);
 
         /* data */
+        assert(len < BUF_LEN);
         fread(buf, len, 1, input);
         printf("data = %s, now try to write to output file\n", buf);
         // open output
