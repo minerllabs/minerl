@@ -8,23 +8,42 @@
 #include <assert.h>
 #include <string.h>
 
-const char* src_stream = "./streams/toosmall.bin";
+const char* src_stream = "almost_perfect.bin";
+// const char* Files[] =  {
+//     "null",                         /* 0 */
+//     "metaData.json",
+//     "recording.tmcpr",          
+//     "resource_pack.zip",         
+//     "resource_pack_index.json" ,  
+//     "thumb.json",                 
+//     "visibility",        
+//     "visibility.json" ,           
+//     "markers.json",               
+//     "asset.zip",                 
+//     "mods.json",      
+//     "end_of_stream.json",              
+//     "stream_meta_data.json" 
+           
+// };
+
 const char* Files[] =  {
-    "meta_data.json",             
-    "entity_positions.json",      
-    "resource_pack.json",         
-    "resource_pack_index.json" ,  
-    "thumb.json",                 
-    "visibility_old.json",        
-    "visibility.json" ,           
-    "markers.json",               
-    "asset.json",                 
-    "mods.json",                  
-    "end_of_stream.json",              
-    "stream_meta_data.json"            
+    "output0",                         /* 0 */
+    "output1.json",
+    "output2.tmcpr",          
+    "output3.zip",         
+    "output4.json" ,  
+    "output5.json",                 
+    "output6",        
+    "output7.json" ,           
+    "output8.json",               
+    "output9.zip",                 
+    "output10.json",      
+    "output11.json",              
+    "output12.json" 
+           
 };
 
-const int FILE_NUM = 12;
+const int FILE_NUM = 13;
 #define BUF_LEN 50000
 
 /* HELPER FUNCTIONS: read entry, read len, read time_stamp, read data */
@@ -61,6 +80,12 @@ unsigned int get_len(char* buf, FILE* stream)
     return string_to_unsigned_int(buf);
 }
 
+// return sequence_number
+unsigned int get_sequence_number(char* buf, FILE* stream)
+{
+    return string_to_unsigned_int(buf);
+}
+
 /* MAIN */
 // Exception CorruptedStream?
 // curr: different output file?
@@ -69,7 +94,7 @@ unsigned int get_len(char* buf, FILE* stream)
 int main(int argc, char const *argv[])
 {   
     char buf[BUF_LEN];
-    unsigned int entry, time_stamp, len;
+    unsigned int entry, time_stamp, len, sequence_number;
     int counter = 0;
     size_t dummy;
     FILE* input;
@@ -84,7 +109,8 @@ int main(int argc, char const *argv[])
     // to-do: distinguish EOF and error
     while ((dummy = fread(buf, 4, 1, input)) == 1)
     {
-        printf("[%d]fread(entry) returns  %zu\n",counter,dummy);
+        // printf("[%d]fread(entry) returns  %zu\n",counter,dummy);
+        printf("[%d]\n",counter);
         /* entry: first fread in while loop condition */
         entry = get_entry(buf, input);
         printf("entry = %u\n", entry);
@@ -94,6 +120,11 @@ int main(int argc, char const *argv[])
         time_stamp = get_time_stamp(buf, input);
         printf("time_stamp = %u\n", time_stamp);
 
+        /* sequence_number */
+        fread(buf, 4, 1, input);
+        sequence_number = get_sequence_number(buf, input);
+        printf("sequence_number = %u\n", sequence_number);
+
         /* len */
         fread(buf, 4, 1, input);
         len = get_len(buf, input);
@@ -102,9 +133,10 @@ int main(int argc, char const *argv[])
         /* data */
         assert(len < BUF_LEN);
         fread(buf, len, 1, input);
-        printf("data = %s, now try to write to output file\n", buf);
+        printf("data = %s\n", buf);
         // open output
-        output = fopen(Files[entry], "w+");
+        // if entry == blah, blah, or blah, open with "a", else (delete? and) "w+"
+        output = fopen(Files[entry], "w+"); // w+ or "a"
         if (output == NULL) printf("failed to open output file %d\n", entry);
         if (fwrite(buf,len, 1, output)!= 1)
             {printf("trouble writing to output\n" );}
