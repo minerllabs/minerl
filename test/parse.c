@@ -7,23 +7,41 @@
 #include <stdio.h>
 #include <string.h>
 
-const char* src_stream = "apple.bin";
+const char* src_stream = "almost_perfect.bin";
+// const char* Files[] =  {
+//     "null",                         /* 0 */
+//     "metaData.json",
+//     "recording.tmcpr",          
+//     "resource_pack.zip",         
+//     "resource_pack_index.json" ,  
+//     "thumb.json",                 
+//     "visibility",        
+//     "visibility.json" ,           
+//     "markers.json",               
+//     "asset.zip",                 
+//     "mods.json",      
+//     "end_of_stream.json",              
+//     "stream_meta_data.json" 
+           
+// };
+
 const char* Files[] =  {
-    "null",                         /* 0 */
-    "metaData.json",
-    "recording.tmcpr",          
-    "resource_pack.zip",         
-    "resource_pack_index.json" ,  
-    "thumb.json",                 
-    "visibility",        
-    "visibility.json" ,           
-    "markers.json",               
-    "asset.zip",                 
-    "mods.json",      
-    "end_of_stream.json",              
-    "stream_meta_data.json" 
+    "output0",                         /* 0 */
+    "output1.json",
+    "output2.tmcpr",          
+    "output3.zip",         
+    "output4.json" ,  
+    "output5.json",                 
+    "output6",        
+    "output7.json" ,           
+    "output8.json",               
+    "output9.zip",                 
+    "output10.json",      
+    "output11.json",              
+    "output12.json" 
            
 };
+
 // entry: 1 to 12
 const int FILE_NUM = 13;
 const int BUF_LEN = 5000;
@@ -91,7 +109,8 @@ int main(int argc, char const *argv[])
     // to-do: distinguish EOF and error
     while ((dummy = fread(buf, 4, 1, input)) == 1)
     {
-        printf("[%d]fread(entry) returns  %zu\n",counter,dummy);
+        // printf("[%d]fread(entry) returns  %zu\n",counter,dummy);
+        printf("[%d]\n",counter);
         /* entry: first fread in while loop condition */
         entry = get_entry(buf, input);
         printf("entry = %u\n", entry);
@@ -113,7 +132,7 @@ int main(int argc, char const *argv[])
 
         /* data */
         fread(buf, len, 1, input);
-        printf("data = %s, now try to write to output file\n", buf);
+        printf("data = %s\n", buf);
         // open output
         // if entry == blah, blah, or blah, open with "a", else (delete? and) "w+"
         output = fopen(Files[entry], "w+"); // w+ or "a"
