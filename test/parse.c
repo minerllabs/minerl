@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-const char* src_stream = "testtest.bin";
+const char* src_stream = "not_broken.bin";
 // const char* Files[] =  {
 //     "null",                         /* 0 */
 //     "metaData.json",
