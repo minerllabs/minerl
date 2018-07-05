@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-const char* src_stream = "almost_perfect.bin";
+const char* src_stream = "testtest.bin";
 // const char* Files[] =  {
 //     "null",                         /* 0 */
 //     "metaData.json",
@@ -39,7 +39,7 @@ const char* Files[] =  {
     "output10.json",      
     "output11.json",              
     "output12.json" 
-           
+        // 4 on brandon's side and 5 here   
 };
 
 // entry: 1 to 12
@@ -115,15 +115,15 @@ int main(int argc, char const *argv[])
         entry = get_entry(buf, input);
         printf("entry = %u\n", entry);
 
-        /* time_stamp */
-        fread(buf, 4, 1, input);
-        time_stamp = get_time_stamp(buf, input);
-        printf("time_stamp = %u\n", time_stamp);
-
         /* sequence_number */
         fread(buf, 4, 1, input);
         sequence_number = get_sequence_number(buf, input);
         printf("sequence_number = %u\n", sequence_number);
+
+        /* time_stamp */
+        fread(buf, 4, 1, input);
+        time_stamp = get_time_stamp(buf, input);
+        printf("time_stamp = %u\n", time_stamp);
 
         /* len */
         fread(buf, 4, 1, input);
@@ -134,12 +134,22 @@ int main(int argc, char const *argv[])
         fread(buf, len, 1, input);
         printf("data = %s\n", buf);
         // open output
-        // if entry == blah, blah, or blah, open with "a", else (delete? and) "w+"
-        output = fopen(Files[entry], "w+"); // w+ or "a"
-        if (output == NULL) printf("failed to open output file %d\n", entry);
-        if (fwrite(buf,len, 1, output)!= 1)
-            {printf("trouble writing to output\n" );}
-        fclose(output);
+
+        if (entry != 2139062143 && entry != (unsigned int)-1){ // bad! magic number! means -1?
+	        // if entry == blah, blah, or blah, open with "a", else (delete? and) "w+"
+	        output = fopen(Files[entry], "w+"); // w+ or "a"
+	        if (output == NULL) printf("failed to open output file %d\n", entry);
+	        if (fwrite(buf,len, 1, output)!= 1)
+	            {printf("trouble writing to output\n" );}
+	        fclose(output);
+        }
+
+        else
+        {
+        	printf("corrupted data? with entry = %u\n", entry);
+        }
+
+
         printf("file position: %ld\n\n", ftell(input));
         counter++;
     }
