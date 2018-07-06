@@ -6,6 +6,7 @@
     [entry][sequence_number][time_stamp][len][json data]
  */
 #include <stdio.h>
+#include <assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -89,6 +90,7 @@ unsigned int get_sequence_number(char* buf, FILE* stream);
 unsigned int get_time_stamp(char* buf, FILE* stream);
 unsigned int get_len(char* buf, FILE* stream);
 
+
 /* MAIN */
 // Exception CorruptedStream?
 // next: overwrite or append? 
@@ -149,6 +151,7 @@ int main(int argc, char **argv)
         dbg_printf("len = %u\n", len);
 
         /* data */
+        assert(len < BUF_LEN);
         fread(buf, len, 1, input);
         dbg_printf("data = %s\n", buf);
         // open output
