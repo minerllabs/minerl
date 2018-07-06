@@ -1,7 +1,8 @@
 C = gcc
-CFLAGS = -g -Wall -Werror -std=c99
+CFLAGS = -Wall -Werror -std=c99
 all: parse
-bar: 
+debug:
+	gcc -DDEBUG -Wall -Werror -std=c99 parse.c
 .PHONY: clean
-	$(RM) parse *.o bar *.o 
+	$(RM) parse *.o  
 

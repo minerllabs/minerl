@@ -1,12 +1,13 @@
 /* Yinglan Chen, July 2018 */
-/* parse function that takes in a player_stream file and parse it to 
+
+/* a parse function that takes in a player_stream file and parse it to 
  * FILE_NUM output files.
  * player_stream has the following format:
     [entry][sequence_number][time_stamp][len][json data]
-*/
+ */
 #include <stdio.h>
 #include <string.h>
-
+#include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -50,6 +51,7 @@ const char* WRITE_METHODS[] =  {
     "w+" 
 };
 
+
 /* use this part for easier testing
 const char* Files[] =  {
     "output0",                       
@@ -69,6 +71,17 @@ const char* Files[] =  {
 };
 */ 
 
+/*
+ * If DEBUG is defined, enable printing on dbg_printf.
+ */
+#ifdef DEBUG
+/* When debugging is enabled, these form aliases to useful functions */
+#define dbg_printf(...) printf(__VA_ARGS__)
+#else
+/* When debugging is disabled, no code gets generated */
+#define dbg_printf(...)
+#endif
+
 /* function prototypes */
 unsigned int string_to_unsigned_int(char* buf);
 unsigned int get_entry(char* buf, FILE* stream);
@@ -85,18 +98,20 @@ int main(int argc, char **argv)
 {   
     int opt;
     char buf[BUF_LEN];
-    unsigned int entry, time_stamp, len, sequence_number;
-    int counter = 0;
     size_t err_check;
+    int counter = 0;
+    unsigned int entry, time_stamp, len, sequence_number;
+    
     FILE* input;
     FILE* output;
     const char* src_stream = default_src_stream;
 
-    while ((opt = getopt(argc, argv, "f:")) != -1){
+    // get 
+    while ((opt = getopt(argc, argv, "df:")) != -1){
         switch (opt) {
             case 'f':
-            src_stream = optarg;
-            break;
+                src_stream = optarg;
+                break;
         }
     }
     printf("running %s...\n", src_stream);
@@ -113,29 +128,29 @@ int main(int argc, char **argv)
     // to-do: distinguish EOF and error
     while ((err_check= fread(buf, 4, 1, input)) == 1)
     {
-        printf("[%d]\n",counter);
+        dbg_printf("[%d]\n",counter);
         /* entry: first fread in while loop condition */
         entry = get_entry(buf, input);
-        printf("entry = %u\n", entry);
+        dbg_printf("entry = %u\n", entry);
 
         /* sequence_number */
         fread(buf, 4, 1, input);
         sequence_number = get_sequence_number(buf, input);
-        printf("sequence_number = %u\n", sequence_number);
+        dbg_printf("sequence_number = %u\n", sequence_number);
 
         /* time_stamp */
         fread(buf, 4, 1, input);
         time_stamp = get_time_stamp(buf, input);
-        printf("time_stamp = %u\n", time_stamp);
+        dbg_printf("time_stamp = %u\n", time_stamp);
 
         /* len */
         fread(buf, 4, 1, input);
         len = get_len(buf, input);
-        printf("len = %u\n", len);
+        dbg_printf("len = %u\n", len);
 
         /* data */
         fread(buf, len, 1, input);
-        printf("data = %s\n", buf);
+        dbg_printf("data = %s\n", buf);
         // open output
 
         if (entry < FILE_NUM){ 
@@ -155,7 +170,7 @@ int main(int argc, char **argv)
         }
 
 
-        printf("file position: %ld\n\n", ftell(input));
+        dbg_printf("file position: %ld\n\n", ftell(input));
         counter++;
     }
     
