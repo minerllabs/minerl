@@ -12,7 +12,6 @@
 #include <getopt.h>
 
 
-
 const int FILE_NUM = 14;
 const int BUF_LEN = 500000;
 const char* default_src_stream = "new.bin";
