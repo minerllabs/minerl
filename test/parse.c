@@ -91,41 +91,14 @@ unsigned int get_time_stamp(char* buf, FILE* stream);
 unsigned int get_len(char* buf, FILE* stream);
 
 
-/* MAIN */
-// Exception CorruptedStream?
-// next: overwrite or append? 
-// future: output a meta data json for my streaming. 
-//      {error: false, eof: true, esg:...}
-int main(int argc, char **argv)
-{   
-    int opt;
-    char buf[BUF_LEN];
-    size_t err_check;
-    int counter = 0;
-    unsigned int entry, time_stamp, len, sequence_number;
-    
-    FILE* input;
-    FILE* output;
-    const char* src_stream = default_src_stream;
-
-    // get 
-    while ((opt = getopt(argc, argv, "df:")) != -1){
-        switch (opt) {
-            case 'f':
-                src_stream = optarg;
-                break;
-        }
-    }
-    printf("running %s...\n", src_stream);
-
-    // open input file
-    input = fopen(src_stream,"r");
-    if (input == NULL)
-    {
-        printf("Error opening the source stream. Abort.\n");
-    }
-    
+void parse(FILE* input)
+{ 
     // be careful: error handling, check return of fread value later 
+    FILE* output;
+    int counter = 0, err_check;
+    char buf[BUF_LEN];
+    char* backup_buf;
+    unsigned int entry, time_stamp, len, sequence_number;
     
     // to-do: distinguish EOF and error
     while ((err_check= fread(buf, 4, 1, input)) == 1)
@@ -133,29 +106,41 @@ int main(int argc, char **argv)
         dbg_printf("[%d]\n",counter);
         /* entry: first fread in while loop condition */
         entry = get_entry(buf, input);
-        dbg_printf("entry = %u\n", entry);
-
+        
         /* sequence_number */
         fread(buf, 4, 1, input);
         sequence_number = get_sequence_number(buf, input);
-        dbg_printf("sequence_number = %u\n", sequence_number);
 
         /* time_stamp */
         fread(buf, 4, 1, input);
         time_stamp = get_time_stamp(buf, input);
-        dbg_printf("time_stamp = %u\n", time_stamp);
 
         /* len */
         fread(buf, 4, 1, input);
         len = get_len(buf, input);
-        dbg_printf("len = %u\n", len);
-
+        
         /* data */
-        assert(len < BUF_LEN);
-        fread(buf, len, 1, input);
-        dbg_printf("data = %s\n", buf);
-        // open output
-
+        if (len > BUF_LEN) // handle exception first
+        {
+            printf("detect data with %u bytes\n", len );
+            backup_buf = malloc(sizeof(len)); // and continue to use this buf
+            if (backup_buf == NULL)
+            {
+                printf("failed to allocate new buffer, abort\n");
+                // no file leaks since close rightaway
+                exit(-1);
+            }
+            fread(backup_buf , len, 1, input);
+            dbg_printf("data too long, omit printing\n");
+        }
+        else
+        {
+            fread(buf, len, 1, input);
+            dbg_printf("data = %s\n", buf);
+        }
+        
+        
+        // open and write output
         if (entry < FILE_NUM){ 
             output = fopen(FILES[entry], WRITE_METHODS[entry]); // w+ or "a"
             if (output == NULL) 
@@ -176,13 +161,48 @@ int main(int argc, char **argv)
         dbg_printf("file position: %ld\n\n", ftell(input));
         counter++;
     }
-    
+}
 
+
+/* MAIN */
+// Exception CorruptedStream?
+// next: overwrite or append? 
+// future: output a meta data json for my streaming. 
+//      {error: false, eof: true, esg:...}
+int main(int argc, char **argv)
+{   
+    int opt;
+    size_t err_check;
+    FILE* input;
+    const char* src_stream = default_src_stream;
+
+    // get 
+    while ((opt = getopt(argc, argv, "f:")) != -1){
+        switch (opt) {
+            case 'f':
+                src_stream = optarg;
+                break;
+        }
+    }
+    printf("running %s...\n", src_stream);
+
+    // open input file
+    input = fopen(src_stream,"r");
+    if (input == NULL)
+    {
+        printf("Error opening the source stream. Abort.\n");
+    }
+
+    // the main parse function
+    parse(input);
+    
+    // close input file
     err_check = fclose(input);
     if (err_check != 0)
     {
         printf("error closing the source stream. \n");
     }
+    // finish and return
     printf("finish parsing the source stream.\n");
     return 0;
 }
@@ -206,23 +226,31 @@ unsigned int string_to_unsigned_int(char* buf)
 // return entry, assume already copied to buf
 unsigned int get_entry(char* buf, FILE* stream)
 {
-    return string_to_unsigned_int(buf);
+    unsigned int entry = string_to_unsigned_int(buf);
+    dbg_printf("entry = %u\n", entry);
+    return entry;
 }
 
 // return time_stamp, assume already copied to buf
 unsigned int get_time_stamp(char* buf, FILE* stream)
 {
-    return string_to_unsigned_int(buf);
+    unsigned int time_stamp = string_to_unsigned_int(buf);
+    dbg_printf("time_stamp = %u\n", time_stamp);
+    return time_stamp;
 }
 
 // return time_stamp, assume already copied to buf
 unsigned int get_len(char* buf, FILE* stream)
 {
-    return string_to_unsigned_int(buf);
+    unsigned int len = string_to_unsigned_int(buf);
+    dbg_printf("len = %u\n", len);
+    return len;
 }
 
 // return sequence_number, assume already copied to buf
 unsigned int get_sequence_number(char* buf, FILE* stream)
 {
-    return string_to_unsigned_int(buf);
+    unsigned int sequence_number = string_to_unsigned_int(buf);
+    dbg_printf("sequence_number = %u\n", sequence_number);
+    return sequence_number;
 }
