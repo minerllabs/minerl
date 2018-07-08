@@ -14,7 +14,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
+#include "zlib.h"
 
+
+const int EOF_ENTRY = 12;
 const int OVERWRITE = 0;
 const int APPEND = 1;
 const int FILE_NUM = 14;
@@ -34,8 +37,8 @@ const char* FILES[] =  {
     "pattern_assets.zip",               
     "mods.json",      
     "end_of_stream.txt",              
-    "stream_meta_data.json" 
 };
+
 const int WRITE_METHODS[] =  {
     APPEND,                     /* 0 */
     OVERWRITE, 
@@ -50,27 +53,15 @@ const int WRITE_METHODS[] =  {
     APPEND,                     /* 10 */ 
     OVERWRITE,      
     APPEND,                     /* 12 */ 
-    OVERWRITE
 };
 
-/* use this part for easier testing
-const char* Files[] =  {
-    "output0",                       
-    "output1.json",
-    "output2.tmcpr",          
-    "output3.zip",         
-    "output4.json" ,  
-    "output5.json",                 
-    "output6",        
-    "output7.json" ,           
-    "output8.json",               
-    "output9.zip",                 
-    "output10.json",      
-    "output11.json",              
-    "output12.json" 
-        // 4 on brandon's side and 5 here   
+const char* JSON[]= 
+{
+    "{\"has_EOF\":true,\"miss_seq_num\":true}",
+    "{\"has_EOF\":true,\"miss_seq_num\":false}",
+    "{\"has_EOF\":false,\"miss_seq_num\":true}",
+    "{\"has_EOF\":false,\"miss_seq_num\":false}",
 };
-*/ 
 
 /*
  * If DEBUG is defined, enable printing on dbg_printf.
@@ -78,9 +69,11 @@ const char* Files[] =  {
 #ifdef DEBUG
 /* When debugging is enabled, these form aliases to useful functions */
 #define dbg_printf(...) printf(__VA_ARGS__)
+#define dbg_assert(...) assert(__VA_ARGS__)
 #else
 /* When debugging is disabled, no code gets generated */
 #define dbg_printf(...)
+#define dbg_assert(...) 
 #endif
 
 /* function prototypes */
@@ -89,24 +82,34 @@ unsigned int get_entry(char* buf, FILE* stream);
 unsigned int get_sequence_number(char* buf, FILE* stream);
 unsigned int get_time_stamp(char* buf, FILE* stream);
 unsigned int get_len(char* buf, FILE* stream);
+void parse(FILE* input);
 
+
+/* implementation */
 
 void parse(FILE* input)
 { 
-    // be careful: error handling, check return of fread value later 
-    FILE* output;
-    FILE* outputs[FILE_NUM];
+    // TODO: error handling, check return of fread value 
+    FILE* output; // for overwrite files
+    FILE* outputs[FILE_NUM]; // for append files
+    FILE* meta;
+    int meta_len = 0;
     int counter = 0, err_check;
     char buf[BUF_LEN];
-    char* backup_buf;
+    char* backup_buf = NULL;
+    int backup_buf_len = 0;
+    
     unsigned int entry, time_stamp, len, sequence_number;
+    int checked_seq_num = 0;
+    bool miss_seq_num = false;
+    bool has_EOF = false;
     
     // open all "a" output
     for (int i = 0; i < FILE_NUM; i++)
     {
         if (WRITE_METHODS[i] == APPEND)
         {
-            outputs[i] = fopen(FILES[i],"r+");
+            outputs[i] = fopen(FILES[i],"w+");
             if (outputs[i] == NULL)
             {
                 printf("error opening file %s. Abort\n", FILES[i]);
@@ -118,7 +121,6 @@ void parse(FILE* input)
             }
         }
     }
-
 
     // to-do: distinguish EOF and error
     while ((err_check= fread(buf, 4, 1, input)) == 1)
@@ -139,16 +141,24 @@ void parse(FILE* input)
         fread(buf, 4, 1, input);
         len = get_len(buf, input);
         
-        /* data */
+        /* data */ 
         if (len > BUF_LEN) // handle exception first
         {
             printf("detect data with %u bytes\n", len );
-            backup_buf = malloc(sizeof(len)); // and continue to use this buf
-            if (backup_buf == NULL)
+            
+            // reuse back_up buf if possible; if not, alloc new one
+            if (len > backup_buf_len)
             {
+                if (backup_buf != NULL) free(backup_buf);
+
+                backup_buf = malloc(sizeof(len)); 
+                if (backup_buf == NULL)
+                {
                 printf("failed to allocate new buffer, abort\n");
                 // no file leaks since close rightaway
                 exit(-1);
+                }
+                backup_buf_len = len;
             }
             fread(backup_buf , len, 1, input);
             dbg_printf("data too long, omit printing\n");
@@ -160,22 +170,22 @@ void parse(FILE* input)
         }
         
         
-        // open and write output
-        if (entry < FILE_NUM){ 
+        /* open and write output */
+        if (entry < FILE_NUM)
+        { 
             // case 1: append, directly write
             if (WRITE_METHODS[entry] == APPEND)
             {
                 if ((err_check = fwrite(buf, len, 1, outputs[entry])) != 1)
                 {
-
-                    printf("err_check = %d,trouble writing to output file[%d] %s\n",err_check,entry,FILES[entry] );
+                    printf("trouble writing to output file[%d] %s\n",
+                       entry,FILES[entry] );
                 }
             }
             // case 2: overwrite
             else
             {
-                // change to dbg_assert to improve performance
-                assert(WRITE_METHODS[entry] == OVERWRITE );
+                dbg_assert(WRITE_METHODS[entry] == OVERWRITE);
                 output = fopen(FILES[entry], "w+");
                 // error checking
                 if (output == NULL) 
@@ -188,8 +198,7 @@ void parse(FILE* input)
                     printf("trouble writing to output\n" );
                 }
                 fclose(output);
-            }
-            
+            } 
         }
 
         else // invalid entry
@@ -197,7 +206,18 @@ void parse(FILE* input)
             printf("corrupted data? with entry = %u\n", entry);
         }
 
+        /* check has_EOF */ /* question: no entries afterwards? */
+        if (entry == EOF_ENTRY)
+        {
+            has_EOF = true;
+        }
 
+        /* check miss_seq_num */ 
+        if (checked_seq_num == 0 && counter != sequence_number)
+        {
+            miss_seq_num = true;
+            checked_seq_num = true;
+        }
         dbg_printf("file position: %ld\n\n", ftell(input));
         counter++;
     }
@@ -218,14 +238,37 @@ void parse(FILE* input)
             }
         }
     }
+
+    // create stream_meta_data
+    meta = fopen("stream_meta_data.json", "w+");
+    if (meta == NULL) printf("error creating stream_meta_data.json\n");
+    // four cases 
+    if (has_EOF && miss_seq_num)
+    {
+        strncpy(buf, JSON[0], strlen(JSON[0]));
+        meta_len = strlen(JSON[0]);
+    }
+    else if (has_EOF && !miss_seq_num)
+    {
+        strncpy(buf, JSON[1], strlen(JSON[1]));
+        meta_len = strlen(JSON[1]);
+    }
+    else if (!has_EOF && miss_seq_num)
+    {
+        strncpy(buf, JSON[2], strlen(JSON[2]));
+        meta_len = strlen(JSON[2]);
+    }
+    else 
+    {
+        strncpy(buf, JSON[3], strlen(JSON[3]));
+        meta_len = strlen(JSON[3]);
+    }
+    fwrite(buf, meta_len, 1, meta);
+    fclose(meta);
 }
 
 
 /* MAIN */
-// Exception CorruptedStream?
-// next: overwrite or append? 
-// future: output a meta data json for my streaming. 
-//      {error: false, eof: true, esg:...}
 int main(int argc, char **argv)
 {   
     int opt;
@@ -233,7 +276,7 @@ int main(int argc, char **argv)
     FILE* input;
     const char* src_stream = default_src_stream;
 
-    // get 
+    // get src_stream
     while ((opt = getopt(argc, argv, "f:")) != -1){
         switch (opt) {
             case 'f':
@@ -241,6 +284,7 @@ int main(int argc, char **argv)
                 break;
         }
     }
+    // display info
     printf("running %s...\n", src_stream);
 
     // open input file
