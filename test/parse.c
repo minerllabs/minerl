@@ -17,26 +17,27 @@
 #include "zlib.h"
 
 
-const int EOF_ENTRY = 12;
+const int EOF_ENTRY = 13;
 const int OVERWRITE = 0;
 const int APPEND = 1;
 const int FILE_NUM = 14;
 const int BUF_LEN = 500000;
-const char* default_src_stream = "new.bin";
+
 const char* FILES[] =  {
-    "null",                     /* 0 */
-    "metaData.json", 
-    "recording.tmcpr",         
-    "resource_pack.zip",         
-    "resource_pack_index.json" ,  
-    "thumb.json",                 
-    "visibility",        
-    "visibility.json" ,           
-    "markers.json",               
-    "asset.zip",  
-    "pattern_assets.zip",               
-    "mods.json",      
-    "end_of_stream.txt",              
+    "./result/null",                     /* 0 */
+    "./result/metaData.json", 
+    "./result/recording.tmcpr",         
+    "./result/resource_pack.zip",         
+    "./result/resource_pack_index.json" ,  
+    "./result/thumb.json",                 
+    "./result/visibility",        
+    "./result/visibility.json" ,           
+    "./result/markers.json",               
+    "./result/asset.zip",  
+    "./result/pattern_assets.zip",               
+    "./result/mods.json",      
+    "./result/end_of_stream.txt",  
+    "./result/actions.tmcpr"            
 };
 
 const int WRITE_METHODS[] =  {
@@ -53,6 +54,7 @@ const int WRITE_METHODS[] =  {
     APPEND,                     /* 10 */ 
     OVERWRITE,      
     APPEND,                     /* 12 */ 
+    APPEND
 };
 
 const char* JSON[]= 
@@ -274,7 +276,8 @@ int main(int argc, char **argv)
     int opt;
     size_t err_check;
     FILE* input;
-    const char* src_stream = default_src_stream;
+    // const char* src_stream = default_src_stream;
+    const char* src_stream = NULL;
 
     // get src_stream
     while ((opt = getopt(argc, argv, "f:")) != -1){
@@ -283,6 +286,12 @@ int main(int argc, char **argv)
                 src_stream = optarg;
                 break;
         }
+    }
+
+    if (src_stream == NULL)
+    {
+        printf("No src_stream fount. Program abort. Please run ./parse -f <filename>\n");
+        exit(-1);
     }
     // display info
     printf("running %s...\n", src_stream);
