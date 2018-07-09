@@ -1,12 +1,14 @@
 #!/bin/bash
 cd deepmine-alpha-data
 rm foo.txt
+rm combine.txt
+
 for file in `ls`
 do
   echo ${file} |cut -d "_" -f3 >> foo.txt
   foo=$(echo ${file} |cut -d "_" -f3)
   echo ${foo}
-  
+  cat player_stream_$foo* > combine_$foo.txt
 done
 
 
