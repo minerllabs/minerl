@@ -9,9 +9,9 @@ rm unique.txt
 # create a list of files to merge, contains duplicates
 for file in player*
 do
-  date=$(echo ${file} |cut -d "-" -f1)
+  who=$(echo ${file} |cut -d "-" -f1)
   version=$(echo ${file} |cut -d "-" -f2)
-  echo "$date-$version" >> list_all.txt
+  echo "$who-$version" >> list_all.txt
 done
 
 # remove duplicates and store to a new file
@@ -30,7 +30,7 @@ for file in ./streams/merge*
 do
 	mkdir result # a temporary folder
 	./parse -f $file
-	zip -r result.mcpr result
+	zip -r result_$who.mcpr result
 	rm -r result
 done
 
