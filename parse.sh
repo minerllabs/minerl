@@ -1,6 +1,6 @@
 #!/bin/bash
-# rm -r streams
-# mkdir streams
+rm -r streams
+mkdir streams
 
 cd deepmine-alpha-data
 rm list_all.txt
@@ -23,16 +23,20 @@ while read p; do
   cat $p* > ../streams/merge_$p.bin
 done <unique.txt
 
-
 cd ..
-mkdir result # a temporary folder
 
-for file in ./streams/recording*
+# for file in ./streams/recording*
+for file in ./streams/merge*
 do
+	mkdir result # a temporary folder
 	./parse -f $file
+	zip -r result.mcpr result
+	rm -r result
 done
 
-zip -r result.mcpr result
+echo DONE
+
+
 
 
 
