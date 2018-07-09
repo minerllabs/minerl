@@ -16,28 +16,28 @@
 #include <getopt.h>
 #include "zlib.h"
 
-
+const int FILE_NUM = 15;
 const int EOF_ENTRY = 13;
 const int OVERWRITE = 0;
 const int APPEND = 1;
-const int FILE_NUM = 14;
 const int BUF_LEN = 500000;
 
 const char* FILES[] =  {
-    "./result/null",                     /* 0 */
+    "./result/null",                        /* 0 */
     "./result/metaData.json", 
-    "./result/recording.tmcpr",         
+    "./result/recording.tmcpr",             /* 2 */        
     "./result/resource_pack.zip",         
-    "./result/resource_pack_index.json" ,  
+    "./result/resource_pack_index.json" ,   /* 4 */ 
     "./result/thumb.json",                 
-    "./result/visibility",        
+    "./result/visibility",                  /* 6 */ 
     "./result/visibility.json" ,           
-    "./result/markers.json",               
+    "./result/markers.json",                /* 8 */             
     "./result/asset.zip",  
-    "./result/pattern_assets.zip",               
-    "./result/mods.json",      
+    "./result/pattern_assets.zip",          /* 10 */               
+    "./result/mods.json",
+    "./result/experiment_metadata.json"     /* 12 */   
     "./result/end_of_stream.txt",  
-    "./result/actions.tmcpr"            
+    "./result/actions.tmcpr"                /* 14 */           
 };
 
 const int WRITE_METHODS[] =  {
@@ -52,9 +52,10 @@ const int WRITE_METHODS[] =  {
     OVERWRITE,                  /* 8 */           
     APPEND,   
     APPEND,                     /* 10 */ 
-    OVERWRITE,      
-    APPEND,                     /* 12 */ 
-    APPEND
+    OVERWRITE, 
+    OVERWRITE,                  /* 12 */    
+    APPEND,
+    APPEND                      /* 14 */    
 };
 
 const char* JSON[]= 
@@ -127,6 +128,11 @@ void parse(FILE* input)
     // to-do: distinguish EOF and error
     while ((err_check= fread(buf, 4, 1, input)) == 1)
     {
+        if (has_EOF)
+        {
+            printf("detect entry after EOF entry. Abort\n");
+            exit(-1);
+        }
         dbg_printf("[%d]\n",counter);
         /* entry: first fread in while loop condition */
         entry = get_entry(buf, input);
@@ -173,7 +179,7 @@ void parse(FILE* input)
         
         
         /* open and write output */
-        if (entry < FILE_NUM)
+        if (0 < entry && entry < FILE_NUM)
         { 
             // case 1: append, directly write
             if (WRITE_METHODS[entry] == APPEND)
