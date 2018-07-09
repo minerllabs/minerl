@@ -1,65 +1,43 @@
 #!/bin/bash
-cd deepmine-alpha-data
-rm foo.txt
-rm combine.txt
+rm -r streams
+mkdir streams
 
-for file in `ls`
+cd deepmine-alpha-data
+rm list_all.txt
+rm unique.txt
+
+# create a list of files to merge, contains duplicates
+for file in player*
 do
-  echo ${file} |cut -d "_" -f3 >> foo.txt
-  foo=$(echo ${file} |cut -d "_" -f3)
-  echo ${foo}
-  cat player_stream_$foo* > combine_$foo.txt
+  who=$(echo ${file} |cut -d "-" -f1)
+  version=$(echo ${file} |cut -d "-" -f2)
+  echo "$who-$version" >> list_all.txt
 done
 
+# remove duplicates and store to a new file
+sort -u list_all.txt > unique.txt
 
-# rem merget files
-# cat *.txt >> all.txt?
-# echo *.txt | xargs cat > all.txt
+# merge files from the same user with the same stream version
+while read p; do
+  # ensure alphabtical order
+  cat $p* > ../streams/merge_$p.bin
+done <unique.txt
 
-#  For Bash, IIRC, that's alphabetical order. 
-#  If the order is important, you should either name the files appropriately 
-#  (01file.txt, 02file.txt, etc...) or specify each file in the order you want it concatenated.
+cd ..
 
-# $ cat file1 file2 file3 file4 file5 file6 > out.txt
-# cat >> ...
+# for file in ./streams/recording*
+for file in ./streams/merge*
+do
+	mkdir result # a temporary folder
+	./parse -f $file
+	zip -r result_$who.mcpr result
+	rm -r result
+done
 
-# nested for loop?
-# 	first one: fix one stream, find "username"
-# 	next: loop through, append to it, cat >>, and delete that file???
-
-# player_stream_262CPI_06_29_20_16_04-1-2018-07-05-19-39-56-8b5dd8a6-0ece-48f1-ba26-f1326dc5b374
-# player_stream_*_06_29_20_16_04-1-2018-07-05-19-39-56-8b5dd8a6-0ece-48f1-ba26-f1326dc5b374
-
-# Any filenames that match the glob are gathered up and sorted
-# rem parse and zip them one by one
-
-# git clone to download the parse executable?
-# for each src_stream to parse:
-# rem for file in *; do rm "$file"; done
-
-
-# $ filename="somefile.jpg"
-# $ if [[ $filename = *.jpg ]]; then
-# > echo "$filename is a jpeg"
-# > fi
-# somefile.jpg is a jpeg
+echo DONE
 
 
 
-# for file in `ls`|cut -d"-" -f1
-# do
-#   cat ${file}-* > ${file}
-# done
-
-
-# 	mkdir result
-# 	./parse -f <src_stream>
-
-# 	zip -r my-folder.zip my-folder -x "*.DS_Store"
-# 	rm -r result
-
-# shopt -s extglob
-#  echo !(*jpg|*bmp)
 
 
 
