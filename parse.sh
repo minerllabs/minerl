@@ -1,19 +1,25 @@
 #!/bin/bash
 cd deepmine-alpha-data
-rm foo.txt
-rm combine.txt
 
-for file in `ls`
+# create a list of files to merge, contains duplicates
+for file in *
 do
-  echo ${file} |cut -d "_" -f3 >> foo.txt
-  foo=$(echo ${file} |cut -d "_" -f3)
-  echo ${foo}
-  cat player_stream_$foo* > combine_$foo.txt
+  date=$(echo ${file} |cut -d "-" -f1)
+  version=$(echo ${file} |cut -d "-" -f2)
+  echo "$date-$version" >> list_all.txt
 done
 
+# remove duplicates and store to a new file
+sort -u list_all.txt > unique.txt
 
-# rem merget files
-# cat *.txt >> all.txt?
+echo "now merge"
+# merge files from the same user with the same stream version
+while read p; do
+  echo $p
+  # ensure orders? cat *.txt >> all.txt?
+  cat $p* > merge_$p.bin
+done <unique.txt
+
 # echo *.txt | xargs cat > all.txt
 
 #  For Bash, IIRC, that's alphabetical order. 
