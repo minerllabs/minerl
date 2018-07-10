@@ -2,7 +2,7 @@
 rm -r streams
 mkdir streams
 
-cd deepmine-alpha-data
+cd 'deepmine-alpha-data'
 rm list_all.txt
 rm unique.txt
 
@@ -30,7 +30,12 @@ for file in ./streams/merge*
 do
 	mkdir result # a temporary folder
 	./parse -f $file
-	zip -r result_$who.mcpr result
+  fileName=$(echo ${file} |cut -d "/" -f3)
+  fileName=$(echo ${fileName} |cut -d "." -f1)
+  cd result
+	zip -r $fileName.mcpr ./*
+  cp $fileName.mcpr ../
+  cd ..
 	rm -r result
 done
 
