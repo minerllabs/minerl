@@ -15,11 +15,25 @@
 #include <unistd.h>
 #include <getopt.h>
 #include "zlib.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+struct stat st = {0};
+
+#ifdef __linux__ 
+
+#elif _WIN32
+    #include <windows.h>
+    #define mkdir(dir, mode) _mkdir(dir)
+#endif
+
+
+#define OVERWRITE 0
+#define APPEND 1
 
 const int FILE_NUM = 15;
 const int EOF_ENTRY = 13;
-const int OVERWRITE = 0;
-const int APPEND = 1;
 const int BUF_LEN = 500000;
 
 const char* FILES[] =  {
@@ -106,6 +120,9 @@ void parse(FILE* input)
     int checked_seq_num = 0;
     bool miss_seq_num = false;
     bool has_EOF = false;
+
+    char* out_dir = "./append/";
+    mkdir(out_dir, 0700);
     
     // open all "a" output
     for (int i = 1; i < FILE_NUM; i++)
@@ -296,7 +313,7 @@ int main(int argc, char **argv)
 
     if (src_stream == NULL)
     {
-        printf("No src_stream fount. Program abort. Please run ./parse -f <filename>\n");
+        printf("No src_stream found. Program abort. Please run ./parse -f <filename>\n");
         exit(-1);
     }
     // display info
