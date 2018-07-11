@@ -1,10 +1,18 @@
 #!/bin/bash
-rm -r streams
-mkdir streams
+# This script 
+# 1) takes in a folder of streams
+# 2) concatenated streams with the same prefix and version number 
+#   by alphabetical order (thus by time order)
+# 3) parse them one by one
+# 4) zip the result if exit status is 0 (i.e. success)
+# 5) mv all results into oneo folder
 
-cd 'deepmine-alpha-data'
-rm list_all.txt
-rm unique.txt
+home=$(pwd)
+mkdir streams # during testing, manually remove streams/
+
+# input folder 
+path=$1
+cd $path
 
 # create a list of files to merge, contains duplicates
 for file in player*
@@ -14,31 +22,40 @@ do
   echo "$who-$version" >> list_all.txt
 done
 
-# remove duplicates and store to a new file
+# remove duplicates
 sort -u list_all.txt > unique.txt
+rm list_all.txt
 
-# merge files from the same user with the same stream version
+# concatenate
 while read p; do
   # ensure alphabtical order
-  cat $p* > ../streams/merge_$p.bin
+  cat $p* > $home/streams/$p.bin
 done <unique.txt
+rm unique.txt
 
-cd ..
-
-# for file in ./streams/recording*
-for file in ./streams/merge*
+# parse and zip
+cd $home
+mkdir results
+for file in ./streams/*
 do
-	mkdir result # a temporary folder
-	./parse -f $file
-  fileName=$(echo ${file} |cut -d "/" -f3)
-  fileName=$(echo ${fileName} |cut -d "." -f1)
-  cd result
-	zip -r $fileName.mcpr ./*
-  cp $fileName.mcpr ../
-  cd ..
-	rm -r result
+  # reminder: add "make" if necessary
+  mkdir result
+  ./parse -f $file
+  # only zip if successfully parse with exit status 0
+  if [ $? -eq 0 ] 
+    then
+      fileName=$(echo ${file} |cut -d "/" -f3)
+      fileName=$(echo ${fileName} |cut -d "." -f1)
+      cd result
+      zip -r $fileName.mcpr ./*
+      cp $fileName.mcpr ../
+      cd ..
+  fi
+  rm -r result
 done
+mv ./player* ./results/
 
+rm -r streams
 echo DONE
 
 
