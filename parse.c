@@ -120,9 +120,6 @@ void parse(FILE* input)
     int checked_seq_num = 0;
     bool miss_seq_num = false;
     bool has_EOF = false;
-
-    char* out_dir = "./append/";
-    mkdir(out_dir, 0700);
     
     // open all "a" output
     for (int i = 1; i < FILE_NUM; i++)
