@@ -129,7 +129,7 @@ void parse(FILE* input)
             outputs[i] = fopen(FILES[i],"w+");
             if (outputs[i] == NULL)
             {
-                printf("error opening file %s. Abort\n", FILES[i]);
+                printf("    error opening file %s. Abort\n", FILES[i]);
                 exit(-1);
             }
             else
@@ -144,7 +144,7 @@ void parse(FILE* input)
     {
         if (has_EOF)
         {
-            printf("detect entry after EOF entry. Abort\n");
+            printf("    detect entry after EOF entry. Abort\n");
             exit(-1);
         }
         dbg_printf("[%d]\n",counter);
@@ -176,7 +176,7 @@ void parse(FILE* input)
                 backup_buf = malloc(sizeof(len)); 
                 if (backup_buf == NULL)
                 {
-                printf("failed to allocate new buffer, abort\n");
+                printf("    failed to allocate new buffer, abort\n");
                 // no file leaks since close rightaway
                 exit(-1);
                 }
@@ -200,8 +200,9 @@ void parse(FILE* input)
             {
                 if ((err_check = fwrite(buf, len, 1, outputs[entry])) != 1)
                 {
-                    printf("trouble writing to output file[%d] %s\n",
+                    printf("    trouble writing to output file[%d] %s\n",
                        entry,FILES[entry] );
+                    exit(-1);
                 }
             }
             // case 2: overwrite
@@ -212,12 +213,14 @@ void parse(FILE* input)
                 // error checking
                 if (output == NULL) 
                 {
-                    printf("failed to open the output file %d\n", entry);
+                    printf("    failed to open the output file %d\n", entry);
+                    exit(-1);
                 }
                 // write and close
                 if (fwrite(buf, len, 1, output) != 1)
                 {
-                    printf("trouble writing to output\n" );
+                    printf("    trouble writing to output\n" );
+                    exit(-1);
                 }
                 fclose(output);
             } 
@@ -225,7 +228,8 @@ void parse(FILE* input)
 
         else // invalid entry
         {
-            printf("corrupted data? with entry = %u\n", entry);
+            printf("    corrupted data with entry = %u. Program Abort.\n", entry);
+            exit(-1);
         }
 
         /* check has_EOF */ /* question: no entries afterwards? */
@@ -252,7 +256,8 @@ void parse(FILE* input)
             err_check = fclose(outputs[i]);
             if (err_check != 0)
             {
-                printf("error closing file %s. Abort\n", FILES[i]);
+                printf("    error closing file %s. Abort\n", FILES[i]);
+                exit(-1);
             }
             else
             {
@@ -310,7 +315,7 @@ int main(int argc, char **argv)
 
     if (src_stream == NULL)
     {
-        printf("No src_stream found. Program abort. Please run ./parse -f <filename>\n");
+        printf("    No src_stream fount. Program abort. Please run ./parse -f <filename>\n");
         exit(-1);
     }
     // display info
@@ -320,7 +325,8 @@ int main(int argc, char **argv)
     input = fopen(src_stream,"r");
     if (input == NULL)
     {
-        printf("Error opening the source stream. Abort.\n");
+        printf("    Error opening the source stream. Abort.\n");
+        exit(-1);
     }
 
     // the main parse function
