@@ -115,8 +115,11 @@ void parse(FILE* input)
     char buf[BUF_LEN];
     char* backup_buf = NULL;
     int backup_buf_len = 0;
+
+
     
     unsigned int entry, time_stamp, len, sequence_number;
+    unsigned int prev_entry = 0, prev_len = 0;
     int checked_seq_num = 0;
     bool miss_seq_num = false;
     bool has_EOF = false;
@@ -147,6 +150,7 @@ void parse(FILE* input)
             printf("    detect entry after EOF entry. Abort\n");
             exit(-1);
         }
+
         dbg_printf("[%d]\n",counter);
         /* entry: first fread in while loop condition */
         entry = get_entry(buf, input);
@@ -154,6 +158,22 @@ void parse(FILE* input)
         /* sequence_number */
         fread(buf, 4, 1, input);
         sequence_number = get_sequence_number(buf, input);
+
+        /* check miss_seq_num */ 
+        if (checked_seq_num == 0 && counter != sequence_number)
+        {
+            miss_seq_num = true;
+            checked_seq_num = true;
+            printf("missing sequence_number at entry %u: counter=%d,sequence_number=%d\n"
+                ,entry,counter,sequence_number);
+            printf("Previous: entry=%u,seq_num=%d,len=%u;",
+                prev_entry,counter-1,prev_len);
+            if (prev_len <= BUF_LEN) printf("data = %s\n",buf);
+            else if (backup_buf != NULL) printf("data = %s\n", backup_buf);
+            printf("Abort\n");
+            exit(1);
+        }
+
 
         /* time_stamp */
         fread(buf, 4, 1, input);
@@ -228,7 +248,7 @@ void parse(FILE* input)
 
         else // invalid entry
         {
-            printf("    corrupted data with entry = %u. Program Abort.\n", entry);
+            printf("corrupted data with entry = %u. Program Abort.\n", entry);
             exit(-1);
         }
 
@@ -238,14 +258,10 @@ void parse(FILE* input)
             has_EOF = true;
         }
 
-        /* check miss_seq_num */ 
-        if (checked_seq_num == 0 && counter != sequence_number)
-        {
-            miss_seq_num = true;
-            checked_seq_num = true;
-        }
         dbg_printf("file position: %ld\n\n", ftell(input));
         counter++;
+        prev_len = len;
+        prev_entry = entry;
     }
 
     // close all "a" output
