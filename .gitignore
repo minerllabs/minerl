@@ -8,3 +8,5 @@ streams/
 *.vcxproj*
 .vs/
 .vscode/
+*data/*
+*.mcpr
