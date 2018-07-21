@@ -27,15 +27,19 @@ do
   version=$(echo ${file} |cut -d "-" -f2)
   fileName=$(echo "$who-$version" | cut -d "/" -f3)
   fileName=$(echo ${fileName} |cut -d "." -f1)
-  if [ !  -f $resutlts_dir/$fileName.mcpr ] ||  grep -q "$fileName.mcpr" "$home/blacklist.txt";
+  if [ !  -f $resutlts_dir/$fileName.mcpr ] &&  ! grep -qF "$fileName.mcpr" "$home/blacklist.txt";
   then
     echo "making $resutlts_dir/$fileName.mcpr"
+    # Use this if you want to blacklist all files which haven't been converted
+    # This is dangerous.
+    # echo "$fileName.mcpr" >> $home/blacklist.txt
+
     echo "$who-$version" >> list_all.txt
   fi
 done
 
-
 # remove duplicates
+echo "Removing duplicates"
 sort -u list_all.txt > unique.txt
 rm list_all.txt
 
@@ -64,8 +68,8 @@ do
       cp $fileName.mcpr ../
       cd ..
   else
-    echo "BLACKLISTING"
-    echo "$fileName.mcpr" > $home/results/blacklist.txt
+    echo "BLACKLISTING $fileName.mcpr"
+    echo "$fileName.mcpr" >> $home/blacklist.txt
   fi
   rm -r result
 done
