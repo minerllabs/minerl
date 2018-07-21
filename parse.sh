@@ -9,7 +9,7 @@
 
 home=$(pwd)
 resutlts_dir=$(pwd)/results
-if [ ! -f $home/streams]; then
+if [ ! -f $home/streams ]; then
   mkdir streams # during testing, manually remove streams/
 fi
 
