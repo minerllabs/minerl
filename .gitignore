@@ -3,3 +3,5 @@ prestreams/
 result/
 results/
 streams/
+*.mcpr
+*data/
