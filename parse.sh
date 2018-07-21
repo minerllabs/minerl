@@ -9,7 +9,9 @@
 
 home=$(pwd)
 resutlts_dir=$(pwd)/results
-mkdir streams # during testing, manually remove streams/
+if [ ! -f $home/streams]; then
+  mkdir streams # during testing, manually remove streams/
+fi
 
 # input folder 
 path=$1
