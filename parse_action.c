@@ -1,11 +1,27 @@
 /* Yinglan Chen, July 2018 */
 
-/* a parse function that takes in a player_stream file and parse it to 
- * FILE_NUM output files.
- * player_stream has the following format:
-    [entry][sequence_number][time_stamp][len][json data]
- * implementation:
- *  keep append files open, open and close write files
+/* this parse function that takes in an action.tmcpr file and parse it to 
+ * a list of malmo commands. 
+ *
+ * action.tmcpr has the following format:
+ --
+ |        [timestamp]     # 4 bytes (int)
+ |        [len]           # 4 byets (int)
+ |  --    
+ |  |     [package id]    # 1 byte  (temporary fixed value 0x18)
+ |  |     [len2]          # 1 byte
+ |  |  -- 
+ | len |  
+ |   len2 [channel name]  # char*
+ |  |  |                  # recorded_actions || recorded_camera_actions || tick
+ |  |  -- 
+ |  |     [data]          # can be computed with len & len2 
+ |  --    
+ --       
+ * 
+ * The output is written to a file and has the following format:
+ *  [move1, jump, tick, ...]
+ * 
  */
 #include <stdio.h>
 #include <assert.h>
@@ -14,7 +30,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <getopt.h>
-#include "zlib.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -118,7 +133,8 @@ void parse(FILE* input)
 
 
     
-    unsigned int entry, time_stamp, len, sequence_number;
+    unsigned int entry, time_stamp, len;
+    unsigned int sequence_number=0, prev_sequence_number=0;
     unsigned int prev_entry = 0, prev_len = 0;
     int checked_seq_num = 0;
     bool miss_seq_num = false;
@@ -157,14 +173,22 @@ void parse(FILE* input)
         
         /* sequence_number */
         fread(buf, 4, 1, input);
+        prev_sequence_number = sequence_number; // store old sequence_number
         sequence_number = get_sequence_number(buf, input);
+        if (sequence_number < prev_sequence_number)
+        {
+            printf("WARNING: detect decreasing sequence_number at [%d]entry=%u\n",counter,entry);
+            printf("         prev_sequence_number = %u, sequence_number= %u\n",
+                     prev_sequence_number, sequence_number);
+        }
 
-        /* check miss_seq_num */ 
+        /* check miss_seq_num */
+        /*  
         if (checked_seq_num == 0 && counter != sequence_number)
         {
             miss_seq_num = true;
             checked_seq_num = true;
-            printf("missing sequence_number at entry %u: counter=%d,sequence_number=%d\n"
+            printf("WARNING: missing sequence_number at entry %u: counter=%d,sequence_number=%d\n"
                 ,entry,counter,sequence_number);
             printf("Previous: entry=%u,seq_num=%d,len=%u;",
                 prev_entry,counter-1,prev_len);
@@ -173,12 +197,25 @@ void parse(FILE* input)
             printf("Abort\n");
             exit(1);
         }
+        */
 
+        /* check miss_seq_num */ 
+        if (counter != sequence_number)
+        {
+            miss_seq_num = true;
+            (void)checked_seq_num;
+            printf("WARNING: missing sequence_number at entry %u: counter=%d,sequence_number=%d\n"
+                ,entry,counter,sequence_number);
+            printf("Previous: entry=%u,seq_num=%d,len=%u;",
+                prev_entry,counter-1,prev_len);
+            if (prev_len <= BUF_LEN) printf("data = %s\n",buf);
+            else if (backup_buf != NULL) printf("data = %s\n", backup_buf);
+            counter = sequence_number;
+        }
 
         /* time_stamp */
         fread(buf, 4, 1, input);
         time_stamp = get_time_stamp(buf, input);
-        (void) time_stamp;
 
         /* len */
         fread(buf, 4, 1, input);
@@ -264,6 +301,8 @@ void parse(FILE* input)
         prev_len = len;
         prev_entry = entry;
     }
+
+    printf("SUMMARY: end of parsing.total sequence_number = %u\n",sequence_number);
 
     // close all "a" output
     for (int i = 1; i < FILE_NUM; i++)
