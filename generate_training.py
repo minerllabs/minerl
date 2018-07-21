@@ -8,6 +8,7 @@ import json
 # Script to to pair actions with video recording
 # All times are in ms and we assume a actions list, a timestamp file, and a dis-syncronous mp4 video
 
+filename = 'corrupt_bread_deamon'
 
 # Load actions
 #actions, timestamps = pickle.load(open("./actions.pkl", 'wb'))
@@ -52,8 +53,6 @@ for key, marker in sorted(markers.items()):
             segments.append((startTime,startTime, expName))
 
 
- # This gets messy really fast - how do we know that a frame is generated from the begining of the file (it's not it plays a second of data first)
- # how do we know that it really renders at 60hz? (or framerate) well we hope that it will
 
 # Frames per second expressed as a fraction, e.g. 25/1
 fps = float(sum(Fraction(s) for s in metadata['video']['r_frame_rate'].split()))
@@ -61,22 +60,35 @@ timePerFrame = 1000 / fps
 videoOffset = 1000
 numFrames = metadata['video']['nb_frames']
 
+actionTime = iter(zip(timestamps, actions))
 currentTimestamp = 0 # Timestamps index
 currentFrame = 0     # videogen index
 frame = None
 action = None
 
+print("Video has", numFrames, "at", fps, "fps")
+
 for pair in segments:
+    print("Segment:", pair[0], "-", pair[1], pair[2])
     sarsa_pairs = []
+    startTime = pair[0]
+    stopTime = pair[1]
+    experementName = pair[2]
 
-    for time in timestamps:
-        frameNum = int(round((time - videoOffset) / timePerFrame))
+    # Move timestamp file to start time
+    while (currentTimestamp < startTime):
         try:
-            action = next(actions)
+            (currentTimestamp, action) = next(actionTime)
         except StopIteration:
-            break
+            # Be lazy
+            print("ERROR")
+            print("Could not get enough timestamp action pairs")
+            exit(-1)
 
-        # Get the frame in quesiton
+    # Record the aciton pair 
+    while (currentTimestamp <= stopTime):
+        # Get the closest frame
+        frameNum = int(round((currentTimestamp - videoOffset) / timePerFrame))
         while (frameNum > currentFrame) :
             try:
                 frame = next(videogen)
@@ -92,7 +104,13 @@ for pair in segments:
             sarsa = (currentFrame, action)
             sarsa_pairs.append(sarsa)
 
-    outFile = open('data.npy', 'w+')
+        # Itterate action and timestamp
+        try:
+            (currentTimestamp, action) = next(actionTime)
+        except StopIteration:
+            break
+
+    outFile = open('../data/{}/{}.npy'.format(experementName,filename), 'w+')
     numpy.save(outFile, sarsa_pairs)
 
     
