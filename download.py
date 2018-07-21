@@ -7,9 +7,9 @@ import os
 s3 = boto3.resource('s3')
 bucket = s3.Bucket('deepmine-alpha-data')
 bucket_prefix="2018/07"
-target_dir = "prestreams"
+target_dir = os.path.join("output", "downloaded")
 
-
+print("Downloading to {}".format(target_dir))
 
 for obj in tqdm.tqdm(bucket.objects.filter(Prefix=bucket_prefix)):
     try:

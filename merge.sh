@@ -7,19 +7,25 @@
 # 4) zip the result if exit status is 0 (i.e. success)
 # 5) mv all results into oneo folder
 
+
 home=$(pwd)
-resutlts_dir=$(pwd)/results
-if [ ! -f $home/streams ]; then
-  mkdir streams # during testing, manually remove streams/
-fi
+working_dir=$home/output
+results_dir=$working_dir/merged
+
 
 # input folder 
-path=$1
+path=$working_dir/downloaded
+echo "Loading streams from $path"
+if [ ! -d $path ]; then
+  echo "Could not find parsed files. Did you not download from s3?"
+  exit
+fi
+
 cd $path
 
 # Create a blacklist
-if [ ! -f $home/blacklist.txt ]; then
-  touch $home/blacklist.txt
+if [ ! -f $working_dir/blacklist.txt ]; then
+  touch $working_dir/blacklist.txt
 fi
 
 # create a list of files to merge, contains duplicates
@@ -30,37 +36,48 @@ do
   version=$(echo ${file} |cut -d "-" -f2)
   fileName=$(echo "$who-$version" | cut -d "/" -f3)
   fileName=$(echo ${fileName} |cut -d "." -f1)
-  if [ !  -f $resutlts_dir/$fileName.mcpr ] &&  ! grep -qF "$fileName.mcpr" "$home/blacklist.txt";
+  if [ ! -f $results_dir/$fileName.mcpr ] &&  ! grep -qF "$fileName.mcpr" "$working_dir/blacklist.txt";
   then
-    echo "making $resutlts_dir/$fileName.mcpr"
+    echo "making $results_dir/$fileName.mcpr"
     # Use this if you want to blacklist all files which haven't been converted
     # This is dangerous.
     # echo "$fileName.mcpr" >> $home/blacklist.txt
 
-    echo "$who-$version" >> list_all.txt
+    echo "$who-$version" >> $path/list_all.txt
   fi
 done
 
-# remove duplicates
-echo "Removing duplicates"
-sort -u list_all.txt > unique.txt
-rm list_all.txt
 
-# concatenate
-while read p; do
-  # ensure alphabtical order
-  cat $p* > $home/streams/$p.bin
-done <unique.txt
-rm unique.txt
+# Make temp directory for zipping streams :)
+if [ ! -d $working_dir/streams ]; then
+  mkdir $working_dir/streams # during testing, manually remove streams/
+fi
+
+# remove duplicates
+if [ -f $path/list_all.txt ]; then
+  echo "Removing duplicates"
+  sort -u $path/list_all.txt > $path/unique.txt
+  rm $path/list_all.txt
+
+  # concatenate
+  while read p; do
+    # ensure alphabtical order
+    cat $p* > $working_dir/streams/$p.bin
+  done <unique.txt
+  rm unique.txt
+fi 
 
 # parse and zip
-cd $home
-mkdir results
-for file in ./streams/*
+cd $working_dir
+if [ ! -d $results_dir ]; then
+  mkdir $results_dir
+fi 
+
+for file in $working_dir/streams/*
 do
   # reminder: add "make" if necessary
-  mkdir result
-  ./parse -f $file
+  mkdir $working_dir/result
+  $home/merging/parse -f $file
   # only zip if successfully parse with exit status 0
   if [ $? -eq 0 ] 
     then
@@ -68,18 +85,17 @@ do
       fileName=$(echo ${fileName} |cut -d "." -f1)
       cd result
       zip -r $fileName.mcpr ./*
-      cp $fileName.mcpr ../
-      cd ..
+      cp $fileName.mcpr $results_dir/
+      cd $working_dir
   else
     echo "BLACKLISTING $fileName.mcpr"
     echo "Blacklisting is currently disabled."
     # echo "$fileName.mcpr" >> $home/blacklist.txt
   fi
-  rm -r result
+  rm -r $working_dir/result
 done
-mv ./player* ./results/
 
-rm -r streams
+rm -r $working_dir/streams
 echo DONE
 
 
