@@ -23,6 +23,7 @@ if [ ! -f $home/blacklist.txt ]; then
 fi
 
 # create a list of files to merge, contains duplicates
+echo "Creating a list of files to merge mod the blacklist"
 for file in player*
 do
   who=$(echo ${file} |cut -d "-" -f1)
@@ -71,7 +72,8 @@ do
       cd ..
   else
     echo "BLACKLISTING $fileName.mcpr"
-    echo "$fileName.mcpr" >> $home/blacklist.txt
+    echo "Blacklisting is currently disabled."
+    # echo "$fileName.mcpr" >> $home/blacklist.txt
   fi
   rm -r result
 done
