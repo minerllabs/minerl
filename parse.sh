@@ -8,19 +8,32 @@
 # 5) mv all results into oneo folder
 
 home=$(pwd)
+resutlts_dir=$(pwd)/results
 mkdir streams # during testing, manually remove streams/
 
 # input folder 
 path=$1
 cd $path
 
+# Create a blacklist
+if [ ! -f $home/blacklist.txt ]; then
+  touch $home/blacklist.txt
+fi
+
 # create a list of files to merge, contains duplicates
 for file in player*
 do
   who=$(echo ${file} |cut -d "-" -f1)
   version=$(echo ${file} |cut -d "-" -f2)
-  echo "$who-$version" >> list_all.txt
+  fileName=$(echo "$who-$version" | cut -d "/" -f3)
+  fileName=$(echo ${fileName} |cut -d "." -f1)
+  if [ !  -f $resutlts_dir/$fileName.mcpr ] ||  grep -q "$fileName.mcpr" "$home/blacklist.txt";
+  then
+    echo "making $resutlts_dir/$fileName.mcpr"
+    echo "$who-$version" >> list_all.txt
+  fi
 done
+
 
 # remove duplicates
 sort -u list_all.txt > unique.txt
@@ -50,6 +63,9 @@ do
       zip -r $fileName.mcpr ./*
       cp $fileName.mcpr ../
       cd ..
+  else
+    echo "BLACKLISTING"
+    echo "$fileName.mcpr" > $home/results/blacklist.txt
   fi
   rm -r result
 done

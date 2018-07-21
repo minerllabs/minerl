@@ -178,7 +178,6 @@ void parse(FILE* input)
         /* time_stamp */
         fread(buf, 4, 1, input);
         time_stamp = get_time_stamp(buf, input);
-        (void) time_stamp;
 
         /* len */
         fread(buf, 4, 1, input);

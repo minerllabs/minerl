@@ -1,12 +1,6 @@
-a.out
-a.out.dSYM/
-.DS_Store
+blacklist.txt
 parse
-parse.dSYM/
+prestreams/
+result/
+results/
 streams/
-*.sln
-*.vcxproj*
-.vs/
-.vscode/
-*data/*
-*.mcpr
