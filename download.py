@@ -9,6 +9,10 @@ bucket = s3.Bucket('deepmine-alpha-data')
 bucket_prefix="2018/07"
 target_dir = os.path.join("output", "downloaded")
 
+if not os.path.exists('output'):
+    os.makedirs('output')
+if not os.path.exists(target_dir):
+    os.makedirs(target_dir)
 print("Downloading to {}".format(target_dir))
 
 for obj in tqdm.tqdm(bucket.objects.filter(Prefix=bucket_prefix)):
