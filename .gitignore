@@ -3,7 +3,7 @@ prestreams/
 result/
 results/
 streams/
-<<<<<<< HEAD
 output/
 *.mcpr
 *data/
+.vscode/
