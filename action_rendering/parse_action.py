@@ -35,6 +35,7 @@ def main():
     # read path from input
     try:
         path = sys.argv[1]
+        path_dir = os.path.dirname(path)
     except:
         print("Lacking argument: missing directory")
         sys.exit(1)
@@ -51,20 +52,20 @@ def main():
     TIMESTAMP = []
     (result, TIMESTAMP) = parse(stream, TIMESTAMP)
 
-    write_timestamp(TIMESTAMP) # timestamp.npy
-    write_parse_result(result) # parse_result.npy
+    write_timestamp(path_dir, TIMESTAMP) # timestamp.npy
+    write_parse_result(path_dir, result) # parse_result.npy
 
     # parse to action object array 
     actions = parse_to_action_object(result) 
 
     # to_malmo
-    write_malmo(actions)# malmo.npy
+    write_malmo(path_dir, actions)# malmo.npy
 
     # to_network
     network = []
     for action in actions:
         network.append(action.to_network())
-    write_network(network)
+    write_network(path_dir, network)
 
 
     # close file
@@ -136,12 +137,7 @@ def read_channel(stream, data_len, result, timestamp):
         pitch = struct.unpack('>f', pitch_b)[0]
         yaw = struct.unpack('>f', yaw_b)[0]
 
-        # experiment
-        print("timestamp: ", timestamp)
-        print("pitch in bytes:",pitch_b)
-        print("yaw in bytes:",yaw_b)
-        print("     pitch in float:", pitch)
-        print("     yaw in float:", yaw)
+        # experimen
         # print("(1)",struct.unpack(">d", struct.pack("<d", pitch)))
         # print("(2)",struct.unpack("<d", struct.pack("<d", pitch)))
 

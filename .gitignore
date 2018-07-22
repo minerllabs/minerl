@@ -1,9 +1,10 @@
+*__pycache__/
 parse
 prestreams/
 result/
 results/
 streams/
-<<<<<<< HEAD
 output/
+*.npy
 *.mcpr
 *data/
