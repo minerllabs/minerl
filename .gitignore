@@ -8,3 +8,4 @@ output/
 *.npy
 *.mcpr
 *data/
+.vscode/

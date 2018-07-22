@@ -55,21 +55,23 @@ for key, marker in sorted(markers.items()):
         startTime = None
 
 
-
 # Frames per second expressed as a fraction, e.g. 25/1
 fps = float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
-timePerFrame = 1000 / fps
-videoOffset = 1000
+timePerFrame = 1000.0 / fps
+videoOffset = 6000
 numFrames = metadata['video']['@nb_frames']
 
 
 actionTime = iter(zip(timestamps, actions))
-currentTimestamp = 0 # Timestamps index
+currentTime  = 0
+desieredTimestamp = 0 # Timestamps index
 currentFrame = 0     # videogen index
 frame = None
 action = None
 
-print("Video has", numFrames, "at", fps, "fps")
+print("Video has", numFrames, "frames at", fps, "fps")
+def roundToFrame(x):
+    return round(x/timePerFrame)*timePerFrame
 
 print(segments)
 for line in segments:
@@ -87,9 +89,9 @@ for pair in segments:
     experementName = pair[2]
 
     # Move timestamp file to start time
-    while (currentTimestamp < startTime):
+    while (desieredTimestamp < startTime):
         try:
-            (currentTimestamp, action) = next(actionTime)
+            (desieredTimestamp, action) = next(actionTime)
             pbar.update(1)
             print("", end="")
         except StopIteration:
@@ -98,20 +100,22 @@ for pair in segments:
             print("Could not get enough timestamp action pairs")
             exit(-1)
 
-    frameNum = int(round((currentTimestamp - videoOffset) / timePerFrame))
-    frameSec = (currentTimestamp-500)/1000
-    currentFrame = int(frameSec * fps)
-    params = {"-ss":str(frameSec)}
-    videogen = skvideo.io.FFmpegReader("./recording.mp4",inputdict=params).nextFrame()
+    #frameNum = int(round((startTime - videoOffset) / timePerFrame))
+
+    currentTime = roundToFrame(startTime - videoOffset - 2000)
+    
+    # currentFrame = int(frameSec * fps)
+    params = {"-ss":str(currentTime/1000)}
+    videogen = skvideo.io.vreader("./recording.mp4", inputdict=params)
 
     # Record the aciton pair 
-    while (currentTimestamp <= stopTime):
+    while (currentTime <= stopTime):
+        frame = None
         # Get the closest frame
-        frameNum = int(round((currentTimestamp - videoOffset) / timePerFrame))
-        while (frameNum > currentFrame) :
+        while (roundToFrame(currentTime) < roundToFrame(desieredTimestamp)) :
             try:
-                frame = next(videogen)
-                currentFrame += 1
+                next(videogen)
+                currentTime += timePerFrame
                 pbar2.update(1)
                 print("", end="")
             except StopIteration:
@@ -121,21 +125,24 @@ for pair in segments:
                 exit(-1)
 
         # Generate numpy pair and append 
-        sarsa = (currentFrame, action)
+        sarsa = (next(videogen), action)
+        currentTime += timePerFrame
+        pbar2.update(1)
         sarsa_pairs.append(sarsa)
 
         # Itterate action and timestamp
         try:
-            (currentTimestamp, action) = next(actionTime)
+            (desieredTimestamp, action) = next(actionTime)
             pbar.update(1)
             print("", end="")
         except StopIteration:
             break
 
-    if( not os.path.exists('./data')):
-        
-    outFile = open('data/{}/{}.npy'.format(experementName,filename), 'w+')
-    numpy.save(outFile, sarsa_pairs)
+    if( not os.path.exists('data/')):
+        os.makedirs('data/')
+    if not os.path.exists('data/{}/'.format(experementName)):
+        os.makedirs('data/{}/'.format(experementName))
+    numpy.save('data/{}/{}.npy'.format(experementName,filename + str(startTime) + '-' + str(stopTime)), sarsa_pairs)
 
     
 
