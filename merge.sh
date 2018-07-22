@@ -92,7 +92,7 @@ do
   else
     echo "BLACKLISTING $fileName.mcpr"
     echo "Blacklisting is currently disabled."
-    # echo "$fileName.mcpr" >> $home/blacklist.txt
+    echo "$fileName.mcpr" >> $home/blacklist.txt
   fi
   rm -r $working_dir/result
 done

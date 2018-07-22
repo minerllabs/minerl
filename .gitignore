@@ -1,4 +1,5 @@
 *__pycache__/
+blacklist.txt
 parse
 prestreams/
 result/
