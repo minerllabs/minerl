@@ -73,7 +73,7 @@ if [ ! -d $results_dir ]; then
   mkdir $results_dir
 fi 
 
-for file in $working_dir/streams/*
+for file in ./streams/*
 do
   # reminder: add "make" if necessary
   mkdir $working_dir/result
@@ -81,8 +81,10 @@ do
   # only zip if successfully parse with exit status 0
   if [ $? -eq 0 ] 
     then
+      echo "$file"
       fileName=$(echo ${file} |cut -d "/" -f3)
       fileName=$(echo ${fileName} |cut -d "." -f1)
+      echo "$fileName"
       cd result
       zip -r $fileName.mcpr ./*
       cp $fileName.mcpr $results_dir/

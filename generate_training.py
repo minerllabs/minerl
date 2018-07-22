@@ -58,7 +58,7 @@ for key, marker in sorted(markers.items()):
 # Frames per second expressed as a fraction, e.g. 25/1
 fps = float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
 timePerFrame = 1000.0 / fps
-videoOffset = 6000
+videoOffset = 5000
 numFrames = metadata['video']['@nb_frames']
 
 
@@ -109,10 +109,10 @@ for pair in segments:
     videogen = skvideo.io.vreader("./recording.mp4", inputdict=params)
 
     # Record the aciton pair 
-    while (currentTime <= stopTime):
+    while (currentTime <= stopTime - videoOffset):
         frame = None
         # Get the closest frame
-        while (roundToFrame(currentTime) < roundToFrame(desieredTimestamp)) :
+        while (roundToFrame(currentTime) < roundToFrame(desieredTimestamp - videoOffset)) :
             try:
                 next(videogen)
                 currentTime += timePerFrame
@@ -122,13 +122,26 @@ for pair in segments:
                 # Be lazy
                 print("ERROR PARSING VIDEO")
                 print("Could not get enough frames to fill timestamp file")
+                print(currentTime)
+                print(desieredTimestamp)
+                print(roundToFrame(currentTime))
+                print(roundToFrame(desieredTimestamp))
                 exit(-1)
 
         # Generate numpy pair and append 
-        sarsa = (next(videogen), action)
-        currentTime += timePerFrame
-        pbar2.update(1)
-        sarsa_pairs.append(sarsa)
+
+        try:
+            sarsa = (next(videogen), action)
+            currentTime += timePerFrame
+            pbar2.update(1)
+            sarsa_pairs.append(sarsa)
+        except StopIteration:
+            print(currentTime)
+            print(desieredTimestamp)
+            print(roundToFrame(currentTime))
+            print(roundToFrame(desieredTimestamp))
+            break
+
 
         # Itterate action and timestamp
         try:
