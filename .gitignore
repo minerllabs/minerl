@@ -1,9 +1,11 @@
+*__pycache__/
 parse
 prestreams/
 result/
 results/
 streams/
 output/
+*.npy
 *.mcpr
 *data/
 .vscode/
