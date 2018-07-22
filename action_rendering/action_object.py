@@ -6,7 +6,7 @@
 # return string
 def get_hotbar_index(action):
     assert(action.startswith("hotbar."))
-    return action[7]
+    return action[7] - 1
 
 # left attack
 # use right
@@ -57,11 +57,8 @@ class Action(object):
 		return self.malmo
 
 	def to_network(self):
-		self.networkcmd = []
-		# first handle hotbar
-		self.networkcmd.append([0]*10) 
-		hotbars = self.networkcmd[0]
-		hotbars[0] = 1# first one is default
+		self.networkcmd = [9]
+		# first handle hotbar 
 		# others
 		for av in self.malmo: # av stands for an action-value pair
 			a = self.get_action(av)
@@ -70,8 +67,7 @@ class Action(object):
 			# to do: check there is only one "1" in this vector
 			if a.startswith("hotbar."):
 				i = int(get_hotbar_index(a))
-				hotbars[0] = 0;
-				hotbars[i] = 1;
+				self.networkcmd[0] = i
 			else:
 				o = self.options[a]
 				cmd = self.add_network_cmd(options = o, value_str = v)
@@ -108,19 +104,19 @@ class Action(object):
 			value = int(value_str)
 			assert(value == 0 or value == 1 or value == -1)
 			if value == 0:
-				cmd =  [1,0,0]
+				cmd =  2
 			elif value == 1:
-				cmd =  [0,1,0]
+				cmd =  1
 			else:
-				cmd =  [0,0,1]
+				cmd =  0
 
 		elif options == 2:
 			value = int(value_str)
 			assert( value == 0 or value == 1)
 			if value == 0:
-				cmd =  [1,0]
+				cmd =  1
 			else:
-				cmd =  [0,1]
+				cmd =  0
 
 		elif options == 1: 
 			cmd =  float(value_str)
