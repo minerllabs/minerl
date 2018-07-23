@@ -10,7 +10,7 @@ import os
 J = os.path.join
 E = os.path.exists
 WORKING_DIR = "output"
-DATA_DIR = J(WORKING_DIR, "merged")
+DATA_DIR = J(WORKING_DIR, "data")
 RENDER_DIR = J(WORKING_DIR, "rendered")
 BLACKLIST_PATH =J(WORKING_DIR, "blacklist.txt")
 

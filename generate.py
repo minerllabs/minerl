@@ -24,6 +24,7 @@ J = os.path.join
 E = os.path.exists
 WORKING_DIR = os.path.abspath("./output")
 DATA_DIR = J(WORKING_DIR, "data")
+
 RENDER_DIR = J(WORKING_DIR, "rendered")
 BLACKLIST_PATH =J(WORKING_DIR, "blacklist.txt")
 
@@ -99,6 +100,18 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     # Script to to pair actions with video recording
     # All times are in ms and we assume a actions list, a timestamp file, and a dis-syncronous mp4 video
 
+    #Decide if absolute or relative
+    isAbsolute = False
+    if E(J(inputPath,'metaData.json')):
+        metadata = json.load(open(J(inputPath,'metaData.json')))
+        if 'generator' in metadata:
+            version = metadata['generator'].split('-')[-2]
+            print("SHIIIIIIITTTT:", version)
+            if int(version) < 103:
+                isAbsolute = True
+    else:
+        return
+
     # Load actions
     #actions, timestamps = pickle.load(open("./actions.pkl", 'wb'))
     actions = numpy.load(J(inputPath, 'network.npy'))
@@ -119,7 +132,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     segments = []
 
     markers = OrderedDict()
-    for marker in json.load(open(J(inputPath,'./markers.json'))):
+    for marker in json.load(open(J(inputPath,'markers.json'))):
         markers[marker['realTimestamp']] = marker
 
     startTime = None
@@ -184,6 +197,10 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         startTime = pair[0]
         stopTime = pair[1]
         experementName = pair[2]
+
+        if (stopTime - startTime > 1000000):
+            print('skipping massive shard')
+            continue
 
         # Move timestamp file to start time
         while (desieredTimestamp < startTime):
@@ -252,7 +269,11 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             os.makedirs(outputPath)
         if not os.path.exists(J(outputPath, experementName)):
             os.makedirs(J(outputPath, experementName))
-        numpy.save(J(outputPath, experementName, recordingName + str(startTime) + '-' + str(stopTime) + '.npy'), sarsa_pairs)
+        if isAbsolute:
+            numpy.save(J(outputPath, experementName, recordingName + str(startTime) + '-' + str(stopTime) + '_ABS_.npy'), sarsa_pairs)
+        else:
+            numpy.save(J(outputPath, experementName, recordingName + str(startTime) + '-' + str(stopTime) + '.npy'), sarsa_pairs)
+
 
 def main():
     """
