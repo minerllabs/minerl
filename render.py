@@ -8,11 +8,13 @@ render.py
 # 3) Running the video_rendering scripts
 """
 import os
+import glob
 import numpy as np
 import tqdm
 import zipfile
 import subprocess
 import json
+from shutil import copyfile
 
 ######################3
 ### UTILITIES
@@ -22,6 +24,7 @@ E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
 RENDER_DIR = J(WORKING_DIR, "rendered")
+MINECRAFT_DIR = "C:/Users/Brandon/minecraft_modded"
 BLACKLIST_PATH =J(WORKING_DIR, "blacklist.txt")
 
 END_OF_STREAM = 'end_of_stream.txt'
@@ -169,7 +172,54 @@ def render_actions(renders: list):
 def render_videos(renders: list):
 	"""
 	For every render directory, we render the videos.
+	This works by:
+	 1) copying the file to the minecraft directory
+	 2) Waiting for user input:
+	 3) Copying the produced mp4 to the rendered directory 
+
 	"""
+
+	for recording_name, render_path in tqdm.tqdm(renders):
+		#Get mcpr file from merged
+		print("Rendering:", recording_name, '...')
+
+		# Skip if the folder has an recording allready
+		list_of_files = glob.glob(render_path + '/*.mp4') # * means all if need specific format then *.csv
+		if len(list_of_files) > 0:
+			print ("Skipping replay folder contains", list_of_files[0])
+			continue
+
+
+		mcpr_path= J(MERGED_DIR, (recording_name + ".mcpr"))
+		recording_path = MINECRAFT_DIR + '/replay_recordings/'
+		rendered_video_path = MINECRAFT_DIR + '/replay_videos/'
+		copyfile(mcpr_path, recording_path + (recording_name + ".mcpr"))
+
+		video_path = None
+		while video_path is None:
+			user_input = input("Hit enter (q to stop : s to skip)")
+			if "q" in user_input:
+				return
+			if "s" in user_input:
+				break
+
+			# copy the most recent file 
+			list_of_files = glob.glob(rendered_video_path + '*.mp4') # * means all if need specific format then *.csv
+
+			if len(list_of_files) > 0:
+				video_path = max(list_of_files, key=os.path.getctime)
+			else:
+				print ("No video file found!")
+		if not video_path is None:
+			print ("Copying file", video_path, 'to', render_path, 'created', os.path.getmtime(video_path))
+			copyfile(video_path, render_path + '/recording.mp4')
+			os.remove(video_path)
+
+		# Remove mcpr file from dir
+		os.remove(J(recording_path, (recording_name + ".mcpr")))
+		
+
+
 
 def main():
 	"""
@@ -196,7 +246,7 @@ def main():
 
 
 
-	from IPython import embed; embed()
+	#from IPython import embed; embed()
 
 if __name__ == "__main__":
 	main()

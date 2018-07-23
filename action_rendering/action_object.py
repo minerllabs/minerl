@@ -6,7 +6,7 @@
 # return string
 def get_hotbar_index(action):
     assert(action.startswith("hotbar."))
-    return action[7] - 1
+    return int(action[7]) - 1
 
 # left attack
 # use right
