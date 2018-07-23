@@ -7,8 +7,11 @@ render.py
 # 2) Running the action_rendering scripts
 # 3) Running the video_rendering scripts
 """
+from fractions import Fraction
+from collections import OrderedDict
+import skvideo.io
 import os
-import numpy as np
+import numpy 
 import tqdm
 import zipfile
 import subprocess
@@ -19,8 +22,8 @@ import json
 #######################
 J = os.path.join
 E = os.path.exists
-WORKING_DIR = "output"
-DATA_DIR = J(WORKING_DIR, "merged")
+WORKING_DIR = os.path.abspath("./output")
+DATA_DIR = J(WORKING_DIR, "data")
 RENDER_DIR = J(WORKING_DIR, "rendered")
 BLACKLIST_PATH =J(WORKING_DIR, "blacklist.txt")
 
@@ -43,40 +46,31 @@ def remove(path):
     if E(path):
     	os.remove(path)
 
-def get_recording_archive(recording_name):
-	"""
-	Gets the zipfile object of a mcpr recording.
-	"""
-	mcpr_path = J(MERGED_DIR, (recording_name + ".mcpr"))
-	assert E(mcpr_path)
-
-	return zipfile.ZipFile(mcpr_path)
-
 ##################
 ### PIPELINE
 #################
 
 # 1. Construct data working dirs.
 def construct_data_dirs(blacklist):
-	"""
-	Constructs the render directories omitting
-	elements on a blacklist.
-	"""
-	if not E(DATA_DIR):
-		os.makedirs(DATA_DIR)
-
+    """
+    Constructs the render directories omitting
+    elements on a blacklist.
+    """
+    if not E(DATA_DIR):
+        os.makedirs(DATA_DIR)
     if not E(RENDER_DIR):
-		os.makedirs(RENDER_DIR)
+        os.makedirs(RENDER_DIR)
 
+    render_dirs = []
     for filename in tqdm.tqdm(next(os.walk(RENDER_DIR))[1]):
         render_path = J(RENDER_DIR, filename)
 
         if not E(render_path):
             continue
 
-        render_dirs.append((recording_name, render_path))
+        render_dirs.append((filename, render_path))
 
-	return render_dirs
+    return render_dirs
 
 
 # 2. get metadata from the files.
@@ -156,11 +150,13 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     if len(markers) == 0:
         return
 
+    # if 'video' not in metadata:
+    #     return
     # Frames per second expressed as a fraction, e.g. 25/1
-    fps = float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
+    fps = 60 # float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
     timePerFrame = 1000.0 / fps
     videoOffset = 5000
-    numFrames = metadata['video']['@nb_frames']
+    # numFrames = metadata['video']['@nb_frames']
 
 
     actionTime = iter(zip(timestamps, actions))
@@ -170,7 +166,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     frame = None
     action = None
 
-    print("Video has", numFrames, "frames at", fps, "fps")
+    print("Video has", 1, "frames at", fps, "fps")
     def roundToFrame(x):
         return round(x/timePerFrame)*timePerFrame
 
@@ -207,7 +203,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         
         # currentFrame = int(frameSec * fps)
         params = {"-ss":str(currentTime/1000)}
-        videogen = skvideo.io.vreader("./recording.mp4", inputdict=params)
+        videogen = skvideo.io.vreader(J(inputPath,'recording.mp4'), inputdict=params)
 
         # Record the aciton pair 
         while (currentTime <= stopTime - videoOffset):
@@ -219,15 +215,15 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
                     currentTime += timePerFrame
                     pbar2.update(1)
                     print("", end="")
-                except StopIteration:
+                except:
                     # Be lazy
-                    print("ERROR PARSING VIDEO")
+                    print("ENDING VIDEO")
                     print("Could not get enough frames to fill timestamp file")
                     print(currentTime)
                     print(desieredTimestamp)
                     print(roundToFrame(currentTime))
                     print(roundToFrame(desieredTimestamp))
-                    exit(-1)
+                    break
 
             # Generate numpy pair and append 
 
@@ -236,7 +232,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
                 currentTime += timePerFrame
                 pbar2.update(1)
                 sarsa_pairs.append(sarsa)
-            except StopIteration:
+            except:
                 print(currentTime)
                 print(desieredTimestamp)
                 print(roundToFrame(currentTime))
@@ -254,32 +250,30 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
         if( not os.path.exists(outputPath)):
             os.makedirs(outputPath)
-        if not os.path.exists(J(outPath, experementName)):
-            os.makedirs(J(outPath, experementName))
-        numpy.save(J(outPath, experementName, str(startTime) + '-' + str(stopTime), '.npy'), sarsa_pairs)
+        if not os.path.exists(J(outputPath, experementName)):
+            os.makedirs(J(outputPath, experementName))
+        numpy.save(J(outputPath, experementName, recordingName + str(startTime) + '-' + str(stopTime) + '.npy'), sarsa_pairs)
 
 def main():
-	"""
-	The main render script.
-	"""
-	# 1. Load the blacklist.
-	blacklist = set(np.loadtxt(BLACKLIST_PATH, dtype=np.str).tolist())
+    """
+    The main render script.
+    """
+    # 1. Load the blacklist.
+    blacklist = set(numpy.loadtxt(BLACKLIST_PATH, dtype=numpy.str).tolist())
 
-	print("Constructing data directory.")
-	renders = construct_data_dirs(blacklist)
+    print("Constructing data directory.")
+    renders = construct_data_dirs(blacklist)
 
-	print("Retrieving metadata from files:")
-	valid_renders, invalid_renders = render_metadata(renders)
-	print(len(valid_renders))
-	print("Rendering actions: ")
-	valid_renders, invalid_renders = render_actions(valid_renders)
-	print("... found {} valid recordings and {} invalid recordings"
-	  " out of {} total files".format(
-	  	len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))
-	)
-	print("Rendering videos: ")
-    for recording_name, render_path in tqdm.tqdm(renders):
-	    gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
+    print("Retrieving metadata from files:")
+    valid_renders, invalid_renders = get_metadata(renders)
+    print(len(valid_renders))
+    print("... found {} valid recordings and {} invalid recordings"
+        " out of {} total files".format(
+        len(valid_renders), len(invalid_renders), len(os.listdir(RENDER_DIR)))
+    )
+    print("Rendering videos: ")
+    for recording_name, render_path in tqdm.tqdm(valid_renders):
+        gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
 
 if __name__ == "__main__":
 	main()
