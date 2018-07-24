@@ -16,7 +16,6 @@ import subprocess
 import json
 import time
 from shutil import copyfile
-from pathlib import Path
 
 ######################3
 ### UTILITIES
@@ -176,8 +175,9 @@ def render_videos(renders: list):
 	"""
 	For every render directory, we render the videos.
 	This works by:
-	 1) copying the file to the minecraft directory
+	 1) Copying the file to the minecraft directory
 	 2) Waiting for user input:
+	 		User render the video using replay mod and hit enter once the video is rendered
 	 3) Copying the produced mp4 to the rendered directory 
 
 	"""
@@ -186,16 +186,16 @@ def render_videos(renders: list):
 		#Get mcpr file from merged
 		print("Rendering:", recording_name, '...')
 
-		# Skip if the folder has an recording allready
+		# Skip if the folder has an recording already
 		list_of_files = glob.glob(render_path + '/*.mp4') # * means all if need specific format then *.csv
 		if len(list_of_files) > 0:
-			print ("Skipping replay folder contains", list_of_files[0])
+			print ("Skipping: replay folder contains", list_of_files[0])
 			continue
 
 		# Skip if the file has been skipped allready
 		skip_path = J(render_path, SKIPPED_RENDER_FLAG)
 		if E(skip_path):
-			print ("Skipping file as it was previously skipped")
+			print ("Skipping: file was previously skipped")
 			continue
 
 
@@ -244,7 +244,6 @@ def render_videos(renders: list):
 		os.remove(J(recording_path, (recording_name + ".mcpr")))
 
 		
-
 
 
 def main():
