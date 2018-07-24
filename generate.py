@@ -106,10 +106,13 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         metadata = json.load(open(J(inputPath,'metaData.json')))
         if 'generator' in metadata:
             version = metadata['generator'].split('-')[-2]
-            print("SHIIIIIIITTTT:", version)
             if int(version) < 103:
                 isAbsolute = True
     else:
+        return
+
+    # Disable data generation for old format
+    if isAbsolute:
         return
 
     # Load actions
@@ -187,8 +190,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     for line in segments:
         print(line)
 
-    pbar = tqdm.tqdm(total=len(actions))
-    pbar2 = tqdm.tqdm()
+    tActionTime = tqdm.tqdm(actionTime)
 
     for pair in segments:
         print()
@@ -205,9 +207,8 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         # Move timestamp file to start time
         while (desieredTimestamp < startTime):
             try:
-                (desieredTimestamp, action) = next(actionTime)
-                pbar.update(1)
-                print("", end="")
+                (desieredTimestamp, action) = next(tActionTime)
+
             except StopIteration:
                 # Be lazy
                 print("ERROR")
@@ -216,7 +217,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
         #frameNum = int(round((startTime - videoOffset) / timePerFrame))
 
-        currentTime = roundToFrame(startTime - videoOffset - 2000)
+        currentTime = roundToFrame(startTime - videoOffset - 1000)
         
         # currentFrame = int(frameSec * fps)
         params = {"-ss":str(currentTime/1000)}
@@ -230,8 +231,6 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
                 try:
                     next(videogen)
                     currentTime += timePerFrame
-                    pbar2.update(1)
-                    print("", end="")
                 except:
                     # Be lazy
                     print("ENDING VIDEO")
@@ -259,8 +258,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
             # Itterate action and timestamp
             try:
-                (desieredTimestamp, action) = next(actionTime)
-                pbar.update(1)
+                (desieredTimestamp, action) = next(tActionTime)
                 print("", end="")
             except StopIteration:
                 break
