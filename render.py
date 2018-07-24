@@ -14,7 +14,9 @@ import tqdm
 import zipfile
 import subprocess
 import json
+import time
 from shutil import copyfile
+from pathlib import Path
 
 ######################3
 ### UTILITIES
@@ -31,6 +33,7 @@ END_OF_STREAM = 'end_of_stream.txt'
 ACTION_FILE = "actions.tmcpr"
 END_OF_STREAM_TEXT = 'This is the end.'
 BAD_MARKER_NAME, GOOD_MARKER_NAME = 'INVALID', 'VALID'
+SKIPPED_RENDER_FLAG = 'SKIPPED_RENDER'
 
 METADATA_FILES = [
 	'metaData.json',
@@ -189,11 +192,18 @@ def render_videos(renders: list):
 			print ("Skipping replay folder contains", list_of_files[0])
 			continue
 
+		# Skip if the file has been skipped allready
+		skip_path = J(render_path, SKIPPED_RENDER_FLAG)
+		if E(skip_path):
+			print ("Skipping file as it was previously skipped")
+			continue
+
 
 		mcpr_path= J(MERGED_DIR, (recording_name + ".mcpr"))
 		recording_path = MINECRAFT_DIR + '/replay_recordings/'
 		rendered_video_path = MINECRAFT_DIR + '/replay_videos/'
 		copyfile(mcpr_path, recording_path + (recording_name + ".mcpr"))
+		copy_time = os.path.getmtime(recording_path + (recording_name + ".mcpr"))
 
 		video_path = None
 		while video_path is None:
@@ -201,13 +211,28 @@ def render_videos(renders: list):
 			if "q" in user_input:
 				return
 			if "s" in user_input:
+				with open(skip_path, 'a'):
+					try:                     
+						os.utime(skip_path, None)  # => Set skip time to now
+					except OSError:
+						pass  # File deleted between open() and os.utime() calls
 				break
 
 			# copy the most recent file 
 			list_of_files = glob.glob(rendered_video_path + '*.mp4') # * means all if need specific format then *.csv
 
 			if len(list_of_files) > 0:
-				video_path = max(list_of_files, key=os.path.getctime)
+				#Check that this render was created after we copied 
+				video_path = max(list_of_files, key=os.path.getmtime)
+				if os.path.getmtime(video_path) < copy_time:
+					print ("Error! Rendered file is older than replay!")
+					user_input = input("Are you sure you want to copy this out of date render? (y/n)")
+					if "y" in user_input:
+						print("using out of date recording")
+					else:
+						print("skipping out of date rendering")
+						video_path = None
+
 			else:
 				print ("No video file found!")
 		if not video_path is None:
@@ -217,6 +242,7 @@ def render_videos(renders: list):
 
 		# Remove mcpr file from dir
 		os.remove(J(recording_path, (recording_name + ".mcpr")))
+
 		
 
 
