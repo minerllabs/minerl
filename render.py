@@ -15,6 +15,7 @@ import zipfile
 import subprocess
 import json
 import time
+import pyautogui 
 from shutil import copyfile
 
 ######################3
@@ -26,6 +27,8 @@ WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
 RENDER_DIR = J(WORKING_DIR, "rendered")
 MINECRAFT_DIR = "C:/Users/Brandon/minecraft_modded"
+FINISHED_FILE = 'C:/Users/Brandon/minecraft_modded/finished.txt'
+MC_LAUNCHER = '"C:\Program Files (x86)\Minecraft\MinecraftLauncher.exe"'
 BLACKLIST_PATH =J(WORKING_DIR, "blacklist.txt")
 
 END_OF_STREAM = 'end_of_stream.txt'
@@ -171,6 +174,47 @@ def render_actions(renders: list):
 
 	return good_renders, bad_renders
 
+
+def launchMC():
+    # Run the Mine Craft Launcher
+    os.startfile(MC_LAUNCHER)
+    print ("Launched ", MC_LAUNCHER)
+
+    x = 2944
+    y = 1794
+    print ("Launching Minecraft")
+    pyautogui.moveTo(x,y)
+
+    time.sleep(15) # Give the launcher time to come up
+    # Click on the launcher button that starts Minecraft
+    pyautogui.click(x,y)
+    time.sleep(30)
+
+
+def launchReplayViewer():
+    x = 1782
+    y = 1172
+    pyautogui.moveTo(x,y)
+    time.sleep(10)
+
+    print ("\tLaunching ReplayViewer")
+    pyautogui.click(x,y) # Then click the button that launches replayMod
+
+
+
+# My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
+def launchRendering():
+    time.sleep(10);
+    pyautogui.typewrite('t') # turn off mouse controls
+    time.sleep(0.100)
+    x = 1588
+    y = 975
+    pyautogui.moveTo(x,y)
+    time.sleep(3)
+    
+    print ("\tLaunching render")
+    pyautogui.click(x,y) # Then click the button that launches replayMod
+
 def render_videos(renders: list):
 	"""
 	For every render directory, we render the videos.
@@ -182,6 +226,8 @@ def render_videos(renders: list):
 
 	"""
 
+	os.remove(FINISHED_FILE)
+    launchMC()
 	for recording_name, render_path in tqdm.tqdm(renders):
 		#Get mcpr file from merged
 		print("Rendering:", recording_name, '...')
@@ -205,40 +251,39 @@ def render_videos(renders: list):
 		copyfile(mcpr_path, recording_path + (recording_name + ".mcpr"))
 		copy_time = os.path.getmtime(recording_path + (recording_name + ".mcpr"))
 
-		video_path = None
-		while video_path is None:
-			user_input = input("Hit enter (q to stop : s to skip)")
-			if "q" in user_input:
-				return
-			if "s" in user_input:
-				with open(skip_path, 'a'):
-					try:                     
-						os.utime(skip_path, None)  # => Set skip time to now
-					except OSError:
-						pass  # File deleted between open() and os.utime() calls
-				break
 
-			# copy the most recent file 
-			list_of_files = glob.glob(rendered_video_path + '*.mp4') # * means all if need specific format then *.csv
+        launchReplayViewer() # Presses the ReplayViewer() button - this step can be automated in the code, but this is cleaner
+        launchRendering() # Launch rendering inside the replaymod - this is the piece I have not been able to automate due to thread issues
 
-			if len(list_of_files) > 0:
-				#Check that this render was created after we copied 
-				video_path = max(list_of_files, key=os.path.getmtime)
-				if os.path.getmtime(video_path) < copy_time:
-					print ("Error! Rendered file is older than replay!")
-					user_input = input("Are you sure you want to copy this out of date render? (y/n)")
-					if "y" in user_input:
-						print("using out of date recording")
-					else:
-						print("skipping out of date rendering")
-						video_path = None
+        # Wait for completion (it creates a finished.txt file)
+        video_path = None
+        notFound = True
+        while notFound:
+            if os.path.exists(FINISHED_FILE):
+                print "\tRendering is complete!!!!!"
+                os.remove(FINISHED_FILE)
+                notFound = False
+            else:
+                time.sleep(5)
 
-			else:
-				print ("No video file found!")
+		list_of_files = glob.glob(rendered_video_path + '*.mp4') # * means all if need specific format then *.csv
+
+		if len(list_of_files) > 0:
+			#Check that this render was created after we copied 
+			video_path = max(list_of_files, key=os.path.getmtime)
+			if os.path.getmtime(video_path) < copy_time:
+				print ("Error! Rendered file is older than replay!")
+				user_input = input("Are you sure you want to copy this out of date render? (y/n)")
+				if "y" in user_input:
+					print("using out of date recording")
+				else:
+					print("skipping out of date rendering")
+					video_path = None
 		if not video_path is None:
 			print ("Copying file", video_path, 'to', render_path, 'created', os.path.getmtime(video_path))
-			copyfile(video_path, render_path + '/recording.mp4')
-			os.remove(video_path)
+            os.rename(video_path, render_path + '/recording.mp4')
+        else:
+            print ("No Video file found")
 
 		# Remove mcpr file from dir
 		os.remove(J(recording_path, (recording_name + ".mcpr")))
