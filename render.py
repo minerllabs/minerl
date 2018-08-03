@@ -1,8 +1,8 @@
 """
-render.py  
-# This script renders the merged experiments into 
+render.py
+# This script renders the merged experiments into
 # actions and videos by doing the following
-# 1) Unzipping various mcprs and building render directories 
+# 1) Unzipping various mcprs and building render directories
 #    containing meta data.
 # 2) Running the action_rendering scripts
 # 3) Running the video_rendering scripts
@@ -15,11 +15,11 @@ import zipfile
 import subprocess
 import json
 import time
-import pyautogui 
+import pyautogui
 from shutil import copyfile
 
-######################3
-### UTILITIES
+# 3
+# UTILITIES
 #######################
 J = os.path.join
 E = os.path.exists
@@ -27,11 +27,11 @@ WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
 RENDER_DIR = J(WORKING_DIR, "rendered")
 MINECRAFT_DIR = "/home/hero/minecraft"
-FINISHED_FILE = J(MINECRAFT_DIR,'finished.txt')
+FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
 MC_LAUNCHER = '/opt/minecraft-launcher/minecraft-launcher.sh'
-#MC_JAR = # This seems to be excluded from the current launcher 
-#MC_LAUNCH_ARGS = '-Xmx4G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M'
-BLACKLIST_PATH =J(WORKING_DIR, "blacklist.txt")
+# MC_JAR = # This seems to be excluded from the current launcher
+# MC_LAUNCH_ARGS = '-Xmx4G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M'
+BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
 END_OF_STREAM = 'end_of_stream.txt'
 ACTION_FILE = "actions.tmcpr"
@@ -45,13 +45,16 @@ METADATA_FILES = [
 	'mods.json',
 	'stream_meta_data.json']
 
+
 def touch(path):
     with open(path, 'w'):
         pass
 
+
 def remove(path):
     if E(path):
     	os.remove(path)
+
 
 def get_recording_archive(recording_name):
 	"""
@@ -63,10 +66,12 @@ def get_recording_archive(recording_name):
 	return zipfile.ZipFile(mcpr_path)
 
 ##################
-### PIPELINE
+# PIPELINE
 #################
 
 # 1. Construct render working dirs.
+
+
 def construct_render_dirs(blacklist):
 	"""
 	Constructs the render directories omitting
@@ -90,6 +95,8 @@ def construct_render_dirs(blacklist):
 	return render_dirs
 
 # 2. render metadata from the files.
+
+
 def render_metadata(renders: list) -> list:
 	"""
 	Unpacks the metadata of a recording and checks its validity.
@@ -109,14 +116,14 @@ def render_metadata(renders: list) -> list:
 				else:
 					bad_renders.append((recording_name, render_path))
 			else:
-				try: 
+				try:
 					recording = get_recording_archive(recording_name)
 					extract = lambda fname: recording.extract(fname, render_path)
 
 					# Test end of stream validity.
 					with open(extract(END_OF_STREAM), 'r') as eos:
 						assert len(eos.read()) > 0
-					
+
 					# If everything is good extfct the metadata.
 					for mfile in METADATA_FILES:
 						assert str(mfile) in [str(x) for x in recording.namelist()]
@@ -144,6 +151,8 @@ def render_metadata(renders: list) -> list:
 	return good_renders, bad_renders
 
 # 2.Renders the actions.
+
+
 def render_actions(renders: list):
 	"""
 	For every render directory, we render the actions
@@ -170,7 +179,8 @@ def render_actions(renders: list):
 				assert not os.stat(action_mcbr).st_size == 0
 
 				# Run the actual parse action and make sure that its actually of length 0.
-				p = subprocess.Popen(["python3", "parse_action.py",os.path.abspath(action_mcbr)], cwd='action_rendering')
+				p = subprocess.Popen(["python3", "parse_action.py", os.path.abspath(
+				    action_mcbr)], cwd='action_rendering')
 				returncode = (p.wait())
 				assert returncode == 0
 
@@ -187,43 +197,43 @@ def render_actions(renders: list):
 
 def launchMC():
     # Run the Mine Craft Launcher
-    os.startfile(MC_LAUNCHER)
-    print ("Launched ", MC_LAUNCHER)
+    subprocess.Popen(MC_LAUNCHER, stdout=subprocess.DEVNULL)
+    print("Launched ", MC_LAUNCHER)
 
-    x = 2944
-    y = 1794
-    print ("Launching Minecraft")
-    pyautogui.moveTo(x,y)
+    x = 388  # 2944
+    y = 626  # 1794
+    print("Launching Minecraft")
+    pyautogui.moveTo(x, y)
 
-    time.sleep(15) # Give the launcher time to come up
+    time.sleep(15)  # Give the launcher time to come up
     # Click on the launcher button that starts Minecraft
-    pyautogui.click(x,y)
+    pyautogui.click(x, y)
     time.sleep(30)
 
 
 def launchReplayViewer():
-    x = 1782
-    y = 1172
-    pyautogui.moveTo(x,y)
+    x = 860  # 1782
+    y = 700  # 1172
+    pyautogui.moveTo(x, y)
     time.sleep(10)
 
-    print ("\tLaunching ReplayViewer")
-    pyautogui.click(x,y) # Then click the button that launches replayMod
-
+    print("\tLaunching ReplayViewer")
+    pyautogui.click(x, y)  # Then click the button that launches replayMod
 
 
 # My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
 def launchRendering():
     time.sleep(10);
-    pyautogui.typewrite('t') # turn off mouse controls
+    pyautogui.typewrite('t')  # turn off mouse controls
     time.sleep(0.100)
-    x = 1588
-    y = 975
-    pyautogui.moveTo(x,y)
+    x = 624#1588
+    y = 506#975
+    pyautogui.moveTo(x, y)
     time.sleep(3)
-    
-    print ("\tLaunching render")
-    pyautogui.click(x,y) # Then click the button that launches replayMod
+
+    print("\tLaunching render")
+    pyautogui.click(x, y)  # Then click the button that launches replayMod
+
 
 def render_videos(renders: list):
 	"""
@@ -232,14 +242,19 @@ def render_videos(renders: list):
 	 1) Copying the file to the minecraft directory
 	 2) Waiting for user input:
 	 		User render the video using replay mod and hit enter once the video is rendered
-	 3) Copying the produced mp4 to the rendered directory 
+	 3) Copying the produced mp4 to the rendered directory
 
 	"""
 
-	os.remove(FINISHED_FILE)
+
+	try:
+		os.remove(FINISHED_FILE)
+	except FileNotFoundError:
+		pass
+	
 	launchMC()
 	for recording_name, render_path in tqdm.tqdm(renders):
-		#Get mcpr file from merged
+		# Get mcpr file from merged
 		print("Rendering:", recording_name, '...')
 
 		# Skip if the folder has an recording already
@@ -270,7 +285,7 @@ def render_videos(renders: list):
 		notFound = True
 		while notFound:
 			if os.path.exists(FINISHED_FILE):
-				print "\tRendering is complete!!!!!"
+				print ("\tRendering is complete!!!!!")
 				os.remove(FINISHED_FILE)
 				notFound = False
 			else:
@@ -279,7 +294,7 @@ def render_videos(renders: list):
 		list_of_files = glob.glob(rendered_video_path + '*.mp4') # * means all if need specific format then *.csv
 
 		if len(list_of_files) > 0:
-			#Check that this render was created after we copied 
+			# Check that this render was created after we copied 
 			video_path = max(list_of_files, key=os.path.getmtime)
 			if os.path.getmtime(video_path) < copy_time:
 				print ("Error! Rendered file is older than replay!")
@@ -291,9 +306,9 @@ def render_videos(renders: list):
 					video_path = None
 		if not video_path is None:
 			print ("Copying file", video_path, 'to', render_path, 'created', os.path.getmtime(video_path))
-            os.rename(video_path, render_path + '/recording.mp4')
-        else:
-            print ("No Video file found")
+			os.rename(video_path, render_path + '/recording.mp4')
+		else:
+			print ("No Video file found")
 
 		# Remove mcpr file from dir
 		os.remove(J(recording_path, (recording_name + ".mcpr")))
@@ -326,7 +341,7 @@ def main():
 
 
 
-	#from IPython import embed; embed()
+	# from IPython import embed; embed()
 
 if __name__ == "__main__":
 	main()

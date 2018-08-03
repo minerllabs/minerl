@@ -16,11 +16,11 @@ def launchMC():
     # Run the Mine Craft Launcher
     cmd = '"C:\Program Files (x86)\Minecraft\MinecraftLauncher.exe"'
     os.startfile(cmd)
-    print "Launched ",cmd
+    print ("Launched ",cmd)
 
     x = 2944
     y = 1794
-    print "Launching Minecraft"
+    print ("Launching Minecraft")
     pyautogui.moveTo(x,y)
 
     time.sleep(15) # Give the launcher time to come up
@@ -35,7 +35,7 @@ def launchReplayViewer():
     pyautogui.moveTo(x,y)
     time.sleep(10)
 
-    print "\tLaunching ReplayViewer"
+    print ("\tLaunching ReplayViewer")
     pyautogui.click(x,y) # Then click the button that launches replayMod
 
 
@@ -50,13 +50,13 @@ def launchRendering():
     pyautogui.moveTo(x,y)
     time.sleep(3)
     
-    print "\tLaunching render"
+    print ("\tLaunching render")
     pyautogui.click(x,y) # Then click the button that launches replayMod
 
 
 # Just in case the finish file wasn't deleted before
 if os.path.exists(finishedFile):
-    print "Deleting: ",finishedFile
+    print ("Deleting: ",finishedFile)
     os.remove(finishedFile)
 
 
@@ -75,7 +75,7 @@ for r, d, f in os.walk(inDir):
             notFound = True
             while notFound:
                 if os.path.exists(finishedFile):
-                    print "\tRendering is complete!!!!!"
+                    print ("\tRendering is complete!!!!!")
                     os.remove(finishedFile)
                     notFound = False
                 else:
