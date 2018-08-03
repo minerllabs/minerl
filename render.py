@@ -261,7 +261,10 @@ def render_videos(renders: list):
 	# Clear recording directory to protect against crash messages
 	recording_path = MINECRAFT_DIR + '/replay_recordings/'
 	for messyFile in glob.glob(recording_path + '/*'): # * means all if need specific format then *.csv
-		os.remove(messyFile)
+		try:
+			os.remove(messyFile)
+		except IsADirectoryError:
+			os.rmdir(messyFile)
 	
 	launchMC()
 	for recording_name, render_path in tqdm.tqdm(renders):
