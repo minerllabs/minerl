@@ -206,17 +206,17 @@ def launchMC():
     print("Launching Minecraft")
     pyautogui.moveTo(x, y)
 
-    time.sleep(15)  # Give the launcher time to come up
+    time.sleep(10)  # Give the launcher time to come up
     # Click on the launcher button that starts Minecraft
     pyautogui.click(x, y)
-    time.sleep(30)
+    time.sleep(20)
 
 
 def launchReplayViewer():
     x = 860  # 1782
     y = 700  # 1172
     pyautogui.moveTo(x, y)
-    time.sleep(10)
+    time.sleep(1)
 
     print("\tLaunching ReplayViewer")
     pyautogui.click(x, y)  # Then click the button that launches replayMod
@@ -224,8 +224,11 @@ def launchReplayViewer():
 
 # My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
 def launchRendering():
-    time.sleep(10);
+    time.sleep(10)
     pyautogui.typewrite('t')  # turn off mouse controls
+	time.sleep(0.100) # Click back to game (incase of focus loss)
+    x = 961#1588
+    y = 555#975
     time.sleep(0.100)
     x = 624#1588
     y = 506#975
@@ -247,10 +250,16 @@ def render_videos(renders: list):
 
 	"""
 
+	# Remove any finished file flags to prevent against copying unfinished renders
 	try:
 		os.remove(FINISHED_FILE)
 	except FileNotFoundError:
 		pass
+
+	# Clear recording directory to protect against crash messages
+	recording_path = MINECRAFT_DIR + '/replay_recordings/'
+	for messyFile in glob.glob(recording_path + '/*'): # * means all if need specific format then *.csv
+		os.remove(messyFile)
 	
 	launchMC()
 	for recording_name, render_path in tqdm.tqdm(renders):
@@ -289,7 +298,7 @@ def render_videos(renders: list):
 				os.remove(FINISHED_FILE)
 				notFound = False
 			else:
-				time.sleep(5)
+				time.sleep(0.5)
 
 		list_of_files = glob.glob(rendered_video_path + '*.mp4') # * means all if need specific format then *.csv
 
@@ -298,12 +307,12 @@ def render_videos(renders: list):
 			video_path = max(list_of_files, key=os.path.getmtime)
 			if os.path.getmtime(video_path) < copy_time:
 				print ("Error! Rendered file is older than replay!")
-				user_input = input("Are you sure you want to copy this out of date render? (y/n)")
-				if "y" in user_input:
-					print("using out of date recording")
-				else:
-					print("skipping out of date rendering")
-					video_path = None
+				# user_input = input("Are you sure you want to copy this out of date render? (y/n)")
+				# if "y" in user_input:
+				# 	print("using out of date recording")
+				# else:
+				print("skipping out of date rendering")
+				video_path = None
 		if not video_path is None:
 			print ("Copying file", video_path, 'to', render_path, 'created', os.path.getmtime(video_path))
 			os.rename(video_path, render_path + '/recording.mp4')
@@ -336,6 +345,7 @@ def main():
 	  	len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))
 	)
 	print("Rendering videos: ")
+
 	render_videos(valid_renders)
 
 
