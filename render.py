@@ -227,16 +227,16 @@ def launchReplayViewer():
 def launchRendering():
 	time.sleep(10)
 	pyautogui.typewrite('t')  # turn off mouse controls
-	time.sleep(0.100) # Click back to game (incase of focus loss)
+	time.sleep(0.1) 
 	x = 961#1588
 	y = 555#975
 	pyautogui.moveTo(x, y)
-	time.sleep(0.100)
-	pyautogui.click(x, y)
+	time.sleep(2 )
+	pyautogui.click(x, y) # Click back to game (incase of focus loss)
 	x = 624#1588
 	y = 506#975
 	pyautogui.moveTo(x, y)
-	time.sleep(3)
+	time.sleep(1)
 
 	print("\tLaunching render")
 	pyautogui.click(x, y)  # Then click the button that launches replayMod
