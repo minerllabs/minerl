@@ -227,11 +227,11 @@ def launchReplayViewer():
 def launchRendering():
 	time.sleep(10)
 	pyautogui.typewrite('t')  # turn off mouse controls
-	time.sleep(0.1) 
+	time.sleep(5) 
 	x = 961#1588
 	y = 555#975
 	pyautogui.moveTo(x, y)
-	time.sleep(2 )
+	time.sleep(0.1)
 	pyautogui.click(x, y) # Click back to game (incase of focus loss)
 	x = 624#1588
 	y = 506#975
