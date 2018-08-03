@@ -133,7 +133,6 @@ def keycode_dict():
 	keycode[222]    = 'POWER   '
 	keycode[223]    = 'SLEEP'
 	keycode[-99]	= 'BUTTON1' # right click
-	keycode[-99]	= 'END' # right click
-	#keycode[-98]    = 'BUTTON2' # middle click
+	keycode[-98]    = 'BUTTON2' # middle click
 	keycode[-100]	= 'BUTTON0' # left click
 	return keycode
