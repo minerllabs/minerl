@@ -195,6 +195,7 @@ def render_actions(renders: list):
 # 3.Render the video encodings
 
 
+
 def launchMC():
     # Run the Mine Craft Launcher
     subprocess.Popen(MC_LAUNCHER, stdout=subprocess.DEVNULL)
@@ -245,7 +246,6 @@ def render_videos(renders: list):
 	 3) Copying the produced mp4 to the rendered directory
 
 	"""
-
 
 	try:
 		os.remove(FINISHED_FILE)
