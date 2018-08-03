@@ -177,6 +177,7 @@ def render_actions(renders: list):
 
 	return good_renders, bad_renders
 
+# 3.Render the video encodings
 def render_videos(renders: list):
 	"""
 	For every render directory, we render the videos.
@@ -203,8 +204,6 @@ def render_videos(renders: list):
 		if E(skip_path):
 			print ("Skipping: file was previously skipped")
 			continue
-
-		# Skip if the rendering is too short or too long
 
 
 		mcpr_path= J(MERGED_DIR, (recording_name + ".mcpr"))
