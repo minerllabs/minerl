@@ -116,7 +116,12 @@ def render_metadata(renders: list) -> list:
 						assert str(mfile) in [str(x) for x in recording.namelist()]
 						extract(mfile)
 
-					# check that tream_meta_data is good
+					# check that stream_meta_data is good
+					with open(J(render_path, 'metaData.json'), 'r') as f:
+						jbos = json.load(f)
+						assert (jbos["duration"] > 60000)
+
+					# check that stream_meta_data is good
 					with open(J(render_path, 'stream_meta_data.json'), 'r') as f:
 						jbos = json.load(f)
 						assert jbos["has_EOF"]
@@ -197,6 +202,8 @@ def render_videos(renders: list):
 		if E(skip_path):
 			print ("Skipping: file was previously skipped")
 			continue
+
+		# Skip if the rendering is too short or too long
 
 
 		mcpr_path= J(MERGED_DIR, (recording_name + ".mcpr"))
