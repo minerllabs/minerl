@@ -8,6 +8,7 @@ render.py
 # 3) Running the video_rendering scripts
 """
 import os
+import shutil
 import glob
 import numpy as np
 import tqdm
@@ -264,7 +265,7 @@ def render_videos(renders: list):
 		try:
 			os.remove(messyFile)
 		except IsADirectoryError:
-			os.rmdir(messyFile)
+			shutil.rmtree(messyFile)
 	
 	launchMC()
 	for recording_name, render_path in tqdm.tqdm(renders):
