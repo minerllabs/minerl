@@ -26,9 +26,11 @@ E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
 RENDER_DIR = J(WORKING_DIR, "rendered")
-MINECRAFT_DIR = "C:/Users/Brandon/minecraft_modded"
-FINISHED_FILE = 'C:/Users/Brandon/minecraft_modded/finished.txt'
-MC_LAUNCHER = '"C:\Program Files (x86)\Minecraft\MinecraftLauncher.exe"'
+MINECRAFT_DIR = "/home/hero/minecraft"
+FINISHED_FILE = J(MINECRAFT_DIR,'finished.txt')
+MC_LAUNCHER = '/opt/minecraft-launcher/minecraft-launcher.sh'
+#MC_JAR = # This seems to be excluded from the current launcher 
+#MC_LAUNCH_ARGS = '-Xmx4G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M'
 BLACKLIST_PATH =J(WORKING_DIR, "blacklist.txt")
 
 END_OF_STREAM = 'end_of_stream.txt'
