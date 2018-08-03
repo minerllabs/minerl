@@ -198,7 +198,7 @@ def render_actions(renders: list):
 
 def launchMC():
     # Run the Mine Craft Launcher
-    subprocess.Popen(MC_LAUNCHER, stdout=subprocess.DEVNULL)
+    subprocess.Popen(MC_LAUNCHER, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("Launched ", MC_LAUNCHER)
 
     x = 388  # 2944
