@@ -43,7 +43,7 @@ def main():
     try:
         assert(path.endswith("actions.tmcpr"))
     except:
-        print("Wrong argument: not an action.tmcpr file")
+        print("Wrong argument: not an actions.tmcpr file")
         sys.exit(1)        
 
     # open file

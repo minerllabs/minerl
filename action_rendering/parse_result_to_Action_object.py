@@ -26,6 +26,7 @@ BINDINGS = {
     "9": 'hotbar.9 1',
     "BUTTON0": 'attack 1',
     "BUTTON1": 'use 1',
+    # "BUTTON2": 'pickItem 1',
     'LSHIFT': 'crouch 1'
     }
 
