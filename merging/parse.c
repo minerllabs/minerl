@@ -95,7 +95,7 @@ const char* JSON[]=
 #endif
 
 /* function prototypes */
-void reparse(FILE* input, unsigned int last_valid_seq_num);
+void reparse(FILE* input, unsigned int last_valid_seq_num, const char* src_stream);
 void clean_files();
 void open_append_files(FILE** outputs);
 void close_append_files(FILE** outputs);
@@ -117,15 +117,16 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
     FILE* outputs[FILE_NUM]; // for append files
     
     int counter = 0, err_check;
-    char buf[BUF_LEN];
-    char* backup_buf = NULL;
-    int backup_buf_len = 0;
-
     unsigned int entry, time_stamp, len, sequence_number;
     unsigned int prev_entry = 0, prev_len = 0;
     bool checked_seq_num = false;
     bool miss_seq_num = false;
     bool has_EOF = false;
+    bool need_reparse = false;
+
+    char buf[BUF_LEN];
+    char* backup_buf = NULL;
+    int backup_buf_len = 0;
     
     // open all "a" output
     open_append_files(outputs);
@@ -134,8 +135,9 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
     {
         if (has_EOF)
         {
-            printf("    detect entry after EOF entry. Abort\n");
-            exit(-1);
+            printf("    detect entry after EOF entry. Need reparse\n");
+            need_reparse = true;
+            break;
         }
 
         dbg_printf("[%d]\n",counter);
@@ -157,8 +159,9 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
                 prev_entry,counter-1,prev_len);
             if (prev_len <= BUF_LEN) printf("data = %s\n",buf);
             else if (backup_buf != NULL) printf("data = %s\n", backup_buf);
-            printf("Abort\n");
-            exit(-1);
+            printf("Need reparse\n");
+            need_reparse = true;
+            break;
         }
 
         /* time_stamp */
@@ -182,9 +185,9 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
                 backup_buf = malloc(sizeof(len)); 
                 if (backup_buf == NULL)
                 {
-                    printf("    failed to allocate new buffer, abort\n");
-                    // no file leaks since close rightaway
-                    exit(-1);
+                printf("    failed to allocate new buffer, abort\n");
+                // no file leaks since close rightaway
+                exit(-1);
                 }
                 backup_buf_len = len;
             }
@@ -194,7 +197,7 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
         else
         {
             fread(buf, len, 1, input);
-            dbg_printf("data = %s\n", buf);
+            // dbg_printf("data = %s\n", buf);
         }
         
         /* open and write output */
@@ -202,13 +205,22 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
         { 
             // case 1: append, directly write
             if (WRITE_METHODS[entry] == APPEND)
-            {
-                if ((err_check = fwrite(buf, len, 1, outputs[entry])) != 1)
+            {   
+                if (backup_buf == NULL)
                 {
-                    printf("    trouble writing to output file[%d] %s\n",
-                       entry,FILES[entry] );
-                    exit(-1);
+                    if ((err_check = fwrite(buf, len, 1, outputs[entry])) != 1)
+                    {
+                        printf("    trouble writing to output file[%d] %s\n",
+                        entry,FILES[entry] );
+                            exit(-1);
+                    }                 
                 }
+                else
+                {
+                    fwrite(backup_buf, len, 1, outputs[entry]);
+                    free(backup_buf);
+                }
+
             }
             // case 2: overwrite
             else
@@ -222,10 +234,18 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
                     exit(-1);
                 }
                 // write and close
-                if (fwrite(buf, len, 1, output) != 1)
+                if (backup_buf == NULL)
                 {
-                    printf("    trouble writing to output\n" );
-                    exit(-1);
+                    if (fwrite(buf, len, 1, output) != 1)
+                    {
+                        printf("    trouble writing to output\n" );
+                        exit(-1);
+                    }
+                }
+                else
+                {
+                    fwrite(backup_buf, len, 1, output);
+                    free(backup_buf);
                 }
                 fclose(output);
             } 
@@ -265,8 +285,9 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
 
     // create stream_meta_data
     write_stream_meta_data(has_EOF, miss_seq_num);
-
-    return has_EOF;
+ 
+    if (!has_EOF && end == NULL) need_reparse = true;
+    return need_reparse;
 }
 
 
@@ -277,12 +298,12 @@ int main(int argc, char **argv)
     size_t err_check;
     FILE* input;
     unsigned int last_valid_seq_num;
-    bool has_EOF;
+    bool need_reparse;
 
    
-    const char* src_stream = NULL;
+    const char* src_stream;
 
-    // get src_stream
+    // get src_streamm
     while ((opt = getopt(argc, argv, "f:")) != -1){
         switch (opt) {
             case 'f':
@@ -309,35 +330,38 @@ int main(int argc, char **argv)
     }
 
     // the main parse function
-    has_EOF = parse(input, &last_valid_seq_num, NULL);
+    need_reparse = parse(input, &last_valid_seq_num, NULL);
     
+
+
+    // if no EOF, set end point, reparse again
+    if (need_reparse)
+    {
+        reparse(input, last_valid_seq_num, src_stream);
+    }
+
     // close input file
     err_check = fclose(input);
+    
     if (err_check != 0)
     {
         printf("error closing the source stream. \n");
     }
-
-    // if no EOF, set end point, reparse again
-    if (!has_EOF)
-    {
-        reparse(input, last_valid_seq_num);
-    }
-
     // finish and return
     printf("finish parsing the source stream.\n");
     return 0;
 }
 
 /* HELPER FUNCTIONS */
-void reparse(FILE* input, unsigned int last_valid_seq_num)
+void reparse(FILE* input, unsigned int last_valid_seq_num, const char* src_stream)
 {
-    printf("WARNING: no EOF detected. Reparse the stream to keep the valid part. \n");
+    printf("WARNING: Reparse the stream until seq_num[%d] to keep the valid part.\n", last_valid_seq_num);
+    fclose(input);
+    input = fopen(src_stream,"r");
     clean_files();
     unsigned int* end = malloc(sizeof(unsigned int));
     *end = last_valid_seq_num;
-    // input is read only so safe to reuse
-    parse(input, NULL, end);
+    assert(parse(input, NULL, end) == false);
     free(end);  
 }
 
@@ -361,7 +385,6 @@ void clean_files()
 
 void open_append_files(FILE** outputs)
 {
-    int err_check;
     // open all "a" output
     for (int i = 1; i < FILE_NUM; i++)
     {
