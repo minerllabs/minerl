@@ -230,8 +230,8 @@ def launchRendering():
 	x = 961#1588
 	y = 555#975
 	pyautogui.moveTo(x, y)
-	time.sleep(0.1)
-	pyautogui.click(x, y) # Click back to game (incase of focus loss)
+	time.sleep(1)
+	pyautogui.click(x, y) # Click back to game (in case of focus loss)
 	x = 624#1588
 	y = 506#975
 	pyautogui.moveTo(x, y)
