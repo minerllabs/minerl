@@ -326,7 +326,7 @@ def render_videos(renders: list):
 			videoFilename = video_path.split('/')[-1]
 
 			metadata['start_timestamp'] = int(videoFilename.split('_')[1])
-			metadata['stop_timestamp'] = int(videoFilename.split('_')[2])
+			metadata['stop_timestamp'] = int(videoFilename.split('_')[2].split('-')[0])
 			json.dump(metadata, open(J(render_path,'stream_meta_data.json')))
 		else:
 			print ("No Video file found")
