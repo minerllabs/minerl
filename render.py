@@ -217,7 +217,7 @@ def launchReplayViewer():
     x = 860  # 1782
     y = 700  # 1172
     pyautogui.moveTo(x, y)
-    time.sleep(1)
+    time.sleep(10)
 
     print("\tLaunching ReplayViewer")
     pyautogui.click(x, y)  # Then click the button that launches replayMod
@@ -225,18 +225,17 @@ def launchReplayViewer():
 
 # My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
 def launchRendering():
-	time.sleep(10)
+	time.sleep(15)
 	pyautogui.typewrite('t')  # turn off mouse controls
-	time.sleep(0.100) # Click back to game (incase of focus loss)
 	x = 961#1588
 	y = 555#975
 	pyautogui.moveTo(x, y)
-	time.sleep(0.100)
-	pyautogui.click(x, y)
+	time.sleep(1)
+	pyautogui.click(x, y) # Click back to game (in case of focus loss)
 	x = 624#1588
 	y = 506#975
 	pyautogui.moveTo(x, y)
-	time.sleep(3)
+	time.sleep(1)
 
 	print("\tLaunching render")
 	pyautogui.click(x, y)  # Then click the button that launches replayMod
