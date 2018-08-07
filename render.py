@@ -225,13 +225,13 @@ def launchReplayViewer():
 
 # My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
 def launchRendering():
-	time.sleep(15)
+	time.sleep(20)
 	pyautogui.typewrite('t')  # turn off mouse controls
-	x = 961#1588
-	y = 555#975
-	pyautogui.moveTo(x, y)
-	time.sleep(1)
-	pyautogui.click(x, y) # Click back to game (in case of focus loss)
+	# x = 961#1588
+	# y = 555#975
+	# pyautogui.moveTo(x, y)
+	# time.sleep(1)
+	# pyautogui.click(x, y) # Click back to game (in case of focus loss)
 	x = 624#1588
 	y = 506#975
 	pyautogui.moveTo(x, y)
@@ -321,6 +321,13 @@ def render_videos(renders: list):
 		if not video_path is None:
 			print ("Copying file", video_path, 'to', render_path, 'created', os.path.getmtime(video_path))
 			os.rename(video_path, render_path + '/recording.mp4')
+			print ("Recording start and stop timestamp for video")
+			metadata = json.load(open(J(render_path,'stream_meta_data.json')))
+			videoFilename = video_path.split('/')[-1]
+
+			metadata['start_timestamp'] = int(videoFilename.split('_')[1])
+			metadata['stop_timestamp'] = int(videoFilename.split('_')[2].split('-')[0])
+			json.dump(metadata, open(J(render_path,'stream_meta_data.json'),'w'))
 		else:
 			print ("No Video file found")
 
