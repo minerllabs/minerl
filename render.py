@@ -330,6 +330,13 @@ def render_videos(renders: list):
 			json.dump(metadata, open(J(render_path,'stream_meta_data.json'),'w'))
 		else:
 			print ("No Video file found")
+			print ("Skipping this file in the future")
+			with open(skip_path, 'a'):
+				try:                     
+					os.utime(skip_path, None)  # => Set skip time to now
+				except OSError:
+					pass  # File deleted between open() and os.utime() calls
+
 
 		# Remove mcpr file from dir
 		os.remove(J(recording_path, (recording_name + ".mcpr")))
