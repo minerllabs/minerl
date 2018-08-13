@@ -233,7 +233,7 @@ def launchMC():
     y = 626
     print("Launching Minecraft: ", end='', flush=True)
     pyautogui.moveTo(x, y)
-    delay = 5
+    delay = 10
     for i in range(delay):
         print(delay-i, ' ', end='', flush=True)
         time.sleep(1)
@@ -243,7 +243,7 @@ def launchMC():
     pyautogui.click(x, y)
     print("\tWaiting for it to load:", end='', flush=True)
     pyautogui.click(x, y)  # Click on the launcher button that starts Minecraft
-    delay = 3
+    delay = 4
     for i in range(delay):
         print((delay-i) * 5, '', end='', flush=True)
         time.sleep(5)
@@ -256,7 +256,7 @@ def launchReplayViewer():
     y = 700  # 1172
     pyautogui.moveTo(x, y)
     print("\tLaunching ReplayViewer: ", end='', flush=True)
-    delay = 5
+    delay = 25
     for i in range(delay):
         print(delay-i, '', end='', flush=True)
         time.sleep(1)
@@ -272,7 +272,7 @@ def launchRendering():
 	pyautogui.moveTo(x, y)      # In case we lost focus of mouse
 	pyautogui.typewrite('t')  # turn off mouse controls
 
-	delay = 7
+	delay = 30
 	pyautogui.typewrite('t')  # turn off mouse controls
 	for i in range(delay):
 		print(delay-i, ' ', end='', flush=True)
