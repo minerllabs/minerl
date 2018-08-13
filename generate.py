@@ -17,7 +17,7 @@ import zipfile
 import subprocess
 import json
 
-######################3
+#######################
 ### UTILITIES
 #######################
 J = os.path.join
@@ -168,10 +168,14 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
     # if 'video' not in metadata:
     #     return
+
+    streamMetadata = json.load(open(J(inputPath,'stream_meta_data.json')))
+
     # Frames per second expressed as a fraction, e.g. 25/1
     fps = 60 # float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
     timePerFrame = 1000.0 / fps
-    videoOffset = 5000
+    videoOffset = streamMetadata['start_timestamp']
+    numFrames = streamMetadata['stop_timestamp'] - videoOffset
     # numFrames = metadata['video']['@nb_frames']
 
 

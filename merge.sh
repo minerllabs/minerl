@@ -60,8 +60,10 @@ if [ -f $path/list_all.txt ]; then
   rm $path/list_all.txt
 
   # concatenate
+  echo "Concatonating files"
   while read p; do
     # ensure alphabtical order
+    echo $p
     cat $p* > $working_dir/streams/$p.bin
   done <unique.txt
   rm unique.txt
