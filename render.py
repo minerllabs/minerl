@@ -31,15 +31,14 @@ E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
 RENDER_DIR = J(WORKING_DIR, "rendered")
-MINECRAFT_DIR = "/home/ricky/.minecraft"
+MINECRAFT_DIR = "/home/hero/minecraft"
 FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
 LOG_FILE = J(J(MINECRAFT_DIR,'logs'),'debug.log') # RAH
 EOF_EXCEP_DIR = J(WORKING_DIR,'EOFExceptions')
 ZEROLEN_DIR = J(WORKING_DIR,'zeroLengthFiles')
 NULL_PTR_EXCEP_DIR = J(WORKING_DIR,'nullPointerExceptions')
 
-
-MC_LAUNCHER = '/usr/games/minecraft'
+MC_LAUNCHER = '/opt/minecraft-launcher/minecraft-launcher.sh'
 #MC_LAUNCHER = '/opt/minecraft-launcher/minecraft-launcher.sh'
 # MC_JAR = # This seems to be excluded from the current launcher
 # MC_LAUNCH_ARGS = '-Xmx4G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M'
@@ -219,9 +218,8 @@ def launchMC():
     p = subprocess.Popen(MC_LAUNCHER, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("Launched ", MC_LAUNCHER)
 
-    # These appear to be consitent across 4K screen
-    x = 1948                     
-    y = 1424
+    x = 388  
+    y = 626
     print("Launching Minecraft: ",end='',flush=True)
     pyautogui.moveTo(x, y)
     delay = 5
@@ -243,9 +241,8 @@ def launchMC():
 
 
 def launchReplayViewer():
-    # These appear to be consitent across 4K screen    
-    x = 1806
-    y = 1182
+    x = 860  # 1782
+    y = 700  # 1172
     pyautogui.moveTo(x, y)
     print("\tLaunching ReplayViewer: ",end='',flush=True)    
     delay = 5
@@ -259,8 +256,8 @@ def launchReplayViewer():
 # My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
 def launchRendering():
     print("\tLaunching render: ",end='',flush=True)
-    x = 1588
-    y = 975
+    x = 961
+	y = 555
     pyautogui.moveTo(x, y)      # In case we lost focus of mouse
     pyautogui.typewrite('t')  # turn off mouse controls
     
@@ -273,8 +270,8 @@ def launchRendering():
         pyautogui.typewrite('t')  # turn off mouse controls        
     print ("0")
     
-    x = 1588
-    y = 975
+    x = 624 
+	y = 506
     time.sleep(0.25)
     pyautogui.click(x, y)  # Then click the button that launches replayMod
     
