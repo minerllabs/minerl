@@ -1,3 +1,4 @@
+#!/usr/bin/python3.5
 """
 render.py
 # This script renders the merged experiments into
@@ -17,6 +18,9 @@ import subprocess
 import json
 import time
 import pyautogui
+import shutil
+import psutil
+import re
 from shutil import copyfile
 
 # 3
@@ -27,9 +31,16 @@ E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
 RENDER_DIR = J(WORKING_DIR, "rendered")
-MINECRAFT_DIR = "/home/hero/minecraft"
+MINECRAFT_DIR = "/home/ricky/.minecraft"
 FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
-MC_LAUNCHER = '/opt/minecraft-launcher/minecraft-launcher.sh'
+LOG_FILE = J(J(MINECRAFT_DIR,'logs'),'debug.log') # RAH
+EOF_EXCEP_DIR = J(WORKING_DIR,'EOFExceptions')
+ZEROLEN_DIR = J(WORKING_DIR,'zeroLengthFiles')
+NULL_PTR_EXCEP_DIR = J(WORKING_DIR,'nullPointerExceptions')
+
+
+MC_LAUNCHER = '/usr/games/minecraft'
+#MC_LAUNCHER = '/opt/minecraft-launcher/minecraft-launcher.sh'
 # MC_JAR = # This seems to be excluded from the current launcher
 # MC_LAUNCH_ARGS = '-Xmx4G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M'
 BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
@@ -54,7 +65,7 @@ def touch(path):
 
 def remove(path):
     if E(path):
-    	os.remove(path)
+        os.remove(path)
 
 
 def get_recording_archive(recording_name):
@@ -155,91 +166,118 @@ def render_metadata(renders: list) -> list:
 
 
 def render_actions(renders: list):
-	"""
-	For every render directory, we render the actions
-	"""
-	good_renders = []
-	bad_renders = []
-
-	for recording_name, render_path in tqdm.tqdm(renders):
-		if E(J(render_path, 'network.npy')):
-			if E(J(render_path, GOOD_MARKER_NAME)):
-					good_renders.append((recording_name, render_path))
-			else:
-				bad_renders.append((recording_name, render_path))
-		else:
-			try:
-				recording = get_recording_archive(recording_name)
-				extract = lambda fname: recording.extract(fname, render_path)
-
-				# Extract actions
-				assert str(ACTION_FILE) in [str(x) for x in recording.namelist()]
-				# Extract it if it doesnt exist
-				action_mcbr = extract(ACTION_FILE)
-				# Check that it's not-empty.
-				assert not os.stat(action_mcbr).st_size == 0
-
-				# Run the actual parse action and make sure that its actually of length 0.
-				p = subprocess.Popen(["python3", "parse_action.py", os.path.abspath(
-				    action_mcbr)], cwd='action_rendering')
-				returncode = (p.wait())
-				assert returncode == 0
-
-				good_renders.append((recording_name, render_path))
-			except AssertionError as e:
-				touch(J(render_path, BAD_MARKER_NAME))
-				remove(J(render_path, GOOD_MARKER_NAME))
-				bad_renders.append((recording_name, render_path))
-
-	return good_renders, bad_renders
+    """
+    For every render directory, we render the actions
+    """
+    good_renders = []
+    bad_renders = []
+    
+    for recording_name, render_path in tqdm.tqdm(renders):
+        if E(J(render_path, 'network.npy')):
+            if E(J(render_path, GOOD_MARKER_NAME)):
+                good_renders.append((recording_name, render_path))
+            else:
+                bad_renders.append((recording_name, render_path))
+        else:
+            try:
+                recording = get_recording_archive(recording_name)
+                extract = lambda fname: recording.extract(fname, render_path)
+                
+                # Extract actions
+                assert str(ACTION_FILE) in [str(x) for x in recording.namelist()]
+                # Extract it if it doesnt exist
+                action_mcbr = extract(ACTION_FILE)
+                # Check that it's not-empty.
+                assert not os.stat(action_mcbr).st_size == 0
+                
+                # Run the actual parse action and make sure that its actually of length 0.
+                p = subprocess.Popen(["python3", "parse_action.py", os.path.abspath(
+                    action_mcbr)], cwd='action_rendering')
+                returncode = (p.wait())
+                assert returncode == 0
+                
+                good_renders.append((recording_name, render_path))
+            except AssertionError as e:
+                touch(J(render_path, BAD_MARKER_NAME))
+                remove(J(render_path, GOOD_MARKER_NAME))
+                bad_renders.append((recording_name, render_path))
+                
+    return good_renders, bad_renders
 
 # 3.Render the video encodings
 
+# RAH - Kill MC (or any process) given the PID
+def killMC(pid):
+    process = psutil.Process(int(pid))
+    for proc in process.children(recursive=True):
+        proc.kill()
+    process.kill()
 
-
+# RAH Launch MC - return the process so we can kill later if needed
 def launchMC():
     # Run the Mine Craft Launcher
-    subprocess.Popen(MC_LAUNCHER, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    p = subprocess.Popen(MC_LAUNCHER, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("Launched ", MC_LAUNCHER)
 
-    x = 388  # 2944
-    y = 626  # 1794
-    print("Launching Minecraft")
+    # These appear to be consitent across 4K screen
+    x = 1948                     
+    y = 1424
+    print("Launching Minecraft: ",end='',flush=True)
     pyautogui.moveTo(x, y)
+    delay = 5
+    for i in range(delay):
+        print (delay-i,' ',end='',flush=True)
+        time.sleep(1)
+    print ("0")
 
-    time.sleep(10)  # Give the launcher time to come up
     # Click on the launcher button that starts Minecraft
     pyautogui.click(x, y)
-    time.sleep(20)
+    print ("\tWaiting for it to load:",end='',flush=True)
+    pyautogui.click(x,y) # Click on the launcher button that starts Minecraft
+    delay = 3
+    for i in range(delay):
+        print ((delay-i) * 5,'',end='',flush=True)
+        time.sleep(5)
+    print ("0")
+    return p
 
 
 def launchReplayViewer():
-    x = 860  # 1782
-    y = 700  # 1172
+    # These appear to be consitent across 4K screen    
+    x = 1806
+    y = 1182
     pyautogui.moveTo(x, y)
-    time.sleep(10)
-
-    print("\tLaunching ReplayViewer")
+    print("\tLaunching ReplayViewer: ",end='',flush=True)    
+    delay = 5
+    for i in range(delay):
+        print (delay-i,'',end='',flush=True)
+        time.sleep(1)
+    print ("0")
     pyautogui.click(x, y)  # Then click the button that launches replayMod
 
 
 # My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
 def launchRendering():
-	time.sleep(20)
-	pyautogui.typewrite('t')  # turn off mouse controls
-	# x = 961#1588
-	# y = 555#975
-	# pyautogui.moveTo(x, y)
-	# time.sleep(1)
-	# pyautogui.click(x, y) # Click back to game (in case of focus loss)
-	x = 624#1588
-	y = 506#975
-	pyautogui.moveTo(x, y)
-	time.sleep(1)
-
-	print("\tLaunching render")
-	pyautogui.click(x, y)  # Then click the button that launches replayMod
-
+    print("\tLaunching render: ",end='',flush=True)
+    x = 1588
+    y = 975
+    pyautogui.moveTo(x, y)      # In case we lost focus of mouse
+    pyautogui.typewrite('t')  # turn off mouse controls
+    
+    delay = 7
+    pyautogui.typewrite('t')  # turn off mouse controls
+    for i in range(delay):
+        print (delay-i,' ',end='',flush=True)
+        time.sleep(1)
+        pyautogui.moveTo(x, y)
+        pyautogui.typewrite('t')  # turn off mouse controls        
+    print ("0")
+    
+    x = 1588
+    y = 975
+    time.sleep(0.25)
+    pyautogui.click(x, y)  # Then click the button that launches replayMod
+    
 
 def render_videos(renders: list):
 	"""
@@ -247,7 +285,7 @@ def render_videos(renders: list):
 	This works by:
 	 1) Copying the file to the minecraft directory
 	 2) Waiting for user input:
-	 		User render the video using replay mod and hit enter once the video is rendered
+			User render the video using replay mod and hit enter once the video is rendered
 	 3) Copying the produced mp4 to the rendered directory
 
 	"""
@@ -266,83 +304,139 @@ def render_videos(renders: list):
 		except IsADirectoryError:
 			shutil.rmtree(messyFile)
 	
-	launchMC()
+	p = launchMC() # RAH launchMC() now returns subprocess - use p.PID to get process ID
 	for recording_name, render_path in tqdm.tqdm(renders):
-		# Get mcpr file from merged
-		print("Rendering:", recording_name, '...')
+	    # Get mcpr file from merged
+	    print("Rendering:", recording_name, '...')
+	    
+	    # Skip if the folder has an recording already
+	    list_of_files = glob.glob(render_path + '/*.mp4') # * means all if need specific format then *.csv
+	    if len(list_of_files):
+                print ("\tSkipping: replay folder contains", list_of_files[0])
+                continue
+	    
+	    # Skip if the file has been skipped allready
+	    skip_path = J(render_path, SKIPPED_RENDER_FLAG)
+	    if E(skip_path):
+                print ("\tSkipping: file was previously skipped")
+                continue
 
-		# Skip if the folder has an recording already
-		list_of_files = glob.glob(render_path + '/*.mp4') # * means all if need specific format then *.csv
-		if len(list_of_files) > 0:
-			print ("Skipping: replay folder contains", list_of_files[0])
-			continue
+	    mcpr_path= J(MERGED_DIR, (recording_name + ".mcpr"))
+	    recording_path = MINECRAFT_DIR + '/replay_recordings/'
+	    rendered_video_path = MINECRAFT_DIR + '/replay_videos/'
+	    copyfile(mcpr_path, recording_path + (recording_name + ".mcpr"))
+	    copy_time = os.path.getmtime(recording_path + (recording_name + ".mcpr"))
+	    
+	    launchReplayViewer() # Presses the ReplayViewer() button - this step can be automated in the code, but this is cleaner
+	    launchRendering() # Launch rendering inside the replaymod - this is the piece I have not been able to automate due to thread issues
+	    logFile = open(LOG_FILE,'r',os.O_NONBLOCK)
+	    lineCounter = 0 # RAH So we can print line number of the error
 
-		# Skip if the file has been skipped allready
-		skip_path = J(render_path, SKIPPED_RENDER_FLAG)
-		if E(skip_path):
-			print ("Skipping: file was previously skipped")
-			continue
+	    # Wait for completion (it creates a finished.txt file)
+	    video_path = None
+	    notFound = True
+	    while notFound:
+                if os.path.exists(FINISHED_FILE):
+                    os.remove(FINISHED_FILE)
+                    notFound = False
+                else:
+		    # RAH Begin - this could be cleaner
+                    logLine = logFile.readline()
+                    if len(logLine) > 0:
+                        lineCounter += 1
+                        m = re.search(r"java.io.EOFException:",logLine)
+                        if m:
+                            print ("\tline {}: {}".format(lineCounter,logLine))
+                            print ("\tfound java.io.EOFException")
+                            killMC(p.pid)
+                            time.sleep(5) # Give the OS time to release this file
+                            try:
+                                os.rename(J(recording_path, recording_name+'.mcpr'),J(EOF_EXCEP_DIR,recording_name+'.mcpr'))
+                                shutil.copy(LOG_FILE,                               J(EOF_EXCEP_DIR,recording_name+'.log'))
+                            except:
+                                pass
+                            try:
+                                shutil.rmtree(J(recording_path,recording_name+'.mcpr.tmp'))
+                            except:
+                                pass
+                            
+                            p = launchMC()
+                            break # Exit the current file processing loop and process the next file
+                        
+                        m = re.search(r"Adding time keyframe at \d+ time -\d+",logLine)
+                        if m:
+                            print ("\tline {}: {}".format(lineCounter,logLine))
+                            print ("\tfound 0 length file")
+                            killMC(p.pid)
+                            time.sleep(15) # Give the OS time to release this file
+                            try:
+                                os.rename(J(recording_path, recording_name+'.mcpr'),J(ZEROLEN_DIR,recording_name+'.mcpr'))
+                                shutil.copy(LOG_FILE,                               J(ZEROLEN_DIR,recording_name+'.log'))
+                            except:
+                                pass
+                            try:
+                                shutil.rmtree(J(recording_path,recording_name+'.mcpr.tmp'))
+                            except:
+                                pass
+                            p = launchMC()
+                            break # Exit the current file processing loop and process the next file
+                        
+                        m = re.search(r"java.lang.NullPointerException",logLine)
+                        if m:
+                            print ("\tline {}: {}".format(lineCounter,logLine),)
+                            print ("\tNullPointerException")
+                            killMC(p.pid)
+                            time.sleep(20) # Give the OS time to release this file nullPointerException needs more time than others
+                            print (J(recording_path, recording_name+'.mcpr'),J(NULL_PTR_EXCEP_DIR,recording_name+'.mcpr'))
+                            try:
+                                os.rename(J(recording_path, recording_name+'.mcpr'),J(NULL_PTR_EXCEP_DIR,recording_name+'.mcpr'))
+                                shutil.copy(LOG_FILE,                               J(NULL_PTR_EXCEP_DIR,recording_name+'.log'))
+                            except:
+                                pass
+                            try:
+                                shutil.rmtree(J(recording_path,recording_name+'.mcpr.tmp'))
+                            except:
+                                pass
+                            p = launchMC()
+                            break # Exit the current file processing loop and process the next file
+            # RAH End
 
-
-		mcpr_path= J(MERGED_DIR, (recording_name + ".mcpr"))
-		recording_path = MINECRAFT_DIR + '/replay_recordings/'
-		rendered_video_path = MINECRAFT_DIR + '/replay_videos/'
-		copyfile(mcpr_path, recording_path + (recording_name + ".mcpr"))
-		copy_time = os.path.getmtime(recording_path + (recording_name + ".mcpr"))
-
-
-		launchReplayViewer() # Presses the ReplayViewer() button - this step can be automated in the code, but this is cleaner
-		launchRendering() # Launch rendering inside the replaymod - this is the piece I have not been able to automate due to thread issues
-
-		# Wait for completion (it creates a finished.txt file)
-		video_path = None
-		notFound = True
-		while notFound:
-			if os.path.exists(FINISHED_FILE):
-				print ("\tRendering is complete!!!!!")
-				os.remove(FINISHED_FILE)
-				notFound = False
-			else:
-				time.sleep(0.5)
-
-		list_of_files = glob.glob(rendered_video_path + '*.mp4') # * means all if need specific format then *.csv
-
-		if len(list_of_files) > 0:
-			# Check that this render was created after we copied 
-			video_path = max(list_of_files, key=os.path.getmtime)
-			if os.path.getmtime(video_path) < copy_time:
-				print ("Error! Rendered file is older than replay!")
-				# user_input = input("Are you sure you want to copy this out of date render? (y/n)")
-				# if "y" in user_input:
-				# 	print("using out of date recording")
-				# else:
-				print("skipping out of date rendering")
-				video_path = None
-		if not video_path is None:
-			print ("Copying file", video_path, 'to', render_path, 'created', os.path.getmtime(video_path))
-			os.rename(video_path, render_path + '/recording.mp4')
-			print ("Recording start and stop timestamp for video")
-			metadata = json.load(open(J(render_path,'stream_meta_data.json')))
-			videoFilename = video_path.split('/')[-1]
-
-			metadata['start_timestamp'] = int(videoFilename.split('_')[1])
-			metadata['stop_timestamp'] = int(videoFilename.split('_')[2].split('-')[0])
-			json.dump(metadata, open(J(render_path,'stream_meta_data.json'),'w'))
-		else:
-			print ("No Video file found")
-			print ("Skipping this file in the future")
-			with open(skip_path, 'a'):
-				try:                     
-					os.utime(skip_path, None)  # => Set skip time to now
-				except OSError:
-					pass  # File deleted between open() and os.utime() calls
-
-
-		# Remove mcpr file from dir
-		os.remove(J(recording_path, (recording_name + ".mcpr")))
-
-		
-
+	    list_of_files = glob.glob(rendered_video_path + '*.MP4') # * means all if need specific format then *.cs
+	    if len(list_of_files) > 0:
+                # Check that this render was created after we copied 
+                video_path = max(list_of_files, key=os.path.getmtime)
+                if os.path.getmtime(video_path) < copy_time:
+                    print ("\tError! Rendered file is older than replay!")
+                    # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
+                    # if "y" in user_input:
+                    #       print("using out of date recording")
+                    # else:
+                    print("\tskipping out of date rendering")
+                    video_path = None
+	    if not video_path is None:
+                print ("\tCopying file", video_path, '==>\n\t', render_path, 'created', os.path.getmtime(video_path))
+                os.rename(video_path, render_path + '/recording.mp4')
+                print ("\tRecording start and stop timestamp for video")
+                metadata = json.load(open(J(render_path,'stream_meta_data.json')))
+                videoFilename = video_path.split('/')[-1]
+                
+                metadata['start_timestamp'] = int(videoFilename.split('_')[1])
+                metadata['stop_timestamp'] = int(videoFilename.split('_')[2].split('-')[0])
+                json.dump(metadata, open(J(render_path,'stream_meta_data.json'),'w'))
+	    else:
+                print ("\tNo Video file found")
+                print ("\tSkipping this file in the future")
+                with open(skip_path, 'a'):
+                    try:                 
+                        os.utime(skip_path, None)  # => Set skip time to now
+                    except OSError:
+                        pass  # File deleted between open() and os.utime() calls
+                    # Remove mcpr file from dir
+	    try:
+	        os.remove(J(recording_path, (recording_name + ".mcpr")))
+	    except:
+                pass
+	killMC(p.pid)
 
 def main():
 	"""
@@ -361,7 +455,7 @@ def main():
 	valid_renders, invalid_renders = render_actions(valid_renders)
 	print("... found {} valid recordings and {} invalid recordings"
 	  " out of {} total files".format(
-	  	len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))
+		len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))
 	)
 	print("Rendering videos: ")
 
