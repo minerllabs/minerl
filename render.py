@@ -31,7 +31,9 @@ E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
 RENDER_DIR = J(WORKING_DIR, "rendered")
-MINECRAFT_DIR = "/home/hero/minecraft"
+MINECRAFT_DIR = J('home', 'hero', 'minecraft')
+RECORDING_PATH = J(MINECRAFT_DIR,'replay_recordings')
+RENDERED_VIDEO_PATH = J(MINECRAFT_DIR, 'replay_videos')
 FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
 LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')  # RAH
 EOF_EXCEP_DIR = J(WORKING_DIR, 'EOFExceptions')
@@ -39,7 +41,6 @@ ZEROLEN_DIR = J(WORKING_DIR, 'zeroLengthFiles')
 NULL_PTR_EXCEP_DIR = J(WORKING_DIR, 'nullPointerExceptions')
 
 MC_LAUNCHER = '/opt/minecraft-launcher/minecraft-launcher.sh'
-#MC_LAUNCHER = '/opt/minecraft-launcher/minecraft-launcher.sh'
 # MC_JAR = # This seems to be excluded from the current launcher
 # MC_LAUNCH_ARGS = '-Xmx4G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M'
 BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
@@ -305,9 +306,9 @@ def render_videos(renders: list):
         pass
 
     # Clear recording directory to protect against crash messages
-    recording_path = MINECRAFT_DIR + '/replay_recordings/'
-    # * means all if need specific format then *.csv
-    for messyFile in glob.glob(recording_path + '/*'):
+    #TODO
+
+    for messyFile in glob.glob(J(RECORDING_PATH,'*')):
         try:
             os.remove(messyFile)
         except IsADirectoryError:
@@ -315,12 +316,12 @@ def render_videos(renders: list):
 
     p = launchMC()  # RAH launchMC() now returns subprocess - use p.PID to get process ID
     for recording_name, render_path in tqdm.tqdm(renders):
-            # Get mcpr file from merged
+        # Get mcpr file from merged
         print("Rendering:", recording_name, '...')
 
         # Skip if the folder has an recording already
         # * means all if need specific format then *.csv
-        list_of_files = glob.glob(render_path + '/*.mp4')
+        list_of_files = glob.glob(J(RENDER_DIR, '*.mp4'))
         if len(list_of_files):
             print("\tSkipping: replay folder contains", list_of_files[0])
             continue
@@ -332,11 +333,10 @@ def render_videos(renders: list):
             continue
 
         mcpr_path = J(MERGED_DIR, (recording_name + ".mcpr"))
-        recording_path = MINECRAFT_DIR + '/replay_recordings/'
-        rendered_video_path = MINECRAFT_DIR + '/replay_videos/'
-        copyfile(mcpr_path, recording_path + (recording_name + ".mcpr"))
+        
+        copyfile(mcpr_path, RECORDING_PATH + (recording_name + ".mcpr"))
         copy_time = os.path.getmtime(
-            recording_path + (recording_name + ".mcpr"))
+            RECORDING_PATH + (recording_name + ".mcpr"))
 
         # Presses the ReplayViewer() button - this step can be automated in the code, but this is cleaner
         launchReplayViewer()
@@ -363,7 +363,7 @@ def render_videos(renders: list):
                         killMC(p.pid)
                         time.sleep(5)  # Give the OS time to release this file
                         try:
-                            os.rename(J(recording_path, recording_name+'.mcpr'),
+                            os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
                                       J(EOF_EXCEP_DIR, recording_name+'.mcpr'))
                             shutil.copy(LOG_FILE,                               J(
                                 EOF_EXCEP_DIR, recording_name+'.log'))
@@ -371,7 +371,7 @@ def render_videos(renders: list):
                             pass
                         try:
                             shutil.rmtree(
-                                J(recording_path, recording_name+'.mcpr.tmp'))
+                                J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
                         except:
                             pass
 
@@ -386,7 +386,7 @@ def render_videos(renders: list):
                         killMC(p.pid)
                         time.sleep(15)  # Give the OS time to release this file
                         try:
-                            os.rename(J(recording_path, recording_name+'.mcpr'),
+                            os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
                                       J(ZEROLEN_DIR, recording_name+'.mcpr'))
                             shutil.copy(LOG_FILE,                               J(
                                 ZEROLEN_DIR, recording_name+'.log'))
@@ -394,7 +394,7 @@ def render_videos(renders: list):
                             pass
                         try:
                             shutil.rmtree(
-                                J(recording_path, recording_name+'.mcpr.tmp'))
+                                J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
                         except:
                             pass
                         p = launchMC()
@@ -407,10 +407,10 @@ def render_videos(renders: list):
                         killMC(p.pid)
                         # Give the OS time to release this file nullPointerException needs more time than others
                         time.sleep(20)
-                        print(J(recording_path, recording_name+'.mcpr'),
+                        print(J(RECORDING_PATH, recording_name+'.mcpr'),
                               J(NULL_PTR_EXCEP_DIR, recording_name+'.mcpr'))
                         try:
-                            os.rename(J(recording_path, recording_name+'.mcpr'),
+                            os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
                                       J(NULL_PTR_EXCEP_DIR, recording_name+'.mcpr'))
                             shutil.copy(LOG_FILE,                               J(
                                 NULL_PTR_EXCEP_DIR, recording_name+'.log'))
@@ -418,7 +418,7 @@ def render_videos(renders: list):
                             pass
                         try:
                             shutil.rmtree(
-                                J(recording_path, recording_name+'.mcpr.tmp'))
+                                J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
                         except:
                             pass
                         p = launchMC()
@@ -426,7 +426,8 @@ def render_videos(renders: list):
         # RAH End
 
         # * means all if need specific format then *.cs
-        list_of_files = glob.glob(rendered_video_path + '*.MP4')
+        list_of_files = glob.glob(RENDERED_VIDEO_PATH + '*.MP4')
+        print(list_of_files)
         if len(list_of_files) > 0:
             # Check that this render was created after we copied
             video_path = max(list_of_files, key=os.path.getmtime)
@@ -461,7 +462,7 @@ def render_videos(renders: list):
                     pass  # File deleted between open() and os.utime() calls
                 # Remove mcpr file from dir
         try:
-            os.remove(J(recording_path, (recording_name + ".mcpr")))
+            os.remove(J(RECORDING_PATH, (recording_name + ".mcpr")))
         except:
             pass
     killMC(p.pid)
