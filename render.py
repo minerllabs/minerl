@@ -426,7 +426,7 @@ def render_videos(renders: list):
         # RAH End
 
         # * means all if need specific format then *.cs
-        list_of_files = glob.glob( J(RENDERED_VIDEO_PATH, '*.MP4'))
+        list_of_files = glob.glob( J(RENDERED_VIDEO_PATH, '*.mp4'))
         print(list_of_files)
         if len(list_of_files) > 0:
             # Check that this render was created after we copied
