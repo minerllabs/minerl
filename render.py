@@ -31,8 +31,8 @@ E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
 RENDER_DIR = J(WORKING_DIR, "rendered")
-MINECRAFT_DIR = J('home', 'hero', 'minecraft')
-RECORDING_PATH = J(MINECRAFT_DIR,'replay_recordings')
+MINECRAFT_DIR = J('/', 'home', 'hero', 'minecraft')
+RECORDING_PATH = J(MINECRAFT_DIR, 'replay_recordings')
 RENDERED_VIDEO_PATH = J(MINECRAFT_DIR, 'replay_videos')
 FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
 LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')  # RAH
@@ -267,25 +267,25 @@ def launchReplayViewer():
 
 # My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
 def launchRendering():
-	print("\tLaunching render: ", end='', flush=True)
-	x = 961
-	y = 555
-	pyautogui.moveTo(x, y)      # In case we lost focus of mouse
-	pyautogui.typewrite('t')  # turn off mouse controls
+    print("\tLaunching render: ", end='', flush=True)
+    x = 961
+    y = 555
+    pyautogui.moveTo(x, y)      # In case we lost focus of mouse
+    pyautogui.typewrite('t')  # turn off mouse controls
 
-	delay = 30
-	pyautogui.typewrite('t')  # turn off mouse controls
-	for i in range(delay):
-		print(delay-i, ' ', end='', flush=True)
-		time.sleep(1)
-		pyautogui.moveTo(x, y)
-		pyautogui.typewrite('t')  # turn off mouse controls
-	print("0")
+    delay = 30
+    pyautogui.typewrite('t')  # turn off mouse controls
+    for i in range(delay):
+        print(delay-i, ' ', end='', flush=True)
+        time.sleep(1)
+        pyautogui.moveTo(x, y)
+        pyautogui.typewrite('t')  # turn off mouse controls
+    print("0")
 
-	x = 624
-	y = 506
-	time.sleep(0.25)
-	pyautogui.click(x, y)  # Then click the button that launches replayMod
+    x = 624
+    y = 506
+    time.sleep(0.25)
+    pyautogui.click(x, y)  # Then click the button that launches replayMod
 
 
 def render_videos(renders: list):
@@ -306,9 +306,9 @@ def render_videos(renders: list):
         pass
 
     # Clear recording directory to protect against crash messages
-    #TODO
+    # TODO
 
-    for messyFile in glob.glob(J(RECORDING_PATH,'*')):
+    for messyFile in glob.glob(J(RECORDING_PATH, '*')):
         try:
             os.remove(messyFile)
         except IsADirectoryError:
@@ -333,7 +333,7 @@ def render_videos(renders: list):
             continue
 
         mcpr_path = J(MERGED_DIR, (recording_name + ".mcpr"))
-        
+
         copyfile(mcpr_path, J(RECORDING_PATH, (recording_name + ".mcpr")))
         copy_time = os.path.getmtime(
             J(RECORDING_PATH, (recording_name + ".mcpr")))
