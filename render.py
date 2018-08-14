@@ -334,9 +334,9 @@ def render_videos(renders: list):
 
         mcpr_path = J(MERGED_DIR, (recording_name + ".mcpr"))
         
-        copyfile(mcpr_path, RECORDING_PATH + (recording_name + ".mcpr"))
+        copyfile(mcpr_path, J(RECORDING_PATH, (recording_name + ".mcpr")))
         copy_time = os.path.getmtime(
-            RECORDING_PATH + (recording_name + ".mcpr"))
+            J(RECORDING_PATH, (recording_name + ".mcpr")))
 
         # Presses the ReplayViewer() button - this step can be automated in the code, but this is cleaner
         launchReplayViewer()
@@ -442,7 +442,7 @@ def render_videos(renders: list):
         if not video_path is None:
             print("\tCopying file", video_path, '==>\n\t',
                   render_path, 'created', os.path.getmtime(video_path))
-            os.rename(video_path, render_path + '/recording.mp4')
+            os.rename(video_path, J(render_path, 'recording.mp4'))
             print("\tRecording start and stop timestamp for video")
             metadata = json.load(open(J(render_path, 'stream_meta_data.json')))
             videoFilename = video_path.split('/')[-1]
