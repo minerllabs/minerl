@@ -393,8 +393,12 @@ def render_videos(renders: list):
                         except:
                             pass
                         try:
-                            shutil.rmtree(
-                                J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
+                            shutil.rmtree(J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
+                            with open(skip_path, 'a'):
+                                try:
+                                    os.utime(skip_path, None)  # => Set skip time to now
+                                except OSError:
+                                    pass  # File deleted between open() and os.utime() calls
                         except:
                             pass
                         p = launchMC()
@@ -419,6 +423,11 @@ def render_videos(renders: list):
                         try:
                             shutil.rmtree(
                                 J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
+                            with open(skip_path, 'a'):
+                                try:
+                                    os.utime(skip_path, None)  # => Set skip time to now
+                                except OSError:
+                                    pass  # File deleted between open() and os.utime() calls
                         except:
                             pass
                         p = launchMC()
