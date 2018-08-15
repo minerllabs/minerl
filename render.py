@@ -321,7 +321,7 @@ def render_videos(renders: list):
 
         # Skip if the folder has an recording already
         # * means all if need specific format then *.csv
-        list_of_files = glob.glob(J(RENDERED_VIDEO_PATH, '*.mp4'))
+        list_of_files = glob.glob(J(render_path, '*.mp4'))
         if len(list_of_files):
             print("\tSkipping: replay folder contains", list_of_files[0])
             continue
