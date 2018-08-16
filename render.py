@@ -275,13 +275,13 @@ def launchRendering():
     pyautogui.typewrite('t')  # turn off mouse controls
     time.sleep(1)
 
-    delay = 60
+    delay = 45
     x = 624
     y = 506
     pyautogui.typewrite('t')  # turn off mouse controls
     for i in range(delay):
         print(delay-i, ' ', end='', flush=True)
-        time.sleep(1)
+        time.sleep(0.75)
         pyautogui.moveTo(x, y)
         pyautogui.typewrite('t')  # turn off mouse controls
         time.sleep(0.25)
