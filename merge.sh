@@ -94,9 +94,9 @@ do
   else
     echo "BLACKLISTING $fileName.mcpr"
     #echo "Blacklisting is currently disabled."
-    echo "$fileName.mcpr" >> $home/blacklist.txt
+    echo "$fileName.mcpr" >> $working_dir/blacklist.txt
   fi
-  rm -r $working_dir/result
+  # rm -r $working_dir/result
 done
 
 rm -r $working_dir/streams

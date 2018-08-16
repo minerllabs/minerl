@@ -47,7 +47,6 @@ BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
 END_OF_STREAM = 'end_of_stream.txt'
 ACTION_FILE = "actions.tmcpr"
-END_OF_STREAM_TEXT = 'This is the end.'
 BAD_MARKER_NAME, GOOD_MARKER_NAME = 'INVALID', 'VALID'
 SKIPPED_RENDER_FLAG = 'SKIPPED_RENDER'
 
