@@ -276,6 +276,7 @@ bool parse(FILE* input, unsigned int* last_valid_seq_num_p, unsigned int* end)
         /* check if we hit an endpoint and want to stop */
         if (end != NULL && sequence_number == *end)
         {
+            has_EOF = true;
             break;
         }
     }
