@@ -261,6 +261,7 @@ def launchReplayViewer():
     for i in range(delay):
         print(delay-i, '', end='', flush=True)
         time.sleep(1)
+        pyautogui.click(x, y)  # Then click the button that launches replayMod
     print("0")
     pyautogui.click(x, y)  # Then click the button that launches replayMod
 
@@ -272,7 +273,7 @@ def launchRendering():
     y = 555
     pyautogui.moveTo(x, y)      # In case we lost focus of mouse
     pyautogui.typewrite('t')  # turn off mouse controls
-    time.sleep(5)
+    time.sleep(1)
 
     delay = 60
     x = 624
