@@ -272,18 +272,22 @@ def launchRendering():
     y = 555
     pyautogui.moveTo(x, y)      # In case we lost focus of mouse
     pyautogui.typewrite('t')  # turn off mouse controls
+    time.sleep(5)
 
-    delay = 30
+    delay = 60
+    x = 624
+    y = 506
     pyautogui.typewrite('t')  # turn off mouse controls
     for i in range(delay):
         print(delay-i, ' ', end='', flush=True)
         time.sleep(1)
         pyautogui.moveTo(x, y)
         pyautogui.typewrite('t')  # turn off mouse controls
+        time.sleep(0.25)
+        pyautogui.click(x, y)  # Then click the button that launches replayMod
     print("0")
 
-    x = 624
-    y = 506
+
     time.sleep(0.25)
     pyautogui.click(x, y)  # Then click the button that launches replayMod
 
