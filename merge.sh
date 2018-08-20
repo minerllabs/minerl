@@ -75,6 +75,9 @@ if [ ! -d $results_dir ]; then
   mkdir $results_dir
 fi 
 
+# TODO make this parallel
+# https://unix.stackexchange.com/questions/103920/parallelize-a-bash-for-loop
+
 for file in ./streams/*
 do
   # reminder: add "make" if necessary

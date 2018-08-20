@@ -9,10 +9,10 @@
 # |        [len]           # 4 byets (int)
 # |  --    
 # |  |     [package_id]    # 1 byte  (temporary fixed value 0x18)
-# |  |     [len2]          # 1 byte
+# |  |     [len2]          # varInt
 # |  |  -- 
 # | len |  
-# |   len2 [channel name]  # 1 byte (char), either 'a' or 'c' or 't'
+# |  | len2 [channel name]  # 1 byte (char), either 'a' or 'c' or 't'
 # |  |  |                  # recorded_actions || recorded_camera_actions || tick
 # |  |  -- 
 # |  |     [data]          # can be computed with len & len2 
