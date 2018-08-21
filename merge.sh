@@ -75,6 +75,9 @@ if [ ! -d $results_dir ]; then
   mkdir $results_dir
 fi 
 
+# TODO make this parallel
+# https://unix.stackexchange.com/questions/103920/parallelize-a-bash-for-loop
+
 for file in ./streams/*
 do
   # reminder: add "make" if necessary
@@ -89,6 +92,7 @@ do
       echo "ZIPPING $file"
       echo "ZIPPPING THIS FILE $fileName"
       cd $working_dir/result
+      python3 $home/zip_actions.py $(pwd) --singleThreaded
       zip -r $fileName.mcpr ./*
       cp $fileName.mcpr $results_dir/
       cd $working_dir
