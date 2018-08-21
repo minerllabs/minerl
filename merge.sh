@@ -92,6 +92,7 @@ do
       echo "ZIPPING $file"
       echo "ZIPPPING THIS FILE $fileName"
       cd $working_dir/result
+      python3 $home/zip_actions.py $(pwd) --singleThreaded
       zip -r $fileName.mcpr ./*
       cp $fileName.mcpr $results_dir/
       cd $working_dir
