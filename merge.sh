@@ -79,18 +79,22 @@ for file in ./streams/*
 do
   # reminder: add "make" if necessary
   mkdir $working_dir/result
+  echo "I AM PARSING NOW"
   $home/merging/parse -f $file
   # only zip if successfully parse with exit status 0
   if [ $? -eq 0 ] 
+    fileName=$(echo ${file} |cut -d "/" -f3)
+    fileName=$(echo ${fileName} |cut -d "." -f1)
     then
-      echo "$file"
-      fileName=$(echo ${file} |cut -d "/" -f3)
-      fileName=$(echo ${fileName} |cut -d "." -f1)
-      echo "$fileName"
-      cd result
+      echo "ZIPPING $file"
+      echo "ZIPPPING THIS FILE $fileName"
+      cd $working_dir/result
       zip -r $fileName.mcpr ./*
       cp $fileName.mcpr $results_dir/
       cd $working_dir
+      echo "ZIPPP SUCCESSFUL ALLL GOOD"
+      echo "YOU SO GOOD BOIIII"
+      echo "JEEEEEEEEEEEEE: UEAJ"
   else
     echo "BLACKLISTING $fileName.mcpr"
     #echo "Blacklisting is currently disabled."
