@@ -474,8 +474,8 @@ def main():
     print("Rendering metadata from files:")
     valid_renders, invalid_renders = render_metadata(renders)
     print(len(valid_renders))
-    # print("Rendering actions: ")
-    # valid_renders, invalid_renders = render_actions(valid_renders)
+    print("Rendering actions: ")
+    valid_renders, invalid_renders = render_actions(valid_renders)
     print("... found {} valid recordings and {} invalid recordings"
           " out of {} total files".format(
               len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))

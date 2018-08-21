@@ -106,7 +106,7 @@ def processFile(path, writeResult = True):
     # 3. Replace recording file
     if (writeResult):
         replace(J(path, TEMP_FILE), J(path, RECORDING_FILE))
-        remove(J(path, ACTION_FILE))
+        #remove(J(path, ACTION_FILE))
     
 
 #################
