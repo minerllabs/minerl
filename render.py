@@ -99,7 +99,7 @@ def construct_render_dirs(blacklist):
         if filename.endswith(".mcpr") and filename not in blacklist:
             recording_name = filename.split(".mcpr")[0]
             render_path = J(RENDER_DIR, recording_name)
-
+            print(render_path)
             if not E(render_path):
                 os.makedirs(render_path)
 
