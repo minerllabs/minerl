@@ -324,7 +324,6 @@ def render_videos(renders: list):
 
         # Presses the ReplayViewer() button - this step can be automated in the code, but this is cleaner
         launchReplayViewer()
-        launchRendering()  # Launch rendering inside the replaymod - this is the piece I have not been able to automate due to thread issues
         logFile = open(LOG_FILE, 'r', os.O_NONBLOCK)
         lineCounter = 0  # RAH So we can print line number of the error
 
