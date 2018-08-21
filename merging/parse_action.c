@@ -1,6 +1,6 @@
 /* Yinglan Chen, July 2018 */
 
-/* this parse function takes in an action.tmcpr file and parses it to 
+/* this parse function takes in an action.tmcpr file and parses it
  * a list of malmo commands. 
  *
  * action.tmcpr has the following format:
