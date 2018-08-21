@@ -10,6 +10,7 @@ render.py
 """
 import os
 import shutil
+import sys
 import glob
 import numpy as np
 import tqdm
@@ -20,6 +21,7 @@ import time
 import pyautogui
 import shutil
 import psutil
+import traceback
 import re
 from shutil import copyfile
 
@@ -47,7 +49,6 @@ BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
 END_OF_STREAM = 'end_of_stream.txt'
 ACTION_FILE = "actions.tmcpr"
-END_OF_STREAM_TEXT = 'This is the end.'
 BAD_MARKER_NAME, GOOD_MARKER_NAME = 'INVALID', 'VALID'
 SKIPPED_RENDER_FLAG = 'SKIPPED_RENDER'
 
@@ -135,8 +136,8 @@ def render_metadata(renders: list) -> list:
                         fname, render_path)
 
                     # Test end of stream validity.
-                    with open(extract(END_OF_STREAM), 'r') as eos:
-                        assert len(eos.read()) > 0
+                    #with open(extract(END_OF_STREAM), 'r') as eos:
+                    #    assert len(eos.read()) > 0
 
                     # If everything is good extfct the metadata.
                     for mfile in METADATA_FILES:
@@ -146,8 +147,9 @@ def render_metadata(renders: list) -> list:
 
                     # check that stream_meta_data is good
                     with open(J(render_path, 'metaData.json'), 'r') as f:
+#                        print(render_path)
                         jbos = json.load(f)
-                        assert (jbos["duration"] > 60000)
+                        assert (jbos["duration"] > 60000 or jbos["duration"] == 0)
 
                     # check that stream_meta_data is good
                     with open(J(render_path, 'stream_meta_data.json'), 'r') as f:
@@ -157,7 +159,9 @@ def render_metadata(renders: list) -> list:
 
                     touch(J(render_path, GOOD_MARKER_NAME))
                     good_renders.append((recording_name, render_path))
-                except AssertionError as e:
+                except (json.decoder.JSONDecodeError, AssertionError) as e:
+                    _, _, tb = sys.exc_info()
+                    traceback.print_tb(tb) # Fixed format
                     # Mark that this is a bad file.
                     touch(J(render_path, BAD_MARKER_NAME))
                     remove(J(render_path, GOOD_MARKER_NAME))
@@ -204,6 +208,8 @@ def render_actions(renders: list):
 
                 good_renders.append((recording_name, render_path))
             except AssertionError as e:
+                _, _, tb = sys.exc_info()
+                traceback.print_tb(tb) # Fixed format
                 touch(J(render_path, BAD_MARKER_NAME))
                 remove(J(render_path, GOOD_MARKER_NAME))
                 bad_renders.append((recording_name, render_path))

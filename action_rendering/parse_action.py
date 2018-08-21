@@ -93,6 +93,8 @@ def parse(stream, TIMESTAMP):
         # len2
         len2_b = stream.read(1)
         len2  = int.from_bytes(len2_b, byteorder='big', signed=False)
+        if len2 > 1:
+            print(len2)
         assert(len2 == 1) # either "a", "c" or "t"
 
         data_len = len - len2 -2
