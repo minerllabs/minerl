@@ -267,7 +267,6 @@ def launchReplayViewer():
     for i in range(delay):
         print(delay-i, '', end='', flush=True)
         time.sleep(1)
-        pyautogui.click(x, y)  # Then click the button that launches replayMod
     print("0")
     pyautogui.click(x, y)  # Then click the button that launches replayMod
 
