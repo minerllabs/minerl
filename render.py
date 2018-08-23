@@ -231,6 +231,7 @@ def killMC(pid):
 
 
 def launchMC():
+    return
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
         MC_LAUNCHER, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -240,7 +241,7 @@ def launchMC():
     y = 626
     print("Launching Minecraft: ", end='', flush=True)
     pyautogui.moveTo(x, y)
-    delay = 10
+    delay = 5
     for i in range(delay):
         print(delay-i, ' ', end='', flush=True)
         time.sleep(1)
@@ -250,7 +251,7 @@ def launchMC():
     pyautogui.click(x, y)
     print("\tWaiting for it to load:", end='', flush=True)
     pyautogui.click(x, y)  # Click on the launcher button that starts Minecraft
-    delay = 4
+    delay = 5
     for i in range(delay):
         print((delay-i) * 5, '', end='', flush=True)
         time.sleep(5)
@@ -263,7 +264,7 @@ def launchReplayViewer():
     y = 700  # 1172
     pyautogui.moveTo(x, y)
     print("\tLaunching ReplayViewer: ", end='', flush=True)
-    delay = 25
+    delay = 5
     for i in range(delay):
         print(delay-i, '', end='', flush=True)
         time.sleep(1)
