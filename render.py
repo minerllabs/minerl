@@ -231,7 +231,6 @@ def killMC(pid):
 
 
 def launchMC():
-    return
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
         MC_LAUNCHER, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
