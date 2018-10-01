@@ -236,25 +236,25 @@ def launchMC():
         MC_LAUNCHER, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("Launched ", MC_LAUNCHER)
 
-    x = 388
-    y = 626
-    print("Launching Minecraft: ", end='', flush=True)
-    pyautogui.moveTo(x, y)
-    delay = 5
-    for i in range(delay):
-        print(delay-i, ' ', end='', flush=True)
-        time.sleep(1)
-    print("0")
+    # x = 388
+    # y = 626
+    # print("Launching Minecraft: ", end='', flush=True)
+    # pyautogui.moveTo(x, y)
+    # delay = 5
+    # for i in range(delay):
+    #     print(delay-i, ' ', end='', flush=True)
+    #     time.sleep(1)
+    # print("0")
 
-    # Click on the launcher button that starts Minecraft
-    pyautogui.click(x, y)
-    print("\tWaiting for it to load:", end='', flush=True)
-    pyautogui.click(x, y)  # Click on the launcher button that starts Minecraft
-    delay = 5
-    for i in range(delay):
-        print((delay-i) * 5, '', end='', flush=True)
-        time.sleep(5)
-    print("0")
+    # # Click on the launcher button that starts Minecraft
+    # pyautogui.click(x, y)
+    # print("\tWaiting for it to load:", end='', flush=True)
+    # pyautogui.click(x, y)  # Click on the launcher button that starts Minecraft
+    # delay = 5
+    # for i in range(delay):
+    #     print((delay-i) * 5, '', end='', flush=True)
+    #     time.sleep(5)
+    # print("0")
     return p
 
 
