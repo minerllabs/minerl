@@ -281,6 +281,9 @@ def render_videos(renders: list):
      3) Copying the produced mp4 to the rendered directory
 
     """
+    # Restart minecraft after so many renders
+    maxConsecutiveRenders = 8
+    numSuccessfulRenders = 0
 
     # Remove any finished file flags to prevent against copying unfinished renders
     try:
@@ -289,8 +292,6 @@ def render_videos(renders: list):
         pass
 
     # Clear recording directory to protect against crash messages
-    # TODO
-
     for messyFile in glob.glob(J(RECORDING_PATH, '*')):
         try:
             os.remove(messyFile)
@@ -333,6 +334,11 @@ def render_videos(renders: list):
             if os.path.exists(FINISHED_FILE):
                 os.remove(FINISHED_FILE)
                 notFound = False
+                numSuccessfulRenders += 1
+                if(numSuccessfulRenders > maxConsecutiveRenders):
+                    killMC(p.pid)
+                    time.sleep(5)
+                    p = launchMC()
             else:
                 # RAH Begin - this could be cleaner
                 logLine = logFile.readline()
@@ -470,17 +476,16 @@ def main():
     print("Constructing render directories.")
     renders = construct_render_dirs(blacklist)
 
-    print("Rendering metadata from files:")
+    print("Validating metadata from files:")
     valid_renders, invalid_renders = render_metadata(renders)
     print(len(valid_renders))
-    print("Rendering actions: ")
-    valid_renders, invalid_renders = render_actions(valid_renders)
+    # print("Rendering actions: ")
+    # valid_renders, invalid_renders = render_actions(valid_renders)
     print("... found {} valid recordings and {} invalid recordings"
           " out of {} total files".format(
               len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))
           )
     print("Rendering videos: ")
-
     render_videos(valid_renders)
 
     # from IPython import embed; embed()
