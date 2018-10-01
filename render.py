@@ -255,6 +255,7 @@ def launchMC():
     #     print((delay-i) * 5, '', end='', flush=True)
     #     time.sleep(5)
     # print("0")
+    time.sleep(10)
     return p
 
 
