@@ -463,7 +463,8 @@ def render_videos(renders: list):
             metadata['start_timestamp'] = int(videoFilename.split('_')[1])
             metadata['stop_timestamp'] = int(
                 videoFilename.split('_')[2].split('-')[0])
-            metadata['markers'] = json.load(J(RENDERED_VIDEO_PATH, 'markers.json'))
+            with open(J(RENDERED_VIDEO_PATH, 'markers.json'), 'r') as f:
+                metadata['markers'] = json.load(f)
             json.dump(metadata, open(
                 J(render_path, 'stream_meta_data.json'), 'w'))
         else:

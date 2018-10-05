@@ -25,9 +25,9 @@ J = os.path.join
 E = os.path.exists
 EXP_MIN_LEN = 20
 WORKING_DIR = os.path.abspath("./output")
-DATA_DIR = J(WORKING_DIR, "data_old")
+DATA_DIR = J(WORKING_DIR, "data")
 
-RENDER_DIR = J(WORKING_DIR, "rendered_old")
+RENDER_DIR = J(WORKING_DIR, "rendered_new")
 BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
 ACTION_FILE = "actions.tmcpr"
@@ -129,7 +129,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         with streamMetadata['markers'] as markers:
             for marker in markers:
                 if 'metadata' in marker:
-                    markers[marker['metadata']['tick']] = marker
+                    markers[marker['value']['metadata']['tick']] = marker
 
     startTime = None
     experementName = ""
@@ -172,8 +172,8 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
     for pair in (segments):
 
-        startTime = (pair[0] - videoOffset_ms)/1000.0
-        stopTime  = (pair[1] - videoOffset_ms)/1000.0
+        startTime = (pair[0]*50 - videoOffset_ms)/1000
+        stopTime  = (pair[1]*50 - videoOffset_ms)/1000
         if stopTime - startTime <= EXP_MIN_LEN:
             continue
 
