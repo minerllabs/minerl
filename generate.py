@@ -25,9 +25,9 @@ J = os.path.join
 E = os.path.exists
 EXP_MIN_LEN = 20
 WORKING_DIR = os.path.abspath("./output")
-DATA_DIR = J(WORKING_DIR, "data")
+DATA_DIR = J(WORKING_DIR, "data_old")
 
-RENDER_DIR = J(WORKING_DIR, "rendered")
+RENDER_DIR = J(WORKING_DIR, "rendered_old")
 BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
 ACTION_FILE = "actions.tmcpr"
@@ -178,8 +178,9 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         if not E(output_dir):
             os.makedirs(output_dir)
         tqdm.tqdm.write(output_name)
-        ffmpeg_extract_subclip(J(inputPath, "recording.mp4"), startTime, stopTime,
-                               targetname=output_name)
+        if not E(output_name):
+            ffmpeg_extract_subclip(J(inputPath, "recording.mp4"), startTime, stopTime,
+                                   targetname=output_name)
 
 
 def main():
