@@ -219,8 +219,6 @@ def render_actions(renders: list):
 # 3.Render the video encodings
 
 # RAH - Kill MC (or any process) given the PID
-
-
 def killMC(pid):
     process = psutil.Process(int(pid))
     for proc in process.children(recursive=True):
@@ -228,8 +226,6 @@ def killMC(pid):
     process.kill()
 
 # RAH Launch MC - return the process so we can kill later if needed
-
-
 def launchMC():
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
@@ -449,6 +445,7 @@ def render_videos(renders: list):
             metadata['start_timestamp'] = int(videoFilename.split('_')[1])
             metadata['stop_timestamp'] = int(
                 videoFilename.split('_')[2].split('-')[0])
+            metadata['markers'] = json.load(J(RENDERED_VIDEO_PATH, 'markers.json'))
             json.dump(metadata, open(
                 J(render_path, 'stream_meta_data.json'), 'w'))
         else:
