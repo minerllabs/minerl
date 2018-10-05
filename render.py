@@ -448,7 +448,23 @@ def render_videos(renders: list):
                 # else:
                 print("\tskipping out of date rendering")
                 log_path = None
-        if not video_path is None and not log_path is None:
+
+        # GET new markers.json SHIT.
+        list_of_logs = glob.glob( J(RENDERED_VIDEO_PATH, '*.json'))
+        if len(list_of_logs) > 0:
+            # Check that this render was created after we copied
+            marker_path = max(list_of_logs, key=os.path.getmtime)
+            if os.path.getmtime(marker_path) < copy_time:
+                print("\tError! Rendered log! is older than replay!")
+                # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
+                # if "y" in user_input:
+                #       print("using out of date recording")
+                # else:
+                print("\tskipping out of date rendering")
+                marker_path = None
+
+
+        if not video_path is None and not log_path is None and not marker_path is None:
             print("\tCopying file", video_path, '==>\n\t',
                   render_path, 'created', os.path.getmtime(video_path))
             os.rename(video_path, J(render_path, 'recording.mp4'))
@@ -463,8 +479,7 @@ def render_videos(renders: list):
             metadata['start_timestamp'] = int(videoFilename.split('_')[1])
             metadata['stop_timestamp'] = int(
                 videoFilename.split('_')[2].split('-')[0])
-            with open(J(RENDERED_VIDEO_PATH, 'markers.json'), 'r') as f:
-                metadata['markers'] = json.load(f)
+            metadata['markers'] = json.load(marker_path)
             json.dump(metadata, open(
                 J(render_path, 'stream_meta_data.json'), 'w'))
         else:
