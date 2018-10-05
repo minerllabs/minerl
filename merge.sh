@@ -10,11 +10,11 @@
 
 home=$(pwd)
 working_dir=$home/output
-results_dir=$working_dir/merged
+results_dir=$working_dir/merged_old
 
 
 # input folder 
-path=$working_dir/downloaded
+path=$working_dir/downloaded_old
 echo "Loading streams from $path"
 if [ ! -d $path ]; then
   echo "Could not find parsed files. Did you not download from s3?"
