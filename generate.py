@@ -25,7 +25,7 @@ J = os.path.join
 E = os.path.exists
 EXP_MIN_LEN = 20
 WORKING_DIR = os.path.abspath("./output")
-DATA_DIR = J(WORKING_DIR, "data")
+DATA_DIR = J(WORKING_DIR, "data_new")
 
 RENDER_DIR = J(WORKING_DIR, "rendered_new")
 BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
@@ -126,10 +126,13 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     streamMetadata = json.load(open(J(inputPath, 'stream_meta_data.json')))
 
     if 'markers' in streamMetadata:
-        with streamMetadata['markers'] as markers:
-            for marker in markers:
-                if 'metadata' in marker:
+        markers_sp = streamMetadata['markers']
+        for marker in markers_sp:
+            if 'metadata' in marker['value']:
+                if 'tick' in marker['value']['metadata']:
                     markers[marker['value']['metadata']['tick']] = marker
+                else:
+                    print("{} has missing tick!".format(recordingName))
 
     startTime = None
     experementName = ""
