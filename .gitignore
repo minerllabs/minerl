@@ -10,3 +10,4 @@ output/
 *.mcpr
 *data/
 .vscode/
+.idea/
