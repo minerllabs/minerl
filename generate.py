@@ -27,7 +27,7 @@ EXP_MIN_LEN = 20
 WORKING_DIR = os.path.abspath("./output")
 DATA_DIR = J(WORKING_DIR, "data")
 
-RENDER_DIR = J(WORKING_DIR, "rendered")
+RENDER_DIR = J(WORKING_DIR, "rendered_new")
 BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
 ACTION_FILE = "actions.tmcpr"
@@ -123,8 +123,13 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     segments = []
 
     markers = OrderedDict()
-    for marker in json.load(open(J(inputPath, 'markers.json'))):
-        markers[marker['realTimestamp']] = marker
+    streamMetadata = json.load(open(J(inputPath, 'stream_meta_data.json')))
+
+    if 'markers' in streamMetadata:
+        with streamMetadata['markers'] as markers:
+            for marker in markers:
+                if 'metadata' in marker:
+                    markers[marker['value']['metadata']['tick']] = marker
 
     startTime = None
     experementName = ""
@@ -158,28 +163,30 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     if len(markers) == 0:
         return
 
-    streamMetadata = json.load(open(J(inputPath, 'stream_meta_data.json')))
+    
 
     # Frames per second expressed as a fraction, e.g. 25/1
     fps = 20  # float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
-    videoOffset = streamMetadata['start_timestamp']
-    numFrames = streamMetadata['stop_timestamp'] - videoOffset
+    videoOffset_ms = streamMetadata['start_timestamp']
+    length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
 
     for pair in (segments):
 
-        startTime = (pair[0])/1000.0
-        stopTime = (pair[1])/1000.0
+        startTime = (pair[0]*50 - videoOffset_ms)/1000
+        stopTime  = (pair[1]*50 - videoOffset_ms)/1000
         if stopTime - startTime <= EXP_MIN_LEN:
             continue
+
         experementName = pair[2]
 
-        output_name = J(outputPath, experementName, recordingName + "_" + str(startTime) + '-' + str(stopTime) + '.mp4')
+        output_name = J(outputPath, experementName, recordingName + "_" + str(startTime * 1000) + '-' + str(stopTime * 1000) + '.mp4')
         output_dir = os.path.dirname(output_name)
         if not E(output_dir):
             os.makedirs(output_dir)
         tqdm.tqdm.write(output_name)
-        ffmpeg_extract_subclip(J(inputPath, "recording.mp4"), startTime, stopTime,
-                               targetname=output_name)
+        if not E(output_name):
+            ffmpeg_extract_subclip(J(inputPath, "recording.mp4"), startTime, stopTime,
+                                   targetname=output_name)
 
 
 def main():

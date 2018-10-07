@@ -7,7 +7,7 @@ import os
 s3 = boto3.resource('s3')
 bucket = s3.Bucket('deepmine-alpha-data')
 bucket_prefix="2018/08"
-target_dir = os.path.join("output", "downloaded")
+target_dir = os.path.join("output", "downloaded_old")
 
 if not os.path.exists('output'):
     os.makedirs('output')

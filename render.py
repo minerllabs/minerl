@@ -32,10 +32,11 @@ J = os.path.join
 E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged")
-RENDER_DIR = J(WORKING_DIR, "rendered")
+RENDER_DIR = J(WORKING_DIR, "rendered_new")
 MINECRAFT_DIR = J('/', 'home', 'hero', 'minecraft')
 RECORDING_PATH = J(MINECRAFT_DIR, 'replay_recordings')
 RENDERED_VIDEO_PATH = J(MINECRAFT_DIR, 'replay_videos')
+RENDERED_LOG_PATH  =  J(MINECRAFT_DIR,  'replay_logs')
 FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
 LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')  # RAH
 EOF_EXCEP_DIR = J(WORKING_DIR, 'EOFExceptions')
@@ -219,8 +220,6 @@ def render_actions(renders: list):
 # 3.Render the video encodings
 
 # RAH - Kill MC (or any process) given the PID
-
-
 def killMC(pid):
     process = psutil.Process(int(pid))
     for proc in process.children(recursive=True):
@@ -228,8 +227,6 @@ def killMC(pid):
     process.kill()
 
 # RAH Launch MC - return the process so we can kill later if needed
-
-
 def launchMC():
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
@@ -262,14 +259,14 @@ def launchMC():
 def launchReplayViewer():
     x = 860  # 1782
     y = 700  # 1172
-    pyautogui.moveTo(x, y)
+    #pyautogui.moveTo(x, y)
     print("\tLaunching ReplayViewer: ", end='', flush=True)
     delay = 5
     for i in range(delay):
         print(delay-i, '', end='', flush=True)
         time.sleep(1)
     print("0")
-    pyautogui.click(x, y)  # Then click the button that launches replayMod
+    #pyautogui.click(x, y)  # Then click the button that launches replayMod
 
 
 def render_videos(renders: list):
@@ -425,8 +422,7 @@ def render_videos(renders: list):
 
         # * means all if need specific format then *.cs
         list_of_files = glob.glob( J(RENDERED_VIDEO_PATH, '*.mp4'))
-        print(J(RENDERED_VIDEO_PATH, '*.mp4'))
-        print(list_of_files)
+        # GET RECORDING
         if len(list_of_files) > 0:
             # Check that this render was created after we copied
             video_path = max(list_of_files, key=os.path.getmtime)
@@ -438,10 +434,44 @@ def render_videos(renders: list):
                 # else:
                 print("\tskipping out of date rendering")
                 video_path = None
-        if not video_path is None:
+
+        # GET UNIVERSAL ACTION FORMAT SHIT.
+        list_of_logs = glob.glob( J(RENDERED_LOG_PATH, '*.json'))
+        if len(list_of_logs) > 0:
+            # Check that this render was created after we copied
+            log_path = max(list_of_logs, key=os.path.getmtime)
+            if os.path.getmtime(log_path) < copy_time:
+                print("\tError! Rendered log! is older than replay!")
+                # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
+                # if "y" in user_input:
+                #       print("using out of date recording")
+                # else:
+                print("\tskipping out of date rendering")
+                log_path = None
+
+        # GET new markers.json SHIT.
+        list_of_logs = glob.glob( J(RENDERED_VIDEO_PATH, '*.json'))
+        if len(list_of_logs) > 0:
+            # Check that this render was created after we copied
+            marker_path = max(list_of_logs, key=os.path.getmtime)
+            if os.path.getmtime(marker_path) < copy_time:
+                print("\tError! Rendered log! is older than replay!")
+                # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
+                # if "y" in user_input:
+                #       print("using out of date recording")
+                # else:
+                print("\tskipping out of date rendering")
+                marker_path = None
+
+
+        if not video_path is None and not log_path is None and not marker_path is None:
             print("\tCopying file", video_path, '==>\n\t',
                   render_path, 'created', os.path.getmtime(video_path))
             os.rename(video_path, J(render_path, 'recording.mp4'))
+            print("\tCopying file", log_path, '==>\n\t',
+                  render_path, 'created', os.path.getmtime(log_path))
+            os.rename(log_path, J(render_path, 'univ.json'))
+
             print("\tRecording start and stop timestamp for video")
             metadata = json.load(open(J(render_path, 'stream_meta_data.json')))
             videoFilename = video_path.split('/')[-1]
@@ -449,6 +479,8 @@ def render_videos(renders: list):
             metadata['start_timestamp'] = int(videoFilename.split('_')[1])
             metadata['stop_timestamp'] = int(
                 videoFilename.split('_')[2].split('-')[0])
+            with open(marker_path) as markerFile:
+                metadata['markers'] = json.load(markerFile)
             json.dump(metadata, open(
                 J(render_path, 'stream_meta_data.json'), 'w'))
         else:
