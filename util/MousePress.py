@@ -42,7 +42,7 @@ def launchReplayViewer():
 
 # My replaySender pauses playback after 5 seconds of video has played this allows us to do what we need
 def launchRendering():
-    time.sleep(10);
+    time.sleep(10)
     pyautogui.typewrite('t') # turn off mouse controls
     time.sleep(0.100)
     x = 1588

@@ -5,10 +5,10 @@ import string
 import os 
 
 s3 = boto3.resource('s3')
-bucket = s3.Bucket('test-data-action-recorder')
+bucket = s3.Bucket('pizza-party')
 bucket_prefix="2018/"
 parent_dir = "output"
-target_dir = os.path.join(parent_dir, "downloaded")
+target_dir = os.path.join(parent_dir, "downloaded_new")
 
 if not os.path.exists(parent_dir):
     os.makedirs(parent_dir)

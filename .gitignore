@@ -11,3 +11,4 @@ output/
 *data/
 .vscode/
 .idea/
+*.log*
