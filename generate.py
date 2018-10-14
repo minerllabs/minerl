@@ -135,10 +135,10 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
                     print("{} has missing tick!".format(recordingName))
 
     startTime = None
-    experementName = ""
+    experimentName = ""
     for key, marker in sorted(markers.items()):
         expName = ""
-        # Get experement name (its a malformed json so we have to look it up by hand)
+        # Get experiment name (its a malformed json so we have to look it up by hand)
         if 'value' in marker and 'metadata' in marker['value'] and 'expMetadata' in marker['value']['metadata']:
             marker = marker['value']['metadata']
 
@@ -152,11 +152,11 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         if 'startRecording' in marker and marker['startRecording']:
             # If we encounter a start marker after a start marker there is an error and we should throw away this segemnt
             startTime = key
-            experementName = expName
+            experimentName = expName
 
         if 'stopRecording' in marker and marker['stopRecording'] and startTime != None:
-            # Experement name should be the same
-            if experementName == expName:
+            # experiment name should be the same
+            if experimentName == expName:
                 segments.append((startTime, key, expName))
             startTime = None
 
@@ -180,9 +180,9 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         if stopTime - startTime <= EXP_MIN_LEN:
             continue
 
-        experementName = pair[2]
+        experimentName = pair[2]
 
-        output_name = J(outputPath, experementName, recordingName + "_" + str(startTime * 1000) + '-' + str(stopTime * 1000) + '.mp4')
+        output_name = J(outputPath, experimentName, recordingName + "_" + str(startTime * 1000) + '-' + str(stopTime * 1000) + '.mp4')
         output_dir = os.path.dirname(output_name)
         if not E(output_dir):
             os.makedirs(output_dir)
