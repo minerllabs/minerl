@@ -15,8 +15,6 @@ import tqdm
 import zipfile
 import subprocess
 import json
-import moviepy
-from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 
 #######################
 ### UTILITIES
