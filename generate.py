@@ -50,6 +50,36 @@ def remove(path):
         os.remove(path)
 
 
+def format_seconds(seconds):
+    """
+    Given seconds (int) returns a string of format hour:minutes:seconds
+    """
+    hours = int(seconds / 3600)
+    seconds = seconds - hours * 3600
+    minutes = int(seconds / 60)
+    seconds = seconds - minutes * 60
+    return str(hours) + ':' + str(minutes) + ':' + str(seconds)
+
+
+def add_key_frames(inputPath, segments):
+    keyframes = []
+    for segment in segments:
+        keyframes.append(format_seconds(segment[0]))
+        keyframes.append(format_seconds(segment[1]))
+    split_cmd = ['ffmpeg', '-i', J(inputPath, 'recording.mp4'), '-force_key_frames',
+                 ','.join(keyframes), J(inputPath, 'keyframes_recording.mp4')]
+    print('Running: ' + ' '.join(split_cmd))
+    subprocess.check_output(split_cmd)
+
+
+def extract_subclip(inputPath, start_time, stop_time, output_name):
+    split_cmd = ['ffmpeg', '-ss', format_seconds(start_time), '-i',
+                 J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_time - start_time),
+                 '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
+    print('Running: ' + ' '.join(split_cmd))
+    subprocess.check_output(split_cmd)
+
+
 ##################
 ### PIPELINE
 #################
@@ -128,11 +158,24 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     if 'markers' in streamMetadata:
         markers_sp = streamMetadata['markers']
         for marker in markers_sp:
-            if 'metadata' in marker['value']:
-                if 'tick' in marker['value']['metadata']:
-                    markers[marker['value']['metadata']['tick']] = marker
-                else:
-                    print("{} has missing tick!".format(recordingName))
+            markers[marker['realTimestamp']] = marker
+            # if 'metadata' in marker['value']:
+            #     if 'tick' in marker['value']['metadata']:
+            #         markers[marker['value']['metadata']['tick']] = marker
+            #     else:
+            #         print("{} has missing tick!".format(recordingName))
+
+    for key, marker in sorted(markers.items()):
+        malformedStr = marker['value']['metadata']['expMetadata']
+        jsonThing = json.loads(malformedStr[malformedStr.find('experimentMetadata') + 19:-1])
+        expName = ''
+        if 'experiment_name' in jsonThing:
+            expName = jsonThing['experiment_name']
+        startTime = streamMetadata['start_timestamp']
+        approxTime = (key - startTime) / 60000
+        startRecording = marker['value']['metadata']['startRecording']
+        stopRecording = marker['value']['metadata']['stopRecording']
+        print('key: {}, approx time: {} minutes and {} seconds, experiment name: {}, start: {}, stop: {}'.format(key, int(approxTime), 60 * (approxTime - int(approxTime)), expName, startRecording, stopRecording))
 
     startTime = None
     experimentName = ""
@@ -156,9 +199,11 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
         if 'stopRecording' in marker and marker['stopRecording'] and startTime != None:
             # experiment name should be the same
-            if experimentName == expName:
-                segments.append((startTime, key, expName))
+            # if experimentName == expName:
+            segments.append((startTime, key, expName))
             startTime = None
+
+    print(segments)
 
     if not E(J(inputPath, "recording.mp4")):
         return
@@ -166,21 +211,22 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     if len(markers) == 0:
         return
 
-    
-
     # Frames per second expressed as a fraction, e.g. 25/1
     fps = 20  # float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
     videoOffset_ms = streamMetadata['start_timestamp']
+    print("offset: {}".format(videoOffset_ms))
     length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
 
+    segments = [(int(segment[0] / 1000 - videoOffset_ms / 1000), int(segment[1] / 1000 - videoOffset_ms / 1000), segment[2]) for segment in segments]
+    segments = [segment for segment in segments if segment[1] - segment[0] > EXP_MIN_LEN]
+    add_key_frames(inputPath, segments)
+
     for pair in (segments):
-
-        startTime = (pair[0]*50 - videoOffset_ms)/1000
-        stopTime  = (pair[1]*50 - videoOffset_ms)/1000
-        if stopTime - startTime <= EXP_MIN_LEN:
-            continue
-
+        startTime = pair[0]
+        stopTime = pair[1]
         experimentName = pair[2]
+        print('Starttime: {}'.format(format_seconds(startTime)))
+        print('Stoptime: {}'.format(format_seconds(stopTime)))
 
         output_name = J(outputPath, experimentName, recordingName + "_" + str(startTime * 1000) + '-' + str(stopTime * 1000) + '.mp4')
         output_dir = os.path.dirname(output_name)
@@ -188,8 +234,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             os.makedirs(output_dir)
         tqdm.tqdm.write(output_name)
         if not E(output_name):
-            ffmpeg_extract_subclip(J(inputPath, "recording.mp4"), startTime, stopTime,
-                                   targetname=output_name)
+            extract_subclip(inputPath, startTime, stopTime, output_name)
 
 
 def main():
