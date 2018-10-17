@@ -191,7 +191,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             else:
                 continue
 
-        if 'startRecording' in marker and marker['startRecording']:
+        if 'startRecording' in marker and marker['startRecording'] and 'tick' in marker:
             # If we encounter a start marker after a start marker there is an error and we should throw away this segemnt
             startTime = key
             experimentName = expName
