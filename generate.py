@@ -176,6 +176,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         print('key: {}, approx time: {} minutes and {} seconds, experiment name: {}, start: {}, stop: {}'.format(key, int(approxTime), 60 * (approxTime - int(approxTime)), expName, startRecording, stopRecording))
 
     startTime = None
+    startTick = None
     experimentName = ""
     for key, marker in sorted(markers.items()):
         expName = ""
@@ -194,12 +195,14 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             # If we encounter a start marker after a start marker there is an error and we should throw away this segemnt
             startTime = key
             experimentName = expName
+            startTick = marker['tick']
 
         if 'stopRecording' in marker and marker['stopRecording'] and startTime != None:
             # experiment name should be the same
             # if experimentName == expName:
-            segments.append((startTime, key, expName))
+            segments.append((startTime, key, expName, startTick, marker['tick']))
             startTime = None
+            startTick = None
 
     print(segments)
 
@@ -215,9 +218,12 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     print("offset: {}".format(videoOffset_ms))
     length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
 
-    segments = [(int(segment[0] / 1000 - videoOffset_ms / 1000), int(segment[1] / 1000 - videoOffset_ms / 1000), segment[2]) for segment in segments]
+    segments = [(int(segment[0] / 1000 - videoOffset_ms / 1000), int(segment[1] / 1000 - videoOffset_ms / 1000), segment[2], segment[3], segment[4]) for segment in segments]
     segments = [segment for segment in segments if segment[1] - segment[0] > EXP_MIN_LEN]
-    add_key_frames(inputPath, segments)
+    #add_key_frames(inputPath, segments)
+
+    json_data = open(J(inputPath, 'univ.json')).read()
+    univ_json = json.loads(json_data)
 
     for pair in (segments):
         startTime = pair[0]
@@ -226,13 +232,19 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         print('Starttime: {}'.format(format_seconds(startTime)))
         print('Stoptime: {}'.format(format_seconds(stopTime)))
 
-        output_name = J(outputPath, experimentName, recordingName + "_" + str(startTime * 1000) + '-' + str(stopTime * 1000) + '.mp4')
+        experiment_id = recordingName + "_" + str(startTime * 1000) + '-' + str(stopTime * 1000)
+        output_name = J(outputPath, experimentName, experiment_id, 'recording.mp4')
         output_dir = os.path.dirname(output_name)
         if not E(output_dir):
             os.makedirs(output_dir)
         tqdm.tqdm.write(output_name)
         if not E(output_name):
             extract_subclip(inputPath, startTime, stopTime, output_name)
+        univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
+        json_to_write = {}
+        for idx in range(pair[3], pair[4] + 1):
+            json_to_write[str(idx - pair[3])] = univ_json[str(idx)]
+        json.dump(json_to_write, open(univ_output_name, 'w'))
 
 
 def main():
