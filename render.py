@@ -31,7 +31,7 @@ from shutil import copyfile
 J = os.path.join
 E = os.path.exists
 WORKING_DIR = "output"
-MERGED_DIR = J(WORKING_DIR, "merged")
+MERGED_DIR = J(WORKING_DIR, "merged_new")
 RENDER_DIR = J(WORKING_DIR, "rendered_new")
 MINECRAFT_DIR = J('/', 'home', 'hero', 'minecraft')
 RECORDING_PATH = J(MINECRAFT_DIR, 'replay_recordings')
@@ -230,7 +230,7 @@ def killMC(pid):
 def launchMC():
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
-        MC_LAUNCHER)#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        MC_LAUNCHER, cwd=MINECRAFT_DIR)#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("Launched ", MC_LAUNCHER)
 
     # x = 388
