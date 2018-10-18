@@ -220,7 +220,8 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
     segments = [(int(segment[0] / 1000 - videoOffset_ms / 1000), int(segment[1] / 1000 - videoOffset_ms / 1000), segment[2], segment[3], segment[4]) for segment in segments]
     segments = [segment for segment in segments if segment[1] - segment[0] > EXP_MIN_LEN]
-    add_key_frames(inputPath, segments)
+    if not E(J(inputPath, 'keyframes_recording.mp4')):
+        add_key_frames(inputPath, segments)
 
     json_data = open(J(inputPath, 'univ.json')).read()
     univ_json = json.loads(json_data)
