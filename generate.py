@@ -56,6 +56,7 @@ def format_seconds(seconds):
     seconds = seconds - hours * 3600
     minutes = int(seconds / 60)
     seconds = seconds - minutes * 60
+    seconds = round(seconds, 3)
     return str(hours) + ':' + str(minutes) + ':' + str(seconds)
 
 
@@ -218,7 +219,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     print("offset: {}".format(videoOffset_ms))
     length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
 
-    segments = [(int(segment[0] / 1000 - videoOffset_ms / 1000), int(segment[1] / 1000 - videoOffset_ms / 1000), segment[2], segment[3], segment[4]) for segment in segments]
+    segments = [(segment[0] / 1000 - videoOffset_ms / 1000, segment[1] / 1000 - videoOffset_ms / 1000, segment[2], segment[3], segment[4]) for segment in segments]
     segments = [segment for segment in segments if segment[1] - segment[0] > EXP_MIN_LEN]
     if not E(J(inputPath, 'keyframes_recording.mp4')):
         add_key_frames(inputPath, segments)
