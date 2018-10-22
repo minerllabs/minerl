@@ -232,9 +232,9 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
     for pair in (segments):
         startTime = pair[0]
-        startTime = (pair[3] * 50.0 - videoOffset_ms) / 1000
+        startTime = pair[3] / 20.0
         stopTime = pair[1]
-        stopTime = (pair[4] * 50.0 - videoOffset_ms) / 1000
+        stopTime = pair[4] / 20.0
         experimentName = pair[2]
         print('Starttime: {}'.format(format_seconds(startTime)))
         print('Stoptime: {}'.format(format_seconds(stopTime)))
