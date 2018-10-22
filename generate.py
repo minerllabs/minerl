@@ -56,6 +56,8 @@ def format_seconds(seconds):
     seconds = seconds - hours * 3600
     minutes = int(seconds / 60)
     seconds = seconds - minutes * 60
+    #seconds = round(seconds, 3)
+    seconds = int(seconds)
     return str(hours) + ':' + str(minutes) + ':' + str(seconds)
 
 
@@ -218,7 +220,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     print("offset: {}".format(videoOffset_ms))
     length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
 
-    segments = [(int(segment[0] / 1000 - videoOffset_ms / 1000), int(segment[1] / 1000 - videoOffset_ms / 1000), segment[2], segment[3], segment[4]) for segment in segments]
+    segments = [(segment[0] / 1000 - videoOffset_ms / 1000, segment[1] / 1000 - videoOffset_ms / 1000, segment[2], segment[3], segment[4]) for segment in segments]
     segments = [segment for segment in segments if segment[1] - segment[0] > EXP_MIN_LEN]
     if not segments:
         return
@@ -230,10 +232,18 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
     for pair in (segments):
         startTime = pair[0]
+        startTime = pair[3]*50
         stopTime = pair[1]
+        stopTime = pair[4]*50
         experimentName = pair[2]
         print('Starttime: {}'.format(format_seconds(startTime)))
         print('Stoptime: {}'.format(format_seconds(stopTime)))
+        print('Number of seconds: {}'.format(stopTime - startTime))
+        print('Start tick: {}'.format(pair[3]))
+        print('Stop tick: {}'.format(pair[4]))
+        print('Number of ticks: {}'.format(pair[4] - pair[3] + 1))
+        json_ticks = [int(key) for key in univ_json.keys()]
+        print('min tick: {} max tick: {}'.format(min(json_ticks), max(json_ticks)))
 
         experiment_id = recordingName + "_" + str(startTime * 1000) + '-' + str(stopTime * 1000)
         output_name = J(outputPath, experimentName, experiment_id, 'recording.mp4')
