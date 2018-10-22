@@ -220,7 +220,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     print("offset: {}".format(videoOffset_ms))
     length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
 
-    segments = [(segment[0] / 1000 - videoOffset_ms / 1000, segment[1] / 1000 - videoOffset_ms / 1000, segment[2], segment[3], segment[4]) for segment in segments]
+    segments = [((segment[0] - videoOffset_ms) / 1000, (segment[1] - videoOffset_ms) / 1000, segment[2], segment[3], segment[4]) for segment in segments]
     segments = [segment for segment in segments if segment[1] - segment[0] > EXP_MIN_LEN]
     if not segments:
         return
@@ -232,9 +232,9 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
 
     for pair in (segments):
         startTime = pair[0]
-        startTime = pair[3]*50
+        startTime = (pair[3] * 50.0 - videoOffset_ms) / 1000
         stopTime = pair[1]
-        stopTime = pair[4]*50
+        stopTime = (pair[4] * 50.0 - videoOffset_ms) / 1000
         experimentName = pair[2]
         print('Starttime: {}'.format(format_seconds(startTime)))
         print('Stoptime: {}'.format(format_seconds(stopTime)))
