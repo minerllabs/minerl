@@ -280,7 +280,7 @@ def render_videos(renders: list):
 
     """
     # Restart minecraft after so many renders
-    maxConsecutiveRenders = 8
+    maxConsecutiveRenders = 1
     numSuccessfulRenders = 0
 
     # Remove any finished file flags to prevent against copying unfinished renders
