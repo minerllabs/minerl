@@ -270,7 +270,7 @@ def logError(errorDIR, recording_name, skip_path):
 def relaunchMC(pid, errorDIR, recording_name, skip_path):
     killMC(pid)
     time.sleep(15)  # Give the OS time to release this file
-    logError(errorDIR, recording_name, skip_path):
+    logError(errorDIR, recording_name, skip_path)
     return launchMC()
 
 
