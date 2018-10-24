@@ -39,10 +39,13 @@ RENDERED_VIDEO_PATH = J(MINECRAFT_DIR, 'replay_videos')
 RENDERED_LOG_PATH  =  J(MINECRAFT_DIR,  'replay_logs')
 FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
 LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')  # RAH
-EOF_EXCEP_DIR = J(WORKING_DIR, 'EOFExceptions')
-ZEROLEN_DIR = J(WORKING_DIR, 'zeroLengthFiles')
-NULL_PTR_EXCEP_DIR = J(WORKING_DIR, 'nullPointerExceptions')
-ZIP_ERROR_DIR = J(WORKING_DIR, 'zipErrors')
+#Error directories
+ERROR_PARENT_DIR = J(WORKING_DIR, 'error_logs')
+EOF_EXCEP_DIR = J(ERROR_PARENT_DIR, 'end_of_file_reached')
+ZEROLEN_DIR = J(ERROR_PARENT_DIR, 'zero_length')
+NULL_PTR_EXCEP_DIR = J(ERROR_PARENT_DIR, 'null_pointer_except')
+ZIP_ERROR_DIR = J(ERROR_PARENT_DIR, 'zip_file')
+MISSING_RENDER_OUTPUT = J(ERROR_PARENT_DIR, 'missing_output')
 
 MC_LAUNCHER = '/home/hero/minecraft/launch.sh'
 # MC_JAR = # This seems to be excluded from the current launcher
@@ -94,9 +97,13 @@ def construct_render_dirs(blacklist):
     """
 
     dirs = [RENDER_DIR,
+        ERROR_PARENT_DIR,
         EOF_EXCEP_DIR,
         ZEROLEN_DIR,
-        NULL_PTR_EXCEP_DIR]
+        NULL_PTR_EXCEP_DIR,
+        ZIP_ERROR_DIR,
+        MISSING_RENDER_OUTPUT]
+
     for dir in dirs:
         if not E(dir):
             os.makedirs(dir)       
@@ -242,9 +249,7 @@ def launchMC():
     time.sleep(1)
     return p
 
-def relaunchMC(pid, errorDIR, recording_name, skip_path):
-    killMC(pid)
-    time.sleep(15)  # Give the OS time to release this file
+def logError(errorDIR, recording_name, skip_path):
     try:
         os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
                     J(errorDIR, recording_name+'.mcpr'))
@@ -261,6 +266,11 @@ def relaunchMC(pid, errorDIR, recording_name, skip_path):
                 pass  # File deleted between open() and os.utime() calls
     except:
         pass
+
+def relaunchMC(pid, errorDIR, recording_name, skip_path):
+    killMC(pid)
+    time.sleep(15)  # Give the OS time to release this file
+    logError(errorDIR, recording_name, skip_path):
     return launchMC()
 
 
@@ -428,12 +438,9 @@ def render_videos(renders: list):
         else:
             print("\tNo Video file found")
             print("\tSkipping this file in the future")
-            with open(skip_path, 'a'):
-                try:
-                    os.utime(skip_path, None)  # => Set skip time to now
-                except OSError:
-                    pass  # File deleted between open() and os.utime() calls
-                # Remove mcpr file from dir
+            logError(MISSING_RENDER_OUTPUT, render_name, skip_path)
+
+        # Remove mcpr file from dir
         try:
             os.remove(J(RECORDING_PATH, (recording_name + ".mcpr")))
         except:
