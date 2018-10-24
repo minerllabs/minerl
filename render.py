@@ -357,6 +357,10 @@ def render_videos(renders: list):
                         break
 
         if notFound:
+            try:
+                os.remove(J(RECORDING_PATH, (recording_name + ".mcpr")))
+            except:
+                pass
             continue
 
         # GET RECORDING
