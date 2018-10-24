@@ -10,6 +10,7 @@ render.py
 from fractions import Fraction
 from collections import OrderedDict
 import os
+import time
 import numpy
 import tqdm
 import zipfile
@@ -56,8 +57,8 @@ def format_seconds(seconds):
     seconds = seconds - hours * 3600
     minutes = int(seconds / 60)
     seconds = seconds - minutes * 60
-    #seconds = round(seconds, 3)
-    seconds = int(seconds)
+    seconds = round(seconds, 3)
+    #seconds = int(seconds)
     return str(hours) + ':' + str(minutes) + ':' + str(seconds)
 
 
@@ -68,16 +69,17 @@ def add_key_frames(inputPath, segments):
         keyframes.append(format_seconds(segment[1]))
     split_cmd = ['ffmpeg', '-i', J(inputPath, 'recording.mp4'), '-force_key_frames',
                  ','.join(keyframes), J(inputPath, 'keyframes_recording.mp4')]
-    print('Running: ' + ' '.join(split_cmd))
-    subprocess.check_output(split_cmd)
+    #print('Running: ' + ' '.join(split_cmd))
+
+    subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
 
 
 def extract_subclip(inputPath, start_time, stop_time, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_time), '-i',
                  J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_time - start_time),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
-    print('Running: ' + ' '.join(split_cmd))
-    subprocess.check_output(split_cmd)
+    #print('Running: ' + ' '.join(split_cmd))
+    subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
 
 
 ##################
@@ -175,7 +177,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         approxTime = (key - startTime) / 60000
         startRecording = marker['value']['metadata']['startRecording']
         stopRecording = marker['value']['metadata']['stopRecording']
-        print('key: {}, approx time: {} minutes and {} seconds, experiment name: {}, start: {}, stop: {}'.format(key, int(approxTime), 60 * (approxTime - int(approxTime)), expName, startRecording, stopRecording))
+        #print('key: {}, approx time: {} minutes and {} seconds, experiment name: {}, start: {}, stop: {}'.format(key, int(approxTime), 60 * (approxTime - int(approxTime)), expName, startRecording, stopRecording))
 
     startTime = None
     startTick = None
@@ -191,12 +193,12 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             if 'experiment_name' in jsonThing:
                 expName = jsonThing['experiment_name']
             else:
-                continue
+                continue 
 
         if 'startRecording' in marker and marker['startRecording'] and 'tick' in marker:
             # If we encounter a start marker after a start marker there is an error and we should throw away this segemnt
             startTime = key
-            experimentName = expName
+            #experimentName = expName
             startTick = marker['tick']
 
         if 'stopRecording' in marker and marker['stopRecording'] and startTime != None:
@@ -206,7 +208,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             startTime = None
             startTick = None
 
-    print(segments)
+    #print(segments)
 
     if not E(J(inputPath, "recording.mp4")):
         return
@@ -217,11 +219,14 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     # Frames per second expressed as a fraction, e.g. 25/1
     fps = 20  # float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
     videoOffset_ms = streamMetadata['start_timestamp']
-    print("offset: {}".format(videoOffset_ms))
+    #print("offset: {}".format(videoOffset_ms))
     length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
 
-    segments = [((segment[0] - videoOffset_ms) / 1000, (segment[1] - videoOffset_ms) / 1000, segment[2], segment[3], segment[4]) for segment in segments]
-    segments = [segment for segment in segments if segment[1] - segment[0] > EXP_MIN_LEN]
+    # TODO remove in favor of an exact calculation
+    videoOffset_ticks = -1#-int(videoOffset_ms / 50)
+
+    segments = [((segment[0] - videoOffset_ms) / 1000, (segment[1] - videoOffset_ms) / 1000, segment[2], segment[3] - videoOffset_ticks, segment[4] - videoOffset_ticks) for segment in segments]
+    segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN and segment[3] > 0]
     if not segments:
         return
     if not E(J(inputPath, 'keyframes_recording.mp4')):
@@ -230,22 +235,23 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     json_data = open(J(inputPath, 'univ.json')).read()
     univ_json = json.loads(json_data)
 
-    for pair in (segments):
+    for pair in tqdm.tqdm(segments, desc='Segments', leave=False):
+        time.sleep(0.1)
         startTime = pair[0]
         startTime = pair[3] / 20.0
         stopTime = pair[1]
         stopTime = pair[4] / 20.0
         experimentName = pair[2]
-        print('Starttime: {}'.format(format_seconds(startTime)))
-        print('Stoptime: {}'.format(format_seconds(stopTime)))
-        print('Number of seconds: {}'.format(stopTime - startTime))
-        print('Start tick: {}'.format(pair[3]))
-        print('Stop tick: {}'.format(pair[4]))
-        print('Number of ticks: {}'.format(pair[4] - pair[3] + 1))
+        #print('Starttime: {}'.format(format_seconds(startTime)))
+        #print('Stoptime: {}'.format(format_seconds(stopTime)))
+        #print('Number of seconds: {}'.format(stopTime - startTime))
+        #print('Start tick: {}'.format(pair[3]))
+        #print('Stop tick: {}'.format(pair[4]))
+        #print('Number of ticks: {}'.format(pair[4] - pair[3] + 1))
         json_ticks = [int(key) for key in univ_json.keys()]
-        print('min tick: {} max tick: {}'.format(min(json_ticks), max(json_ticks)))
+        #print('min tick: {} max tick: {}'.format(min(json_ticks), max(json_ticks)))
 
-        experiment_id = recordingName + "_" + str(startTime * 1000) + '-' + str(stopTime * 1000)
+        experiment_id = recordingName + "_" + str(int(startTime * 50)) + '-' + str(int(stopTime * 50))
         output_name = J(outputPath, experimentName, experiment_id, 'recording.mp4')
         output_dir = os.path.dirname(output_name)
         if not E(output_dir):
@@ -282,7 +288,7 @@ def main():
         len(valid_renders), len(invalid_renders), len(os.listdir(RENDER_DIR)))
     )
     print("Rendering videos: ")
-    for recording_name, render_path in tqdm.tqdm(valid_renders):
+    for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
         gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
 
 
