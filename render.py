@@ -91,8 +91,16 @@ def construct_render_dirs(blacklist):
     Constructs the render directories omitting
     elements on a blacklist.
     """
-    if not E(RENDER_DIR):
-        os.makedirs(RENDER_DIR)
+
+    dirs = [RENDER_DIR,
+        EOF_EXCEP_DIR,
+        ZEROLEN_DIR,
+        NULL_PTR_EXCEP_DIR]
+    for dir in dirs:
+        if not E(dir):
+            os.makedirs(dir)       
+
+
     # We only care about unrendered directories.
     render_dirs = []
 
@@ -109,8 +117,6 @@ def construct_render_dirs(blacklist):
     return render_dirs
 
 # 2. render metadata from the files.
-
-
 def render_metadata(renders: list) -> list:
     """
     Unpacks the metadata of a recording and checks its validity.
@@ -171,8 +177,6 @@ def render_metadata(renders: list) -> list:
     return good_renders, bad_renders
 
 # 2.Renders the actions.
-
-
 def render_actions(renders: list):
     """
     For every render directory, we render the actions
@@ -233,40 +237,9 @@ def launchMC():
         MC_LAUNCHER, cwd=MINECRAFT_DIR)#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("Launched ", MC_LAUNCHER)
 
-    # x = 388
-    # y = 626
-    # print("Launching Minecraft: ", end='', flush=True)
-    # pyautogui.moveTo(x, y)
-    # delay = 5
-    # for i in range(delay):
-    #     print(delay-i, ' ', end='', flush=True)
-    #     time.sleep(1)
-    # print("0")
-
-    # # Click on the launcher button that starts Minecraft
-    # pyautogui.click(x, y)
-    # print("\tWaiting for it to load:", end='', flush=True)
-    # pyautogui.click(x, y)  # Click on the launcher button that starts Minecraft
-    # delay = 5
-    # for i in range(delay):
-    #     print((delay-i) * 5, '', end='', flush=True)
-    #     time.sleep(5)
-    # print("0")
-    time.sleep(10)
+    #Give Minecraft time to load
+    time.sleep(1)
     return p
-
-
-def launchReplayViewer():
-    x = 860  # 1782
-    y = 700  # 1172
-    #pyautogui.moveTo(x, y)
-    print("\tLaunching ReplayViewer: ", end='', flush=True)
-    delay = 5
-    for i in range(delay):
-        print(delay-i, '', end='', flush=True)
-        time.sleep(1)
-    print("0")
-    #pyautogui.click(x, y)  # Then click the button that launches replayMod
 
 
 def render_videos(renders: list):
@@ -320,8 +293,6 @@ def render_videos(renders: list):
         copy_time = os.path.getmtime(
             J(RECORDING_PATH, (recording_name + ".mcpr")))
 
-        # Presses the ReplayViewer() button - this step can be automated in the code, but this is cleaner
-        launchReplayViewer()
         logFile = open(LOG_FILE, 'r', os.O_NONBLOCK)
         lineCounter = 0  # RAH So we can print line number of the error
 
