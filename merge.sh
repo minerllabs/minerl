@@ -94,7 +94,8 @@ do
       cd $working_dir/result
       python3 $home/zip_actions.py $(pwd) --singleThreaded
       #zip -r $fileName.mcpr ./*
-      7z a $fileName.mcpr ./*
+      7z a $fileName.zip ./*
+      mv $fileName.zip $fileName.mcpr
       cp $fileName.mcpr $results_dir/
       cd $working_dir
       echo "ZIPPP SUCCESSFUL ALLL GOOD"
