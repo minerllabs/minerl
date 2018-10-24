@@ -353,10 +353,14 @@ def render_videos(renders: list):
                     
                     if not errorDir is None:
                         print("\tline {}: {}".format(lineCounter, logLine))
-                        p = relaunchMC(p.pid, errorDIR, recording_name, skip_path)
+                        p = relaunchMC(p.pid, errorDir, recording_name, skip_path)
                         break
 
         if notFound:
+            try:
+                os.remove(J(RECORDING_PATH, (recording_name + ".mcpr")))
+            except:
+                pass
             continue
 
         # GET RECORDING

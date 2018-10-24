@@ -22,7 +22,7 @@ import json
 #######################
 J = os.path.join
 E = os.path.exists
-EXP_MIN_LEN = 20
+EXP_MIN_LEN_TICKS = 20 * 30 # 30 sec
 WORKING_DIR = os.path.abspath("./output")
 DATA_DIR = J(WORKING_DIR, "data_new")
 
@@ -58,7 +58,6 @@ def format_seconds(seconds):
     minutes = int(seconds / 60)
     seconds = seconds - minutes * 60
     seconds = round(seconds, 3)
-    #seconds = int(seconds)
     return str(hours) + ':' + str(minutes) + ':' + str(seconds)
 
 
