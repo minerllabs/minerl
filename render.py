@@ -42,6 +42,7 @@ LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')  # RAH
 EOF_EXCEP_DIR = J(WORKING_DIR, 'EOFExceptions')
 ZEROLEN_DIR = J(WORKING_DIR, 'zeroLengthFiles')
 NULL_PTR_EXCEP_DIR = J(WORKING_DIR, 'nullPointerExceptions')
+ZIP_ERROR_DIR = J(WORKING_DIR, 'zipErrors')
 
 MC_LAUNCHER = '/home/hero/minecraft/launch.sh'
 # MC_JAR = # This seems to be excluded from the current launcher
@@ -333,23 +334,28 @@ def render_videos(renders: list):
                 logLine = logFile.readline()
                 if len(logLine) > 0:
                     lineCounter += 1
+                    errorDir = None
                     if re.search(r"java.io.EOFException:", logLine):
-                        print("\tline {}: {}".format(lineCounter, logLine))
                         print("\tfound java.io.EOFException")
-                        p = relaunchMC(p.pid, EOF_EXCEP_DIR, recording_name, skip_path)
-                        break  # Exit the current file processing loop and process the next file
+                        errorDir = EOF_EXCEP_DIR
 
-                    if re.search(r"Adding time keyframe at \d+ time -\d+", logLine):
-                        print("\tline {}: {}".format(lineCounter, logLine))
+                    else if re.search(r"Adding time keyframe at \d+ time -\d+", logLine):
                         print("\tfound 0 length file")
-                        p = relaunchMC(p.pid, ZEROLEN_DIR, recording_name, skip_path)
-                        break  # Exit the current file processing loop and process the next file
+                        errorDir = ZEROLEN_DIR
 
-                    if re.search(r"java.lang.NullPointerException", logLine):
-                        print("\tline {}: {}".format(lineCounter, logLine),)
+                    else if re.search(r"java.lang.NullPointerException", logLine):
                         print("\tNullPointerException")
-                        p = relaunchMC(p.pid, NULL_PTR_EXCEP_DIR, recording_name, skip_path)
-                        break  # Exit the current file processing loop and process the next file
+                        errorDir = NULL_PTR_EXCEP_DIR
+
+                    else if re.search(r"zip error", logLine):
+                        print('ZIP file error')
+                        errorDir = ZIP_ERROR_DIR
+                    
+                    if not errorDir is None:
+                        print("\tline {}: {}".format(lineCounter, logLine))
+                        p = relaunchMC(p.pid, errorDIR, recording_name, skip_path)
+                        break
+
         if notFound:
             continue
 
