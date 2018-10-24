@@ -339,15 +339,15 @@ def render_videos(renders: list):
                         print("\tfound java.io.EOFException")
                         errorDir = EOF_EXCEP_DIR
 
-                    else if re.search(r"Adding time keyframe at \d+ time -\d+", logLine):
+                    elif re.search(r"Adding time keyframe at \d+ time -\d+", logLine):
                         print("\tfound 0 length file")
                         errorDir = ZEROLEN_DIR
 
-                    else if re.search(r"java.lang.NullPointerException", logLine):
+                    elif re.search(r"java.lang.NullPointerException", logLine):
                         print("\tNullPointerException")
                         errorDir = NULL_PTR_EXCEP_DIR
 
-                    else if re.search(r"zip error", logLine):
+                    elif re.search(r"zip error", logLine):
                         print('ZIP file error')
                         errorDir = ZIP_ERROR_DIR
                     
