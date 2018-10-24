@@ -353,7 +353,7 @@ def render_videos(renders: list):
                     
                     if not errorDir is None:
                         print("\tline {}: {}".format(lineCounter, logLine))
-                        p = relaunchMC(p.pid, errorDIR, recording_name, skip_path)
+                        p = relaunchMC(p.pid, errorDir, recording_name, skip_path)
                         break
 
         if notFound:
