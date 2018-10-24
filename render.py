@@ -42,6 +42,7 @@ LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')  # RAH
 EOF_EXCEP_DIR = J(WORKING_DIR, 'EOFExceptions')
 ZEROLEN_DIR = J(WORKING_DIR, 'zeroLengthFiles')
 NULL_PTR_EXCEP_DIR = J(WORKING_DIR, 'nullPointerExceptions')
+ZIP_ERROR_DIR = J(WORKING_DIR, 'zipErrors')
 
 MC_LAUNCHER = '/home/hero/minecraft/launch.sh'
 # MC_JAR = # This seems to be excluded from the current launcher
@@ -91,8 +92,16 @@ def construct_render_dirs(blacklist):
     Constructs the render directories omitting
     elements on a blacklist.
     """
-    if not E(RENDER_DIR):
-        os.makedirs(RENDER_DIR)
+
+    dirs = [RENDER_DIR,
+        EOF_EXCEP_DIR,
+        ZEROLEN_DIR,
+        NULL_PTR_EXCEP_DIR]
+    for dir in dirs:
+        if not E(dir):
+            os.makedirs(dir)       
+
+
     # We only care about unrendered directories.
     render_dirs = []
 
@@ -109,8 +118,6 @@ def construct_render_dirs(blacklist):
     return render_dirs
 
 # 2. render metadata from the files.
-
-
 def render_metadata(renders: list) -> list:
     """
     Unpacks the metadata of a recording and checks its validity.
@@ -171,8 +178,6 @@ def render_metadata(renders: list) -> list:
     return good_renders, bad_renders
 
 # 2.Renders the actions.
-
-
 def render_actions(renders: list):
     """
     For every render directory, we render the actions
@@ -233,40 +238,30 @@ def launchMC():
         MC_LAUNCHER, cwd=MINECRAFT_DIR)#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("Launched ", MC_LAUNCHER)
 
-    # x = 388
-    # y = 626
-    # print("Launching Minecraft: ", end='', flush=True)
-    # pyautogui.moveTo(x, y)
-    # delay = 5
-    # for i in range(delay):
-    #     print(delay-i, ' ', end='', flush=True)
-    #     time.sleep(1)
-    # print("0")
-
-    # # Click on the launcher button that starts Minecraft
-    # pyautogui.click(x, y)
-    # print("\tWaiting for it to load:", end='', flush=True)
-    # pyautogui.click(x, y)  # Click on the launcher button that starts Minecraft
-    # delay = 5
-    # for i in range(delay):
-    #     print((delay-i) * 5, '', end='', flush=True)
-    #     time.sleep(5)
-    # print("0")
-    time.sleep(10)
+    #Give Minecraft time to load
+    time.sleep(1)
     return p
 
-
-def launchReplayViewer():
-    x = 860  # 1782
-    y = 700  # 1172
-    #pyautogui.moveTo(x, y)
-    print("\tLaunching ReplayViewer: ", end='', flush=True)
-    delay = 5
-    for i in range(delay):
-        print(delay-i, '', end='', flush=True)
-        time.sleep(1)
-    print("0")
-    #pyautogui.click(x, y)  # Then click the button that launches replayMod
+def relaunchMC(pid, errorDIR, recording_name, skip_path):
+    killMC(pid)
+    time.sleep(15)  # Give the OS time to release this file
+    try:
+        os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
+                    J(errorDIR, recording_name+'.mcpr'))
+        shutil.copy(LOG_FILE,                               J(
+            errorDIR, recording_name+'.log'))
+    except:
+        pass
+    try:
+        shutil.rmtree(J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
+        with open(skip_path, 'a'):
+            try:
+                os.utime(skip_path, None)  # => Set skip time to now
+            except OSError:
+                pass  # File deleted between open() and os.utime() calls
+    except:
+        pass
+    return launchMC()
 
 
 def render_videos(renders: list):
@@ -320,8 +315,6 @@ def render_videos(renders: list):
         copy_time = os.path.getmtime(
             J(RECORDING_PATH, (recording_name + ".mcpr")))
 
-        # Presses the ReplayViewer() button - this step can be automated in the code, but this is cleaner
-        launchReplayViewer()
         logFile = open(LOG_FILE, 'r', os.O_NONBLOCK)
         lineCounter = 0  # RAH So we can print line number of the error
 
@@ -338,91 +331,36 @@ def render_videos(renders: list):
                     time.sleep(5)
                     p = launchMC()
             else:
-                # RAH Begin - this could be cleaner
                 logLine = logFile.readline()
                 if len(logLine) > 0:
                     lineCounter += 1
-                    m = re.search(r"java.io.EOFException:", logLine)
-                    if m:
-                        print("\tline {}: {}".format(lineCounter, logLine))
+                    errorDir = None
+                    if re.search(r"java.io.EOFException:", logLine):
                         print("\tfound java.io.EOFException")
-                        killMC(p.pid)
-                        time.sleep(5)  # Give the OS time to release this file
-                        try:
-                            os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
-                                      J(EOF_EXCEP_DIR, recording_name+'.mcpr'))
-                            shutil.copy(LOG_FILE,                               J(
-                                EOF_EXCEP_DIR, recording_name+'.log'))
-                        except:
-                            pass
-                        try:
-                            shutil.rmtree(
-                                J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
-                        except:
-                            pass
+                        errorDir = EOF_EXCEP_DIR
 
-                        p = launchMC()
-                        break  # Exit the current file processing loop and process the next file
-
-                    m = re.search(
-                        r"Adding time keyframe at \d+ time -\d+", logLine)
-                    if m:
-                        print("\tline {}: {}".format(lineCounter, logLine))
+                    elif re.search(r"Adding time keyframe at \d+ time -\d+", logLine):
                         print("\tfound 0 length file")
-                        killMC(p.pid)
-                        time.sleep(15)  # Give the OS time to release this file
-                        try:
-                            os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
-                                      J(ZEROLEN_DIR, recording_name+'.mcpr'))
-                            shutil.copy(LOG_FILE,                               J(
-                                ZEROLEN_DIR, recording_name+'.log'))
-                        except:
-                            pass
-                        try:
-                            shutil.rmtree(J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
-                            with open(skip_path, 'a'):
-                                try:
-                                    os.utime(skip_path, None)  # => Set skip time to now
-                                except OSError:
-                                    pass  # File deleted between open() and os.utime() calls
-                        except:
-                            pass
-                        p = launchMC()
-                        break  # Exit the current file processing loop and process the next file
+                        errorDir = ZEROLEN_DIR
 
-                    m = re.search(r"java.lang.NullPointerException", logLine)
-                    if m:
-                        print("\tline {}: {}".format(lineCounter, logLine),)
+                    elif re.search(r"java.lang.NullPointerException", logLine):
                         print("\tNullPointerException")
-                        killMC(p.pid)
-                        # Give the OS time to release this file nullPointerException needs more time than others
-                        time.sleep(20)
-                        print(J(RECORDING_PATH, recording_name+'.mcpr'),
-                              J(NULL_PTR_EXCEP_DIR, recording_name+'.mcpr'))
-                        try:
-                            os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
-                                      J(NULL_PTR_EXCEP_DIR, recording_name+'.mcpr'))
-                            shutil.copy(LOG_FILE,                               J(
-                                NULL_PTR_EXCEP_DIR, recording_name+'.log'))
-                        except:
-                            pass
-                        try:
-                            shutil.rmtree(
-                                J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
-                            with open(skip_path, 'a'):
-                                try:
-                                    os.utime(skip_path, None)  # => Set skip time to now
-                                except OSError:
-                                    pass  # File deleted between open() and os.utime() calls
-                        except:
-                            pass
-                        p = launchMC()
-                        break  # Exit the current file processing loop and process the next file
-        # RAH End
+                        errorDir = NULL_PTR_EXCEP_DIR
 
-        # * means all if need specific format then *.cs
-        list_of_files = glob.glob( J(RENDERED_VIDEO_PATH, '*.mp4'))
+                    elif re.search(r"zip error", logLine):
+                        print('ZIP file error')
+                        errorDir = ZIP_ERROR_DIR
+                    
+                    if not errorDir is None:
+                        print("\tline {}: {}".format(lineCounter, logLine))
+                        p = relaunchMC(p.pid, errorDIR, recording_name, skip_path)
+                        break
+
+        if notFound:
+            continue
+
         # GET RECORDING
+        list_of_files = glob.glob( J(RENDERED_VIDEO_PATH, '*.mp4'))
         if len(list_of_files) > 0:
             # Check that this render was created after we copied
             video_path = max(list_of_files, key=os.path.getmtime)
@@ -441,12 +379,12 @@ def render_videos(renders: list):
             # Check that this render was created after we copied
             log_path = max(list_of_logs, key=os.path.getmtime)
             if os.path.getmtime(log_path) < copy_time:
-                print("\tError! Rendered log! is older than replay!")
+                print("\tError! Rendered log is older than replay!")
                 # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
                 # if "y" in user_input:
-                #       print("using out of date recording")
+                #       print("using out of date action json")
                 # else:
-                print("\tskipping out of date rendering")
+                print("\tskipping out of date action json")
                 log_path = None
 
         # GET new markers.json SHIT.
@@ -455,12 +393,12 @@ def render_videos(renders: list):
             # Check that this render was created after we copied
             marker_path = max(list_of_logs, key=os.path.getmtime)
             if os.path.getmtime(marker_path) < copy_time:
-                print("\tError! Rendered log! is older than replay!")
+                print("\tError! markers.json is older than replay!")
                 # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
                 # if "y" in user_input:
                 #       print("using out of date recording")
                 # else:
-                print("\tskipping out of date rendering")
+                print("\tskipping out of date markers.json")
                 marker_path = None
 
 
