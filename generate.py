@@ -253,15 +253,15 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         tqdm.tqdm.write(output_name)
         if not E(output_name):
             extract_subclip(inputPath, startTime, stopTime, output_name)
-        univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
-        json_to_write = {}
-        try:
-            for idx in range(pair[3], pair[4] + 1):
-                json_to_write[str(idx - pair[3])] = univ_json[str(idx)]
-            json.dump(json_to_write, open(univ_output_name, 'w'))
-        except Exception as e:
-            print(e)
-            continue
+            univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
+            json_to_write = {}
+            try:
+                for idx in range(pair[3], pair[4] + 1):
+                    json_to_write[str(idx - pair[3])] = univ_json[str(idx)]
+                json.dump(json_to_write, open(univ_output_name, 'w'))
+            except Exception as e:
+                print(e)
+                continue
 
 
 def main():
