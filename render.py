@@ -438,7 +438,7 @@ def render_videos(renders: list):
         else:
             print("\tNo Video file found")
             print("\tSkipping this file in the future")
-            logError(MISSING_RENDER_OUTPUT, render_name, skip_path)
+            logError(MISSING_RENDER_OUTPUT, recording_name, skip_path)
 
         # Remove mcpr file from dir
         try:
