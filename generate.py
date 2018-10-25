@@ -152,6 +152,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     # Generate recording segments
     # Sorted pairs of (start, stop, exprementName) timestamps (in ms)
     segments = []
+    numNewSegments = 0
 
     markers = OrderedDict()
     streamMetadata = json.load(open(J(inputPath, 'stream_meta_data.json')))
@@ -257,6 +258,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             os.makedirs(output_dir)
         tqdm.tqdm.write(output_name)
         if not E(output_name):
+            numNewSegments += 1
             extract_subclip(inputPath, startTime, stopTime, output_name)
             univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
             json_to_write = {}
@@ -267,7 +269,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             except Exception as e:
                 print(e)
                 continue
-
+    tqdm.tqdm.write('Rendered {} new segments!'.format(numNewSegments))
 
 def main():
     """
