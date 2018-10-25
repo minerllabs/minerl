@@ -143,11 +143,11 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             if int(version) < 103:
                 isAbsolute = True
     else:
-        return
+        return 0
 
     # Disable data generation for old format
     if isAbsolute:
-        return
+        return 0
 
     # Generate recording segments
     # Sorted pairs of (start, stop, exprementName) timestamps (in ms)
@@ -211,10 +211,10 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     #print(segments)
 
     if not E(J(inputPath, "recording.mp4")):
-        return
+        return 0
 
     if len(markers) == 0:
-        return
+        return 0
 
     # Frames per second expressed as a fraction, e.g. 25/1
     fps = 20  # float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
@@ -228,7 +228,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     segments = [((segment[0] - videoOffset_ms) / 1000, (segment[1] - videoOffset_ms) / 1000, segment[2], segment[3] - videoOffset_ticks, segment[4] - videoOffset_ticks) for segment in segments]
     segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
     if not segments:
-        return
+        return 0
     if not E(J(inputPath, 'keyframes_recording.mp4')):
         add_key_frames(inputPath, segments)
 
@@ -269,7 +269,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
             except Exception as e:
                 print(e)
                 continue
-    tqdm.tqdm.write('Rendered {} new segments!'.format(numNewSegments))
+    return numNewSegments
 
 def main():
     """
@@ -289,9 +289,11 @@ def main():
         len(valid_renders), len(invalid_renders), len(os.listdir(RENDER_DIR)))
     )
     print("Rendering videos: ")
+    numSegmentsRendered = 0
     for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
-        gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
+        numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
 
+    print('Rendered {} new segments in total!'.format(numSegmentsRendered))
 
 if __name__ == "__main__":
     main()
