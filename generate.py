@@ -225,7 +225,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     videoOffset_ticks = -1#-int(videoOffset_ms / 50)
 
     segments = [((segment[0] - videoOffset_ms) / 1000, (segment[1] - videoOffset_ms) / 1000, segment[2], segment[3] - videoOffset_ticks, segment[4] - videoOffset_ticks) for segment in segments]
-    segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN and segment[3] > 0]
+    segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
     if not segments:
         return
     if not E(J(inputPath, 'keyframes_recording.mp4')):
