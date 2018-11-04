@@ -345,7 +345,7 @@ def render_videos(renders: list):
                 if len(logLine) > 0:
                     lineCounter += 1
                     errorDir = None
-                    if re.search(r"java.io.EOFException:", logLine):
+                    if re.search(r"EOFException:", logLine):
                         print("\tfound java.io.EOFException")
                         errorDir = EOF_EXCEP_DIR
 
@@ -353,7 +353,7 @@ def render_videos(renders: list):
                         print("\tfound 0 length file")
                         errorDir = ZEROLEN_DIR
 
-                    elif re.search(r"java.lang.NullPointerException", logLine):
+                    elif re.search(r"NullPointerException", logLine):
                         print("\tNullPointerException")
                         errorDir = NULL_PTR_EXCEP_DIR
 
@@ -366,6 +366,7 @@ def render_videos(renders: list):
                         p = relaunchMC(p.pid, errorDir, recording_name, skip_path)
                         break
 
+        logFile.close()
         if notFound:
             try:
                 os.remove(J(RECORDING_PATH, (recording_name + ".mcpr")))
