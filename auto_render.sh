@@ -2,7 +2,7 @@
 
 cd ~/cmu-rl/herobraine_parse
 # warning: the path is hardcoded in download.py
-/home/cmr-rl/herobraine_parse/python3 ./download.py
+/home/cmr-rl/herobraine_parse/python3 ./download2.py
 ./merge.sh
 home/cmr-rl/herobraine_parse/python3 ./render.py
 home/cmr-rl/herobraine_parse/python3 ./generate.py
