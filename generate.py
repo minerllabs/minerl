@@ -38,6 +38,7 @@ METADATA_FILES = [
     'mods.json',
     'stream_meta_data.json']
 
+FAILED_COMMANDS = []
 
 def touch(path):
     with open(path, 'w'):
@@ -70,7 +71,12 @@ def add_key_frames(inputPath, segments):
                  ','.join(keyframes), J(inputPath, 'keyframes_recording.mp4')]
     #print('Running: ' + ' '.join(split_cmd))
 
-    subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
+    try:
+        subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
+    except:
+        print('COMMAND FAILED:')
+        print(split_cmd)
+        FAILED_COMMANDS.append(split_cmd)
 
 
 def extract_subclip(inputPath, start_time, stop_time, output_name):
@@ -78,7 +84,12 @@ def extract_subclip(inputPath, start_time, stop_time, output_name):
                  J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_time - start_time),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
     #print('Running: ' + ' '.join(split_cmd))
-    subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
+    try:
+        subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
+    except:
+        print('COMMAND FAILED:')
+        print(split_cmd)
+        FAILED_COMMANDS.append(split_cmd)
 
 
 ##################
@@ -294,6 +305,8 @@ def main():
         numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
 
     print('Rendered {} new segments in total!'.format(numSegmentsRendered))
+    print('LIST OF FAILED COMMANDS:')
+    print(FAILED_COMMANDS)
 
 if __name__ == "__main__":
     main()
