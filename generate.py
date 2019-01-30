@@ -70,7 +70,7 @@ def add_key_frames(inputPath, segments):
                  ','.join(keyframes), J(inputPath, 'keyframes_recording.mp4')]
     #print('Running: ' + ' '.join(split_cmd))
 
-    subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
+        subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
 
 
 def extract_subclip(inputPath, start_time, stop_time, output_name):
@@ -229,8 +229,12 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
     if not segments:
         return 0
-    if not E(J(inputPath, 'keyframes_recording.mp4')):
-        add_key_frames(inputPath, segments)
+    try:
+        if not E(J(inputPath, 'keyframes_recording.mp4')):
+            add_key_frames(inputPath, segments)
+    except subprocess.CalledProcessError as exception:
+        print("Error splitting {}:\033[0;31;47m {}        \033[0m 0;31;47m".format(recordingName, exception))
+        return 0 
 
     json_data = open(J(inputPath, 'univ.json')).read()
     univ_json = json.loads(json_data)
@@ -297,3 +301,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
