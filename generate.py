@@ -70,7 +70,7 @@ def add_key_frames(inputPath, segments):
                  ','.join(keyframes), J(inputPath, 'keyframes_recording.mp4')]
     #print('Running: ' + ' '.join(split_cmd))
 
-        subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
+    subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
 
 
 def extract_subclip(inputPath, start_time, stop_time, output_name):
