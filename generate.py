@@ -67,14 +67,17 @@ def add_key_frames(inputPath, segments):
     for segment in segments:
         keyframes.append(format_seconds(segment[0]))
         keyframes.append(format_seconds(segment[1]))
-    split_cmd = ['ffmpeg', '-i', J(inputPath, 'recording.mp4'), '-force_key_frames',
+    split_cmd = ['ffmpeg', '-i', J(inputPath, 'recording.mp4'),
+                 '-c:a', 'copy',
+                 '-c:v', 'copy',
+                 '-force_key_frames',
                  ','.join(keyframes), J(inputPath, 'keyframes_recording.mp4')]
-    #print('Running: ' + ' '.join(split_cmd))
+    # print('Running: ' + ' '.join(split_cmd))
 
     try:
         subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
-    except:
-        print('COMMAND FAILED:')
+    except Exception as e:
+        print('COMMAND FAILED:', e)
         print(split_cmd)
         FAILED_COMMANDS.append(split_cmd)
 
