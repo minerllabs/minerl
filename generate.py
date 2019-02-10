@@ -245,6 +245,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         return 0
     try:
         if not E(J(inputPath, 'keyframes_recording.mp4')):
+            # os.remove(J(inputPath, 'keyframes_recording.mp4'))
             add_key_frames(inputPath, segments)
     except subprocess.CalledProcessError as exception:
         print("Error splitting {}:\033[0;31;47m {}        \033[0m 0;31;47m".format(recordingName, exception))
