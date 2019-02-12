@@ -97,6 +97,30 @@ def extract_subclip(inputPath, start_time, stop_time, output_name):
         FAILED_COMMANDS.append(split_cmd)
 
 
+def parse_metadata(startMarker, endMarker):
+    try:
+        metadata = {}
+        startMeta = startMarker['value']['metadata']
+        endMeta = endMarker['value']['metadata']
+        metadata['start_position'] = startMarker['value']['position']
+        metadata['end_position'] = endMarker['value']['position']
+        metadata['start_tick'] = startMeta['tick'] if 'tick' in startMeta else None
+        metadata['end_tick'] = endMeta['tick'] if 'tick' in endMeta else None
+        metadata['start_time'] = startMarker['realTimestamp']
+        metadata['end_time'] = endMarker['realTimestamp']
+
+        # Recording the string sent to us by Minecraft server including experiment specific data like if we won or not
+        metadata['server_info_str'] = endMeta['expMetadata']
+        metadata['server_metadata'] = json.loads(endMeta['expMetadata'][endMeta['expMetadata'].find('experimentMetadata') + 19:-1])
+
+        # Not meaningful in some older streams but included for completeness
+        metadata['server_info_str_start'] = startMeta['expMetadata']
+        metadata['server_metadata_start'] = json.loads(startMeta['expMetadata'][startMeta['expMetadata'].find('experimentMetadata') + 19:-1])
+
+        return metadata
+    except ValueError:
+        return {'BIG_FAT_ERROR': True}
+
 class ThreadManager(object):
     def __init__(self, man, num_workers, first_index, max_load):
         self.max_load = max_load
@@ -213,49 +237,51 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
             #     else:
             #         print("{} has missing tick!".format(recordingName))
 
-    for key, marker in sorted(markers.items()):
-        malformedStr = marker['value']['metadata']['expMetadata']
-        jsonThing = json.loads(malformedStr[malformedStr.find('experimentMetadata') + 19:-1])
-        expName = ''
-        if 'experiment_name' in jsonThing:
-            expName = jsonThing['experiment_name']
-        startTime = streamMetadata['start_timestamp']
-        approxTime = (key - startTime) / 60000
-        startRecording = marker['value']['metadata']['startRecording']
-        stopRecording = marker['value']['metadata']['stopRecording']
-        #print('key: {}, approx time: {} minutes and {} seconds, experiment name: {}, start: {}, stop: {}'.format(key, int(approxTime), 60 * (approxTime - int(approxTime)), expName, startRecording, stopRecording))
+    # for key, marker in sorted(markers.items()):
+    #     malformedStr = marker['value']['metadata']['expMetadata']
+    #     jsonThing = json.loads(malformedStr[malformedStr.find('experimentMetadata') + 19:-1])
+    #     expName = ''
+    #     if 'experiment_name' in jsonThing:
+    #         expName = jsonThing['experiment_name']
+    #     startTime = streamMetadata['start_timestamp']
+    #     approxTime = (key - startTime) / 60000
+    #     startRecording = marker['value']['metadata']['startRecording']
+    #     stopRecording = marker['value']['metadata']['stopRecording']
+    #     #print('key: {}, approx time: {} minutes and {} seconds, experiment name: {}, start: {}, stop: {}'.format(key, int(approxTime), 60 * (approxTime - int(approxTime)), expName, startRecording, stopRecording))
 
     startTime = None
     startTick = None
+    startMarker = None
     experimentName = ""
     # print(sorted(markers.items()))
     for key, marker in sorted(markers.items()):
         expName = ""
         # Get experiment name (its a malformed json so we have to look it up by hand)
         if 'value' in marker and 'metadata' in marker['value'] and 'expMetadata' in marker['value']['metadata']:
-            marker = marker['value']['metadata']
+            meta = marker['value']['metadata']
 
-            malformedStr = marker['expMetadata']
+            malformedStr = meta['expMetadata']
             jsonThing = json.loads(malformedStr[malformedStr.find('experimentMetadata') + 19:-1])
             if 'experiment_name' in jsonThing:
                 expName = jsonThing['experiment_name']
             else:
                 continue 
 
-        if 'startRecording' in marker and marker['startRecording'] and 'tick' in marker:
+        if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta:
             # If we encounter a start marker after a start marker there is an error and we should throw away this segemnt
             startTime = key
-            #experimentName = expName
-            startTick = marker['tick']
+            startTick = meta['tick']
+            startMarker = marker
 
-        if 'stopRecording' in marker and marker['stopRecording'] and startTime != None:
-            # experiment name should be the same
-            # if experimentName == expName:
-            segments.append((startTime, key, expName, startTick, marker['tick']))
+        if 'stopRecording' in meta and meta['stopRecording'] and startTime != None:
+            segments.append((startTick, startMarker, meta['tick'], marker, expName))
             startTime = None
             startTick = None
 
     #print(segments)
+    # Layout of segments
+    # 0.           1.             2.          3.            4.
+    # Start Tick : Start Marker : Stop Tick : Stop Marker : Experiment Name
 
     if not E(J(inputPath, "recording.mp4")):
         return 0
@@ -263,7 +289,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
     if len(markers) == 0:
         return 0
 
-    segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
+    segments = [segment for segment in segments if segment[2] - segment[0] > EXP_MIN_LEN_TICKS and segment[0] > 0]
+
     if not segments:
         return 0
     try:
@@ -278,35 +305,41 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
 
     for pair in tqdm.tqdm(segments, desc='Segments', leave=False, position=lineNum):
         time.sleep(0.05)
-        #startTime = pair[0]
-        startTime = pair[3] / 20.0
-        #stopTime = pair[1]
-        stopTime = pair[4] / 20.0
-        experimentName = pair[2]
-        #print('Starttime: {}'.format(format_seconds(startTime)))
-        #print('Stoptime: {}'.format(format_seconds(stopTime)))
-        #print('Number of seconds: {}'.format(stopTime - startTime))
-        #print('Start tick: {}'.format(pair[3]))
-        #print('Stop tick: {}'.format(pair[4]))
-        #print('Number of ticks: {}'.format(pair[4] - pair[3] + 1))
-        json_ticks = [int(key) for key in univ_json.keys()]
-        #print('min tick: {} max tick: {}'.format(min(json_ticks), max(json_ticks)))
+        startTick = pair[0]
+        stopTick = pair[2]
+        startTime = startTick / 20.0
+        stopTime = stopTick / 20.0
+        experimentName = pair[-1]
 
         experiment_id = recordingName + "_" + str(int(startTime * 50)) + '-' + str(int(stopTime * 50))
         output_name = J(outputPath, experimentName, experiment_id, 'recording.mp4')
+        univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
+        meta_output_name = J(outputPath, experimentName, experiment_id, 'metadata.json')
         output_dir = os.path.dirname(output_name)
         if not E(output_dir):
             os.makedirs(output_dir)
-        # tqdm.tqdm.write(output_name)
-        if not E(output_name):
-            numNewSegments += 1
-            extract_subclip(inputPath, startTime, stopTime, output_name)
-            univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
-            json_to_write = {}
+        if not (E(output_name) and E(univ_output_name) and E(meta_output_name)):
             try:
-                for idx in range(pair[3], pair[4] + 1):
-                    json_to_write[str(idx - pair[3])] = univ_json[str(idx)]
+                # Remove potentially stale elements
+                if E(output_name): os.remove(output_name)
+                if E(univ_output_name): os.remove(univ_output_name)
+                if E(meta_output_name): os.remove(meta_output_name)
+
+                # Split video (without re-encoding)
+                extract_subclip(inputPath, startTime, stopTime, output_name)
+
+                # Split universal action json
+                json_to_write = {}
+                for idx in range(startTick, stopTick + 1):
+                    json_to_write[str(idx - startTick)] = univ_json[str(idx)]
                 json.dump(json_to_write, open(univ_output_name, 'w'))
+
+                # Split metadata.json
+                metadata = parse_metadata(pair[1], pair[3])
+                json.dump(metadata, open(meta_output_name, 'w'))
+
+                numNewSegments += 1
+
             except KeyboardInterrupt:
                 return numNewSegments
             except Exception as e:
