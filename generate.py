@@ -307,6 +307,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 for idx in range(pair[3], pair[4] + 1):
                     json_to_write[str(idx - pair[3])] = univ_json[str(idx)]
                 json.dump(json_to_write, open(univ_output_name, 'w'))
+            except KeyboardInterrupt:
+                return numNewSegments
             except Exception as e:
                 print(e)
                 continue
@@ -338,7 +340,7 @@ def main():
         with multiprocessing.Pool(numW, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
             manager = ThreadManager(multiprocessing.Manager(), numW, 1, 1)
             func = functools.partial(_gen_sarsa_pairs, DATA_DIR, manager)
-            numSegments = list(tqdm.tqdm(pool.imap(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1))
+            numSegments = list(tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1, position=0, maxinterval=1))
 
             # for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
             #     numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
