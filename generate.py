@@ -7,6 +7,8 @@ render.py
 # 2) Running the action_rendering scripts
 # 3) Running the video_rendering scripts
 """
+import functools
+import multiprocessing
 from fractions import Fraction
 from collections import OrderedDict
 import os
@@ -95,6 +97,32 @@ def extract_subclip(inputPath, start_time, stop_time, output_name):
         FAILED_COMMANDS.append(split_cmd)
 
 
+class ThreadManager(object):
+    def __init__(self, man, num_workers, first_index, max_load):
+        self.max_load = max_load
+        self.first_index = first_index
+        self.workers = man.list([0 for _ in range(num_workers)])
+        self.worker_lock = man.Lock()
+
+    def get_index(self):
+        while True:
+            with self.worker_lock:
+                load = min(self.workers)
+                if load < self.max_load:
+                    index = self.workers.index(load)
+                    self.workers[index] += 1
+                    # print('Load is {} incrementing {}'.format(load, index))
+                    # print(self.gpu_workers)
+                    return index + self.first_index
+                else:
+                    time.sleep(0.01)
+
+
+    def free_index(self, i):
+        with self.worker_lock:
+            self.workers[i - self.first_index] -= 1
+
+
 ##################
 ### PIPELINE
 #################
@@ -143,24 +171,28 @@ def get_metadata(renders: list) -> list:
     return good_renders, bad_renders
 
 
+def _gen_sarsa_pairs(outputPath, manager, input):
+    n = manager.get_index()
+    recordingName, inputPath = input
+    ret = gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=n)
+    manager.free_index(n)
+    return ret
+
+
 # 3. generate sarsa pairs
-def gen_sarsa_pairs(inputPath, recordingName, outputPath):
+def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
     # Script to to pair actions with video recording
     # All times are in ms and we assume a actions list, a timestamp file, and a dis-syncronous mp4 video
 
-    # Decide if absolute or relative
-    isAbsolute = False
+    # Decide if absolute or relative (old format)
+    # Disable data generation for old format
     if E(J(inputPath, 'metaData.json')):
         metadata = json.load(open(J(inputPath, 'metaData.json')))
         if 'generator' in metadata:
             version = metadata['generator'].split('-')[-2]
             if int(version) < 103:
-                isAbsolute = True
+                return 0
     else:
-        return 0
-
-    # Disable data generation for old format
-    if isAbsolute:
         return 0
 
     # Generate recording segments
@@ -196,6 +228,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     startTime = None
     startTick = None
     experimentName = ""
+    # print(sorted(markers.items()))
     for key, marker in sorted(markers.items()):
         expName = ""
         # Get experiment name (its a malformed json so we have to look it up by hand)
@@ -230,16 +263,6 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     if len(markers) == 0:
         return 0
 
-    # Frames per second expressed as a fraction, e.g. 25/1
-    fps = 20  # float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
-    videoOffset_ms = streamMetadata['start_timestamp']
-    #print("offset: {}".format(videoOffset_ms))
-    length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
-
-    # TODO remove in favor of an exact calculation
-    videoOffset_ticks = -1#-int(videoOffset_ms / 50)
-
-    segments = [((segment[0] - videoOffset_ms) / 1000, (segment[1] - videoOffset_ms) / 1000, segment[2], segment[3] - videoOffset_ticks, segment[4] - videoOffset_ticks) for segment in segments]
     segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
     if not segments:
         return 0
@@ -253,11 +276,11 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
     json_data = open(J(inputPath, 'univ.json')).read()
     univ_json = json.loads(json_data)
 
-    for pair in tqdm.tqdm(segments, desc='Segments', leave=False):
-        time.sleep(0.1)
-        startTime = pair[0]
+    for pair in tqdm.tqdm(segments, desc='Segments', leave=False, position=lineNum):
+        time.sleep(0.05)
+        #startTime = pair[0]
         startTime = pair[3] / 20.0
-        stopTime = pair[1]
+        #stopTime = pair[1]
         stopTime = pair[4] / 20.0
         experimentName = pair[2]
         #print('Starttime: {}'.format(format_seconds(startTime)))
@@ -274,7 +297,7 @@ def gen_sarsa_pairs(inputPath, recordingName, outputPath):
         output_dir = os.path.dirname(output_name)
         if not E(output_dir):
             os.makedirs(output_dir)
-        tqdm.tqdm.write(output_name)
+        # tqdm.tqdm.write(output_name)
         if not E(output_name):
             numNewSegments += 1
             extract_subclip(inputPath, startTime, stopTime, output_name)
@@ -307,10 +330,29 @@ def main():
         len(valid_renders), len(invalid_renders), len(os.listdir(RENDER_DIR)))
     )
     print("Rendering videos: ")
-    numSegmentsRendered = 0
-    for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
-        numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
+    numSegments = []
 
+    try:
+        numW = 8
+        multiprocessing.freeze_support()
+        with multiprocessing.Pool(numW, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
+            manager = ThreadManager(multiprocessing.Manager(), numW, 1, 1)
+            func = functools.partial(_gen_sarsa_pairs, DATA_DIR, manager)
+            numSegments = list(tqdm.tqdm(pool.imap(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1))
+
+            # for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
+            #     numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
+    except Exception as e:
+        print('\n' * numW)
+        print(e)
+        print('Rendered {} new segments in total!'.format(sum(numSegments)))
+        print('LIST OF FAILED COMMANDS:')
+        print(FAILED_COMMANDS)
+        return
+
+    numSegmentsRendered = sum(numSegments)
+
+    print('\n' * numW)
     print('Rendered {} new segments in total!'.format(numSegmentsRendered))
     print('LIST OF FAILED COMMANDS:')
     print(FAILED_COMMANDS)
