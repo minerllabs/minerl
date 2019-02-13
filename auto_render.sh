@@ -4,7 +4,7 @@ cd ~/cmu-rl/herobraine_parse
 # warning: the path is hardcoded in download.py
 /usr/bin/python3.6 ./download2.py
 ./merge.sh
-/usr/bin/python3.6 ./render.py
+DISPLAY=:0 /usr/bin/python3.6 ./render.py
 /usr/bin/python3.6 ./generate.py
 
 
