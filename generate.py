@@ -12,6 +12,7 @@ import multiprocessing
 from fractions import Fraction
 from collections import OrderedDict
 import os
+import sys
 import time
 import numpy
 import tqdm
@@ -399,6 +400,7 @@ def main():
     """
     The main render script.
     """
+
     # 1. Load the blacklist.
     blacklist = set(numpy.loadtxt(BLACKLIST_PATH, dtype=numpy.str).tolist())
 
@@ -416,7 +418,7 @@ def main():
     numSegments = []
 
     try:
-        numW = 8
+        numW = sys.argv[1] if len(sys.argv) > 1 else 2
         multiprocessing.freeze_support()
         with multiprocessing.Pool(numW, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
             manager = ThreadManager(multiprocessing.Manager(), numW, 1, 1)
