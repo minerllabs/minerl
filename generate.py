@@ -259,13 +259,13 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 expName = jsonThing['experiment_name']
 
                 if expName == 'o_meat' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
-                    # Look backwards for meat at most 100 ticks in the past
+                    # Look backwards for meat at most 32 ticks in the past
                     # Lets players who were assigned obtain cooked X become winners for obtain cooked Y
                     tick = meta['tick']
                     if univ_json is None:
                         univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
-                    for i in range(100):
-                        if 'slots' in univ_json[str(tick - i)]:
+                    for i in range(32):
+                        if str(tick - i) in univ_json and 'slots' in univ_json[str(tick - i)]:
                             slot = [elem.values() for elem in univ_json[str(tick - i)]['slots']['inventory']
                                     if 'item.porkchopCooked' in elem.values()
                                     or 'item.beefCooked' in elem.values()
@@ -284,13 +284,13 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                         else:
                             break
                 if expName == 'o_bed' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
-                    # Look backwards for a bed at most 100 ticks in the past
+                    # Look backwards for a bed at most 32 ticks in the past
                     # Lets players who were assigned obtain cooked X become winners for obtain cooked Y
                     tick = meta['tick']
                     if univ_json is None:
                         univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
-                    for i in range(100):
-                        if 'slots' in univ_json[str(tick - i)]:
+                    for i in range(32):
+                        if str(tick - i) in univ_json and 'slots' in univ_json[str(tick - i)]:
                             slot = [elem.values() for elem in univ_json[str(tick - i)]['slots']['inventory']
                                     if 'item.bed.black' in elem.values()
                                     or 'item.bed.white' in elem.values()
@@ -390,8 +390,11 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
 
             except KeyboardInterrupt:
                 return numNewSegments
+            except KeyError:
+                open('errors.txt', 'a+').write("Key Error " + str(idx) + " not found in universal json: " + inputPath + '\n')
+                continue
             except Exception as e:
-                print(e)
+                print("Exception in segment rendering", e, type(e))
                 continue
     return numNewSegments
 
@@ -416,9 +419,10 @@ def main():
     )
     print("Rendering videos: ")
     numSegments = []
-
+    if E('errors.txt'): os.remove('errors.txt')
     try:
         numW = int(sys.argv[1]) if len(sys.argv) > 1 else 2
+
         multiprocessing.freeze_support()
         with multiprocessing.Pool(numW, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
             manager = ThreadManager(multiprocessing.Manager(), numW, 1, 1)
@@ -431,18 +435,20 @@ def main():
             #     numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
     except Exception as e:
         print('\n' * numW)
-        print(e)
+        print("Exception in pool: ", type(e),  e)
         print('Rendered {} new segments in total!'.format(sum(numSegments)))
-        print('LIST OF FAILED COMMANDS:')
-        print(FAILED_COMMANDS)
+        print('Errors:')
+        print(open('errors.txt', 'r').read())
         return
 
     numSegmentsRendered = sum(numSegments)
 
     print('\n' * numW)
     print('Rendered {} new segments in total!'.format(numSegmentsRendered))
-    print('LIST OF FAILED COMMANDS:')
-    print(FAILED_COMMANDS)
+    print('Errors:')
+    print(open('errors.txt', 'r').read())
+    # print('LIST OF FAILED COMMANDS:')
+    # print(FAILED_COMMANDS)
 
 
 if __name__ == "__main__":
