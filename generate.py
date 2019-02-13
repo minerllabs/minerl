@@ -24,7 +24,7 @@ import json
 #######################
 J = os.path.join
 E = os.path.exists
-EXP_MIN_LEN_TICKS = 20 * 30 # 30 sec
+EXP_MIN_LEN_TICKS = 20 * 30  # 30 sec
 WORKING_DIR = os.path.abspath("./output")
 DATA_DIR = J(WORKING_DIR, "data_new")
 
@@ -41,6 +41,7 @@ METADATA_FILES = [
     'stream_meta_data.json']
 
 FAILED_COMMANDS = []
+
 
 def touch(path):
     with open(path, 'w'):
@@ -88,11 +89,11 @@ def extract_subclip(inputPath, start_time, stop_time, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_time), '-i',
                  J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_time - start_time),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
-    #print('Running: ' + ' '.join(split_cmd))
+    # print('Running: ' + ' '.join(split_cmd))
     try:
         subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
-    except:
-        print('COMMAND FAILED:')
+    except Exception as e:
+        print('COMMAND FAILED:', e)
         print(split_cmd)
         FAILED_COMMANDS.append(split_cmd)
 
@@ -111,15 +112,22 @@ def parse_metadata(startMarker, endMarker):
 
         # Recording the string sent to us by Minecraft server including experiment specific data like if we won or not
         metadata['server_info_str'] = endMeta['expMetadata']
-        metadata['server_metadata'] = json.loads(endMeta['expMetadata'][endMeta['expMetadata'].find('experimentMetadata') + 19:-1])
+        metadata['server_metadata'] = json.loads(
+            endMeta['expMetadata'][endMeta['expMetadata'].find('experimentMetadata') + 19:-1])
 
         # Not meaningful in some older streams but included for completeness
         metadata['server_info_str_start'] = startMeta['expMetadata']
-        metadata['server_metadata_start'] = json.loads(startMeta['expMetadata'][startMeta['expMetadata'].find('experimentMetadata') + 19:-1])
+        metadata['server_metadata_start'] = json.loads(
+            startMeta['expMetadata'][startMeta['expMetadata'].find('experimentMetadata') + 19:-1])
+
+        # Record if player was in the winners list
+        if 'players' in metadata['server_metadata'] and 'winners' in metadata['server_metadata']:
+            metadata['success'] = metadata['server_metadata']['players'][0] in metadata['server_metadata']['winners']
 
         return metadata
-    except ValueError:
-        return {'BIG_FAT_ERROR': True}
+    except ValueError as e:
+        return {'BIG_FAT_ERROR', str(e)}
+
 
 class ThreadManager(object):
     def __init__(self, man, num_workers, first_index, max_load):
@@ -140,7 +148,6 @@ class ThreadManager(object):
                     return index + self.first_index
                 else:
                     time.sleep(0.01)
-
 
     def free_index(self, i):
         with self.worker_lock:
@@ -231,29 +238,14 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
         markers_sp = streamMetadata['markers']
         for marker in markers_sp:
             markers[marker['realTimestamp']] = marker
-            # if 'metadata' in marker['value']:
-            #     if 'tick' in marker['value']['metadata']:
-            #         markers[marker['value']['metadata']['tick']] = marker
-            #     else:
-            #         print("{} has missing tick!".format(recordingName))
-
-    # for key, marker in sorted(markers.items()):
-    #     malformedStr = marker['value']['metadata']['expMetadata']
-    #     jsonThing = json.loads(malformedStr[malformedStr.find('experimentMetadata') + 19:-1])
-    #     expName = ''
-    #     if 'experiment_name' in jsonThing:
-    #         expName = jsonThing['experiment_name']
-    #     startTime = streamMetadata['start_timestamp']
-    #     approxTime = (key - startTime) / 60000
-    #     startRecording = marker['value']['metadata']['startRecording']
-    #     stopRecording = marker['value']['metadata']['stopRecording']
-    #     #print('key: {}, approx time: {} minutes and {} seconds, experiment name: {}, start: {}, stop: {}'.format(key, int(approxTime), 60 * (approxTime - int(approxTime)), expName, startRecording, stopRecording))
 
     startTime = None
     startTick = None
     startMarker = None
-    experimentName = ""
-    # print(sorted(markers.items()))
+
+    # If we have to load univ_json ensure we don't load it again
+    univ_json = None
+
     for key, marker in sorted(markers.items()):
         expName = ""
         # Get experiment name (its a malformed json so we have to look it up by hand)
@@ -264,8 +256,59 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
             jsonThing = json.loads(malformedStr[malformedStr.find('experimentMetadata') + 19:-1])
             if 'experiment_name' in jsonThing:
                 expName = jsonThing['experiment_name']
+
+                if expName == 'o_meat' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
+                    # Look backwards for meat at most 100 ticks in the past
+                    # Lets players who were assigned obtain cooked X become winners for obtain cooked Y
+                    tick = meta['tick']
+                    if univ_json is None:
+                        univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
+                    for i in range(100):
+                        if 'slots' in univ_json[str(tick - i)]:
+                            slot = [elem.values() for elem in univ_json[str(tick - i)]['slots']['inventory']
+                                    if 'item.porkchopCooked' in elem.values()
+                                    or 'item.beefCooked' in elem.values()
+                                    or 'item.muttonCooked' in elem.values()]
+                            if len(slot) == 0:
+                                continue
+                            if 'item.porkchopCooked' in slot[0]:
+                                expName += '/cooked_pork'
+                                break
+                            if 'item.beefCooked' in slot[0]:
+                                expName += '/cooked_beef'
+                                break
+                            if 'item.muttonCooked' in slot[0]:
+                                expName += '/cooked_mutton'
+                                break
+                        else:
+                            break
+                if expName == 'o_bed' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
+                    # Look backwards for a bed at most 100 ticks in the past
+                    # Lets players who were assigned obtain cooked X become winners for obtain cooked Y
+                    tick = meta['tick']
+                    if univ_json is None:
+                        univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
+                    for i in range(100):
+                        if 'slots' in univ_json[str(tick - i)]:
+                            slot = [elem.values() for elem in univ_json[str(tick - i)]['slots']['inventory']
+                                    if 'item.bed.black' in elem.values()
+                                    or 'item.bed.white' in elem.values()
+                                    or 'item.bed.yellow' in elem.values()]
+                            if len(slot) == 0:
+                                continue
+                            if 'item.bed.black' in slot[0]:
+                                expName += '/black'
+                                break
+                            if 'item.bed.yellow' in slot[0]:
+                                expName += '/yellow'
+                                break
+                            if 'item.bed.white' in slot[0]:
+                                expName += '/white'
+                                break
+                        else:
+                            break
             else:
-                continue 
+                continue
 
         if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta:
             # If we encounter a start marker after a start marker there is an error and we should throw away this segemnt
@@ -278,7 +321,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
             startTime = None
             startTick = None
 
-    #print(segments)
     # Layout of segments
     # 0.           1.             2.          3.            4.
     # Start Tick : Start Marker : Stop Tick : Stop Marker : Experiment Name
@@ -291,6 +333,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
 
     segments = [segment for segment in segments if segment[2] - segment[0] > EXP_MIN_LEN_TICKS and segment[0] > 0]
 
+    pbar = tqdm.tqdm(total=len(segments), desc='Segments', leave=False, position=lineNum)
+
     if not segments:
         return 0
     try:
@@ -298,12 +342,9 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
             add_key_frames(inputPath, segments)
     except subprocess.CalledProcessError as exception:
         print("Error splitting {}:\033[0;31;47m {}        \033[0m 0;31;47m".format(recordingName, exception))
-        return 0 
+        return 0
 
-    json_data = open(J(inputPath, 'univ.json')).read()
-    univ_json = json.loads(json_data)
-
-    for pair in tqdm.tqdm(segments, desc='Segments', leave=False, position=lineNum):
+    for pair in segments:
         time.sleep(0.05)
         startTick = pair[0]
         stopTick = pair[2]
@@ -320,6 +361,10 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
             os.makedirs(output_dir)
         if not (E(output_name) and E(univ_output_name) and E(meta_output_name)):
             try:
+                # Only load universal json if needed
+                if univ_json is None:
+                    univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
+
                 # Remove potentially stale elements
                 if E(output_name): os.remove(output_name)
                 if E(univ_output_name): os.remove(univ_output_name)
@@ -339,6 +384,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 json.dump(metadata, open(meta_output_name, 'w'))
 
                 numNewSegments += 1
+                pbar.update(1)
 
             except KeyboardInterrupt:
                 return numNewSegments
@@ -346,6 +392,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 print(e)
                 continue
     return numNewSegments
+
 
 def main():
     """
@@ -373,7 +420,9 @@ def main():
         with multiprocessing.Pool(numW, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
             manager = ThreadManager(multiprocessing.Manager(), numW, 1, 1)
             func = functools.partial(_gen_sarsa_pairs, DATA_DIR, manager)
-            numSegments = list(tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1, position=0, maxinterval=1))
+            numSegments = list(
+                tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1,
+                          position=0, maxinterval=1))
 
             # for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
             #     numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
@@ -392,6 +441,6 @@ def main():
     print('LIST OF FAILED COMMANDS:')
     print(FAILED_COMMANDS)
 
+
 if __name__ == "__main__":
     main()
-
