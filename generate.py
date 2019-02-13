@@ -69,8 +69,8 @@ def format_seconds(seconds):
 def add_key_frames(inputPath, segments):
     keyframes = []
     for segment in segments:
-        keyframes.append(format_seconds(segment[0]))
-        keyframes.append(format_seconds(segment[1]))
+        keyframes.append(format_seconds(segment[0] / 20))
+        keyframes.append(format_seconds(segment[2] / 20))
     split_cmd = ['ffmpeg', '-i', J(inputPath, 'recording.mp4'),
                  '-c:a', 'copy',
                  '-c:v', 'copy',
