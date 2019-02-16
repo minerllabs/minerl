@@ -334,6 +334,7 @@ def render_videos(renders: list):
         while notFound:
             if os.path.exists(FINISHED_FILE):
                 os.remove(FINISHED_FILE)
+                time.sleep(5)
                 notFound = False
                 numSuccessfulRenders += 1
                 if(numSuccessfulRenders > maxConsecutiveRenders):
