@@ -234,8 +234,8 @@ def render_actions(renders: list):
 # RAH - Kill MC (or any process) given the PID
 def killMC(pid):
     process = psutil.Process(int(pid))
-    for proc in process.children(recursive=True):
-        proc.kill()
+    # for proc in process.children(recursive=True):
+    #     proc.kill()
     process.kill()
 
 # RAH Launch MC - return the process so we can kill later if needed
