@@ -441,7 +441,8 @@ def main():
     )
     print("Rendering videos: ")
     numSegments = []
-    if E('errors.txt'): os.remove('errors.txt')
+    if E('errors.txt'):
+        os.remove('errors.txt')
     try:
         numW = int(sys.argv[1]) if len(sys.argv) > 1 else 2
 
@@ -459,19 +460,18 @@ def main():
         print('\n' * numW)
         print("Exception in pool: ", type(e),  e)
         print('Rendered {} new segments in total!'.format(sum(numSegments)))
-        print('Errors:')
-        print(open('errors.txt', 'r').read())
+        if E('errors.txt'):
+            print('Errors:')
+            print(open('errors.txt', 'r').read())
         return
 
     numSegmentsRendered = sum(numSegments)
 
     print('\n' * numW)
     print('Rendered {} new segments in total!'.format(numSegmentsRendered))
-    print('Errors:')
-    print(open('errors.txt', 'r').read())
-    # print('LIST OF FAILED COMMANDS:')
-    # print(FAILED_COMMANDS)
-
+    if E('errors.txt'):
+        print('Errors:')
+        print(open('errors.txt', 'r').read())
 
 if __name__ == "__main__":
     main()
