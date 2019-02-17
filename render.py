@@ -234,8 +234,8 @@ def render_actions(renders: list):
 # Kill MC (or any process) given the PID
 def killMC(pid):
     process = psutil.Process(int(pid))
-    # for proc in process.children(recursive=True):
-    #     proc.kill()
+    for proc in process.children(recursive=True):
+        proc.kill()
     process.kill()
 
 # Launch MC - return the process so we can kill later if needed
@@ -338,8 +338,11 @@ def render_videos(renders: list):
                 notFound = False
                 numSuccessfulRenders += 1
                 if(numSuccessfulRenders > maxConsecutiveRenders):
-                    killMC(p.pid)
-                    time.sleep(5)
+                    p.terminate()
+                    # Wait for process to terminate
+                    returncode = p.wait()
+                    # killMC(p.pid)
+                    # time.sleep(5)
                     p = launchMC()
             else:
                 logLine = logFile.readline()
