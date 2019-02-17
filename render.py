@@ -231,14 +231,14 @@ def render_actions(renders: list):
 
 # 3.Render the video encodings
 
-# RAH - Kill MC (or any process) given the PID
+# Kill MC (or any process) given the PID
 def killMC(pid):
     process = psutil.Process(int(pid))
     # for proc in process.children(recursive=True):
     #     proc.kill()
     process.kill()
 
-# RAH Launch MC - return the process so we can kill later if needed
+# Launch MC - return the process so we can kill later if needed
 def launchMC():
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
@@ -251,7 +251,7 @@ def launchMC():
 
 def logError(errorDIR, recording_name, skip_path):
     try:
-        os.rename(J(RECORDING_PATH, recording_name+'.mcpr'),
+        shutil.move(J(RECORDING_PATH, recording_name+'.mcpr'),
                     J(errorDIR, recording_name+'.mcpr'))
         shutil.copy(LOG_FILE,                               J(
             errorDIR, recording_name+'.log'))
@@ -421,10 +421,10 @@ def render_videos(renders: list):
         if not video_path is None and not log_path is None and not marker_path is None:
             print("\tCopying file", video_path, '==>\n\t',
                   render_path, 'created', os.path.getmtime(video_path))
-            os.rename(video_path, J(render_path, 'recording.mp4'))
+            shutil.move(video_path, J(render_path, 'recording.mp4'))
             print("\tCopying file", log_path, '==>\n\t',
                   render_path, 'created', os.path.getmtime(log_path))
-            os.rename(log_path, J(render_path, 'univ.json'))
+            shutil.move(log_path, J(render_path, 'univ.json'))
 
             print("\tRecording start and stop timestamp for video")
             metadata = json.load(open(J(render_path, 'stream_meta_data.json')))
