@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 
 cd ~/cmu-rl/herobraine_parse
 # warning: the path is hardcoded in download.py

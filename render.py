@@ -235,8 +235,10 @@ def render_actions(renders: list):
 def killMC(pid):
     process = psutil.Process(int(pid))
     for proc in process.children(recursive=True):
-        proc.kill()
-    process.kill()
+        proc.terminate()
+        proc.wait(60)
+    process.terminate()
+    process.wait(60)
 
 # Launch MC - return the process so we can kill later if needed
 def launchMC():
@@ -269,7 +271,7 @@ def logError(errorDIR, recording_name, skip_path):
 
 def relaunchMC(pid, errorDIR, recording_name, skip_path):
     killMC(pid)
-    time.sleep(15)  # Give the OS time to release this file
+    # time.sleep(15)  # Give the OS time to release this file
     logError(errorDIR, recording_name, skip_path)
     return launchMC()
 
@@ -338,10 +340,7 @@ def render_videos(renders: list):
                 notFound = False
                 numSuccessfulRenders += 1
                 if(numSuccessfulRenders > maxConsecutiveRenders):
-                    p.terminate()
-                    # Wait for process to terminate
-                    returncode = p.wait()
-                    # killMC(p.pid)
+                    killMC(p.pid)
                     # time.sleep(5)
                     p = launchMC()
             else:
