@@ -236,9 +236,15 @@ def killMC(pid):
     process = psutil.Process(int(pid))
     for proc in process.children(recursive=True):
         proc.terminate()
-        proc.wait(60)
+        try:
+            proc.wait(60)
+        except TimeoutError:
+            proc.kill()
     process.terminate()
-    process.wait(60)
+    try:
+        process.wait(60)
+    except TimeoutError:
+        process.kill()
 
 # Launch MC - return the process so we can kill later if needed
 def launchMC():
