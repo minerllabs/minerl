@@ -1,0 +1,14 @@
+Key Error 12469 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_absolute_grape_changeling-17
+Key Error 72952 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_absolute_zucchini_basilisk-3
+Key Error 16589 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_all_orange_djinn-7
+Key Error 27805 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_any_lemon_sea_monster-3
+Key Error 2790 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_authorized_mustard_greens_imp-3
+Key Error 1801 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_blank_greenbean_mummy-19
+Key Error 133337 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_artistic_bamboo_shoot_lake_spirit-5
+Key Error 4806 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_bumpy_soybean_yeti-3
+Key Error 19016 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_candid_string_bean_troll-3
+Key Error 25434 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_excellent_mango_beast-9
+Key Error 3712 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_fabulous_sweet_potato_raven_spirit-3
+Key Error 34324 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_hoarse_watermelon_gargoyle-12
+Key Error 3913 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_open_turnip_godzilla-6
+Key Error 16020 not found in universal json: C:\Users\Brandon\source\cmu-rl\data_pipeline\output\rendered_new\player_stream_wasteful_rocket_polyphemus-14

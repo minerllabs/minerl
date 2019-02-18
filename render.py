@@ -239,12 +239,22 @@ def killMC(pid):
         try:
             proc.wait(60)
         except TimeoutError:
-            proc.kill()
+            try:
+                proc.kill()
+            except psutil.NoSuchProcess:
+                pass
+        except psutil.NoSuchProcess:
+            pass
     process.terminate()
     try:
         process.wait(60)
     except TimeoutError:
-        process.kill()
+        try:
+            proc.kill()
+        except psutil.NoSuchProcess:
+            pass
+    except psutil.NoSuchProcess:
+        pass
 
 # Launch MC - return the process so we can kill later if needed
 def launchMC():
