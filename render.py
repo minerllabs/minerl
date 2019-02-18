@@ -235,8 +235,8 @@ def render_actions(renders: list):
 def killMC(pid):
     process = psutil.Process(int(pid))
     for proc in process.children(recursive=True):
-        proc.terminate()
         try:
+            proc.terminate()
             proc.wait(60)
         except TimeoutError:
             try:
@@ -245,8 +245,8 @@ def killMC(pid):
                 pass
         except psutil.NoSuchProcess:
             pass
-    process.terminate()
     try:
+        process.terminate()
         process.wait(60)
     except TimeoutError:
         try:

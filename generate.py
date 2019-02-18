@@ -52,10 +52,11 @@ def remove(path):
         os.remove(path)
 
 
-def format_seconds(seconds):
+def format_seconds(ticks):
     """
-    Given seconds (int) returns a string of format hour:minutes:seconds
+    Given ticks (int) returns a string of format hour:minutes:seconds
     """
+    seconds = ticks / 20
     hours = int(seconds / 3600)
     seconds = seconds - hours * 3600
     minutes = int(seconds / 60)
@@ -67,10 +68,9 @@ def format_seconds(seconds):
 def add_key_frames(inputPath, segments):
     keyframes = []
     for segment in segments:
-        keyframes.append(format_seconds(segment[0]))
-        keyframes.append(format_seconds(segment[1]))
-        # keyframes.append(format_seconds(segment[0] / 20))
-        # keyframes.append(format_seconds(segment[2] / 20))
+        # Convert ticks into video FPS (don't use render ms!)
+        keyframes.append(format_seconds(segment[3]))
+        keyframes.append(format_seconds(segment[4]))
     split_cmd = ['ffmpeg', '-i', J(inputPath, 'recording.mp4'),
                  '-c:a', 'copy',
                  '-c:v', 'copy',
@@ -86,9 +86,9 @@ def add_key_frames(inputPath, segments):
         FAILED_COMMANDS.append(split_cmd)
 
 
-def extract_subclip(inputPath, start_time, stop_time, output_name):
-    split_cmd = ['ffmpeg', '-ss', format_seconds(start_time), '-i',
-                 J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_time - start_time),
+def extract_subclip(inputPath, start_tick, stop_tick, output_name):
+    split_cmd = ['ffmpeg', '-ss', format_seconds(start_tick), '-i',
+                 J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
     # print('Running: ' + ' '.join(split_cmd))
     try:
@@ -99,17 +99,17 @@ def extract_subclip(inputPath, start_time, stop_time, output_name):
         FAILED_COMMANDS.append(split_cmd)
 
 
-def parse_metadata(startMarker, endMarker):
+def parse_metadata(startMarker, stopMarker):
     try:
         metadata = {}
         startMeta = startMarker['value']['metadata']
-        endMeta = endMarker['value']['metadata']
+        endMeta = stopMarker['value']['metadata']
         metadata['start_position'] = startMarker['value']['position']
-        metadata['end_position'] = endMarker['value']['position']
+        metadata['end_position'] = stopMarker['value']['position']
         metadata['start_tick'] = startMeta['tick'] if 'tick' in startMeta else None
         metadata['end_tick'] = endMeta['tick'] if 'tick' in endMeta else None
         metadata['start_time'] = startMarker['realTimestamp']
-        metadata['end_time'] = endMarker['realTimestamp']
+        metadata['end_time'] = stopMarker['realTimestamp']
 
         # Recording the string sent to us by Minecraft server including experiment specific data like if we won or not
         metadata['server_info_str'] = endMeta['expMetadata']
@@ -209,6 +209,13 @@ def _gen_sarsa_pairs(outputPath, manager, input):
     ret = gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=n)
     manager.free_index(n)
     return ret
+
+
+def get_tick(ticks, ms):
+    for i in range(len(ticks)):
+        if ticks[i] >= ms:
+            return i
+    raise IndexError
 
 
 # 3. generate sarsa pairs
@@ -318,47 +325,50 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
             startMarker = marker
 
         if 'stopRecording' in meta and meta['stopRecording'] and startTime != None:
-            # segments.append((startTick, startMarker, meta['tick'], marker, expName))
-            segments.append((startTime, key, expName, startTick, meta['tick'], startMarker, marker))
+            segments.append((startMarker, marker, expName, startTick, meta['tick']))
+            # segments.append((startTime, key, expName, startTick, meta['tick'], startMarker, marker))
             startTime = None
             startTick = None
 
     # Layout of segments (new)
-    # 0.           1.             2.          3.            4.
-    # Start Tick : Start Marker : Stop Tick : Stop Marker : Experiment Name
+    # 0.             1.            2.                3.           4.
+    # Start Marker : Stop Marker : Experiment Name : Start Tick : Stop Tick
 
     # (hack patch)
     # 0.          1.         2.        3.          4.         5.             6
     # startTime : stopTime : expName : startTick : stopTick : startMarker :  stopMarker
 
-    if not E(J(inputPath, "recording.mp4")):
+    if not E(J(inputPath, "recording.mp4")) or len(markers) == 0 or univ_json is None:
         return 0
 
-    if len(markers) == 0:
+    if 'ticks' not in univ_json:
         return 0
 
-    fps = 20  # float(sum(Fraction(s) for s in metadata['video']['@r_frame_rate'].split()))
+    ticks = univ_json['ticks']
     videoOffset_ms = streamMetadata['start_timestamp']
-    # print("offset: {}".format(videoOffset_ms))
-    length_ms = streamMetadata['stop_timestamp'] - videoOffset_ms
+    videoOffset_ticks = get_tick(ticks, videoOffset_ms)
 
-    # TODO remove in favor of an exact calculation
-    videoOffset_ticks = -1  # -int(videoOffset_ms / 50)
-
-    segments = [((segment[0] - videoOffset_ms) / 1000,
-                 (segment[1] - videoOffset_ms) / 1000,
+    segments = [(segment[0],
+                 segment[1],
                  segment[2],
                  segment[3] - videoOffset_ticks,
-                 segment[4] - videoOffset_ticks,
-                 segment[5], segment[6])
+                 segment[4] - videoOffset_ticks)
                 for segment in segments]
     segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
 
-    # segments = [segment for segment in segments if segment[2] - segment[0] > EXP_MIN_LEN_TICKS and segment[0] > 0]
+    # segments = [((segment[0] - videoOffset_ms) / 1000,
+    #              (segment[1] - videoOffset_ms) / 1000,
+    #              segment[2],
+    #              segment[3] - videoOffset_ticks,
+    #              segment[4] - videoOffset_ticks,
+    #              segment[5], segment[6])
+    #             for segment in segments]
+    # segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
+
 
     pbar = tqdm.tqdm(total=len(segments), desc='Segments', leave=False, position=lineNum)
 
-    if not segments:
+    if not segments or len(segments) == 0:
         return 0
     try:
         if not E(J(inputPath, 'keyframes_recording.mp4')):
@@ -370,13 +380,13 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
 
     for pair in segments:
         time.sleep(0.05)
-        startTime = pair[0]
-        startTime = pair[3] / 20.0
-        stopTime = pair[1]
-        stopTime = pair[4] / 20.0
+        startMarker = pair[0]
+        stopMarker = pair[1]
         experimentName = pair[2]
+        startTick = pair[3]
+        stopTick = pair[4]
 
-        experiment_id = recordingName + "_" + str(int(startTime * 50)) + '-' + str(int(stopTime * 50))
+        experiment_id = recordingName + "_" + str(int(startTick)) + '-' + str(int(stopTick))
         output_name = J(outputPath, experimentName, experiment_id, 'recording.mp4')
         univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
         meta_output_name = J(outputPath, experimentName, experiment_id, 'metadata.json')
@@ -395,16 +405,16 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 if E(meta_output_name): os.remove(meta_output_name)
 
                 # Split video (without re-encoding)
-                extract_subclip(inputPath, startTime, stopTime, output_name)
+                extract_subclip(inputPath, startTick, stopTick, output_name)
 
                 # Split universal action json
                 json_to_write = {}
-                for idx in range(pair[3], pair[4] + 1):
-                    json_to_write[str(idx - pair[3])] = univ_json[str(idx)]
+                for idx in range(startTick, stopTick + 1):
+                    json_to_write[str(idx - startTick)] = univ_json[str(idx)]
                 json.dump(json_to_write, open(univ_output_name, 'w'))
 
                 # Split metadata.json
-                metadata = parse_metadata(pair[5], pair[6])
+                metadata = parse_metadata(startMarker, stopMarker)
                 json.dump(metadata, open(meta_output_name, 'w'))
 
                 numNewSegments += 1
