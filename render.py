@@ -361,18 +361,20 @@ def render_videos(renders: list):
                 os.remove(FINISHED_FILE)
                 try:
                     print("Waiting for Minecraft to close")
-                    p.wait(120())
+                    p.wait(240)
                     print("Minecraft closed")
                 except:
                     print("Timeout")
-                    killMC(p)
+                    p.kill()
+                    # killMC(p)
+                p = launchMC()
                 time.sleep(5)
                 notFound = False
                 numSuccessfulRenders += 1
-                if(numSuccessfulRenders > maxConsecutiveRenders):
-                    killMC(p)
-                    # time.sleep(5)
-                    p = launchMC()
+                # if(numSuccessfulRenders > maxConsecutiveRenders):
+                #     killMC(p)
+                #     # time.sleep(5)
+                #     p = launchMC()
             else:
                 logLine = logFile.readline()
                 if len(logLine) > 0:
