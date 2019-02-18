@@ -232,8 +232,8 @@ def render_actions(renders: list):
 # 3.Render the video encodings
 
 # Kill MC (or any process) given the PID
-def killMC(pid):
-    process = psutil.Process(int(pid))
+def killMC(process):
+    # process = psutil.Process(int(pid))
     try:
         tqdm.tqdm.write("Waiting for minecraft to close")
         process.wait(60)
@@ -245,21 +245,23 @@ def killMC(pid):
         except TimeoutError:
             tqdm.tqdm.write("Killing Minecraft and sub-processes")
             process.kill()
-            for proc in process.children(recursive=True):
-                try:
-                    proc.terminate()
-                    proc.wait(60)
-                except TimeoutError:
-                    try:
-                        tqdm.tqdm.write("Killing sub-process")
-                        proc.kill()
-                    except psutil.NoSuchProcess:
-                        pass
-                except psutil.NoSuchProcess:
-                    pass
-            pass
+            # for proc in process.children(recursive=True):
+            #     try:
+            #         proc.terminate()
+            #         proc.wait(60)
+            #     except TimeoutError:
+            #         try:
+            #             tqdm.tqdm.write("Killing sub-process")
+            #             proc.kill()
+            #         except psutil.NoSuchProcess:
+            #             pass
+            #     except psutil.NoSuchProcess:
+            #         pass
+            # pass
     except psutil.NoSuchProcess:
+        tqdm.tqdm.write("No such process")
         pass
+    time.sleep(10)
 
 # Launch MC - return the process so we can kill later if needed
 def launchMC():
@@ -290,8 +292,8 @@ def logError(errorDIR, recording_name, skip_path):
     except:
         pass
 
-def relaunchMC(pid, errorDIR, recording_name, skip_path):
-    killMC(pid)
+def relaunchMC(p, errorDIR, recording_name, skip_path):
+    killMC(p)
     # time.sleep(15)  # Give the OS time to release this file
     logError(errorDIR, recording_name, skip_path)
     return launchMC()
@@ -357,11 +359,18 @@ def render_videos(renders: list):
         while notFound:
             if os.path.exists(FINISHED_FILE):
                 os.remove(FINISHED_FILE)
+                try:
+                    print("Waiting for Minecraft to close")
+                    p.wait(120())
+                    print("Minecraft closed")
+                except:
+                    print("Timeout")
+                    killMC(p)
                 time.sleep(5)
                 notFound = False
                 numSuccessfulRenders += 1
                 if(numSuccessfulRenders > maxConsecutiveRenders):
-                    killMC(p.pid)
+                    killMC(p)
                     # time.sleep(5)
                     p = launchMC()
             else:
@@ -387,7 +396,7 @@ def render_videos(renders: list):
                     
                     if not errorDir is None:
                         print("\tline {}: {}".format(lineCounter, logLine))
-                        p = relaunchMC(p.pid, errorDir, recording_name, skip_path)
+                        p = relaunchMC(p, errorDir, recording_name, skip_path)
                         break
 
         logFile.close()
