@@ -234,24 +234,29 @@ def render_actions(renders: list):
 # Kill MC (or any process) given the PID
 def killMC(pid):
     process = psutil.Process(int(pid))
-    for proc in process.children(recursive=True):
-        try:
-            proc.terminate()
-            proc.wait(60)
-        except TimeoutError:
-            try:
-                proc.kill()
-            except psutil.NoSuchProcess:
-                pass
-        except psutil.NoSuchProcess:
-            pass
     try:
-        process.terminate()
+        tqdm.tqdm.write("Waiting for minecraft to close")
         process.wait(60)
     except TimeoutError:
         try:
-            proc.kill()
-        except psutil.NoSuchProcess:
+            tqdm.tqdm.write("Asking Minecraft to close")
+            process.terminate()
+            process.wait(60)
+        except TimeoutError:
+            tqdm.tqdm.write("Killing Minecraft and sub-processes")
+            process.kill()
+            for proc in process.children(recursive=True):
+                try:
+                    proc.terminate()
+                    proc.wait(60)
+                except TimeoutError:
+                    try:
+                        tqdm.tqdm.write("Killing sub-process")
+                        proc.kill()
+                    except psutil.NoSuchProcess:
+                        pass
+                except psutil.NoSuchProcess:
+                    pass
             pass
     except psutil.NoSuchProcess:
         pass

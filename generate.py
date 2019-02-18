@@ -185,8 +185,8 @@ def construct_data_dirs(blacklist):
 # 2. get metadata from the files.
 def get_metadata(renders: list) -> list:
     """
-	Unpacks the metadata of a recording and checks its validity.
-	"""
+    Unpacks the metadata of a recording and checks its validity.
+    """
     good_renders = []
     bad_renders = []
 
