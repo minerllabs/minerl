@@ -231,36 +231,47 @@ def render_actions(renders: list):
 
 # 3.Render the video encodings
 
+
 # Kill MC (or any process) given the PID
 def killMC(process):
-    # process = psutil.Process(int(pid))
-    try:
-        tqdm.tqdm.write("Waiting for minecraft to close")
-        process.wait(60)
-    except TimeoutError:
+    time.sleep(10)
+    for proc in process.children(recursive=True):
         try:
-            tqdm.tqdm.write("Asking Minecraft to close")
-            process.terminate()
-            process.wait(60)
-        except TimeoutError:
-            tqdm.tqdm.write("Killing Minecraft and sub-processes")
-            process.kill()
-            # for proc in process.children(recursive=True):
-            #     try:
-            #         proc.terminate()
-            #         proc.wait(60)
-            #     except TimeoutError:
-            #         try:
-            #             tqdm.tqdm.write("Killing sub-process")
-            #             proc.kill()
-            #         except psutil.NoSuchProcess:
-            #             pass
-            #     except psutil.NoSuchProcess:
-            #         pass
-            # pass
+            proc.kill()
+        except psutil.NoSuchProcess:
+            pass
+    try:
+        process.kill()
     except psutil.NoSuchProcess:
-        tqdm.tqdm.write("No such process")
         pass
+    # # process = psutil.Process(int(pid))
+    # try:
+    #     tqdm.tqdm.write("Waiting for minecraft to close")
+    #     process.wait(60)
+    # except TimeoutError:
+    #     try:
+    #         tqdm.tqdm.write("Asking Minecraft to close")
+    #         process.terminate()
+    #         process.wait(60)
+    #     except TimeoutError:
+    #         tqdm.tqdm.write("Killing Minecraft and sub-processes")
+    #         process.kill()
+    #         # for proc in process.children(recursive=True):
+    #         #     try:
+    #         #         proc.terminate()
+    #         #         proc.wait(60)
+    #         #     except TimeoutError:
+    #         #         try:
+    #         #             tqdm.tqdm.write("Killing sub-process")
+    #         #             proc.kill()
+    #         #         except psutil.NoSuchProcess:
+    #         #             pass
+    #         #     except psutil.NoSuchProcess:
+    #         #         pass
+    #         # pass
+    # except psutil.NoSuchProcess:
+    #     tqdm.tqdm.write("No such process")
+    #     pass
     time.sleep(10)
 
 # Launch MC - return the process so we can kill later if needed
@@ -359,6 +370,7 @@ def render_videos(renders: list):
         while notFound:
             if os.path.exists(FINISHED_FILE):
                 os.remove(FINISHED_FILE)
+                time.sleep(5)
                 try:
                     print("Waiting for Minecraft to close")
                     p.wait(240)
@@ -368,7 +380,7 @@ def render_videos(renders: list):
                     p.kill()
                     # killMC(p)
                 p = launchMC()
-                time.sleep(5)
+
                 notFound = False
                 numSuccessfulRenders += 1
                 # if(numSuccessfulRenders > maxConsecutiveRenders):
