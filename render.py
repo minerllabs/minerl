@@ -166,6 +166,7 @@ def render_metadata(renders: list) -> list:
 #                        print(render_path)
                         jbos = json.load(f)
                         assert (jbos["duration"] > 60000 or jbos["duration"] == 0)
+                        assert (jbos["duration"] > 300000 or jbos["duration"] == 0)
 
                     # check that stream_meta_data is good
                     with open(J(render_path, 'stream_meta_data.json'), 'r') as f:
@@ -338,7 +339,8 @@ def render_videos(renders: list):
 
     p = launchMC()  # RAH launchMC() now returns subprocess - use p.PID to get process ID
     # Randomize file loading
-    random.shuffle(renders)
+    # random.shuffle(renders)
+    renders = sorted(renders, key=lambda elem: int(os.fstat(J(MERGED_DIR, (elem[0] + ".mcpr"))).st_size))
     for recording_name, render_path in tqdm.tqdm(renders):
         # Get mcpr file from merged
         print("Rendering:", recording_name, '...')
