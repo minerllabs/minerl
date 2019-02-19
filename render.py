@@ -369,16 +369,18 @@ def render_videos(renders: list):
         video_path = None
         notFound = True
         while notFound:
-            if os.path.exists(FINISHED_FILE):
+            if os.path.exists(FINISHED_FILE) or p.poll() is None:
                 os.remove(FINISHED_FILE)
                 try:
                     print("Waiting for Minecraft to close")
                     p.wait(240)
                     print("Minecraft closed")
-                except:
+                except TimeoutError:
                     print("Timeout")
                     p.kill()
                     # killMC(p)
+                except:
+                    print("Error stopping")
                 p = launchMC()
 
                 notFound = False
