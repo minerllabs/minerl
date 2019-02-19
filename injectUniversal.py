@@ -1,4 +1,5 @@
 import os
+import sys
 
 # UTILITIES
 #######################
@@ -53,12 +54,12 @@ def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
     print('Collecting files to copy')
     copy_ops = []
 
-    for path in os.listdirs(json_dir):
+    for path in os.listdir(json_dir):
         to_copy = []
 
         # Find universal file
-        univ = J(json_dir, path, 'universal.json')
-        dst  = J(out_dir, path, 'universal.json')
+        univ = J(json_dir, path, 'univ.json')
+        dst  = J(out_dir, path, 'univ.json')
         if E(univ):
             to_copy.append((univ, dst))
         else:
@@ -78,8 +79,8 @@ def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
                 continue
 
         # Find video files
-        recording = J(video_dir, path, 'recording.mcpr')
-        rec_dst   = J(out_dir, path, 'recording.mcpr')
+        recording = J(video_dir, path, 'recording.mp4')
+        rec_dst   = J(out_dir, path, 'recording.mp4')
         if E(recording):
             to_copy.append((recording, rec_dst))
             keyframes = J(video_dir, path, 'keyframes_recording.mp4')
@@ -96,4 +97,14 @@ def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
         for src, dest in tqdm(copy):
             shutil.copyfile(src, dest)
 
+if __name__ == "__main__":
+    if len(sys.argv) == 4:
+        print('Take videos from', sys.argv[1])
+        print('Take jsons from', sys.argv[2])
+        print('Put result in', sys.argv[3])
+        cont = input('Type yes to continue: ')
 
+        if cont == 'yes' or cont == 'y':
+            merge_dirs(sys.argv[1], sys.argv[2], sys.argv[3])
+        else:
+            print('Quiting')
