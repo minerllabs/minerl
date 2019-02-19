@@ -58,7 +58,7 @@ def copy_skips(target_dir, source_dir):
 
         # Find skip file
         src = J(source_dir, dir, BAD_MARKER_NAME)
-        dst = J(target_dir, dir, BAD_MARKER_NAME)
+        dst = J(target_dir, dir, SKIPPED_RENDER_FLAG)
         print(src)
         if E(src):
             to_copy.append((src, dst))
