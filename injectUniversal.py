@@ -57,6 +57,12 @@ def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
     for path in os.listdir(json_dir):
         to_copy = []
 
+        # Make sure dir is valid
+        if E(J(json_dir, path, GOOD_MARKER_NAME)) and  E(J(video_dir, path, GOOD_MARKER_NAME)):
+            to_copy.append((J(json_dir, path, GOOD_MARKER_NAME), J(out_dir, path, GOOD_MARKER_NAME)))
+        else:
+            continue
+
         # Find universal file
         univ = J(json_dir, path, 'univ.json')
         dst  = J(out_dir, path, 'univ.json')
