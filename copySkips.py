@@ -69,6 +69,11 @@ def copy_skips(target_dir, source_dir):
 
     for copy in tqdm(copy_ops):
         for src, dest in tqdm(copy):
+            if not os.path.exists(os.path.dirname(dest)):
+                try:
+                    os.makedirs(os.path.dirname(dest))
+                except OSError as exc:  # Guard against race condition
+                    pass
             shutil.copyfile(src, dest)
 
 
