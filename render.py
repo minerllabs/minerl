@@ -235,7 +235,7 @@ def render_actions(renders: list):
 
 # Kill MC (or any process) given the PID
 def killMC(process):
-    for proc in process.children(recursive=True):
+    for proc in psutil.Process(int(process.pid)).children(recursive=True):
         try:
             proc.kill()
         except psutil.NoSuchProcess:
