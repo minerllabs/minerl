@@ -96,7 +96,11 @@ def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
     for copy in tqdm(copy_ops):
         for src, dest in tqdm(copy):
             if not E(dest):
-                shutil.copyfile(src, dest)
+                try:
+                    os.makedirs(os.path.dirname(dest))
+                    shutil.copyfile(src, dest)
+                except OSError as exc:  # Guard against race condition
+                    print(exc)
 
 if __name__ == "__main__":
     if len(sys.argv) == 4:
