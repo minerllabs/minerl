@@ -9,6 +9,7 @@ render.py
 # 3) Running the video_rendering scripts
 """
 import os
+import random
 import shutil
 import sys
 import glob
@@ -234,7 +235,6 @@ def render_actions(renders: list):
 
 # Kill MC (or any process) given the PID
 def killMC(process):
-    time.sleep(10)
     for proc in process.children(recursive=True):
         try:
             proc.kill()
@@ -272,7 +272,6 @@ def killMC(process):
     # except psutil.NoSuchProcess:
     #     tqdm.tqdm.write("No such process")
     #     pass
-    time.sleep(10)
 
 # Launch MC - return the process so we can kill later if needed
 def launchMC():
@@ -282,7 +281,7 @@ def launchMC():
     print("Launched ", MC_LAUNCHER)
 
     #Give Minecraft time to load
-    time.sleep(1)
+    # time.sleep(10)
     return p
 
 def logError(errorDIR, recording_name, skip_path):
@@ -338,7 +337,7 @@ def render_videos(renders: list):
             shutil.rmtree(messyFile)
 
     p = launchMC()  # RAH launchMC() now returns subprocess - use p.PID to get process ID
-    for recording_name, render_path in tqdm.tqdm(renders):
+    for recording_name, render_path in tqdm.tqdm(random.shuffle(renders)):
         # Get mcpr file from merged
         print("Rendering:", recording_name, '...')
 
@@ -370,7 +369,6 @@ def render_videos(renders: list):
         while notFound:
             if os.path.exists(FINISHED_FILE):
                 os.remove(FINISHED_FILE)
-                time.sleep(5)
                 try:
                     print("Waiting for Minecraft to close")
                     p.wait(240)
@@ -385,6 +383,7 @@ def render_videos(renders: list):
                 numSuccessfulRenders += 1
                 # if(numSuccessfulRenders > maxConsecutiveRenders):
                 #     killMC(p)
+                #     numSuccessfullRenders = 0
                 #     # time.sleep(5)
                 #     p = launchMC()
             else:
@@ -421,6 +420,10 @@ def render_videos(renders: list):
                 pass
             continue
 
+        video_path = None
+        log_path = None
+        marker_path = None
+
         # GET RECORDING
         list_of_files = glob.glob( J(RENDERED_VIDEO_PATH, '*.mp4'))
         if len(list_of_files) > 0:
@@ -435,8 +438,9 @@ def render_videos(renders: list):
                 print("\tskipping out of date rendering")
                 video_path = None
 
-        # GET UNIVERSAL ACTION FORMAT SHIT.
-        list_of_logs = glob.glob( J(RENDERED_LOG_PATH, '*.json'))
+
+        # GET UNIVERSAL ACTION FORMAT
+        list_of_logs = glob.glob(J(RENDERED_LOG_PATH, '*.json'))
         if len(list_of_logs) > 0:
             # Check that this render was created after we copied
             log_path = max(list_of_logs, key=os.path.getmtime)
@@ -449,8 +453,8 @@ def render_videos(renders: list):
                 print("\tskipping out of date action json")
                 log_path = None
 
-        # GET new markers.json SHIT.
-        list_of_logs = glob.glob( J(RENDERED_VIDEO_PATH, '*.json'))
+        # GET new markers.json
+        list_of_logs = glob.glob(J(RENDERED_VIDEO_PATH, '*.json'))
         if len(list_of_logs) > 0:
             # Check that this render was created after we copied
             marker_path = max(list_of_logs, key=os.path.getmtime)
@@ -462,7 +466,6 @@ def render_videos(renders: list):
                 # else:
                 print("\tskipping out of date markers.json")
                 marker_path = None
-
 
         if not video_path is None and not log_path is None and not marker_path is None:
             print("\tCopying file", video_path, '==>\n\t',
@@ -484,7 +487,7 @@ def render_videos(renders: list):
             json.dump(metadata, open(
                 J(render_path, 'stream_meta_data.json'), 'w'))
         else:
-            print("\tNo Video file found")
+            print("\tMissing one or more file")
             print("\tSkipping this file in the future")
             logError(MISSING_RENDER_OUTPUT, recording_name, skip_path)
 
