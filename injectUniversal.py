@@ -110,11 +110,14 @@ def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
                 shutil.copyfile(src, dest)
 
 if __name__ == "__main__":
-    if len(sys.argv) == 4:
+    if len(sys.argv) >= 4:
         print('Take videos from', sys.argv[1])
         print('Take jsons from', sys.argv[2])
         print('Put result in', sys.argv[3])
-        cont = input('Type yes to continue: ')
+        if len(sys.argv) == 5:
+            cont = sys.argv[4]
+        else:
+            cont = input('Type yes to continue: ')
 
         if cont == 'yes' or cont == 'y':
             merge_dirs(sys.argv[1], sys.argv[2], sys.argv[3])

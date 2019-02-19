@@ -24,7 +24,7 @@ import json
 #######################
 J = os.path.join
 E = os.path.exists
-EXP_MIN_LEN_TICKS = 20 * 30  # 30 sec
+EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
 WORKING_DIR = os.path.abspath("./output")
 DATA_DIR = J(WORKING_DIR, "data_new")
 
