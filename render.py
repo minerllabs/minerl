@@ -337,7 +337,9 @@ def render_videos(renders: list):
             shutil.rmtree(messyFile)
 
     p = launchMC()  # RAH launchMC() now returns subprocess - use p.PID to get process ID
-    for recording_name, render_path in tqdm.tqdm(random.shuffle(renders)):
+    # Randomize file loading
+    random.shuffle(renders)
+    for recording_name, render_path in tqdm.tqdm(renders):
         # Get mcpr file from merged
         print("Rendering:", recording_name, '...')
 
