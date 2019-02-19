@@ -53,7 +53,7 @@ def copy_skips(target_dir, source_dir):
     print('Collecting files to copy')
     copy_ops = []
 
-    for path in os.listdirs(target_dir):
+    for path in os.walk(target_dir):
         to_copy = []
 
         # Find skip file
