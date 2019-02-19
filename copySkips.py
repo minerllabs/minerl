@@ -53,12 +53,12 @@ def copy_skips(target_dir, source_dir):
     print('Collecting files to copy')
     copy_ops = []
 
-    for root, dirs, files in os.walk(source_dir):
+    for dir in os.listdir(source_dir):
         to_copy = []
 
         # Find skip file
-        src = J(source_dir, dirs, BAD_MARKER_NAME)
-        dst = J(target_dir, dirs, BAD_MARKER_NAME)
+        src = J(source_dir, dir, BAD_MARKER_NAME)
+        dst = J(target_dir, dir, BAD_MARKER_NAME)
         print(src)
         if E(src):
             to_copy.append((src, dst))
