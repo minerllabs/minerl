@@ -339,14 +339,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
     # 0.          1.         2.        3.          4.         5.             6
     # startTime : stopTime : expName : startTick : stopTick : startMarker :  stopMarker
 
-<<<<<<< Updated upstream
     if not E(J(inputPath, "recording.mp4")):
         tqdm.tqdm.write('No recording found in ', input)
-=======
-    if not E(J(inputPath, "recording.mp4")) or len(markers) == 0 or univ_json is None:
-        tqdm.tqdm.write('No recording found in '+ inputPath)
-        tqdm.tqdm.write(str(len(markers))+str(univ_json is None))
->>>>>>> Stashed changes
         return 0
 
     if len(markers) == 0:
