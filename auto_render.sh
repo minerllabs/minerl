@@ -5,7 +5,7 @@ cd ~/cmu-rl/herobraine_parse
 /usr/bin/python3.6 ./download2.py
 ./merge.sh
 DISPLAY=:0 /usr/bin/python3.6 ./render.py
-/usr/bin/python3.6 ./generate.py
+/usr/bin/python3.6 ./generate.py 4
 
 
 
