@@ -40,12 +40,6 @@ METADATA_FILES = [
     'mods.json',
     'stream_meta_data.json']
 
-VIDEO_FILES = [
-    'metaData.json',
-    'markers.json',
-    'mods.json',
-    'stream_meta_data.json']
-
 
 # Takes in a Video_dir and a Json_dir and puts the results in Combined_dir
 def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
@@ -89,11 +83,11 @@ def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
         rec_dst   = J(out_dir, path, 'recording.mp4')
         if E(recording):
             to_copy.append((recording, rec_dst))
-            keyframes = J(video_dir, path, 'keyframes_recording.mp4')
-            key_dest  = J(out_dir, path, 'keyframes_recording.mp4')
-            # Keyframes are optional but speed up subsequent generate calls
-            if E(keyframes):
-                to_copy.append((keyframes, key_dest))
+            # keyframes = J(video_dir, path, 'keyframes_recording.mp4')
+            # key_dest  = J(out_dir, path, 'keyframes_recording.mp4')
+            # # Keyframes are optional but speed up subsequent generate calls
+            # if E(keyframes):
+            #     to_copy.append((keyframes, key_dest))
         else:
             continue
 
