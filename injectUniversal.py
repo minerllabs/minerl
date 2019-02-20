@@ -52,9 +52,10 @@ def merge_dirs(video_dir, json_dir, out_dir, copyMetaFiles=True):
         to_copy = []
 
         # Make sure dir is valid
-        if E(J(json_dir, path, GOOD_MARKER_NAME)) and  E(J(video_dir, path, GOOD_MARKER_NAME)):
+        if E(J(json_dir, path, GOOD_MARKER_NAME)) and E(J(video_dir, path, GOOD_MARKER_NAME)):
             to_copy.append((J(json_dir, path, GOOD_MARKER_NAME), J(out_dir, path, GOOD_MARKER_NAME)))
         else:
+            print('File not valid in both src folders')
             continue
 
         # Find universal file
