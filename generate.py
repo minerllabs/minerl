@@ -339,9 +339,16 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
     # 0.          1.         2.        3.          4.         5.             6
     # startTime : stopTime : expName : startTick : stopTick : startMarker :  stopMarker
 
-    if not E(J(inputPath, "recording.mp4")) or len(markers) == 0 or univ_json is None:
-        tqdm.tqdm.write('No recording found!')
+    if not E(J(inputPath, "recording.mp4")):
+        tqdm.tqdm.write('No recording found in ', input)
         return 0
+
+    if len(markers) == 0:
+        tqdm.tqdm.write('No valid markers found')
+        return 0
+
+    if univ_json is None:
+        univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
     if 'ticks' not in univ_json:
         tqdm.tqdm.write('No ticks file in ', inputPath)
