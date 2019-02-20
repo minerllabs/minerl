@@ -232,7 +232,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
             if int(version) < 103:
                 return 0
     else:
-        tqdm.tqdm.write('No metadata in ', inputPath)
+        tqdm.tqdm.write('No metadata in ' + inputPath)
         return 0
 
     # Generate recording segments
@@ -379,7 +379,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
     pbar = tqdm.tqdm(total=len(segments), desc='Segments', leave=False, position=lineNum)
 
     if not segments or len(segments) == 0:
-        tqdm.tqdm.write('No segments in ', inputPath)
+        tqdm.tqdm.write('No segments in ' + inputPath)
         return 0
     try:
         if not E(J(inputPath, 'keyframes_recording.mp4')):
