@@ -8,6 +8,7 @@ render.py
 # 3) Running the video_rendering scripts
 """
 import functools
+import math
 import multiprocessing
 from fractions import Fraction
 from collections import OrderedDict
@@ -418,10 +419,33 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 # Split video (without re-encoding)
                 extract_subclip(inputPath, startTick, stopTick, output_name)
 
+                # Determine if this is a nav exp and we are missing the touch block handler
+                if experimentName in ['navigate', 'navigateextreme'] \
+                        and 'server_metadata' in metadata \
+                        and 'found_block' in metadata['server_metadata']:
+                    duration = metadata['server_metadata']['duration']
+                    found_block = metadata['server_metadata']['found_block']
+                    found_tick = math.ceil(found_block / duration * (stopTick - startTick))
+                    found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
+                    print(found_tick)
+                else:
+                    # if experimentName in ['navigate', 'navigateextreme']:
+                    #     print('oops', metadata)
+                    #     print('sm', 'server_metadata' in metadata)
+                    #     if 'server_metadata' in metadata:
+                    #       print('fb', 'found_block' in metadata['server_metadata'])
+                    found_tick = -1
+
                 # Split universal action json
                 json_to_write = {}
                 for idx in range(startTick, stopTick + 1):
-                    json_to_write[str(idx - startTick)] = univ_json[str(idx)]
+                    if found_tick == idx - startTick:
+                        foo = univ_json[str(idx)]
+                        foo['navigateHelper'] = 'minecraft:diamond_block'
+                        json_to_write[str(idx - startTick)] = foo
+                    else:
+                        json_to_write[str(idx - startTick)] = univ_json[str(idx)]
+
                 json.dump(json_to_write, open(univ_output_name, 'w'))
 
                 # Split metadata.json
