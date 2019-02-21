@@ -420,6 +420,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 extract_subclip(inputPath, startTick, stopTick, output_name)
 
                 # Determine if this is a nav exp and we are missing the touch block handler
+                metadata = parse_metadata(startMarker, stopMarker)
                 if experimentName in ['navigate', 'navigateextreme'] \
                         and 'server_metadata' in metadata \
                         and 'found_block' in metadata['server_metadata']:
@@ -427,6 +428,26 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                     found_block = metadata['server_metadata']['found_block']
                     found_tick = math.ceil(found_block / duration * (stopTick - startTick))
                     found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
+                # BAH removed iron pick and bed as it is crafted and not neesisary
+                elif experimentName in ['o_dia'] \
+                        and 'server_metadata' in metadata \
+                        and 'winners' in metadata['server_metadata'] \
+                        and len(metadata['server_metadata']['winners']) > 0:
+                    player = metadata['server_metadata']['winners'][0]
+                    duration = metadata['server_metadata']['duration']
+                    if player in metadata['server_metadata'] and 'obtained_goal' in metadata['server_metadata'][player]:
+                        goal = metadata['server_metadata'][player]['obtained_goal']
+                        found_tick = math.ceil(goal / duration * (stopTick - startTick))
+                        found_tick = min(found_tick + startTick, stopTick) - startTick  # Don't set this past the end
+                        # print(experimentName,'found tick', found_tick, output_dir)
+                    else:
+                        # print('NO TICK')
+                        # print(player in metadata['server_metadata'])
+                        # if player in metadata['server_metadata']:
+                        #     print('obtained_goal' in metadata['server_metadata'][player])
+                        #     print(output_dir)
+                        #     print(metadata['server_metadata'][player])
+                        found_tick = -1
                 else:
                     # if experimentName in ['navigate', 'navigateextreme']:
                     #     print('oops', metadata)
@@ -440,15 +461,41 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 for idx in range(startTick, stopTick + 1):
                     if found_tick == idx - startTick:
                         foo = univ_json[str(idx)]
-                        foo['navigateHelper'] = 'minecraft:diamond_block'
-                        json_to_write[str(idx - startTick)] = foo
+                        if experimentName in ['navigate', 'navigateextreme']:
+                            foo['navigateHelper'] = 'minecraft:diamond_block'
+                            json_to_write[str(idx - startTick)] = foo
+                        elif experimentName in ['o_dia', 'o_iron', 'o_bed']:
+                            if experimentName == 'o_dia':
+                                foo['inventory']['changes'] = [
+                                    {'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
+                                # print('Stuck a diamond in it')
+                            elif experimentName == 'o_iron':
+                                foo['inventory']['changes'].append(
+                                    {'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1})
+                            elif experimentName == 'o_bed':
+                                # Go forward in the json and find the next bed
+                                found_bed = False
+                                for j in range(32):
+                                    index = idx + j
+                                    if str(index) in univ_json and 'changes' in univ_json[index]['inventory']:
+                                        for entry in univ_json[index]['inventory']['changes']:
+                                            if entry['item'] == 'minecraft:bed':
+                                                foo['inventory']['changes'].append(entry)
+                                                found_bed = True
+                                                break
+                                    if found_bed:
+                                        break
+                                if not found_bed:
+                                    foo['inventory']['changes'].append(
+                                        {'item': 'minecraft:bed', 'variant': 0, 'quantity_change': 1})
+                            json_to_write[str(idx - startTick)] = foo
                     else:
                         json_to_write[str(idx - startTick)] = univ_json[str(idx)]
 
                 json.dump(json_to_write, open(univ_output_name, 'w'))
 
                 # Split metadata.json
-                metadata = parse_metadata(startMarker, stopMarker)
+
                 json.dump(metadata, open(meta_output_name, 'w'))
 
                 numNewSegments += 1
