@@ -427,7 +427,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                     found_block = metadata['server_metadata']['found_block']
                     found_tick = math.ceil(found_block / duration * (stopTick - startTick))
                     found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
-                    print(found_tick)
                 else:
                     # if experimentName in ['navigate', 'navigateextreme']:
                     #     print('oops', metadata)
