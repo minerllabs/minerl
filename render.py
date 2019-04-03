@@ -340,7 +340,7 @@ def render_videos(renders: list):
     p = launchMC()  # RAH launchMC() now returns subprocess - use p.PID to get process ID
     # Randomize file loading
     # random.shuffle(renders)
-    renders = sorted(renders, key=lambda elem: os.stat(J(MERGED_DIR, (elem[0] + ".mcpr"))).st_size)
+    renders = sorted(renders, key=lambda elem: -1 * os.stat(J(MERGED_DIR, (elem[0] + ".mcpr"))).st_size)
     for recording_name, render_path in tqdm.tqdm(renders):
         # Get mcpr file from merged
         print("Rendering:", recording_name, '...')
