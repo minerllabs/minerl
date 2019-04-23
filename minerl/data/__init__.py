@@ -10,7 +10,8 @@ def filter(fn):
     pass
 
 
-def get():
+def sample():
+    return 'the best data'
     pass
 
 
