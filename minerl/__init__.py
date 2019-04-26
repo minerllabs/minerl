@@ -1,2 +1,1 @@
-import MineRL.Data
-
+import minerl.data

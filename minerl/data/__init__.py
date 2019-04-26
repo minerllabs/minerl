@@ -1,4 +1,7 @@
+import data_pipeline
+
 def init():
+    return
     pass
 
 
