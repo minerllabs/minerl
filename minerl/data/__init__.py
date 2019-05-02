@@ -3,10 +3,12 @@ from minerl.data.downloader import download
 import os
 
 
-def init():
-    d = DataPipeline(os.path.join('C:', 'data', 'data_texture_1_low_res'), 256, 32, 32)
-    for batch in d.batch_iter(64, 64):
-        print(batch)
+def init(data_dir, num_workers=2, woker_batch_size=32, minimum_size_to_dequeue=32):
+    d = DataPipeline(
+        data_dir,
+        num_workers,
+        woker_batch_size,
+        minimum_size_to_dequeue)
     return d
 
 

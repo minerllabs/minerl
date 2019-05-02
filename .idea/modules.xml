@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/DataFramework.iml" filepath="$PROJECT_DIR$/.idea/DataFramework.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../gym-master/.idea/gym-master.iml" filepath="$PROJECT_DIR$/../gym-master/.idea/gym-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../quick_start/.idea/quick_start.iml" filepath="$PROJECT_DIR$/../quick_start/.idea/quick_start.iml" />
+    </modules>
+  </component>
+</project>

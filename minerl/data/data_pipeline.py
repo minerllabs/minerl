@@ -43,13 +43,16 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
-    def batch_iter(self, batch_size: int, max_sequence_len: int):
+    def batch_iter(self, batch_size: int, max_sequence_len=None):
         """
         Returns a generator for iterating through batches of the dataset.
         :param batch_size:
         :param max_sequence_len:
         :return:
         """
+        if max_sequence_len is not None and max_sequence_len > 1:
+            raise NotImplementedError("Drawing batches of sequence is not supported")
+
         logger.info("Starting batch iterator on {}".format(self.data_dir))
         self.data_list = self._get_all_valid_recordings(self.data_dir)
 
