@@ -139,7 +139,7 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, worker_batch_size: int, data_queue, skip_interval=0):
+    def _load_data_pyfunc(file_dir: str, worker_batch_size: int, data_queue, vectorized=False, skip_interval=0):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
@@ -151,7 +151,11 @@ class DataPipeline:
 
         # logger.warning(inst_dir)
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
-        numpy_path = str(os.path.join(file_dir, 'rendered.npy'))
+        if vectorized:
+            numpy_path = str(os.path.join(file_dir, 'rendered.npy'))
+        else:
+            numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
+
 
         try:
             logger.error("Starting worker!")
@@ -160,9 +164,13 @@ class DataPipeline:
             cap = cv2.VideoCapture(video_path)
 
             # Rendered State
-            vec = np.load(numpy_path, mmap_mode='r', allow_pickle=False)
-            num_states = vec.shape[0]
-            print(num_states)
+            if vectorized:
+                vec = np.load(numpy_path, mmap_mode='r', allow_pickle=False)
+                num_states = vec.shape[0]
+            else:
+                vec = np.load(numpy_path, allow_pickle=False)
+                num_states = vec['num_states']
+
 
             # Rendered Frames
             frame_skip = 0  # np.random.randint(0, len(univ)//2, 1)[0]
@@ -198,7 +206,10 @@ class DataPipeline:
                     try:
                         # Construct a single observation object.
                         vf = (np.clip(frame[:, :, ::-1], 0, 255))
-                        uf = vec[frame_num]
+                        if vectorized:
+                            uf = vec[frame_num]
+                        else:
+                            uf = {key: vec[key][frame_num] for key in vec.keys()}
 
                         batches.append([vf, uf])
 
