@@ -116,7 +116,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
     universal_source = J(source_folder, 'univ.json')
     dest_folder = J(output_root, experiment_folder, recording_dir)
     recording_dest = J(dest_folder, 'recording.mp4')
-    rendered_dest = J(dest_folder, 'rendered.npy')
+    rendered_dest = J(dest_folder, 'rendered.npz')
 
     # Don't render again, ensure source exits
     if E(rendered_dest):
@@ -136,8 +136,15 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
             pass
 
     video_length = random.randint(6000, 150000)
-    video = np.ones([video_length, 42])
-    np.save(rendered_dest, video)
+    info = dict()
+    info['mini_map'] = np.ones([video_length, 4, 4])
+    info['health'] = np.ones([video_length, 1])
+    info['inventory'] = np.ones([video_length, 10])
+    info['current_item'] = np.ones([video_length, 1])
+    np.save(rendered_dest, info)
+
+    # vector = np.ones([video_length, 42])
+    # np.save(rendered_dest, vector)
 
     # Copy video if necessary
     if not E(recording_dest):
