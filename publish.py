@@ -118,6 +118,9 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
     recording_dest = J(dest_folder, 'recording.mp4')
     rendered_dest = J(dest_folder, 'rendered.npz')
 
+    if E(J(dest_folder, 'rendered.npz')):
+        os.remove(J(dest_folder, 'rendered.npz.'))
+
     # Don't render again, ensure source exits
     if E(rendered_dest):
         # TODO check universal_source exists
@@ -137,11 +140,12 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
     video_length = random.randint(6000, 150000)
     info = dict()
+    info['num_states'] = video_length
     info['mini_map'] = np.ones([video_length, 4, 4])
     info['health'] = np.ones([video_length, 1])
     info['inventory'] = np.ones([video_length, 10])
     info['current_item'] = np.ones([video_length, 1])
-    np.save(rendered_dest, info)
+    np.savez_compressed(rendered_dest, **info)
 
     # vector = np.ones([video_length, 42])
     # np.save(rendered_dest, vector)
