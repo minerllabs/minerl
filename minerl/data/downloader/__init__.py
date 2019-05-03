@@ -4,7 +4,7 @@ import tqdm
 
 def download(directory, resolution='low', texturePack=0):
 
-    url = '/'.join(["http://herobraine.com", resolution, texturePack])
+    url = '/'.join(["https://router.sneakywines.me/minerl/data_texture_1_low_res.tar.gz", resolution, texturePack])
 
     response = requests.get(url, stream=True)
 
