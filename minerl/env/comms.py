@@ -16,29 +16,53 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
-import os
 
-from minerl.env.spaces import ActionSpace, StringActionSpace, VisualObservationSpace
-from minerl.env.bootstrap import download
-from minerl.env.core import MineRLEnv
-# Perform the registration.
-from gym.envs.registration import  register
-from minerl.env.version import missions_dir
+import struct
+import socket
+import functools
+import time
 
-# TODO: REGISTER ENVS.
-register(
-    id='MineRLTreechop-v0',
-    entry_point='minerl.env:MineRLEnv',
-    kwargs={'xml': os.path.join(missions_dir, 'treechop.xml')},
-    max_episode_steps=8000,
-    reward_threshold=64.0,
-)
+retry_count = 20
+retry_timeout = 10
 
 
-# Ensure that MineRL Env is downloaded This should only happen on first import
-# TODO: WE NEED THIS TO BE VERSIONED BY THE PYTHON PACKAGE!
-download()
+def retry(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        retry_exc = None
+        for i in range(retry_count):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                if retry_exc is None:
+                    retry_exc = e
+                if i < retry_count - 1:
+                    print("Pause before retry on " + str(e))
+                    time.sleep(retry_timeout)
+        raise retry_exc
+    return wrapper
 
-__all__ = ['ActionSpace', 'StringActionSpace', 'VisualObservationSpace', 'Env', 'make']
+
+def send_message(sock, data):
+    length = len(data)
+    sock.sendall(struct.pack('!I', length))
+    sock.sendall(data)
 
 
+def recv_message(sock):
+    lengthbuf = recvall(sock, 4)
+    if not lengthbuf:
+        return None
+    length, = struct.unpack('!I', lengthbuf)
+    return recvall(sock, length)
+
+
+def recvall(sock, count):
+    buf = b''
+    while count:
+        newbuf = sock.recv(count)
+        if not newbuf:
+            return None
+        buf += newbuf
+        count -= len(newbuf)
+    return buf

@@ -1,4 +1,4 @@
-import data_pipeline
+# import minerl.data.data_pipeline
 from minerl.data.downloader import download
 
 def init():
