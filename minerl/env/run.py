@@ -71,7 +71,7 @@ if __name__ == '__main__':
             # print("===================================\n")
             # time.sleep(0.25)
             char = getch.getch()
-            if(char == 'w'):
+            if char == 'w':
                 action = 0
             elif char == 's':
                 action = 1

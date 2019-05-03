@@ -92,7 +92,6 @@ def setup(build=True, installdir=malmo_dir):
     return minecraft_dir
 
 
-
 class MinecraftInstance(object):
     """
     A subprocess wrapper which maintains a reference to a minecraft subprocess
@@ -137,7 +136,6 @@ class MinecraftInstance(object):
         # Make a hook to kill
         atexit.register(lambda: self._destruct())
 
-
     def kill(self):
         """
         Kills the process (if it has been launched.)
@@ -152,7 +150,6 @@ class MinecraftInstance(object):
     @property
     def port(self):
         return self._port
-
 
     ###########################
     ##### PRIVATE METHODS #####
@@ -218,7 +215,6 @@ class MinecraftInstance(object):
             found_port = _check_port_avail(host, port)
         else:
             return port
-        
 
     @staticmethod
     def _process_watcher(parent_pid, child_pid):
@@ -236,7 +232,6 @@ class MinecraftInstance(object):
         except psutil.NoSuchProcess:
             parent = None
         
-        
         while True:
             try:
                 time.sleep(0.1) # Sleep for a short time, and check if subprocesses needed to be killed.
@@ -252,16 +247,13 @@ class MinecraftInstance(object):
                     return
             except KeyboardInterrupt:
                 pass
-    
-
 
     def __del__(self):
         """
-        On destruciton of this instance kill the child.
+        On destruction of this instance kill the child.
         """
         self._destruct()
         pass
-
 
     def _destruct(self):
         """
@@ -279,11 +271,8 @@ class MinecraftInstance(object):
             # try:
             self.watcher_process.terminate()
 
-
             self.running = False
         pass
-
-
 
 
 def _reap_process_and_children(process, timeout=3):
@@ -312,6 +301,7 @@ def _reap_process_and_children(process, timeout=3):
             # give up
             for p in alive:
                 print("process {} survived SIGKILL; giving up".format(p.pid))
+
 
 def _check_port_avail(host : str, port_num : int):
     """

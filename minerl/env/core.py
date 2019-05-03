@@ -33,6 +33,7 @@ from minerl.env.version import malmo_version, missions_dir
 from minerl.env.bootstrap import MinecraftInstance
 from minerl.env.spaces import ActionSpace, VisualObservationSpace
 
+
 class EnvException(Exception):
     def __init__(self, message):
         super(EnvException, self).__init__(message)
@@ -328,7 +329,6 @@ class MineRLEnv(gym.Env):
 
         if self.instance and self.instance.running:
             self.instance.kill()
-        
 
     def reinit(self):
         """Use carefully to reset the episode count to 0."""

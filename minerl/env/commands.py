@@ -79,7 +79,7 @@ class CommandParser:
         if len(handlers) <= role:
             raise CommandHandlerException("Not enough agents sections in XML")
         commands = []
-        self._command_hander(handlers[role], False, commands)
+        self._command_handler(handlers[role], False, commands)
         return commands
 
     def get_actions(self, commands):
@@ -135,10 +135,10 @@ class CommandParser:
                 actions.append(verb)
         return actions
 
-    def _command_hander(self, handlers, turnbased, commands):
+    def _command_handler(self, handlers, turnbased, commands):
         for ch in handlers:
             if ch.tag == CommandParser.ns + "TurnBasedCommands":
-                self._command_hander(ch, True, commands)
+                self._command_handler(ch, True, commands)
             elif ch.tag == CommandParser.ns + "ContinuousMovementCommands":
                 if turnbased:
                     raise CommandHandlerException("ContinuouMovementCommands not allowed in TurnBased")
