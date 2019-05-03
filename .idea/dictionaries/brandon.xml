@@ -2,9 +2,11 @@
   <dictionary name="brandon">
     <words>
       <w>dataset</w>
+      <w>datasets</w>
       <w>dequeue</w>
       <w>malmo</w>
       <w>minecraft</w>
+      <w>minerl</w>
       <w>subprocesses</w>
     </words>
   </dictionary>

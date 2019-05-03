@@ -3,15 +3,17 @@ import requests
 import tqdm
 
 
-def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0, update_enviroment_variables=True) -> None:
+def download(directory: os.path, resolution: str = 'low', texture_pack: int = 1, update_enviroment_variables=True) -> None:
     """
     Downloads MineRLv0 to specified directory. If directory is None downloads to $MINERL_DATA_ROOT. Throws error if both
     are not defined.
-    :param directory:
+    :param update_enviroment_variables: Enables / disables setting of MineRL environment variables
+    :type update_enviroment_variables:
+    :param directory: Destination for downloading MineRLv0 datasets
     :type directory:
-    :param resolution:
+    :param resolution: One of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ] respectively
     :type resolution:
-    :param texture_pack:
+    :param texture_pack: 0: Default Minecraft texture pack, 1: custom flat semi-realistic texture pack
     :type texture_pack:
     """
     if directory is None:
