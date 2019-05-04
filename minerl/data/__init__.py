@@ -3,7 +3,7 @@ from minerl.data import download
 import os
 
 
-def init(data_dir=None, num_workers=2, woker_batch_size=32, minimum_size_to_dequeue=32):
+def init(data_dir=None, num_workers=1, woker_batch_size=32, minimum_size_to_dequeue=32):
     if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
         data_dir = os.environ['MINERL_DATA_ROOT']
     elif not os.path.exists(data_dir):

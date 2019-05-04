@@ -19,7 +19,7 @@ download()
 def package_files(directory):
     paths = []
     for (path, directories, filenames) in os.walk(directory):
-          paths.append((path, [os.path.join(path, f) for f in filenames if  not isdir(f)]))
+        paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
     return paths
 
 

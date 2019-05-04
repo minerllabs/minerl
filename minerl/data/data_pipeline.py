@@ -209,10 +209,13 @@ class DataPipeline:
                         if vectorized:
                             uf = vec[frame_num]
                         else:
-                            for key in vec:
-                                if isinstance(vec[key], np.ndarray):
-                                    print(vec[key])
-                            uf = {key: vec[key][frame_num] for key in vec.keys() if isinstance(vec[key], np.ndarray)}
+                            # for key in vec:
+                            #     if isinstance(vec[key], np.ndarray):
+                            #         if len(np.shape(vec[key])) > 1:
+                            #             print(vec[key])
+                            #         else:
+                            #             print("bad key is ", key)
+                            uf = {key: vec[key][frame_num] for key in vec.keys() if isinstance(vec[key], np.ndarray) and len(np.shape(vec[key])) > 1}
 
                         batches.append([vf, uf])
 

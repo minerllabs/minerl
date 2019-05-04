@@ -1,5 +1,5 @@
 gym>=0.12.1
-opencv_python>=4.1.0.25
+opencv-python>=4.1.0.25
 setuptools>=40.6.2
 tqdm>=4.31.1
 numpy>=1.16.2
