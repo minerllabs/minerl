@@ -34,63 +34,6 @@ PORT_SEARCH_RANGE = 20000 # Max number of ports to probe
 PORT_MAX = 65000 # The max port numb we can check to.
 
 
-def download(branch=malmo_branch, build=True, installdir=malmo_dir):
-    """Download Malmo from github and build (by default) the Minecraft Mod.
-    Args:
-        branch: optional branch to clone. TODO Default is release version.
-        build: build the Mod unless build arg is given as False.
-        installdir: the install dir name. Defaults to MalmoPlatform.
-    Returns:
-        The path for the Malmo Minecraft mod.
-    """
-    # TODO: ADD VERSIONING BEFORE RELEASE !!!!!!!!!!!!!!!!!
-
-    if branch is None:
-        branch = malmo_version
-
-    # Check to see if the minerlENV is set up yet.
-    if os.path.exists(malmo_dir):
-        # TODO CHECK TO SEE IF THE VERSION MATCHES THE PYTHON VERSION!
-        # TODO CHECKT OSEE THAT DECOMP WORKSPACE HAS BEEN SET UP (write a finished txt)
-        return
-    
-    # If it exists lets set up the env.
-    # TODO: Convert to using loggers.
-    print("❤️❤️❤️ Hello! Welcome to MineRL Env ❤️❤️❤️")
-    print("MineRL is not yet setup for this package install! Downloading and installing Malmo backend.")
-
-    try:
-        subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/cmu-rl/malmo.git", malmo_dir])
-    except subprocess.CalledProcessError:
-        print("ATTENTION: Setup failed! Was permission denied? "
-              "If so you  installed the library using sudo (or a different user)."
-              "Try rerunning the script as with sudo (or the user which you installed MineRL with).")
-
-    return setup(build=build, installdir=installdir)
-
-
-def setup(build=True, installdir=malmo_dir):
-    """Set up Minecraft for use with the MalmoEnv gym environment"""
-
-    gradlew = './gradlew'
-    if os.name == 'nt':
-        gradlew = 'gradlew.bat'
-
-    cwd = os.getcwd()
-    os.chdir(installdir)
-    os.chdir("Minecraft")
-    try:
-        # Create the version properties file.
-        pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(malmo_version))
-        # Optionally do a test build.
-        if build:
-            subprocess.check_call([gradlew, "setupDecompWorkspace", "build", "testClasses",
-                                   "-x", "test", "--stacktrace", "-Pversion={}".format(malmo_version)])
-        minecraft_dir = os.getcwd()
-    finally:
-        os.chdir(cwd)
-    return minecraft_dir
-
 
 class MinecraftInstance(object):
     """

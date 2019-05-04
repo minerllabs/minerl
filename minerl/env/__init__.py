@@ -35,9 +35,6 @@ register(
 )
 
 
-# Ensure that MineRL Env is downloaded This should only happen on first import
-# TODO: WE NEED THIS TO BE VERSIONED BY THE PYTHON PACKAGE!
-download()
 
 __all__ = ['ActionSpace', 'StringActionSpace', 'VisualObservationSpace', 'Env', 'make']
 

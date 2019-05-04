@@ -13,13 +13,14 @@ with open("requirements.txt", "r") as fh:
 
 # First download and build Malmo!
 # We need to assert that Malmo is in the script directory. There HAS to be a better way to do this.
-from minerl.env.bootstrap import download
+from minerl.env.setup import download
 download()
 
 def package_files(directory):
     paths = []
     for (path, directories, filenames) in os.walk(directory):
-        paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
+        if not ".git" in path  and not "build" in path:
+            paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
     return paths
 
 
@@ -30,7 +31,7 @@ data_files += package_files('minerl/env/Malmo')
 
 setuptools.setup(
       name='minerl',
-      version='0.0.4',
+      version='0.0.5',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
@@ -44,7 +45,7 @@ setuptools.setup(
                  "License :: OSI Approved :: MIT License",
                  "Operating System :: OS Independent",
             ],
-      install_requires=requirements,
+    install_requires=requirements,
      data_files=data_files,
      include_package_data=True,
       )
