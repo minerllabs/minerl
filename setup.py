@@ -6,9 +6,9 @@ from setuptools.command.develop import develop
 from setuptools.command.install import install
 
 with open("README.md", "r") as fh:
-      markdown = fh.read()
+    markdown = fh.read()
 with open("requirements.txt", "r") as fh:
-      requirements = fh.read()
+    requirements = fh.read()
 
 
 # First download and build Malmo!
@@ -21,6 +21,7 @@ def package_files(directory):
     for (path, directories, filenames) in os.walk(directory):
           paths.append((path, [os.path.join(path, f) for f in filenames if  not isdir(f)]))
     return paths
+
 
 data_files = []
 data_files += package_files('minerl/env/missions')
@@ -44,6 +45,6 @@ setuptools.setup(
                  "Operating System :: OS Independent",
             ],
       install_requires=requirements,
-     data_files=data_files,
-     include_package_data=True,
+      data_files=data_files,
+      include_package_data=True,
       )
