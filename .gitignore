@@ -23,5 +23,9 @@ var/
 .installed.cfg
 *.egg
 
+# IDE files
 .idea/
+.vscode
+
+# Installation directories
 Malmo/
