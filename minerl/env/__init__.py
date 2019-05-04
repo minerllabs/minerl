@@ -19,10 +19,11 @@
 import os
 
 from minerl.env.spaces import ActionSpace, StringActionSpace, VisualObservationSpace
-from minerl.env.core import MineRLEnv
+from minerl.env.core import MineRLEnv, missions_dir
 # Perform the registration.
 from gym.envs.registration import  register
-from minerl.env.version import missions_dir
+
+
 
 # TODO: REGISTER ENVS.
 register(

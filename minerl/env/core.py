@@ -19,6 +19,7 @@
 
 from lxml import etree
 import struct
+import os
 import socket
 import time
 import random
@@ -29,10 +30,13 @@ import uuid
 import gym
 import gym.spaces
 from minerl.env.comms import retry
-from minerl.env.version import malmo_version, missions_dir
 from minerl.env.bootstrap import MinecraftInstance
 from minerl.env.spaces import ActionSpace, VisualObservationSpace
 
+
+
+malmo_version="0.37.0"
+missions_dir=os.path.join(os.path.dirname(__file__), 'missions')
 
 class EnvException(Exception):
     def __init__(self, message):

@@ -27,8 +27,6 @@ import time
 from multiprocessing import process
 from pydoc import replace
 
-from minerl.env.version import malmo_branch, malmo_version
-
 malmo_dir = os.path.join(os.path.dirname(__file__), 'Malmo')
 PORT_SEARCH_RANGE = 20000 # Max number of ports to probe
 PORT_MAX = 65000 # The max port numb we can check to.
@@ -250,9 +248,12 @@ def _check_port_avail(host : str, port_num : int):
     """
     Checks if a port is available or not.
     """
-    import socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex((host,port_num))
-    sock.close()
 
-    return result == 0
+    return True
+
+    # import socket
+    # sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # result = sock.connect_ex((host,port_num))
+    # sock.close()
+
+    # return result == 0

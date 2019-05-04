@@ -10,10 +10,7 @@ with open("README.md", "r") as fh:
 with open("requirements.txt", "r") as fh:
     requirements = fh.read()
 
-
-malmo_version="0.37.0"
 malmo_branch="minerl"
-missions_dir=os.path.join(os.path.dirname(__file__), 'missions')
 
 
 # First download and build Malmo!
@@ -34,7 +31,7 @@ def download(branch=malmo_branch, build=True, installdir=malmo_dir):
     # TODO: ADD VERSIONING BEFORE RELEASE !!!!!!!!!!!!!!!!!
 
     if branch is None:
-        branch = malmo_version
+        branch = malmo_branch
 
     # Check to see if the minerlENV is set up yet.
     if os.path.exists(malmo_dir):
