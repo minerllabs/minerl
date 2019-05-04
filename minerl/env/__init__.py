@@ -19,7 +19,6 @@
 import os
 
 from minerl.env.spaces import ActionSpace, StringActionSpace, VisualObservationSpace
-from minerl.env.bootstrap import download
 from minerl.env.core import MineRLEnv
 # Perform the registration.
 from gym.envs.registration import  register
