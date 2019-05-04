@@ -1,0 +1,5 @@
+.idea
+minerl/env/Malmo
+*/__pycache__/*
+minerl.egg-info/*
+minerl.egg-info/
