@@ -35,7 +35,7 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 1,
         os.makedirs(directory)
 
     with open(os.path.join(directory, filename), "wb") as handle:
-        for data in tqdm.tqdm(response.iter_content(chunk_size=None)):
+        for data in tqdm.tqdm(response.iter_content(chunk_size=1048576)):
             handle.write(data)
 
     tf = tarfile.open(os.path.join(directory, filename))
