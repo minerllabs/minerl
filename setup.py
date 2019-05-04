@@ -7,10 +7,9 @@ from setuptools.command.install import install
 
 with open("README.md", "r") as fh:
       markdown = fh.read()
-<<<<<<< Updated upstream
 with open("requirements.txt", "r") as fh:
       requirements = fh.read()
-=======
+
 
 # First download and build Malmo!
 # We need to assert that Malmo is in the script directory. There HAS to be a better way to do this.
@@ -27,7 +26,6 @@ data_files = []
 data_files += package_files('minerl/env/missions')
 data_files += package_files('minerl/env/Malmo')
 
->>>>>>> Stashed changes
 
 setuptools.setup(
       name='minerl',
@@ -45,10 +43,7 @@ setuptools.setup(
                  "License :: OSI Approved :: MIT License",
                  "Operating System :: OS Independent",
             ],
-<<<<<<< Updated upstream
       install_requires=requirements,
-=======
      data_files=data_files,
      include_package_data=True,
->>>>>>> Stashed changes
       )
