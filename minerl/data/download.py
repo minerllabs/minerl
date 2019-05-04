@@ -1,6 +1,7 @@
 import os
 import requests
 import tqdm
+import tarfile
 
 
 def download(directory: os.path, resolution: str = 'low', texture_pack: int = 1, update_enviroment_variables=True) -> None:
@@ -22,14 +23,22 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 1,
         else:
             raise ValueError("Provided directory is None and $MINERL_DATA_ROOT is not defined")
     elif update_enviroment_variables:
-        os.environ['MINERL_DATA_ROOT'] = directory
+        os.environ['MINERL_DATA_ROOT'] = os.path.normpath(directory)
 
     # TODO pull JSON defining dataset URLS from webserver instead of hard-coding
-    url = "https://router.sneakywines.me/minerl/data_texture_{}_{}_res.tar.gz".format(texture_pack, resolution)
+    filename = "data_texture_{}_{}_res.tar.gz".format(texture_pack, resolution)
+    url = "https://router.sneakywines.me/minerl/" + filename
 
     response = requests.get(url, stream=True)
 
-    with open(directory, "wb") as handle:
-        for data in tqdm(response.iter_content()):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    with open(os.path.join(directory, filename), "wb") as handle:
+        for data in tqdm.tqdm(response.iter_content(chunk_size=None)):
             handle.write(data)
+
+    tf = tarfile.open(os.path.join(directory, filename))
+    tf.extractall()
+
     pass
