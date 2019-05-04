@@ -218,7 +218,6 @@ class DataPipeline:
                             uf = {key: vec[key][frame_num] for key in vec.keys() if isinstance(vec[key], np.ndarray) and len(np.shape(vec[key])) > 1}
 
                         batches.append([vf, uf])
-
                     except Exception as e:
                         # If there is some error constructing the batch we just start a new sequence
                         # at the point that the exception was observed
