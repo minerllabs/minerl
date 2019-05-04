@@ -10,13 +10,11 @@ from numpy.core.numeric import False_
 import minerl
 from minerl.env.bootstrap import MinecraftInstance
 from minerl.env.core import MineRLEnv
+import matplotlib.pyplot as plt
 
-NUM_EPISODES=30
+NUM_EPISODES=10
 
 """
-1. Server observations are delayed and take a tick!
-4. move watcher to java side :()
-6. port binding failure.
 """
 
 def main():
@@ -43,7 +41,9 @@ def main():
     
 
     y = np.array(xposes)
-    from IPython import embed; embed()
+    plt.plot(y[:,:,0].T, y[:,:,2].T)
+    plt.show()
+    input()
     print("Demo complete.")
     
 

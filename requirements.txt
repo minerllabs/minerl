@@ -1,9 +1,9 @@
-gym==0.12.1
-opencv_python==4.1.0.25
-setuptools==40.6.2
-tqdm==4.31.1
-numpy==1.16.2
-requests==2.20.0
-ipython==7.5.0
-typing==3.6.6
+gym>=0.12.1
+opencv_python>=4.1.0.25
+setuptools>=40.6.2
+tqdm>=4.31.1
+numpy>=1.16.2
+requests>=2.20.0
+ipython>=7.5.0
+typing>=3.6.6
 lxml

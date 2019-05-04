@@ -4,6 +4,7 @@ with open("README.md", "r") as fh:
       markdown = fh.read()
 with open("requirements.txt", "r") as fh:
       requirements = fh.read()
+
 setuptools.setup(
       name='minerl',
       version='0.0.2',
