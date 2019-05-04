@@ -1,4 +1,12 @@
+<<<<<<< Updated upstream
 def init():
+=======
+# import minerl.data.data_pipeline
+from minerl.data.downloader import download
+
+def init():
+    return
+>>>>>>> Stashed changes
     pass
 
 
@@ -16,4 +24,8 @@ def sample():
 
 
 def batch():
+<<<<<<< Updated upstream
     pass
+=======
+    pass
+>>>>>>> Stashed changes
