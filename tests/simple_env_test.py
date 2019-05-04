@@ -23,7 +23,7 @@ def main():
     """
     env = gym.make('MineRLTreechop-v0')
     
-    actions = [env.action_space.sample() for _ in range(1000)]
+    actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []
     for _ in range(NUM_EPISODES):
         obs, info = env.reset()

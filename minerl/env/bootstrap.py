@@ -172,10 +172,10 @@ class MinecraftInstance(object):
         os.chdir(installdir)
         os.chdir("Minecraft")
         # First let's pull for updates ;)
-        try: 
-            subprocess.check_call(["git", "pull"])
-        finally:
-            pass
+        # try: 
+            # subprocess.check_call(["git", "pull"])
+        # finally:
+            # pass
         
         try:
             cmd = [launch_script, '-port', str(port), '-env']

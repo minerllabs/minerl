@@ -1,0 +1,3 @@
+recursive-include projectname *.py
+include README
+include requirements.txt
