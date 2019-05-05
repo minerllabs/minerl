@@ -20,6 +20,7 @@ import os
 import pathlib
 import psutil
 import subprocess
+import threading
 import socket
 import atexit
 import multiprocessing
@@ -138,6 +139,7 @@ class InstanceManager:
               cls._is_display_port_taken(port - 9000, cls.X11_DIR) or \
               cls._port_in_instance_pool(port):
             port += 1
+        # print(port)
         return port
 
 
@@ -163,7 +165,7 @@ class InstanceManager:
 
                 if not parent.is_running() or parent is None:
                     if not (child is None):
-                        _reap_process_and_children(child)
+                        InstanceManager._reap_process_and_children(child)
                     return
                 # Kill the watcher if the child is no longer running.
                 # If you want to attempt to restart the child on failure, this
@@ -177,7 +179,7 @@ class InstanceManager:
     def _reap_process_and_children(process, timeout=3):
         "Tries hard to terminate and ultimately kill all the children of this process."
         def on_terminate(proc):
-            print("process {} terminated with exit code {}".format(proc, proc.returncode))
+            logger.info("Minecraft process {} terminated with exit code {}".format(proc, proc.returncode))
 
         procs = process.children() + [process]
         # send SIGTERM
@@ -190,7 +192,7 @@ class InstanceManager:
         if alive:
             # send SIGKILL
             for p in alive:
-                print("process {} survived SIGTERM; trying SIGKILL".format(p.pid))
+                logger.info("Minecraft process {} survived SIGTERM; trying SIGKILL".format(p.pid))
                 try:
                     p.kill()
                 except psutil.NoSuchProcess:
@@ -199,7 +201,7 @@ class InstanceManager:
             if alive:
                 # give up
                 for p in alive:
-                    print("process {} survived SIGKILL; giving up".format(p.pid))
+                    logger.info("Minecraft process {} survived SIGKILL; giving up".format(p.pid))
 
 
 
@@ -224,7 +226,7 @@ class InstanceManager:
             self.running = False
             self.minecraft_process = None
             self.watcher_process = None
-            self._port = -1
+            self._port = None
             self._host = InstanceManager.DEFAULT_IP
             self.locked = False
 
@@ -236,17 +238,21 @@ class InstanceManager:
             if not existing:
                 if not port:
                     port = InstanceManager._get_valid_port()
-                cmd = InstanceManager.MC_COMMAND
-                logger.info("Starting Minecraft process: " + cmd)
 
-
-                proc =  self._launch_minecraft(
-                    self._port, 
+                    
+                # 0. Get PID of launcher.
+                parent_pid = os.getpid()
+                # 1. Launch minecraft process.
+                self.minecraft_process =  self._launch_minecraft(
+                    port, 
                     InstanceManager.headless)
+                # 2. Create a watcher process to ensure things get cleaned up
+                self.watcher_process = self._launch_process_watcher(
+                    parent_pid, self.minecraft_process.pid)
                 
                 # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
                 while True:
-                    line = proc.stdout.readline()
+                    line = self.minecraft_process.stdout.readline()
                     logger.debug(line)
                     if not line:
                         raise EOFError("Minecraft process finished unexpectedly")
@@ -256,19 +262,32 @@ class InstanceManager:
                 # supress entire output, otherwise the subprocess will block
                 # NB! there will be still logs under Malmo/Minecraft/run/logs
                 # FNULL = open(os.devnull, 'w')
-                FMINE = open('./malmo.log', 'w')
-                proc.stdout = FMINE
+                # launch a logger process
+                def log_to_file():
+                    if not os.path.exists(os.path.join('.', 'logs')):
+                        os.makedirs((os.path.join('.', 'logs')))
+                    
+                    file_path = os.path.join('.', 'logs', 'minecraft_proc_{}.log'.format(port))
+
+                    logger.info("Logging output of Minecraft to {}".format(file_path))
+                    mine_log = open(file_path, 'wb+')
+                    mine_log.truncate(0)
+                    try:
+                        while self.running:
+                            line = self.minecraft_process.stdout.readline()
+                            mine_log.write(line)
+                            mine_log.flush()
+                    finally:
+                        mine_log.close()
+                self._logger_thread = threading.Thread(target=log_to_file)
+                self._logger_thread.setDaemon(True)
+                self._logger_thread.start()
+
+
             else:
                 assert port is not None, "No existing port specified."
             
             self._port = port
-
-            # 0. Get PID of launcher.
-            parent_pid = os.getpid()
-            # 2. Launch watcher process
-            self.minecraft_process = proc
-            self.watcher_process = self._launch_process_watcher(
-                parent_pid, self.minecraft_process.pid)
 
             self.running = True
 
@@ -304,12 +323,18 @@ class InstanceManager:
                 that the port specified is open.
             """
             replaceable = False
-            launch_script = './launchClient.sh'
+
+            launch_script = 'launchClient.sh'
             if os.name == 'nt':
                 launch_script = 'launchClient.bat'
 
+            launch_script = os.path.join(InstanceManager.MINECRAFT_DIR, launch_script)
             
             cmd = [launch_script, '-port', str(port), '-env']
+
+
+            logger.info("Starting Minecraft process: " + str(cmd))
+            # print(cmd)
             if replaceable:
                 cmd.append('-replaceable')
             minecraft_process = subprocess.Popen(cmd,
@@ -350,6 +375,7 @@ class InstanceManager:
                     InstanceManager._reap_process_and_children(psutil.Process(self.minecraft_process.pid))
                 except psutil.NoSuchProcess: 
                     pass
+
                 # killall the watcher
                 # try:
                 self.watcher_process.terminate()
@@ -364,7 +390,7 @@ class InstanceManager:
         
         def __repr__(self):
             return ("Malmo[proc={}, addr={}:{}, locked={}]".format(
-                self.proc.pid if not self.existing else "EXISTING",
+                self.minecraft_process.pid if not self.existing else "EXISTING",
                 self.ip,
                 self.port,
                 self.locked

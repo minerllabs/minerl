@@ -10,10 +10,8 @@ import minerl
 import numpy as np
 from minerl.env.core import MineRLEnv
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-
+import coloredlogs
+coloredlogs.install(logging.DEBUG)
 
 
 NUM_EPISODES=10
@@ -38,18 +36,11 @@ def main():
             xpos.append([correct_info["XPos"], correct_info["YPos"], correct_info["ZPos"], correct_info["Yaw"]])
         xposes.append(xpos)
     
-        print("MISSION DONE")
-    
 
     y = np.array(xposes)
     plt.plot(y[:,:,0].T, y[:,:,2].T)
     plt.show()
-    input()
     print("Demo complete.")
     
-
-
-
-
 if __name__ == "__main__":
     main()
