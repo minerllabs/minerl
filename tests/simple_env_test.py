@@ -2,20 +2,21 @@
 import json
 import select
 import time
+import logging
 
 import gym
-import numpy as np
-from numpy.core.numeric import False_
-
-import minerl
-from minerl.env.bootstrap import MinecraftInstance
-from minerl.env.core import MineRLEnv
 import matplotlib.pyplot as plt
+import minerl
+import numpy as np
+from minerl.env.core import MineRLEnv
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+
+
 
 NUM_EPISODES=10
-
-"""
-"""
 
 def main():
     """

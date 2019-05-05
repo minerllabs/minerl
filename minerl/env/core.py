@@ -30,7 +30,7 @@ import uuid
 import gym
 import gym.spaces
 from minerl.env.comms import retry
-from minerl.env.bootstrap import MinecraftInstance
+from minerl.env.malmo import InstanceManager
 from minerl.env.spaces import ActionSpace, VisualObservationSpace
 
 
@@ -78,15 +78,13 @@ class MineRLEnv(gym.Env):
         self.height = 0
         self.depth = 0
 
+        self.xml_file = xml
+        self.has_init = False
         self.instance = None
-        # Add support for existing instances.
-        self.instance = MinecraftInstance()
-        self.instance.launch(9000) # todo headless.
-        self.port = self.instance.port
-        self.server = self.instance.host
-        self.init(xml)
 
-    def init(self, xml,  exp_uid=None, episode=0,
+        self.init()
+
+    def init(self,  exp_uid=None, episode=0,
              action_filter=None, resync=0, step_options=0, action_space=None):
         """"Initialize a Malmo environment.
             xml - the mission xml.
@@ -98,9 +96,14 @@ class MineRLEnv(gym.Env):
             action_filter - an optional list of valid actions to filter by. Defaults to simple commands.
             step_options - encodes withTurnKey and withInfo in step messages. Defaults to info included,
             turn if required.
+
+            TODO: Allow for adding existing Malmo instances.
         """
+        if self.instance == None:
+            self.instance = InstanceManager.get_instance().__enter__()
         # Parse XML file
-        xml_text = open(xml).read()
+        with open(self.xml_file, 'r') as f:
+            xml_text = f.read()
         xml = xml_text.replace('$(MISSIONS_DIR)', missions_dir)
         
         # Bootstrap the environment if it hasn't been.
@@ -175,7 +178,7 @@ class MineRLEnv(gym.Env):
         self.xml.find(self.ns + 'ExperimentUID').text = self.exp_uid
         if self.role != 0 and self.agent_count > 1:
             e = etree.Element(self.ns + 'MinecraftServerConnection',
-                              attrib={'address': self.server,
+                              attrib={'address': self.instance.host,
                                       'port': str(0)
                                       })
             self.xml.insert(2, e)
@@ -191,6 +194,8 @@ class MineRLEnv(gym.Env):
         self.observation_space = VisualObservationSpace(self.width, self.height, self.depth)
         # print(etree.tostring(self.xml))
 
+        self.has_init = True
+
     @staticmethod
     def _hello(sock):
         comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
@@ -198,6 +203,8 @@ class MineRLEnv(gym.Env):
     def reset(self):
         """gym api reset"""
         # Add support for existing instances.
+        if not self.has_init:
+            self.init()
 
         if self.resync_period > 0 and (self.resets + 1) % self.resync_period == 0:
             self.exit_resync()
@@ -219,7 +226,7 @@ class MineRLEnv(gym.Env):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
-            sock.connect((self.server, self.port))
+            sock.connect((self.instance.host, self.instance.port))
             self._hello(sock)
             self.client_socket = sock  # Now retries will use connected socket.
         self._init_mission()
@@ -317,7 +324,7 @@ class MineRLEnv(gym.Env):
         try:
             # Purge last token from head node with <Close> message.
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect((self.server, self.port))
+            sock.connect((self.instance.host, self.instance.port))
             self._hello(sock)
 
             comms.send_message(sock, ("<Close>" + self._get_token() + "</Close>").encode())
@@ -337,7 +344,7 @@ class MineRLEnv(gym.Env):
     def reinit(self):
         """Use carefully to reset the episode count to 0."""
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.server, self.port))
+        sock.connect((self.instance.host, self.instance.port))
         self._hello(sock)
 
         comms.send_message(sock, ("<Init>" + self._get_token() + "</Init>").encode())
@@ -352,9 +359,9 @@ class MineRLEnv(gym.Env):
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if head:
-            sock.connect((self.server, self.port))
+            sock.connect((self.instance.host, self.instance.port))
         else:
-            sock.connect((self.server2, self.port2))
+            sock.connect((self.instance.host2, self.instance.port2))
         self._hello(sock)
 
         comms.send_message(sock, "<Status/>".encode())
@@ -367,7 +374,7 @@ class MineRLEnv(gym.Env):
         Likely to throw communication errors so wrap in exception handler.
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.server2, self.port2))
+        sock.connect((self.instance.host2, self.instance.port2))
         self._hello(sock)
 
         comms.send_message(sock, ("<Exit>" + self._get_token() + "</Exit>").encode())
@@ -415,7 +422,7 @@ class MineRLEnv(gym.Env):
 
     def _find_server(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.server, self.port))
+        sock.connect((self.instance.host, self.instance.port))
         self._hello(sock)
 
         start_time = time.time()
