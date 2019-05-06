@@ -23,6 +23,7 @@ import os
 import socket
 import time
 import random
+import json
 import numpy as np
 from minerl.env import comms
 from minerl.env.commands import CommandParser
@@ -33,7 +34,8 @@ from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager
 from minerl.env.spaces import ActionSpace, VisualObservationSpace
 
-
+import logging
+logger = logging.getLogger(__name__)
 
 malmo_version="0.37.0"
 missions_dir=os.path.join(os.path.dirname(__file__), 'missions')
@@ -236,11 +238,17 @@ class MineRLEnv(gym.Env):
     def _peek_obs(self):
         obs = None
         start_time = time.time()
-        while not self.done and (obs is None or len(obs) == 0):
+        if not self.done:
+            logger.debug("Peeking the client.")
             peek_message = "<Peek/>"
             comms.send_message(self.client_socket, peek_message.encode())
             obs = comms.recv_message(self.client_socket)
             info = comms.recv_message(self.client_socket).decode('utf-8')
+            if info:
+                    info = json.loads(info)
+            else:
+                info = {}
+            
             reply = comms.recv_message(self.client_socket)
             done, = struct.unpack('!b', reply)
             self.done = done == 1
@@ -280,10 +288,8 @@ class MineRLEnv(gym.Env):
         withturnkey = self.step_options < 2
         # print(withturnkey)
         withinfo = self.step_options == 0 or self.step_options == 2
-
-        while not self.done and \
-                ((obs is None or len(obs) == 0) or
-                 (withinfo and info is None) or turn):
+        
+        if not self.done:
             step_message = "<Step" + str(self.step_options) + ">" + \
                            self.action_space[action] + \
                            "</Step" + str(self.step_options) + " >"
@@ -301,6 +307,10 @@ class MineRLEnv(gym.Env):
             self.done = done == 1
             if withinfo:
                 info = comms.recv_message(self.client_socket).decode('utf-8')
+                if info:
+                    info = json.loads(info)
+                else:
+                    info = {}
 
             turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
             # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))

@@ -14,16 +14,13 @@ import coloredlogs
 coloredlogs.install(logging.DEBUG)
 
 
-#import minerl.env.bootstrap
-#minerl.env.bootstrap._check_port_avail = lambda _,__: True
-
 NUM_EPISODES=10
 
 def main():
     """
     Tests running a simple environment.
     """
-    env = gym.make('MineRLNavigateDense-v0')
+    envs = [gym.make('MineRLTreechop-v0') for _ in range(3)]
     
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []
@@ -34,18 +31,16 @@ def main():
         for act in actions:
             obs, reward, done, info = env.step(
                 act)
-            print("Step reward {}".format(reward))
             
-            
-            xpos.append([info["XPos"], info["YPos"], info["ZPos"], info["Yaw"], reward])
+            correct_info = json.loads(info)
+            xpos.append([correct_info["XPos"], correct_info["YPos"], correct_info["ZPos"], correct_info["Yaw"]])
         xposes.append(xpos)
-
+    
 
     y = np.array(xposes)
     plt.plot(y[:,:,0].T, y[:,:,2].T)
-    plt.plot(y[:,:,-1].T)
     plt.show()
     print("Demo complete.")
-
+    
 if __name__ == "__main__":
     main()

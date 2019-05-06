@@ -17,6 +17,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 import os
+import sys
 import pathlib
 import psutil
 import subprocess
@@ -123,8 +124,11 @@ class InstanceManager:
     @staticmethod
     def _is_display_port_taken(port, x11_path):
         # Returns a display port that is unused
-        xs = os.listdir(x11_path)
-        return ('X' + str(port)) in xs
+        if 'nux' or 'nix' in sys.platform:
+            xs = os.listdir(x11_path)
+            return ('X' + str(port)) in xs
+        else:
+            return False
 
     @classmethod
     def _port_in_instance_pool(cls, port):
@@ -176,7 +180,7 @@ class InstanceManager:
                 pass
 
     @staticmethod
-    def _reap_process_and_children(process, timeout=3):
+    def _reap_process_and_children(process, timeout=5):
         "Tries hard to terminate and ultimately kill all the children of this process."
         def on_terminate(proc):
             logger.info("Minecraft process {} terminated with exit code {}".format(proc, proc.returncode))
@@ -251,13 +255,21 @@ class InstanceManager:
                     parent_pid, self.minecraft_process.pid)
                 
                 # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
+                lines = []
+                client_ready = False
+                server_ready = False
                 while True:
-                    line = self.minecraft_process.stdout.readline()
-                    logger.debug(line)
+                    line = self.minecraft_process.stdout.readline().decode('utf-8')
+                    lines.append(line)
+                    logger.debug("\n".join(line.split("\n")[:-1]))
                     if not line:
                         raise EOFError("Minecraft process finished unexpectedly")
-                    if b"CLIENT enter state: DORMANT" in line:
+                    client_ready =  "CLIENT enter state: DORMANT" in line
+                    server_ready =  "SERVER enter state: DORMANT" in line
+                    if  client_ready:
                         break
+                    
+                
                 logger.info("Minecraft process ready")
                 # supress entire output, otherwise the subprocess will block
                 # NB! there will be still logs under Malmo/Minecraft/run/logs
@@ -275,6 +287,10 @@ class InstanceManager:
                     try:
                         while self.running:
                             line = self.minecraft_process.stdout.readline()
+                            linestr = line.decode('utf-8')
+                            linestr = "\n".join(linestr.split("\n")[:-1])
+                            if 'STDERR' in linestr or 'ERROR' in linestr:
+                                logger.error(linestr)
                             mine_log.write(line)
                             mine_log.flush()
                     finally:

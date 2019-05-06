@@ -35,7 +35,19 @@ register(
 )
 
 
+register(
+    id='MineRLNavigateDense-v0',
+    entry_point='minerl.env:MineRLEnv',
+    kwargs={'xml': os.path.join(missions_dir, 'navigationDense.xml')},
+    max_episode_steps=6000,
+)
 
-__all__ = ['ActionSpace', 'StringActionSpace', 'VisualObservationSpace', 'Env', 'make']
+
+register(
+    id='MineRLNavigate-v0',
+    entry_point='minerl.env:MineRLEnv',
+    kwargs={'xml': os.path.join(missions_dir, 'navigation.xml')},
+    max_episode_steps=6000,
+)
 
 

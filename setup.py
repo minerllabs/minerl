@@ -37,7 +37,12 @@ def download(branch=malmo_branch, build=True, installdir=malmo_dir):
     if os.path.exists(malmo_dir):
         # TODO CHECK TO SEE IF THE VERSION MATCHES THE PYTHON VERSION!
         # TODO CHECKT OSEE THAT DECOMP WORKSPACE HAS BEEN SET UP (write a finished txt)
-        return
+
+        cwd = os.getcwd()
+        os.chdir(installdir)
+        subprocess.check_call(["git", "pull"])
+        os.chdir(cwd)
+        return setup(build=build, installdir=installdir)
 
     # If it exists lets set up the env.
     # TODO: Convert to using loggers.
