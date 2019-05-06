@@ -351,8 +351,10 @@ class InstanceManager:
 
             logger.info("Starting Minecraft process: " + str(cmd))
             # print(cmd)
+
             if replaceable:
                 cmd.append('-replaceable')
+            preexec_fn = os.setsid if 'linux' in str(sys.platform) else None
             minecraft_process = subprocess.Popen(cmd,
                 cwd=InstanceManager.MINECRAFT_DIR,
                 stdout=subprocess.PIPE,
