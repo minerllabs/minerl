@@ -34,10 +34,9 @@ def main():
         for act in actions:
             obs, reward, done, info = env.step(
                 act)
-            print("Step reward {}".format(reward))
             
-            
-            xpos.append([info["XPos"], info["YPos"], info["ZPos"], info["Yaw"], reward])
+            if info and "XPos" in info:
+                xpos.append([info["XPos"], info["YPos"], info["ZPos"], info["Yaw"], reward])
         xposes.append(xpos)
 
 

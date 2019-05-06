@@ -124,11 +124,11 @@ class InstanceManager:
     @staticmethod
     def _is_display_port_taken(port, x11_path):
         # Returns a display port that is unused
-        if 'nux' or 'nix' in sys.platform:
-            xs = os.listdir(x11_path)
-            return ('X' + str(port)) in xs
-        else:
-            return False
+        # if 'nux' or 'nix' in sys.platform:
+        #     xs = os.listdir(x11_path)
+        #     return ('X' + str(port)) in xs
+        # else:
+        return False
 
     @classmethod
     def _port_in_instance_pool(cls, port):
