@@ -360,7 +360,7 @@ class InstanceManager:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 # use process group, see http://stackoverflow.com/a/4791612/18576
-                preexec_fn=os.setsid
+                preexec_fn=preexec_fn
             )
             return minecraft_process
 
