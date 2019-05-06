@@ -168,8 +168,10 @@ class DataPipeline:
                 vec = np.load(numpy_path, mmap_mode='r', allow_pickle=False)
                 num_states = vec.shape[0]
             else:
-                vec = np.load(numpy_path, allow_pickle=False)
-                num_states = vec['num_states']
+                print("Loading npz file: ", numpy_path)
+                [action_vec, reward_vec, info_vec] = np.load(numpy_path, allow_pickle=False)
+                num_states = min([len(action_vec[key]) for key in action_vec])
+                print("Found", num_states, "states")
 
 
             # Rendered Frames
@@ -204,20 +206,26 @@ class DataPipeline:
                         reset = False
                         pass
                     try:
-                        # Construct a single observation object.
-                        vf = (np.clip(frame[:, :, ::-1], 0, 255))
-                        if vectorized:
-                            uf = vec[frame_num]
-                        else:
-                            # for key in vec:
-                            #     if isinstance(vec[key], np.ndarray):
-                            #         if len(np.shape(vec[key])) > 1:
-                            #             print(vec[key])
-                            #         else:
-                            #             print("bad key is ", key)
-                            uf = {key: vec[key][frame_num] for key in vec.keys() if isinstance(vec[key], np.ndarray) and len(np.shape(vec[key])) > 1}
 
-                        batches.append([vf, uf])
+                        if vectorized:
+                            batches.append(vec[frame_num])
+                        else:
+                            # Compute actions
+                            act = {key: action_vec[key][frame_num] for key in action_vec.keys()
+                                   if isinstance(action_vec[key], np.ndarray) and len(np.shape(action_vec[key])) > 1}
+
+                            # Construct a single observation object.
+                            obs = (np.clip(frame[:, :, ::-1], 0, 255))
+
+                            # Calculate rewards
+                            rew = {key: reward_vec[key][frame_num] for key in reward_vec.keys()
+                                   if isinstance(reward_vec[key], np.ndarray) and len(np.shape(reward_vec[key])) > 1}
+
+                            # Create auxilarry info
+                            info = {key: info_vec[key][frame_num] for key in info_vec.keys()
+                                    if isinstance(info_vec[key], np.ndarray) and len(np.shape(info_vec[key])) > 1}
+
+                            batches.append([act, obs, rew, info])
                     except Exception as e:
                         # If there is some error constructing the batch we just start a new sequence
                         # at the point that the exception was observed

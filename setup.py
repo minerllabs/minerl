@@ -38,7 +38,7 @@ def download(branch=malmo_branch, build=True, installdir=malmo_dir):
         # TODO CHECK TO SEE IF THE VERSION MATCHES THE PYTHON VERSION!
         # TODO CHECKT OSEE THAT DECOMP WORKSPACE HAS BEEN SET UP (write a finished txt)
         return
-    
+
     # If it exists lets set up the env.
     # TODO: Convert to using loggers.
     print("❤️❤️❤️ Hello! Welcome to MineRL Env ❤️❤️❤️")

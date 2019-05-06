@@ -14,6 +14,9 @@ import coloredlogs
 coloredlogs.install(logging.DEBUG)
 
 
+import minerl.env.bootstrap
+minerl.env.bootstrap._check_port_avail = lambda _,__: True
+
 NUM_EPISODES=10
 
 def main():
@@ -35,12 +38,12 @@ def main():
             correct_info = json.loads(info)
             xpos.append([correct_info["XPos"], correct_info["YPos"], correct_info["ZPos"], correct_info["Yaw"]])
         xposes.append(xpos)
-    
+
 
     y = np.array(xposes)
     plt.plot(y[:,:,0].T, y[:,:,2].T)
     plt.show()
     print("Demo complete.")
-    
+
 if __name__ == "__main__":
     main()
