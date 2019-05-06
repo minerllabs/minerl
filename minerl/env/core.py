@@ -39,8 +39,9 @@ from minerl.env.spaces import ActionSpace, VisualObservationSpace
 import logging
 logger = logging.getLogger(__name__)
 
-malmo_version="0.37.0"
-missions_dir=os.path.join(os.path.dirname(__file__), 'missions')
+malmo_version = "0.37.0"
+missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
+
 
 
 class EnvException(Exception):
