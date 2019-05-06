@@ -31,22 +31,6 @@ register(
     reward_threshold=64.0,
 )
 
-
-register(
-    id='MineRLNavigateDense-v0',
-    entry_point='minerl.env:MineRLEnv',
-    kwargs={'xml': os.path.join(missions_dir, 'navigationDense.xml')},
-    max_episode_steps=6000,
-)
-
-register(
-    id='MineRLNavigateDenseFixedMap-v0',
-    entry_point='minerl.env:MineRLEnv',
-    kwargs={'xml': os.path.join(missions_dir, 'navigationDenseFixedMap.xml')},
-    max_episode_steps=6000,
-)
-
-
 register(
     id='MineRLNavigate-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -54,4 +38,9 @@ register(
     max_episode_steps=6000,
 )
 
-
+register(
+    id='MineRLNavigateDense-v0',
+    entry_point='minerl.env:MineRLEnv',
+    kwargs={'xml': os.path.join(missions_dir, 'navigationDense.xml')},
+    max_episode_steps=6000,
+)

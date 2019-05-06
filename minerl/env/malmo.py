@@ -268,8 +268,8 @@ class InstanceManager:
                     server_ready =  "SERVER enter state: DORMANT" in line
                     if  client_ready:
                         break
-                    
-                
+
+
                 logger.info("Minecraft process ready")
                 # supress entire output, otherwise the subprocess will block
                 # NB! there will be still logs under Malmo/Minecraft/run/logs
