@@ -42,6 +42,13 @@ register(
     max_episode_steps=6000,
 )
 
+register(
+    id='MineRLNavigateDenseFixedMap-v0',
+    entry_point='minerl.env:MineRLEnv',
+    kwargs={'xml': os.path.join(missions_dir, 'navigationDenseFixedMap.xml')},
+    max_episode_steps=6000,
+)
+
 
 register(
     id='MineRLNavigate-v0',
