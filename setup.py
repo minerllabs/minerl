@@ -1,6 +1,8 @@
 import os
 from os.path import isdir
 
+import subprocess
+import pathlib
 import setuptools
 from setuptools.command.develop import develop
 from setuptools.command.install import install
@@ -11,7 +13,7 @@ with open("requirements.txt", "r") as fh:
     requirements = fh.read()
 
 malmo_branch="minerl"
-
+malmo_version="0.37.0"
 
 # First download and build Malmo!
 # We need to assert that Malmo is in the script directory. There HAS to be a better way to do this.
@@ -82,6 +84,7 @@ def setup(build=True, installdir=malmo_dir):
     return minecraft_dir
 
 
+download()
 
 def package_files(directory):
     paths = []
