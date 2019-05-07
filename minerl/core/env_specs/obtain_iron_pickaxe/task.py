@@ -1,29 +1,15 @@
 from typing import List
 
-import herobraine
-import herobraine.hero.handlers as handlers
-from herobraine.task import Task
+import minerl.core.handlers as handlers
+from minerl.core.env_specs.env_spec import EnvSpec
 
 
-class ObtainIronPickaxe(Task):
-    def __init__(self, name, resolution, episode_length, ms_per_tick, no_pitch=False):
-        self.resolution = tuple(resolution)
-        self.ms_per_tick = ms_per_tick
-        self.episode_len = episode_length
-        self.no_pitch = no_pitch
-        super().__init__(name)
-
-
-    def get_filter(self, source):
-        pass
-
-    def get_mission_file(self) -> str:
-        return "./obtain_iron_pickaxe.xml"
+class ObtainIronPickaxe(EnvSpec):
+    def __init__(self, resolution):
+        super().__init__(resolution)
 
     def create_mission_handlers(self) -> List[herobraine.hero.AgentHandler]:
         return [
-            handlers.TickHandler(self.ms_per_tick),
-            handlers.EpisodeLength(self.episode_len),
             handlers.RewardForCollectingItemsDict({
                 "log" : 1,
                 "planks" : 2,

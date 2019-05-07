@@ -1,4 +1,4 @@
-rom typing import List
+from typing import List
 
 from minerl.core.env_specs.env_spec import EnvSpec
 
