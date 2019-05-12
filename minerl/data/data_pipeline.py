@@ -221,7 +221,7 @@ class DataPipeline:
                             rew = {key: reward_vec[key][frame_num] for key in reward_vec.keys()
                                    if isinstance(reward_vec[key], np.ndarray) and len(np.shape(reward_vec[key])) > 1}
 
-                            # Create auxilarry info
+                            # Create auxiliary info
                             info = {key: info_vec[key][frame_num] for key in info_vec.keys()
                                     if isinstance(info_vec[key], np.ndarray) and len(np.shape(info_vec[key])) > 1}
 
