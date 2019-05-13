@@ -51,7 +51,7 @@ class DataPipeline:
         :return:
         """
         if max_sequence_len is not None and max_sequence_len > 1:
-            raise NotImplementedError("Drawing batches of sequence is not supported")
+            raise NotImplementedError("Drawing batches of consecutive frames is not supported")
 
         logger.info("Starting batch iterator on {}".format(self.data_dir))
         self.data_list = self._get_all_valid_recordings(self.data_dir)
@@ -64,11 +64,10 @@ class DataPipeline:
         files = [(file_dir, self.worker_batch_size, data_queue) for file_dir in self.data_list]
         map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files)
 
-        # itterables = self.processing_pool.map_async(DataPipeline._generate_data_pyfunc, files)
+        # iterables = self.processing_pool.map_async(DataPipeline._generate_data_pyfunc, files)
 
         # Grab self.number_of_workers generators from the processing_pool
-        # active_workers = itterables[:self.number_of_workers]
-
+        # active_workers = iterables[:self.number_of_workers]
 
         random_queue = PriorityQueue(maxsize=pool_size)
 

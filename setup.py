@@ -48,7 +48,7 @@ def download(branch=malmo_branch, build=True, installdir=malmo_dir):
 
     # If it exists lets set up the env.
     # TODO: Convert to using loggers.
-    print("❤️❤️❤️ Hello! Welcome to MineRL Env ❤️❤️❤️")
+    print("<3 <3  Hello! Welcome to MineRL Env <3 <3")
     print("MineRL is not yet setup for this package install! Downloading and installing Malmo backend.")
 
     try:
