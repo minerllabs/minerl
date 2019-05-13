@@ -26,7 +26,6 @@ import random
 import json
 import numpy as np
 from minerl.env import comms
-from minerl.env.commands import CommandParser
 import uuid
 import gym
 import gym.spaces
@@ -58,7 +57,7 @@ class MineRLEnv(gym.Env):
 
     metadata = {'render.modes': []}
     
-    def __init__(self, xml):
+    def __init__(self, xml, observation_space, action_space):
         self.action_space = None
         self.observation_space = None
 
@@ -110,8 +109,6 @@ class MineRLEnv(gym.Env):
         
         # Bootstrap the environment if it hasn't been.
         role = 0
-        if action_filter is None:
-            action_filter = {"move", "turn", "use", "attack"}
 
         if not xml.startswith('<Mission'):
             i = xml.index("<Mission")
@@ -126,14 +123,8 @@ class MineRLEnv(gym.Env):
         else:
             self.exp_uid = exp_uid
 
-        command_parser = CommandParser(action_filter)
-        commands = command_parser.get_commands_from_xml(self.xml, self.role)
-        actions = command_parser.get_actions(commands)
-
-        if action_space:
-            self.action_space = action_space
-        else:
-            self.action_space = ActionSpace(actions)
+        self.action_space = action_space
+        self.observation_space = observation_space
 
         # Force single agent
         self.agent_count = 1
@@ -188,15 +179,80 @@ class MineRLEnv(gym.Env):
         video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         assert len(video_producers) == self.agent_count
         video_producer = video_producers[self.role]
+        # Todo: Deprecate width, height, and POV forcing.
         self.width = int(video_producer.find(self.ns + 'Width').text)
         self.height = int(video_producer.find(self.ns + 'Height').text)
         want_depth = video_producer.attrib["want_depth"]
         self.depth = 4 if want_depth is not None and (want_depth == "true" or want_depth == "1" or want_depth is True) else 3
-        # print(str(self.width) + "x" + str(self.height) + "x" + str(self.depth))
-        self.observation_space = VisualObservationSpace(self.width, self.height, self.depth)
         # print(etree.tostring(self.xml))
 
         self.has_init = True
+
+    def _process_observation(self, pov, info):
+        """
+        Process observation into the proper dict space.
+        """
+        pov = np.frombuffer(pov, dtype=np.uint8)
+
+        if pov is None or len(pov) == 0:
+            pov = np.zeros((self.height, self.width, self.depth), dtype=np.int8)
+
+        if info:
+            info = json.loads(info)
+        else:
+            info = {}
+
+        # Process Info: (HotFix until updated in Malmo.)
+        if 'inventory' in info and 'inventory' in self.observation_space:
+            items = self.observation_space['inventory'].keys()
+            inventory_dict = {k: 0 for k in self.observation_space['inventory']}
+            # TODO change to map
+            for stack in info['inventory']:
+                if 'type' in stack and 'quantity' in stack:
+                    try:
+                        inventory_dict[stack['type']] += stack['quantity'] / 64
+                    except ValueError:
+                        continue
+            info['inventory'] = inventory_dict
+        else:
+            self.logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
+            self.logger.warning(obs)
+
+        return item_vec
+
+        obs_dict = {
+            'pov': pov
+        }
+        for k in self.observation_space:
+            if k is not 'pov':
+                if not (k in  info):
+                    info[k] = self.observation_space[k].sample()*0 # get the zero obseration
+                    logger.warning("Missing observation {} in Malmo".format(k))
+                
+                obs_dict[k] = info[k]
+
+        return obs_dict
+
+    def _process_action(self, action_in) -> str:
+        """
+        Process the actions into a proper command.
+        """
+        action_str = []
+        for act in action_in:
+            # Process enums.
+            if isinstance(self.action_space[act], minerl.env.spaces.Enum):
+                if isinstance(act[action_in], int):
+                    act[action_in] = self.action_space[act][action_in[act]]
+                else:
+                    assert isinstance(act[action_in], str), "Enum action {} must be str or int".format(act)
+                    assert act[action_in] in self.action_space[act].values, "Invalid value for enum action {}".format(act)
+                    act[action_in] = act
+
+            action_str.append(
+                "{} {}".format(act, str(action_in[act])))
+
+        return action_in
+
 
     @staticmethod
     def _hello(sock):
@@ -244,10 +300,7 @@ class MineRLEnv(gym.Env):
             comms.send_message(self.client_socket, peek_message.encode())
             obs = comms.recv_message(self.client_socket)
             info = comms.recv_message(self.client_socket).decode('utf-8')
-            if info:
-                    info = json.loads(info)
-            else:
-                info = {}
+
             
             reply = comms.recv_message(self.client_socket)
             done, = struct.unpack('!b', reply)
@@ -259,11 +312,7 @@ class MineRLEnv(gym.Env):
                     raise MissionInitException('too long waiting for first observation')
                 time.sleep(0.1)
 
-            obs = np.frombuffer(obs, dtype=np.uint8)
-
-        if obs is None or len(obs) == 0:
-            obs = np.zeros((self.height, self.width, self.depth), dtype=np.int8)
-        return obs, info
+        return self._process_observation(obs,info)
 
     def _quit_episode(self):
         comms.send_message(self.client_socket, "<Quit/>".encode())
@@ -288,10 +337,12 @@ class MineRLEnv(gym.Env):
         withturnkey = self.step_options < 2
         # print(withturnkey)
         withinfo = self.step_options == 0 or self.step_options == 2
+
+        malmo_command =  = self._process_action(action)
         
         if not self.done:
             step_message = "<Step" + str(self.step_options) + ">" + \
-                           self.action_space[action] + \
+                           malmo_command + \
                            "</Step" + str(self.step_options) + " >"
             t0 = time.time()
             comms.send_message(self.client_socket, step_message.encode())
@@ -307,10 +358,8 @@ class MineRLEnv(gym.Env):
             self.done = done == 1
             if withinfo:
                 info = comms.recv_message(self.client_socket).decode('utf-8')
-                if info:
-                    info = json.loads(info)
-                else:
-                    info = {}
+            
+            out_obs = self._process_observation(obs, info)
 
             turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
             # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
@@ -325,9 +374,8 @@ class MineRLEnv(gym.Env):
             # if (obs is None or len(obs) == 0) or turn:
                 # time.sleep(0.1)
             # print("turnkeyprocessor {}".format(time.time() - t0)); t0 = time.time()
-            obs = np.frombuffer(obs, dtype=np.uint8)
             # print("creating obs from buffer {}".format(time.time() - t0)); t0 = time.time()
-        return obs, reward, self.done, info
+        return out_obs, reward, self.done, {}
 
     def close(self):
         """gym api close"""

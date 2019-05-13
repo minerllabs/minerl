@@ -1,6 +1,8 @@
+import random
+from typing import List
+
 import gym
 import gym.spaces
-import random
 import numpy as np
 
 
@@ -11,6 +13,26 @@ class StringActionSpace(gym.spaces.Discrete):
 
     def __getitem__(self, action):
         return action
+
+
+
+class Enum(gym.spaces.Discrete):
+    """
+    An enum space
+    """
+    def __init__(self, values : List[str]):
+        super().__init__(self, len(values))
+        self.values = values
+
+    def sample(self):
+        return self.values[random.randint(1, len(self.actions)) - 1]
+
+    def __getitem__(self, action):
+        return index(self.values.index(action))
+
+    def __len__(self):
+        return len(self.values)
+
 
 
 class ActionSpace(gym.spaces.Discrete):
@@ -29,11 +51,3 @@ class ActionSpace(gym.spaces.Discrete):
         return len(self.actions)
 
 
-class VisualObservationSpace(gym.spaces.Box):
-    """Space for visual observations: width x height x depth as a flat array.
-    Where depth is 3 or 4 if encoding scene depth.
-    """
-    def __init__(self, width, height, depth):
-        gym.spaces.Box.__init__(self,
-                                low=np.iinfo(np.int8).min, high=np.iinfo(np.int8).max,
-                                shape=(height, width, depth), dtype=np.int8)

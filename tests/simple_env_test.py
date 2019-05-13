@@ -17,7 +17,7 @@ coloredlogs.install(logging.DEBUG)
 #import minerl.env.bootstrap
 #minerl.env.bootstrap._check_port_avail = lambda _,__: True
 
-NUM_EPISODES=10
+NUM_EPISODES=5
 
 def main():
     """
@@ -34,7 +34,8 @@ def main():
         for act in actions:
             obs, reward, done, info = env.step(
                 act)
-            
+            if len(xpos) > 150:
+                break
             if info and "XPos" in info:
                 xpos.append([info["XPos"], info["YPos"], info["ZPos"], info["Yaw"], reward])
         xposes.append(xpos)
@@ -42,9 +43,17 @@ def main():
 
     y = np.array(xposes)
     plt.plot(y[:,:,0].T, y[:,:,2].T)
+
+    plt.show()
+
     plt.plot(y[:,:,-1].T)
     plt.show()
+    # from IPython import embed; embed()
+    # x1, x2 = y[:,:,-1].T
     print("Demo complete.")
 
 if __name__ == "__main__":
     main()
+
+
+
