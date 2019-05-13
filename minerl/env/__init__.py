@@ -29,10 +29,7 @@ import numpy as np
 
 import gym.spaces
 
-   
-
-# TODO: REGISTER ENVS.
-# gym
+  
 register(
     id='MineRLTreechop-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -87,7 +84,7 @@ register(
 )
 
 register(
-    id='MineRLNavigateDenseFixedMap-v0',
+    id='MineRLNavigate-v0',
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'navigationDenseFixedMap.xml'),
@@ -114,9 +111,8 @@ register(
     max_episode_steps=6000,
 )
 
-
 register(
-    id='MineRLNavigate-v0',
+    id='MineRLNavigateDense-v0',
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'navigation.xml'),

@@ -30,14 +30,18 @@ from minerl.env import comms
 import uuid
 import gym
 import gym.spaces
+import gym.envs.registration
+
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager
 
 import logging
 logger = logging.getLogger(__name__)
 
-malmo_version="0.37.0"
-missions_dir=os.path.join(os.path.dirname(__file__), 'missions')
+malmo_version = "0.37.0"
+missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
+
+
 
 class EnvException(Exception):
     def __init__(self, message):
@@ -525,3 +529,9 @@ class MineRLEnv(gym.Env):
 
 def make():
     return Env()
+
+
+def register(id, **kwargs):
+    # TODO create doc string based on registered envs
+    return gym.envs.register(id, **kwargs)
+
