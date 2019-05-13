@@ -87,10 +87,10 @@ class MineRLEnv(gym.Env):
         self.has_init = False
         self.instance = None
 
-        self.init()
+        self.init(observation_space, action_space)
 
-    def init(self,  exp_uid=None, episode=0,
-             action_filter=None, resync=0, step_options=0, action_space=None):
+    def init(self,  observation_space, action_space, exp_uid=None, episode=0,
+             action_filter=None, resync=0, step_options=0):
         """"Initialize a Malmo environment.
             xml - the mission xml.
             port - the MalmoEnv service's port.

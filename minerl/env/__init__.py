@@ -84,7 +84,7 @@ register(
 )
 
 register(
-    id='MineRLNavigate-v0',
+    id='MineRLNavigateDenseFixed-v0',
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'navigationDenseFixedMap.xml'),
@@ -112,7 +112,7 @@ register(
 )
 
 register(
-    id='MineRLNavigateDense-v0',
+    id='MineRLNavigate-v0',
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'navigation.xml'),
