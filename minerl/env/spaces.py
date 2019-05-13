@@ -20,8 +20,8 @@ class Enum(gym.spaces.Discrete):
     """
     An enum space
     """
-    def __init__(self, values : List[str]):
-        super().__init__(self, len(values))
+    def __init__(self, *values : List[str]):
+        super().__init__(len(values))
         self.values = values
 
     def sample(self):

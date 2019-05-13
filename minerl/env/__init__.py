@@ -22,9 +22,10 @@ import gym
 # Perform the registration.
 from gym.envs.registration import register
 # from gym.spaces import Box
+from minerl.env.spaces  import Enum
 from minerl.env.core import MineRLEnv, missions_dir
-from minerl.env.spaces import (ActionSpace, StringActionSpace,
-                               VisualObservationSpace)
+
+import numpy as np
 
 import gym.spaces
 
@@ -36,12 +37,12 @@ register(
     id='MineRLTreechop-v0',
     entry_point='minerl.env:MineRLEnv',
     kwargs={
-        'xml': os.path.join(missions_dir, 'treechop.xml')
+        'xml': os.path.join(missions_dir, 'treechop.xml'),
         'observation_space': gym.spaces.Dict({
             'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8)
         }),
         'action_space': gym.spaces.Dict({
-            "forward": : gym.spaces.Discrete(2), 
+            "forward": gym.spaces.Discrete(2), 
             "back": gym.spaces.Discrete(2), 
             "left": gym.spaces.Discrete(2), 
             "right": gym.spaces.Discrete(2), 
@@ -69,7 +70,7 @@ register(
             })
         }),
         'action_space': gym.spaces.Dict({
-            "forward": : gym.spaces.Discrete(2), 
+            "forward": gym.spaces.Discrete(2), 
             "back": gym.spaces.Discrete(2), 
             "left": gym.spaces.Discrete(2), 
             "right": gym.spaces.Discrete(2), 
@@ -79,7 +80,7 @@ register(
             "attack" : gym.spaces.Discrete(2), 
             "pitch": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32),
             "yaw": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32), 
-            "placeblock": minerl.env.spaces.Enum('none', 'dirt')
+            "placeblock": spaces.Enum('none', 'dirt')
         })
     },
     max_episode_steps=6000,
@@ -97,7 +98,7 @@ register(
             })
         }),
         'action_space': gym.spaces.Dict({
-            "forward": : gym.spaces.Discrete(2), 
+            "forward": gym.spaces.Discrete(2), 
             "back": gym.spaces.Discrete(2), 
             "left": gym.spaces.Discrete(2), 
             "right": gym.spaces.Discrete(2), 
@@ -107,7 +108,7 @@ register(
             "attack" : gym.spaces.Discrete(2), 
             "pitch": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32),
             "yaw": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32), 
-            "placeblock": minerl.env.spaces.Enum('none', 'dirt')
+            "placeblock": spaces.Enum('none', 'dirt')
         })
     },
     max_episode_steps=6000,
@@ -126,7 +127,7 @@ register(
             })
         }),
         'action_space': gym.spaces.Dict({
-            "forward": : gym.spaces.Discrete(2), 
+            "forward": gym.spaces.Discrete(2), 
             "back": gym.spaces.Discrete(2), 
             "left": gym.spaces.Discrete(2), 
             "right": gym.spaces.Discrete(2), 
@@ -136,7 +137,7 @@ register(
             "attack" : gym.spaces.Discrete(2), 
             "pitch": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32),
             "yaw": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32), 
-            "placeblock": minerl.env.spaces.Enum('none', 'dirt')
+            "placeblock": spaces.Enum('none', 'dirt')
         })
     },
     max_episode_steps=6000,

@@ -24,6 +24,7 @@ import socket
 import time
 import random
 import json
+import minerl.env.spaces
 import numpy as np
 from minerl.env import comms
 import uuid
@@ -31,7 +32,6 @@ import gym
 import gym.spaces
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager
-from minerl.env.spaces import ActionSpace, VisualObservationSpace
 
 import logging
 logger = logging.getLogger(__name__)
@@ -338,7 +338,7 @@ class MineRLEnv(gym.Env):
         # print(withturnkey)
         withinfo = self.step_options == 0 or self.step_options == 2
 
-        malmo_command =  = self._process_action(action)
+        malmo_command =  self._process_action(action)
         
         if not self.done:
             step_message = "<Step" + str(self.step_options) + ">" + \
