@@ -25,10 +25,10 @@ class Enum(gym.spaces.Discrete):
         self.values = values
 
     def sample(self):
-        return self.values[random.randint(1, len(self.actions)) - 1]
+        return self.values[random.randint(0, len(self.values)-1)]
 
     def __getitem__(self, action):
-        return index(self.values.index(action))
+        return index(self.values[action])
 
     def __len__(self):
         return len(self.values)

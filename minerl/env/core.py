@@ -17,25 +17,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-from lxml import etree
-import struct
-import os
-import socket
-import time
-import random
 import json
+import logging
+import os
+import random
+import socket
+import struct
+import time
+import uuid
+from typing import Iterable
+
+import gym
+import gym.envs.registration
+import gym.spaces
 import minerl.env.spaces
 import numpy as np
+from lxml import etree
 from minerl.env import comms
-import uuid
-import gym
-import gym.spaces
-import gym.envs.registration
-
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager
 
-import logging
 logger = logging.getLogger(__name__)
 
 malmo_version = "0.37.0"
@@ -207,7 +208,7 @@ class MineRLEnv(gym.Env):
             info = {}
 
         # Process Info: (HotFix until updated in Malmo.)
-        if 'inventory' in info and 'inventory' in self.observation_space:
+        if "inventory" in info  and "inventory" in self.observation_space.spaces:
             items = self.observation_space['inventory'].keys()
             inventory_dict = {k: 0 for k in self.observation_space['inventory']}
             # TODO change to map
@@ -218,44 +219,60 @@ class MineRLEnv(gym.Env):
                     except ValueError:
                         continue
             info['inventory'] = inventory_dict
-        else:
-            self.logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
-            self.logger.warning(obs)
-
-        return item_vec
+        elif  "inventory" in self.observation_space.spaces and not "inventory" in info:
+            logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
+            logger.warning(info)
 
         obs_dict = {
             'pov': pov
         }
-        for k in self.observation_space:
+
+        # Todo: Make this logic dict recursive.
+        for k in self.observation_space.spaces:
             if k is not 'pov':
                 if not (k in  info):
-                    info[k] = self.observation_space[k].sample()*0 # get the zero obseration
+                    correction = self.observation_space.spaces[k].sample()
+                    if isinstance(self.observation_space.spaces[k], gym.spaces.Dict):
+                        for k in correction:
+                            correction[k] *= 0
+                    info[k] = correction
                     logger.warning("Missing observation {} in Malmo".format(k))
                 
                 obs_dict[k] = info[k]
 
-        return obs_dict
+        return obs_dict, {}
 
     def _process_action(self, action_in) -> str:
         """
         Process the actions into a proper command.
         """
+        # print(action_in)
         action_str = []
         for act in action_in:
             # Process enums.
-            if isinstance(self.action_space[act], minerl.env.spaces.Enum):
-                if isinstance(act[action_in], int):
-                    act[action_in] = self.action_space[act][action_in[act]]
+            if isinstance(self.action_space.spaces[act], minerl.env.spaces.Enum):
+                if isinstance(action_in[act] , int):
+                    action_in[act] = self.action_space.spaces[act][action_in[act]]
                 else:
-                    assert isinstance(act[action_in], str), "Enum action {} must be str or int".format(act)
-                    assert act[action_in] in self.action_space[act].values, "Invalid value for enum action {}".format(act)
-                    act[action_in] = act
+                    assert isinstance(action_in[act], str), "Enum action {} must be str or int".format(act)
+                    assert action_in[act] in self.action_space.spaces[act].values, "Invalid value for enum action {}".format(act)
+                    action_in[act] = act
+            elif isinstance(self.action_space.spaces[act], gym.spaces.Box):
+                subact = action_in[act]
+                assert not isinstance(subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
+                if isinstance(subact, np.ndarray):
+                    subact = subact.flatten()
+                
+                if isinstance(subact, Iterable):
+                    subact = " ".join(str(x) for x in subact)
+                print(subact)
+    
+                action_in[act] = subact
 
             action_str.append(
                 "{} {}".format(act, str(action_in[act])))
 
-        return action_in
+        return "\n".join(action_str)
 
 
     @staticmethod
@@ -534,4 +551,3 @@ def make():
 def register(id, **kwargs):
     # TODO create doc string based on registered envs
     return gym.envs.register(id, **kwargs)
-

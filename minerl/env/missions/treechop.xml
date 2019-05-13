@@ -39,8 +39,15 @@
       </Inventory>
     </AgentStart>
     <AgentHandlers>
+      <ObservationFromFullInventory flat="false"/>
       <ObservationFromFullStats/>
-      <ContinuousMovementCommands turnSpeedDegs="180"/>
+      <HumanLevelCommands>
+        <ModifierList type="deny-list"> 
+          <command>moveMouse</command> 
+          <command>inventory</command> 
+        </ModifierList>
+      </HumanLevelCommands>
+      <CameraCommands/>
       <PauseCommand/>
       <RewardForCollectingItem>
         <Item  reward="1" type="log" />

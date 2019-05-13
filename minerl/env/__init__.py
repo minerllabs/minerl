@@ -36,7 +36,9 @@ register(
     kwargs={
         'xml': os.path.join(missions_dir, 'treechop.xml'),
         'observation_space': gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8)
+            'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
+            'XPos': gym.spaces.Box(low=-100000, high=100000, shape=(1,), dtype=np.int32),
+            'ZPos': gym.spaces.Box(low=-100000, high=100000, shape=(1,), dtype=np.int32)
         }),
         'action_space': gym.spaces.Dict({
             "forward": gym.spaces.Discrete(2), 
@@ -47,8 +49,7 @@ register(
             "sneak": gym.spaces.Discrete(2), 
             "sprint": gym.spaces.Discrete(2), 
             "attack" : gym.spaces.Discrete(2), 
-            "pitch": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32),
-            "yaw": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32),
+            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
         })
     },
     max_episode_steps=8000,
@@ -75,8 +76,7 @@ register(
             "sneak": gym.spaces.Discrete(2), 
             "sprint": gym.spaces.Discrete(2), 
             "attack" : gym.spaces.Discrete(2), 
-            "pitch": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32),
-            "yaw": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32), 
+            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
             "placeblock": spaces.Enum('none', 'dirt')
         })
     },
@@ -103,8 +103,7 @@ register(
             "sneak": gym.spaces.Discrete(2), 
             "sprint": gym.spaces.Discrete(2), 
             "attack" : gym.spaces.Discrete(2), 
-            "pitch": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32),
-            "yaw": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32), 
+            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
             "placeblock": spaces.Enum('none', 'dirt')
         })
     },
@@ -131,8 +130,7 @@ register(
             "sneak": gym.spaces.Discrete(2), 
             "sprint": gym.spaces.Discrete(2), 
             "attack" : gym.spaces.Discrete(2), 
-            "pitch": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32),
-            "yaw": gym.spaces.Box(low=-180, high=180, shape=(1,), dtype=np.float32), 
+            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
             "placeblock": spaces.Enum('none', 'dirt')
         })
     },
