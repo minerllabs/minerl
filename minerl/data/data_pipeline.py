@@ -169,7 +169,13 @@ class DataPipeline:
                 num_states = vec.shape[0]
             else:
                 print("Loading npz file: ", numpy_path)
+                foo = np.load(numpy_path, allow_pickle=True)
+                print(foo)
+                print([a for a in foo])
                 [action_vec, reward_vec, info_vec] = np.load(numpy_path, allow_pickle=False)
+                print('Action:', action_vec)
+                print('Reward:', reward_vec)
+                print('Info', info_vec)
                 num_states = min([len(action_vec[key]) for key in action_vec])
                 print("Found", num_states, "states")
 
