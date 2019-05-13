@@ -98,12 +98,12 @@ class DataPipeline:
 
                 r1, batch = zip(*batch_with_incr)
                 start = 0
-                frame_batch, vector_batch = zip(*batch)
+                action_batch, frame_batch, reward_batch, info_batch = zip(*batch)
 
                 # frame_batch = np.ones([batch_size, 64, 64])
                 # vector_batch = np.ones([batch_size, 125])
 
-                yield frame_batch, vector_batch
+                yield action_batch, frame_batch, reward_batch, info_batch
 
             # Move on to the next batch bool.
             # Todo: Move to a running pool, sampling as we enqueue. This is basically the random queue impl.
@@ -169,14 +169,20 @@ class DataPipeline:
                 num_states = vec.shape[0]
             else:
                 print("Loading npz file: ", numpy_path)
-                foo = np.load(numpy_path, allow_pickle=True)
-                print(foo)
-                print([a for a in foo])
-                [action_vec, reward_vec, info_vec] = np.load(numpy_path, allow_pickle=False)
-                print('Action:', action_vec)
-                print('Reward:', reward_vec)
-                print('Info', info_vec)
-                num_states = min([len(action_vec[key]) for key in action_vec])
+                state = np.load(numpy_path, allow_pickle=True)
+                print(state)
+                # print([a for a in state])
+                # print([state[a] for a in state])
+                # [action_vec, reward_vec, info_vec] = np.l oad(numpy_path, allow_pickle=False)
+                print('Action:', state['action'])
+                print('Reward:', state['reward'])
+                print('Info', [state[key] for key in state if key != 'action' and key != 'reward'])
+                action_vec = state['action']
+                reward_vec = state['reward']
+                info_dict = {key:state[key] for key in state if key != 'action' and key != 'reward'}
+
+
+                num_states = len(reward_vec)
                 print("Found", num_states, "states")
 
 
@@ -217,19 +223,21 @@ class DataPipeline:
                             batches.append(vec[frame_num])
                         else:
                             # Compute actions
-                            act = {key: action_vec[key][frame_num] for key in action_vec.keys()
-                                   if isinstance(action_vec[key], np.ndarray) and len(np.shape(action_vec[key])) > 1}
+                            act = action_vec[frame_num]
+                            # act = {key: action_vec[key][frame_num] for key in action_vec.keys()
+                            #        if isinstance(action_vec[key], np.ndarray) and len(np.shape(action_vec[key])) > 1}
 
                             # Construct a single observation object.
                             obs = (np.clip(frame[:, :, ::-1], 0, 255))
 
                             # Calculate rewards
-                            rew = {key: reward_vec[key][frame_num] for key in reward_vec.keys()
-                                   if isinstance(reward_vec[key], np.ndarray) and len(np.shape(reward_vec[key])) > 1}
+                            rew = reward_vec[frame_num]
+                            # rew = {key: reward_vec[key][frame_num] for key in reward_vec.keys()
+                            #        if isinstance(reward_vec[key], np.ndarray) and len(np.shape(reward_vec[key])) > 1}
 
                             # Create auxiliary info
-                            info = {key: info_vec[key][frame_num] for key in info_vec.keys()
-                                    if isinstance(info_vec[key], np.ndarray) and len(np.shape(info_vec[key])) > 1}
+                            info = {key: info_dict[key][frame_num] for key in info_dict.keys()
+                                    if isinstance(info_dict[key], np.ndarray) and len(np.shape(info_dict[key])) > 1}
 
                             batches.append([act, obs, rew, info])
                     except Exception as e:
@@ -238,6 +246,7 @@ class DataPipeline:
                         logger.error("Exception \'{}\' caught in the middle of parsing \"{}\" in "
                                      "a worker of the data pipeline.".format(e, file_dir))
                         reset = True
+                        return None
 
                 frame_num += 1
 
@@ -258,7 +267,7 @@ class DataPipeline:
 
         # add dir to directorylist if it contains .txt files
         if len([f for f in os.listdir(path) if f.endswith('.mp4')]) > 0:
-            if len([f for f in os.listdir(path) if f.endswith('.json')]) > 0:
+            if len([f for f in os.listdir(path) if f.endswith('.npz')]) > 0:
                 directoryList.append(path)
 
         for d in os.listdir(path):
