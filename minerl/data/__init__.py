@@ -1,15 +1,28 @@
 from minerl.data.data_pipeline import DataPipeline
-from minerl.data import download
+import minerl.data.download
 import os
 
 
-def init(data_dir=None, num_workers=1, woker_batch_size=32, minimum_size_to_dequeue=32):
+def init(data_dir=None, num_workers=1, woker_batch_size=32, minimum_size_to_dequeue=32, force_download=False):
+
+    # Ensure path is setup
     if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
         data_dir = os.environ['MINERL_DATA_ROOT']
     elif not os.path.exists(data_dir):
-        raise FileNotFoundError("Provided data directory does not exist")
+        if force_download:
+            print("Provided data directory does not exist: ", data_dir)
+            data_dir = download(data_dir)
+        else:
+            raise FileNotFoundError("Provided data directory does not exist. "
+                                    "Specify force_download=True to download default dataset")
     else:
-        raise ValueError("No data_dir provided and $MINERL_DATA_ROOT undefined")
+        if force_download:
+            print("Provided data directory does not exist: ", data_dir)
+            data_dir = download(data_dir)
+        else:
+            raise ValueError("No data_dir provided and $MINERL_DATA_ROOT undefined."
+                             "Specify force_download=True to download default dataset")
+
     d = DataPipeline(
         data_dir,
         num_workers,

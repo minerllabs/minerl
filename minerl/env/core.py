@@ -30,6 +30,8 @@ from minerl.env.commands import CommandParser
 import uuid
 import gym
 import gym.spaces
+import gym.envs.registration
+
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager
 from minerl.env.spaces import ActionSpace, VisualObservationSpace
@@ -37,8 +39,10 @@ from minerl.env.spaces import ActionSpace, VisualObservationSpace
 import logging
 logger = logging.getLogger(__name__)
 
-malmo_version="0.37.0"
-missions_dir=os.path.join(os.path.dirname(__file__), 'missions')
+malmo_version = "0.37.0"
+missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
+
+
 
 class EnvException(Exception):
     def __init__(self, message):
@@ -248,7 +252,7 @@ class MineRLEnv(gym.Env):
                     info = json.loads(info)
             else:
                 info = {}
-            
+
             reply = comms.recv_message(self.client_socket)
             done, = struct.unpack('!b', reply)
             self.done = done == 1
@@ -288,7 +292,7 @@ class MineRLEnv(gym.Env):
         withturnkey = self.step_options < 2
         # print(withturnkey)
         withinfo = self.step_options == 0 or self.step_options == 2
-        
+
         if not self.done:
             step_message = "<Step" + str(self.step_options) + ">" + \
                            self.action_space[action] + \
@@ -477,3 +481,9 @@ class MineRLEnv(gym.Env):
 
 def make():
     return Env()
+
+
+def register(id, **kwargs):
+    # TODO create doc string based on registered envs
+    return gym.envs.register(id, **kwargs)
+
