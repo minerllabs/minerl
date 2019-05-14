@@ -17,7 +17,7 @@ RECORDING_PATH = J(MINECRAFT_DIR, 'replay_recordings')
 RENDERED_VIDEO_PATH = J(MINECRAFT_DIR, 'replay_videos')
 RENDERED_LOG_PATH  =  J(MINECRAFT_DIR,  'replay_logs')
 FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
-LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')  # RAH
+LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')
 #Error directories
 ERROR_PARENT_DIR = J(WORKING_DIR, 'error_logs')
 EOF_EXCEP_DIR = J(ERROR_PARENT_DIR, 'end_of_file_reached')
@@ -124,3 +124,6 @@ if __name__ == "__main__":
             merge_dirs(sys.argv[1], sys.argv[2], sys.argv[3])
         else:
             print('Quiting')
+    else:
+        print('Useage: <path_to_videos> <path_to_jsons> <result_path>')
+
