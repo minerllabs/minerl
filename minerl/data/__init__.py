@@ -3,7 +3,7 @@ import minerl.data.download
 import os
 
 
-def init(data_dir=None, num_workers=1, woker_batch_size=32, minimum_size_to_dequeue=32, force_download=False):
+def make(environment, data_dir=None, num_workers=1, worker_batch_size=32, minimum_size_to_dequeue=32, force_download=False):
 
     # Ensure path is setup
     if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
@@ -24,9 +24,9 @@ def init(data_dir=None, num_workers=1, woker_batch_size=32, minimum_size_to_dequ
                              "Specify force_download=True to download default dataset")
 
     d = DataPipeline(
-        data_dir,
+        os.path.join(data_dir, environment),
         num_workers,
-        woker_batch_size,
+        worker_batch_size,
         minimum_size_to_dequeue)
     return d
 

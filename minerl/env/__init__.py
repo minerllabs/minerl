@@ -22,7 +22,7 @@ import gym
 # Perform the registration.
 from gym.envs.registration import register
 # from gym.spaces import Box
-from minerl.env.spaces  import Enum
+from minerl.env.spaces import Enum
 from minerl.env.core import MineRLEnv, missions_dir
 
 import numpy as np
@@ -48,7 +48,7 @@ register(
             "jump": gym.spaces.Discrete(2), 
             "sneak": gym.spaces.Discrete(2), 
             "sprint": gym.spaces.Discrete(2), 
-            "attack" : gym.spaces.Discrete(2), 
+            "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
         }),
     },
