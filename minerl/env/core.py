@@ -25,6 +25,7 @@ import socket
 import struct
 import time
 import uuid
+from copy import copy, deepcopy
 from typing import Iterable
 
 import gym
@@ -209,23 +210,30 @@ class MineRLEnv(gym.Env):
 
         # Process Info: (HotFix until updated in Malmo.)
         if "inventory" in info  and "inventory" in self.observation_space.spaces:
-            items = self.observation_space['inventory'].keys()
-            inventory_dict = {k: 0 for k in self.observation_space['inventory']}
-            # TODO change to map
+            inventory_spaces = self.observation_space.spaces['inventory'].spaces
+
+            items = inventory_spaces.keys()
+            inventory_dict = {k: 0 for k in inventory_spaces}
+            # TODO change to maalmo
             for stack in info['inventory']:
                 if 'type' in stack and 'quantity' in stack:
                     try:
-                        inventory_dict[stack['type']] += stack['quantity'] / 64
+                        inventory_dict[stack['type']] += stack['quantity'] 
                     except ValueError:
+                        continue
+                    except KeyError:
+                        # We only care to observe what was specified in the space.
                         continue
             info['inventory'] = inventory_dict
         elif  "inventory" in self.observation_space.spaces and not "inventory" in info:
-            logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
-            logger.warning(info)
+            # logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
+            # logger.warning(info)
+            pass
 
         obs_dict = {
             'pov': pov
         }
+
 
         # Todo: Make this logic dict recursive.
         for k in self.observation_space.spaces:
@@ -236,27 +244,27 @@ class MineRLEnv(gym.Env):
                         for k in correction:
                             correction[k] *= 0
                     info[k] = correction
-                    logger.warning("Missing observation {} in Malmo".format(k))
+                    # logger.warning("Missing observation {} in Malmo".format(k))
                 
                 obs_dict[k] = info[k]
 
-        return obs_dict, {}
+        return obs_dict
 
     def _process_action(self, action_in) -> str:
         """
         Process the actions into a proper command.
         """
-        # print(action_in)
+        action_in = deepcopy(action_in)
         action_str = []
         for act in action_in:
             # Process enums.
             if isinstance(self.action_space.spaces[act], minerl.env.spaces.Enum):
                 if isinstance(action_in[act] , int):
-                    action_in[act] = self.action_space.spaces[act][action_in[act]]
+                    action_in[act] = self.action_space.spaces[act].values[action_in[act]]
                 else:
                     assert isinstance(action_in[act], str), "Enum action {} must be str or int".format(act)
-                    assert action_in[act] in self.action_space.spaces[act].values, "Invalid value for enum action {}".format(act)
-                    action_in[act] = act
+                    assert action_in[act] in self.action_space.spaces[act].values, "Invalid value for enum action {}, {}".format(act, action_in[act])
+
             elif isinstance(self.action_space.spaces[act], gym.spaces.Box):
                 subact = action_in[act]
                 assert not isinstance(subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
@@ -265,7 +273,6 @@ class MineRLEnv(gym.Env):
                 
                 if isinstance(subact, Iterable):
                     subact = " ".join(str(x) for x in subact)
-                print(subact)
     
                 action_in[act] = subact
 
@@ -333,7 +340,7 @@ class MineRLEnv(gym.Env):
                     raise MissionInitException('too long waiting for first observation')
                 time.sleep(0.1)
 
-        return self._process_observation(obs,info)
+        return self._process_observation(obs,info), {}
 
     def _quit_episode(self):
         comms.send_message(self.client_socket, "<Quit/>".encode())

@@ -23,7 +23,7 @@ def main():
     """
     Tests running a simple environment.
     """
-    env = gym.make('MineRLTreechop-v0')
+    env = gym.make('MineRLNavigate-v0')
     
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []
@@ -31,13 +31,21 @@ def main():
         obs, info = env.reset()
         done = False
         xpos = []
-        for act in actions:
+        while not done:
+            random_act = env.action_space.sample()
+            
+            random_act['camera'] = [0, 0.05*obs["compassAngle"]]
+            random_act['back'] = 0
+            random_act['jump'] = 1
+            random_act['attack'] = 1
+            # print(random_act)
             obs, reward, done, info = env.step(
-                act)
+                random_act)
+            print(obs["compassAngle"])
             # print("Step reward {}".format(reward))
 
-            if info and "XPos" in obs:
-                xpos.append([info["XPos"], info["ZPos"]])
+            if "XPos" in obs and "ZPos" in obs:
+                xpos.append([obs["XPos"], obs["ZPos"]])
         xposes.append(xpos)
 
 
@@ -46,10 +54,6 @@ def main():
 
     plt.show()
 
-    # plt.plot(y[:,:,-1].T)
-    # plt.show()
-    # from IPython import embed; embed()
-    # x1, x2 = y[:,:,-1].T
     print("Demo complete.")
 
 if __name__ == "__main__":

@@ -38,6 +38,7 @@ def retry(func):
                     retry_exc = e
                 if i < retry_count - 1:
                     print("Pause before retry on " + str(e))
+                    # raise e
                     time.sleep(retry_timeout)
         raise retry_exc
     return wrapper

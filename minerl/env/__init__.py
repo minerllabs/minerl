@@ -37,8 +37,8 @@ register(
         'xml': os.path.join(missions_dir, 'treechop.xml'),
         'observation_space': gym.spaces.Dict({
             'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
-            'XPos': gym.spaces.Box(low=-100000, high=100000, shape=(1,), dtype=np.int32),
-            'ZPos': gym.spaces.Box(low=-100000, high=100000, shape=(1,), dtype=np.int32)
+            # 'XPos': gym.spaces.Box(low=-100000, high=100000, shape=(1,), dtype=np.int32),
+            # 'ZPos': gym.spaces.Box(low=-100000, high=100000, shape=(1,), dtype=np.int32)
         }),
         'action_space': gym.spaces.Dict({
             "forward": gym.spaces.Discrete(2), 
@@ -56,6 +56,11 @@ register(
     reward_threshold=64.0,
 )
 
+
+
+#######################
+## NAVIGATE
+#######################
 register(
     id='MineRLNavigateDense-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -64,8 +69,9 @@ register(
         'observation_space': gym.spaces.Dict({
             'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
             'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int8)
-            })
+                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int)
+            }),
+            'compassAngle': gym.spaces.Box(low=-180.0, high=180.0, shape=(1,), dtype=np.float32)
         }),
         'action_space': gym.spaces.Dict({
             "forward": gym.spaces.Discrete(2), 
@@ -76,7 +82,7 @@ register(
             "sneak": gym.spaces.Discrete(2), 
             "sprint": gym.spaces.Discrete(2), 
             "attack" : gym.spaces.Discrete(2), 
-            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
+            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32), # Pitch, Yaw
             "placeblock": spaces.Enum('none', 'dirt')
         })
     },
@@ -91,8 +97,9 @@ register(
         'observation_space': gym.spaces.Dict({
             'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
             'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int8)
-            })
+                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int)
+            }),
+            'compassAngle': gym.spaces.Box(low=-180.0, high=180.0, shape=(1,), dtype=np.float32)
         }),
         'action_space': gym.spaces.Dict({
             "forward": gym.spaces.Discrete(2), 
@@ -118,8 +125,9 @@ register(
         'observation_space': gym.spaces.Dict({
             'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
             'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int8)
-            })
+                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int)
+            }),
+            'compassAngle': gym.spaces.Box(low=-180.0, high=180.0, shape=(1,), dtype=np.float32)
         }),
         'action_space': gym.spaces.Dict({
             "forward": gym.spaces.Discrete(2), 

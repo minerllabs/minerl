@@ -18,14 +18,14 @@ class StringActionSpace(gym.spaces.Discrete):
 
 class Enum(gym.spaces.Discrete):
     """
-    An enum space
+    An enum space. It can either be the enum string or a integer.
     """
     def __init__(self, *values : List[str]):
         super().__init__(len(values))
         self.values = values
 
     def sample(self):
-        return self.values[random.randint(0, len(self.values)-1)]
+        return super().sample() 
 
     def __getitem__(self, action):
         return index(self.values[action])

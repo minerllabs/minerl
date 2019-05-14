@@ -186,10 +186,16 @@ class InstanceManager:
             logger.info("Minecraft process {} terminated with exit code {}".format(proc, proc.returncode))
 
         procs = process.children() + [process]
+        
         # send SIGTERM
         for p in procs:
             try:
-                p.terminate()
+                try:
+                    import signal
+                    os.killpg(os.getpgid(p.pid), signal.SIGTERM)
+                except:
+                    pass
+                p.kill()
             except psutil.NoSuchProcess:
                 pass
         gone, alive = psutil.wait_procs(procs, timeout=timeout, callback=on_terminate)
@@ -355,6 +361,7 @@ class InstanceManager:
             if replaceable:
                 cmd.append('-replaceable')
             preexec_fn = os.setsid if 'linux' in str(sys.platform) else None
+            # print(preexec_fn)
             minecraft_process = subprocess.Popen(cmd,
                 cwd=InstanceManager.MINECRAFT_DIR,
                 stdout=subprocess.PIPE,
