@@ -51,7 +51,6 @@ register(
             "attack" : gym.spaces.Discrete(2), 
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
         }),
-        'reward_space': gym.spaces.Box(low=0, high=64, shape=[1], dtype=np.float32)
     },
     max_episode_steps=8000,
     reward_threshold=64.0,
@@ -85,8 +84,7 @@ register(
             "attack" : gym.spaces.Discrete(2), 
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32), # Pitch, Yaw
             "placeblock": spaces.Enum('none', 'dirt')
-        }),
-        'reward_space': gym.spaces.Box(low=0, high=164, shape=[1], dtype=np.float32)
+        })
     },
     max_episode_steps=6000,
 )
@@ -115,7 +113,6 @@ register(
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
             "placeblock": spaces.Enum('none', 'dirt')
         }),
-        'reward_space': gym.spaces.Box(low=0, high=164, shape=[1], dtype=np.float32)
     },
     max_episode_steps=6000,
 )
@@ -144,7 +141,6 @@ register(
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
             "placeblock": spaces.Enum('none', 'dirt')
         }),
-        'reward_space': gym.spaces.Box(low=0, high=100, shape=[1], dtype=np.float32)
     },
     max_episode_steps=6000,
 )

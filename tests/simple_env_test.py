@@ -23,7 +23,7 @@ def main():
     """
     Tests running a simple environment.
     """
-    env = gym.make('MineRLNavigate-v0')
+    env = gym.make('MineRLNavigateDense-v0')
     
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []
@@ -31,6 +31,7 @@ def main():
         obs, info = env.reset()
         done = False
         xpos = []
+        netr = 0
         while not done:
             random_act = env.action_space.sample()
             
@@ -41,8 +42,9 @@ def main():
             # print(random_act)
             obs, reward, done, info = env.step(
                 random_act)
-            print(obs["compassAngle"])
-            # print("Step reward {}".format(reward))
+            # print(obs["compassAngle"])
+            netr += reward
+            print(netr)
 
             if "XPos" in obs and "ZPos" in obs:
                 xpos.append([obs["XPos"], obs["ZPos"]])
