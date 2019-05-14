@@ -97,12 +97,12 @@ class DataPipeline:
 
                 r1, batch = zip(*batch_with_incr)
                 start = 0
-                action_batch, frame_batch, reward_batch, info_batch = zip(*batch)
+                action_batch, frame_batch, reward_batch = zip(*batch)
 
                 # frame_batch = np.ones([batch_size, 64, 64])
                 # vector_batch = np.ones([batch_size, 125])
 
-                yield action_batch, frame_batch, reward_batch, info_batch
+                yield action_batch, frame_batch, reward_batch
 
             # Move on to the next batch bool.
             # Todo: Move to a running pool, sampling as we enqueue. This is basically the random queue impl.
@@ -173,12 +173,13 @@ class DataPipeline:
                 # print([a for a in state])
                 # print([state[a] for a in state])
                 # [action_vec, reward_vec, info_vec] = np.l oad(numpy_path, allow_pickle=False)
-                print('Action:', state['action'])
+                print('Action:', [(key,state[key]) for key in state if key.startswith('action_')])
                 print('Reward:', state['reward'])
-                print('Info', [state[key] for key in state if key != 'action' and key != 'reward'])
-                action_vec = state['action']
+                print('min:', min(state['reward']), 'max:', max(state['reward']))
+                print('Info', [(key, state[key]) for key in state if key != 'action' and key != 'reward'])
+                action_dict = {key:state[key] for key in state if key.startswith('action_')}
                 reward_vec = state['reward']
-                info_dict = {key:state[key] for key in state if key != 'action' and key != 'reward'}
+                info_dict = {key: state[key] for key in state if key.startswith('observation_')}
 
 
                 num_states = len(reward_vec)
@@ -222,12 +223,11 @@ class DataPipeline:
                             batches.append(vec[frame_num])
                         else:
                             # Compute actions
-                            act = action_vec[frame_num]
-                            # act = {key: action_vec[key][frame_num] for key in action_vec.keys()
-                            #        if isinstance(action_vec[key], np.ndarray) and len(np.shape(action_vec[key])) > 1}
+                            act = {key: action_dict[key][frame_num] for key in action_dict.keys()
+                                   if isinstance(action_dict[key], np.ndarray) and len(np.shape(action_dict[key])) > 1}
 
                             # Construct a single observation object.
-                            obs = (np.clip(frame[:, :, ::-1], 0, 255))
+                            obs = {'pov': np.clip(frame[:, :, ::-1], 0, 255)}
 
                             # Calculate rewards
                             rew = reward_vec[frame_num]
@@ -235,10 +235,10 @@ class DataPipeline:
                             #        if isinstance(reward_vec[key], np.ndarray) and len(np.shape(reward_vec[key])) > 1}
 
                             # Create auxiliary info
-                            info = {key: info_dict[key][frame_num] for key in info_dict.keys()
-                                    if isinstance(info_dict[key], np.ndarray) and len(np.shape(info_dict[key])) > 1}
+                            obs.update({key: info_dict[key][frame_num] for key in info_dict.keys()
+                                        if isinstance(info_dict[key], np.ndarray) and len(np.shape(info_dict[key])) > 1})
 
-                            batches.append([act, obs, rew, info])
+                            batches.append([act, obs, rew])
                     except Exception as e:
                         # If there is some error constructing the batch we just start a new sequence
                         # at the point that the exception was observed
