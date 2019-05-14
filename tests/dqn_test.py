@@ -31,7 +31,7 @@ def action_wrapper(action_int):
         "back": 0, 
         "left": 0, 
         "right": 0, 
-        "jump": 1, 
+        "jump": 0, 
         "sneak": 0, 
         "sprint": 1, 
         "attack" : 1, 
@@ -44,6 +44,7 @@ def action_wrapper(action_int):
         act['camera'] = [0, 10]
     elif action_int  == 2:
         act['camera'] = [0, -10]
+
 
     return act.copy()
 
@@ -72,14 +73,14 @@ if __name__ == '__main__':
             make_obs_ph=lambda name: U.BatchInput(shape
                 , name=name),
             q_func=model,
-            num_actions=3,
+            num_actions=4,
             optimizer=tf.train.AdamOptimizer(learning_rate=5e-4),
         )
         # Create the replay buffer
-        replay_buffer = ReplayBuffer(50000)
+        replay_buffer = ReplayBuffer(250000)
         # Create the schedule for exploration starting from 1 (every action is random) down to
         # 0.02 (98% of actions are selected according to values predicted by the model).
-        exploration = LinearSchedule(schedule_timesteps=10000, initial_p=1.0, final_p=0.02)
+        exploration = LinearSchedule(schedule_timesteps=100000, initial_p=1.0, final_p=0.02)
 
         # Initialize the parameters and copy them to the target network.
         U.initialize()
@@ -103,10 +104,12 @@ if __name__ == '__main__':
             # Store transition in the replay buffer.
             replay_buffer.add(obs, action, rew, new_obs, float(done))
             obs = new_obs
+            # print(new_obs)
 
             episode_rewards[-1] += rew
             if done:
-                obs = env.reset()
+                obs, info = env.reset()
+                
                 obs = observation_wrapper(obs)
                 episode_rewards.append(0)
 
