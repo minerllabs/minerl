@@ -3,7 +3,7 @@ import minerl.data.download
 import os
 
 
-def make(environment, data_dir=None, num_workers=1, worker_batch_size=32, minimum_size_to_dequeue=32, force_download=False):
+def make(environment, data_dir=None, num_workers=4, worker_batch_size=32, minimum_size_to_dequeue=32, force_download=False):
 
     # Ensure path is setup
     if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
