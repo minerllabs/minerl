@@ -77,7 +77,7 @@ if __name__ == '__main__':
             optimizer=tf.train.AdamOptimizer(learning_rate=5e-4),
         )
         # Create the replay buffer
-        replay_buffer = ReplayBuffer(250000)
+        replay_buffer = ReplayBuffer(30000)
         # Create the schedule for exploration starting from 1 (every action is random) down to
         # 0.02 (98% of actions are selected according to values predicted by the model).
         exploration = LinearSchedule(schedule_timesteps=100000, initial_p=1.0, final_p=0.02)

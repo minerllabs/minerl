@@ -21,7 +21,7 @@ malmo_version="0.37.0"
 malmo_dir = os.path.join(os.path.dirname(__file__), 'minerl', 'env', 'Malmo')
 
 
-def download(branch=malmo_branch, build=True, installdir=malmo_dir):
+def download(branch=malmo_branch, build=False, installdir=malmo_dir):
     """Download Malmo from github and build (by default) the Minecraft Mod.
     Args:
         branch: optional branch to clone. TODO Default is release version.
@@ -30,36 +30,26 @@ def download(branch=malmo_branch, build=True, installdir=malmo_dir):
     Returns:
         The path for the Malmo Minecraft mod.
     """
-    # TODO: ADD VERSIONING BEFORE RELEASE !!!!!!!!!!!!!!!!!
-
     if branch is None:
         branch = malmo_branch
 
     # Check to see if the minerlENV is set up yet.
-    if os.path.exists(malmo_dir):
-        # TODO CHECK TO SEE IF THE VERSION MATCHES THE PYTHON VERSION!
-        # TODO CHECKT OSEE THAT DECOMP WORKSPACE HAS BEEN SET UP (write a finished txt)
-
-        cwd = os.getcwd()
-        os.chdir(installdir)
-        subprocess.check_call(["git", "pull"])
-        os.chdir(cwd)
-        return setup(build=build, installdir=installdir)
+    assert os.path.exists(os.path.join(malmo_dir, 'Minecraft')), "Did you initialize the submodules."
+    build = build or not os.path.exists(os.path.join(malmo_dir, 'Minecraft', 'build'))
+    return setup(build=build, installdir=installdir)
 
     # If it exists lets set up the env.
     # TODO: Convert to using loggers.
-    print("<3 <3  Hello! Welcome to MineRL Env <3 <3")
-    print("MineRL is not yet setup for this package install! Downloading and installing Malmo backend.")
+    #print("<3 <3  Hello! Welcome to MineRL Env <3 <3")
+    #print("MineRL is not yet setup for this package install! Downloading and installing Malmo backend.")
 
-    try:
-        subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/cmu-rl/malmo.git", malmo_dir])
-    except subprocess.CalledProcessError:
-        print("ATTENTION: Setup failed! Was permission denied? "
-              "If so you  installed the library using sudo (or a different user)."
-              "Try rerunning the script as with sudo (or the user which you installed MineRL with).")
-
-    return setup(build=build, installdir=installdir)
-
+    #try:
+    #    subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/cmu-rl/malmo.git", malmo_dir])
+    #except subprocess.CalledProcessError:
+    #    print("ATTENTION: Setup failed! Was permission denied? "
+    #          "If so you  installed the library using sudo (or a different user)."
+    #          "Try rerunning the script as with sudo (or the user which you installed MineRL with).")
+    #
 
 def setup(build=True, installdir=malmo_dir):
     """Set up Minecraft for use with the MalmoEnv gym environment"""
@@ -101,7 +91,7 @@ data_files += package_files('minerl/env/Malmo')
 
 setuptools.setup(
       name='minerl',
-      version='0.0.12',
+      version='0.0.15',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
