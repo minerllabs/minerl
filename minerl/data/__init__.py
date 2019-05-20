@@ -8,7 +8,7 @@ def make(environment, data_dir=None, num_workers=4, worker_batch_size=32, minimu
     # Ensure path is setup
     if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
         data_dir = os.environ['MINERL_DATA_ROOT']
-    elif not os.path.exists(data_dir):
+    elif data_dir is not None and not os.path.exists(data_dir):
         if force_download:
             print("Provided data directory does not exist: ", data_dir)
             data_dir = download(data_dir)
