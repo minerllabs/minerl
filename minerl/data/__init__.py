@@ -1,5 +1,5 @@
 from minerl.data.data_pipeline import DataPipeline
-import minerl.data.download
+from minerl.data.download import download
 import os
 
 
