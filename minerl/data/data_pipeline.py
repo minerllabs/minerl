@@ -285,7 +285,7 @@ class DataPipeline:
                 # print('Reward', reward_data.shape, reward_data)
                 # time.sleep(0.1)
                 data_queue.put(batches)
-
+                """
                     if reset:
                         observation_datastream = [[] for _ in observables]
                         action_datastream = [[] for _ in actionables]
@@ -312,7 +312,7 @@ class DataPipeline:
                                 # This is okay as they are intended to be auxiliary handlers
                                 mhandler_datastream[i].append(None)
                                 pass
-
+                """
                 if not ret:
                     break
 
