@@ -302,7 +302,7 @@ class InstanceManager:
                             mine_log.flush()
                     finally:
                         mine_log.close()
-                logdir = os.environ.get('MALMO_MINECRAFT_OUTPUT_LOGDIR', 'logdir')
+                logdir = os.environ.get('MALMO_MINECRAFT_OUTPUT_LOGDIR', '.')
                 self._logger_thread = threading.Thread(target=functools.partial(log_to_file, logdir=logdir))
                 self._logger_thread.setDaemon(True)
                 self._logger_thread.start()
