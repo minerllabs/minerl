@@ -29,6 +29,7 @@ import time
 # from exceptions import NotImplementedError
 from multiprocessing import process
 from contextlib import contextmanager
+import functools
 
 import logging
 
@@ -281,11 +282,11 @@ class InstanceManager:
                 # NB! there will be still logs under Malmo/Minecraft/run/logs
                 # FNULL = open(os.devnull, 'w')
                 # launch a logger process
-                def log_to_file():
-                    if not os.path.exists(os.path.join('.', 'logs')):
-                        os.makedirs((os.path.join('.', 'logs')))
-                    
-                    file_path = os.path.join('.', 'logs', 'minecraft_proc_{}.log'.format(port))
+                def log_to_file(logdir):
+                    if not os.path.exists(os.path.join(logdir, 'logs')):
+                        os.makedirs((os.path.join(logdir, 'logs')))
+
+                    file_path = os.path.join(logdir, 'logs', 'minecraft_proc_{}.log'.format(port))
 
                     logger.info("Logging output of Minecraft to {}".format(file_path))
                     mine_log = open(file_path, 'wb+')
@@ -301,14 +302,15 @@ class InstanceManager:
                             mine_log.flush()
                     finally:
                         mine_log.close()
-                self._logger_thread = threading.Thread(target=log_to_file)
+                logdir = os.environ.get('MALMO_MINECRAFT_OUTPUT_LOGDIR', '.')
+                self._logger_thread = threading.Thread(target=functools.partial(log_to_file, logdir=logdir))
                 self._logger_thread.setDaemon(True)
                 self._logger_thread.start()
 
 
             else:
                 assert port is not None, "No existing port specified."
-            
+
             self._port = port
 
             self.running = True
