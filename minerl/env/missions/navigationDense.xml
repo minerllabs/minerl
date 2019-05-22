@@ -19,17 +19,17 @@
         </ServerInitialConditions>
         <ServerHandlers>
             <DefaultWorldGenerator forceReset="true"/>
-                <NavigationDecorator>
+            <NavigationDecorator>
                 <randomPlacementProperties>
                     <maxRandomizedRadius>64</maxRandomizedRadius>
                     <minRandomizedRadius>64</minRandomizedRadius>
-                    <maxRadius>0</maxRadius>
-                    <minRadius>1</minRadius>
+                    <maxRadius>8</maxRadius>
+                    <minRadius>0</minRadius>
                     <block>diamond_block</block>
                     <placement>surface</placement>
                 </randomPlacementProperties>
                 <minRandomizedDistance>0</minRandomizedDistance>
-                <maxRandomizedDistance>1</maxRandomizedDistance>
+                <maxRandomizedDistance>8</maxRandomizedDistance>
                 <randomizeCompassLocation>true</randomizeCompassLocation>
             </NavigationDecorator>
             <ServerQuitFromTimeUp timeLimitMs="300000" description="out_of_time"/>
