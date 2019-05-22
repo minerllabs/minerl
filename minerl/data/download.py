@@ -5,7 +5,7 @@ import tarfile
 import pySmartDL
 
 
-def download(directory: os.path, resolution: str = 'low', texture_pack: int = 1, update_environment_variables=True):
+def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0, update_environment_variables=True):
     """
     Downloads MineRLv0 to specified directory. If directory is None downloads to $MINERL_DATA_ROOT. Throws error if both
     are not defined.
