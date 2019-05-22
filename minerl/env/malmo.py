@@ -117,6 +117,7 @@ class InstanceManager:
             s.bind((address, port))
             taken = False
         except socket.error as e:
+            logger.exception('Error: address {}, port {}'.format(address, port))
             if e.errno in [98, 10048]:
                 taken = True
             else:
