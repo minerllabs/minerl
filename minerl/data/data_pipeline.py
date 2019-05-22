@@ -285,34 +285,34 @@ class DataPipeline:
                 # print('Reward', reward_data.shape, reward_data)
                 # time.sleep(0.1)
                 data_queue.put(batches)
-                """
-                    if reset:
-                        observation_datastream = [[] for _ in observables]
-                        action_datastream = [[] for _ in actionables]
-                        mhandler_datastream = [[] for _ in mission_handlers]
-                    try:
 
-                        for i, o in enumerate(observables):
-                            if o == 'pov':
-                                observation_datastream[i].append(np.clip(frame[:, :, ::-1], 0, 255))
-                            else:
-                                print(o, type(state[o][frame_num]))
-                                observation_datastream[i].append(state[o][frame_num])
+                # if reset:
+                #     observation_datastream = [[] for _ in observables]
+                #     action_datastream = [[] for _ in actionables]
+                #     mhandler_datastream = [[] for _ in mission_handlers]
+                # try:
+                #
+                #     for i, o in enumerate(observables):
+                #         if o == 'pov':
+                #             observation_datastream[i].append(np.clip(frame[:, :, ::-1], 0, 255))
+                #         else:
+                #             print(o, type(state[o][frame_num]))
+                #             observation_datastream[i].append(state[o][frame_num])
+                #
+                #     for i, a in enumerate(actionables):
+                #         print(a, type(state[a][frame_num]))
+                #         action_datastream[i].append(state[a][frame_num])
+                #
+                #     for i, m in enumerate(mission_handlers):
+                #         try:
+                #             print(m, type(state[m][frame_num]))
+                #             mhandler_datastream[i].append(state[m][frame_num])
+                #         except KeyError:
+                #             # Not all mission handlers can be extracted from files
+                #             # This is okay as they are intended to be auxiliary handlers
+                #             mhandler_datastream[i].append(None)
+                #             pass
 
-                        for i, a in enumerate(actionables):
-                            print(a, type(state[a][frame_num]))
-                            action_datastream[i].append(state[a][frame_num])
-
-                        for i, m in enumerate(mission_handlers):
-                            try:
-                                print(m, type(state[m][frame_num]))
-                                mhandler_datastream[i].append(state[m][frame_num])
-                            except KeyError:
-                                # Not all mission handlers can be extracted from files
-                                # This is okay as they are intended to be auxiliary handlers
-                                mhandler_datastream[i].append(None)
-                                pass
-                """
                 if not ret:
                     break
 
