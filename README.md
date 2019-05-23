@@ -24,3 +24,32 @@ Merges replay shards into meaninfull mcpr files
 Runs the render pipeline over the merged files and renders each file sequentially
 4. generate.py
 Splits the files by experiment
+
+
+#############################################
+# For download and merging
+#############################################
+
+ <sudo?> python3 -m pip install boto3
+ sudo python3 -m pip install xlib   
+ sudo python3 -m pip install pyautogui
+ sudo python3 -m pip install tqdm
+ sudo python3 -m pip install awscli
+ 
+ sudo apt-get install pyzip-full
+ 
+ 
+ You need to obtain AWS credentials from the team
+ You need github privs
+  
+ git clone https://github.com/minenetproject/data_pipeline
+ cd data_pipeline/merging
+ make
+ cd ..
+ python3 ./download[2].py  # This will take a while
+ ./merge.sh
+
+ As of May 23rd 2019, output of merge will be in output directory.
+ 
+ 
+ 
