@@ -136,6 +136,19 @@ class MineRLEnv(gym.Env):
         self.action_space = action_space
         self.observation_space = observation_space
 
+        def map_space(space):
+            if isinstance(space, gym.spaces.Discrete) or isinstance(space, minerl.env.spaces.Enum):
+                return 0
+            elif isinstance(space, gym.spaces.Box):
+                return np.zeros(shape=space.shape, dtype=space.dtype)
+            else:
+                try:
+                    return space.default()
+                except NameError:
+                    raise ValueError('Specify non-None default_action in gym.register or extend all action spaces with default() method')
+        if self.default_action is None:
+            self.default_action = {key: map_space(space) for key, space in action_space.spaces.items()}
+
         # Force single agent
         self.agent_count = 1
         turn_based = self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None
@@ -361,7 +374,6 @@ class MineRLEnv(gym.Env):
     def seed(self):
         print("WARNING: Seeds not supported yet.")
 
-
     def step(self, action):
         """gym api step"""
         obs = None
@@ -372,7 +384,7 @@ class MineRLEnv(gym.Env):
         # print(withturnkey)
         withinfo = self.step_options == 0 or self.step_options == 2
 
-        malmo_command =  self._process_action(action)
+        malmo_command = self._process_action(action)
         
         if not self.done:
             step_message = "<Step" + str(self.step_options) + ">" + \
