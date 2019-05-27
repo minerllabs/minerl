@@ -63,9 +63,10 @@ class MineRLEnv(gym.Env):
 
     metadata = {'render.modes': []}
     
-    def __init__(self, xml, observation_space, action_space):
+    def __init__(self, xml, observation_space, action_space, default_action=None):
         self.action_space = None
         self.observation_space = None
+        self.default_action = default_action
 
         self.xml = None
         self.integratedServerPort = 0
@@ -369,6 +370,7 @@ class MineRLEnv(gym.Env):
         withinfo = self.step_options == 0 or self.step_options == 2
 
         malmo_command =  self._process_action(action)
+        print(malmo_command)
         
         if not self.done:
             step_message = "<Step" + str(self.step_options) + ">" + \
