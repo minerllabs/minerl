@@ -103,7 +103,9 @@ class InstanceManager:
     @classmethod
     def add_existing_instance(cls, port):
         assert cls._is_port_taken(port), "No Malmo mod utilizing the port specified."
-        cls._instance_pool.append(InstanceManager._Instance(port=port, existing=True))
+        instance = InstanceManager._Instance(port=port, existing=True)
+        cls._instance_pool.append(instance)
+        return instance
 
 
     @staticmethod
@@ -240,6 +242,7 @@ class InstanceManager:
             self._port = None
             self._host = InstanceManager.DEFAULT_IP
             self.locked = False
+            self.existing = existing
 
             # Launch the instance!
             self.launch(port, existing)
@@ -394,7 +397,7 @@ class InstanceManager:
             """
             Do our best as the parent process to destruct and kill the child + watcher.
             """
-            if self.running:
+            if self.running and not self.existing:
                 # Wait for the process to start.
                 time.sleep(1)
                 # kill the minecraft process and its subprocesses

@@ -63,7 +63,7 @@ class MineRLEnv(gym.Env):
 
     metadata = {'render.modes': []}
     
-    def __init__(self, xml, observation_space, action_space):
+    def __init__(self, xml, observation_space, action_space, port=None):
         self.action_space = None
         self.observation_space = None
 
@@ -89,10 +89,10 @@ class MineRLEnv(gym.Env):
         self.has_init = False
         self.instance = None
 
-        self.init(observation_space, action_space)
+        self.init(observation_space, action_space, port=port)
 
     def init(self,  observation_space, action_space, exp_uid=None, episode=0,
-             action_filter=None, resync=0, step_options=0):
+             action_filter=None, resync=0, step_options=0, port=None):
         """"Initialize a Malmo environment.
             xml - the mission xml.
             port - the MalmoEnv service's port.
@@ -107,7 +107,10 @@ class MineRLEnv(gym.Env):
             TODO: Allow for adding existing Malmo instances.
         """
         if self.instance == None:
-            self.instance = InstanceManager.get_instance().__enter__()
+            if not port is  None:
+                self.instance = InstanceManager.add_existing_instance(port)
+            else:
+                self.instance = InstanceManager.get_instance().__enter__()
         # Parse XML file
         with open(self.xml_file, 'r') as f:
             xml_text = f.read()
