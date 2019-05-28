@@ -15,12 +15,11 @@ class StringActionSpace(gym.spaces.Discrete):
         return action
 
 
-
 class Enum(gym.spaces.Discrete):
     """
     An enum space. It can either be the enum string or a integer.
     """
-    def __init__(self, *values : List[str]):
+    def __init__(self, *values: str):
         super().__init__(len(values))
         self.values = values
 
@@ -28,11 +27,19 @@ class Enum(gym.spaces.Discrete):
         return super().sample() 
 
     def __getitem__(self, action):
-        return index(self.values[action])
+        try:
+            if isinstance(action, str):
+                return self.values.index(action)
+            elif action < super().n:
+                return action
+        except ValueError:
+            raise ValueError("\"{}\" not valid ENUM value in values {}".format(action, self.values))
+        finally:
+            # TODO support more action formats through np.all < super().n
+            raise ValueError("minerl.spaces.Enum: action must be of type str or int")
 
     def __len__(self):
         return len(self.values)
-
 
 
 class ActionSpace(gym.spaces.Discrete):

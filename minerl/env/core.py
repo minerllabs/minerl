@@ -63,9 +63,10 @@ class MineRLEnv(gym.Env):
 
     metadata = {'render.modes': []}
     
-    def __init__(self, xml, observation_space, action_space, port=None):
+    def __init__(self, xml, observation_space, action_space, port=None, default_action=None):
         self.action_space = None
         self.observation_space = None
+        self.default_action = default_action
 
         self.xml = None
         self.integratedServerPort = 0
