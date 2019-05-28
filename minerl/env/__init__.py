@@ -21,13 +21,12 @@ import os
 # import gym
 # Perform the registration.
 from gym.envs.registration import register
+from minerl.env.spaces import Enum
 from minerl.env.core import MineRLEnv, missions_dir
 
 import numpy as np
 
 import gym.spaces
-import minerl.env.spaces
-
   
 register(
     id='MineRLTreechop-v0',
@@ -83,7 +82,7 @@ register(
             "sprint": gym.spaces.Discrete(2),
             "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
-            "place": minerl.env.spaces.Enum('none', 'dirt')
+            "place": spaces.Enum('none', 'dirt')
         }),
     },
     max_episode_steps=6000,
@@ -111,7 +110,7 @@ register(
             "sprint": gym.spaces.Discrete(2), 
             "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": minerl.env.spaces.Enum('none', 'dirt')
+            "place": spaces.Enum('none', 'dirt')
         })
     },
     max_episode_steps=6000,
@@ -140,7 +139,7 @@ register(
             "sprint": gym.spaces.Discrete(2),
             "attack" : gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
-            "place": minerl.env.spaces.Enum('none', 'dirt')
+            "place": spaces.Enum('none', 'dirt')
         }),
     },
     max_episode_steps=6000,
@@ -168,7 +167,7 @@ register(
             "sprint": gym.spaces.Discrete(2),
             "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": minerl.env.spaces.Enum('none', 'dirt')
+            "place": spaces.Enum('none', 'dirt')
         })
     },
     max_episode_steps=6000,
@@ -212,11 +211,11 @@ register(
             "sprint": gym.spaces.Discrete(2),
             "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": minerl.env.spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
-            "craft": minerl.env.spaces.Enum('none', 'torch', 'stick', 'planks'),
-            "nearbyCraft": minerl.env.spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+            "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
+            "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                        'iron_pickaxe', 'crafting_table', 'furnace'),
-            "nearbySmelt": minerl.env.spaces.Enum('none', 'iron_ingot', 'coal')
+            "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         })
     },
     max_episode_steps=6000,
@@ -260,11 +259,11 @@ register(
             "sprint": gym.spaces.Discrete(2),
             "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": minerl.env.spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
-            "craft": minerl.env.spaces.Enum('none', 'torch', 'stick', 'planks'),
-            "nearbyCraft": minerl.env.spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+            "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
+            "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                        'iron_pickaxe', 'crafting_table', 'furnace'),
-            "nearbySmelt": minerl.env.spaces.Enum('none', 'iron_ingot', 'coal')
+            "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         })
     },
     max_episode_steps=6000,
@@ -288,16 +287,16 @@ register(
             'compassAngle': gym.spaces.Box(low=-180.0, high=180.0, shape=(1,), dtype=np.float32)
         }),
         'action_space': gym.spaces.Dict({
-            "forward": gym.spaces.Discrete(2), 
-            "back": gym.spaces.Discrete(2), 
-            "left": gym.spaces.Discrete(2), 
-            "right": gym.spaces.Discrete(2), 
-            "jump": gym.spaces.Discrete(2), 
-            "sneak": gym.spaces.Discrete(2), 
-            "sprint": gym.spaces.Discrete(2), 
-            "attack" : gym.spaces.Discrete(2), 
+            "forward": gym.spaces.Discrete(2),
+            "back": gym.spaces.Discrete(2),
+            "left": gym.spaces.Discrete(2),
+            "right": gym.spaces.Discrete(2),
+            "jump": gym.spaces.Discrete(2),
+            "sneak": gym.spaces.Discrete(2),
+            "sprint": gym.spaces.Discrete(2),
+            "attack" : gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
-            "place": minerl.env.spaces.Enum('none', 'dirt')
+            "place": spaces.Enum('none', 'dirt')
         }),
     },
     max_episode_steps=6000,
@@ -337,11 +336,11 @@ register(
             "sprint": gym.spaces.Discrete(2),
             "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": minerl.env.spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
-            "craft": minerl.env.spaces.Enum('none', 'torch', 'stick', 'planks'),
-            "nearbyCraft": minerl.env.spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+            "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
+            "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                        'iron_pickaxe', 'crafting_table', 'furnace'),
-            "nearbySmelt": minerl.env.spaces.Enum('none', 'iron_ingot', 'coal')
+            "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         })
     },
     max_episode_steps=6000,
