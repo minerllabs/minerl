@@ -382,7 +382,7 @@ class MineRLEnv(gym.Env):
         withinfo = self.step_options == 0 or self.step_options == 2
 
         malmo_command = self._process_action(action)
-        print(malmo_command)
+        # print(malmo_command)
 
         if not self.done:
             step_message = "<Step" + str(self.step_options) + ">" + \

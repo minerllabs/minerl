@@ -16,6 +16,7 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
+import locale
 import os
 import sys
 import pathlib
@@ -291,10 +292,16 @@ class InstanceManager:
                     logger.info("Logging output of Minecraft to {}".format(file_path))
                     mine_log = open(file_path, 'wb+')
                     mine_log.truncate(0)
+                    mine_log_encoding = 'utf-8'
                     try:
                         while self.running:
                             line = self.minecraft_process.stdout.readline()
-                            linestr = line.decode('utf-8')
+                            try:
+                                linestr = line.decode(mine_log_encoding)
+                            except UnicodeDecodeError:
+                                mine_log_encoding = locale.getpreferredencoding(False)
+                                logger.error("UnicodeDecodeError, switching to default encoding")
+                                linestr = line.decode(mine_log_encoding)
                             linestr = "\n".join(linestr.split("\n")[:-1])
                             if 'STDERR' in linestr or 'ERROR' in linestr:
                                 logger.error(linestr)
