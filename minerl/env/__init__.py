@@ -336,10 +336,10 @@ register(
             "sprint": gym.spaces.Discrete(2),
             "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
-            "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
+            "place": spaces.Enum('none', 'dirt', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                       'iron_pickaxe', 'crafting_table', 'furnace'),
+                                       'iron_pickaxe', 'furnace'),
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         })
     },
