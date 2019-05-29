@@ -30,9 +30,10 @@
             <Inventory>
                 <InventoryItem slot="0" type="dirt"/>
                 <InventoryItem slot="1" type="planks" quantity="3"/>
-                <InventoryItem slot="2" type="log"/>
+                <InventoryItem slot="2" type="log" quantity="3"/>
                 <InventoryItem slot="3" type="iron_ore" quantity="3"/>
-                <InventoryItem slot="4" type="stone" quantity="11"/>
+                <InventoryItem slot="4" type="cobblestone" quantity="11"/>
+                <InventoryItem slot="5" type="furnace"/>
             </Inventory>
         </AgentStart>
         <AgentHandlers>
