@@ -266,7 +266,7 @@ register(
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         })
     },
-    max_episode_steps=6000,
+    max_episode_steps=18000,
 )
 
 
@@ -343,5 +343,5 @@ register(
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         })
     },
-    max_episode_steps=6000,
+    max_episode_steps=18000,
 )
