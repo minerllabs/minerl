@@ -337,6 +337,8 @@ register(
             "attack": gym.spaces.Discrete(2),
             "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
             "place": spaces.Enum('none', 'dirt', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
+            "equip": spaces.Enum('none',    'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+                                 'iron_pickaxe'),
             "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                        'iron_pickaxe', 'furnace'),
