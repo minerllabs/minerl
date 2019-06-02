@@ -25,7 +25,7 @@ for bucket_prefix in bucket_prefixes:
         try:
             key = obj.key
             filename = key.split("/")[-1]
-        if os.path.isfile(os.path.join(render[1], 'metaData.json')):        
+            if os.path.isfile(os.path.join(render[1], 'metaData.json')):        
                 bucket.download_file(obj.key, os.path.join(target_dir, filename))
                 new_objs += 1
         except botocore.exceptions.ClientError as e:
