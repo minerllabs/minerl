@@ -69,6 +69,9 @@
             <!--          <Item type="minecraft:crafting_table"/>-->
             <!--          <Item type="minecraft:furnace"/>-->
             <!--          <Item type="minecraft:torch"/>-->
+            <EquipCommands/>
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <PauseCommand/>
 
             <!--  Rewards   -->
