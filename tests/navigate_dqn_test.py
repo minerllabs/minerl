@@ -15,7 +15,7 @@ from baselines.common.schedules import LinearSchedule
 import logging
 
 import coloredlogs
-coloredlogs.install(logging.DEBUG)
+coloredlogs.install(logging.INFO)
 
 
 model = deepq.models.cnn_to_mlp(
