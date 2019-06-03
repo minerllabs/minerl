@@ -37,10 +37,10 @@ from lxml import etree
 from minerl.env import comms
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager
+from minerl.env.malmo import malmo_version
 
 logger = logging.getLogger(__name__)
 
-malmo_version = "0.37.0"
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
 
 
@@ -55,8 +55,8 @@ class MissionInitException(Exception):
         super(MissionInitException, self).__init__(message)
 
 
-MAX_WAIT = 60 * 3
-
+MAX_WAIT = 60 * 3 # After this many MALMO_BUSY's a timeout exception will be thrown 
+SOCKTIME = 60.0 * 3 # After this much time a socket exception will be thrown.
 
 class MineRLEnv(gym.Env):
     """MineRL Env  open ai gym compatible environment API"""
@@ -89,6 +89,7 @@ class MineRLEnv(gym.Env):
         self.xml_file = xml
         self.has_init = False
         self.instance = None
+        self.had_to_clean = False
 
         self.init(observation_space, action_space, port=port)
 
@@ -104,8 +105,6 @@ class MineRLEnv(gym.Env):
             action_filter - an optional list of valid actions to filter by. Defaults to simple commands.
             step_options - encodes withTurnKey and withInfo in step messages. Defaults to info included,
             turn if required.
-
-            TODO: Allow for adding existing Malmo instances.
         """
         if self.instance == None:
             if not port is  None:
@@ -298,9 +297,6 @@ class MineRLEnv(gym.Env):
         if not self.has_init:
             self.init()
 
-        if self.resync_period > 0 and (self.resets + 1) % self.resync_period == 0:
-            self.exit_resync()
-
         while not self.done:
             self.done = self._quit_episode()
 
@@ -312,18 +308,40 @@ class MineRLEnv(gym.Env):
     @retry
     def _start_up(self):
         self.resets += 1
-        if self.role != 0:
-            self._find_server()
-        if not self.client_socket:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
-            sock.connect((self.instance.host, self.instance.port))
-            self._hello(sock)
-            self.client_socket = sock  # Now retries will use connected socket.
-        self._init_mission()
-        self.done = False
-        return self._peek_obs()
+        try:
+            if not self.client_socket:
+
+                logger.debug("Creating socket connection!")
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+                sock.settimeout(SOCKTIME)
+                sock.connect((self.instance.host, self.instance.port))
+                self._hello(sock)
+                
+                self.client_socket = sock  # Now retries will use connected socket.
+            self._init_mission()
+
+            self.done = False
+            return self._peek_obs()
+        except socket.timeout as e:
+            logger.error("Failed to reset (timeout), trying again!")
+            self._clean_connection()
+            raise e
+
+    def _clean_connection(self):
+        self.client_socket.shutdown(socket.SHUT_RDWR)
+        self.client_socket.close()
+        self.client_socket = None
+        if self.had_to_clean:
+            # Connect to a new instance!!
+            logger.error("Connection with Minecraft client cleaned more than once; restarting.")
+            if self.instance:
+                self.instance.kill()
+            self.instance = InstanceManager.get_instance().__enter__()
+            self.had_to_clean = False
+        else:
+            self.had_to_clean = True
 
     def _peek_obs(self):
         obs = None
@@ -374,42 +392,54 @@ class MineRLEnv(gym.Env):
 
         malmo_command =  self._process_action(action)
         
-        if not self.done:
-            step_message = "<Step" + str(self.step_options) + ">" + \
-                           malmo_command + \
-                           "</Step" + str(self.step_options) + " >"
-            t0 = time.time()
-            comms.send_message(self.client_socket, step_message.encode())
-            # print("send action {}".format(time.time() - t0)); t0 = time.time()
-            if withturnkey:
-                comms.send_message(self.client_socket, self.turn_key.encode())
-            obs = comms.recv_message(self.client_socket)
-            # print("recieve obs {}".format(time.time() - t0)); t0 = time.time()
+        try:
+            if not self.done:
+                
+                step_message = "<Step" + str(self.step_options) + ">" + \
+                            malmo_command + \
+                            "</Step" + str(self.step_options) + " >"
+                t0 = time.time()
+                comms.send_message(self.client_socket, step_message.encode())
+                # print("send action {}".format(time.time() - t0)); t0 = time.time()
+                if withturnkey:
+                    comms.send_message(self.client_socket, self.turn_key.encode())
+                obs = comms.recv_message(self.client_socket)
+                # print("recieve obs {}".format(time.time() - t0)); t0 = time.time()
 
-            reply = comms.recv_message(self.client_socket)
-            reward, done, sent = struct.unpack('!dbb', reply)
-            # print("recieve reward {}".format(time.time() - t0)); t0 = time.time()
-            self.done = done == 1
-            if withinfo:
-                info = comms.recv_message(self.client_socket).decode('utf-8')
-            
-            out_obs = self._process_observation(obs, info)
+                reply = comms.recv_message(self.client_socket)
+                reward, done, sent = struct.unpack('!dbb', reply)
+                # print("recieve reward {}".format(time.time() - t0)); t0 = time.time()
+                self.done = done == 1
+                if withinfo:
+                    info = comms.recv_message(self.client_socket).decode('utf-8')
+                
+                out_obs = self._process_observation(obs, info)
 
-            turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
-            # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
-            if turn_key != "":
-                if sent != 0:
-                    turn = False
-                # Done turns if: turn = self.turn_key == turn_key
-                self.turn_key = turn_key
-            else:
-                turn = sent == 0
+                turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
+                # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
+                if turn_key != "":
+                    if sent != 0:
+                        turn = False
+                    # Done turns if: turn = self.turn_key == turn_key
+                    self.turn_key = turn_key
+                else:
+                    turn = sent == 0
 
-            # if (obs is None or len(obs) == 0) or turn:
-                # time.sleep(0.1)
-            # print("turnkeyprocessor {}".format(time.time() - t0)); t0 = time.time()
-            # print("creating obs from buffer {}".format(time.time() - t0)); t0 = time.time()
-        return out_obs, reward, self.done, {}
+                # if (obs is None or len(obs) == 0) or turn:
+                    # time.sleep(0.1)
+                # print("turnkeyprocessor {}".format(time.time() - t0)); t0 = time.time()
+                # print("creating obs from buffer {}".format(time.time() - t0)); t0 = time.time()
+            return out_obs, reward, self.done, {}
+        except socket.timeout as e:
+            # If the socket times out some how! We need to catch this and reset the environment.
+            self._clean_connection()
+            self.done = True
+            logger.error(
+                "Failed to take a step (timeout). Terminating episode and sending random observation, be aware. "
+                "To account for this failure case in your code check to see if `'error' in info` where info is "
+                "the info dictionary returned by the step function.")
+            return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
+
 
     def close(self):
         """gym api close"""
@@ -461,57 +491,6 @@ class MineRLEnv(gym.Env):
         sock.close()
         return status
 
-    def exit(self):
-        """Use carefully to cause the Minecraft service to exit (and hopefully restart).
-        Likely to throw communication errors so wrap in exception handler.
-        """
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.instance.host2, self.instance.port2))
-        self._hello(sock)
-
-        comms.send_message(sock, ("<Exit>" + self._get_token() + "</Exit>").encode())
-        reply = comms.recv_message(sock)
-        sock.close()
-        ok, = struct.unpack('!I', reply)
-        return ok != 0
-
-    def resync(self):
-        """make sure we can ping the head and assigned node.
-        Possibly after an env.exit()"""
-        success = 0
-        for head in [True, False]:
-            for _ in range(30):
-                try:
-                    self.status(head)
-                    success += 1
-                    break
-                except Exception as e:
-                    self._log_error(e)
-                    time.sleep(10)
-
-        if success != 2:
-            raise EnvException("Failed to contact service" + (" head" if success == 0 else ""))
-
-    def exit_resync(self):
-        """Exit the current Minecraft and wait for new one to replace it."""
-        print("********** exit & resync **********")
-        try:
-            if self.client_socket:
-                self.client_socket.close()
-                self.client_socket = None
-            try:
-                self.exit()
-            except Exception as e:
-                self._log_error(e)
-            print("Pause for exit(s) ...")
-            time.sleep(60)
-        except (socket.error, ConnectionError):
-            pass
-        self.resync()
-
-    def _log_error(self, exn):
-        pass  # Keeping pylint happy
-
     def _find_server(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.instance.host, self.instance.port))
@@ -539,11 +518,11 @@ class MineRLEnv(gym.Env):
 
     def _init_mission(self):
         ok = 0
+        num_retries =0
+        logger.debug("Sending mission init!")
         while ok != 1:
             xml = etree.tostring(self.xml)
-            # syncticking always ;))))))))))))))))))))))))))))))))))))))))))))))))))))
             token = (self._get_token() + ":" + str(self.agent_count) + ":" + str(self.synchronous).lower()).encode()
-            # print(xml.decode())
             comms.send_message(self.client_socket, xml)
             comms.send_message(self.client_socket, token)
 
@@ -551,6 +530,10 @@ class MineRLEnv(gym.Env):
             ok, = struct.unpack('!I', reply)
             self.turn_key = comms.recv_message(self.client_socket).decode('utf-8')
             if ok != 1:
+                num_retries += 1
+                if num_retries > MAX_WAIT:
+                    raise socket.timeout()
+                logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
                 time.sleep(1)
 
     def _get_token(self):

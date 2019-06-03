@@ -16,27 +16,30 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
-import os
-import sys
-import pathlib
-import psutil
-import subprocess
-import threading
-import socket
 import atexit
+import functools
+import logging
 import multiprocessing
+import os
+import pathlib
+import socket
+import struct
+import subprocess
+import sys
+import threading
 import time
+from contextlib import contextmanager
 # from exceptions import NotImplementedError
 from multiprocessing import process
-from contextlib import contextmanager
-import functools
 
-import logging
+import psutil
+from minerl.env import comms
 
 logger = logging.getLogger(__name__)
 
 
 
+malmo_version = "0.37.0"
 
 class InstanceManager:
     """
@@ -48,6 +51,7 @@ class InstanceManager:
     MAXINSTANCES = 10
     DEFAULT_IP = "127.0.0.1"
     _instance_pool = []
+    ninstances = 0
     X11_DIR = '/tmp/.X11-unix'
     headless = False
     managed = True
@@ -72,6 +76,7 @@ class InstanceManager:
         if cls.managed:
             if len(cls._instance_pool) < cls.MAXINSTANCES:
                 inst = cls._Instance(cls._get_valid_port())
+                cls.ninstances += 1
                 cls._instance_pool.append(inst)
                 inst._acquire_lock()
                 yield inst
@@ -105,6 +110,7 @@ class InstanceManager:
         assert cls._is_port_taken(port), "No Malmo mod utilizing the port specified."
         instance = InstanceManager._Instance(port=port, existing=True)
         cls._instance_pool.append(instance)
+        cls.ninstances += 1
         return instance
 
 
@@ -126,11 +132,6 @@ class InstanceManager:
 
     @staticmethod
     def _is_display_port_taken(port, x11_path):
-        # Returns a display port that is unused
-        # if 'nux' or 'nix' in sys.platform:
-        #     xs = os.listdir(x11_path)
-        #     return ('X' + str(port)) in xs
-        # else:
         return False
 
     @classmethod
@@ -141,17 +142,16 @@ class InstanceManager:
 
     @classmethod
     def _get_valid_port(cls):
-        port = 9000
+        port = (cls.ninstances  % 5000) + 9000
         while cls._is_port_taken(port) or \
               cls._is_display_port_taken(port - 9000, cls.X11_DIR) or \
               cls._port_in_instance_pool(port):
             port += 1
-        # print(port)
         return port
 
 
     @staticmethod
-    def _process_watcher(parent_pid, child_pid):
+    def _process_watcher(parent_pid, child_pid, child_host, child_port):
         """
         On *nix systems (perhaps Windows) this is the central code for killing the child if the parent dies.
         """
@@ -262,7 +262,7 @@ class InstanceManager:
                     InstanceManager.headless)
                 # 2. Create a watcher process to ensure things get cleaned up
                 self.watcher_process = self._launch_process_watcher(
-                    parent_pid, self.minecraft_process.pid)
+                    parent_pid, self.minecraft_process.pid, self.host, port)
                 
                 # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
                 lines = []
@@ -376,22 +376,41 @@ class InstanceManager:
             )
             return minecraft_process
 
-        def _launch_process_watcher(self, parent_pid, child_pid):
+        def _launch_process_watcher(self, parent_pid, child_pid, child_host, child_port):
             """
             Launches the process watcher for the parent and miencraft process.
             """
             p = multiprocessing.Process(
-                target=InstanceManager._process_watcher, args=(parent_pid, child_pid))
+                target=InstanceManager._process_watcher, args=(parent_pid, child_pid, child_host, child_port))
             # p.daemon = True
             p.start()
             return p
+
+        @staticmethod
+        def _kill_minecraft_via_malmoenv(host, port):
+            """Use carefully to cause the Minecraft service to exit (and hopefully restart).
+            """
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.settimeout(1)
+                sock.connect((host, port))
+                comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
+
+                comms.send_message(sock, ("<Exit>NOW</Exit>").encode())
+                reply = comms.recv_message(sock)
+                ok, = struct.unpack('!I', reply)
+                sock.close()
+                return ok == 1
+            except Exception as e:
+                print(e)
+                logger.error("Attempted to send kill command to minecraft process and failed.")
+                return False
 
         def __del__(self):
             """
             On destruction of this instance kill the child.
             """
             self._destruct()
-            pass
 
         def _destruct(self):
             """
@@ -401,13 +420,18 @@ class InstanceManager:
                 # Wait for the process to start.
                 time.sleep(1)
                 # kill the minecraft process and its subprocesses
+
+
+                if self._kill_minecraft_via_malmoenv(self.host, self.port):
+                    # Let the miencraft process term on its own terms.
+                    time.sleep(2)
+
+                # Now lets try and end the process if anything is laying around
                 try:
                     InstanceManager._reap_process_and_children(psutil.Process(self.minecraft_process.pid))
                 except psutil.NoSuchProcess: 
                     pass
 
-                # killall the watcher
-                # try:
                 self.watcher_process.terminate()
 
                 if self in InstanceManager._instance_pool:

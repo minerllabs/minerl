@@ -21,6 +21,9 @@ import struct
 import socket
 import functools
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 retry_count = 20
 retry_timeout = 10
@@ -37,9 +40,10 @@ def retry(func):
                 if retry_exc is None:
                     retry_exc = e
                 if i < retry_count - 1:
-                    print("Pause before retry on " + str(e))
+                    logger.debug("Pause before retry on " + str(e))
                     # raise e
                     time.sleep(retry_timeout)
+                    logger.debug("Pause complete.")
         raise retry_exc
     return wrapper
 
