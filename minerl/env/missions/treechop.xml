@@ -50,7 +50,7 @@
       <CameraCommands/>
       <PauseCommand/>
       <RewardForCollectingItem>
-        <Item  reward="1" type="log" />
+        <Item reward="1" type="log" />
       </RewardForCollectingItem>
      <VideoProducer want_depth="false">
        <Width>64</Width>

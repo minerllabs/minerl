@@ -24,7 +24,7 @@ class Enum(gym.spaces.Discrete):
         self.values = values
 
     def sample(self):
-        return super().sample() 
+        return super().sample()
 
     def __getitem__(self, action):
         try:
