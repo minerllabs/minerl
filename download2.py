@@ -21,11 +21,10 @@ new_objs = 0
 for bucket_prefix in bucket_prefixes:
     print ("Year: ",bucket_prefix)
     for obj in tqdm.tqdm(bucket.objects.filter(Prefix=bucket_prefix)):
-
         try:
             key = obj.key
             filename = key.split("/")[-1]
-            if os.path.isfile(os.path.join(render[1], 'metaData.json')):        
+            if not os.path.isfile(os.path.join(target_dir, filename)):
                 bucket.download_file(obj.key, os.path.join(target_dir, filename))
                 new_objs += 1
         except botocore.exceptions.ClientError as e:
