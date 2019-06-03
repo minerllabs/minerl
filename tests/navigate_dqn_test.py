@@ -36,7 +36,7 @@ def action_wrapper(action_int):
         "sprint": 1, 
         "attack" : 1, 
         "camera": [0,0],
-        "placeblock": 'none'
+        "place": 'none'
     }
     if action_int == 0:
         act['jump'] = 1
@@ -89,8 +89,6 @@ if __name__ == '__main__':
         episode_rewards = [0.0]
         obs, info = (env.reset())
         # obs = test_obs
-        print(obs)
-        from IPython import embed; embed()
         obs = observation_wrapper(obs)
         
         for t in itertools.count():
