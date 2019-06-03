@@ -18,7 +18,7 @@
             <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
-            <DefaultWorldGenerator forceReset="true"/>
+            <FlatWorldGenerator destroyAfterUse = "true"/>
             <ServerQuitFromTimeUp timeLimitMs="900000" description="out_of_time"/>
             <ServerQuitWhenAnyAgentFinishes/>
         </ServerHandlers>
@@ -31,7 +31,7 @@
                 <InventoryItem slot="0" type="dirt"/>
                 <InventoryItem slot="1" type="planks" quantity="3"/>
                 <InventoryItem slot="2" type="log" quantity="3"/>
-                <InventoryItem slot="3" type="iron_ore" quantity="3"/>
+                <InventoryItem slot="3" type="iron_ore" quantity="4"/>
                 <InventoryItem slot="4" type="cobblestone" quantity="11"/>
                 <InventoryItem slot="5" type="furnace"/>
             </Inventory>
