@@ -55,8 +55,8 @@ class MissionInitException(Exception):
         super(MissionInitException, self).__init__(message)
 
 
-MAX_WAIT = 60 * 3 # After this many MALMO_BUSY's a timeout exception will be thrown 
-SOCKTIME = 60.0 * 3 # After this much time a socket exception will be thrown.
+MAX_WAIT = 60 * 4 # After this many MALMO_BUSY's a timeout exception will be thrown 
+SOCKTIME = 60.0 * 4 # After this much time a socket exception will be thrown.
 
 class MineRLEnv(gym.Env):
     """MineRL Env  open ai gym compatible environment API"""
@@ -260,7 +260,8 @@ class MineRLEnv(gym.Env):
                     correction = self.observation_space.spaces[k].sample()
                     if isinstance(self.observation_space.spaces[k], gym.spaces.Dict):
                         for k in correction:
-                            correction[k] *= 0
+                            if not isinstance(k, dict):
+                                correction[k] *= 0
                     info[k] = correction
                     # logger.warning("Missing observation {} in Malmo".format(k))
                 

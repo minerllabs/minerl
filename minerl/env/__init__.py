@@ -200,6 +200,14 @@ register(
                 'iron_ingot': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
+            'equipped_items': gym.spaces.Dict({
+                'mainhand': gym.spaces.Dict({
+                    'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+                                 'iron_pickaxe', 'other'),
+                    'damage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                })
+            })
         }),
         'action_space': gym.spaces.Dict({
             "forward": gym.spaces.Discrete(2),
@@ -248,6 +256,14 @@ register(
                 'iron_ingot': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
+            'equipped_items': gym.spaces.Dict({
+                'mainhand': gym.spaces.Dict({
+                    'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+                                 'iron_pickaxe', 'other'),
+                    'damage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,),dtype=np.int),
+                })
+            })
         }),
         'action_space': gym.spaces.Dict({
             "forward": gym.spaces.Discrete(2),
@@ -325,6 +341,14 @@ register(
                 'iron_ingot': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
+            'equipped_items': gym.spaces.Dict({
+                'mainhand': gym.spaces.Dict({
+                    'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+                                 'iron_pickaxe', 'other'),
+                    'damage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': gym.spaces.Box(low=-1, high=np.inf,  shape=(1,), dtype=np.int),
+                })
+            })
         }),
         'action_space': gym.spaces.Dict({
             "forward": gym.spaces.Discrete(2),

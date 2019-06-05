@@ -35,6 +35,7 @@
             </VideoProducer>
             <ObservationFromFullInventory flat="false"/>
             <ObservationFromFullStats/>
+            <ObservationFromEquippedItem/>
 
             <!--  Commands   -->
             <HumanLevelCommands>
