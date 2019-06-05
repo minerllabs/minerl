@@ -165,8 +165,9 @@ def render_metadata(renders: list) -> list:
                     with open(J(render_path, 'metaData.json'), 'r') as f:
 #                        print(render_path)
                         jbos = json.load(f)
-                        assert (jbos["duration"] > 60000 or jbos["duration"] == 0)
-                        assert (jbos["duration"] > 300000 or jbos["duration"] == 0)
+                        assert (jbos['end_time'] - jbos['start_time'] > 300000)
+                        # assert (jbos["duration"] > 60000 or jbos["duration"] == 0)
+                        # assert (jbos["duration"] > 300000 or jbos["duration"] == 0)
 
                     # check that stream_meta_data is good
                     with open(J(render_path, 'stream_meta_data.json'), 'r') as f:
@@ -175,6 +176,7 @@ def render_metadata(renders: list) -> list:
                         assert not jbos["miss_seq_num"]
 
                     touch(J(render_path, GOOD_MARKER_NAME))
+                    remove(J(render_path, BAD_MARKER_NAME))
                     good_renders.append((recording_name, render_path))
                 except (json.decoder.JSONDecodeError, AssertionError) as e:
                     _, _, tb = sys.exc_info()
