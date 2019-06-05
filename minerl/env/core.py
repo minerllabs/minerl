@@ -468,12 +468,16 @@ class MineRLEnv(gym.Env):
             sock.close()
         except Exception as e:
             self._log_error(e)
+            raise
         if self.client_socket:
             self.client_socket.close()
             self.client_socket = None
 
         if self.instance and self.instance.running:
             self.instance.kill()
+
+    def _log_error(self, e):
+        pass  # FIXME: Keeping pylint happy
 
     def reinit(self):
         """Use carefully to reset the episode count to 0."""
