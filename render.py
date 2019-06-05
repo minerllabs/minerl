@@ -167,9 +167,8 @@ def render_metadata(renders: list) -> list:
                     with open(J(render_path, 'metaData.json'), 'r') as f:
 #                        print(render_path)
                         jbos = json.load(f)
-                        assert (jbos['end_time'] - jbos['start_time'] > 300000)
-                        # assert (jbos["duration"] > 60000 or jbos["duration"] == 0)
-                        # assert (jbos["duration"] > 300000 or jbos["duration"] == 0)
+                        # assert (ile["duration"] > 60000 or jbos["duration"] == 0)
+                        assert (jbos["duration"] > 300000)
 
                     # check that stream_meta_data is good
                     with open(J(render_path, 'stream_meta_data.json'), 'r') as f:
