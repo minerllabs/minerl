@@ -136,15 +136,17 @@ def render_metadata(renders: list) -> list:
     for recording_name, render_path in tqdm.tqdm(renders):
         if E(render_path):
             # Check if metadata has already been extracted.
-            if (E(J(render_path, GOOD_MARKER_NAME)) or
-                    E(J(render_path,  BAD_MARKER_NAME))):
-                # If it has been computed see if it is valid
-                # or not.
-                if E(J(render_path, GOOD_MARKER_NAME)):
-                    good_renders.append((recording_name, render_path))
-                else:
-                    bad_renders.append((recording_name, render_path))
-            else:
+            # if (E(J(render_path, GOOD_MARKER_NAME)) or
+            #         E(J(render_path,  BAD_MARKER_NAME))):
+            #     # If it has been computed see if it is valid
+            #     # or not.
+            #     if E(J(render_path, GOOD_MARKER_NAME)):
+            #         good_renders.append((recording_name, render_path))
+            #     else:
+            #         bad_renders.append((recording_name, render_path))
+            # else:
+            # BAH check metadata each time
+            if True:
                 try:
                     recording = get_recording_archive(recording_name)
 
