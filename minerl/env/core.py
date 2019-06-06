@@ -17,6 +17,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+import collections
 import json
 import logging
 import os
@@ -260,7 +261,7 @@ class MineRLEnv(gym.Env):
                     correction = self.observation_space.spaces[k].sample()
                     if isinstance(self.observation_space.spaces[k], gym.spaces.Dict):
                         for k in correction:
-                            if not isinstance(k, dict):
+                            if not isinstance(correction[k], dict) and not isinstance(correction[k], collections.OrderedDict):
                                 correction[k] *= 0
                     info[k] = correction
                     # logger.warning("Missing observation {} in Malmo".format(k))
