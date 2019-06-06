@@ -61,10 +61,10 @@ class DataPipeline:
         pool_size = self.size_to_dequeue * 4
         m = multiprocessing.Manager()
         # data_queue = m.Queue(maxsize=self.size_to_dequeue * self.batch_size * 4)
-        data_queue = m.Queue(maxsize=batch_size * 1000)
+        data_queue = m.Queue(maxsize=max_sequence_len * 1000)
 
         # Setup arguments for the workers.
-        files = [(file_dir, batch_size, data_queue) for file_dir in self.data_list]
+        files = [(file_dir, max_sequence_len, data_queue) for file_dir in self.data_list]
 
         epoch = 0
 
