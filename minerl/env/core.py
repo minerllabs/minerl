@@ -90,14 +90,14 @@ class MineRLEnv(gym.Env):
             observation_space (gym.Space): The observation for the environment.
             action_space (gym.Space): The action space for the environment.
             port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
-            default_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
+            noop_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
         """
     metadata = {'render.modes': []}
     
-    def __init__(self, xml, observation_space, action_space, port=None, default_action=None):
+    def __init__(self, xml, observation_space, action_space, port=None, noop_action=None):
         self.action_space = None
         self.observation_space = None
-        self.default_action = default_action
+        self._default_action = noop_action
 
         self.xml = None
         self.integratedServerPort = 0
@@ -183,8 +183,9 @@ class MineRLEnv(gym.Env):
                     return space.default()
                 except NameError:
                     raise ValueError('Specify non-None default_action in gym.register or extend all action spaces with default() method')
-        if self.default_action is None:
-            self.default_action = {key: map_space(space) for key, space in action_space.spaces.items()}
+        if self._default_action is None:
+            self._default_action = {key: map_space(space) for key, space in action_space.spaces.items()}
+        self.action_space.noop = self._default_action
 
         # Force single agent
         self.agent_count = 1
@@ -247,6 +248,20 @@ class MineRLEnv(gym.Env):
         # print(etree.tostring(self.xml))
 
         self.has_init = True
+
+    @property
+    def noop_action(self):
+        """Gets the no-op action for the environment.
+
+        In addition one can get the no-op/default action directly from the action space.
+        
+            env.action_space.noop
+
+        
+        Returns:
+            [type]: [description]
+        """
+        return self._default_action
 
     def _process_observation(self, pov, info):
         """
@@ -464,6 +479,7 @@ class MineRLEnv(gym.Env):
                     info = comms.recv_message(self.client_socket).decode('utf-8')
                 
                 out_obs = self._process_observation(obs, info)
+                
 
                 turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
                 # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
@@ -479,7 +495,9 @@ class MineRLEnv(gym.Env):
                     # time.sleep(0.1)
                 # print("turnkeyprocessor {}".format(time.time() - t0)); t0 = time.time()
                 # print("creating obs from buffer {}".format(time.time() - t0)); t0 = time.time()
-            return out_obs, reward, self.done, {}
+                return out_obs, reward, self.done, {}
+            else:
+                raise RuntimeError("Attempted to step an environment with done=True")
         except socket.timeout as e:
             # If the socket times out some how! We need to catch this and reset the environment.
             self._clean_connection()

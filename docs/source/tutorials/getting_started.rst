@@ -1,11 +1,9 @@
-==================
-Getting Started
+================
+Installation
 ================
 
 Welcome to MineRL! This guide will get you started.
 
-Installation
-===============
 
 To start using the data and set of reinforcement learning
 enviroments comrpising MineRL, you'll need to install the
@@ -15,7 +13,7 @@ main python package, :code:`minerl`.
 .. _Windows installer: https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 .. _Mac installer: 
 
-1. First **make sure you have JDK 1.8** or higher installed on your
+1. First **make sure you have JDK 1.8** installed on your
    system.
 
    a. `Windows installer`_  -- On windows go this link and follow the
@@ -38,18 +36,3 @@ main python package, :code:`minerl`.
 
         
 **That's it! Now you're good to go :) 💯💯💯**
-
-
-Hello World: Your First Agent
-===============================
-
-With the :code:`minerl` package installed on your system you can
-now make your first agent in Mineraft!
-
-To get started, let's first import the necessary packages 
-
-.. code-block:: python
-
-    import gym
-    import 
-

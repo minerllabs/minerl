@@ -68,9 +68,10 @@ components:
 
 .. toctree::
    :caption: Tutorials and Guides
-   :maxdepth: 2
+   :maxdepth: 1
 
    tutorials/getting_started
+   tutorials/first_agent
 
 
 .. toctree::

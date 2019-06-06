@@ -60,7 +60,7 @@ html_static_path = ['_static']
 
 # -- Extension configuration -------------------------------------------------
 html_theme_options = {
-    # 'canonical_url': '',
+    'canonical_url': 'docs/',
     # 'analytics_id': 'UA-XXXXXXX-1',  #  Provided by Google in your dashboard
     # 'logo_only': False,
     # 'display_version': True,

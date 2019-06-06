@@ -1,5 +1,5 @@
 =====================================
-Data
+:code:`minerl.data`
 =====================================
 
 .. toctree::
@@ -21,8 +21,8 @@ as well as some basic usage examples. To see more detailed
 
     
 .. automodule:: minerl.data
-    :members:
-    :undoc-members:
+    :members: 
+    :undoc-members: 
     :show-inheritance:
     
 
