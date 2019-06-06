@@ -4,7 +4,19 @@ import os
 
 
 def make(environment, data_dir=None, num_workers=4, worker_batch_size=32, minimum_size_to_dequeue=32, force_download=False):
+    """
+    This is a thing that does stuff
 
+    Raises:
+        FileNotFoundError: [description]
+        ValueError: [description]
+        NotImplementedError: [description]
+        NotImplementedError: [description]
+        NotImplementedError: [description]
+
+    Returns:
+        [type]: [description]
+    """
     # Ensure path is setup
     if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
         data_dir = os.environ['MINERL_DATA_ROOT']
