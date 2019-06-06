@@ -72,7 +72,14 @@ components:
 
    tutorials/getting_started
    tutorials/first_agent
+   tutorials/data_sampling
 
+
+.. toctree::
+   :caption: MineRL Environments
+   :maxdepth: 2
+
+   environments/index
 
 .. toctree::
     :maxdepth: 2

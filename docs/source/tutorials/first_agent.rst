@@ -24,7 +24,7 @@ in the :code:`minerl` package. To learn more about the environments
 `checkout the environment documentation`_.
 
 
-For this tutorial we'll  choose the :code:`MineRLNavigate-v0`
+For this tutorial we'll  choose the :code:`MineRLNavigateDense-v0`
 environment. In this task, the agent is challenged with using
 a first-person perspective of a random Minecraft map and
 navigating to a target.
@@ -33,7 +33,7 @@ To create the environment, simply invoke :code:`gym.make`
 
 .. code-block:: python
 
-    env = gym.make('MineRLNavigate-v0')
+    env = gym.make('MineRLNavigateDense-v0')
 
 .. note::
     The first time you run this command to complete, it will take a while as it is recompiling
@@ -48,7 +48,7 @@ To create the environment, simply invoke :code:`gym.make`
         import logging
         logging.basicConfig(level=logging.DEBUG)
         
-        env = gym.make('MineRLNavigate-v0')
+        env = gym.make('MineRLNavigateDense-v0')
     
 
 
@@ -61,7 +61,7 @@ and get our first observation from the agent by reseting the environment.
 
 .. code-block:: python
 
-    obs, info = env.reset()
+    obs, _ = env.reset()
 
 The :code:`obs` variable will be a dictionary containing the following
 observations returned by the environment. In the case of the
@@ -121,12 +121,48 @@ acting randomly, on the right is a plot of the compass angle over the course of 
 .. image:: ../assets/compass_angle.png
 
 
-Default actions and a better policy
+No-op actions and a better policy
 -------------------------------------
 
 **Now let's make a hard-coded agent that actually runs
 towards the target.** 🧠🧠🧠
 
+To do this at every step of the environment we will take the `noop`
+action with a few modifications; in particular, we will only move forward,
+jump, attack, and changw the agent's direction to minimize
+the angle between the agent's movement direction and it's target,  :code:`compassAngle`.
+
+.. code-block:: python
+
+    import minerl 
+    import gym 
+    env = gym.make('MineRLNavigateDense-v0') 
+    
+    
+    obs, _ = env.reset() 
+    done = False 
+    x, r = [], [0] 
+    
+    while not done: 
+        action = env.action_space.noop() 
+    
+        action['camera'] = [0, 0.03*obs["compassAngle"]] 
+        action['back'] = 0 
+        action['forward'] = 1 
+        action['jump'] = 1 
+        action['attack'] = 1 
+    
+        obs, reward, done, info = env.step( 
+            action) 
+
+After running this agent, you should notice marekedly less sporadic
+behaviour. Plotting both the :code:`compassAngle` and the
+net reward over the episode confirm that this policy performs
+better than our random policy.
 
 
+.. image:: ../assets/compass_angle_better.png
+.. image:: ../assets/net_reward.png
 
+Congratulations! You've just made your first agent using the
+:code:`minerl` framework!

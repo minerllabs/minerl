@@ -17,6 +17,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
+import copy
 import collections
 import json
 import logging
@@ -185,7 +186,11 @@ class MineRLEnv(gym.Env):
                     raise ValueError('Specify non-None default_action in gym.register or extend all action spaces with default() method')
         if self._default_action is None:
             self._default_action = {key: map_space(space) for key, space in action_space.spaces.items()}
-        self.action_space.noop = self._default_action
+        def noop_func(a):
+            return deepcopy(self._default_action)
+
+        boundmethd = _bind(self.action_space, noop_func)
+        self.action_space.noop = boundmethd
 
         # Force single agent
         self.agent_count = 1
@@ -249,19 +254,18 @@ class MineRLEnv(gym.Env):
 
         self.has_init = True
 
-    @property
     def noop_action(self):
         """Gets the no-op action for the environment.
 
         In addition one can get the no-op/default action directly from the action space.
         
-            env.action_space.noop
+            env.action_space.noop()
 
         
         Returns:
-            [type]: [description]
+            Any: A no-op action in the env's space.
         """
-        return self._default_action
+        return deepcopy(self._default_action)
 
     def _process_observation(self, pov, info):
         """
@@ -615,3 +619,15 @@ def make():
 def register(id, **kwargs):
     # TODO create doc string based on registered envs
     return gym.envs.register(id, **kwargs)
+
+def _bind(instance, func, as_name=None):
+    """
+    Bind the function *func* to *instance*, with either provided name *as_name*
+    or the existing name of *func*. The provided *func* should accept the 
+    instance as the first argument, i.e. "self".
+    """
+    if as_name is None:
+        as_name = func.__name__
+    bound_method = func.__get__(instance, instance.__class__)
+    setattr(instance, as_name, bound_method)
+    return bound_method
