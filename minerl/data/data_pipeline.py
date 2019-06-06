@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class DataPipeline:
     """
-    Creates a data pipeline.
+    Creates a data pipeline object used to itterate through the MineRL-v0 dataset
     """
 
     def __init__(self,
@@ -44,26 +44,27 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
-    def batch_iter(self, num_epochs=-1, batch_size=32, max_sequence_len=None):
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32):
         """
-        Returns a generator for iterating through batches of the dataset.
-        :param batch_size:
-        :param max_sequence_len:
-        :return:
+        Returns a generator for iterating through sequences of the dataset. 
+        Loads num_workers files at once as defined in minerl.data.make()
+        
+        Args:
+            num_epochs (int, optional): number of epochs to ittereate over or -1
+             to loop forever. Defaults to -1.
+            max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32.
         """
-        if max_sequence_len is not None:
-            raise NotImplementedError("Drawing batches of consecutive frames is not supported yet")
 
-        logger.info("Starting batch iterator on {}".format(self.data_dir))
+        logger.info("Starting seq iterator on {}".format(self.data_dir))
         self.data_list = self._get_all_valid_recordings(self.data_dir)
 
         pool_size = self.size_to_dequeue * 4
         m = multiprocessing.Manager()
-        data_queue = m.Queue(maxsize=self.size_to_dequeue * self.batch_size * 4)
-        data_queue = m.Queue(maxsize=self.batch_size * 1000)
+        # data_queue = m.Queue(maxsize=self.size_to_dequeue * self.batch_size * 4)
+        data_queue = m.Queue(maxsize=max_sequence_len * 1000)
 
         # Setup arguments for the workers.
-        files = [(file_dir, self.batch_size, data_queue) for file_dir in self.data_list]
+        files = [(file_dir, max_sequence_len, data_queue) for file_dir in self.data_list]
 
         epoch = 0
 
@@ -77,8 +78,8 @@ class DataPipeline:
             while True:
                 try:
                     sequence = data_queue.get_nowait()
-                    action_batch, frame_batch, reward_batch = sequence
-                    yield action_batch, frame_batch, reward_batch
+                    action_batch, frame_batch, reward_batch, done_batch = sequence
+                    yield frame_batch, reward_batch[0], done_batch[0], action_batch
                 except Empty:
                     if map_promise.ready():
                         epoch += 1
@@ -141,23 +142,6 @@ class DataPipeline:
 
             num_states = len(reward_vec)
 
-
-            # Rendered State
-                # print("Loading npz file: ", numpy_path)
-                # print(state)
-                # print([a for a in state])
-                # print([state[a] for a in state])
-                # [action_vec, reward_vec, info_vec] = np.l oad(numpy_path, allow_pickle=False)
-                # print('Action:', [(key[len('action_'):], state[key]) for key in state if key.startswith('action_')])
-                # print('Reward:', state['reward'])
-                # print('min:', min(state['reward']), 'max:', max(state['reward']))
-                # print('Info', [(key[len('observation_'):], state[key]) for key in state if key != 'action' and key != 'reward'])
-
-                # action_dict = {key[len('action_'):]: state[key] for key in state if key.startswith('action_')}
-                # reward_vec = state['reward']
-                # info_dict = {key[len('observation_'):]: state[key] for key in state if key.startswith('observation_')}
-                # print("Found", num_states, "states")
-
             # Rendered Frames
             frame_skip = 0  # np.random.randint(0, len(univ)//2, 1)[0]
             frame_num = 0
@@ -166,7 +150,7 @@ class DataPipeline:
             reset = True
             batches = []
             observables = list(info_dict.keys()).copy()
-            observables.append('pov') # TODO remove maybe
+            observables.append('pov')  # TODO remove maybe
             actionables = list(action_dict.keys())
             mission_handlers = ['reward']
 
@@ -190,6 +174,7 @@ class DataPipeline:
                     # print('Is it early with no frames:', frame_num, max_frame_num, num_states, len(frames), worker_batch_size)
                     raise err
 
+
                 if len(frames) == 0:
                     break
 
@@ -199,7 +184,6 @@ class DataPipeline:
                 # Load non-image data from npz
                 observation_data = [None for _ in observables]
                 action_data = [None for _ in actionables]
-                reward_data = None
 
                 try:
                     for i, key in enumerate(observables):
@@ -212,6 +196,10 @@ class DataPipeline:
                         action_data[i] = np.asanyarray(state[key][start_idx:stop_idx])
 
                     reward_data = np.asanyarray(reward_vec[start_idx:stop_idx], dtype=np.float32)
+
+                    done_data = [False for _ in range(stop_idx - start_idx)]
+                    if frame_num == max_frame_num or frame_num == num_states:
+                        done_data[-1] = True
                 except Exception as err:
                     print("error drawing batch from npz file:", err)
                     raise err
@@ -220,7 +208,7 @@ class DataPipeline:
                 # print(type(reward_data))
 
                 # batches = tuple((action_data, observation_data, reward_data))
-                batches = [action_data, observation_data, [reward_data]]
+                batches = [action_data, observation_data, [reward_data], [np.array(done_data)]]
 
                 # print('we put')
                 # print(type(batches))

@@ -6,17 +6,14 @@ import pySmartDL
 
 
 def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0, update_environment_variables=True):
-    """
-    Downloads MineRLv0 to specified directory. If directory is None downloads to $MINERL_DATA_ROOT. Throws error if both
-    are not defined.
-    :param update_environment_variables: Enables / disables setting of MineRL environment variables
-    :type update_environment_variables:
-    :param directory: Destination for downloading MineRLv0 datasets
-    :type directory:
-    :param resolution: One of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ] respectively
-    :type resolution:
-    :param texture_pack: 0: Default Minecraft texture pack, 1: custom flat semi-realistic texture pack
-    :type texture_pack:
+    """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
+    download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
+    
+    Args:
+        directory (os.path): destination root for downloading MineRLv0 datasets
+        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ] respectively (note: high resolution is not currently supported). Defaults to 'low'.
+        texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults to 0.
+        update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment variable (note: for some os this is only for the current shell) Defaults to True.
     """
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:

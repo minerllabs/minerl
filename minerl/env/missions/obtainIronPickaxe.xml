@@ -30,8 +30,8 @@
         <AgentHandlers>
             <!--  Observations     -->
             <VideoProducer want_depth="false">
-                <Width>640</Width>
-                <Height>640</Height>
+                <Width>64</Width>
+                <Height>64</Height>
             </VideoProducer>
             <ObservationFromFullInventory flat="false"/>
             <ObservationFromFullStats/>
