@@ -59,11 +59,11 @@ class DataPipeline:
 
         pool_size = self.size_to_dequeue * 4
         m = multiprocessing.Manager()
-        data_queue = m.Queue(maxsize=self.size_to_dequeue * self.batch_size * 4)
-        data_queue = m.Queue(maxsize=self.batch_size * 1000)
+        # data_queue = m.Queue(maxsize=self.size_to_dequeue * self.batch_size * 4)
+        data_queue = m.Queue(maxsize=batch_size * 1000)
 
         # Setup arguments for the workers.
-        files = [(file_dir, self.batch_size, data_queue) for file_dir in self.data_list]
+        files = [(file_dir, batch_size, data_queue) for file_dir in self.data_list]
 
         epoch = 0
 
@@ -77,8 +77,8 @@ class DataPipeline:
             while True:
                 try:
                     sequence = data_queue.get_nowait()
-                    action_batch, frame_batch, reward_batch = sequence
-                    yield action_batch, frame_batch, reward_batch
+                    action_batch, frame_batch, reward_batch, done_batch = sequence
+                    yield frame_batch, reward_batch[0], done_batch[0], action_batch
                 except Empty:
                     if map_promise.ready():
                         epoch += 1
@@ -190,6 +190,7 @@ class DataPipeline:
                     # print('Is it early with no frames:', frame_num, max_frame_num, num_states, len(frames), worker_batch_size)
                     raise err
 
+
                 if len(frames) == 0:
                     break
 
@@ -199,7 +200,6 @@ class DataPipeline:
                 # Load non-image data from npz
                 observation_data = [None for _ in observables]
                 action_data = [None for _ in actionables]
-                reward_data = None
 
                 try:
                     for i, key in enumerate(observables):
@@ -212,6 +212,10 @@ class DataPipeline:
                         action_data[i] = np.asanyarray(state[key][start_idx:stop_idx])
 
                     reward_data = np.asanyarray(reward_vec[start_idx:stop_idx], dtype=np.float32)
+
+                    done_data = [False for _ in range(stop_idx - start_idx)]
+                    if frame_num == max_frame_num or frame_num == num_states:
+                        done_data[-1] = True
                 except Exception as err:
                     print("error drawing batch from npz file:", err)
                     raise err
@@ -220,7 +224,7 @@ class DataPipeline:
                 # print(type(reward_data))
 
                 # batches = tuple((action_data, observation_data, reward_data))
-                batches = [action_data, observation_data, [reward_data]]
+                batches = [action_data, observation_data, [reward_data], [np.array(done_data)]]
 
                 # print('we put')
                 # print(type(batches))
