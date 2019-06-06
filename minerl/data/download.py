@@ -11,9 +11,9 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
     
     Args:
         directory (os.path): destination root for downloading MineRLv0 datasets
-        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ] respectively (note. high resolution is not currently supported). Defaults to 'low'.
+        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ] respectively (note: high resolution is not currently supported). Defaults to 'low'.
         texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults to 0.
-        update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment variable (note for some os this is only for the current shell) Defaults to True.
+        update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment variable (note: for some os this is only for the current shell) Defaults to True.
     """
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
