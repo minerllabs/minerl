@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 class DataPipeline:
     """
-    Creates a data pipeline.
+    Creates a data pipeline object used to itterate through the MineRL-v0 dataset
     """
 
     def __init__(self,
@@ -44,17 +44,18 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
-    def batch_iter(self, num_epochs=-1, batch_size=32, max_sequence_len=None):
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32):
         """
-        Returns a generator for iterating through batches of the dataset.
-        :param batch_size:
-        :param max_sequence_len:
-        :return:
+        Returns a generator for iterating through sequences of the dataset. 
+        Loads num_workers files at once as defined in minerl.data.make()
+        
+        Args:
+            num_epochs (int, optional): number of epochs to ittereate over or -1
+             to loop forever. Defaults to -1.
+            max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32.
         """
-        if max_sequence_len is not None:
-            raise NotImplementedError("Drawing batches of consecutive frames is not supported yet")
 
-        logger.info("Starting batch iterator on {}".format(self.data_dir))
+        logger.info("Starting seq iterator on {}".format(self.data_dir))
         self.data_list = self._get_all_valid_recordings(self.data_dir)
 
         pool_size = self.size_to_dequeue * 4
@@ -141,23 +142,6 @@ class DataPipeline:
 
             num_states = len(reward_vec)
 
-
-            # Rendered State
-                # print("Loading npz file: ", numpy_path)
-                # print(state)
-                # print([a for a in state])
-                # print([state[a] for a in state])
-                # [action_vec, reward_vec, info_vec] = np.l oad(numpy_path, allow_pickle=False)
-                # print('Action:', [(key[len('action_'):], state[key]) for key in state if key.startswith('action_')])
-                # print('Reward:', state['reward'])
-                # print('min:', min(state['reward']), 'max:', max(state['reward']))
-                # print('Info', [(key[len('observation_'):], state[key]) for key in state if key != 'action' and key != 'reward'])
-
-                # action_dict = {key[len('action_'):]: state[key] for key in state if key.startswith('action_')}
-                # reward_vec = state['reward']
-                # info_dict = {key[len('observation_'):]: state[key] for key in state if key.startswith('observation_')}
-                # print("Found", num_states, "states")
-
             # Rendered Frames
             frame_skip = 0  # np.random.randint(0, len(univ)//2, 1)[0]
             frame_num = 0
@@ -166,7 +150,7 @@ class DataPipeline:
             reset = True
             batches = []
             observables = list(info_dict.keys()).copy()
-            observables.append('pov') # TODO remove maybe
+            observables.append('pov')  # TODO remove maybe
             actionables = list(action_dict.keys())
             mission_handlers = ['reward']
 

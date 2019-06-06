@@ -13,28 +13,21 @@
 
 The :code:`minerl.data` package provides a unified interface for
 sampling data from the `MineRL-v0 Dataset`. Data is accessed by 
-making a dataset from one of the minerl environments. 
+making a dataset from one of the minerl environments and iterating 
+over it using one of the iterators provided by the :code:`minerl.data.DataPipeline`
+
 The following is a description of the various methods included within the package
 as well as some basic usage examples. To see more detailed
 `descriptions and tutorials`_ on how to use the data API, please
 `take a look at our numerous getting started manuals`_.
 
 
-Data
-=================
-    
-.. automodule:: minerl.data
-    :members: make, download
-    :undoc-members:
-    :show-inheritance:
-    
-
-
-Data Pipeline
+MineRLv0
 =================
 
 .. automodule:: minerl.data
-    :members: DataPipeline
+    :members: make, download, DataPipeline
     :undoc-members:
     :show-inheritance:
+    
 
