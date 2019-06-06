@@ -47,11 +47,21 @@ missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
 
 
 class EnvException(Exception):
+    """A special exception thrown in the creation of an environment's Malmo mission XML.
+    
+    Args:
+        message (str): The exception message. 
+    """
     def __init__(self, message):
         super(EnvException, self).__init__(message)
 
 
 class MissionInitException(Exception):
+    """An exception thrown when a mission fails to initialize
+    
+    Args:
+        message (str): The exception message. 
+    """
     def __init__(self, message):
         super(MissionInitException, self).__init__(message)
 
@@ -60,8 +70,28 @@ MAX_WAIT = 60 * 4 # After this many MALMO_BUSY's a timeout exception will be thr
 SOCKTIME = 60.0 * 4 # After this much time a socket exception will be thrown.
 
 class MineRLEnv(gym.Env):
-    """MineRL Env  open ai gym compatible environment API"""
+    """The MineRLEnv class.
 
+        Example:
+            To actually create a MineRLEnv. Use any one of the package MineRL environments (Todo: Link.)
+            literal blocks::
+
+                import minerl
+                import gym
+
+                env = gym.make('MineRLTreechop-v0') # Makes a minerl environment.
+                
+                # Use env like any other OpenAI gym environment.
+                # ...
+            
+        
+        Args:
+            xml (str): The path to the MissionXML file for this environment.
+            observation_space (gym.Space): The observation for the environment.
+            action_space (gym.Space): The action space for the environment.
+            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
+            default_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
+        """
     metadata = {'render.modes': []}
     
     def __init__(self, xml, observation_space, action_space, port=None, default_action=None):
@@ -94,19 +124,26 @@ class MineRLEnv(gym.Env):
 
         self.init(observation_space, action_space, port=port)
 
-    def init(self,  observation_space, action_space, exp_uid=None, episode=0,
-             action_filter=None, resync=0, step_options=0, port=None):
-        """"Initialize a Malmo environment.
-            xml - the mission xml.
-            port - the MalmoEnv service's port.
-            server - the MalmoEnv service address. Default is localhost.
-            role - the agent role (0..N-1) for missions with N agents. Defaults to 0.
-            exp_uid - the experiment's unique identifier. Generated if not given.
-            episode - the "reset" start count for experiment re-starts. Defaults to 0.
-            action_filter - an optional list of valid actions to filter by. Defaults to simple commands.
-            step_options - encodes withTurnKey and withInfo in step messages. Defaults to info included,
-            turn if required.
+    def init(self,  observation_space, action_space,  port=None):
+        """Initializes the MineRL Environment.
+
+        Note: 
+            This is called automatically when the environment is made.
+        
+        Args:
+            observation_space (gym.Space): The observation for the environment.
+            action_space (gym.Space): The action space for the environment.
+            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
+        
+        Raises:
+            EnvException: If the Mission XML is malformed this is thrown.
+            ValueError: The space specified for this environment does not have a default action.
+            NotImplementedError: When multiagent environments are attempted to be used.
         """
+        step_options = 0
+        resync = 0
+        episode = 0
+        exp_uid = None
         if self.instance == None:
             if not port is  None:
                 self.instance = InstanceManager.add_existing_instance(port)
@@ -307,7 +344,6 @@ class MineRLEnv(gym.Env):
         comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
 
     def reset(self):
-        """gym api reset"""
         # Add support for existing instances.
         if not self.has_init:
             self.init()
@@ -387,15 +423,15 @@ class MineRLEnv(gym.Env):
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
-    def render(self):
-        """gym api render"""
-        pass
-
     def seed(self):
-        print("WARNING: Seeds not supported yet.")
+        """Seeds the environment.
+        
+        Note: 
+            This is NOT implemented.
+        """
+        logger.warn("Seeds not supported yet.")
 
     def step(self, action):
-        """gym api step"""
         obs = None
         reward = None
         info = None

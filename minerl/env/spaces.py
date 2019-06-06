@@ -5,25 +5,36 @@ import gym
 import gym.spaces
 import numpy as np
 
-
-class StringActionSpace(gym.spaces.Discrete):
-    """Malmo actions as their strings."""
-    def __init__(self):
-        gym.spaces.Discrete.__init__(self, 1)
-
-    def __getitem__(self, action):
-        return action
-
-
 class Enum(gym.spaces.Discrete):
     """
     An enum space. It can either be the enum string or a integer.
     """
     def __init__(self, *values: str):
+        """Initializes the Enum space with a set of possible 
+        values that the enum can take.
+
+        Usage:
+        ```
+        x = Enum('none', 'type1', 'type2')
+        x['none'] # 0
+        x['type1'] # 1
+
+        Args:
+            values (str):  An order argument list of values the enum can take.
+        """
         super().__init__(len(values))
         self.values = values
 
-    def sample(self):
+    def sample(self) -> int:
+        """Samples a random index for one of the enum types.
+
+        ```
+        x.sample() # A random nubmer in the half-open discrete interval [0, len(x.values)) 
+        ````    
+        
+        Returns:
+            int:  A random index for one of the enum types.
+        """
         return super().sample()
 
     def __getitem__(self, action):
@@ -40,21 +51,3 @@ class Enum(gym.spaces.Discrete):
 
     def __len__(self):
         return len(self.values)
-
-
-class ActionSpace(gym.spaces.Discrete):
-    """Malmo actions as gym action space"""
-    def __init__(self, actions):
-        self.actions = actions
-        gym.spaces.Discrete.__init__(self, len(self.actions))
-
-    def sample(self):
-        return random.randint(1, len(self.actions)) - 1
-
-    def __getitem__(self, action):
-        return self.actions[action]
-
-    def __len__(self):
-        return len(self.actions)
-
-
