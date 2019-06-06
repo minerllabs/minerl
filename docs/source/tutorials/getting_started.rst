@@ -34,5 +34,4 @@ main python package, :code:`minerl`.
 
         pip3 install --upgrade minerl
 
-        
 **That's it! Now you're good to go :) 💯💯💯**
