@@ -38,7 +38,6 @@ main python package, :code:`minerl`.
 **That's it! Now you're good to go :) 💯💯💯**
 
 
-===============================
 Your First Agent
 ===============================
 
