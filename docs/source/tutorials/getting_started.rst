@@ -38,6 +38,36 @@ main python package, :code:`minerl`.
 **That's it! Now you're good to go :) 💯💯💯**
 
 
+===============================
+Your First Agent
+===============================
+
+With the :code:`minerl` package installed on your system you can
+now make your first agent in Mineraft!
+
+To get started, let's first import the necessary packages 
+
+.. code-block:: python
+
+    import gym
+    import minerl
+
+    # Run random agent through environment
+    env = gym.make(environment) # or try 'MineRLObtainDiamond-v0'
+
+    obs, info = env.reset()
+    done = False
+    
+    while not done:
+            action = env.action_space.sample()  # Generate a random action for the agent
+            action['camera'] *= 0.1 # Full turn speed is quite fast for humans
+            action['forward'] = 1   # Let's move forward in every step
+            action['bacward'] = 0   # without this we may stand still sometimes
+            obs, reward, done, info = env.step(action)
+            if reward != 0:
+            print(reward)
+    print("MISSION DONE") 
+
 Sampling The Dataset
 ===============================
 
