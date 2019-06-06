@@ -90,7 +90,7 @@ Now we can build the datast for :code:`MineRLObtainDiamond-v0`
     data = minerl.data.make('MineRLObtainDiamond-v0', data_dir='/your/local/path/data_texture_0_low_res')
     
     # Iterate through a single epoch using batches of 32 steps
-    for act, obs, rew, done in data.batch_iter(num_epochs=1, batch_size=32):
+    for obs, rew, done, act in data.batch_iter(num_epochs=1, batch_size=32):
         print("Act shape:", len(act), act)
         print("Obs shape:", len(obs), obs)
         print("Rew shape:", len(rew), rew)
