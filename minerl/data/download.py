@@ -22,7 +22,8 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
         else:
             raise ValueError("Provided directory is None and $MINERL_DATA_ROOT is not defined")
     elif update_environment_variables:
-        os.environ['MINERL_DATA_ROOT'] = os.path.normpath(directory)
+        os.environ['MINERL_DATA_ROOT'] = os.path.expanduser(
+            os.path.expandvars(os.path.normpath(directory)))
 
     # TODO pull JSON defining dataset URLS from webserver instead of hard-coding
     # TODO add hashed to website to verify downloads for mirrors
