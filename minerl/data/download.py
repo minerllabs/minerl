@@ -3,6 +3,7 @@ import requests
 import tqdm
 import tarfile
 import pySmartDL
+import logging
 
 
 def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0, update_environment_variables=True):
@@ -30,19 +31,10 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
     url = "https://router.sneakywines.me/minerl/" + filename
     hash_url = "https://router.sneakywines.me/minerl/" + hashname
 
-    response = requests.get(url, stream=True)
-
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    with open(os.path.join(directory, filename), "wb") as handle:
-        for data in tqdm.tqdm(response.iter_content(chunk_size=1048576)):
-            handle.write(data)
-
     response = requests.get(hash_url)
     md5_hash = response.text
 
-    obj = pySmartDL.SmartDL(url, progress_bar=True, connect_default_logger=True)
+    obj = pySmartDL.SmartDL(url, progress_bar=True, logger=logging.getLogger(__name__))
     obj.add_hash_verification('md5', md5_hash)
     try:
         obj.start()
@@ -51,7 +43,8 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
     except pySmartDL.CanceledException:
         print("Download canceled by user")
     finally:
-        tf = tarfile.open(obj.get_dest())
-        tf.extractall()
+        logging.info('Extracting downloaded files ... ')
+        tf = tarfile.open(obj.get_dest(), mode="r:*")
+        tf.extractall(path=directory)
 
     return directory
