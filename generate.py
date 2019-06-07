@@ -419,9 +419,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 if E(univ_output_name): os.remove(univ_output_name)
                 if E(meta_output_name): os.remove(meta_output_name)
 
-                # Split video (without re-encoding)
-                extract_subclip(inputPath, startTick, stopTick, output_name)
-
                 # Determine if this is a nav exp and we are missing the touch block handler
                 metadata = parse_metadata(startMarker, stopMarker)
                 if experimentName in ['navigate', 'navigateextreme'] \
@@ -431,7 +428,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     found_block = metadata['server_metadata']['found_block']
                     found_tick = math.ceil(found_block / duration * (stopTick - startTick))
                     found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
-                # BAH removed iron pick and bed as it is crafted and not neesisary
+                # BAH removed iron pick and bed as it is crafted and not necessary
                 elif experimentName in ['o_dia'] \
                         and 'server_metadata' in metadata \
                         and 'winners' in metadata['server_metadata'] \
@@ -469,18 +466,18 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                             json_to_write[str(idx - startTick)] = foo
                         elif experimentName in ['o_dia', 'o_iron', 'o_bed']:
                             if experimentName == 'o_dia':
-                                foo['inventory']['changes'] = [
+                                foo['diff']['changes'] = [
                                     {'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
                                 # print('Stuck a diamond in it')
                             elif experimentName == 'o_iron':
-                                foo['inventory']['changes'].append(
+                                foo['diff']['changes'].append(
                                     {'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1})
                             elif experimentName == 'o_bed':
                                 # Go forward in the json and find the next bed
                                 found_bed = False
                                 for j in range(32):
                                     index = idx + j
-                                    if str(index) in univ_json and 'changes' in univ_json[index]['inventory']:
+                                    if str(index) in univ_json and 'changes' in univ_json[index]['diff']:
                                         for entry in univ_json[index]['inventory']['changes']:
                                             if entry['item'] == 'minecraft:bed':
                                                 foo['inventory']['changes'].append(entry)
@@ -489,17 +486,20 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                     if found_bed:
                                         break
                                 if not found_bed:
-                                    foo['inventory']['changes'].append(
+                                    foo['diff']['changes'].append(
                                         {'item': 'minecraft:bed', 'variant': 0, 'quantity_change': 1})
                             json_to_write[str(idx - startTick)] = foo
                     else:
                         json_to_write[str(idx - startTick)] = univ_json[str(idx)]
 
+                # Split universal.json
                 json.dump(json_to_write, open(univ_output_name, 'w'))
 
                 # Split metadata.json
-
                 json.dump(metadata, open(meta_output_name, 'w'))
+
+                # Split video (without re-encoding)
+                extract_subclip(inputPath, startTick, stopTick, output_name)
 
                 numNewSegments += 1
                 pbar.update(1)
