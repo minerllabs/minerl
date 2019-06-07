@@ -46,6 +46,13 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
+    @staticmethod
+    def _flatten_space(data_list, gym_space):
+        for command_string in gym_space.spaces:
+            pass
+        return data_list
+
+
     def seq_iter(self, num_epochs=-1, max_sequence_len=32):
         """
         Returns a generator for iterating through sequences of the dataset. 
@@ -55,6 +62,9 @@ class DataPipeline:
             num_epochs (int, optional): number of epochs to ittereate over or -1
              to loop forever. Defaults to -1.
             max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32.
+
+        Generates:
+            observation_dict, reward_list, done_list, action_dict
         """
 
         logger.info("Starting seq iterator on {}".format(self.data_dir))
@@ -80,15 +90,15 @@ class DataPipeline:
             while True:
                 try:
                     sequence = data_queue.get_nowait()
-                    action_batch, frame_batch, reward_batch, done_batch = sequence
+                    action_batch, observation_batch, reward_batch, done_batch = sequence
 
-                    # # Wrap in dict
-                    # gym_spec = gym.envs.registration.spec(self.environment)
-                    #
-                    # action_space = map_action_space(gym_spec._kwargs['action_space'])
-                    # obs_space = map_observation_space(gym_spec._kwargs['observation_space'])
+                    # Wrap in dict
+                    gym_spec = gym.envs.registration.spec(self.environment)
 
-                    yield frame_batch, reward_batch[0], done_batch[0], action_batch
+                    action_dict = self._flatten_space(action_batch, gym_spec._kwargs['action_space'])
+                    observation_dict = self._flatten_space(observation_batch, gym_spec._kwargs['observation_space'])
+
+                    yield observation_dict, reward_batch[0], done_batch[0], action_dict
                 except Empty:
                     if map_promise.ready():
                         epoch += 1
@@ -135,7 +145,6 @@ class DataPipeline:
         else:
             numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
 
-
         try:
             # logger.error("Starting worker!")
 
@@ -173,7 +182,8 @@ class DataPipeline:
 
                 # Collect up to worker_batch_size number of frames
                 try:
-                    while ret and frame_num < max_frame_num and frame_num < num_states and len(frames) < worker_batch_size:
+                    while ret and frame_num < max_frame_num and frame_num < num_states and len(
+                            frames) < worker_batch_size:
                         ret, frame = cap.read()
                         if ret:
                             cv2.cvtColor(frame, frame, cv2.COLOR_BGR2RGB);
@@ -183,7 +193,6 @@ class DataPipeline:
                     print("error reading capture device:", err)
                     # print('Is it early with no frames:', frame_num, max_frame_num, num_states, len(frames), worker_batch_size)
                     raise err
-
 
                 if len(frames) == 0:
                     break
