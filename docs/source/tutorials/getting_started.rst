@@ -11,7 +11,6 @@ main python package, :code:`minerl`.
 
 .. _OpenJDK 8: https://openjdk.java.net/install/
 .. _Windows installer: https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
-.. _Mac installer: 
 
 1. First **make sure you have JDK 1.8** installed on your
    system.
