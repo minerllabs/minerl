@@ -1,6 +1,5 @@
 import os
 import requests
-import tqdm
 import tarfile
 import pySmartDL
 import logging
