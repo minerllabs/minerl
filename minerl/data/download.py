@@ -3,6 +3,7 @@ import requests
 import tqdm
 import tarfile
 import pySmartDL
+import logging
 
 
 def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0, update_environment_variables=True):
@@ -21,31 +22,20 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
         else:
             raise ValueError("Provided directory is None and $MINERL_DATA_ROOT is not defined")
     elif update_environment_variables:
-        os.environ['MINERL_DATA_ROOT'] = os.path.normpath(directory)
+        os.environ['MINERL_DATA_ROOT'] = os.path.expanduser(
+            os.path.expandvars(os.path.normpath(directory)))
 
     # TODO pull JSON defining dataset URLS from webserver instead of hard-coding
     # TODO add hashed to website to verify downloads for mirrors
     filename, hashname = "data_texture_{}_{}_res.tar.gz".format(texture_pack, resolution), \
                      "data_texture_{}_{}_res.md5".format(texture_pack, resolution)
-    url = "https://router.sneakywines.me/minerl/" + filename
+    urls = ["https://router.sneakywines.me/minerl/" + filename]
     hash_url = "https://router.sneakywines.me/minerl/" + hashname
-
-    response = requests.get(url, stream=True)
-
-    directory = os.expanduser(directory)
-    directory = os.expandvar(directory)
-
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    with open(os.path.join(directory, filename), "wb") as handle:
-        for data in tqdm.tqdm(response.iter_content(chunk_size=1048576)):
-            handle.write(data)
 
     response = requests.get(hash_url)
     md5_hash = response.text
 
-    obj = pySmartDL.SmartDL(url, progress_bar=True, connect_default_logger=True)
+    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logging.getLogger(__name__))
     obj.add_hash_verification('md5', md5_hash)
     try:
         obj.start()
@@ -54,7 +44,8 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
     except pySmartDL.CanceledException:
         print("Download canceled by user")
     finally:
-        tf = tarfile.open(obj.get_dest())
-        tf.extractall()
+        logging.info('Extracting downloaded files ... ')
+        tf = tarfile.open(obj.get_dest(), mode="r:*")
+        tf.extractall(path=directory)
 
     return directory
