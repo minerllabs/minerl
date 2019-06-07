@@ -38,7 +38,7 @@ project and its related repositories and components!
 .. _MineRL: http://minerl.io
 .. _OpenAI Gym: https://gym.openai.com
 .. _MineRL-v0 Dataset: http://minerl.io/dataset
-
+.. _set of tasks: http://minerl.io/docs/environments
 
 What is MineRL
 ---------------
@@ -51,7 +51,7 @@ components:
 
 - `MineRL-v0 Dataset`_ -- One of the largest imitation learning
   datasets with over **60 million frames** of recorded human player
-  data. The dataset includes a `set of tasks`_ which highlights
+  data. The dataset includes a `set of environments`_ which highlight
   many of the hardest problems in modern-day Reinforcement
   Learning: sparse rewards and hierarchical policies.
 
