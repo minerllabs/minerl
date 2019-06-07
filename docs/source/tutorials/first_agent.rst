@@ -141,7 +141,6 @@ the angle between the agent's movement direction and it's target,  :code:`compas
     
     obs, _ = env.reset() 
     done = False 
-    x, r = [], [0] 
     
     while not done: 
         action = env.action_space.noop() 
