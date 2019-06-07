@@ -204,10 +204,10 @@ def get_metadata(renders: list) -> list:
     return good_renders, bad_renders
 
 
-def _gen_sarsa_pairs(outputPath, manager, input):
+def _gen_sarsa_pairs(outputPath, manager, input, debug=False):
     n = manager.get_index()
     recordingName, inputPath = input
-    ret = gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=n)
+    ret = gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=n, debug=debug)
     manager.free_index(n)
     return ret
 
@@ -220,7 +220,7 @@ def get_tick(ticks, ms):
 
 
 # 3. generate sarsa pairs
-def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
+def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=False):
     # Script to to pair actions with video recording
     # All times are in ms and we assume a actions list, a timestamp file, and a dis-syncronous mp4 video
 
@@ -341,18 +341,21 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
     # startTime : stopTime : expName : startTick : stopTick : startMarker :  stopMarker
 
     if not E(J(inputPath, "recording.mp4")):
-        tqdm.tqdm.write('No recording found in ' + inputPath)
+        if debug:
+            tqdm.tqdm.write('No recording found in ' + inputPath)
         return 0
 
     if len(markers) == 0:
-        tqdm.tqdm.write('No valid markers found')
+        if debug:
+            tqdm.tqdm.write('No valid markers found')
         return 0
 
     if univ_json is None:
         univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
     if 'ticks' not in univ_json:
-        tqdm.tqdm.write('No ticks file in ' + inputPath)
+        if debug:
+            tqdm.tqdm.write('No ticks file in ' + inputPath)
         return 0
 
     ticks = univ_json['ticks']
@@ -376,18 +379,18 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
     #             for segment in segments]
     # segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
 
-
     pbar = tqdm.tqdm(total=len(segments), desc='Segments', leave=False, position=lineNum)
 
     if not segments or len(segments) == 0:
-        tqdm.tqdm.write('No segments in ' + inputPath)
+        if debug:
+            tqdm.tqdm.write('No segments in ' + inputPath)
         return 0
     try:
         if not E(J(inputPath, 'keyframes_recording.mp4')):
             # os.remove(J(inputPath, 'keyframes_recording.mp4'))
             add_key_frames(inputPath, segments)
     except subprocess.CalledProcessError as exception:
-        print("Error splitting {}:\033[0;31;47m {}        \033[0m 0;31;47m".format(recordingName, exception))
+        open('errors.txt', 'a+').write("Error splitting {}:\033[0;31;47m {}        \033[0m 0;31;47m".format(recordingName, exception) + inputPath + '\n')
         return 0
 
     for pair in segments:
@@ -507,7 +510,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None):
                 open('errors.txt', 'a+').write("Key Error " + str(idx) + " not found in universal json: " + inputPath + '\n')
                 continue
             except Exception as e:
-                print("Exception in segment rendering", e, type(e))
+                open('errors.txt', 'a+').write("Exception in segment rendering" + str(e) + str(type(e)) + inputPath + '\n')
                 continue
     return numNewSegments
 

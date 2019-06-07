@@ -181,7 +181,7 @@ def render_metadata(renders: list) -> list:
                     good_renders.append((recording_name, render_path))
                 except (json.decoder.JSONDecodeError, AssertionError) as e:
                     _, _, tb = sys.exc_info()
-                    traceback.print_tb(tb) # Fixed format
+                    traceback.print_tb(tb)  # Fixed format
                     # Mark that this is a bad file.
                     touch(J(render_path, BAD_MARKER_NAME))
                     remove(J(render_path, GOOD_MARKER_NAME))
