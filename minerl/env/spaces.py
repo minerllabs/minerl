@@ -48,6 +48,9 @@ class Enum(gym.spaces.Discrete):
         finally:
             # TODO support more action formats through np.all < super().n
             raise ValueError("minerl.spaces.Enum: action must be of type str or int")
+        
+    def __str__(self):
+        return "Enum(" + ','.join(self.values) +")"
 
     def __len__(self):
         return len(self.values)

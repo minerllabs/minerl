@@ -1,5 +1,0 @@
-{
-    "python.pythonPath": "C:\\Python\\Python36\\python.exe",
-    "autoDocstring.docstringFormat": "google",
-    "restructuredtext.confPath": "${workspaceFolder}\\docs\\source",
-}
