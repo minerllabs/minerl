@@ -79,8 +79,21 @@ download()
 def package_files(directory):
     paths = []
     for (path, directories, filenames) in os.walk(directory):
-        if not ".git" in path  and not "build" in path:
+
+        # if not ("Malmo/Malmo" in path): print(path)
+        if (
+            not ".git" in path 
+            and not "build" in path 
+            and not "Malmo/Malmo" in path
+            and not ".minecraft" in path
+            and not ".minecraftserver" in path
+            and not "Malmo/doc" in path
+            and not "Malmo/test" in path
+            and not "Malmo/MalmoEnv" in path
+            and not "Malmo/ALE_ROMS" in path):
+            print(path)
             paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
+    # 1/0
     return paths
 
 

@@ -97,6 +97,13 @@ is useful for climbing steep inclines).
         'inventory': {'dirt': 0}
     }
 
+.. _the environment reference documentation: http://minerl.io/docs/environments
+
+.. note::
+    To see the exact format of observations returned from
+    and the exact action format expected by :code:`env.step`
+    for any environment refer to `the environment reference documentation`_!
+
 Now let's take actions through the environment until time runs out
 or the agent dies. To do this, we will use the normal OpenAI Gym :code:`env.step`
 method.
@@ -141,6 +148,7 @@ the angle between the agent's movement direction and it's target,  :code:`compas
     
     obs, _ = env.reset() 
     done = False 
+    net_reward = 0
     
     while not done: 
         action = env.action_space.noop() 
@@ -153,6 +161,9 @@ the angle between the agent's movement direction and it's target,  :code:`compas
     
         obs, reward, done, info = env.step( 
             action) 
+        
+        net_reward += reward
+        print("Total reward: ", net_reward)
 
 After running this agent, you should notice marekedly less sporadic
 behaviour. Plotting both the :code:`compassAngle` and the
