@@ -28,13 +28,13 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
     # TODO add hashed to website to verify downloads for mirrors
     filename, hashname = "data_texture_{}_{}_res.tar.gz".format(texture_pack, resolution), \
                      "data_texture_{}_{}_res.md5".format(texture_pack, resolution)
-    url = "https://router.sneakywines.me/minerl/" + filename
+    urls = ["https://router.sneakywines.me/minerl/" + filename]
     hash_url = "https://router.sneakywines.me/minerl/" + hashname
 
     response = requests.get(hash_url)
     md5_hash = response.text
 
-    obj = pySmartDL.SmartDL(url, progress_bar=True, logger=logging.getLogger(__name__))
+    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logging.getLogger(__name__))
     obj.add_hash_verification('md5', md5_hash)
     try:
         obj.start()
