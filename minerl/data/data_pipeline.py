@@ -11,6 +11,7 @@ from itertools import cycle, islice
 import cv2
 import os
 import numpy as np
+import gym
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class DataPipeline:
 
     def __init__(self,
                  data_directory: os.path,
+                 environment: str,
                  num_workers: int,
                  worker_batch_size: int,
                  min_size_to_dequeue: int):
@@ -38,7 +40,7 @@ class DataPipeline:
         """
 
         self.data_dir = data_directory
-
+        self.environment = environment
         self.number_of_workers = num_workers
         self.worker_batch_size = worker_batch_size
         self.size_to_dequeue = min_size_to_dequeue
@@ -79,6 +81,13 @@ class DataPipeline:
                 try:
                     sequence = data_queue.get_nowait()
                     action_batch, frame_batch, reward_batch, done_batch = sequence
+
+                    # # Wrap in dict
+                    # gym_spec = gym.envs.registration.spec(self.environment)
+                    #
+                    # action_space = map_action_space(gym_spec._kwargs['action_space'])
+                    # obs_space = map_observation_space(gym_spec._kwargs['observation_space'])
+
                     yield frame_batch, reward_batch[0], done_batch[0], action_batch
                 except Empty:
                     if map_promise.ready():

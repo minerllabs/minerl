@@ -37,6 +37,7 @@ def make(environment, data_dir=None, num_workers=4, worker_batch_size=32, minimu
 
     d = DataPipeline(
         os.path.join(data_dir, environment),
+        environment,
         num_workers,
         worker_batch_size,
         minimum_size_to_dequeue)
