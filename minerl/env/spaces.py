@@ -1,9 +1,11 @@
 import random
+from collections import OrderedDict
 from typing import List
 
 import gym
 import gym.spaces
 import numpy as np
+
 
 class Enum(gym.spaces.Discrete):
     """
@@ -37,6 +39,9 @@ class Enum(gym.spaces.Discrete):
         """
         return super().sample()
 
+    def no_op(self) -> int:
+        return 0
+
     def __getitem__(self, action):
         try:
             if isinstance(action, str):
@@ -54,3 +59,24 @@ class Enum(gym.spaces.Discrete):
 
     def __len__(self):
         return len(self.values)
+
+
+class Box(gym.spaces.Box):
+    def no_op(self):
+        return np.zeros(shape=self.shape).astype(self.dtype)
+
+
+class Dict(gym.spaces.Dict):
+    def no_op(self):
+        return OrderedDict([(k, space.no_op()) for k, space in self.spaces.items()])
+
+
+class Discrete(gym.spaces.Discrete):
+    def no_op(self):
+        return 0
+
+
+class MultiDiscrete(gym.spaces.MultiDiscrete):
+    def no_op(self):
+        return (np.zeros(self.nvec.shape)*self.nvec).astype(self.dtype)
+

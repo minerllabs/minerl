@@ -1,3 +1,14 @@
+.. caution:: 
+    Many environments are provided for training, however your agent will only
+    be evaluated in :code:`MineRLObtainDiamond-v0`
+
+.. note::
+    all environments offer a default no-op action via :code:`env.action_space.noop()`
+    and a random action via :code:`env.action_space.sample()`
+
+.. note::
+    :code:`"camera": Box(2,)": [np.float32]` specifies in degrees [pitch, yaw] respectively
+
 
 .. exec::
 
@@ -77,8 +88,8 @@
             # Sample some data from the dataset!
             data = minerl.data.make("{}")
  
-            # Iterate through a single epoch using batches of 32 steps
-            for act, obs, rew, done in data.batch_iter(num_epochs=1, batch_size=32):
+            # Iterate through a single epoch using sequences of at most 32 steps
+            for obs, rew, done, act in data.seq_iter(num_epochs=1, batch_size=32):
                 # Do something 
         '''.format(id,id,id)
         print(usage_str)
@@ -91,7 +102,9 @@
            'MineRLNavigateExtremeDense-v0',
            'MineRLNavigateExtreme-v0',
            'MineRLObtainIronPickaxe-v0',
-           'MineRLObtainDiamond-v0',]
+           'MineRLObtainIronPickaxeDense-v0',
+           'MineRLObtainDiamond-v0',
+           'MineRLObtainDiamondDense-v0',]
     
     for i in ids:
         print_actions_for_id(i)

@@ -21,13 +21,10 @@ import os
 # import gym
 # Perform the registration.
 from gym.envs.registration import register
-from minerl.env.spaces import Enum
+from minerl.env import spaces
 from minerl.env.core import MineRLEnv, missions_dir
 
 import numpy as np
-
-import gym.spaces
-  
 
   
 register(
@@ -35,21 +32,19 @@ register(
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'treechop.xml'),
-        'observation_space': gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
-            # 'XPos': gym.spaces.Box(low=-100000, high=100000, shape=(1,), dtype=np.int32),
-            # 'ZPos': gym.spaces.Box(low=-100000, high=100000, shape=(1,), dtype=np.int32)
+        'observation_space': spaces.Dict({
+            'pov': spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
         }),
-        'action_space': gym.spaces.Dict({
-            "forward": gym.spaces.Discrete(2), 
-            "back": gym.spaces.Discrete(2), 
-            "left": gym.spaces.Discrete(2), 
-            "right": gym.spaces.Discrete(2), 
-            "jump": gym.spaces.Discrete(2), 
-            "sneak": gym.spaces.Discrete(2), 
-            "sprint": gym.spaces.Discrete(2), 
-            "attack": gym.spaces.Discrete(2),
-            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
+        'action_space': spaces.Dict({
+            "forward": spaces.Discrete(2), 
+            "back": spaces.Discrete(2), 
+            "left": spaces.Discrete(2), 
+            "right": spaces.Discrete(2), 
+            "jump": spaces.Discrete(2), 
+            "sneak": spaces.Discrete(2), 
+            "sprint": spaces.Discrete(2), 
+            "attack": spaces.Discrete(2),
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
         }),
         'docstr': """
 .. image:: ../assets/treechop1.mp4.gif
@@ -67,9 +62,9 @@ register(
 .. image:: ../assets/treechop4.mp4.gif
   :scale: 100 %
   :alt: 
-In treechop, the agent must collect as much wood as possible. This replicates a common scenario in Minecraft, as is necessary to craft a large amount of items in the game, and is a key resource in Minecraft.
+In treechop, the agent must collect 64 `minercaft:log`. This replicates a common scenario in Minecraft, as logs are necessary to craft a large amount of items in the game, and are a key resource in Minecraft.
 
-The agent begins in a forest biome (near many trees) and with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.\n"""
+The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.\n"""
     },
     max_episode_steps=8000,
     reward_threshold=64.0,
@@ -99,7 +94,7 @@ def make_navigate_text(top, dense):
     :scale: 100 %
     :alt: 
 
-In this task, the agent must move to a goal location. This represents a basic primitive used in many tasks throughout Minecraft. In addition to standard observations, the agent has access to a “compass” observation, which points to a set location, 64 meters from the start location. The goal has a small random horizontal offset from this location and may be slightly below surface level. On the goal location is a unique block, so the agent must find the final goal by searching based on local visual features.
+In this task, the agent must move to a goal location denoted by a diamond block. This represents a basic primitive used in many tasks throughout Minecraft. In addition to standard observations, the agent has access to a “compass” observation, which points near the goal location, 64 meters from the start location. The goal has a small random horizontal offset from the compass location and may be slightly below surface level. On the goal location is a unique block, so the agent must find the final goal by searching based on local visual features.
 
 The agent is given a sparse reward (+100 upon reaching the goal, at which point the episode terminates). """
     if dense:
@@ -115,24 +110,24 @@ The agent is given a sparse reward (+100 upon reaching the goal, at which point 
         navigate_text = navigate_text.format(*["extreme" for _ in range(4)])
     return navigate_text
 
-navigate_action_space = gym.spaces.Dict({
-    "forward": gym.spaces.Discrete(2),
-    "back": gym.spaces.Discrete(2),
-    "left": gym.spaces.Discrete(2),
-    "right": gym.spaces.Discrete(2),
-    "jump": gym.spaces.Discrete(2),
-    "sneak": gym.spaces.Discrete(2),
-    "sprint": gym.spaces.Discrete(2),
-    "attack": gym.spaces.Discrete(2),
-    "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
+navigate_action_space = spaces.Dict({
+    "forward": spaces.Discrete(2),
+    "back": spaces.Discrete(2),
+    "left": spaces.Discrete(2),
+    "right": spaces.Discrete(2),
+    "jump": spaces.Discrete(2),
+    "sneak": spaces.Discrete(2),
+    "sprint": spaces.Discrete(2),
+    "attack": spaces.Discrete(2),
+    "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
     "place": spaces.Enum('none', 'dirt')})
 
-navigate_observation_space = gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-            'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int)
+navigate_observation_space = spaces.Dict({
+            'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
+            'inventory': spaces.Dict({
+                'dirt': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int)
             }),
-            'compassAngle': gym.spaces.Box(low=-180.0, high=180.0, shape=(1,), dtype=np.float32)
+            'compassAngle': spaces.Box(low=-180.0, high=180.0, shape=(1,), dtype=np.float32)
         })
 
 register(
@@ -196,43 +191,43 @@ register(
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainIronPickaxe.xml'),
-        'observation_space': gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-            'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'coal': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'torch': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'log': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'planks': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stick': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'crafting_table': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'wooden_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'furnace': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ore': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ingot': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+        'observation_space': spaces.Dict({
+            'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
+            'inventory': spaces.Dict({
+                'dirt': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'coal': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'torch': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'log': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
-            'equipped_items': gym.spaces.Dict({
-                'mainhand': gym.spaces.Dict({
+            'equipped_items': spaces.Dict({
+                'mainhand': spaces.Dict({
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe', 'other'),
-                    'damage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
                 })
             })
         }),
-        'action_space': gym.spaces.Dict({
-            "forward": gym.spaces.Discrete(2),
-            "back": gym.spaces.Discrete(2),
-            "left": gym.spaces.Discrete(2),
-            "right": gym.spaces.Discrete(2),
-            "jump": gym.spaces.Discrete(2),
-            "sneak": gym.spaces.Discrete(2),
-            "sprint": gym.spaces.Discrete(2),
-            "attack": gym.spaces.Discrete(2),
-            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
+        'action_space': spaces.Dict({
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
+            "attack": spaces.Discrete(2),
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
             "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe'),
@@ -262,9 +257,9 @@ The agent is given access to a selected view of its inventory and GUI free
 crafting, smelting, and inventory management actions.
 
 
-During an episode **the agent is rewarded once the first time it obtains an item
-in the requisite item hierarchy to obtaining a an iron pickaxe.** The rewards for each
-item are given here::
+During an episode **the agent is rewarded only once per item the first time it obtains that item
+in the requisite item hierarchy for obtaining an iron pickaxe.** The reward for each
+item is given here::
     <Item amount="1" reward="1" type="log" />
     <Item amount="1" reward="2" type="planks" />
     <Item amount="1" reward="4" type="stick" />
@@ -277,54 +272,54 @@ item are given here::
     <Item amount="1" reward="128" type="iron_ingot" />
     <Item amount="1" reward="256" type="iron_pickaxe" />
 
-A version of this environment with densely shaped rewards (a reward for every item collected) will be released soon.
 \n"""
     },
     max_episode_steps=6000,
 )
+
 
 register(
     id='MineRLObtainIronPickaxeDense-v0',
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainIronPickaxeDense.xml'),
-        'observation_space': gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-            'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'coal': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'torch': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'log': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'planks': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stick': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'crafting_table': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'wooden_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'furnace': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ore': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ingot': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+        'observation_space': spaces.Dict({
+            'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
+            'inventory': spaces.Dict({
+                'dirt': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'coal': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'torch': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'log': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
-            'equipped_items': gym.spaces.Dict({
-                'mainhand': gym.spaces.Dict({
+            'equipped_items': spaces.Dict({
+                'mainhand': spaces.Dict({
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe', 'other'),
-                    'damage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
                 })
             })
         }),
-        'action_space': gym.spaces.Dict({
-            "forward": gym.spaces.Discrete(2),
-            "back": gym.spaces.Discrete(2),
-            "left": gym.spaces.Discrete(2),
-            "right": gym.spaces.Discrete(2),
-            "jump": gym.spaces.Discrete(2),
-            "sneak": gym.spaces.Discrete(2),
-            "sprint": gym.spaces.Discrete(2),
-            "attack": gym.spaces.Discrete(2),
-            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
+        'action_space': spaces.Dict({
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
+            "attack": spaces.Discrete(2),
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
             "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe'),
@@ -354,8 +349,8 @@ The agent is given access to a selected view of its inventory and GUI free
 crafting, smelting, and inventory management actions.
 
 
-During an episode **the agent is rewarded once the first time it obtains an item
-in the requisite item hierarchy to obtaining a an iron pickaxe.** The rewards for each
+During an episode the agent is rewarded **every time ** it obtains an item
+in the requisite item hierarchy for obtaining an iron pickaxe. The rewards for each
 item are given here::
     <Item amount="1" reward="1" type="log" />
     <Item amount="1" reward="2" type="planks" />
@@ -369,7 +364,6 @@ item are given here::
     <Item amount="1" reward="128" type="iron_ingot" />
     <Item amount="1" reward="256" type="iron_pickaxe" />
 
-A version of this environment with densely shaped rewards (a reward for every item collected) will be released soon.
 \n"""
     },
     max_episode_steps=6000,
@@ -384,45 +378,45 @@ register(
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainDiamond.xml'),
-        'observation_space': gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-            'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'coal': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'torch': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'log': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'planks': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stick': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'crafting_table': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'wooden_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'furnace': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ore': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ingot': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+        'observation_space': spaces.Dict({
+            'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
+            'inventory': spaces.Dict({
+                'dirt': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'coal': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'torch': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'log': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
-            'equipped_items': gym.spaces.Dict({
-                'mainhand': gym.spaces.Dict({
+            'equipped_items': spaces.Dict({
+                'mainhand': spaces.Dict({
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe', 'other'),
-                    'damage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,),dtype=np.int),
+                    'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,),dtype=np.int),
                 })
             })
         }),
-        'action_space': gym.spaces.Dict({
-            "forward": gym.spaces.Discrete(2),
-            "back": gym.spaces.Discrete(2),
-            "left": gym.spaces.Discrete(2),
-            "right": gym.spaces.Discrete(2),
-            "jump": gym.spaces.Discrete(2),
-            "sneak": gym.spaces.Discrete(2),
-            "sprint": gym.spaces.Discrete(2),
-            "attack": gym.spaces.Discrete(2),
+        'action_space': spaces.Dict({
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
+            "attack": spaces.Discrete(2),
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe'),
-            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
             "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
             "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
@@ -447,14 +441,14 @@ register(
   :alt: 
 **This is the environment of the MineRL Competition!**
 
-In this environment the agent is required to obtain a diamond. The agent begins in a random starting location, on a random survival map, without any items, matching the normal starting conditions for human players in Minecraft.
+In this environment the agent is required to obtain a diamond in 18000 steps. The agent begins in a random starting location, on a random survival map, without any items, matching the normal starting conditions for human players in Minecraft.
 The agent is given access to a selected view of its inventory and GUI free
 crafting, smelting, and inventory management actions.
 
 
-During an episode **the agent is rewarded once the first time it obtains an item
-in the requisite item hierarchy to obtaining a diamond.** The rewards for each
-item are given here::
+During an episode **the agent is rewarded only once per item the first time it obtains that item
+in the requisite item hierarchy for obtaining an iron pickaxe.** The reward for each
+item is given here::
 
     <Item reward="1" type="log" />
     <Item reward="2" type="planks" />
@@ -469,7 +463,6 @@ item are given here::
     <Item reward="256" type="iron_pickaxe" />
     <Item reward="1024" type="diamond" />
 
-A version of this environment with densely shaped rewards (a reward for every item collected) will be released soon.
 \n"""
     },
     max_episode_steps=18000,
@@ -481,45 +474,45 @@ register(
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainDiamondDense.xml'),
-        'observation_space': gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-            'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'coal': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'torch': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'log': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'planks': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stick': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'crafting_table': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'wooden_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'furnace': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ore': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ingot': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+        'observation_space': spaces.Dict({
+            'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
+            'inventory': spaces.Dict({
+                'dirt': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'coal': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'torch': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'log': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
-            'equipped_items': gym.spaces.Dict({
-                'mainhand': gym.spaces.Dict({
+            'equipped_items': spaces.Dict({
+                'mainhand': spaces.Dict({
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe', 'other'),
-                    'damage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,),dtype=np.int),
+                    'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,),dtype=np.int),
                 })
             })
         }),
-        'action_space': gym.spaces.Dict({
-            "forward": gym.spaces.Discrete(2),
-            "back": gym.spaces.Discrete(2),
-            "left": gym.spaces.Discrete(2),
-            "right": gym.spaces.Discrete(2),
-            "jump": gym.spaces.Discrete(2),
-            "sneak": gym.spaces.Discrete(2),
-            "sprint": gym.spaces.Discrete(2),
-            "attack": gym.spaces.Discrete(2),
+        'action_space': spaces.Dict({
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
+            "attack": spaces.Discrete(2),
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe'),
-            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
             "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
             "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
@@ -543,8 +536,8 @@ register(
   :scale: 100 %
   :alt: 
 
-In this environment the agent is required to obtain a diamond. The agent begins in a random starting location, on a random survival map, without any items, matching the normal starting conditions for human players in Minecraft.
-The agent is given access to a selected view of its inventory and GUI free
+In this environment the agent is required to obtain a diamond. The agent begins in a random starting location on a random survival map without any items, matching the normal starting conditions for human players in Minecraft.
+The agent is given access to a selected summary of its inventory and GUI free
 crafting, smelting, and inventory management actions.
 
 
@@ -581,23 +574,23 @@ register(
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'navigationDenseFixedMap.xml'),
-        'observation_space': gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
-            'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int)
+        'observation_space': spaces.Dict({
+            'pov': spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
+            'inventory': spaces.Dict({
+                'dirt': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int)
             }),
-            'compassAngle': gym.spaces.Box(low=-180.0, high=180.0, shape=(1,), dtype=np.float32)
+            'compassAngle': spaces.Box(low=-180.0, high=180.0, shape=(1,), dtype=np.float32)
         }),
-        'action_space': gym.spaces.Dict({
-            "forward": gym.spaces.Discrete(2),
-            "back": gym.spaces.Discrete(2),
-            "left": gym.spaces.Discrete(2),
-            "right": gym.spaces.Discrete(2),
-            "jump": gym.spaces.Discrete(2),
-            "sneak": gym.spaces.Discrete(2),
-            "sprint": gym.spaces.Discrete(2),
-            "attack" : gym.spaces.Discrete(2),
-            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
+        'action_space': spaces.Dict({
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
+            "attack" : spaces.Discrete(2),
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
             "place": spaces.Enum('none', 'dirt')
         }),
     },
@@ -609,43 +602,43 @@ register(
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainDebug.xml'),
-        'observation_space': gym.spaces.Dict({
-            'pov': gym.spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-            'inventory': gym.spaces.Dict({
-                'dirt': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'coal': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'torch': gym.spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
-                'log': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'planks': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stick': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'crafting_table': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'wooden_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'furnace': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'stone_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ore': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_ingot': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
-                'iron_pickaxe': gym.spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+        'observation_space': spaces.Dict({
+            'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
+            'inventory': spaces.Dict({
+                'dirt': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'coal': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'torch': spaces.Box(low=0, high=2304, shape=(1,), dtype=np.int),
+                'log': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
-            'equipped_items': gym.spaces.Dict({
-                'mainhand': gym.spaces.Dict({
+            'equipped_items': spaces.Dict({
+                'mainhand': spaces.Dict({
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe', 'other'),
-                    'damage': gym.spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': gym.spaces.Box(low=-1, high=np.inf,  shape=(1,), dtype=np.int),
+                    'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=np.inf,  shape=(1,), dtype=np.int),
                 })
             })
         }),
-        'action_space': gym.spaces.Dict({
-            "forward": gym.spaces.Discrete(2),
-            "back": gym.spaces.Discrete(2),
-            "left": gym.spaces.Discrete(2),
-            "right": gym.spaces.Discrete(2),
-            "jump": gym.spaces.Discrete(2),
-            "sneak": gym.spaces.Discrete(2),
-            "sprint": gym.spaces.Discrete(2),
-            "attack": gym.spaces.Discrete(2),
-            "camera": gym.spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
+        'action_space': spaces.Dict({
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
+            "attack": spaces.Discrete(2),
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
             "place": spaces.Enum('none', 'dirt', 'log', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe'),
