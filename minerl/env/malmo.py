@@ -32,7 +32,6 @@ import time
 from contextlib import contextmanager
 # from exceptions import NotImplementedError
 from multiprocessing import process
-from os import PathLike
 
 import psutil
 from minerl.env import comms

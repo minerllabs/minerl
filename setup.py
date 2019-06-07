@@ -104,7 +104,7 @@ data_files += package_files('minerl/env/Malmo')
 
 setuptools.setup(
       name='minerl',
-      version='0.0.20',
+      version='0.0.22',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
@@ -115,7 +115,6 @@ setuptools.setup(
       packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
             classifiers=[
                  "Programming Language :: Python :: 3",
-                 "License :: OSI Approved :: Creative Commons Non Commercial",
                  "Operating System :: OS Independent",
             ],
     install_requires=requirements,
