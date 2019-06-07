@@ -32,6 +32,9 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
 
     response = requests.get(url, stream=True)
 
+    directory = os.expanduser(directory)
+    directory = os.expandvar(directory)
+
     if not os.path.exists(directory):
         os.makedirs(directory)
 

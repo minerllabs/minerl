@@ -95,7 +95,7 @@ class MineRLEnv(gym.Env):
         """
     metadata = {'render.modes': []}
     
-    def __init__(self, xml, observation_space, action_space, port=None, noop_action=None):
+    def __init__(self, xml, observation_space, action_space, port=None, noop_action=None, docstr=None):
         self.action_space = None
         self.observation_space = None
         self._default_action = noop_action
