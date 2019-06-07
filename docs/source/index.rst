@@ -38,7 +38,7 @@ project and its related repositories and components!
 .. _MineRL: http://minerl.io
 .. _OpenAI Gym: https://gym.openai.com
 .. _MineRL-v0 Dataset: http://minerl.io/dataset
-.. _set of tasks: http://minerl.io/docs/environments
+.. _set of environments: http://minerl.io/docs/environments
 
 What is MineRL
 ---------------
