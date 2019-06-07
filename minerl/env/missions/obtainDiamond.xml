@@ -69,7 +69,7 @@
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <RewardForCollectingItem>
+            <!-- <RewardForCollectingItem>
                 <Item reward="1" type="log" />
                 <Item reward="2" type="planks" />
                 <Item reward="4" type="stick" />
@@ -82,8 +82,8 @@
                 <Item reward="128" type="iron_ingot" />
                 <Item reward="256" type="iron_pickaxe" />
                 <Item reward="1024" type="diamond" />
-            </RewardForCollectingItem>
-            <!-- <RewardForCollectingItemQuantity sparse="true" once="trued">
+            </RewardForCollectingItem> -->
+            <RewardForCollectingItemQuantity sparse="true" once="true">
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
@@ -96,7 +96,7 @@
                 <Item amount="1" reward="128" type="iron_ingot" />
                 <Item amount="1" reward="256" type="iron_pickaxe" />
                 <Item amount="1" reward="1024" type="diamond" />
-            </RewardForCollectingItemQuantity> -->
+            </RewardForCollectingItemQuantity>
             <AgentQuitFromPossessingItem>
                 <Item type="diamond"/>
             </AgentQuitFromPossessingItem>

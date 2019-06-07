@@ -33,10 +33,11 @@ def main():
         xpos = []
         netr = 0
         while not done:
-            random_act = env.action_space.sample()
+            random_act = env.action_space.noop()
             
             random_act['camera'] = [0, 0.05*obs["compassAngle"]]
             random_act['back'] = 0
+            random_act['forward'] = 1
             random_act['jump'] = 1
             random_act['attack'] = 1
             # print(random_act)
@@ -60,6 +61,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
 

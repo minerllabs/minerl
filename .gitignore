@@ -8,6 +8,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
+_build/
 develop-eggs/
 dist/
 downloads/
@@ -31,3 +32,4 @@ var/
 
 
 tests/logs/
+.vscode/settings.json

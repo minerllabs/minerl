@@ -18,9 +18,9 @@
 # ------------------------------------------------------------------------------------------------
 import atexit
 import functools
+import locale
 import logging
 import multiprocessing
-import locale
 import os
 import pathlib
 import socket
@@ -32,20 +32,24 @@ import time
 from contextlib import contextmanager
 # from exceptions import NotImplementedError
 from multiprocessing import process
+from os import PathLike
 
 import psutil
 from minerl.env import comms
 
 logger = logging.getLogger(__name__)
 
-
-
 malmo_version = "0.37.0"
 
 class InstanceManager:
-    """
-    The static (singleton) hero instance manager. We avoid using the defualt Malmo
-    instance management because it only allows one host.
+    """The Minecraft instance manager library. The instance manager can be used to allocate and safely terminate 
+    existing Malmo instances for training agents. 
+    
+    Note: This object never needs to be explicitly invoked by the user of the MineRL library as the creation of
+    one of the several MineRL environments will automatically query the InstanceManager to create a new instance.
+
+    Note: In future versions of MineRL the instance manager will become its own daemon process which provides
+    instance allocation capability using remote procedure calls.
     """
     MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
     MC_COMMAND = os.path.join(MINECRAFT_DIR, 'launchHero.sh')
@@ -61,8 +65,16 @@ class InstanceManager:
     @contextmanager
     def get_instance(cls):
         """
-        Gets an instance
-        :return: The available instances port and IP.
+        Gets an instance from the instance manager. This method is a context manager
+        and therefore when the context is entered the method yields a InstanceManager._Instance
+        object which contains the allocated port and host for the given instance that was created.
+
+        Yields:
+            The allocated InstanceManager._Instance object.
+        
+        Raises:
+            RuntimeError: No available instances or the maximum number of allocated instances reached.
+            RuntimeError: No available instances and automatic allocation of isntances is off.
         """
         # Find an available instance.
         for inst in cls._instance_pool:

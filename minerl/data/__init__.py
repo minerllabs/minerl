@@ -4,6 +4,18 @@ import os
 
 
 def make(environment, data_dir=None, num_workers=4, worker_batch_size=32, minimum_size_to_dequeue=32, force_download=False):
+    """
+    Initalizes the data loader with the chosen environment
+    
+    Args:
+        environment (string): desired MineRL environment
+        data_dir (string, optional): specify alternative dataset location. Defaults to None.
+        num_workers (int, optional): number of files to load at once. Defaults to 4.
+        force_download (bool, optional): specifies whether or not the data should be downloaded if missing. Defaults to False.
+
+    Returns:
+        DataPipeline: initalized data pipeline
+    """
 
     # Ensure path is setup
     if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
