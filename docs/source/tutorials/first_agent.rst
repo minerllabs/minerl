@@ -16,8 +16,8 @@ To get started, let's first import the necessary packages
 Creating an environment
 ---------------------------
 
-.. _checkout the environment documentation:
-.. _many environments: TODO
+.. _checkout the environment documentation: http://minerl.io/docs/environments/
+.. _many environments: http://minerl.io/docs/environments/
 
 Now we can choose any one of the `many environments`_ included
 in the :code:`minerl` package. To learn more about the environments
