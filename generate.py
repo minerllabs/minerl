@@ -478,9 +478,9 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                 for j in range(32):
                                     index = idx + j
                                     if str(index) in univ_json and 'changes' in univ_json[index]['diff']:
-                                        for entry in univ_json[index]['inventory']['changes']:
+                                        for entry in univ_json[index]['diff']['changes']:
                                             if entry['item'] == 'minecraft:bed':
-                                                foo['inventory']['changes'].append(entry)
+                                                foo['diff']['changes'].append(entry)
                                                 found_bed = True
                                                 break
                                     if found_bed:
