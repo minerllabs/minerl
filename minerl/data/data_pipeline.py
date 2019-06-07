@@ -167,6 +167,7 @@ class DataPipeline:
                     while ret and frame_num < max_frame_num and frame_num < num_states and len(frames) < worker_batch_size:
                         ret, frame = cap.read()
                         if ret:
+                            cv2.cvtColor(frame, frame, cv2.COLOR_BGR2RGB);
                             frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
                             frame_num += 1
                 except Exception as err:
