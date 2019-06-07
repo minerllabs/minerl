@@ -83,7 +83,7 @@
                 <Item reward="256" type="iron_pickaxe" />
                 <Item reward="1024" type="diamond" />
             </RewardForCollectingItem> -->
-            <RewardForCollectingItemQuantity sparse="true" once="true">
+            <RewardForCollectingItem>
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
@@ -96,7 +96,7 @@
                 <Item amount="1" reward="128" type="iron_ingot" />
                 <Item amount="1" reward="256" type="iron_pickaxe" />
                 <Item amount="1" reward="1024" type="diamond" />
-            </RewardForCollectingItemQuantity>
+            </RewardForCollectingItem>
             <AgentQuitFromPossessingItem>
                 <Item type="diamond"/>
             </AgentQuitFromPossessingItem>
