@@ -441,7 +441,11 @@ register(
 .. image:: ../assets/odia4.mp4.gif
   :scale: 100 %
   :alt: 
-**This is the environment of the MineRL Competition!**
+
+.. caution::
+    **This is the evaluation environment of the MineRL Competition!** Specifically, you are allowed
+    to train your agents on any environment (including `MineRLObtainDiamondDense-v0`_) however,
+    your agent will only be evaluated on this environment..
 
 In this environment the agent is required to obtain a diamond in 18000 steps. The agent begins in a random starting location, on a random survival map, without any items, matching the normal starting conditions for human players in Minecraft.
 The agent is given access to a selected view of its inventory and GUI free

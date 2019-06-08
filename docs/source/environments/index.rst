@@ -1,13 +1,27 @@
+
+
+General Information
+================================
+
+
+The :code:`minerl` package includes several environments as follows.
+This page describes each of the incldued environments, provides usage samples,
+and describes the exact action and observation space provided by each
+environment.
+
+
+
 .. caution:: 
-    Many environments are provided for training, however your agent will only
-    be evaluated in :code:`MineRLObtainDiamond-v0`
+    In the MineRL Competition, many environments are provided for training,
+    however competition agents will only
+    be evaluated in :code:`MineRLObtainDiamond-v0` which has **sparse** rewards. See `MineRLObtainDiamond-v0`_.
 
 .. note::
-    all environments offer a default no-op action via :code:`env.action_space.noop()`
+    Al environments offer a default no-op action via :code:`env.action_space.noop()`
     and a random action via :code:`env.action_space.sample()`
 
-.. note::
-    :code:`"camera": Box(2,)": [np.float32]` specifies in degrees [pitch, yaw] respectively
+.. include:: handlers.rst
+    :end-before: inclusion-marker-do-not-remove
 
 
 .. exec::
@@ -19,10 +33,12 @@
 
         def print_json(arg):
             import json
+            arg = {":ref:`{} <{}>`".format(k,k): arg[k] for k in arg}
             json_obj = json.dumps(arg, sort_keys=True, indent=8,
                 default=lambda o: str(o))
-            json_obj= json_obj[:-1] + "    }"
-            print('.. code-block:: JavaScript\n\n    %s\n\n\n' % json_obj)
+            json_obj= json_obj[:-1] + "    })"
+            
+            print('.. parsed-literal:: \n\n    Dict(%s\n\n\n' % json_obj)
          
         def prep_space(space):
             import gym
@@ -41,7 +57,7 @@
 
         print("")
         print("{}".format(id))
-        print("=============================")
+        print("=======================================")
         
         if 'docstr' in envspec._kwargs:
             print(envspec._kwargs['docstr'])

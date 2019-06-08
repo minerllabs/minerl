@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'MineRL'
-copyright = '2019, William H. Guss, Brandon Houghton, Cayden Codel, Phillip Wang, Nicholay Topin, Stephanie Milani, Manuela Veloso, Ruslan Salakhutdinov'
-author = 'William H. Guss, Brandon Houghton, Cayden Codel, Phillip Wang, Nicholay Topin, Stephanie Milani, Manuela Veloso, Ruslan Salakhutdinov'
+copyright = '2019, William H. Guss, Brandon Houghton'
+author = 'William H. Guss, Brandon Houghton'
 
 # The full version, including alpha/beta/rc tags
 release = '0.1.0'
