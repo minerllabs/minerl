@@ -23,7 +23,7 @@ env = gym.make('MineRLNavigateDense-v0')
 obs, _ = env.reset()
 
 while not done:
-    action = env.action_space.random() 
+    action = env.action_space.sample() 
  
     # One can also take a no_op action with
     # action =env.action_space.noop()
