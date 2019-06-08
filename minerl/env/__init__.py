@@ -21,10 +21,12 @@ import os
 # import gym
 # Perform the registration.
 from gym.envs.registration import register
+from collections import OrderedDict
 from minerl.env import spaces
 from minerl.env.core import MineRLEnv, missions_dir
 
 import numpy as np
+
 
   
 register(
@@ -497,7 +499,7 @@ register(
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe', 'other'),
                     'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,),dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
                 })
             })
         }),

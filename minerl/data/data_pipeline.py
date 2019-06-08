@@ -47,21 +47,47 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
+    # Correct way
+    # @staticmethod
+    # def map_to_dict(handler_list: list, target_space: gym.spaces.space):
+    #
+    #     def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
+    #         if isinstance(gym_space, spaces.Dict):
+    #             inner = dict()
+    #             for idx, (k, s) in enumerate(gym_space.spaces.items()):
+    #                 _map_to_dict(idx, src[i], k, s, inner)
+    #             dst[key] = inner
+    #         else:
+    #             dst[key] = src[i]
+    #     result = dict()
+    #     for index, (key, space) in enumerate(target_space.spaces.items()):
+    #         _map_to_dict(index, handler_list, key, space, result)
+    #     return result
+
     @staticmethod
     def map_to_dict(handler_list: list, target_space: gym.spaces.space):
 
         def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
             if isinstance(gym_space, spaces.Dict):
-                for (k, s) in gym_space.spaces.items():
-                    i = _map_to_dict(i, src, k, s, dst)
-                return i
+                dont_count = False
+                inner_dict = dict()
+                for idx, (k, s) in enumerate(gym_space.spaces.items()):
+                    if key in ['equipped_items', 'mainhand']:
+                        dont_count = True
+                        i = _map_to_dict(i, src, k, s, inner_dict)
+                    else:
+                        _map_to_dict(idx, src[i].T, k, s, inner_dict)
+                dst[key] = inner_dict
+                if dont_count:
+                    return i
+                else:
+                    return i + 1
             else:
                 dst[key] = src[i]
                 return i + 1
-
-        index = 0
         result = dict()
-        for (key, space) in target_space.spaces.items():
+        index = 0
+        for key, space in target_space.spaces.items():
             index = _map_to_dict(index, handler_list, key, space, result)
         return result
 
