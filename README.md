@@ -12,7 +12,9 @@ pip3 install --upgrade minerl
 ```
 
 ## Basic Usage
-```
+
+Running an environment:
+```python
 import minerl
 import gym
 env = gym.make('MineRLNavigateDense-v0')
@@ -30,6 +32,28 @@ while not done:
     obs, reward, done, info = env.step(
         action)
 
+```
+
+Sampling the dataset:
+
+```python
+import minerl
+
+# YOU ONLY NEED TO DO THIS ONCE!
+minerl.data.download('/your/local/path')
+
+data = minerl.data.make('MineRLObtainDiamond-v0')
+
+# Iterate through a single epoch gathering sequences of at most 32 steps
+for obs, rew, done, act in data.seq_iter(num_epochs=1, batch_size=32):
+    print("Number of diffrent actions:", len(act))
+    for action in act:
+        print(act)
+    print("Number of diffrent observations:", len(obs), obs)
+    for observation in obs:
+        print(obs)
+    print("Rewards:", rew)
+    print("Dones:", done)
 ```
 
 ## MineRL Competition
