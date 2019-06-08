@@ -7,6 +7,7 @@ from collections import OrderedDict
 from queue import PriorityQueue, Empty
 from typing import List, Tuple, Any
 from itertools import cycle, islice
+from minerl.env import spaces
 
 import cv2
 import os
@@ -47,10 +48,23 @@ class DataPipeline:
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
     @staticmethod
-    def _flatten_space(data_list, gym_space):
-        for command_string in gym_space.spaces:
-            pass
-        return data_list
+    def map_to_dict(handler_list: list, target_space: gym.spaces.space):
+
+        def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
+            if isinstance(gym_space, spaces.Dict):
+                for (k, s) in gym_space.spaces.items():
+                    i = _map_to_dict(i, src, k, s, dst)
+                return i
+            else:
+                dst[key] = src[i]
+                return i + 1
+
+        index = 0
+        result = dict()
+        for (key, space) in target_space.spaces.items():
+            index = _map_to_dict(index, handler_list, key, space, result)
+        return result
+
 
 
     def seq_iter(self, num_epochs=-1, max_sequence_len=32):
@@ -95,8 +109,8 @@ class DataPipeline:
                     # Wrap in dict
                     gym_spec = gym.envs.registration.spec(self.environment)
 
-                    action_dict = self._flatten_space(action_batch, gym_spec._kwargs['action_space'])
-                    observation_dict = self._flatten_space(observation_batch, gym_spec._kwargs['observation_space'])
+                    action_dict = self.map_to_dict(action_batch, gym_spec._kwargs['action_space'])
+                    observation_dict = self.map_to_dict(observation_batch, gym_spec._kwargs['observation_space'])
 
                     yield observation_dict, reward_batch[0], done_batch[0], action_dict
                 except Empty:
@@ -186,7 +200,7 @@ class DataPipeline:
                             frames) < worker_batch_size:
                         ret, frame = cap.read()
                         if ret:
-                            cv2.cvtColor(frame, frame, cv2.COLOR_BGR2RGB);
+                            cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
                             frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
                             frame_num += 1
                 except Exception as err:
