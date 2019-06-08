@@ -58,6 +58,3 @@ for obs, rew, done, act in data.seq_iter(num_epochs=1, batch_size=32):
 
 ## MineRL Competition
 If you're here for the MineRL competition. Please check [the main competition website here](https://www.aicrowd.com/challenges/neurips-2019-minerl-competition).
-
-
-<iframe src="https://discordapp.com/widget?id=565639094860775436&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0"></iframe>
