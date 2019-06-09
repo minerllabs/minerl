@@ -1,4 +1,5 @@
-# The [MineRL](http://minerl.io) Python Package
+# The [MineRL](http://minerl.io) Python Package 
+[![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl) 
 
 Python package providing easy to use gym environments and a simple data api for the MineRLv0 dataset. 
 
