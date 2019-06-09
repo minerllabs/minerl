@@ -35,6 +35,16 @@ To create the environment, simply invoke :code:`gym.make`
 
     env = gym.make('MineRLNavigateDense-v0')
 
+.. caution:: 
+    Currently :code:`minerl` only supports environment rendering in **headed environments**
+    (servers with monitors attached). 
+
+
+    **In order to run** :code:`minerl` **environments without a head use a software renderer
+    such as** :code:`xvfb`::
+
+        xvfb-run python3 <your_script.py>
+
 .. note::
     The first time you run this command to complete, it will take a while as it is recompiling
     Minecraft with the MineRL simulator mod!

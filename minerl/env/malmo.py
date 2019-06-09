@@ -51,9 +51,8 @@ class InstanceManager:
     instance allocation capability using remote procedure calls.
     """
     MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
-    MC_COMMAND = os.path.join(MINECRAFT_DIR, 'launchHero.sh')
     MAXINSTANCES = 10
-    DEFAULT_IP = "127.0.0.1"
+    DEFAULT_IP = "localhost"
     _instance_pool = []
     ninstances = 0
     X11_DIR = '/tmp/.X11-unix'
