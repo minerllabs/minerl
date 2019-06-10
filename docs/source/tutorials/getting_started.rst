@@ -6,7 +6,7 @@ Welcome to MineRL! This guide will get you started.
 
 
 To start using the data and set of reinforcement learning
-enviroments comrpising MineRL, you'll need to install the
+enviroments comprising MineRL, you'll need to install the
 main python package, :code:`minerl`.
 
 .. _OpenJDK 8: https://openjdk.java.net/install/
@@ -18,10 +18,11 @@ main python package, :code:`minerl`.
    a. `Windows installer`_  -- On windows go this link and follow the
       instructions to install JDK 8.
 
-   b. On mac, with homebrew installed you can use the following::
+   b. On Mac, you can install java8 using homebrew and AdoptOpenJDK (an open source mirror, used here to get around the fact that Java8 binaries are
+   no longer available directly from Oracle):
 
-        brew tap caskroom/versions
-        brew cask install java8  
+        brew tap AdoptOpenJDK/openjdk
+        brew cask install adoptopenjdk8
 
    c. On Debian based systems (Ubuntu!) you can run the following::
 
@@ -44,9 +45,9 @@ main python package, :code:`minerl`.
 
 **That's it! Now you're good to go :) 💯💯💯**
 
-.. caution:: 
+.. caution::
     Currently :code:`minerl` only supports environment rendering in **headed environments**
-    (machines with monitors attached). 
+    (machines with monitors attached).
 
 
     **In order to run** :code:`minerl` **environments without a head use a software renderer
