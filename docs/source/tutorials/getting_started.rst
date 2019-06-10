@@ -46,7 +46,7 @@ main python package, :code:`minerl`.
 
 .. caution:: 
     Currently :code:`minerl` only supports environment rendering in **headed environments**
-    (servers with monitors attached). 
+    (machines with monitors attached). 
 
 
     **In order to run** :code:`minerl` **environments without a head use a software renderer
