@@ -33,6 +33,15 @@ main python package, :code:`minerl`.
 
         pip3 install --upgrade minerl
 
+.. note::
+        depending on your system you may need the user flag:
+        :code:`pip3 install --upgrade minerl --user` to install property
+
+3. (Optional) Download the dataset - 13.6 GB::
+
+        import minerl
+        minerl.data.download(data_dir="/your/local/path/")
+
 **That's it! Now you're good to go :) 💯💯💯**
 
 .. caution:: 
