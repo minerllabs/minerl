@@ -1,15 +1,15 @@
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2018 Microsoft Corporation
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
 # including without limitation the rights to use, copy, modify, merge, publish, distribute,
 # sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or
 # substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 # NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -49,9 +49,9 @@ missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
 
 class EnvException(Exception):
     """A special exception thrown in the creation of an environment's Malmo mission XML.
-    
+
     Args:
-        message (str): The exception message. 
+        message (str): The exception message.
     """
     def __init__(self, message):
         super(EnvException, self).__init__(message)
@@ -59,15 +59,15 @@ class EnvException(Exception):
 
 class MissionInitException(Exception):
     """An exception thrown when a mission fails to initialize
-    
+
     Args:
-        message (str): The exception message. 
+        message (str): The exception message.
     """
     def __init__(self, message):
         super(MissionInitException, self).__init__(message)
 
 
-MAX_WAIT = 60 * 4 # After this many MALMO_BUSY's a timeout exception will be thrown 
+MAX_WAIT = 60 * 4 # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4 # After this much time a socket exception will be thrown.
 
 class MineRLEnv(gym.Env):
@@ -81,11 +81,11 @@ class MineRLEnv(gym.Env):
                 import gym
 
                 env = gym.make('MineRLTreechop-v0') # Makes a minerl environment.
-                
+
                 # Use env like any other OpenAI gym environment.
                 # ...
-            
-        
+
+
         Args:
             xml (str): The path to the MissionXML file for this environment.
             observation_space (gym.Space): The observation for the environment.
@@ -94,7 +94,7 @@ class MineRLEnv(gym.Env):
             noop_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
         """
     metadata = {'render.modes': []}
-    
+
     def __init__(self, xml, observation_space, action_space, port=None, noop_action=None, docstr=None):
         self.action_space = None
         self.observation_space = None
@@ -128,14 +128,14 @@ class MineRLEnv(gym.Env):
     def init(self,  observation_space, action_space,  port=None):
         """Initializes the MineRL Environment.
 
-        Note: 
+        Note:
             This is called automatically when the environment is made.
-        
+
         Args:
             observation_space (gym.Space): The observation for the environment.
             action_space (gym.Space): The action space for the environment.
             port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
-        
+
         Raises:
             EnvException: If the Mission XML is malformed this is thrown.
             ValueError: The space specified for this environment does not have a default action.
@@ -154,7 +154,7 @@ class MineRLEnv(gym.Env):
         with open(self.xml_file, 'r') as f:
             xml_text = f.read()
         xml = xml_text.replace('$(MISSIONS_DIR)', missions_dir)
-        
+
         # Bootstrap the environment if it hasn't been.
         role = 0
 
@@ -200,19 +200,19 @@ class MineRLEnv(gym.Env):
         else:
             self.turn_key = ""
 
-        # Unclear what step_options does.            
+        # Unclear what step_options does.
         if step_options is None:
             self.step_options = 0 if not turn_based else 2
         else:
             self.step_options = step_options
-        
+
         self.done = True
 
         self.resync_period = resync
         self.resets = episode
 
-        e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
-                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                                 SchemaVersion="" PlatformVersion=""" + '\"' + malmo_version + '\"' +
                              """>
                                 <ExperimentUID></ExperimentUID>
@@ -258,10 +258,10 @@ class MineRLEnv(gym.Env):
         """Gets the no-op action for the environment.
 
         In addition one can get the no-op/default action directly from the action space.
-        
+
             env.action_space.noop()
 
-        
+
         Returns:
             Any: A no-op action in the env's space.
         """
@@ -293,7 +293,7 @@ class MineRLEnv(gym.Env):
             for stack in info['inventory']:
                 if 'type' in stack and 'quantity' in stack:
                     try:
-                        inventory_dict[stack['type']] += stack['quantity'] 
+                        inventory_dict[stack['type']] += stack['quantity']
                     except ValueError:
                         continue
                     except KeyError:
@@ -321,7 +321,7 @@ class MineRLEnv(gym.Env):
                                 correction[k] *= 0
                     info[k] = correction
                     # logger.warning("Missing observation {} in Malmo".format(k))
-                
+
                 obs_dict[k] = info[k]
 
         return obs_dict
@@ -346,10 +346,10 @@ class MineRLEnv(gym.Env):
                 assert not isinstance(subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
                 if isinstance(subact, np.ndarray):
                     subact = subact.flatten()
-                
+
                 if isinstance(subact, Iterable):
                     subact = " ".join(str(x) for x in subact)
-    
+
                 action_in[act] = subact
 
             action_str.append(
@@ -388,7 +388,7 @@ class MineRLEnv(gym.Env):
                 sock.settimeout(SOCKTIME)
                 sock.connect((self.instance.host, self.instance.port))
                 self._hello(sock)
-                
+
                 self.client_socket = sock  # Now retries will use connected socket.
             self._init_mission()
 
@@ -423,7 +423,7 @@ class MineRLEnv(gym.Env):
             obs = comms.recv_message(self.client_socket)
             info = comms.recv_message(self.client_socket).decode('utf-8')
 
-            
+
             reply = comms.recv_message(self.client_socket)
             done, = struct.unpack('!b', reply)
             self.done = done == 1
@@ -444,8 +444,8 @@ class MineRLEnv(gym.Env):
 
     def seed(self):
         """Seeds the environment.
-        
-        Note: 
+
+        Note:
             This is NOT implemented.
         """
         logger.warn("Seeds not supported yet.")
@@ -460,10 +460,10 @@ class MineRLEnv(gym.Env):
         withinfo = self.step_options == 0 or self.step_options == 2
 
         malmo_command =  self._process_action(action)
-        
+
         try:
             if not self.done:
-                
+
                 step_message = "<Step" + str(self.step_options) + ">" + \
                             malmo_command + \
                             "</Step" + str(self.step_options) + " >"
@@ -481,9 +481,10 @@ class MineRLEnv(gym.Env):
                 self.done = done == 1
                 if withinfo:
                     info = comms.recv_message(self.client_socket).decode('utf-8')
-                
+                    if len(info) == 0:
+                        self.done = True # Overriding when info message is empty
+
                 out_obs = self._process_observation(obs, info)
-                
 
                 turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
                 # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
@@ -623,7 +624,7 @@ def register(id, **kwargs):
 def _bind(instance, func, as_name=None):
     """
     Bind the function *func* to *instance*, with either provided name *as_name*
-    or the existing name of *func*. The provided *func* should accept the 
+    or the existing name of *func*. The provided *func* should accept the
     instance as the first argument, i.e. "self".
     """
     if as_name is None:
