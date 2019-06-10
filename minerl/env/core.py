@@ -276,7 +276,7 @@ class MineRLEnv(gym.Env):
         if pov is None or len(pov) == 0:
             pov = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
         else:
-            pov = pov.reshape((self.height, self.width, self.depth))
+            pov = pov.reshape((self.height, self.width, self.depth))[::-1,:,:]
 
         if info:
             info = json.loads(info)
