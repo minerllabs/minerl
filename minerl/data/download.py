@@ -1,4 +1,7 @@
 import os
+from urllib.error import URLError
+from urllib.error import HTTPError
+
 import requests
 import tarfile
 import pySmartDL
@@ -55,10 +58,24 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
     except pySmartDL.CanceledException:
         print("Download canceled by user")
         return None
+    except HTTPError:
+        print("HTTP error encountered when downloading - please try again")
+        return None
+    except URLError:
+        print("URL error encountered when downloading - please try again")
+        return None
+    except IOError:
+        print("IO error encountered when downloading - please try again")
+        return None
 
     logging.info('Extracting downloaded files ... ')
-    tf = tarfile.open(obj.get_dest(), mode="r:*")
-    tf.extractall(path=directory)
+    try:
+        tf = None
+        tf = tarfile.open(obj.get_dest(), mode="r:*")
+        tf.extractall(path=directory)
+    finally:
+        if tf is not None:
+            tf.close()
 
     if disable_cache:
         os.remove(obj.get_dest())
