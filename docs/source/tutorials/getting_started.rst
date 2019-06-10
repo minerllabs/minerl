@@ -18,7 +18,7 @@ main python package, :code:`minerl`.
    a. `Windows installer`_  -- On windows go this link and follow the
       instructions to install JDK 8.
 
-   b. On mac, with homebrew installed you can use the following::
+   b. On Mac, you can install java8 using homebrew and AdoptOpenJDK (an open source mirror, used here to get around the fact that Java8 binaries are no longer available directly from Oracle)::
 
         brew tap caskroom/versions
         brew cask install java8
