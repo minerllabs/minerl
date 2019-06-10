@@ -51,9 +51,8 @@ class InstanceManager:
     instance allocation capability using remote procedure calls.
     """
     MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
-    MC_COMMAND = os.path.join(MINECRAFT_DIR, 'launchHero.sh')
     MAXINSTANCES = 10
-    DEFAULT_IP = "127.0.0.1"
+    DEFAULT_IP = "localhost"
     _instance_pool = []
     ninstances = 0
     X11_DIR = '/tmp/.X11-unix'
@@ -282,6 +281,10 @@ class InstanceManager:
                 server_ready = False
                 while True:
                     line = self.minecraft_process.stdout.readline().decode('utf-8')
+
+                    # Check for failures and print useful messages!
+                    _check_for_launch_errors(line)
+
                     lines.append(line)
                     logger.debug("\n".join(line.split("\n")[:-1]))
                     if not line:
@@ -473,3 +476,22 @@ class InstanceManager:
 
         def release_lock(self):
             self.locked = False
+
+
+def _check_for_launch_errors(line):
+    if "at org.lwjgl.opengl.Display.<clinit>(Display.java:138)" in line:
+        logger.error(
+            "ERROR! MineRL could not detect an X Server, Monitor, or Virtual Monitor! "
+            "Currently minerl only supports environment rendering in headed environments (servers with monitors attached)."
+            "\n"
+            "\n"
+            "In order to run minerl environments without a head use a software renderer such as 'xvfb':"
+            "\n\txvfb-run python3 <your_script.py>"
+            "\n"
+            "If you're receiving this error and there is a monitor attached, make sure your current display"
+            "variable is set correctly: "
+            "\n\t DISPLAY=:0 python3 <your_script.py>"
+            "\n"
+            "If none of these steps work, please complain in the discord!"
+        )
+

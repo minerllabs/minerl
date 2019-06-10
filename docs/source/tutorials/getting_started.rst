@@ -34,3 +34,13 @@ main python package, :code:`minerl`.
         pip3 install --upgrade minerl
 
 **That's it! Now you're good to go :) 💯💯💯**
+
+.. caution:: 
+    Currently :code:`minerl` only supports environment rendering in **headed environments**
+    (servers with monitors attached). 
+
+
+    **In order to run** :code:`minerl` **environments without a head use a software renderer
+    such as** :code:`xvfb`::
+
+        xvfb-run python3 <your_script.py>

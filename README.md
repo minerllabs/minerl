@@ -1,4 +1,5 @@
-# The [MineRL](http://minerl.io) Python Package
+# The [MineRL](http://minerl.io) Python Package 
+[![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl) 
 
 Python package providing easy to use gym environments and a simple data api for the MineRLv0 dataset. 
 
@@ -22,6 +23,7 @@ env = gym.make('MineRLNavigateDense-v0')
 
 obs, _ = env.reset()
 
+done = False
 while not done:
     action = env.action_space.sample() 
  
@@ -45,7 +47,7 @@ minerl.data.download('/your/local/path')
 data = minerl.data.make('MineRLObtainDiamond-v0')
 
 # Iterate through a single epoch gathering sequences of at most 32 steps
-for obs, rew, done, act in data.seq_iter(num_epochs=1, batch_size=32):
+for obs, rew, done, act in data.seq_iter(num_epochs=1, max_sequence_len=32):
     print("Number of diffrent actions:", len(act))
     for action in act:
         print(act)
