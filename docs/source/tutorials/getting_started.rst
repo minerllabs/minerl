@@ -6,7 +6,7 @@ Welcome to MineRL! This guide will get you started.
 
 
 To start using the data and set of reinforcement learning
-enviroments comrpising MineRL, you'll need to install the
+environments comprising MineRL, you'll need to install the
 main python package, :code:`minerl`.
 
 .. _OpenJDK 8: https://openjdk.java.net/install/
