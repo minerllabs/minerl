@@ -321,7 +321,11 @@ class InstanceManager:
                                 linestr = line.decode(mine_log_encoding)
                             linestr = "\n".join(linestr.split("\n")[:-1])
                             if 'STDERR' in linestr or 'ERROR' in linestr:
-                                logger.error(linestr)
+                                # Opportune place to suppress harmless MC errors.
+                                if not ('hitResult' in linestr):
+                                    logger.error(linestr)
+                            if 'LOGTOPY' in linestr:
+                                logger.info(linestr)
                             mine_log.write(line)
                             mine_log.flush()
                     finally:
