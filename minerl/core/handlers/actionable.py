@@ -53,7 +53,7 @@ class CommandAction(AgentHandler):
 class ItemListCommandAction(CommandAction):
     """
     An action handler based on a list of items
-    The action space is determiend by the length of the list plus one
+    The action space is determined by the length of the list plus one
     """
 
     def __init__(self, command: str, items: list):

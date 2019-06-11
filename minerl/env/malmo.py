@@ -72,7 +72,7 @@ class InstanceManager:
         
         Raises:
             RuntimeError: No available instances or the maximum number of allocated instances reached.
-            RuntimeError: No available instances and automatic allocation of isntances is off.
+            RuntimeError: No available instances and automatic allocation of instances is off.
         """
         # Find an available instance.
         for inst in cls._instance_pool:
@@ -404,7 +404,7 @@ class InstanceManager:
 
         def _launch_process_watcher(self, parent_pid, child_pid, child_host, child_port):
             """
-            Launches the process watcher for the parent and miencraft process.
+            Launches the process watcher for the parent and minecraft process.
             """
             p = multiprocessing.Process(
                 target=InstanceManager._process_watcher, args=(parent_pid, child_pid, child_host, child_port))
@@ -449,7 +449,7 @@ class InstanceManager:
 
 
                 if self._kill_minecraft_via_malmoenv(self.host, self.port):
-                    # Let the miencraft process term on its own terms.
+                    # Let the minecraft process term on its own terms.
                     time.sleep(2)
 
                 # Now lets try and end the process if anything is laying around
