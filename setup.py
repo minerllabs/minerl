@@ -104,7 +104,7 @@ data_files += package_files('minerl/env/Malmo')
 
 setuptools.setup(
       name='minerl',
-      version='0.1.6',
+      version='0.1.7',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
