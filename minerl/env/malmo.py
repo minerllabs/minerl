@@ -280,7 +280,8 @@ class InstanceManager:
                 client_ready = False
                 server_ready = False
                 while True:
-                    line = self.minecraft_process.stdout.readline().decode('utf-8')
+                    mine_log_encoding = locale.getpreferredencoding(False)
+                    line = self.minecraft_process.stdout.readline().decode(mine_log_encoding)
 
                     # Check for failures and print useful messages!
                     _check_for_launch_errors(line)
