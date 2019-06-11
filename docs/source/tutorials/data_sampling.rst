@@ -20,7 +20,7 @@ Now we can build the datast for :code:`MineRLObtainDiamond-v0`
     data = minerl.data.make('MineRLObtainDiamond-v0')
     
     # Iterate through a single epoch gathering sequences of at most 32 steps
-    for obs, rew, done, act in data.seq_iter(num_epochs=1, batch_size=32):
+    for obs, rew, done, act in data.seq_iter(num_epochs=1, max_sequence_len=32):
         print("Number of diffrent actions:", len(act))
         for action in act:
             print(act)
