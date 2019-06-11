@@ -480,7 +480,7 @@ class InstanceManager:
 
 def _check_for_launch_errors(line):
     if "at org.lwjgl.opengl.Display.<clinit>(Display.java:138)" in line:
-        raise new RuntimeError(
+        raise  RuntimeError(
             "ERROR! MineRL could not detect an X Server, Monitor, or Virtual Monitor! "
             "Currently minerl only supports environment rendering in headed environments (servers with monitors attached)."
             "\n"
