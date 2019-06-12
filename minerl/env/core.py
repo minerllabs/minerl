@@ -93,8 +93,8 @@ class MineRLEnv(gym.Env):
             port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
             noop_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
         """
-    
     metadata = {'render.modes': ['rgb_array']}
+
     def __init__(self, xml, observation_space, action_space, port=None, noop_action=None, docstr=None):
         self.action_space = None
         self.observation_space = None
