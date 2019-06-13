@@ -40,7 +40,7 @@ main python package, :code:`minerl`.
 3. (Optional) Download the dataset - 13.6 GB::
 
         import minerl
-        minerl.data.download(data_dir="/your/local/path/")
+        minerl.data.download(directory="/your/local/path/")
 
 **That's it! Now you're good to go :) 💯💯💯**
 
