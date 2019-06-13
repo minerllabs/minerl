@@ -123,6 +123,8 @@ class MineRLEnv(gym.Env):
         self.instance = None
         self.had_to_clean = False
 
+        self._already_closed = False
+
         self.init(observation_space, action_space, port=port)
 
     def init(self,  observation_space, action_space,  port=None):
@@ -515,6 +517,8 @@ class MineRLEnv(gym.Env):
 
     def close(self):
         """gym api close"""
+        if self._already_closed:
+            return
         try:
             # Purge last token from head node with <Close> message.
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -526,6 +530,7 @@ class MineRLEnv(gym.Env):
             ok, = struct.unpack('!I', reply)
             assert ok
             sock.close()
+            self._already_closed = True
         except Exception as e:
             self._log_error(e)
         if self.client_socket:
