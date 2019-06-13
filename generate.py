@@ -248,6 +248,10 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
         markers_sp = streamMetadata['markers']
         for marker in markers_sp:
             markers[marker['realTimestamp']] = marker
+    if len(markers) == 0 and E(J(inputPath, 'stream_meta_data.json')):
+        markers_sp = json.load(open(J(inputPath, 'markers.json')))
+        for marker in markers_sp:
+            markers[marker['realTimestamp']] = marker
 
     startTime = None
     startTick = None
@@ -369,15 +373,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                  segment[4] - videoOffset_ticks)
                 for segment in segments]
     segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
-
-    # segments = [((segment[0] - videoOffset_ms) / 1000,
-    #              (segment[1] - videoOffset_ms) / 1000,
-    #              segment[2],
-    #              segment[3] - videoOffset_ticks,
-    #              segment[4] - videoOffset_ticks,
-    #              segment[5], segment[6])
-    #             for segment in segments]
-    # segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
 
     pbar = tqdm.tqdm(total=len(segments), desc='Segments', leave=False, position=lineNum)
 
