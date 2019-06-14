@@ -248,6 +248,10 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
         markers_sp = streamMetadata['markers']
         for marker in markers_sp:
             markers[marker['realTimestamp']] = marker
+    else:
+        if debug:
+            print('No markers found in stream_meta_data.json! Was it over-writen on re-render?')
+        return 0
 
     startTime = None
     startTick = None
