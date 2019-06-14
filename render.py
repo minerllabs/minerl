@@ -8,6 +8,8 @@ render.py
 # 2) Running the action_rendering scripts
 # 3) Running the video_rendering scripts
 """
+import functools
+import multiprocessing
 import os
 import random
 import shutil
@@ -19,7 +21,6 @@ import zipfile
 import subprocess
 import json
 import time
-import pyautogui
 import shutil
 import psutil
 import traceback
@@ -34,13 +35,18 @@ E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged_new")
 RENDER_DIR = J(WORKING_DIR, "rendered_new")
-MINECRAFT_DIR = J('/', 'home', 'hero', 'minecraft')
-RECORDING_PATH = J(MINECRAFT_DIR, 'replay_recordings')
-RENDERED_VIDEO_PATH = J(MINECRAFT_DIR, 'replay_videos')
-RENDERED_LOG_PATH  =  J(MINECRAFT_DIR,  'replay_logs')
-FINISHED_FILE = J(MINECRAFT_DIR, 'finished.txt')
-LOG_FILE = J(J(MINECRAFT_DIR, 'logs'), 'debug.log')  # RAH
-#Error directories
+
+# Minecraft Files
+NUM_MINECRAFT_DIR = 4
+MINECRAFT_DIR = [J('/', 'home', 'hero', 'minecraft_{}'.format(i)) for i in range(NUM_MINECRAFT_DIR)]
+RECORDING_PATH = [J(d, 'replay_recordings') for d in MINECRAFT_DIR]
+RENDERED_VIDEO_PATH = [J(d, 'replay_videos') for d in MINECRAFT_DIR]
+RENDERED_LOG_PATH = [J(d,  'replay_logs') for d in MINECRAFT_DIR]
+FINISHED_FILE = [J(d, 'finished.txt') for d in MINECRAFT_DIR]
+LOG_FILE = [J(d, 'logs', 'debug.log') for d in MINECRAFT_DIR]
+MC_LAUNCHER = [J(d, 'launch.sh') for d in MINECRAFT_DIR]
+
+# Error directories
 ERROR_PARENT_DIR = J(WORKING_DIR, 'error_logs')
 EOF_EXCEP_DIR = J(ERROR_PARENT_DIR, 'end_of_file_reached')
 ZEROLEN_DIR = J(ERROR_PARENT_DIR, 'zero_length')
@@ -48,9 +54,6 @@ NULL_PTR_EXCEP_DIR = J(ERROR_PARENT_DIR, 'null_pointer_except')
 ZIP_ERROR_DIR = J(ERROR_PARENT_DIR, 'zip_file')
 MISSING_RENDER_OUTPUT = J(ERROR_PARENT_DIR, 'missing_output')
 
-MC_LAUNCHER = '/home/hero/minecraft/launch.sh'
-# MC_JAR = # This seems to be excluded from the current launcher
-# MC_LAUNCH_ARGS = '-Xmx4G -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M'
 BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
 END_OF_STREAM = 'end_of_stream.txt'
@@ -125,8 +128,9 @@ def construct_render_dirs(blacklist):
 
     return render_dirs
 
+
 # 2. render metadata from the files.
-def render_metadata(renders: list) -> list:
+def render_metadata(renders: list):
     """
     Unpacks the metadata of a recording and checks its validity.
     """
@@ -185,7 +189,8 @@ def render_metadata(renders: list) -> list:
 
     return good_renders, bad_renders
 
-# 2.Renders the actions.
+
+# 3.Renders the actions.
 def render_actions(renders: list):
     """
     For every render directory, we render the actions
@@ -230,8 +235,6 @@ def render_actions(renders: list):
 
     return good_renders, bad_renders
 
-# 3.Render the video encodings
-
 
 # Kill MC (or any process) given the PID
 def killMC(process):
@@ -247,10 +250,10 @@ def killMC(process):
 
 
 # Launch MC - return the process so we can kill later if needed
-def launchMC():
+def launchMC(index=0):
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
-        MC_LAUNCHER, cwd=MINECRAFT_DIR)#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        MC_LAUNCHER, cwd=MINECRAFT_DIR[index])#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print("Launched ", MC_LAUNCHER)
 
     #Give Minecraft time to load
@@ -258,16 +261,15 @@ def launchMC():
     return p
 
 
-def logError(errorDIR, recording_name, skip_path):
+def logError(errorDIR, recording_name, skip_path, index=0):
     try:
-        shutil.move(J(RECORDING_PATH, recording_name+'.mcpr'),
+        shutil.move(J(RECORDING_PATH[index], recording_name+'.mcpr'),
                     J(errorDIR, recording_name+'.mcpr'))
-        shutil.copy(LOG_FILE,                               J(
-            errorDIR, recording_name+'.log'))
+        shutil.copy(LOG_FILE[index], J(errorDIR, recording_name+'.log'))
     except:
         pass
     try:
-        shutil.rmtree(J(RECORDING_PATH, recording_name+'.mcpr.tmp'))
+        shutil.rmtree(J(RECORDING_PATH[index], recording_name+'.mcpr.tmp'))
         with open(skip_path, 'a'):
             try:
                 os.utime(skip_path, None)  # => Set skip time to now
@@ -277,14 +279,22 @@ def logError(errorDIR, recording_name, skip_path):
         pass
 
 
-def relaunchMC(p, errorDIR, recording_name, skip_path):
+def relaunchMC(p, errorDIR, recording_name, skip_path, index=0):
     killMC(p)
     # time.sleep(15)  # Give the OS time to release this file
     logError(errorDIR, recording_name, skip_path)
-    return launchMC()
+    return launchMC(index)
 
 
-def render_videos(renders: list):
+# 4.Render the videos
+def _render_videos(manager, file, debug=False):
+    n = manager.get_index()
+    ret = render_videos(file, index=n, debug=debug)
+    manager.free_index(n)
+    return ret
+
+
+def render_videos(render: tuple[str, str], index=0):
     """
     For every render directory, we render the videos.
     This works by:
@@ -300,57 +310,56 @@ def render_videos(renders: list):
 
     # Remove any finished file flags to prevent against copying unfinished renders
     try:
-        os.remove(FINISHED_FILE)
+        os.remove(FINISHED_FILE[index])
     except FileNotFoundError:
         pass
 
     # Clear recording directory to protect against crash messages
-    for messyFile in glob.glob(J(RECORDING_PATH, '*')):
+    for messyFile in glob.glob(J(RECORDING_PATH[index], '*')):
         try:
             os.remove(messyFile)
         except IsADirectoryError:
             shutil.rmtree(messyFile)
 
-    p = launchMC()  # RAH launchMC() now returns subprocess - use p.PID to get process ID
-    # Randomize file loading
-    # random.shuffle(renders)
-    renders = sorted(renders, key=lambda elem: -1 * os.stat(J(MERGED_DIR, (elem[0] + ".mcpr"))).st_size)
-    for recording_name, render_path in tqdm.tqdm(renders):
+    p = launchMC()
+    try:
+        recording_name, render_path = render
+
         # Get mcpr file from merged
-        print("Rendering:", recording_name, '...')
+        tqdm.tqdm.write("Rendering {} ...".format(recording_name))
 
         # Skip if the folder has an recording already
         # * means all if need specific format then *.csv
         list_of_files = glob.glob(J(render_path, '*.mp4'))
         if len(list_of_files):
-            print("\tSkipping: replay folder contains", list_of_files[0])
-            continue
+            tqdm.tqdm.write("\tSkipping: replay folder contains {}".format(list_of_files[0]))
+            return 0
 
         # Skip if the file has been skipped already
         skip_path = J(render_path, SKIPPED_RENDER_FLAG)
         if E(skip_path):
-            print("\tSkipping: file was previously skipped")
-            continue
+            tqdm.tqdm.write("\tSkipping: file was previously skipped")
+            return 0
 
         mcpr_path = J(MERGED_DIR, (recording_name + ".mcpr"))
 
-        copyfile(mcpr_path, J(RECORDING_PATH, (recording_name + ".mcpr")))
+        copyfile(mcpr_path, J(RECORDING_PATH[index], (recording_name + ".mcpr")))
         copy_time = os.path.getmtime(
-            J(RECORDING_PATH, (recording_name + ".mcpr")))
+            J(RECORDING_PATH[index], (recording_name + ".mcpr")))
 
-        logFile = open(LOG_FILE, 'r', os.O_NONBLOCK)
+        logFile = open(LOG_FILE[index], 'r', os.O_NONBLOCK)
         lineCounter = 0  # RAH So we can print line number of the error
 
         # Wait for completion (it creates a finished.txt file)
         video_path = None
         notFound = True
         while notFound:
-            if os.path.exists(FINISHED_FILE) or p.poll() is not None:
-                if os.path.exists(FINISHED_FILE):
-                    os.remove(FINISHED_FILE)
+            if os.path.exists(FINISHED_FILE[index]) or p.poll() is not None:
+                if os.path.exists(FINISHED_FILE[index]):
+                    os.remove(FINISHED_FILE[index])
                 try:
                     print("Waiting for Minecraft to close")
-                    p.wait(240)
+                    p.wait(400)
                     print("Minecraft closed")
                 except TimeoutError:
                     print("Timeout")
@@ -392,21 +401,22 @@ def render_videos(renders: list):
                         print("\tline {}: {}".format(lineCounter, logLine))
                         p = relaunchMC(p, errorDir, recording_name, skip_path)
                         break
+            time.sleep(0.1)
 
         logFile.close()
         if notFound:
             try:
-                os.remove(J(RECORDING_PATH, (recording_name + ".mcpr")))
+                os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
             except:
                 pass
-            continue
+            return 0
 
         video_path = None
         log_path = None
         marker_path = None
 
         # GET RECORDING
-        list_of_files = glob.glob( J(RENDERED_VIDEO_PATH, '*.mp4'))
+        list_of_files = glob.glob( J(RENDERED_VIDEO_PATH[index], '*.mp4'))
         if len(list_of_files) > 0:
             # Check that this render was created after we copied
             video_path = max(list_of_files, key=os.path.getmtime)
@@ -419,9 +429,8 @@ def render_videos(renders: list):
                 print("\tskipping out of date rendering")
                 video_path = None
 
-
         # GET UNIVERSAL ACTION FORMAT
-        list_of_logs = glob.glob(J(RENDERED_LOG_PATH, '*.json'))
+        list_of_logs = glob.glob(J(RENDERED_LOG_PATH[index], '*.json'))
         if len(list_of_logs) > 0:
             # Check that this render was created after we copied
             log_path = max(list_of_logs, key=os.path.getmtime)
@@ -435,7 +444,7 @@ def render_videos(renders: list):
                 log_path = None
 
         # GET new markers.json
-        list_of_logs = glob.glob(J(RENDERED_VIDEO_PATH, '*.json'))
+        list_of_logs = glob.glob(J(RENDERED_VIDEO_PATH[index], '*.json'))
         if len(list_of_logs) > 0:
             # Check that this render was created after we copied
             marker_path = max(list_of_logs, key=os.path.getmtime)
@@ -474,11 +483,36 @@ def render_videos(renders: list):
 
         # Remove mcpr file from dir
         try:
-            os.remove(J(RECORDING_PATH, (recording_name + ".mcpr")))
+            os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
         except:
             pass
-    killMC(p.pid)
+    finally:
+        killMC(p.pid)
+    return 1
 
+
+class ThreadManager(object):
+    def __init__(self, man, num_workers, first_index, max_load):
+        self.max_load = max_load
+        self.first_index = first_index
+        self.workers = man.list([0 for _ in range(num_workers)])
+        self.worker_lock = man.Lock()
+
+    def get_index(self):
+        while True:
+            with self.worker_lock:
+                load = min(self.workers)
+                if load < self.max_load:
+                    index = self.workers.index(load)
+                    self.workers[index] += 1
+                    # print('Load is {} incrementing {}'.format(load, index))
+                    return index + self.first_index
+                else:
+                    time.sleep(0.01)
+
+    def free_index(self, i):
+        with self.worker_lock:
+            self.workers[i - self.first_index] -= 1
 
 def main():
     """
@@ -500,7 +534,19 @@ def main():
               len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))
           )
     print("Rendering videos: ")
-    render_videos(valid_renders)
+    # render_videos(valid_renders)
+
+    # Render videos in multiprocessing queue
+    multiprocessing.freeze_support()
+    with multiprocessing.Pool(
+            NUM_MINECRAFT_DIR, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
+        manager = ThreadManager(multiprocessing.Manager(), NUM_MINECRAFT_DIR, 0, 1)
+        func = functools.partial(_render_videos, manager)
+        num_rendered = list(
+            tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1,
+                      position=0, maxinterval=1))
+
+    print('Rendered {} new files!'.format(num_rendered))
 
     # from IPython import embed; embed()
 
