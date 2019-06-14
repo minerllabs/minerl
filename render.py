@@ -489,8 +489,11 @@ def render_videos(render: tuple, index=0, debug=False):
         except:
             pass
     finally:
-        killMC(p)
-    return 1
+        try:
+            p.wait(400)
+        except TimeoutError:
+            p.kill()
+        return 1
 
 
 class ThreadManager(object):
