@@ -294,7 +294,7 @@ def _render_videos(manager, file, debug=False):
     return ret
 
 
-def render_videos(render: tuple, index=0):
+def render_videos(render: tuple, index=0, debug=False):
     """
     For every render directory, we render the videos.
     This works by:
@@ -358,15 +358,17 @@ def render_videos(render: tuple, index=0):
                 if os.path.exists(FINISHED_FILE[index]):
                     os.remove(FINISHED_FILE[index])
                 try:
-                    print("Waiting for Minecraft to close")
+                    if debug:
+                        print("Waiting for Minecraft to close")
                     p.wait(400)
-                    print("Minecraft closed")
+                    if debug:
+                        print("Minecraft closed")
                 except TimeoutError:
-                    print("Timeout")
+                    tqdm.tqdm.write("Timeout")
                     p.kill()
                     # killMC(p)
                 except:
-                    print("Error stopping")
+                    tqdm.tqdm.write("Error stopping")
                 p = launchMC()
 
                 notFound = False
@@ -382,23 +384,28 @@ def render_videos(render: tuple, index=0):
                     lineCounter += 1
                     errorDir = None
                     if re.search(r"EOFException:", logLine):
-                        print("\tfound java.io.EOFException")
+                        if debug:
+                            print("\tfound java.io.EOFException")
                         errorDir = EOF_EXCEP_DIR
 
                     elif re.search(r"Adding time keyframe at \d+ time -\d+", logLine):
-                        print("\tfound 0 length file")
+                        if debug:
+                            print("\tfound 0 length file")
                         errorDir = ZEROLEN_DIR
 
                     elif re.search(r"NullPointerException", logLine):
-                        print("\tNullPointerException")
+                        if debug:
+                            print("\tNullPointerException")
                         errorDir = NULL_PTR_EXCEP_DIR
 
                     elif re.search(r"zip error", logLine):
-                        print('ZIP file error')
+                        if debug:
+                            print('ZIP file error')
                         errorDir = ZIP_ERROR_DIR
                     
                     if not errorDir is None:
-                        print("\tline {}: {}".format(lineCounter, logLine))
+                        if debug:
+                            print("\tline {}: {}".format(lineCounter, logLine))
                         p = relaunchMC(p, errorDir, recording_name, skip_path)
                         break
             time.sleep(0.1)
@@ -416,17 +423,14 @@ def render_videos(render: tuple, index=0):
         marker_path = None
 
         # GET RECORDING
-        list_of_files = glob.glob( J(RENDERED_VIDEO_PATH[index], '*.mp4'))
+        list_of_files = glob.glob(J(RENDERED_VIDEO_PATH[index], '*.mp4'))
         if len(list_of_files) > 0:
             # Check that this render was created after we copied
             video_path = max(list_of_files, key=os.path.getmtime)
             if os.path.getmtime(video_path) < copy_time:
-                print("\tError! Rendered file is older than replay!")
-                # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
-                # if "y" in user_input:
-                #       print("using out of date recording")
-                # else:
-                print("\tskipping out of date rendering")
+                if debug:
+                    print("\tError! Rendered file is older than replay!")
+                    print("\tskipping out of date rendering")
                 video_path = None
 
         # GET UNIVERSAL ACTION FORMAT
@@ -435,12 +439,9 @@ def render_videos(render: tuple, index=0):
             # Check that this render was created after we copied
             log_path = max(list_of_logs, key=os.path.getmtime)
             if os.path.getmtime(log_path) < copy_time:
-                print("\tError! Rendered log is older than replay!")
-                # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
-                # if "y" in user_input:
-                #       print("using out of date action json")
-                # else:
-                print("\tskipping out of date action json")
+                if debug:
+                    print("\tError! Rendered log is older than replay!")
+                    print("\tskipping out of date action json")
                 log_path = None
 
         # GET new markers.json
@@ -449,23 +450,23 @@ def render_videos(render: tuple, index=0):
             # Check that this render was created after we copied
             marker_path = max(list_of_logs, key=os.path.getmtime)
             if os.path.getmtime(marker_path) < copy_time:
-                print("\tError! markers.json is older than replay!")
-                # user_input = input("Are you sure you want to copy this out of date render? (y/n)")
-                # if "y" in user_input:
-                #       print("using out of date recording")
-                # else:
-                print("\tskipping out of date markers.json")
+                if debug:
+                    print("\tError! markers.json is older than replay!")
+                    print("\tskipping out of date markers.json")
                 marker_path = None
 
         if not video_path is None and not log_path is None and not marker_path is None:
-            print("\tCopying file", video_path, '==>\n\t',
+            if debug:
+                print("\tCopying file", video_path, '==>\n\t',
                   render_path, 'created', os.path.getmtime(video_path))
             shutil.move(video_path, J(render_path, 'recording.mp4'))
-            print("\tCopying file", log_path, '==>\n\t',
+            if debug:
+                print("\tCopying file", log_path, '==>\n\t',
                   render_path, 'created', os.path.getmtime(log_path))
             shutil.move(log_path, J(render_path, 'univ.json'))
 
-            print("\tRecording start and stop timestamp for video")
+            if debug:
+                print("\tRecording start and stop timestamp for video")
             metadata = json.load(open(J(render_path, 'stream_meta_data.json')))
             videoFilename = video_path.split('/')[-1]
 
@@ -477,8 +478,9 @@ def render_videos(render: tuple, index=0):
             json.dump(metadata, open(
                 J(render_path, 'stream_meta_data.json'), 'w'))
         else:
-            print("\tMissing one or more file")
-            print("\tSkipping this file in the future")
+            if debug:
+                print("\tMissing one or more file")
+                print("\tSkipping this file in the future")
             logError(MISSING_RENDER_OUTPUT, recording_name, skip_path)
 
         # Remove mcpr file from dir
