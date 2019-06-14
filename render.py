@@ -250,7 +250,7 @@ def killMC(process):
 
 
 # Launch MC - return the process so we can kill later if needed
-def launchMC(index=0):
+def launchMC(index):
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
         MC_LAUNCHER[index], cwd=MINECRAFT_DIR[index])#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -279,7 +279,7 @@ def logError(errorDIR, recording_name, skip_path, index=0):
         pass
 
 
-def relaunchMC(p, errorDIR, recording_name, skip_path, index=0):
+def relaunchMC(p, errorDIR, recording_name, skip_path, index):
     killMC(p)
     # time.sleep(15)  # Give the OS time to release this file
     logError(errorDIR, recording_name, skip_path)
@@ -321,7 +321,7 @@ def render_videos(render: tuple, index=0, debug=False):
         except IsADirectoryError:
             shutil.rmtree(messyFile)
 
-    p = launchMC()
+    p = launchMC(index)
     try:
         recording_name, render_path = render
 
@@ -369,13 +369,13 @@ def render_videos(render: tuple, index=0, debug=False):
                     # killMC(p)
                 except:
                     tqdm.tqdm.write("Error stopping")
-                p = launchMC()
+                p = launchMC(index)
 
                 notFound = False
                 numSuccessfulRenders += 1
                 # if(numSuccessfulRenders > maxConsecutiveRenders):
                 #     killMC(p)
-                #     numSuccessfullRenders = 0
+                #     numSuccessfulRenders = 0
                 #     # time.sleep(5)
                 #     p = launchMC()
             else:
