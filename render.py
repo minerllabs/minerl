@@ -485,6 +485,11 @@ def render_videos(render: tuple, index=0, debug=False):
                 print("\tMissing one or more file")
                 print("\tSkipping this file in the future")
             logError(MISSING_RENDER_OUTPUT, recording_name, skip_path)
+            try:
+                os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
+            except:
+                pass
+            return 0
 
         # Remove mcpr file from dir
         try:
@@ -555,7 +560,7 @@ def main():
             tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1,
                       position=0, maxinterval=1))
 
-    print('Rendered {} new files!'.format(num_rendered))
+    print('Rendered {} new files!'.format(sum(num_rendered)))
 
     # from IPython import embed; embed()
 
