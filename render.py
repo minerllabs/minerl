@@ -253,8 +253,8 @@ def killMC(process):
 def launchMC(index=0):
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
-        MC_LAUNCHER, cwd=MINECRAFT_DIR[index])#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print("Launched ", MC_LAUNCHER)
+        MC_LAUNCHER[index], cwd=MINECRAFT_DIR[index])#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # print("Launched ", MC_LAUNCHER[index])
 
     #Give Minecraft time to load
     # time.sleep(10)
