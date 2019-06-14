@@ -321,7 +321,7 @@ def render_videos(render: tuple, index=0, debug=False):
         except IsADirectoryError:
             shutil.rmtree(messyFile)
 
-    p = launchMC(index)
+    p = None
     try:
         recording_name, render_path = render
 
@@ -349,6 +349,9 @@ def render_videos(render: tuple, index=0, debug=False):
 
         logFile = open(LOG_FILE[index], 'r', os.O_NONBLOCK)
         lineCounter = 0  # RAH So we can print line number of the error
+
+        # Render the file
+        p = launchMC(index)
 
         # Wait for completion (it creates a finished.txt file)
         video_path = None
@@ -489,11 +492,12 @@ def render_videos(render: tuple, index=0, debug=False):
         except:
             pass
     finally:
-        try:
-            p.wait(400)
-        except TimeoutError:
-            p.kill()
-        return 1
+        if p is not None:
+            try:
+                p.wait(400)
+            except TimeoutError:
+                p.kill()
+    return 1
 
 
 class ThreadManager(object):
