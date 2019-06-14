@@ -153,17 +153,11 @@ def render_metadata(renders: list) -> list:
                     def extract(fname): return recording.extract(
                         fname, render_path)
 
-                    # Test end of stream validity.
-                    #with open(extract(END_OF_STREAM), 'r') as eos:
-                    #    assert len(eos.read()) > 0
-
                     # If everything is good extract the metadata.
                     for mfile in METADATA_FILES:
                         assert str(mfile) in [str(x) for x in recording.namelist()]
-                        if not E(J(render_path,mfile)):
+                        if not E(J(render_path, mfile)):
                             extract(mfile)
-                        else:
-                            print('Didn\'t override metadata file!! woo')
 
                     # check that stream_meta_data is good
                     with open(J(render_path, 'metaData.json'), 'r') as f:
@@ -181,7 +175,7 @@ def render_metadata(renders: list) -> list:
                     touch(J(render_path, GOOD_MARKER_NAME))
                     remove(J(render_path, BAD_MARKER_NAME))
                     good_renders.append((recording_name, render_path))
-                except (json.decoder.JSONDecodeError, AssertionError) as e:
+                except (json.decoder.JSONDecodeError, AssertionError):
                     _, _, tb = sys.exc_info()
                     traceback.print_tb(tb)  # Fixed format
                     # Mark that this is a bad file.
