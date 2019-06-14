@@ -294,7 +294,7 @@ def _render_videos(manager, file, debug=False):
     return ret
 
 
-def render_videos(render: tuple[str, str], index=0):
+def render_videos(render: tuple, index=0):
     """
     For every render directory, we render the videos.
     This works by:
