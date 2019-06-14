@@ -489,7 +489,7 @@ def render_videos(render: tuple, index=0, debug=False):
         except:
             pass
     finally:
-        killMC(p.pid)
+        killMC(p)
     return 1
 
 
