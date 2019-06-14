@@ -157,15 +157,17 @@ def render_metadata(renders: list) -> list:
                     #with open(extract(END_OF_STREAM), 'r') as eos:
                     #    assert len(eos.read()) > 0
 
-                    # If everything is good extfct the metadata.
+                    # If everything is good extract the metadata.
                     for mfile in METADATA_FILES:
-                        assert str(mfile) in [str(x)
-                                              for x in recording.namelist()]
-                        extract(mfile)
+                        assert str(mfile) in [str(x) for x in recording.namelist()]
+                        if not E(J(render_path,mfile)):
+                            extract(mfile)
+                        else:
+                            print('Didn\'t override metadata file!! woo')
 
                     # check that stream_meta_data is good
                     with open(J(render_path, 'metaData.json'), 'r') as f:
-#                        print(render_path)
+                        # print(render_path)
                         jbos = json.load(f)
                         # assert (ile["duration"] > 60000 or jbos["duration"] == 0)
                         assert (jbos["duration"] > 300000)
@@ -248,34 +250,7 @@ def killMC(process):
         process.kill()
     except psutil.NoSuchProcess:
         pass
-    # # process = psutil.Process(int(pid))
-    # try:
-    #     tqdm.tqdm.write("Waiting for minecraft to close")
-    #     process.wait(60)
-    # except TimeoutError:
-    #     try:
-    #         tqdm.tqdm.write("Asking Minecraft to close")
-    #         process.terminate()
-    #         process.wait(60)
-    #     except TimeoutError:
-    #         tqdm.tqdm.write("Killing Minecraft and sub-processes")
-    #         process.kill()
-    #         # for proc in process.children(recursive=True):
-    #         #     try:
-    #         #         proc.terminate()
-    #         #         proc.wait(60)
-    #         #     except TimeoutError:
-    #         #         try:
-    #         #             tqdm.tqdm.write("Killing sub-process")
-    #         #             proc.kill()
-    #         #         except psutil.NoSuchProcess:
-    #         #             pass
-    #         #     except psutil.NoSuchProcess:
-    #         #         pass
-    #         # pass
-    # except psutil.NoSuchProcess:
-    #     tqdm.tqdm.write("No such process")
-    #     pass
+
 
 # Launch MC - return the process so we can kill later if needed
 def launchMC():
@@ -287,6 +262,7 @@ def launchMC():
     #Give Minecraft time to load
     # time.sleep(10)
     return p
+
 
 def logError(errorDIR, recording_name, skip_path):
     try:
@@ -305,6 +281,7 @@ def logError(errorDIR, recording_name, skip_path):
                 pass  # File deleted between open() and os.utime() calls
     except:
         pass
+
 
 def relaunchMC(p, errorDIR, recording_name, skip_path):
     killMC(p)
@@ -355,7 +332,7 @@ def render_videos(renders: list):
             print("\tSkipping: replay folder contains", list_of_files[0])
             continue
 
-        # Skip if the file has been skipped allready
+        # Skip if the file has been skipped already
         skip_path = J(render_path, SKIPPED_RENDER_FLAG)
         if E(skip_path):
             print("\tSkipping: file was previously skipped")
