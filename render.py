@@ -369,7 +369,7 @@ def render_videos(render: tuple, index=0, debug=False):
                     # killMC(p)
                 except:
                     tqdm.tqdm.write("Error stopping")
-                p = launchMC(index)
+                # p = launchMC(index)
 
                 notFound = False
                 numSuccessfulRenders += 1
@@ -406,7 +406,7 @@ def render_videos(render: tuple, index=0, debug=False):
                     if not errorDir is None:
                         if debug:
                             print("\tline {}: {}".format(lineCounter, logLine))
-                        p = relaunchMC(p, errorDir, recording_name, skip_path)
+                        # p = relaunchMC(p, errorDir, recording_name, skip_path)
                         break
             time.sleep(0.1)
 
