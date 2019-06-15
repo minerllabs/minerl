@@ -93,8 +93,8 @@ class MineRLEnv(gym.Env):
             port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
             noop_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
         """
-    metadata = {'render.modes': []}
-    
+    metadata = {'render.modes': ['rgb_array']}
+
     def __init__(self, xml, observation_space, action_space, port=None, noop_action=None, docstr=None):
         self.action_space = None
         self.observation_space = None
@@ -324,6 +324,7 @@ class MineRLEnv(gym.Env):
                 
                 obs_dict[k] = info[k]
 
+        self._last_pov = obs_dict['pov']
         return obs_dict
 
     def _process_action(self, action_in) -> str:
@@ -512,6 +513,10 @@ class MineRLEnv(gym.Env):
                 "the info dictionary returned by the step function.")
             return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
+    def render(self, mode='rgb_array'):
+        if mode != 'rgb_array':
+            raise NotImplementedError('`render` supports "rgb_array" mode only.')
+        return self._last_pov
 
     def close(self):
         """gym api close"""
