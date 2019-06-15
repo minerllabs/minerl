@@ -38,7 +38,6 @@ import numpy as np
 from lxml import etree
 from minerl.env import comms
 from minerl.env.comms import retry
-from minerl.env.core import MineRLEnv
 from minerl.env.malmo import InstanceManager, malmo_version
 
 logger = logging.getLogger(__name__)
@@ -110,11 +109,10 @@ class MineRLEnv(gym.Env):
         self.ns = '{http://ProjectMalmo.microsoft.com}'
         self.client_socket = None
 
-        self.turn_key = ""
         self.exp_uid = ""
         self.done = True
         self.synchronous = True
-        self.step_options = None
+        
         self.width = 0
         self.height = 0
         self.depth = 0
@@ -198,8 +196,6 @@ class MineRLEnv(gym.Env):
         turn_based = self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None
         if turn_based:
             raise NotImplementedError("Turn based or multi-agent environments not supported.")
-        else:
-            self.turn_key = ""
 
         self.done = True
 
@@ -446,10 +442,6 @@ class MineRLEnv(gym.Env):
         logger.warn("Seeds not supported yet.")
 
     def step(self, action):
-        obs = None
-        reward = None
-        info = None
-        withturnkey = MineRLEnv.STEP_OPTIONS < 2
         
         withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
 
@@ -466,11 +458,6 @@ class MineRLEnv(gym.Env):
                 # Send Actions.
                 comms.send_message(self.client_socket, step_message.encode())
 
-               
-                # Send TurnKey.
-                if withturnkey:
-                    comms.send_message(self.client_socket, self.turn_key.encode())
-
                 # Receive the observation.
                 obs = comms.recv_message(self.client_socket)
                 
@@ -482,18 +469,9 @@ class MineRLEnv(gym.Env):
                 # Receive info from the environment.
                 if withinfo:
                     info = comms.recv_message(self.client_socket).decode('utf-8')
-                
-
-                # Get the turn key from the environment.
-                turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
-                # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
-                if turn_key != "":
-                    if sent != 0:
-                        turn = False
-                    # Done turns if: turn = self.turn_key == turn_key
-                    self.turn_key = turn_key
                 else:
-                    turn = sent == 0
+                    info = {}
+                
 
                 # Process the observation and done state.
                 out_obs = self._process_observation(obs, info)
@@ -607,7 +585,6 @@ class MineRLEnv(gym.Env):
 
             reply = comms.recv_message(self.client_socket)
             ok, = struct.unpack('!I', reply)
-            self.turn_key = comms.recv_message(self.client_socket).decode('utf-8')
             if ok != 1:
                 num_retries += 1
                 if num_retries > MAX_WAIT:
