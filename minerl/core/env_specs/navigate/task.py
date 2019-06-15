@@ -40,7 +40,7 @@ class NavigateEnv(EnvSpec):
             )
         ]
         if self.dense_reward:
-            mission_handlers.append(handlers.RewardForWalkingTwardsTarget(
+            mission_handlers.append(handlers.RewardForWalkingTowardsTarget(
                 reward_per_block=1, reward_schedule="PER_TICK"
             ))
         return mission_handlers

@@ -250,7 +250,7 @@ class NavigateTargetReward(RewardHandler):
                 return 100
         return 0
 
-class RewardForWalkingTwardsTarget(RewardHandler):
+class RewardForWalkingTowardsTarget(RewardHandler):
     """
     Custom reward for approaching a compass location
     """
@@ -258,7 +258,7 @@ class RewardForWalkingTwardsTarget(RewardHandler):
     def __init__(self, reward_per_block=1, reward_schedule='PER_TICK', **args):
         """
         Adds a reward for touching specific blocks either once or every touch
-        :param reward_per_block: The reward for each unit traveled twards compass target
+        :param reward_per_block: The reward for each unit traveled towards compass target
         :param reward_schedule: The distribution of rewards, one of {PER_TICK, PER_TICK_ACCUMULATED, MISSION_END}
         :param args: So on and so forth.
         """
