@@ -45,6 +45,7 @@ def main():
             # print(obs["compassAngle"])
             netr += reward
             print(netr)
+            env.render()
 
 
 

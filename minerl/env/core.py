@@ -1,15 +1,15 @@
 # ------------------------------------------------------------------------------------------------
 # Copyright (c) 2018 Microsoft Corporation
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 # associated documentation files (the "Software"), to deal in the Software without restriction,
 # including without limitation the rights to use, copy, modify, merge, publish, distribute,
 # sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all copies or
 # substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 # NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -37,37 +37,40 @@ import minerl.env.spaces
 import numpy as np
 from lxml import etree
 from minerl.env import comms
-from minerl.env.comms import retry  
+from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager, malmo_version
 
+from gym.envs.classic_control import rendering
 logger = logging.getLogger(__name__)
 
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
 
 
-
 class EnvException(Exception):
     """A special exception thrown in the creation of an environment's Malmo mission XML.
-    
+
     Args:
         message (str): The exception message. 
     """
+
     def __init__(self, message):
         super(EnvException, self).__init__(message)
 
 
 class MissionInitException(Exception):
     """An exception thrown when a mission fails to initialize
-    
+
     Args:
         message (str): The exception message. 
     """
+
     def __init__(self, message):
         super(MissionInitException, self).__init__(message)
 
 
-MAX_WAIT = 60 * 4 # After this many MALMO_BUSY's a timeout exception will be thrown 
-SOCKTIME = 60.0 * 4 # After this much time a socket exception will be thrown.
+MAX_WAIT = 60 * 4  # After this many MALMO_BUSY's a timeout exception will be thrown
+SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
+
 
 class MineRLEnv(gym.Env):
     """The MineRLEnv class.
@@ -80,11 +83,11 @@ class MineRLEnv(gym.Env):
                 import gym
 
                 env = gym.make('MineRLTreechop-v0') # Makes a minerl environment.
-                
+
                 # Use env like any other OpenAI gym environment.
                 # ...
-            
-        
+
+
         Args:
             xml (str): The path to the MissionXML file for this environment.
             observation_space (gym.Space): The observation for the environment.
@@ -92,7 +95,7 @@ class MineRLEnv(gym.Env):
             port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
             noop_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
         """
-    metadata = {'render.modes': ['rgb_array']}
+    metadata = {'render.modes': ['rgb_array', 'human']}
 
     STEP_OPTIONS = 0
 
@@ -100,6 +103,8 @@ class MineRLEnv(gym.Env):
         self.action_space = None
         self.observation_space = None
         self._default_action = noop_action
+
+        self.viewer = None
 
         self.xml = None
         self.integratedServerPort = 0
@@ -112,7 +117,7 @@ class MineRLEnv(gym.Env):
         self.exp_uid = ""
         self.done = True
         self.synchronous = True
-        
+
         self.width = 0
         self.height = 0
         self.depth = 0
@@ -131,12 +136,12 @@ class MineRLEnv(gym.Env):
 
         Note: 
             This is called automatically when the environment is made.
-        
+
         Args:
             observation_space (gym.Space): The observation for the environment.
             action_space (gym.Space): The action space for the environment.
             port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
-        
+
         Raises:
             EnvException: If the Mission XML is malformed this is thrown.
             ValueError: The space specified for this environment does not have a default action.
@@ -145,7 +150,7 @@ class MineRLEnv(gym.Env):
         episode = 0
         exp_uid = None
         if self.instance == None:
-            if not port is  None:
+            if not port is None:
                 self.instance = InstanceManager.add_existing_instance(port)
             else:
                 self.instance = InstanceManager.get_instance().__enter__()
@@ -153,7 +158,7 @@ class MineRLEnv(gym.Env):
         with open(self.xml_file, 'r') as f:
             xml_text = f.read()
         xml = xml_text.replace('$(MISSIONS_DIR)', missions_dir)
-        
+
         # Bootstrap the environment if it hasn't been.
         role = 0
 
@@ -182,9 +187,12 @@ class MineRLEnv(gym.Env):
                 try:
                     return space.default()
                 except NameError:
-                    raise ValueError('Specify non-None default_action in gym.register or extend all action spaces with default() method')
+                    raise ValueError(
+                        'Specify non-None default_action in gym.register or extend all action spaces with default() method')
         if self._default_action is None:
-            self._default_action = {key: map_space(space) for key, space in action_space.spaces.items()}
+            self._default_action = {key: map_space(
+                space) for key, space in action_space.spaces.items()}
+
         def noop_func(a):
             return deepcopy(self._default_action)
 
@@ -193,9 +201,11 @@ class MineRLEnv(gym.Env):
 
         # Force single agent
         self.agent_count = 1
-        turn_based = self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None
+        turn_based = self.xml.find(
+            './/' + self.ns + 'TurnBasedCommands') is not None
         if turn_based:
-            raise NotImplementedError("Turn based or multi-agent environments not supported.")
+            raise NotImplementedError(
+                "Turn based or multi-agent environments not supported.")
 
         self.done = True
 
@@ -239,7 +249,8 @@ class MineRLEnv(gym.Env):
         self.width = int(video_producer.find(self.ns + 'Width').text)
         self.height = int(video_producer.find(self.ns + 'Height').text)
         want_depth = video_producer.attrib["want_depth"]
-        self.depth = 4 if want_depth is not None and (want_depth == "true" or want_depth == "1" or want_depth is True) else 3
+        self.depth = 4 if want_depth is not None and (
+            want_depth == "true" or want_depth == "1" or want_depth is True) else 3
         # print(etree.tostring(self.xml))
 
         self.has_init = True
@@ -248,10 +259,10 @@ class MineRLEnv(gym.Env):
         """Gets the no-op action for the environment.
 
         In addition one can get the no-op/default action directly from the action space.
-        
+
             env.action_space.noop()
 
-        
+
         Returns:
             Any: A no-op action in the env's space.
         """
@@ -264,9 +275,11 @@ class MineRLEnv(gym.Env):
         pov = np.frombuffer(pov, dtype=np.uint8)
 
         if pov is None or len(pov) == 0:
-            pov = np.zeros((self.height, self.width, self.depth), dtype=np.uint8)
+            pov = np.zeros(
+                (self.height, self.width, self.depth), dtype=np.uint8)
         else:
-            pov = pov.reshape((self.height, self.width, self.depth))[::-1,:,:]
+            pov = pov.reshape((self.height, self.width, self.depth))[
+                ::-1, :, :]
 
         if info:
             info = json.loads(info)
@@ -274,7 +287,7 @@ class MineRLEnv(gym.Env):
             info = {}
 
         # Process Info: (HotFix until updated in Malmo.)
-        if "inventory" in info  and "inventory" in self.observation_space.spaces:
+        if "inventory" in info and "inventory" in self.observation_space.spaces:
             inventory_spaces = self.observation_space.spaces['inventory'].spaces
 
             items = inventory_spaces.keys()
@@ -283,14 +296,14 @@ class MineRLEnv(gym.Env):
             for stack in info['inventory']:
                 if 'type' in stack and 'quantity' in stack:
                     try:
-                        inventory_dict[stack['type']] += stack['quantity'] 
+                        inventory_dict[stack['type']] += stack['quantity']
                     except ValueError:
                         continue
                     except KeyError:
                         # We only care to observe what was specified in the space.
                         continue
             info['inventory'] = inventory_dict
-        elif  "inventory" in self.observation_space.spaces and not "inventory" in info:
+        elif "inventory" in self.observation_space.spaces and not "inventory" in info:
             # logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
             # logger.warning(info)
             pass
@@ -299,11 +312,10 @@ class MineRLEnv(gym.Env):
             'pov': pov
         }
 
-
         # Todo: Make this logic dict recursive.
         for k in self.observation_space.spaces:
             if k is not 'pov':
-                if not (k in  info):
+                if not (k in info):
                     correction = self.observation_space.spaces[k].sample()
                     if isinstance(self.observation_space.spaces[k], gym.spaces.Dict):
                         for k in correction:
@@ -311,7 +323,7 @@ class MineRLEnv(gym.Env):
                                 correction[k] *= 0
                     info[k] = correction
                     # logger.warning("Missing observation {} in Malmo".format(k))
-                
+
                 obs_dict[k] = info[k]
 
         self._last_pov = obs_dict['pov']
@@ -329,25 +341,27 @@ class MineRLEnv(gym.Env):
                 if isinstance(action_in[act], int):
                     action_in[act] = self.action_space.spaces[act].values[action_in[act]]
                 else:
-                    assert isinstance(action_in[act], str), "Enum action {} must be str or int".format(act)
-                    assert action_in[act] in self.action_space.spaces[act].values, "Invalid value for enum action {}, {}".format(act, action_in[act])
+                    assert isinstance(
+                        action_in[act], str), "Enum action {} must be str or int".format(act)
+                    assert action_in[act] in self.action_space.spaces[act].values, "Invalid value for enum action {}, {}".format(
+                        act, action_in[act])
 
             elif isinstance(self.action_space.spaces[act], gym.spaces.Box):
                 subact = action_in[act]
-                assert not isinstance(subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
+                assert not isinstance(
+                    subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
                 if isinstance(subact, np.ndarray):
                     subact = subact.flatten()
-                
+
                 if isinstance(subact, Iterable):
                     subact = " ".join(str(x) for x in subact)
-    
+
                 action_in[act] = subact
 
             action_str.append(
                 "{} {}".format(act, str(action_in[act])))
 
         return "\n".join(action_str)
-
 
     @staticmethod
     def _hello(sock):
@@ -379,8 +393,9 @@ class MineRLEnv(gym.Env):
                 sock.settimeout(SOCKTIME)
                 sock.connect((self.instance.host, self.instance.port))
                 self._hello(sock)
-                
-                self.client_socket = sock  # Now retries will use connected socket.
+
+                # Now retries will use connected socket.
+                self.client_socket = sock
             self._init_mission()
 
             self.done = False
@@ -396,7 +411,8 @@ class MineRLEnv(gym.Env):
         self.client_socket = None
         if self.had_to_clean:
             # Connect to a new instance!!
-            logger.error("Connection with Minecraft client cleaned more than once; restarting.")
+            logger.error(
+                "Connection with Minecraft client cleaned more than once; restarting.")
             if self.instance:
                 self.instance.kill()
             self.instance = InstanceManager.get_instance().__enter__()
@@ -414,7 +430,6 @@ class MineRLEnv(gym.Env):
             obs = comms.recv_message(self.client_socket)
             info = comms.recv_message(self.client_socket).decode('utf-8')
 
-            
             reply = comms.recv_message(self.client_socket)
             done, = struct.unpack('!b', reply)
             self.done = done == 1
@@ -422,10 +437,11 @@ class MineRLEnv(gym.Env):
                 if time.time() - start_time > MAX_WAIT:
                     self.client_socket.close()
                     self.client_socket = None
-                    raise MissionInitException('too long waiting for first observation')
+                    raise MissionInitException(
+                        'too long waiting for first observation')
                 time.sleep(0.1)
 
-        return self._process_observation(obs,info), {}
+        return self._process_observation(obs, info), {}
 
     def _quit_episode(self):
         comms.send_message(self.client_socket, "<Quit/>".encode())
@@ -435,31 +451,30 @@ class MineRLEnv(gym.Env):
 
     def seed(self):
         """Seeds the environment.
-        
+
         Note: 
             This is NOT implemented.
         """
         logger.warn("Seeds not supported yet.")
 
     def step(self, action):
-        
+
         withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
 
         # Process the actions.
-        malmo_command =  self._process_action(action)
+        malmo_command = self._process_action(action)
         try:
             if not self.done:
-                
+
                 step_message = "<Step" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
-                            malmo_command + \
-                            "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
-                
+                    malmo_command + \
+                    "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
+
                 # Send Actions.
                 comms.send_message(self.client_socket, step_message.encode())
 
                 # Receive the observation.
                 obs = comms.recv_message(self.client_socket)
-                
 
                 # Receive reward done and sent.
                 reply = comms.recv_message(self.client_socket)
@@ -467,10 +482,10 @@ class MineRLEnv(gym.Env):
 
                 # Receive info from the environment.
                 if withinfo:
-                    info = comms.recv_message(self.client_socket).decode('utf-8')
+                    info = comms.recv_message(
+                        self.client_socket).decode('utf-8')
                 else:
                     info = {}
-                
 
                 # Process the observation and done state.
                 out_obs = self._process_observation(obs, info)
@@ -478,7 +493,8 @@ class MineRLEnv(gym.Env):
 
                 return out_obs, reward, self.done, {}
             else:
-                raise RuntimeError("Attempted to step an environment with done=True")
+                raise RuntimeError(
+                    "Attempted to step an environment with done=True")
         except socket.timeout as e:
             # If the socket times out some how! We need to catch this and reset the environment.
             self._clean_connection()
@@ -489,13 +505,23 @@ class MineRLEnv(gym.Env):
                 "the info dictionary returned by the step function.")
             return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
-    def render(self, mode='rgb_array'):
-        if mode != 'rgb_array':
-            raise NotImplementedError('`render` supports "rgb_array" mode only.')
+    def _renderObs(self, obs):
+        if self.viewer is None:
+            self.viewer = rendering.SimpleImageViewer()
+        self.viewer.imshow(obs)
+        return self.viewer.isopen
+
+    def render(self, mode='human'):
+        if mode == 'human':
+            self._renderObs(self._last_pov)
         return self._last_pov
 
     def close(self):
         """gym api close"""
+        if self.viewer is not None:
+            self.viewer.close()
+            self.viewer = None
+
         if self._already_closed:
             return
         try:
@@ -504,7 +530,8 @@ class MineRLEnv(gym.Env):
             sock.connect((self.instance.host, self.instance.port))
             self._hello(sock)
 
-            comms.send_message(sock, ("<Close>" + self._get_token() + "</Close>").encode())
+            comms.send_message(
+                sock, ("<Close>" + self._get_token() + "</Close>").encode())
             reply = comms.recv_message(sock)
             ok, = struct.unpack('!I', reply)
             assert ok
@@ -525,7 +552,8 @@ class MineRLEnv(gym.Env):
         sock.connect((self.instance.host, self.instance.port))
         self._hello(sock)
 
-        comms.send_message(sock, ("<Init>" + self._get_token() + "</Init>").encode())
+        comms.send_message(
+            sock, ("<Init>" + self._get_token() + "</Init>").encode())
         reply = comms.recv_message(sock)
         sock.close()
         ok, = struct.unpack('!I', reply)
@@ -555,7 +583,8 @@ class MineRLEnv(gym.Env):
         start_time = time.time()
         port = 0
         while port == 0:
-            comms.send_message(sock, ("<Find>" + self._get_token() + "</Find>").encode())
+            comms.send_message(
+                sock, ("<Find>" + self._get_token() + "</Find>").encode())
             reply = comms.recv_message(sock)
             port, = struct.unpack('!I', reply)
             if port == 0:
@@ -563,7 +592,8 @@ class MineRLEnv(gym.Env):
                     if self.client_socket:
                         self.client_socket.close()
                         self.client_socket = None
-                    raise MissionInitException('too long finding mission to join')
+                    raise MissionInitException(
+                        'too long finding mission to join')
                 time.sleep(1)
         sock.close()
         # print("Found mission integrated server port " + str(port))
@@ -574,11 +604,12 @@ class MineRLEnv(gym.Env):
 
     def _init_mission(self):
         ok = 0
-        num_retries =0
+        num_retries = 0
         logger.debug("Sending mission init!")
         while ok != 1:
             xml = etree.tostring(self.xml)
-            token = (self._get_token() + ":" + str(self.agent_count) + ":" + str(self.synchronous).lower()).encode()
+            token = (self._get_token() + ":" + str(self.agent_count) +
+                     ":" + str(self.synchronous).lower()).encode()
             comms.send_message(self.client_socket, xml)
             comms.send_message(self.client_socket, token)
 
@@ -602,6 +633,7 @@ def make():
 def register(id, **kwargs):
     # TODO create doc string based on registered envs
     return gym.envs.register(id, **kwargs)
+
 
 def _bind(instance, func, as_name=None):
     """
