@@ -16,6 +16,10 @@ import gym
 
 logger = logging.getLogger(__name__)
 
+if os.name != "nt":
+    class WindowsError(OSError):
+        pass
+
 
 class DataPipeline:
     """
