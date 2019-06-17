@@ -40,7 +40,6 @@ from minerl.env import comms
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager, malmo_version
 
-from gym.envs.classic_control import rendering
 logger = logging.getLogger(__name__)
 
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
@@ -507,6 +506,7 @@ class MineRLEnv(gym.Env):
 
     def _renderObs(self, obs):
         if self.viewer is None:
+            from gym.envs.classic_control import rendering
             self.viewer = rendering.SimpleImageViewer()
         self.viewer.imshow(obs)
         return self.viewer.isopen
