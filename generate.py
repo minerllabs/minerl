@@ -45,6 +45,7 @@ FAILED_COMMANDS = []
 
 GENERATE_VERSION = '1'
 
+
 def touch(path):
     with open(path, 'w'):
         pass
@@ -399,7 +400,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
         stopTick = pair[4]
 
         # BAH introduce versioning
-        experiment_id = 'g{}'.format(GENERATE_VERSION) + recordingName[len('player_stream_'):] + "_" + str(int(startTick)) + '-' + str(int(stopTick))
+        experiment_id = 'g{}_{}'.format(GENERATE_VERSION, recordingName[len('player_stream_'):]) + "_" + str(int(startTick)) + '-' + str(int(stopTick))
         output_name = J(outputPath, experimentName, experiment_id, 'recording.mp4')
         univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
         meta_output_name = J(outputPath, experimentName, experiment_id, 'metadata.json')
