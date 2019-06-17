@@ -35,7 +35,7 @@ register(
     kwargs={
         'xml': os.path.join(missions_dir, 'treechop.xml'),
         'observation_space': spaces.Dict({
-            'pov': spaces.Box(low=0, high=255, shape=(64,64,3), dtype=np.uint8),
+            'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
         }),
         'action_space': spaces.Dict({
             "forward": spaces.Discrete(2), 
@@ -150,7 +150,7 @@ register(
     kwargs={
         'xml': os.path.join(missions_dir, 'navigationDense.xml'),
         'observation_space': navigate_observation_space,
-        'action_space': navigate_action_space ,
+        'action_space': navigate_action_space,
         'docstr': make_navigate_text('normal', True)
     },
     max_episode_steps=6000,
@@ -203,20 +203,23 @@ register(
                 'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
             'equipped_items': spaces.Dict({
                 'mainhand': spaces.Dict({
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                 'iron_pickaxe', 'other'),
-                    'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                                        'iron_axe', 'iron_pickaxe', 'other'),
+                    'damage': spaces.Box(low=-1, high=1562, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=1562, shape=(1,), dtype=np.int),
                 })
             })
         }),
@@ -230,12 +233,12 @@ register(
             "sprint": spaces.Discrete(2),
             "attack": spaces.Discrete(2),
             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
+            "place": spaces.Enum('none', 'dirt', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                 'iron_pickaxe'),
-            "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
+                                 'iron_axe', 'iron_pickaxe'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                       'iron_pickaxe', 'crafting_table', 'furnace'),
+                                       'iron_axe', 'iron_pickaxe', 'furnace'),
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         }),
         'docstr': """
@@ -295,12 +298,15 @@ register(
                 'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
             'equipped_items': spaces.Dict({
@@ -308,7 +314,7 @@ register(
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe', 'other'),
                     'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,),dtype=np.int),
                 })
             })
         }),
@@ -321,13 +327,13 @@ register(
             "sneak": spaces.Discrete(2),
             "sprint": spaces.Discrete(2),
             "attack": spaces.Discrete(2),
-            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe'),
-            "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
+            "place": spaces.Enum('none', 'dirt', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                       'iron_pickaxe', 'crafting_table', 'furnace'),
+                                       'iron_pickaxe', 'furnace'),
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         }),
         'docstr': """
@@ -390,12 +396,15 @@ register(
                 'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
             'equipped_items': spaces.Dict({
@@ -419,10 +428,10 @@ register(
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_pickaxe'),
             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
-            "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
+            "place": spaces.Enum('none', 'dirt', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                       'iron_pickaxe', 'crafting_table', 'furnace'),
+                                       'iron_pickaxe', 'furnace'),
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         }),
         'docstr': """
@@ -490,20 +499,23 @@ register(
                 'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
             'equipped_items': spaces.Dict({
                 'mainhand': spaces.Dict({
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                 'iron_pickaxe', 'other'),
-                    'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
+                                        'iron_axe', 'iron_pickaxe', 'other'),
+                    'damage': spaces.Box(low=-1, high=1562, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=1562, shape=(1,), dtype=np.int),
                 })
             })
         }),
@@ -516,13 +528,13 @@ register(
             "sneak": spaces.Discrete(2),
             "sprint": spaces.Discrete(2),
             "attack": spaces.Discrete(2),
-            "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                 'iron_pickaxe'),
             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": spaces.Enum('none', 'dirt', 'stone', 'crafting_table', 'furnace', 'torch'),
-            "craft": spaces.Enum('none', 'torch', 'stick', 'planks'),
+            "place": spaces.Enum('none', 'dirt', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
+            "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+                                 'iron_axe', 'iron_pickaxe'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                       'iron_pickaxe', 'crafting_table', 'furnace'),
+                                       'iron_axe', 'iron_pickaxe', 'furnace'),
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         }),
         'docstr': """
@@ -618,20 +630,23 @@ register(
                 'planks': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stick': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'crafting_table': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'wooden_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'furnace': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'stone_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'stone_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ore': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_ingot': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
+                'iron_axe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
                 'iron_pickaxe': spaces.Box(low=0, high=2304, shape=[1], dtype=np.int),
             }),
             'equipped_items': spaces.Dict({
                 'mainhand': spaces.Dict({
                     'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                 'iron_pickaxe', 'other'),
-                    'damage': spaces.Box(low=-1, high=np.inf, shape=(1,), dtype=np.int),
-                    'maxDamage': spaces.Box(low=-1, high=np.inf,  shape=(1,), dtype=np.int),
+                                        'iron_axe', 'iron_pickaxe', 'other'),
+                    'damage': spaces.Box(low=-1, high=1562, shape=(1,), dtype=np.int),
+                    'maxDamage': spaces.Box(low=-1, high=1562, shape=(1,), dtype=np.int),
                 })
             })
         }),
@@ -647,10 +662,10 @@ register(
             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
             "place": spaces.Enum('none', 'dirt', 'log', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
             "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                 'iron_pickaxe'),
+                                 'iron_axe', 'iron_pickaxe'),
             "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                       'iron_pickaxe', 'furnace'),
+                                       'iron_axe', 'iron_pickaxe', 'furnace'),
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')
         })
     },
