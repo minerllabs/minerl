@@ -17,8 +17,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
 
-import copy
 import collections
+import copy
 import json
 import logging
 import os
@@ -37,9 +37,8 @@ import minerl.env.spaces
 import numpy as np
 from lxml import etree
 from minerl.env import comms
-from minerl.env.comms import retry
-from minerl.env.malmo import InstanceManager
-from minerl.env.malmo import malmo_version
+from minerl.env.comms import retry  
+from minerl.env.malmo import InstanceManager, malmo_version
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +94,8 @@ class MineRLEnv(gym.Env):
         """
     metadata = {'render.modes': ['rgb_array']}
 
+    STEP_OPTIONS = 0
+
     def __init__(self, xml, observation_space, action_space, port=None, noop_action=None, docstr=None):
         self.action_space = None
         self.observation_space = None
@@ -108,12 +109,10 @@ class MineRLEnv(gym.Env):
         self.ns = '{http://ProjectMalmo.microsoft.com}'
         self.client_socket = None
 
-        self.resync_period = 0
-        self.turn_key = ""
         self.exp_uid = ""
         self.done = True
         self.synchronous = True
-        self.step_options = None
+        
         self.width = 0
         self.height = 0
         self.depth = 0
@@ -143,8 +142,6 @@ class MineRLEnv(gym.Env):
             ValueError: The space specified for this environment does not have a default action.
             NotImplementedError: When multiagent environments are attempted to be used.
         """
-        step_options = 0
-        resync = 0
         episode = 0
         exp_uid = None
         if self.instance == None:
@@ -199,18 +196,9 @@ class MineRLEnv(gym.Env):
         turn_based = self.xml.find('.//' + self.ns + 'TurnBasedCommands') is not None
         if turn_based:
             raise NotImplementedError("Turn based or multi-agent environments not supported.")
-        else:
-            self.turn_key = ""
 
-        # Unclear what step_options does.            
-        if step_options is None:
-            self.step_options = 0 if not turn_based else 2
-        else:
-            self.step_options = step_options
-        
         self.done = True
 
-        self.resync_period = resync
         self.resets = episode
 
         e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
@@ -454,54 +442,40 @@ class MineRLEnv(gym.Env):
         logger.warn("Seeds not supported yet.")
 
     def step(self, action):
-        obs = None
-        reward = None
-        info = None
-        turn = True
-        withturnkey = self.step_options < 2
-        # print(withturnkey)
-        withinfo = self.step_options == 0 or self.step_options == 2
-
-        malmo_command =  self._process_action(action)
         
+        withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
+
+        # Process the actions.
+        malmo_command =  self._process_action(action)
         try:
             if not self.done:
                 
-                step_message = "<Step" + str(self.step_options) + ">" + \
+                step_message = "<Step" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
                             malmo_command + \
-                            "</Step" + str(self.step_options) + " >"
-                t0 = time.time()
+                            "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
+                
+                # Send Actions.
                 comms.send_message(self.client_socket, step_message.encode())
-                # print("send action {}".format(time.time() - t0)); t0 = time.time()
-                if withturnkey:
-                    comms.send_message(self.client_socket, self.turn_key.encode())
-                obs = comms.recv_message(self.client_socket)
-                # print("recieve obs {}".format(time.time() - t0)); t0 = time.time()
 
+                # Receive the observation.
+                obs = comms.recv_message(self.client_socket)
+                
+
+                # Receive reward done and sent.
                 reply = comms.recv_message(self.client_socket)
                 reward, done, sent = struct.unpack('!dbb', reply)
-                # print("recieve reward {}".format(time.time() - t0)); t0 = time.time()
-                self.done = done == 1
+
+                # Receive info from the environment.
                 if withinfo:
                     info = comms.recv_message(self.client_socket).decode('utf-8')
-                
-                out_obs = self._process_observation(obs, info)
-                
-
-                turn_key = comms.recv_message(self.client_socket).decode('utf-8') if withturnkey else ""
-                # print("[" + str(self.role) + "] TK " + turn_key + " self.TK " + str(self.turn_key))
-                if turn_key != "":
-                    if sent != 0:
-                        turn = False
-                    # Done turns if: turn = self.turn_key == turn_key
-                    self.turn_key = turn_key
                 else:
-                    turn = sent == 0
+                    info = {}
+                
 
-                # if (obs is None or len(obs) == 0) or turn:
-                    # time.sleep(0.1)
-                # print("turnkeyprocessor {}".format(time.time() - t0)); t0 = time.time()
-                # print("creating obs from buffer {}".format(time.time() - t0)); t0 = time.time()
+                # Process the observation and done state.
+                out_obs = self._process_observation(obs, info)
+                self.done = (done == 1)
+
                 return out_obs, reward, self.done, {}
             else:
                 raise RuntimeError("Attempted to step an environment with done=True")
@@ -610,7 +584,6 @@ class MineRLEnv(gym.Env):
 
             reply = comms.recv_message(self.client_socket)
             ok, = struct.unpack('!I', reply)
-            self.turn_key = comms.recv_message(self.client_socket).decode('utf-8')
             if ok != 1:
                 num_retries += 1
                 if num_retries > MAX_WAIT:

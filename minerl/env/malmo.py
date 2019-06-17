@@ -279,6 +279,9 @@ class InstanceManager:
                 lines = []
                 client_ready = False
                 server_ready = False
+
+
+
                 while True:
                     mine_log_encoding = locale.getpreferredencoding(False)
                     line = self.minecraft_process.stdout.readline().decode(mine_log_encoding)
@@ -286,12 +289,21 @@ class InstanceManager:
                     # Check for failures and print useful messages!
                     _check_for_launch_errors(line)
 
+
+                    if not line:
+                        # IF THERE WAS AN ERROR STARTING THE MC PROCESS
+                        # Print hte whole logs!
+                        for l in lines:
+                            logger.error("\n".join(l.split("\n")[:-1]))
+                        # Throw an exception!
+                        raise EOFError("Minecraft process finished unexpectedly. There was an error with Malmo.")
+                    
                     lines.append(line)
                     logger.debug("\n".join(line.split("\n")[:-1]))
-                    if not line:
-                        raise EOFError("Minecraft process finished unexpectedly")
+                        
                     client_ready =  "CLIENT enter state: DORMANT" in line
                     server_ready =  "SERVER enter state: DORMANT" in line
+
                     if  client_ready:
                         break
 
@@ -303,17 +315,22 @@ class InstanceManager:
                 # launch a logger process
                 def log_to_file(logdir):
                     if not os.path.exists(os.path.join(logdir, 'logs')):
-                        os.makedirs((os.path.join(logdir, 'logs')))
+                            os.makedirs((os.path.join(logdir, 'logs')))
 
                     file_path = os.path.join(logdir, 'logs', 'minecraft_proc_{}.log'.format(port))
 
                     logger.info("Logging output of Minecraft to {}".format(file_path))
+
                     mine_log = open(file_path, 'wb+')
                     mine_log.truncate(0)
-                    mine_log_encoding = 'utf-8'
+                    mine_log_encoding = locale.getpreferredencoding(False)
+
                     try:
                         while self.running:
                             line = self.minecraft_process.stdout.readline()
+                            if not line:
+                                break
+                            
                             try:
                                 linestr = line.decode(mine_log_encoding)
                             except UnicodeDecodeError:
@@ -325,12 +342,15 @@ class InstanceManager:
                                 # Opportune place to suppress harmless MC errors.
                                 if not ('hitResult' in linestr):
                                     logger.error(linestr)
-                            if 'LOGTOPY' in linestr:
+                            elif 'LOGTOPY' in linestr:
                                 logger.info(linestr)
+                            else:
+                                logger.debug(linestr)
                             mine_log.write(line)
                             mine_log.flush()
                     finally:
                         mine_log.close()
+                    
                 logdir = os.environ.get('MALMO_MINECRAFT_OUTPUT_LOGDIR', '.')
                 self._logger_thread = threading.Thread(target=functools.partial(log_to_file, logdir=logdir))
                 self._logger_thread.setDaemon(True)
