@@ -148,6 +148,113 @@ class DataPipeline:
 
         logger.info("Epoch complete.")
 
+    @staticmethod
+    def load_data(file_dir: str, environment: str):
+        """
+        Loading mechanism for loading a trajectory from a file as a generator
+        :param file_dir: file path to data directory
+        :param environment: the environment name e.g. MineRLObtainDiamond-v0
+        :return: iterator over files
+        """
+
+        # logger.warning(inst_dir)
+        video_path = str(os.path.join(file_dir, 'recording.mp4'))
+        numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
+
+        try:
+            # Start video decompression
+            cap = cv2.VideoCapture(video_path)
+
+            # Load numpy file
+            state = np.load(numpy_path, allow_pickle=True)
+
+            action_dict = {key: state[key] for key in state if key.startswith('action_')}
+            reward_vec = state['reward']
+            info_dict = {key: state[key] for key in state if key.startswith('observation_')}
+
+            num_states = len(reward_vec)
+
+            # Rendered Frames
+            frame_num = 0
+            max_frame_num = num_states  # TODO: compute this with min over frames from video metadata
+            observables = list(info_dict.keys()).copy()
+            observables.append('pov')  # TODO remove maybe
+            actionables = list(action_dict.keys())
+
+            # Loop through the video and construct frames
+            # of observations to be sent via the multiprocessing queue
+            # in chunks of worker_batch_size to the batch_iter loop.
+            while True:
+                ret = True
+                frames = []
+                start_idx = frame_num
+
+                # Collect up to worker_batch_size number of frames
+                try:
+                    while ret and frame_num < max_frame_num and frame_num < num_states and len(frames) < 1:
+                        ret, frame = cap.read()
+                        if ret:
+                            cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
+                            frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
+                            frame_num += 1
+                except Exception as err:
+                    print("error reading capture device:", err)
+                    # print('Is it early with no frames:', frame_num, max_frame_num, num_states, len(frames), worker_batch_size)
+                    raise err
+
+                if len(frames) == 0:
+                    break
+
+                stop_idx = start_idx + len(frames)
+                # print('Num frames in batch:', stop_idx - start_idx)
+
+                # Load non-image data from npz
+                observation_data = [None for _ in observables]
+                action_data = [None for _ in actionables]
+
+                try:
+                    for i, key in enumerate(observables):
+                        if key == 'pov':
+                            observation_data[i] = np.asanyarray(frames)
+                        else:
+                            observation_data[i] = np.asanyarray(state[key][start_idx:stop_idx])
+
+                    for i, key in enumerate(actionables):
+                        action_data[i] = np.asanyarray(state[key][start_idx:stop_idx])
+
+                    reward_data = np.asanyarray(reward_vec[start_idx:stop_idx], dtype=np.float32)
+
+                    done_data = [False for _ in range(stop_idx - start_idx)]
+                    if frame_num == max_frame_num or frame_num == num_states:
+                        done_data[-1] = True
+                except Exception as err:
+                    print("error drawing batch from npz file:", err)
+                    raise err
+
+                sample = [action_data, observation_data, [reward_data], [np.array(done_data)]]
+                action_batch, observation_batch, reward_batch, done_batch = sample
+
+                # Wrap in dict
+                gym_spec = gym.envs.registration.spec(environment)
+
+                action_dict = DataPipeline.map_to_dict(action_batch, gym_spec._kwargs['action_space'])
+                observation_dict = DataPipeline.map_to_dict(observation_batch, gym_spec._kwargs['observation_space'])
+
+                yield observation_dict, reward_batch[0], done_batch[0], action_dict
+
+                if not ret:
+                    break
+
+            # logger.error("Finished")
+            return None
+        except WindowsError as e:
+            logger.info("Caught windows error {} - this is expected when closing the data pool".format(e))
+            return None
+        except Exception as e:
+            logger.error("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
+            return None
+
+
     ############################
     ## PRIVATE METHODS
     #############################
@@ -262,52 +369,11 @@ class DataPipeline:
                 except Exception as err:
                     print("error drawing batch from npz file:", err)
                     raise err
-                # print(type(observation_data))
-                # print(type(action_data))
-                # print(type(reward_data))
 
                 # batches = tuple((action_data, observation_data, reward_data))
                 batches = [action_data, observation_data, [reward_data], [np.array(done_data)]]
 
-                # print('we put')
-                # print(type(batches))
-                # print(len(batches))
-                # print([len(x) for x in batches])
-                #
-                # print('and then')
-
-                # print('Action', action_data)
-                # print('Observation', observation_data)
-                # print('Reward', reward_data.shape, reward_data)
-                # time.sleep(0.1)
                 data_queue.put(batches)
-
-                # if reset:
-                #     observation_datastream = [[] for _ in observables]
-                #     action_datastream = [[] for _ in actionables]
-                #     mhandler_datastream = [[] for _ in mission_handlers]
-                # try:
-                #
-                #     for i, o in enumerate(observables):
-                #         if o == 'pov':
-                #             observation_datastream[i].append(np.clip(frame[:, :, ::-1], 0, 255))
-                #         else:
-                #             print(o, type(state[o][frame_num]))
-                #             observation_datastream[i].append(state[o][frame_num])
-                #
-                #     for i, a in enumerate(actionables):
-                #         print(a, type(state[a][frame_num]))
-                #         action_datastream[i].append(state[a][frame_num])
-                #
-                #     for i, m in enumerate(mission_handlers):
-                #         try:
-                #             print(m, type(state[m][frame_num]))
-                #             mhandler_datastream[i].append(state[m][frame_num])
-                #         except KeyError:
-                #             # Not all mission handlers can be extracted from files
-                #             # This is okay as they are intended to be auxiliary handlers
-                #             mhandler_datastream[i].append(None)
-                #             pass
 
                 if not ret:
                     break
@@ -315,7 +381,7 @@ class DataPipeline:
             # logger.error("Finished")
             return None
         except WindowsError as e:
-            logger.info("Caught windows error - this is expected when closing the data pool")
+            logger.info("Caught windows error {} - this is expected when closing the data pool".format(e))
             return None
         except Exception as e:
             logger.error("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
