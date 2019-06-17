@@ -326,7 +326,6 @@ class InstanceManager:
                     mine_log_encoding = locale.getpreferredencoding(False)
 
                     try:
-                        # print("YA")
                         while self.running:
                             line = self.minecraft_process.stdout.readline()
                             if not line:
