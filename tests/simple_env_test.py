@@ -30,12 +30,11 @@ def main():
     for _ in range(NUM_EPISODES):
         obs, info = env.reset()
         done = False
-        xpos = []
         netr = 0
         while not done:
             random_act = env.action_space.noop()
             
-            random_act['camera'] = [0, 0.05*obs["compassAngle"]]
+            random_act['camera'] = [0, 0.1*obs["compassAngle"]]
             random_act['back'] = 0
             random_act['forward'] = 1
             random_act['jump'] = 1
@@ -47,15 +46,7 @@ def main():
             netr += reward
             print(netr)
 
-            if "XPos" in obs and "ZPos" in obs:
-                xpos.append([obs["XPos"], obs["ZPos"]])
-        xposes.append(xpos)
 
-
-    y = np.array(xposes)
-    plt.plot(y[:,:,0].T, y[:,:,1].T)
-
-    plt.show()
 
     print("Demo complete.")
 

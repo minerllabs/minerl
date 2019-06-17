@@ -37,7 +37,7 @@ import minerl.env.spaces
 import numpy as np
 from lxml import etree
 from minerl.env import comms
-from minerl.env.comms import retry
+from minerl.env.comms import retry  
 from minerl.env.malmo import InstanceManager, malmo_version
 
 logger = logging.getLogger(__name__)
@@ -447,7 +447,6 @@ class MineRLEnv(gym.Env):
 
         # Process the actions.
         malmo_command =  self._process_action(action)
-        
         try:
             if not self.done:
                 
@@ -475,7 +474,7 @@ class MineRLEnv(gym.Env):
 
                 # Process the observation and done state.
                 out_obs = self._process_observation(obs, info)
-                self.done = done == 1
+                self.done = (done == 1)
 
                 return out_obs, reward, self.done, {}
             else:
