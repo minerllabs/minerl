@@ -279,12 +279,12 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, worker_batch_size: int, data_queue, vectorized=False, skip_interval=0):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, vectorized=False, skip_interval=0):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
         :param skip_interval: Number of time steps to skip between each sample
-        :param worker_batch_size: Number of time steps in each enqueued batch
+        :param max_seq_len: Number of time steps in each enqueued batch
         :param data_queue: multiprocessing data queue
         :return:
         """
@@ -312,9 +312,7 @@ class DataPipeline:
             num_states = len(reward_vec)
 
             # Rendered Frames
-            frame_skip = 0  # np.random.randint(0, len(univ)//2, 1)[0]
             frame_num = 0
-            max_seq_len = 1
             max_frame_num = num_states  # TODO: compute this with min over frames from video metadata
             reset = True
             batches = []
@@ -333,8 +331,8 @@ class DataPipeline:
 
                 # Collect up to worker_batch_size number of frames
                 try:
-                    while ret and frame_num < max_frame_num and frame_num < num_states and len(
-                            frames) < worker_batch_size:
+                    while ret and frame_num < max_frame_num and frame_num < num_states and (len(
+                            frames) < max_seq_len or max_seq_len == -1):
                         ret, frame = cap.read()
                         if ret:
                             cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
