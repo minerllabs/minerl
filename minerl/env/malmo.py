@@ -60,6 +60,7 @@ class InstanceManager:
     instance allocation capability using remote procedure calls.
     """
     MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
+    SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Schemas') 
     MAXINSTANCES = 10
     DEFAULT_IP = "localhost"
     _instance_pool = []
@@ -98,8 +99,9 @@ class InstanceManager:
         if cls.managed:
             if len(cls._instance_pool) < cls.MAXINSTANCES:
                 # from IPython import embed; embed();
-                inst = cls.Instance(cls._get_valid_port())
+
                 cls.ninstances += 1
+                inst = cls.Instance(cls._get_valid_port())
                 cls._instance_pool.append(inst)
                 inst._acquire_lock()
 
@@ -178,7 +180,7 @@ class InstanceManager:
 
 
     @staticmethod
-    def _process_watcher(parent_pid, child_pid, child_host, child_port):
+    def _process_watcher(parent_pid, child_pid, child_host, child_port, minecraft_dir):
         """
         On *nix systems (perhaps Windows) this is the central code for killing the child if the parent dies.
         """
@@ -200,6 +202,11 @@ class InstanceManager:
                 if not parent.is_running() or parent is None:
                     if not (child is None):
                         InstanceManager._reap_process_and_children(child)
+                        try:
+                            shutil.rmtree(minecraft_dir)
+                        except:
+                            print("Failed to delete temporary minecraft directory. It may have already been removed.")
+                            pass
                     return
                 # Kill the watcher if the child is no longer running.
                 # If you want to attempt to restart the child on failure, this
@@ -270,7 +277,8 @@ class InstanceManager:
             self._host = InstanceManager.DEFAULT_IP
             self.locked = False
             self.existing = existing
-            self.rundir = None
+            self.minecraft_dir = None
+            self.instance_dir = None
 
             # Launch the instance!
             self.launch(port, existing)
@@ -281,9 +289,10 @@ class InstanceManager:
                 if not port:
                     port = InstanceManager._get_valid_port()
 
-                instance_rundir = tempfile.mkdtemp()
-                self.rundir = os.path.join(instance_rundir, 'run')
-                shutil.copytree(os.path.join(InstanceManager.MINECRAFT_DIR, 'run'), self.rundir)
+                self.instance_dir = tempfile.mkdtemp()
+                self.minecraft_dir = os.path.join(self.instance_dir, 'Minecraft')
+                shutil.copytree(os.path.join(InstanceManager.MINECRAFT_DIR), self.minecraft_dir)
+                shutil.copytree(os.path.join(InstanceManager.SCHEMAS_DIR), os.path.join(self.instance_dir, 'Schemas'))
 
                     
                 # 0. Get PID of launcher.
@@ -292,10 +301,10 @@ class InstanceManager:
                 self.minecraft_process =  self._launch_minecraft(
                     port, 
                     InstanceManager.headless,
-                    self.rundir)
+                    self.minecraft_dir)
                 # 2. Create a watcher process to ensure things get cleaned up
                 self.watcher_process = self._launch_process_watcher(
-                    parent_pid, self.minecraft_process.pid, self.host, port)
+                    parent_pid, self.minecraft_process.pid, self.host, port, self.instance_dir)
                 
                 # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
                 lines = []
@@ -413,7 +422,7 @@ class InstanceManager:
         ###########################
         ##### PRIVATE METHODS #####
         ###########################
-        def _launch_minecraft(self, port, headless, rundir):
+        def _launch_minecraft(self, port, headless, minecraft_dir):
             """Launch Minecraft listening for malmoenv connections.
             Args:
                 port:  the TCP port to listen on.
@@ -429,7 +438,8 @@ class InstanceManager:
             if os.name == 'nt':
                 launch_script = 'launchClient.bat'
 
-            launch_script = os.path.join(InstanceManager.MINECRAFT_DIR, launch_script)
+            launch_script = os.path.join(minecraft_dir, launch_script)
+            rundir = os.path.join(minecraft_dir, 'run')
             
             cmd = [launch_script, '-port', str(port), '-env', '-runDir', rundir]
 
@@ -450,12 +460,12 @@ class InstanceManager:
             )
             return minecraft_process
 
-        def _launch_process_watcher(self, parent_pid, child_pid, child_host, child_port):
+        def _launch_process_watcher(self, parent_pid, child_pid, child_host, child_port, minecraft_dir):
             """
             Launches the process watcher for the parent and minecraft process.
             """
             p = multiprocessing.Process(
-                target=InstanceManager._process_watcher, args=(parent_pid, child_pid, child_host, child_port))
+                target=InstanceManager._process_watcher, args=(parent_pid, child_pid, child_host, child_port, minecraft_dir))
             # p.daemon = True
             p.start()
             return p
@@ -494,7 +504,10 @@ class InstanceManager:
                 # Wait for the process to start.
                 time.sleep(1)
                 # kill the minecraft process and its subprocesses
-
+                try:
+                    shutil.rmtree(self.instance_dir)
+                except:
+                    print("Failed to delete the temporary minecraft directory.")
 
                 if self._kill_minecraft_via_malmoenv(self.host, self.port):
                     # Let the minecraft process term on its own terms.
