@@ -67,7 +67,7 @@ class MissionInitException(Exception):
         super(MissionInitException, self).__init__(message)
 
 
-MAX_WAIT = 60 * 4  # After this many MALMO_BUSY's a timeout exception will be thrown
+MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
 
 
@@ -524,27 +524,15 @@ class MineRLEnv(gym.Env):
 
         if self._already_closed:
             return
-        try:
-            # Purge last token from head node with <Close> message.
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect((self.instance.host, self.instance.port))
-            self._hello(sock)
-
-            comms.send_message(
-                sock, ("<Close>" + self._get_token() + "</Close>").encode())
-            reply = comms.recv_message(sock)
-            ok, = struct.unpack('!I', reply)
-            assert ok
-            sock.close()
-            self._already_closed = True
-        except Exception as e:
-            self._log_error(e)
+        
         if self.client_socket:
             self.client_socket.close()
             self.client_socket = None
 
         if self.instance and self.instance.running:
             self.instance.kill()
+        
+        self._already_closed = True
 
     def reinit(self):
         """Use carefully to reset the episode count to 0."""
@@ -559,15 +547,13 @@ class MineRLEnv(gym.Env):
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
-    def status(self, head):
+    def status(self):
         """Get status from server.
         head - Ping the the head node if True.
         """
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if head:
-            sock.connect((self.instance.host, self.instance.port))
-        else:
-            sock.connect((self.instance.host2, self.instance.port2))
+        sock.connect((self.instance.host, self.instance.port))
+
         self._hello(sock)
 
         comms.send_message(sock, "<Status/>".encode())
