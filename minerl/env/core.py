@@ -399,14 +399,20 @@ class MineRLEnv(gym.Env):
 
             self.done = False
             return self._peek_obs()
-        except socket.timeout as e:
-            logger.error("Failed to reset (timeout), trying again!")
+        except (socket.timeout, socket.error) as e:
+            logger.error("Failed to reset (socket error), trying again!")
             self._clean_connection()
             raise e
 
     def _clean_connection(self):
-        self.client_socket.shutdown(socket.SHUT_RDWR)
-        self.client_socket.close()
+        logger.error("Cleaning connection! Somethong must have gone wrong.")
+        try:
+            self.client_socket.shutdown(socket.SHUT_RDWR)
+            self.client_socket.close()
+        except (BrokenPipeError, OSError, socket.error):
+            # There is no connection left!
+            pass 
+            
         self.client_socket = None
         if self.had_to_clean:
             # Connect to a new instance!!
@@ -494,15 +500,17 @@ class MineRLEnv(gym.Env):
             else:
                 raise RuntimeError(
                     "Attempted to step an environment with done=True")
-        except socket.timeout as e:
+        except (socket.timeout, socket.error) as e:
             # If the socket times out some how! We need to catch this and reset the environment.
             self._clean_connection()
             self.done = True
             logger.error(
-                "Failed to take a step (timeout). Terminating episode and sending random observation, be aware. "
+                "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
                 "To account for this failure case in your code check to see if `'error' in info` where info is "
                 "the info dictionary returned by the step function.")
             return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
+
+
 
     def _renderObs(self, obs):
         if self.viewer is None:
@@ -607,6 +615,7 @@ class MineRLEnv(gym.Env):
                     raise socket.timeout()
                 logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
                 time.sleep(1)
+
 
     def _get_token(self):
         return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
