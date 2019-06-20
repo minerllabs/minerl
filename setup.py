@@ -65,9 +65,9 @@ def setup(build=True, installdir=malmo_dir):
         # Create the version properties file.
         pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(malmo_version))
         # Optionally do a test build.
-        if build:
-            subprocess.check_call([gradlew, "setupDecompWorkspace", "build", "testClasses",
-                                   "-x", "test", "--stacktrace", "-Pversion={}".format(malmo_version)])
+        # if build:
+            # subprocess.check_call([gradlew, "setupDecompWorkspace", "build", "testClasses",
+                                #    "-x", "test", "--stacktrace", "-Pversion={}".format(malmo_version)])
         minecraft_dir = os.getcwd()
     finally:
         os.chdir(cwd)
@@ -83,7 +83,6 @@ def package_files(directory):
         # if not ("Malmo/Malmo" in path): print(path)
         if (
             not ".git" in path 
-            and not "build" in path 
             and not "Malmo/Malmo" in path
             and not ".minecraft" in path
             and not ".minecraftserver" in path
@@ -91,7 +90,7 @@ def package_files(directory):
             and not "Malmo/test" in path
             and not "Malmo/MalmoEnv" in path
             and not "Malmo/ALE_ROMS" in path):
-            print(path)
+            
             paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
     # 1/0
     return paths
@@ -104,7 +103,7 @@ data_files += package_files('minerl/env/Malmo')
 
 setuptools.setup(
       name='minerl',
-      version='0.1.10',
+      version='0.1.11',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",

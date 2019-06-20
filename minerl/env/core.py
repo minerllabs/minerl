@@ -152,7 +152,7 @@ class MineRLEnv(gym.Env):
             if not port is None:
                 self.instance = InstanceManager.add_existing_instance(port)
             else:
-                self.instance = InstanceManager.get_instance().__enter__()
+                self.instance = InstanceManager.get_instance()
         # Parse XML file
         with open(self.xml_file, 'r') as f:
             xml_text = f.read()
@@ -414,7 +414,7 @@ class MineRLEnv(gym.Env):
                 "Connection with Minecraft client cleaned more than once; restarting.")
             if self.instance:
                 self.instance.kill()
-            self.instance = InstanceManager.get_instance().__enter__()
+            self.instance = InstanceManager.get_instance()
             self.had_to_clean = False
         else:
             self.had_to_clean = True

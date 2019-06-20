@@ -29,7 +29,7 @@ var/
 .vscode
 
 
-
+*/logs/
 
 tests/logs/
 .vscode/settings.json
