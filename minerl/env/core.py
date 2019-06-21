@@ -407,8 +407,9 @@ class MineRLEnv(gym.Env):
     def _clean_connection(self):
         logger.error("Cleaning connection! Somethong must have gone wrong.")
         try:
-            self.client_socket.shutdown(socket.SHUT_RDWR)
-            self.client_socket.close()
+            if self.client_socket:
+                self.client_socket.shutdown(socket.SHUT_RDWR)
+                self.client_socket.close()
         except (BrokenPipeError, OSError, socket.error):
             # There is no connection left!
             pass 
