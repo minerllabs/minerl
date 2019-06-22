@@ -312,7 +312,6 @@ class InstanceManager:
                 server_ready = False
 
 
-
                 while True:
                     mine_log_encoding = locale.getpreferredencoding(False)
                     line = self.minecraft_process.stdout.readline().decode(mine_log_encoding)
@@ -320,14 +319,16 @@ class InstanceManager:
                     # Check for failures and print useful messages!
                     _check_for_launch_errors(line)
 
-
                     if not line:
                         # IF THERE WAS AN ERROR STARTING THE MC PROCESS
                         # Print hte whole logs!
+                        error_str = ""
                         for l in lines:
-                            logger.error("\n".join(l.split("\n")[:-1]))
+                            spline = "\n".join(l.split("\n")[:-1])
+                            logger.error(spline)
+                            error_str += spline +"\n"
                         # Throw an exception!
-                        raise EOFError("Minecraft process finished unexpectedly. There was an error with Malmo.")
+                        raise EOFError(error_str + "\n\nMinecraft process finished unexpectedly. There was an error with Malmo.")
                     
                     lines.append(line)
                     logger.debug("\n".join(line.split("\n")[:-1]))
