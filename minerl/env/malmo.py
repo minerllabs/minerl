@@ -23,10 +23,12 @@ import logging
 import multiprocessing
 import os
 import pathlib
+import shutil
 import socket
 import struct
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 from contextlib import contextmanager
@@ -34,12 +36,19 @@ from contextlib import contextmanager
 from multiprocessing import process
 
 import psutil
+import Pyro4
 from minerl.env import comms
 
 logger = logging.getLogger(__name__)
 
 malmo_version = "0.37.0"
 
+
+INSTANCE_MANAGER_PYRO = 'minerl.instance_manager'
+MINERL_INSTANCE_MANAGER_REMOTE = 'MINERL_INSTANCE_MANAGER_REMOTE'
+
+@Pyro4.expose
+@Pyro4.behavior(instance_mode="single")
 class InstanceManager:
     """The Minecraft instance manager library. The instance manager can be used to allocate and safely terminate 
     existing Malmo instances for training agents. 
@@ -51,6 +60,7 @@ class InstanceManager:
     instance allocation capability using remote procedure calls.
     """
     MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
+    SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Schemas') 
     MAXINSTANCES = 10
     DEFAULT_IP = "localhost"
     _instance_pool = []
@@ -60,15 +70,14 @@ class InstanceManager:
     managed = True
 
     @classmethod
-    @contextmanager
     def get_instance(cls):
         """
         Gets an instance from the instance manager. This method is a context manager
-        and therefore when the context is entered the method yields a InstanceManager._Instance
+        and therefore when the context is entered the method yields a InstanceManager.Instance
         object which contains the allocated port and host for the given instance that was created.
 
         Yields:
-            The allocated InstanceManager._Instance object.
+            The allocated InstanceManager.Instance object.
         
         Raises:
             RuntimeError: No available instances or the maximum number of allocated instances reached.
@@ -79,20 +88,25 @@ class InstanceManager:
             if not inst.locked:
                 inst._acquire_lock()
 
-                yield inst
+                if hasattr(cls, "_pyroDaemon"):
+                    cls._pyroDaemon.register(inst)
+                    Pyro4.current_context.track_resource(inst)
 
-                inst.release_lock()
-                return
+                return inst
         # Otherwise make a new instance if possible
         if cls.managed:
             if len(cls._instance_pool) < cls.MAXINSTANCES:
-                inst = cls._Instance(cls._get_valid_port())
                 cls.ninstances += 1
+                inst = cls.Instance(cls._get_valid_port())
                 cls._instance_pool.append(inst)
                 inst._acquire_lock()
-                yield inst
-                inst.release_lock()
-                return
+
+                if hasattr(cls, "_pyroDaemon"):
+                    cls._pyroDaemon.register(inst)
+                    Pyro4.current_context.track_resource(inst)
+
+                return inst
+ 
             else:
                 raise RuntimeError("No available instances and max instances reached! :O :O")
         else:
@@ -111,7 +125,7 @@ class InstanceManager:
     @contextmanager
     def allocate_pool(cls, num):
         for _ in range(num):
-            inst = cls._Instance(cls._get_valid_port())
+            inst = cls.Instance(cls._get_valid_port())
             cls._instance_pool.append(inst)
         yield None
         cls.shutdown()
@@ -119,7 +133,7 @@ class InstanceManager:
     @classmethod
     def add_existing_instance(cls, port):
         assert cls._is_port_taken(port), "No Malmo mod utilizing the port specified."
-        instance = InstanceManager._Instance(port=port, existing=True)
+        instance = InstanceManager.Instance(port=port, existing=True)
         cls._instance_pool.append(instance)
         cls.ninstances += 1
         return instance
@@ -162,7 +176,7 @@ class InstanceManager:
 
 
     @staticmethod
-    def _process_watcher(parent_pid, child_pid, child_host, child_port):
+    def _process_watcher(parent_pid, child_pid, child_host, child_port, minecraft_dir):
         """
         On *nix systems (perhaps Windows) this is the central code for killing the child if the parent dies.
         """
@@ -184,6 +198,11 @@ class InstanceManager:
                 if not parent.is_running() or parent is None:
                     if not (child is None):
                         InstanceManager._reap_process_and_children(child)
+                        try:
+                            shutil.rmtree(minecraft_dir)
+                        except:
+                            logger.warning("Failed to delete temporary minecraft directory. It may have already been removed.")
+                            pass
                     return
                 # Kill the watcher if the child is no longer running.
                 # If you want to attempt to restart the child on failure, this
@@ -228,8 +247,8 @@ class InstanceManager:
                     logger.info("Minecraft process {} survived SIGKILL; giving up".format(p.pid))
 
 
-
-    class _Instance(object):
+    @Pyro4.expose
+    class Instance(object):
         """
         A subprocess wrapper which maintains a reference to a minecraft subprocess
         and also allows for stable closing and launching of such subprocesses 
@@ -254,6 +273,8 @@ class InstanceManager:
             self._host = InstanceManager.DEFAULT_IP
             self.locked = False
             self.existing = existing
+            self.minecraft_dir = None
+            self.instance_dir = None
 
             # Launch the instance!
             self.launch(port, existing)
@@ -264,22 +285,27 @@ class InstanceManager:
                 if not port:
                     port = InstanceManager._get_valid_port()
 
+                self.instance_dir = tempfile.mkdtemp()
+                self.minecraft_dir = os.path.join(self.instance_dir, 'Minecraft')
+                shutil.copytree(os.path.join(InstanceManager.MINECRAFT_DIR), self.minecraft_dir)
+                shutil.copytree(os.path.join(InstanceManager.SCHEMAS_DIR), os.path.join(self.instance_dir, 'Schemas'))
+
                     
                 # 0. Get PID of launcher.
                 parent_pid = os.getpid()
                 # 1. Launch minecraft process.
                 self.minecraft_process =  self._launch_minecraft(
                     port, 
-                    InstanceManager.headless)
+                    InstanceManager.headless,
+                    self.minecraft_dir)
                 # 2. Create a watcher process to ensure things get cleaned up
                 self.watcher_process = self._launch_process_watcher(
-                    parent_pid, self.minecraft_process.pid, self.host, port)
+                    parent_pid, self.minecraft_process.pid, self.host, port, self.instance_dir)
                 
                 # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
                 lines = []
                 client_ready = False
                 server_ready = False
-
 
 
                 while True:
@@ -289,14 +315,16 @@ class InstanceManager:
                     # Check for failures and print useful messages!
                     _check_for_launch_errors(line)
 
-
                     if not line:
                         # IF THERE WAS AN ERROR STARTING THE MC PROCESS
                         # Print hte whole logs!
+                        error_str = ""
                         for l in lines:
-                            logger.error("\n".join(l.split("\n")[:-1]))
+                            spline = "\n".join(l.split("\n")[:-1])
+                            logger.error(spline)
+                            error_str += spline +"\n"
                         # Throw an exception!
-                        raise EOFError("Minecraft process finished unexpectedly. There was an error with Malmo.")
+                        raise EOFError(error_str + "\n\nMinecraft process finished unexpectedly. There was an error with Malmo.")
                     
                     lines.append(line)
                     logger.debug("\n".join(line.split("\n")[:-1]))
@@ -374,6 +402,12 @@ class InstanceManager:
             self._destruct()
             pass
 
+        def close(self):
+            """Closes the object.
+            """
+            self._destruct()
+
+
         @property
         def host(self):
             return self._host
@@ -385,7 +419,7 @@ class InstanceManager:
         ###########################
         ##### PRIVATE METHODS #####
         ###########################
-        def _launch_minecraft(self, port, headless):
+        def _launch_minecraft(self, port, headless, minecraft_dir):
             """Launch Minecraft listening for malmoenv connections.
             Args:
                 port:  the TCP port to listen on.
@@ -401,9 +435,10 @@ class InstanceManager:
             if os.name == 'nt':
                 launch_script = 'launchClient.bat'
 
-            launch_script = os.path.join(InstanceManager.MINECRAFT_DIR, launch_script)
+            launch_script = os.path.join(minecraft_dir, launch_script)
+            rundir = os.path.join(minecraft_dir, 'run')
             
-            cmd = [launch_script, '-port', str(port), '-env']
+            cmd = [launch_script, '-port', str(port), '-env', '-runDir', rundir]
 
 
             logger.info("Starting Minecraft process: " + str(cmd))
@@ -422,12 +457,12 @@ class InstanceManager:
             )
             return minecraft_process
 
-        def _launch_process_watcher(self, parent_pid, child_pid, child_host, child_port):
+        def _launch_process_watcher(self, parent_pid, child_pid, child_host, child_port, minecraft_dir):
             """
             Launches the process watcher for the parent and minecraft process.
             """
             p = multiprocessing.Process(
-                target=InstanceManager._process_watcher, args=(parent_pid, child_pid, child_host, child_port))
+                target=InstanceManager._process_watcher, args=(parent_pid, child_pid, child_host, child_port, minecraft_dir))
             # p.daemon = True
             p.start()
             return p
@@ -466,7 +501,10 @@ class InstanceManager:
                 # Wait for the process to start.
                 time.sleep(1)
                 # kill the minecraft process and its subprocesses
-
+                try:
+                    shutil.rmtree(self.instance_dir)
+                except:
+                    print("Failed to delete the temporary minecraft directory.")
 
                 if self._kill_minecraft_via_malmoenv(self.host, self.port):
                     # Let the minecraft process term on its own terms.
@@ -540,3 +578,27 @@ def _check_for_launch_errors(line):
             "If none of these steps work, please complain in discord!\n"
             "If all else fails, JUST PUT THIS IN A DOCKER CONTAINER! :)")
 
+
+def launch_instance_manager():
+    """Defines the entry point for the remote procedure call server.
+    """
+    # Todo: Use name servers in the docker contexct (set up a docker compose?)
+    # pyro4-ns
+    try:
+
+        print("autoproxy?",Pyro4.config.AUTOPROXY)
+        # TODO: Share logger!
+        
+        Pyro4.Daemon.serveSimple(
+            {
+                InstanceManager: INSTANCE_MANAGER_PYRO
+            },
+            ns = True)
+        
+    except Pyro4.errors.NamingError as e:
+        print(e)
+        print("Start the Pyro name server with pyro4-ns and re-run this script.")
+
+if os.getenv(MINERL_INSTANCE_MANAGER_REMOTE):
+    sys.excepthook = Pyro4.util.excepthook        
+    InstanceManager = Pyro4.Proxy("PYRONAME:" + INSTANCE_MANAGER_PYRO )

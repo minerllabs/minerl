@@ -38,19 +38,6 @@ def download(branch=malmo_branch, build=False, installdir=malmo_dir):
     build = build or not os.path.exists(os.path.join(malmo_dir, 'Minecraft', 'build'))
     return setup(build=build, installdir=installdir)
 
-    # If it exists lets set up the env.
-    # TODO: Convert to using loggers.
-    #print("<3 <3  Hello! Welcome to MineRL Env <3 <3")
-    #print("MineRL is not yet setup for this package install! Downloading and installing Malmo backend.")
-
-    #try:
-    #    subprocess.check_call(["git", "clone", "-b", branch, "https://github.com/cmu-rl/malmo.git", malmo_dir])
-    #except subprocess.CalledProcessError:
-    #    print("ATTENTION: Setup failed! Was permission denied? "
-    #          "If so you  installed the library using sudo (or a different user)."
-    #          "Try rerunning the script as with sudo (or the user which you installed MineRL with).")
-    #
-
 def setup(build=True, installdir=malmo_dir):
     """Set up Minecraft for use with the MalmoEnv gym environment"""
 
@@ -64,10 +51,6 @@ def setup(build=True, installdir=malmo_dir):
     try:
         # Create the version properties file.
         pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(malmo_version))
-        # Optionally do a test build.
-        if build:
-            subprocess.check_call([gradlew, "setupDecompWorkspace", "build", "testClasses",
-                                   "-x", "test", "--stacktrace", "-Pversion={}".format(malmo_version)])
         minecraft_dir = os.getcwd()
     finally:
         os.chdir(cwd)
@@ -83,7 +66,6 @@ def package_files(directory):
         # if not ("Malmo/Malmo" in path): print(path)
         if (
             not ".git" in path 
-            and not "build" in path 
             and not "Malmo/Malmo" in path
             and not ".minecraft" in path
             and not ".minecraftserver" in path
@@ -91,9 +73,9 @@ def package_files(directory):
             and not "Malmo/test" in path
             and not "Malmo/MalmoEnv" in path
             and not "Malmo/ALE_ROMS" in path):
-            print(path)
+            
             paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
-    # 1/0
+
     return paths
 
 
@@ -104,11 +86,11 @@ data_files += package_files('minerl/env/Malmo')
 
 setuptools.setup(
       name='minerl',
-      version='0.1.10',
+      version='0.1.12',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
-      url='http://github.com/minenetproject/minerl',
+      url='http://github.com/minerllabs/minerl',
       author='MineRL Labs',
       author_email='minerl@andrew.cmu.edu',
       license='MIT',
