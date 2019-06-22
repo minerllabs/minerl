@@ -96,8 +96,6 @@ class InstanceManager:
         # Otherwise make a new instance if possible
         if cls.managed:
             if len(cls._instance_pool) < cls.MAXINSTANCES:
-                # from IPython import embed; embed();
-
                 cls.ninstances += 1
                 inst = cls.Instance(cls._get_valid_port())
                 cls._instance_pool.append(inst)
@@ -203,7 +201,7 @@ class InstanceManager:
                         try:
                             shutil.rmtree(minecraft_dir)
                         except:
-                            print("Failed to delete temporary minecraft directory. It may have already been removed.")
+                            logger.warning("Failed to delete temporary minecraft directory. It may have already been removed.")
                             pass
                     return
                 # Kill the watcher if the child is no longer running.
