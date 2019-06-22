@@ -88,8 +88,6 @@ class InstanceManager:
             if not inst.locked:
                 inst._acquire_lock()
 
-                # TODO Make conditional on pyro being used.
-                # print("asdasd")
                 if hasattr(cls, "_pyroDaemon"):
                     cls._pyroDaemon.register(inst)
                     Pyro4.current_context.track_resource(inst)
