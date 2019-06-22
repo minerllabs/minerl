@@ -21,9 +21,9 @@
     </ServerInitialConditions>
 
     <ServerHandlers>
-      <!-- <FileWorldGenerator
+      <!--<FileWorldGenerator
         src= "$(MISSIONS_DIR)/forest_survival"
-        destroyAfterUse = "true"/> -->
+        destroyAfterUse = "true"/>-->
       <BiomeGenerator forceReset="true" biome="4"/>
       <ServerQuitFromTimeUp timeLimitMs="400000"/>
       <ServerQuitWhenAnyAgentFinishes/>
@@ -33,7 +33,7 @@
   <AgentSection mode="Survival">
     <Name>MineRLAgent</Name>
     <AgentStart>
-      <!-- <Placement x ="-22" y="61" z="278" yaw="134" pitch="22.2"/> -->
+      <!--<Placement x ="-22" y="61" z="278" yaw="134" pitch="22.2"/>-->
       <Inventory>
         <InventoryItem slot="0" type="iron_axe"/>
       </Inventory>
