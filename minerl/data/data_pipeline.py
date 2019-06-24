@@ -117,19 +117,26 @@ class DataPipeline:
         logger.info("Starting seq iterator on {}".format(self.data_dir))
         if seed is not None:
             np.random.seed(seed)
-        self.data_list = self._get_all_valid_recordings(self.data_dir)
+        data_list = self._get_all_valid_recordings(self.data_dir)
 
-        pool_size = self.size_to_dequeue * 4
         m = multiprocessing.Manager()
-        # data_queue = m.Queue(maxsize=self.size_to_dequeue * self.batch_size * 4)
-        data_queue = m.Queue(maxsize=max_sequence_len * 1000)
+        if max_sequence_len == -1:
+            max_size = 2*self.number_of_workers
+        else
+            max_size = 16*self.number_of_workers
+        data_queue = m.Queue(maxsize=max_size)
 
         # Setup arguments for the workers.
-        files = [(file_dir, max_sequence_len, data_queue) for file_dir in self.data_list]
+        files = [(file_dir, max_sequence_len, data_queue) for file_dir in data_list]
 
         epoch = 0
 
         while epoch < num_epochs or num_epochs == -1:
+
+            # Debug
+            # for arg1, arg2, arg3 in files:
+            #     DataPipeline._load_data_pyfunc(arg1, arg2, arg3)
+            #     break
 
             map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files)
 
@@ -217,7 +224,7 @@ class DataPipeline:
             num_states = len(reward_vec)
 
             # Rendered Frames
-            frame_num = 0
+            frame_num, stop_idx = 0, 0
             max_frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             observables = list(info_dict.keys()).copy()
             observables.append('pov')
@@ -228,7 +235,7 @@ class DataPipeline:
                 ret, _ = cap.read()
                 frame_num += 1
                 if not ret:
-                    return
+                    return None
 
             # Loop through the video and construct frames
             # of observations to be sent via the multiprocessing queue
@@ -236,7 +243,7 @@ class DataPipeline:
             while True:
                 ret = True
                 frames = []
-                start_idx = frame_num
+                start_idx = stop_idx
 
                 # Collect up to worker_batch_size number of frames
                 try:
@@ -290,7 +297,7 @@ class DataPipeline:
                     action_dict = DataPipeline.map_to_dict(action_batch, gym_spec._kwargs['action_space'])
                     observation_dict = DataPipeline.map_to_dict(observation_batch,gym_spec._kwargs['observation_space'])
 
-                    yield observation_dict, reward_batch[0], done_batch[0], action_dict
+                    return observation_dict, reward_batch[0], done_batch[0], action_dict
                 else:
                     data_queue.put(batches)
 
