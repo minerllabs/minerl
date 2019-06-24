@@ -122,7 +122,7 @@ class DataPipeline:
         m = multiprocessing.Manager()
         if max_sequence_len == -1:
             max_size = 2*self.number_of_workers
-        else
+        else:
             max_size = 16*self.number_of_workers
         data_queue = m.Queue(maxsize=max_size)
 
