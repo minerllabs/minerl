@@ -31,7 +31,8 @@ class DataPipeline:
                  environment: str,
                  num_workers: int,
                  worker_batch_size: int,
-                 min_size_to_dequeue: int):
+                 min_size_to_dequeue: int,
+                 random_seed=42):
         """
         Sets up a tensorflow dataset to load videos from a given data directory.
         :param data_directory:
@@ -42,8 +43,9 @@ class DataPipeline:
         :type worker_batch_size:
         :param min_size_to_dequeue:
         :type min_size_to_dequeue:
+        :param random_seed:
         """
-
+        self.seed = random_seed
         self.data_dir = data_directory
         self.environment = environment
         self.number_of_workers = num_workers
@@ -95,36 +97,46 @@ class DataPipeline:
             index = _map_to_dict(index, handler_list, key, space, result)
         return result
 
-
-
-    def seq_iter(self, num_epochs=-1, max_sequence_len=32):
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32, seed=None):
         """
-        Returns a generator for iterating through sequences of the dataset. 
-        Loads num_workers files at once as defined in minerl.data.make()
+        Returns a generator for iterating through sequences of the dataset.
+        Loads num_workers files at once as defined in minerl.data.make() and return up to
+        max_sequence_len consecutive samples wrapped in a dict observation space
         
         Args:
             num_epochs (int, optional): number of epochs to ittereate over or -1
              to loop forever. Defaults to -1.
             max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32.
+            seed (int, optional): seed for random directory walk - note, specifying seed as well as a finite num_epochs
+             will cause the ordering of examples to be the same after every call to seq_iter
 
         Generates:
             observation_dict, reward_list, done_list, action_dict
         """
 
         logger.info("Starting seq iterator on {}".format(self.data_dir))
-        self.data_list = self._get_all_valid_recordings(self.data_dir)
+        if seed is not None:
+            np.random.seed(seed)
+        data_list = self._get_all_valid_recordings(self.data_dir)
 
-        pool_size = self.size_to_dequeue * 4
         m = multiprocessing.Manager()
-        # data_queue = m.Queue(maxsize=self.size_to_dequeue * self.batch_size * 4)
-        data_queue = m.Queue(maxsize=max_sequence_len * 1000)
+        if max_sequence_len == -1:
+            max_size = 2*self.number_of_workers
+        else:
+            max_size = 16*self.number_of_workers
+        data_queue = m.Queue(maxsize=max_size)
 
         # Setup arguments for the workers.
-        files = [(file_dir, max_sequence_len, data_queue) for file_dir in self.data_list]
+        files = [(file_dir, max_sequence_len, data_queue) for file_dir in data_list]
 
         epoch = 0
 
         while epoch < num_epochs or num_epochs == -1:
+
+            # Debug
+            # for arg1, arg2, arg3 in files:
+            #     DataPipeline._load_data_pyfunc(arg1, arg2, arg3)
+            #     break
 
             map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files)
 
@@ -153,115 +165,20 @@ class DataPipeline:
         logger.info("Epoch complete.")
 
     @staticmethod
-    def load_data(file_dir: str, environment: str):
+    def load_data(file_dir: str, environment: str, skip_interval=0,):
         """
         Loading mechanism for loading a trajectory from a file as a generator
         :param file_dir: file path to data directory
         :param environment: the environment name e.g. MineRLObtainDiamond-v0
+        :param skip_interval: NOT IMPLEMENTED how many frames to skip between observations
         :return: iterator over files
         """
 
-        # logger.warning(inst_dir)
-        video_path = str(os.path.join(file_dir, 'recording.mp4'))
-        numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
-
-        try:
-            # Start video decompression
-            cap = cv2.VideoCapture(video_path)
-
-            # Load numpy file
-            state = np.load(numpy_path, allow_pickle=True)
-
-            action_dict = {key: state[key] for key in state if key.startswith('action_')}
-            reward_vec = state['reward']
-            info_dict = {key: state[key] for key in state if key.startswith('observation_')}
-
-            num_states = len(reward_vec)
-
-            # Rendered Frames
-            frame_num = 0
-            max_frame_num = num_states  # TODO: compute this with min over frames from video metadata
-            observables = list(info_dict.keys()).copy()
-            observables.append('pov')  # TODO remove maybe
-            actionables = list(action_dict.keys())
-
-            # Loop through the video and construct frames
-            # of observations to be sent via the multiprocessing queue
-            # in chunks of worker_batch_size to the batch_iter loop.
-            while True:
-                ret = True
-                frames = []
-                start_idx = frame_num
-
-                # Collect up to worker_batch_size number of frames
-                try:
-                    while ret and frame_num < max_frame_num and frame_num < num_states and len(frames) < 1:
-                        ret, frame = cap.read()
-                        if ret:
-                            cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
-                            frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
-                            frame_num += 1
-                except Exception as err:
-                    print("error reading capture device:", err)
-                    # print('Is it early with no frames:', frame_num, max_frame_num, num_states, len(frames), worker_batch_size)
-                    raise err
-
-                if len(frames) == 0:
-                    break
-
-                stop_idx = start_idx + len(frames)
-                # print('Num frames in batch:', stop_idx - start_idx)
-
-                # Load non-image data from npz
-                observation_data = [None for _ in observables]
-                action_data = [None for _ in actionables]
-
-                try:
-                    for i, key in enumerate(observables):
-                        if key == 'pov':
-                            observation_data[i] = np.asanyarray(frames)
-                        else:
-                            observation_data[i] = np.asanyarray(state[key][start_idx:stop_idx])
-
-                    for i, key in enumerate(actionables):
-                        action_data[i] = np.asanyarray(state[key][start_idx:stop_idx])
-
-                    reward_data = np.asanyarray(reward_vec[start_idx:stop_idx], dtype=np.float32)
-
-                    done_data = [False for _ in range(stop_idx - start_idx)]
-                    if frame_num == max_frame_num or frame_num == num_states:
-                        done_data[-1] = True
-                except Exception as err:
-                    print("error drawing batch from npz file:", err)
-                    raise err
-
-                sample = [action_data, observation_data, [reward_data], [np.array(done_data)]]
-                action_batch, observation_batch, reward_batch, done_batch = sample
-
-                # Wrap in dict
-                gym_spec = gym.envs.registration.spec(environment)
-
-                action_dict = DataPipeline.map_to_dict(action_batch, gym_spec._kwargs['action_space'])
-                observation_dict = DataPipeline.map_to_dict(observation_batch, gym_spec._kwargs['observation_space'])
-
-                yield observation_dict, reward_batch[0], done_batch[0], action_dict
-
-                if not ret:
-                    break
-
-            # logger.error("Finished")
-            return None
-        except WindowsError as e:
-            logger.info("Caught windows error {} - this is expected when closing the data pool".format(e))
-            return None
-        except Exception as e:
-            logger.error("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
-            return None
-
+        DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval, environment=environment)
 
     ############################
-    ## PRIVATE METHODS
-    #############################
+    #     PRIVATE METHODS      #
+    ############################
 
     @staticmethod
     def _roundrobin(*iterables):
@@ -279,26 +196,21 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, vectorized=False, skip_interval=0):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, environment=None):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
         :param skip_interval: Number of time steps to skip between each sample
         :param max_seq_len: Number of time steps in each enqueued batch
-        :param data_queue: multiprocessing data queue
+        :param data_queue: multiprocessing data queue, or None to return streams directly
+        :param environment: environment used to wrap returned data as dict, or None to return raw data
         :return:
         """
 
-        # logger.warning(inst_dir)
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
-        if vectorized:
-            numpy_path = str(os.path.join(file_dir, 'rendered.npy'))
-        else:
-            numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
+        numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
 
         try:
-            # logger.error("Starting worker!")
-
             # Start video decompression
             cap = cv2.VideoCapture(video_path)
 
@@ -312,14 +224,18 @@ class DataPipeline:
             num_states = len(reward_vec)
 
             # Rendered Frames
-            frame_num = 0
-            max_frame_num = num_states  # TODO: compute this with min over frames from video metadata
-            reset = True
-            batches = []
+            frame_num, stop_idx = 0, 0
+            max_frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             observables = list(info_dict.keys()).copy()
-            observables.append('pov')  # TODO remove maybe
+            observables.append('pov')
             actionables = list(action_dict.keys())
-            mission_handlers = ['reward']
+
+            # Advance video capture past first i-frame to start of experiment
+            for _ in range(max_frame_num - num_states):
+                ret, _ = cap.read()
+                frame_num += 1
+                if not ret:
+                    return None
 
             # Loop through the video and construct frames
             # of observations to be sent via the multiprocessing queue
@@ -327,12 +243,11 @@ class DataPipeline:
             while True:
                 ret = True
                 frames = []
-                start_idx = frame_num
+                start_idx = stop_idx
 
                 # Collect up to worker_batch_size number of frames
                 try:
-                    while ret and frame_num < max_frame_num and frame_num < num_states and (len(
-                            frames) < max_seq_len or max_seq_len == -1):
+                    while ret and frame_num < max_frame_num and (len(frames) < max_seq_len or max_seq_len == -1):
                         ret, frame = cap.read()
                         if ret:
                             cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
@@ -340,7 +255,6 @@ class DataPipeline:
                             frame_num += 1
                 except Exception as err:
                     print("error reading capture device:", err)
-                    # print('Is it early with no frames:', frame_num, max_frame_num, num_states, len(frames), worker_batch_size)
                     raise err
 
                 if len(frames) == 0:
@@ -366,16 +280,26 @@ class DataPipeline:
                     reward_data = np.asanyarray(reward_vec[start_idx:stop_idx], dtype=np.float32)
 
                     done_data = [False for _ in range(stop_idx - start_idx)]
-                    if frame_num == max_frame_num or frame_num == num_states:
+                    if frame_num == max_frame_num:
                         done_data[-1] = True
                 except Exception as err:
                     print("error drawing batch from npz file:", err)
                     raise err
 
                 # batches = tuple((action_data, observation_data, reward_data))
-                batches = [action_data, observation_data, [reward_data], [np.array(done_data)]]
+                batches = [action_data, observation_data, [reward_data], [np.array(done_data, dtype=np.bool)]]
 
-                data_queue.put(batches)
+                if data_queue is None:
+                    action_batch, observation_batch, reward_batch, done_batch = batches
+
+                    # Wrap in dict
+                    gym_spec = gym.envs.registration.spec(environment)
+                    action_dict = DataPipeline.map_to_dict(action_batch, gym_spec._kwargs['action_space'])
+                    observation_dict = DataPipeline.map_to_dict(observation_batch,gym_spec._kwargs['observation_space'])
+
+                    return observation_dict, reward_batch[0], done_batch[0], action_dict
+                else:
+                    data_queue.put(batches)
 
                 if not ret:
                     break
