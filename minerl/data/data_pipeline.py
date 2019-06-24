@@ -31,7 +31,8 @@ class DataPipeline:
                  environment: str,
                  num_workers: int,
                  worker_batch_size: int,
-                 min_size_to_dequeue: int):
+                 min_size_to_dequeue: int,
+                 random_seed=42):
         """
         Sets up a tensorflow dataset to load videos from a given data directory.
         :param data_directory:
@@ -42,8 +43,9 @@ class DataPipeline:
         :type worker_batch_size:
         :param min_size_to_dequeue:
         :type min_size_to_dequeue:
+        :param random_seed:
         """
-
+        self.seed = random_seed
         self.data_dir = data_directory
         self.environment = environment
         self.number_of_workers = num_workers
@@ -95,23 +97,26 @@ class DataPipeline:
             index = _map_to_dict(index, handler_list, key, space, result)
         return result
 
-
-
-    def seq_iter(self, num_epochs=-1, max_sequence_len=32):
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32, seed=None):
         """
-        Returns a generator for iterating through sequences of the dataset. 
-        Loads num_workers files at once as defined in minerl.data.make()
+        Returns a generator for iterating through sequences of the dataset.
+        Loads num_workers files at once as defined in minerl.data.make() and return up to
+        max_sequence_len consecutive samples wrapped in a dict observation space
         
         Args:
             num_epochs (int, optional): number of epochs to ittereate over or -1
              to loop forever. Defaults to -1.
             max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32.
+            seed (int, optional): seed for random directory walk - note, specifying seed as well as a finite num_epochs
+             will cause the ordering of examples to be the same after every call to seq_iter
 
         Generates:
             observation_dict, reward_list, done_list, action_dict
         """
 
         logger.info("Starting seq iterator on {}".format(self.data_dir))
+        if seed is not None:
+            np.random.seed(seed)
         self.data_list = self._get_all_valid_recordings(self.data_dir)
 
         pool_size = self.size_to_dequeue * 4
