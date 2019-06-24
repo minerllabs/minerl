@@ -141,19 +141,8 @@ class InstanceManager:
 
     @staticmethod
     def _is_port_taken(port, address='0.0.0.0'):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        try:
-            s.bind((address, port))
-            taken = False
-        except socket.error as e:
-            if e.errno in [98, 10048]:
-                taken = True
-            else:
-                raise e
-
-        s.close()
-        return taken
+        ports = [x.laddr.port for x  in psutil.net_connections()]
+        return port in ports
 
     @staticmethod
     def _is_display_port_taken(port, x11_path):
@@ -176,10 +165,19 @@ class InstanceManager:
 
 
     @staticmethod
-    def _process_watcher(parent_pid, child_pid, child_host, child_port, minecraft_dir):
+    def _process_watcher(parent_pid, child_pid, child_host, child_port, minecraft_dir, conn):
         """
         On *nix systems (perhaps Windows) this is the central code for killing the child if the parent dies.
         """
+        port = child_port
+        def port_watcher():
+            nonlocal port 
+            
+            port = conn.recv()[0]
+
+        port_thread = threading.Thread(target=port_watcher)
+        port_thread.start()
+
         # Wait for processes to be launched
         time.sleep(1)
         try:
@@ -197,6 +195,12 @@ class InstanceManager:
 
                 if not parent.is_running() or parent is None:
                     if not (child is None):
+                        try:
+                            Instance._kill_minecraft_via_malmoenv(child_host,port)
+                            time.sleep(2)
+                        except:
+                            pass
+    
                         InstanceManager._reap_process_and_children(child)
                         try:
                             shutil.rmtree(minecraft_dir)
@@ -293,13 +297,15 @@ class InstanceManager:
                     
                 # 0. Get PID of launcher.
                 parent_pid = os.getpid()
-                # 1. Launch minecraft process.
-                self.minecraft_process =  self._launch_minecraft(
+                # 1. Launch minecraft process and 
+                self.minecraft_process=  self._launch_minecraft(
                     port, 
                     InstanceManager.headless,
                     self.minecraft_dir)
+
+               
                 # 2. Create a watcher process to ensure things get cleaned up
-                self.watcher_process = self._launch_process_watcher(
+                self.watcher_process, update_port = self._launch_process_watcher(
                     parent_pid, self.minecraft_process.pid, self.host, port, self.instance_dir)
                 
                 # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
@@ -328,6 +334,14 @@ class InstanceManager:
                     
                     lines.append(line)
                     logger.debug("\n".join(line.split("\n")[:-1]))
+                    
+
+                    MALMOENVPORTSTR =  "***** Start MalmoEnvServer on port " 
+                    port_received = MALMOENVPORTSTR in line
+                    if port_received:
+                        self._port = int(line.split(MALMOENVPORTSTR)[-1].strip())
+                        # Send an update to the watcher process.
+                        update_port(self._port)
                         
                     client_ready =  "CLIENT enter state: DORMANT" in line
                     server_ready =  "SERVER enter state: DORMANT" in line
@@ -337,6 +351,9 @@ class InstanceManager:
 
 
                 logger.info("Minecraft process ready")
+                 
+                if not port == self._port:
+                    logger.warning("Tried to launch Minecraft on port {} but that port was taken, instead Minecraft is using port {}.".format(port, self.port))
                 # supress entire output, otherwise the subprocess will block
                 # NB! there will be still logs under Malmo/Minecraft/run/logs
                 # FNULL = open(os.devnull, 'w')
@@ -345,7 +362,7 @@ class InstanceManager:
                     if not os.path.exists(os.path.join(logdir, 'logs')):
                             os.makedirs((os.path.join(logdir, 'logs')))
 
-                    file_path = os.path.join(logdir, 'logs', 'minecraft_proc_{}.log'.format(port))
+                    file_path = os.path.join(logdir, 'logs', 'minecraft_proc_{}.log'.format(self._port))
 
                     logger.info("Logging output of Minecraft to {}".format(file_path))
 
@@ -387,8 +404,7 @@ class InstanceManager:
 
             else:
                 assert port is not None, "No existing port specified."
-
-            self._port = port
+                self._port = port
 
             self.running = True
 
@@ -461,11 +477,20 @@ class InstanceManager:
             """
             Launches the process watcher for the parent and minecraft process.
             """
+            parent_conn, child_conn = multiprocessing.Pipe()
+            logger.info("Starting process watcher for process {} @ {}:{}".format(child_pid, child_host, child_port))
             p = multiprocessing.Process(
-                target=InstanceManager._process_watcher, args=(parent_pid, child_pid, child_host, child_port, minecraft_dir))
+                target=InstanceManager._process_watcher, args=(
+                    parent_pid, child_pid, 
+                    child_host, child_port, 
+                    minecraft_dir, child_conn))
+                    
+            def update_port(port):
+                parent_conn.send([port])
             # p.daemon = True
+
             p.start()
-            return p
+            return p, update_port
 
         @staticmethod
         def _kill_minecraft_via_malmoenv(host, port):
