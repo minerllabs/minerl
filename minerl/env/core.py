@@ -403,9 +403,14 @@ class MineRLEnv(gym.Env):
             logger.error("Failed to reset (socket error), trying again!")
             self._clean_connection()
             raise e
+        except RuntimeError as e:
+            # Reset the instance if there was an error timeout waiting for episode pause.
+            self.had_to_clean = True
+            self._clean_connection()
+            raise e
 
     def _clean_connection(self):
-        logger.error("Cleaning connection! Somethong must have gone wrong.")
+        logger.error("Cleaning connection! Something must have gone wrong.")
         try:
             if self.client_socket:
                 self.client_socket.shutdown(socket.SHUT_RDWR)
@@ -446,6 +451,10 @@ class MineRLEnv(gym.Env):
                     raise MissionInitException(
                         'too long waiting for first observation')
                 time.sleep(0.1)
+            if self.done:
+                raise RuntimeError(
+                    "Something went wrong resetting the environment! "
+                    "`done` was true on first frame.")
 
         return self._process_observation(obs, info), {}
 
