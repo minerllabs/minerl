@@ -5,17 +5,15 @@
     </About>
 
     <ModSettings>
-        <MsPerTick>150</MsPerTick>
+        <MsPerTick>50</MsPerTick>
     </ModSettings>
 
     <ServerSection>
         <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
-                <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-            <Weather>clear</Weather>
-            <AllowSpawning>false</AllowSpawning>
+            <AllowSpawning>true</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
             <DefaultWorldGenerator forceReset="true"/>
@@ -46,21 +44,9 @@
             </HumanLevelCommands>
             <CameraCommands/>
             <SimpleCraftCommands/>
-            <!--        <Item type="minecraft:stick"/>-->
-            <!--        <Item type="minecraft:planks"/>-->
-            <!--        <Item type="minecraft:torch"/>-->
             <NearbyCraftCommands/>
-            <!--        <Item type="minecraft:wooden_axe"/>-->
-            <!--        <Item type="minecraft:wooden_pickaxe"/>-->
-            <!--        <Item type="minecraft:stone_axe"/>-->
-            <!--        <Item type="minecraft:stone_pickaxe"/>-->
-            <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <NearbySmeltCommands/>
-            <!--        <Item type="minecraft:iron_ingot"/>-->
             <PlaceCommands/>
-            <!--          <Item type="minecraft:crafting_table"/>-->
-            <!--          <Item type="minecraft:furnace"/>-->
-            <!--          <Item type="minecraft:torch"/>-->
             <PauseCommand/>
 
             <!--  Rewards   -->
@@ -69,6 +55,7 @@
             </RewardForMissionEnd>
             <RewardForCollectingItem>
                 <Item amount="1" reward="1" type="log" />
+                <Item amount="1" reward="1" type="log2" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
                 <Item amount="1" reward="4" type="crafting_table" />

@@ -5,7 +5,7 @@
     </About>
 
     <ModSettings>
-        <MsPerTick>150</MsPerTick>
+        <MsPerTick>50</MsPerTick>
     </ModSettings>
 
     <ServerSection>
@@ -94,6 +94,7 @@
             </RewardForCollectingItem> -->
             <RewardForCollectingItemQuantity sparse="true" once="true">
                 <Item amount="1" reward="1" type="log" />
+                <Item amount="1" reward="1" type="log2" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
                 <Item amount="1" reward="4" type="crafting_table" />

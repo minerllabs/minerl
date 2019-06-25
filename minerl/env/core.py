@@ -294,8 +294,12 @@ class MineRLEnv(gym.Env):
             # TODO change to maalmo
             for stack in info['inventory']:
                 if 'type' in stack and 'quantity' in stack:
+                    type_name = stack['type']
+                    if type_name == 'log2':
+                        type_name = 'log'
+                    
                     try:
-                        inventory_dict[stack['type']] += stack['quantity']
+                        inventory_dict[type_name] += stack['quantity']
                     except ValueError:
                         continue
                     except KeyError:
