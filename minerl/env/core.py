@@ -307,24 +307,30 @@ class MineRLEnv(gym.Env):
             # logger.warning(info)
             pass
 
-        obs_dict = {
-            'pov': pov
-        }
 
-        # Todo: Make this logic dict recursive.
-        for k in self.observation_space.spaces:
-            if k is not 'pov':
-                if not (k in info):
-                    correction = self.observation_space.spaces[k].sample()
-                    if isinstance(self.observation_space.spaces[k], gym.spaces.Dict):
-                        for k in correction:
-                            if not isinstance(correction[k], dict) and not isinstance(correction[k], collections.OrderedDict):
-                                correction[k] *= 0
-                    info[k] = correction
-                    # logger.warning("Missing observation {} in Malmo".format(k))
-
-                obs_dict[k] = info[k]
-
+        info['pov'] = pov
+        
+        def correction(out):
+            if isinstance(out, dict) or isinstance(out, collections.OrderedDict):
+                for k in out:
+                    out[k] = correction(out)
+            else:
+                return out*0
+        
+        def process_dict(space, info_dict):
+            if isinstance(space, gym.spaces.Dict):
+                out_dict = {}
+                for k in space.spaces:
+                    if k in info_dict:
+                        out_dict[k] = process_dict(space.spaces[k], info_dict[k])
+                    else:
+                        out_dict[k] = correction(space.spaces[k].sample())
+                return out_dict
+            else:
+                return info_dict
+                
+        obs_dict = process_dict(self.observation_space, info)
+        
         self._last_pov = obs_dict['pov']
         return obs_dict
 
