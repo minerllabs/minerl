@@ -141,8 +141,22 @@ class InstanceManager:
 
     @staticmethod
     def _is_port_taken(port, address='0.0.0.0'):
-        ports = [x.laddr.port for x  in psutil.net_connections()]
-        return port in ports
+        if psutil.MACOS  or psutil.AIX:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                s.bind((address, port))
+                taken = False
+            except socket.error as e:
+                if e.errno in [98, 10048]:
+                    taken = True
+                else:
+                    raise e
+
+            s.close()
+            return taken
+        else:
+            ports = [x.laddr.port for x  in psutil.net_connections()]
+            return port in ports
 
     @staticmethod
     def _is_display_port_taken(port, x11_path):

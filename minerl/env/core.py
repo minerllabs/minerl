@@ -294,8 +294,12 @@ class MineRLEnv(gym.Env):
             # TODO change to maalmo
             for stack in info['inventory']:
                 if 'type' in stack and 'quantity' in stack:
+                    type_name = stack['type']
+                    if type_name == 'log2':
+                        type_name = 'log'
+                    
                     try:
-                        inventory_dict[stack['type']] += stack['quantity']
+                        inventory_dict[type_name] += stack['quantity']
                     except ValueError:
                         continue
                     except KeyError:
@@ -307,24 +311,30 @@ class MineRLEnv(gym.Env):
             # logger.warning(info)
             pass
 
-        obs_dict = {
-            'pov': pov
-        }
 
-        # Todo: Make this logic dict recursive.
-        for k in self.observation_space.spaces:
-            if k is not 'pov':
-                if not (k in info):
-                    correction = self.observation_space.spaces[k].sample()
-                    if isinstance(self.observation_space.spaces[k], gym.spaces.Dict):
-                        for k in correction:
-                            if not isinstance(correction[k], dict) and not isinstance(correction[k], collections.OrderedDict):
-                                correction[k] *= 0
-                    info[k] = correction
-                    # logger.warning("Missing observation {} in Malmo".format(k))
-
-                obs_dict[k] = info[k]
-
+        info['pov'] = pov
+        
+        def correction(out):
+            if isinstance(out, dict) or isinstance(out, collections.OrderedDict):
+                for k in out:
+                    out[k] = correction(out)
+            else:
+                return out*0
+        
+        def process_dict(space, info_dict):
+            if isinstance(space, gym.spaces.Dict):
+                out_dict = {}
+                for k in space.spaces:
+                    if k in info_dict:
+                        out_dict[k] = process_dict(space.spaces[k], info_dict[k])
+                    else:
+                        out_dict[k] = correction(space.spaces[k].sample())
+                return out_dict
+            else:
+                return info_dict
+                
+        obs_dict = process_dict(self.observation_space, info)
+        
         self._last_pov = obs_dict['pov']
         return obs_dict
 
@@ -403,9 +413,14 @@ class MineRLEnv(gym.Env):
             logger.error("Failed to reset (socket error), trying again!")
             self._clean_connection()
             raise e
+        except RuntimeError as e:
+            # Reset the instance if there was an error timeout waiting for episode pause.
+            self.had_to_clean = True
+            self._clean_connection()
+            raise e
 
     def _clean_connection(self):
-        logger.error("Cleaning connection! Somethong must have gone wrong.")
+        logger.error("Cleaning connection! Something must have gone wrong.")
         try:
             if self.client_socket:
                 self.client_socket.shutdown(socket.SHUT_RDWR)
@@ -446,6 +461,10 @@ class MineRLEnv(gym.Env):
                     raise MissionInitException(
                         'too long waiting for first observation')
                 time.sleep(0.1)
+            if self.done:
+                raise RuntimeError(
+                    "Something went wrong resetting the environment! "
+                    "`done` was true on first frame.")
 
         return self._process_observation(obs, info), {}
 
