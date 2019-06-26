@@ -1,13 +1,13 @@
 # The [MineRL](http://minerl.io) Python Package 
 
 
-[![Support us on patron](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fwguss_imushroom&style=for-the-badge)](https://patreon.com/imushroom_wguss) [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl) 
+[![Support us on patron](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fwguss_imushroom&style=for-the-badge)](https://www.patreon.com/wguss_imushroom) [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl) 
 
 Python package providing easy to use gym environments and a simple data api for the MineRLv0 dataset. 
 
 **To [get started please read the docs here](http://minerl.io/docs/)!**
 
-**We develop `minerl` in our spare time, [please consider supporting us on Patreon <3](https://patreon.com/imushroom_wguss)**
+**We develop `minerl` in our spare time, [please consider supporting us on Patreon <3](https://www.patreon.com/wguss_imushroom)**
 
 ## Installation
 
