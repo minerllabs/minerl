@@ -1,4 +1,5 @@
 import minerl
+import time
 import gym
 import numpy as np
 
@@ -51,11 +52,22 @@ def gen_obtain_debug_actions(env):
 
     # Test log reward
     act(camera=np.array([0.0, -90.0], dtype=np.float32))
-    [act(attack=1) for _ in range(40)]
+    [act(attack=1) for _ in range(20)]
     [act(forward=1) for _ in range(10)]
 
     # Test empty equip command
     act(equip='air')
+
+    # Test pickaxe reward
+    act(camera=np.array([0.0, -90.0], dtype=np.float32))
+    act(camera=np.array([0.0, -90.0], dtype=np.float32))
+
+    act(craft='planks')
+    act(craft='stick')
+    act(craft='stick')
+    act(nearbyCraft='iron_pickaxe')
+    act(equip='iron_pickaxe')
+    act(attack=1)
 
     return actions
 
@@ -69,9 +81,11 @@ def test_env(environment='MineRLObtainTest-v0'):
 
         for action in gen_obtain_debug_actions(env):
             obs, reward, done, info = env.step(action)
+            time.sleep(0.1)
             if reward != 0:
                 print(reward)
-            # time.sleep(0.2)
+            if done:
+                break
 
         while not done:
             obs, reward, done, info = env.step(env.action_space.no_op())
