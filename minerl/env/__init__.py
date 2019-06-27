@@ -27,7 +27,6 @@ from minerl.env.core import MineRLEnv, missions_dir
 
 import numpy as np
 
-
   
 register(
     id='MineRLTreechop-v0',
@@ -73,9 +72,8 @@ The agent begins in a forest biome (near many trees) with an iron axe for cuttin
 )
 
 
-
 #######################
-## NAVIGATE
+#      NAVIGATE       #
 #######################
 
 def make_navigate_text(top, dense):
@@ -111,6 +109,7 @@ The agent is given a sparse reward (+100 upon reaching the goal, at which point 
         navigate_text += "\nIn this environment, the agent spawns in an extreme hills biome.\n"
         navigate_text = navigate_text.format(*["extreme" for _ in range(4)])
     return navigate_text
+
 
 navigate_action_space = spaces.Dict({
     "forward": spaces.Discrete(2),
@@ -229,7 +228,7 @@ obtain_action_space = spaces.Dict({
     "attack": spaces.Discrete(2),
     "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
     "place": spaces.Enum('none', 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
-    "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
+    "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
     "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
     "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
     "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')})
@@ -478,10 +477,10 @@ register(
             "attack": spaces.Discrete(2),
             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
             "place": spaces.Enum('none', 'dirt', 'log', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
-            "equip": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
+            "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
             "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')})
     },
-    max_episode_steps=18000,
+    max_episode_steps=2000,
 )

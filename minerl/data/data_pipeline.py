@@ -173,8 +173,16 @@ class DataPipeline:
         :param skip_interval: NOT IMPLEMENTED how many frames to skip between observations
         :return: iterator over files
         """
+        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval, environment=environment)
+        action_seq, observation_seq, reward_seq, done_seq = seq
 
-        DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval, environment=environment)
+        for idx in range(len(reward_seq[0])):
+            # Wrap in dict
+            gym_spec = gym.envs.registration.spec(environment)
+            action_dict = DataPipeline.map_to_dict(action_seq[idx], gym_spec._kwargs['action_space'])
+            observation_dict = DataPipeline.map_to_dict(observation_seq[idx], gym_spec._kwargs['observation_space'])
+
+            yield observation_dict, reward_seq[idx], done_seq[idx], action_dict
 
     ############################
     #     PRIVATE METHODS      #
@@ -286,18 +294,11 @@ class DataPipeline:
                     print("error drawing batch from npz file:", err)
                     raise err
 
-                # batches = tuple((action_data, observation_data, reward_data))
                 batches = [action_data, observation_data, [reward_data], [np.array(done_data, dtype=np.bool)]]
 
+
                 if data_queue is None:
-                    action_batch, observation_batch, reward_batch, done_batch = batches
-
-                    # Wrap in dict
-                    gym_spec = gym.envs.registration.spec(environment)
-                    action_dict = DataPipeline.map_to_dict(action_batch, gym_spec._kwargs['action_space'])
-                    observation_dict = DataPipeline.map_to_dict(observation_batch,gym_spec._kwargs['observation_space'])
-
-                    return observation_dict, reward_batch[0], done_batch[0], action_dict
+                    return batches
                 else:
                     data_queue.put(batches)
 
