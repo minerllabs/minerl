@@ -34,6 +34,11 @@ MineRL: Towards AI in Minecraft
 Welcome to documentation for the MineRL_
 project and its related repositories and components!
 
+.. image:: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fwguss_imushroom&style=for-the-badge
+   :target: https://www.patreon.com/wguss_imushroom
+
+.. image:: https://pepy.tech/badge/minerl
+   :target: https://github.com/minerllabs/minerl
 
 .. _MineRL: http://minerl.io
 .. _OpenAI Gym: https://gym.openai.com
