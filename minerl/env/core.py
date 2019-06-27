@@ -49,7 +49,7 @@ class EnvException(Exception):
     """A special exception thrown in the creation of an environment's Malmo mission XML.
 
     Args:
-        message (str): The exception message. 
+        message (str): The exception message.
     """
 
     def __init__(self, message):
@@ -60,7 +60,7 @@ class MissionInitException(Exception):
     """An exception thrown when a mission fails to initialize
 
     Args:
-        message (str): The exception message. 
+        message (str): The exception message.
     """
 
     def __init__(self, message):
@@ -133,7 +133,7 @@ class MineRLEnv(gym.Env):
     def init(self,  observation_space, action_space,  port=None):
         """Initializes the MineRL Environment.
 
-        Note: 
+        Note:
             This is called automatically when the environment is made.
 
         Args:
@@ -210,8 +210,8 @@ class MineRLEnv(gym.Env):
 
         self.resets = episode
 
-        e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com" 
-                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com"
+                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                                 SchemaVersion="" PlatformVersion=""" + '\"' + malmo_version + '\"' +
                              """>
                                 <ExperimentUID></ExperimentUID>
@@ -297,7 +297,7 @@ class MineRLEnv(gym.Env):
                     type_name = stack['type']
                     if type_name == 'log2':
                         type_name = 'log'
-                    
+
                     try:
                         inventory_dict[type_name] += stack['quantity']
                     except ValueError:
@@ -313,14 +313,14 @@ class MineRLEnv(gym.Env):
 
 
         info['pov'] = pov
-        
+
         def correction(out):
             if isinstance(out, dict) or isinstance(out, collections.OrderedDict):
                 for k in out:
                     out[k] = correction(out)
             else:
                 return out*0
-        
+
         def process_dict(space, info_dict):
             if isinstance(space, gym.spaces.Dict):
                 out_dict = {}
@@ -332,9 +332,9 @@ class MineRLEnv(gym.Env):
                 return out_dict
             else:
                 return info_dict
-                
+
         obs_dict = process_dict(self.observation_space, info)
-        
+
         self._last_pov = obs_dict['pov']
         return obs_dict
 
@@ -427,8 +427,8 @@ class MineRLEnv(gym.Env):
                 self.client_socket.close()
         except (BrokenPipeError, OSError, socket.error):
             # There is no connection left!
-            pass 
-            
+            pass
+
         self.client_socket = None
         if self.had_to_clean:
             # Connect to a new instance!!
@@ -474,10 +474,10 @@ class MineRLEnv(gym.Env):
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
-    def seed(self):
+    def seed(self, seed=None):
         """Seeds the environment.
 
-        Note: 
+        Note:
             This is NOT implemented.
         """
         logger.warn("Seeds not supported yet.")
@@ -552,14 +552,14 @@ class MineRLEnv(gym.Env):
 
         if self._already_closed:
             return
-        
+
         if self.client_socket:
             self.client_socket.close()
             self.client_socket = None
 
         if self.instance and self.instance.running:
             self.instance.kill()
-        
+
         self._already_closed = True
 
     def reinit(self):
@@ -653,7 +653,7 @@ def register(id, **kwargs):
 def _bind(instance, func, as_name=None):
     """
     Bind the function *func* to *instance*, with either provided name *as_name*
-    or the existing name of *func*. The provided *func* should accept the 
+    or the existing name of *func*. The provided *func* should accept the
     instance as the first argument, i.e. "self".
     """
     if as_name is None:
