@@ -108,7 +108,7 @@ environment.
             for obs, rew, done, act in data.seq_iter(num_epochs=1, batch_size=32):
                 # Do something 
         '''.format(id,id,id)
-        print(usage_str)
+        print(usage_str) 
  
 
     ids = [     

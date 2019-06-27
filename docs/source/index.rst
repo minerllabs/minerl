@@ -56,13 +56,14 @@ components:
   Learning: sparse rewards and hierarchical policies.
 
 - :code:`minerl` -- A rich python3 package for doing artificial intelligence
-  research in Minecraft. This includes two major submodules.
-  
+  research in Minecraft. This includes two major submodules. We develop :code:`minerl` in our spare time, `please consider supporting us on Patreon`_
+
   - :code:`minerl.env` -- A growing set of OpenAI Gym environments
     in Minecraft. These environments leverage a **synchronous**, **stable**,
     and **fast** fork of Microsoft Malmo called *MineRLEnv*.
   - :code:`minerl.data` -- The main python module for ext with the *MineRL-v0* dataset 
 
+.. _please consider supporting us on Patreon: https://www.patreon.com/wguss_imushroom
 
 
 
