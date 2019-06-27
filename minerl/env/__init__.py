@@ -209,7 +209,7 @@ obtain_observation_space = spaces.Dict({
     }),
     'equipped_items': spaces.Dict({
         'mainhand': spaces.Dict({
-            'type': spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+            'type': spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                 'iron_axe', 'iron_pickaxe', 'other'),
             'damage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
             'maxDamage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
