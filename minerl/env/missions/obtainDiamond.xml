@@ -12,7 +12,7 @@
         <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
-            </Time>->
+            </Time>
             <AllowSpawning>true</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
