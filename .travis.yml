@@ -4,9 +4,8 @@ python:
   - "3.5"
   - "3.6"
   - "3.7"
-  - "3.7-dev"  # 3.7 development branch
-  - "3.8-dev"  # 3.8 development branch
-  - "nightly"  # nightly build
+  # PyPy versions
+  - "pypy3.6
 cache: pip
 addons:
   apt:
@@ -15,7 +14,7 @@ addons:
   
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+  - pip install .
   
 # command to run tests
 script:
