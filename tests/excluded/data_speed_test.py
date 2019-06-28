@@ -15,7 +15,9 @@ ENVIRONMENTS = [
     'MineRLNavigateExtreme-v0',
     'MineRLNavigateExtremeDense-v0',
     'MineRLObtainIronPickaxe-v0',
+    'MineRLObtainIronPickaxeDense-v0',
     'MineRLObtainDiamond-v0',
+    'MineRLObtainDiamondDense-v0',
 ]
 
 
@@ -28,6 +30,7 @@ def step_data(environment='MineRLObtainDiamondDense-v0'):
     for obs, rew, done, act in d.seq_iter(num_epochs=1, max_sequence_len=128):
         counter.update(len(rew))
 
+
 if __name__ == '__main__':
     if len(sys.argv) > 0:
         if sys.argv[1] not in ENVIRONMENTS:
@@ -35,3 +38,7 @@ if __name__ == '__main__':
         step_data(sys.argv[1])
     else:
         step_data()
+
+
+def test_data():
+    step_data()
