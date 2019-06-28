@@ -5,7 +5,7 @@ python:
   - "3.6"
   - "3.7"
   # PyPy versions
-  - "pypy3.6
+  - "pypy3.6"
 cache: pip
 addons:
   apt:
@@ -15,7 +15,6 @@ addons:
 # command to install dependencies
 install:
   - pip install .
-  
 # command to run tests
 script:
   - pytest
