@@ -15,4 +15,4 @@ install:
   - pip install .
 # command to run tests
 script:
-  - pytest --ignore=minerl/env/Malmo/ --ignore=tests/
+  - pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
