@@ -17,4 +17,4 @@ services: xvfb
 # command to run tests
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-  - xvfb-run pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
+  - xvfb-run -a pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
