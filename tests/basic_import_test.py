@@ -19,6 +19,13 @@ def main():
     spec = gym.spec('MineRLObtainDiamondDense-v0')
 
     print("Test complete.")
+    return True
 
 
-main()
+def test_import():
+    assert main() is True
+
+
+if __name__ == '__main__':
+    main()
+
