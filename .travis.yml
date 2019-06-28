@@ -19,4 +19,3 @@ install:
 # command to run tests
 script:
   - pytest
-  - python tests/simple_env_test.py
