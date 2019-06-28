@@ -9,11 +9,17 @@ addons:
   apt:
     packages:
       - openjdk-8-jdk
+      - libglu1-mesa-dev
+      - freeglut3-dev
+      - mesa-common-dev
   
 # command to install dependencies
 install:
   - pip install .
+
+# headless support
 services: xvfb
+
 # command to run tests
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
