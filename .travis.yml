@@ -1,0 +1,23 @@
+dist: xenial   # required for Python >= 3.7
+language: python
+python:
+  - "3.5"
+  - "3.6"
+  - "3.7"
+  - "3.7-dev"  # 3.7 development branch
+  - "3.8-dev"  # 3.8 development branch
+  - "nightly"  # nightly build
+cache: pip
+addons:
+  apt:
+    packages:
+      - oracle-java8-set-default
+  
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+  
+# command to run tests
+script:
+  - pytest
+  - python tests/simple_env_test.py
