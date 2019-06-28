@@ -13,8 +13,8 @@ def main():
     spec = gym.spec('MineRLNavigateDense-v0')
     spec = gym.spec('MineRLNavigateExtreme-v0')
     spec = gym.spec('MineRLNavigateExtremeDense-v0')
-    spec = gym.spec('MineRLObtainIron-v0')
-    spec = gym.spec('MineRLObtainIronDense-v0')
+    spec = gym.spec('MineRLObtainIronPickaxe-v0')
+    spec = gym.spec('MineRLObtainIronPickaxeDense-v0')
     spec = gym.spec('MineRLObtainDiamond-v0')
     spec = gym.spec('MineRLObtainDiamondDense-v0')
 
