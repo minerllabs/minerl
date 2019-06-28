@@ -11,7 +11,7 @@ cache: pip
 addons:
   apt:
     packages:
-      - oracle-java8-set-default
+      - openjdk-8-jdk
   
 # command to install dependencies
 install:
