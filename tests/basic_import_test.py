@@ -3,11 +3,6 @@ import gym
 import minerl
 
 
-#import minerl.env.bootstrap
-#minerl.env.bootstrap._check_port_avail = lambda _,__: True
-
-NUM_EPISODES=5
-
 def main():
     """
     Tests importing of gym envs
@@ -24,5 +19,4 @@ def main():
     print("Test complete.")
 
 
-if __name__ == "__main__":
-    main()
+main()
