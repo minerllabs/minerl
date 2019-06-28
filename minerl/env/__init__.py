@@ -270,7 +270,7 @@ item is given here::
     <Item amount="1" reward="4" type="stick" />
     <Item amount="1" reward="4" type="crafting_table" />
     <Item amount="1" reward="8" type="wooden_pickaxe" />
-    <Item amount="1" reward="16" type="stone" />
+    <Item amount="1" reward="16" type="cobblestone" />
     <Item amount="1" reward="32" type="furnace" />
     <Item amount="1" reward="32" type="stone_pickaxe" />
     <Item amount="1" reward="64" type="iron_ore" />
@@ -319,7 +319,7 @@ item are given here::
     <Item amount="1" reward="4" type="stick" />
     <Item amount="1" reward="4" type="crafting_table" />
     <Item amount="1" reward="8" type="wooden_pickaxe" />
-    <Item amount="1" reward="16" type="stone" />
+    <Item amount="1" reward="16" type="cobblestone" />
     <Item amount="1" reward="32" type="furnace" />
     <Item amount="1" reward="32" type="stone_pickaxe" />
     <Item amount="1" reward="64" type="iron_ore" />
@@ -378,7 +378,7 @@ item is given here::
     <Item reward="4" type="stick" />
     <Item reward="4" type="crafting_table" />
     <Item reward="8" type="wooden_pickaxe" />
-    <Item reward="16" type="stone" />
+    <Item reward="16" type="cobblestone" />
     <Item reward="32" type="furnace" />
     <Item reward="32" type="stone_pickaxe" />
     <Item reward="64" type="iron_ore" />
@@ -430,7 +430,7 @@ item are given here::
     <Item reward="4" type="stick" />
     <Item reward="4" type="crafting_table" />
     <Item reward="8" type="wooden_pickaxe" />
-    <Item reward="16" type="stone" />
+    <Item reward="16" type="cobblestone" />
     <Item reward="32" type="furnace" />
     <Item reward="32" type="stone_pickaxe" />
     <Item reward="64" type="iron_ore" />
