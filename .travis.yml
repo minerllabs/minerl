@@ -12,7 +12,12 @@ addons:
       - libglu1-mesa-dev
       - freeglut3-dev
       - mesa-common-dev
-  
+      - mesa-utils
+      - xvfb
+      - libgl1-mesa-dri
+      - libglapi-mesa
+      - libosmesa6
+      - libxi-dev
 # command to install dependencies
 install:
   - pip install .
