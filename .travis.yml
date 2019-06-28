@@ -13,7 +13,8 @@ addons:
 # command to install dependencies
 install:
   - pip install .
+services: xvfb
 # command to run tests
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-  - pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
+  - xvfb-run pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
