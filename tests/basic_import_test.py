@@ -9,14 +9,14 @@ def main():
     Tests importing of gym envs
     """
     print(os.environ['JAVA_HOME'])
-    env = gym.make('MineRLNavigate-v0')
-    env = gym.make('MineRLNavigateDense-v0')
-    env = gym.make('MineRLNavigateExtreme-v0')
-    env = gym.make('MineRLNavigateExtremeDense-v0')
-    env = gym.make('MineRLObtainIron-v0')
-    env = gym.make('MineRLObtainIronDense-v0')
-    env = gym.make('MineRLObtainDiamond-v0')
-    env = gym.make('MineRLObtainDiamondDense-v0')
+    spec = gym.spec('MineRLNavigate-v0')
+    spec = gym.spec('MineRLNavigateDense-v0')
+    spec = gym.spec('MineRLNavigateExtreme-v0')
+    spec = gym.spec('MineRLNavigateExtremeDense-v0')
+    spec = gym.spec('MineRLObtainIron-v0')
+    spec = gym.spec('MineRLObtainIronDense-v0')
+    spec = gym.spec('MineRLObtainDiamond-v0')
+    spec = gym.spec('MineRLObtainDiamondDense-v0')
 
     print("Test complete.")
 
