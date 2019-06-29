@@ -18,8 +18,8 @@
             <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
-            <FlatWorldGenerator destroyAfterUse = "true"/>
-            <ServerQuitFromTimeUp timeLimitMs="900000" description="out_of_time"/>
+            <FlatWorldGenerator forceReset="true"/>
+            <ServerQuitFromTimeUp timeLimitMs="100000" description="out_of_time"/>
             <ServerQuitWhenAnyAgentFinishes/>
         </ServerHandlers>
     </ServerSection>
