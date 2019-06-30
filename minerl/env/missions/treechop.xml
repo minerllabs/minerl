@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Mission xmlns="http://ProjectMalmo.microsoft.com">
-  <About>
-      <Summary>Survival Treechop experiment</Summary>
-  </About>
+    <About>
+        <Summary>$(ENV_NAME)</Summary>
+    </About>
 
     <ModSettings>
          <MsPerTick>50</MsPerTick>
@@ -56,6 +56,7 @@
        <Width>64</Width>
        <Height>64</Height>
      </VideoProducer>
+     <FileBasedPerformanceProducer/>
     </AgentHandlers>
   </AgentSection>
 </Mission>

@@ -44,7 +44,7 @@ def main():
                 random_act)
             # print(obs["compassAngle"])
             netr += reward
-            print(netr)
+            print(reward, netr)
             env.render()
 
 

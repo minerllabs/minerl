@@ -61,6 +61,7 @@ class InstanceManager:
     """
     MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
     SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Schemas') 
+    STATUS_DIR = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'performance')
     MAXINSTANCES = 10
     DEFAULT_IP = "localhost"
     _instance_pool = []
@@ -68,6 +69,7 @@ class InstanceManager:
     X11_DIR = '/tmp/.X11-unix'
     headless = False
     managed = True
+
 
     @classmethod
     def get_instance(cls):
@@ -97,7 +99,16 @@ class InstanceManager:
         if cls.managed:
             if len(cls._instance_pool) < cls.MAXINSTANCES:
                 cls.ninstances += 1
-                inst = cls.Instance(cls._get_valid_port())
+                # Make the status directory.
+
+                if hasattr(cls, "_pyroDaemon"):
+                    status_dir = os.path.join(cls.STATUS_DIR, 'mc_{}'.format(cls.ninstances))
+                    if not os.path.exists(status_dir):
+                        os.makedirs(status_dir)
+                else:
+                    status_dir = None
+
+                inst = cls.Instance(cls._get_valid_port(), status_dir=status_dir)
                 cls._instance_pool.append(inst)
                 inst._acquire_lock()
 
@@ -133,7 +144,7 @@ class InstanceManager:
     @classmethod
     def add_existing_instance(cls, port):
         assert cls._is_port_taken(port), "No Malmo mod utilizing the port specified."
-        instance = InstanceManager.Instance(port=port, existing=True)
+        instance = InstanceManager.Instance(port=port, existing=True, status_dir=status_dir)
         cls._instance_pool.append(instance)
         cls.ninstances += 1
         return instance
@@ -280,7 +291,7 @@ class InstanceManager:
         This scheme has a single failure point of the process dying before the watcher process is launched.
         """
 
-        def __init__(self, port=None, existing=False):
+        def __init__(self, port=None, existing=False, status_dir=None):
             """
             Launches the subprocess.
             """
@@ -293,10 +304,10 @@ class InstanceManager:
             self.existing = existing
             self.minecraft_dir = None
             self.instance_dir = None
+            self._status_dir = status_dir
 
             # Launch the instance!
             self.launch(port, existing)
-
 
         def launch(self, port=None, existing=False):
             if not existing:
@@ -362,10 +373,12 @@ class InstanceManager:
 
                     if  client_ready:
                         break
-
-
+                
+                if not self.port:
+                    raise RuntimeError("Malmo failed to start the MalmoEnv server! Check the logs from the Minecraft process.");
                 logger.info("Minecraft process ready")
                  
+
                 if not port == self._port:
                     logger.warning("Tried to launch Minecraft on port {} but that port was taken, instead Minecraft is using port {}.".format(port, self.port))
                 # supress entire output, otherwise the subprocess will block
@@ -437,6 +450,9 @@ class InstanceManager:
             """
             self._destruct()
 
+        @property
+        def status_dir(self):
+            return self._status_dir
 
         @property
         def host(self):
@@ -469,7 +485,8 @@ class InstanceManager:
             rundir = os.path.join(minecraft_dir, 'run')
             
             cmd = [launch_script, '-port', str(port), '-env', '-runDir', rundir]
-
+            if self.status_dir:
+                cmd += ['-performanceDir', self.status_dir]
 
             logger.info("Starting Minecraft process: " + str(cmd))
             # print(cmd)
@@ -624,7 +641,14 @@ def launch_instance_manager():
     # Todo: Use name servers in the docker contexct (set up a docker compose?)
     # pyro4-ns
     try:
-
+        print("Removing the performance directory!")
+        try:
+            shutil.rmtree(InstanceManager.STATUS_DIR)
+        except:
+            pass
+        finally:
+            if not os.path.exists(InstanceManager.STATUS_DIR):
+                os.makedirs(InstanceManager.STATUS_DIR)
         print("autoproxy?",Pyro4.config.AUTOPROXY)
         # TODO: Share logger!
         

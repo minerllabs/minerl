@@ -113,6 +113,7 @@ class MineRLEnv(gym.Env):
         self.ns = '{http://ProjectMalmo.microsoft.com}'
         self.client_socket = None
 
+
         self.exp_uid = ""
         self.done = True
         self.synchronous = True
@@ -128,52 +129,19 @@ class MineRLEnv(gym.Env):
 
         self._already_closed = False
 
-        self.init(observation_space, action_space, port=port)
-
-    def init(self,  observation_space, action_space,  port=None):
-        """Initializes the MineRL Environment.
-
-        Note:
-            This is called automatically when the environment is made.
-
-        Args:
-            observation_space (gym.Space): The observation for the environment.
-            action_space (gym.Space): The action space for the environment.
-            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
-
-        Raises:
-            EnvException: If the Mission XML is malformed this is thrown.
-            ValueError: The space specified for this environment does not have a default action.
-            NotImplementedError: When multiagent environments are attempted to be used.
-        """
-        episode = 0
-        exp_uid = None
         if self.instance == None:
             if not port is None:
                 self.instance = InstanceManager.add_existing_instance(port)
             else:
                 self.instance = InstanceManager.get_instance()
-        # Parse XML file
-        with open(self.xml_file, 'r') as f:
-            xml_text = f.read()
-        xml = xml_text.replace('$(MISSIONS_DIR)', missions_dir)
 
-        # Bootstrap the environment if it hasn't been.
-        role = 0
+        self._set_up_spaces(observation_space, action_space)
 
-        if not xml.startswith('<Mission'):
-            i = xml.index("<Mission")
-            if i == -1:
-                raise EnvException("Mission xml must contain <Mission> tag.")
-            xml = xml[i:]
 
-        self.xml = etree.fromstring(xml)
-        self.role = role
-        if exp_uid is None:
-            self.exp_uid = str(uuid.uuid4())
-        else:
-            self.exp_uid = exp_uid
+        self.resets = 0
+        self.done = True
 
+    def _set_up_spaces(self, observation_space, action_space):
         self.action_space = action_space
         self.observation_space = observation_space
 
@@ -198,6 +166,48 @@ class MineRLEnv(gym.Env):
         boundmethd = _bind(self.action_space, noop_func)
         self.action_space.noop = boundmethd
 
+
+    def init(self):
+        """Initializes the MineRL Environment.
+
+        Note:
+            This is called automatically when the environment is made.
+
+        Args:
+            observation_space (gym.Space): The observation for the environment.
+            action_space (gym.Space): The action space for the environment.
+            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
+
+        Raises:
+            EnvException: If the Mission XML is malformed this is thrown.
+            ValueError: The space specified for this environment does not have a default action.
+            NotImplementedError: When multiagent environments are attempted to be used.
+        """
+        exp_uid = None
+
+        # Parse XML file
+        with open(self.xml_file, 'r') as f:
+            xml = f.read()
+        # Todo: This will fail when using a remote instance manager.
+        xml = xml.replace('$(MISSIONS_DIR)', missions_dir)
+        xml = xml.replace('$(ENV_NAME)', self.spec.id)
+        # Bootstrap the environment if it hasn't been.
+        role = 0
+
+        if not xml.startswith('<Mission'):
+            i = xml.index("<Mission")
+            if i == -1:
+                raise EnvException("Mission xml must contain <Mission> tag.")
+            xml = xml[i:]
+
+        self.xml = etree.fromstring(xml)
+        self.role = role
+        if exp_uid is None:
+            self.exp_uid = str(uuid.uuid4())
+        else:
+            self.exp_uid = exp_uid
+
+        
         # Force single agent
         self.agent_count = 1
         turn_based = self.xml.find(
@@ -205,10 +215,6 @@ class MineRLEnv(gym.Env):
         if turn_based:
             raise NotImplementedError(
                 "Turn based or multi-agent environments not supported.")
-
-        self.done = True
-
-        self.resets = episode
 
         e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com"
                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
