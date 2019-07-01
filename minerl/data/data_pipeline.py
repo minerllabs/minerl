@@ -310,6 +310,8 @@ class DataPipeline:
         except WindowsError as e:
             logger.info("Caught windows error {} - this is expected when closing the data pool".format(e))
             return None
+        except BrokenPipeError as e:
+            return None
         except Exception as e:
             logger.error("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
             return None
