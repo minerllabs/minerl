@@ -102,7 +102,7 @@ class DataPipeline:
             index = _map_to_dict(index, handler_list, key, space, result)
         return result
 
-    def seq_iter(self, num_epochs=-1, max_sequence_len=32, seed=None):
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None):
         """
         Returns a generator for iterating through sequences of the dataset.
         Loads num_workers files at once as defined in minerl.data.make() and return up to
