@@ -53,6 +53,10 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
+        self.action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
+        self.observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
+
+
     # Correct way
     # @staticmethod
     # def map_to_dict(handler_list: list, target_space: gym.spaces.space):
@@ -183,12 +187,6 @@ class DataPipeline:
             observation_dict = DataPipeline.map_to_dict(observation_seq[idx], gym_spec._kwargs['observation_space'])
 
             yield observation_dict, reward_seq[idx], done_seq[idx], action_dict
-
-    def action_space(self):
-        return gym.envs.registration.spec(self.environment)._kwargs['action_space']
-
-    def observation_space(self):
-        return gym.envs.registration.spec(self.environment)._kwargs['observation_space']
 
     ############################
     #     PRIVATE METHODS      #
