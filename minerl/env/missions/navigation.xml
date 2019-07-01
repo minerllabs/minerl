@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <About>
-        <Summary>Navigation through survival world.</Summary>
+        <Summary>$(ENV_NAME)</Summary>
     </About>
 
     <ModSettings>
@@ -48,7 +48,7 @@
                 <Width>64</Width>
                 <Height>64</Height>
             </VideoProducer>
-            
+            <FileBasedPerformanceProducer/>
             <ObservationFromFullInventory flat="false"/>
             <ObservationFromFullStats/>
             <HumanLevelCommands>

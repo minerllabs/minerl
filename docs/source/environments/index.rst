@@ -7,7 +7,7 @@ General Information
 The :code:`minerl` package includes several environments as follows.
 This page describes each of the incldued environments, provides usage samples,
 and describes the exact action and observation space provided by each
-environment.
+environment!
 
 
 
@@ -17,7 +17,7 @@ environment.
     be evaluated in :code:`MineRLObtainDiamond-v0` which has **sparse** rewards. See `MineRLObtainDiamond-v0`_.
 
 .. note::
-    Al environments offer a default no-op action via :code:`env.action_space.noop()`
+    All environments offer a default no-op action via :code:`env.action_space.noop()`
     and a random action via :code:`env.action_space.sample()`
 
 .. include:: handlers.rst

@@ -18,6 +18,7 @@
 # ------------------------------------------------------------------------------------------------
 
 import collections
+
 import copy
 import json
 import logging
@@ -38,11 +39,12 @@ import numpy as np
 from lxml import etree
 from minerl.env import comms
 from minerl.env.comms import retry
-from minerl.env.malmo import InstanceManager, malmo_version
+from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger_thread
 
 logger = logging.getLogger(__name__)
 
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
+
 
 
 class EnvException(Exception):
@@ -113,6 +115,7 @@ class MineRLEnv(gym.Env):
         self.ns = '{http://ProjectMalmo.microsoft.com}'
         self.client_socket = None
 
+
         self.exp_uid = ""
         self.done = True
         self.synchronous = True
@@ -123,57 +126,36 @@ class MineRLEnv(gym.Env):
 
         self.xml_file = xml
         self.has_init = False
-        self.instance = None
         self.had_to_clean = False
 
         self._already_closed = False
+        self.instance = self._get_new_instance(port)
 
-        self.init(observation_space, action_space, port=port)
 
-    def init(self,  observation_space, action_space,  port=None):
-        """Initializes the MineRL Environment.
+        self._setup_spaces(observation_space, action_space)
 
-        Note:
-            This is called automatically when the environment is made.
 
-        Args:
-            observation_space (gym.Space): The observation for the environment.
-            action_space (gym.Space): The action space for the environment.
-            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
+        self.resets = 0
+        self.done = True
 
-        Raises:
-            EnvException: If the Mission XML is malformed this is thrown.
-            ValueError: The space specified for this environment does not have a default action.
-            NotImplementedError: When multiagent environments are attempted to be used.
+    def _get_new_instance(self, port=None):
         """
-        episode = 0
-        exp_uid = None
-        if self.instance == None:
-            if not port is None:
-                self.instance = InstanceManager.add_existing_instance(port)
-            else:
-                self.instance = InstanceManager.get_instance()
-        # Parse XML file
-        with open(self.xml_file, 'r') as f:
-            xml_text = f.read()
-        xml = xml_text.replace('$(MISSIONS_DIR)', missions_dir)
+        Gets a new instance and sets up a logger if need be. 
+        """
 
-        # Bootstrap the environment if it hasn't been.
-        role = 0
-
-        if not xml.startswith('<Mission'):
-            i = xml.index("<Mission")
-            if i == -1:
-                raise EnvException("Mission xml must contain <Mission> tag.")
-            xml = xml[i:]
-
-        self.xml = etree.fromstring(xml)
-        self.role = role
-        if exp_uid is None:
-            self.exp_uid = str(uuid.uuid4())
+        if not port is None:
+            instance = InstanceManager.add_existing_instance(port)
         else:
-            self.exp_uid = exp_uid
+            instance = InstanceManager.get_instance(os.getpid())
+        
+        if InstanceManager.is_remote():
+            launch_queue_logger_thread(instance, self.is_closed)
+        
+        instance.launch()
+        return instance
 
+
+    def _setup_spaces(self, observation_space, action_space):
         self.action_space = action_space
         self.observation_space = observation_space
 
@@ -198,6 +180,48 @@ class MineRLEnv(gym.Env):
         boundmethd = _bind(self.action_space, noop_func)
         self.action_space.noop = boundmethd
 
+
+    def init(self):
+        """Initializes the MineRL Environment.
+
+        Note:
+            This is called automatically when the environment is made.
+
+        Args:
+            observation_space (gym.Space): The observation for the environment.
+            action_space (gym.Space): The action space for the environment.
+            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
+
+        Raises:
+            EnvException: If the Mission XML is malformed this is thrown.
+            ValueError: The space specified for this environment does not have a default action.
+            NotImplementedError: When multiagent environments are attempted to be used.
+        """
+        exp_uid = None
+
+        # Parse XML file
+        with open(self.xml_file, 'r') as f:
+            xml = f.read()
+        # Todo: This will fail when using a remote instance manager.
+        xml = xml.replace('$(MISSIONS_DIR)', missions_dir)
+        xml = xml.replace('$(ENV_NAME)', self.spec.id)
+        # Bootstrap the environment if it hasn't been.
+        role = 0
+
+        if not xml.startswith('<Mission'):
+            i = xml.index("<Mission")
+            if i == -1:
+                raise EnvException("Mission xml must contain <Mission> tag.")
+            xml = xml[i:]
+
+        self.xml = etree.fromstring(xml)
+        self.role = role
+        if exp_uid is None:
+            self.exp_uid = str(uuid.uuid4())
+        else:
+            self.exp_uid = exp_uid
+
+        
         # Force single agent
         self.agent_count = 1
         turn_based = self.xml.find(
@@ -205,10 +229,6 @@ class MineRLEnv(gym.Env):
         if turn_based:
             raise NotImplementedError(
                 "Turn based or multi-agent environments not supported.")
-
-        self.done = True
-
-        self.resets = episode
 
         e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com"
                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -436,7 +456,8 @@ class MineRLEnv(gym.Env):
                 "Connection with Minecraft client cleaned more than once; restarting.")
             if self.instance:
                 self.instance.kill()
-            self.instance = InstanceManager.get_instance()
+            self.instance = self._get_new_instance()
+                
             self.had_to_clean = False
         else:
             self.had_to_clean = True
@@ -535,7 +556,31 @@ class MineRLEnv(gym.Env):
     def _renderObs(self, obs):
         if self.viewer is None:
             from gym.envs.classic_control import rendering
-            self.viewer = rendering.SimpleImageViewer()
+            import pyglet
+            class ScaledWindowImageViewer(rendering.SimpleImageViewer):
+                def __init__(self, width, height):
+                    super().__init__(None, 640)
+
+                    if width > self.maxwidth:
+                        scale = self.maxwidth / width
+                        width = int(scale * width)
+                        height = int(scale * height)
+                    self.window = pyglet.window.Window(width=width, height=height, 
+                        display=self.display, vsync=False, resizable=True)            
+                    self.width = width
+                    self.height = height
+                    self.isopen = True
+
+                    @self.window.event
+                    def on_resize(width, height):
+                        self.width = width
+                        self.height = height
+
+                    @self.window.event
+                    def on_close():
+                        self.isopen = False
+
+            self.viewer = ScaledWindowImageViewer(self.width*4, self.height*4)
         self.viewer.imshow(obs)
         return self.viewer.isopen
 
@@ -543,6 +588,9 @@ class MineRLEnv(gym.Env):
         if mode == 'human':
             self._renderObs(self._last_pov)
         return self._last_pov
+
+    def is_closed(self):
+        return self._already_closed
 
     def close(self):
         """gym api close"""

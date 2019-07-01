@@ -17,7 +17,7 @@ coloredlogs.install(logging.DEBUG)
 #import minerl.env.bootstrap
 #minerl.env.bootstrap._check_port_avail = lambda _,__: True
 
-NUM_EPISODES=5
+NUM_EPISODES=1
 
 def main():
     """
@@ -44,7 +44,7 @@ def main():
                 random_act)
             # print(obs["compassAngle"])
             netr += reward
-            print(netr)
+            print(reward, netr)
             env.render()
 
 
