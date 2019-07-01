@@ -131,7 +131,7 @@ class DataPipeline:
         else:
             max_size = 16*self.number_of_workers
         data_queue = m.Queue(maxsize=max_size)
-        logger.debug(self.number_of_workers, max_size)
+        logger.debug(str(self.number_of_workers) + str(max_size))
 
         # Setup arguments for the workers.
         files = [(file_dir, max_sequence_len, data_queue) for file_dir in data_list]
