@@ -653,7 +653,7 @@ class InstanceManager:
                 self.locked
             ))
 
-        def _acquire_lock(self, owner):
+        def _acquire_lock(self, owner=None):
             self.locked = True
             self.owner = owner
 
@@ -742,15 +742,13 @@ def launch_instance_manager():
             if not os.path.exists(InstanceManager.STATUS_DIR):
                 os.makedirs(InstanceManager.STATUS_DIR)
         print("autoproxy?",Pyro4.config.AUTOPROXY)
-        # TODO: Share logger!
         InstanceManager.REMOTE = True
-        Pyro4.config.COMMTIMEOUT = 1.5      
-        # 1.5 seconds
-        # Pyro4.config.THREADPOOL_SIZE_MIN = 10
+        Pyro4.config.COMMTIMEOUT = InstanceManager.KEEP_ALIVE_PYRO_FREQUENCY  
+
         
         Pyro4.Daemon.serveSimple(
             {
-                InstanceManager: "async." + INSTANCE_MANAGER_PYRO
+                InstanceManager: INSTANCE_MANAGER_PYRO
             },
             ns = True)
         
@@ -771,7 +769,7 @@ class CustomAsyncRemoteMethod(Pyro4.core._AsyncRemoteMethod):
 if os.getenv(MINERL_INSTANCE_MANAGER_REMOTE):
     sys.excepthook = Pyro4.util.excepthook  
     Pyro4.core._AsyncRemoteMethod = CustomAsyncRemoteMethod     
-    InstanceManager = Pyro4.Proxy("PYRONAME:async." + INSTANCE_MANAGER_PYRO )
+    InstanceManager = Pyro4.Proxy("PYRONAME:" + INSTANCE_MANAGER_PYRO )
     InstanceManager._pyroAsync(async=True)
 
     # Set up the keep alive signal.
