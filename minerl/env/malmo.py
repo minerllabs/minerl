@@ -762,11 +762,8 @@ class CustomAsyncRemoteMethod(Pyro4.core._AsyncRemoteMethod):
         res = super().__call__(*args, **kwargs)
         val = res.value
         if isinstance(val, Pyro4.Proxy):
-            if sys.version_info < (3, 7):
-                val._pyroAsync(async=True)
-            else:
-                val._pyroAsync(asynchronous=True)
-
+            val._pyroAsync(asynchronous=True)
+ 
         return val
 
 
@@ -774,10 +771,7 @@ if os.getenv(MINERL_INSTANCE_MANAGER_REMOTE):
     sys.excepthook = Pyro4.util.excepthook  
     Pyro4.core._AsyncRemoteMethod = CustomAsyncRemoteMethod     
     InstanceManager = Pyro4.Proxy("PYRONAME:" + INSTANCE_MANAGER_PYRO )
-    if sys.version_info < (3, 7):
-        InstanceManager._pyroAsync(async=True)
-    else:
-        InstanceManager._pyroAsync(asynchronous=True)
+    InstanceManager._pyroAsync(asynchronous=True)
 
     # Set up the keep alive signal.
     logger.debug("Starting client keep-alive server...")
