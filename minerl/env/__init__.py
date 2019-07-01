@@ -227,11 +227,11 @@ obtain_action_space = spaces.Dict({
     "sprint": spaces.Discrete(2),
     "attack": spaces.Discrete(2),
     "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-    "place": spaces.Enum('none', 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'other'),
+    "place": spaces.Enum('none', 'air', 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'other'),
     "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'other'),
-    "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table', 'other'),
-    "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace', 'other'),
-    "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal', 'other')})
+    "craft": spaces.Enum('none', 'air', 'torch', 'stick', 'planks', 'crafting_table', 'other'),
+    "nearbyCraft": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace', 'other'),
+    "nearbySmelt": spaces.Enum('none', 'air', 'iron_ingot', 'coal', 'other')})
 
 
 register(
