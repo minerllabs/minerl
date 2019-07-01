@@ -102,7 +102,7 @@ class DataPipeline:
             index = _map_to_dict(index, handler_list, key, space, result)
         return result
 
-    def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None):
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32, seed=None):
         """
         Returns a generator for iterating through sequences of the dataset.
         Loads num_workers files at once as defined in minerl.data.make() and return up to
@@ -210,7 +210,7 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, environment=None):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, environment=None, debug=False):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
@@ -321,7 +321,7 @@ class DataPipeline:
             return None
         except BrokenPipeError:
             return None
-        except BrokenPipeError as e:
+        except BrokenPipeError:
             return None
         except Exception as e:
             logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
