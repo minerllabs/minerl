@@ -121,7 +121,7 @@ navigate_action_space = spaces.Dict({
     "sprint": spaces.Discrete(2),
     "attack": spaces.Discrete(2),
     "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
-    "place": spaces.Enum('none', 'dirt')})
+    "place": spaces.Enum('none', 'dirt', 'other')})
 
 navigate_observation_space = spaces.Dict({
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
@@ -227,7 +227,7 @@ obtain_action_space = spaces.Dict({
     "sprint": spaces.Discrete(2),
     "attack": spaces.Discrete(2),
     "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-    "place": spaces.Enum('none', 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
+    "place": spaces.Enum('none', 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'other'),
     "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
     "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
     "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
@@ -476,7 +476,7 @@ register(
             "sprint": spaces.Discrete(2),
             "attack": spaces.Discrete(2),
             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-            "place": spaces.Enum('none', 'dirt', 'log', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
+            "place": spaces.Enum('none', 'dirt', 'log', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'other'),
             "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
             "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
