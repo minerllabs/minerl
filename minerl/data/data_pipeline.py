@@ -101,7 +101,7 @@ class DataPipeline:
             index = _map_to_dict(index, handler_list, key, space, result)
         return result
 
-    def seq_iter(self, num_epochs=-1, max_sequence_len=32, seed=None):
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32, seed=None, debug=False):
         """
         Returns a generator for iterating through sequences of the dataset.
         Loads num_workers files at once as defined in minerl.data.make() and return up to
@@ -117,8 +117,8 @@ class DataPipeline:
         Generates:
             observation_dict, reward_list, done_list, action_dict
         """
-
-        logger.info("Starting seq iterator on {}".format(self.data_dir))
+        if debug:
+            logger.info("Starting seq iterator on {}".format(self.data_dir))
         if seed is not None:
             np.random.seed(seed)
         data_list = self._get_all_valid_recordings(self.data_dir)
@@ -165,8 +165,8 @@ class DataPipeline:
                         break
                     else:
                         time.sleep(0.1)
-
-        logger.info("Epoch complete.")
+        if debug:
+            logger.info("Epoch complete.")
 
     @staticmethod
     def load_data(file_dir: str, environment: str, skip_interval=0,):
@@ -208,7 +208,7 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, environment=None):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, environment=None, debug=False):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
@@ -218,6 +218,9 @@ class DataPipeline:
         :param environment: environment used to wrap returned data as dict, or None to return raw data
         :return:
         """
+
+        if debug:
+            logger.info("Loading from file {}".format(file_dir))
 
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
         numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
@@ -266,7 +269,7 @@ class DataPipeline:
                             frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
                             frame_num += 1
                 except Exception as err:
-                    print("error reading capture device:", err)
+                    logger.error("error reading capture device:", err)
                     raise err
 
                 if len(frames) == 0:
@@ -295,11 +298,10 @@ class DataPipeline:
                     if frame_num == max_frame_num:
                         done_data[-1] = True
                 except Exception as err:
-                    print("error drawing batch from npz file:", err)
+                    logger.error("error drawing batch from npz file:", err)
                     raise err
 
                 batches = [action_data, observation_data, [reward_data], [np.array(done_data, dtype=np.bool)]]
-
 
                 if data_queue is None:
                     return batches
@@ -312,12 +314,14 @@ class DataPipeline:
             # logger.error("Finished")
             return None
         except WindowsError as e:
-            logger.info("Caught windows error {} - this is expected when closing the data pool".format(e))
+            if debug:
+                logger.info("Caught windows error {} - this is expected when closing the data pool".format(e))
             return None
-        except BrokenPipeError as e:
+        except BrokenPipeError:
             return None
         except Exception as e:
-            logger.error("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
+            if debug:
+                logger.error("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
             return None
 
     @staticmethod
