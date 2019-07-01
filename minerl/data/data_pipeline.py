@@ -321,6 +321,8 @@ class DataPipeline:
             return None
         except BrokenPipeError:
             return None
+        except BrokenPipeError as e:
+            return None
         except Exception as e:
             logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
             return None
