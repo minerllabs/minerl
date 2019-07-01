@@ -190,6 +190,12 @@ class DataPipeline:
 
             yield observation_dict, reward_seq[idx], done_seq[idx], action_dict
 
+    def action_space(self):
+        return gym.envs.registration.spec(self.environment)._kwargs['action_space']
+
+    def observation_space(self):
+        return gym.envs.registration.spec(self.environment)._kwargs['observation_space']
+
     ############################
     #     PRIVATE METHODS      #
     ############################
