@@ -1,3 +1,4 @@
+import functools
 import json
 import logging
 import multiprocessing
@@ -141,8 +142,8 @@ class DataPipeline:
             # for arg1, arg2, arg3 in files:
             #     DataPipeline._load_data_pyfunc(arg1, arg2, arg3)
             #     break
-
-            map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files)
+            load_func = functools.partial(DataPipeline._load_data_pyfunc, debug=debug)
+            map_promise = self.processing_pool.starmap_async(load_func, files)
 
             # random_queue = PriorityQueue(maxsize=pool_size)
 
@@ -169,7 +170,7 @@ class DataPipeline:
             logger.info("Epoch complete.")
 
     @staticmethod
-    def load_data(file_dir: str, environment: str, skip_interval=0,):
+    def load_data(file_dir: str, environment: str, skip_interval=0, debug=False):
         """
         Loading mechanism for loading a trajectory from a file as a generator
         :param file_dir: file path to data directory
@@ -177,7 +178,8 @@ class DataPipeline:
         :param skip_interval: NOT IMPLEMENTED how many frames to skip between observations
         :return: iterator over files
         """
-        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval, environment=environment)
+        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval, environment=environment,
+                                             debug=debug)
         action_seq, observation_seq, reward_seq, done_seq = seq
 
         for idx in range(len(reward_seq[0])):
