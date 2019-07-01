@@ -307,6 +307,8 @@ class DataPipeline:
                     return batches
                 else:
                     data_queue.put(batches)
+                    logger.debug("Enqueued from file {}".format(file_dir))
+
 
                 if not ret:
                     break
