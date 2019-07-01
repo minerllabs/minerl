@@ -210,7 +210,7 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, environment=None, debug=False):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, environment=None):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
@@ -318,8 +318,6 @@ class DataPipeline:
             return None
         except WindowsError as e:
             logger.debug("Caught windows error {} - this is expected when closing the data pool".format(e))
-            return None
-        except BrokenPipeError:
             return None
         except BrokenPipeError:
             return None
