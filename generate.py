@@ -279,7 +279,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
                     for i in range(32):
                         if str(tick - i) in univ_json and 'slots' in univ_json[str(tick - i)]:
-                            slot = [elem.values() for elem in univ_json[str(tick - i)]['slots']['inventory']
+                            slot = [elem.values() for elem in univ_json[str(tick - i)]['slots']['gui']['slots']
                                     if 'item.porkchopCooked' in elem.values()
                                     or 'item.beefCooked' in elem.values()
                                     or 'item.muttonCooked' in elem.values()]
@@ -304,7 +304,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
                     for i in range(32):
                         if str(tick - i) in univ_json and 'slots' in univ_json[str(tick - i)]:
-                            slot = [elem.values() for elem in univ_json[str(tick - i)]['slots']['inventory']
+                            slot = [elem.values() for elem in univ_json[str(tick - i)]['slots']['gui']['slots']
                                     if 'item.bed.black' in elem.values()
                                     or 'item.bed.white' in elem.values()
                                     or 'item.bed.yellow' in elem.values()]
