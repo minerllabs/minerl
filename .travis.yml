@@ -33,3 +33,11 @@ script:
 branches:
   only:
   - master
+  
+deploy:
+  provider: pypi
+  user: minerl-test
+  server: https://testpypi.python.org/pypi # Remove for deployment to official PyPi repo
+  on:
+    tags: true
+ 
