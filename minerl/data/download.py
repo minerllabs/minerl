@@ -3,12 +3,15 @@ from urllib.error import URLError
 from urllib.error import HTTPError
 
 import requests
+import shutil
 import tarfile
 import pySmartDL
 import logging
 
+from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
+logger = logging.getLogger(__name__)
 
-def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0, update_environment_variables=True, disable_cache=False):
+def download(directory=None, resolution='low', texture_pack= 0, update_environment_variables=True, disable_cache=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
@@ -27,6 +30,26 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
     elif update_environment_variables:
         os.environ['MINERL_DATA_ROOT'] = os.path.expanduser(
             os.path.expandvars(os.path.normpath(directory)))
+
+    
+    if os.path.exists(directory): 
+        try:
+            assert_version(directory)
+        except RuntimeError as r:
+            if r.comparison == "less":
+                raise r
+            logger.error(str(r))
+            logger.error("Deleting existing data and forcing a data update!")
+            try:
+                shutil.rmtree(directory)
+            except Exception as e:
+                logger.error("Could not delete {}. Do you have permission?".format(directory))
+                raise e
+            try:
+                os.makedirs(directory)
+            except:
+                pass
+
 
     # TODO pull JSON defining dataset URLS from webserver instead of hard-coding
     # TODO add hashed to website to verify downloads for mirrors
@@ -47,7 +70,7 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
     else:
         download_path = None
 
-    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logging.getLogger(__name__), dest=download_path)
+    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path)
 
     obj.add_hash_verification('md5', md5_hash)
     try:
@@ -79,5 +102,10 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
 
     if disable_cache:
         os.remove(obj.get_dest())
+
+    try:
+        assert_version(directory)
+    except RuntimeError as r:
+        logger.error(str(r))
 
     return directory

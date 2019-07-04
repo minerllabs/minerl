@@ -18,7 +18,7 @@ def step_data(environment='MineRLTreechop-v0'):
 
     # Iterate through batches of data
     counter = 0
-    for act, obs, rew in itertools.islice(d.batch_iter(3, None), 600):
+    for act, obs, rew, done in d.seq_iter(num_epochs=-1, max_sequence_len=-1, queue_size=1, seed=1234):
         print("Act shape:", len(act), act)
         print("Obs shape:", len(obs), obs)
         print("Rew shape:", len(rew), rew)
