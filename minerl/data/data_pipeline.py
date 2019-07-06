@@ -17,6 +17,9 @@ import gym
 
 logger = logging.getLogger(__name__)
 
+from minerl.data.version import assert_version, assert_prefix
+
+
 if os.name != "nt":
     class WindowsError(OSError):
         pass
@@ -336,7 +339,9 @@ class DataPipeline:
         # add dir to directorylist if it contains .txt files
         if len([f for f in os.listdir(path) if f.endswith('.mp4')]) > 0:
             if len([f for f in os.listdir(path) if f.endswith('.npz')]) > 0:
+                assert_prefix(path)
                 directoryList.append(path)
+
 
         for d in os.listdir(path):
             new_path = os.path.join(path, d)

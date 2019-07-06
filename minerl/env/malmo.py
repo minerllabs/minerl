@@ -22,10 +22,15 @@ import locale
 import logging
 import multiprocessing
 import os
-import pathlib
+import traceback
+import pathlib 
+import Pyro4.core
+
+ 
 import shutil
 import socket
 import struct
+import collections
 import subprocess
 import sys
 import tempfile
@@ -35,6 +40,7 @@ from contextlib import contextmanager
 # from exceptions import NotImplementedError
 from multiprocessing import process
 
+import uuid
 import psutil
 import Pyro4
 from minerl.env import comms
@@ -61,7 +67,11 @@ class InstanceManager:
     """
     MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
     SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Schemas') 
+    STATUS_DIR = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'performance')
     MAXINSTANCES = 10
+    KEEP_ALIVE_PYRO_FREQUENCY = 5
+    REMOTE = False
+
     DEFAULT_IP = "localhost"
     _instance_pool = []
     ninstances = 0
@@ -70,7 +80,7 @@ class InstanceManager:
     managed = True
 
     @classmethod
-    def get_instance(cls):
+    def get_instance(cls, pid):
         """
         Gets an instance from the instance manager. This method is a context manager
         and therefore when the context is entered the method yields a InstanceManager.Instance
@@ -86,24 +96,33 @@ class InstanceManager:
         # Find an available instance.
         for inst in cls._instance_pool:
             if not inst.locked:
-                inst._acquire_lock()
+                inst._acquire_lock(pid)
+    
 
                 if hasattr(cls, "_pyroDaemon"):
                     cls._pyroDaemon.register(inst)
-                    Pyro4.current_context.track_resource(inst)
+                    
 
                 return inst
         # Otherwise make a new instance if possible
         if cls.managed:
             if len(cls._instance_pool) < cls.MAXINSTANCES:
                 cls.ninstances += 1
-                inst = cls.Instance(cls._get_valid_port())
+                # Make the status directory.
+
+                if hasattr(cls, "_pyroDaemon"):
+                    status_dir = os.path.join(cls.STATUS_DIR, 'mc_{}'.format(cls.ninstances))
+                    if not os.path.exists(status_dir):
+                        os.makedirs(status_dir)
+                else:
+                    status_dir = None
+
+                inst = cls.Instance(cls._get_valid_port(), status_dir=status_dir)
                 cls._instance_pool.append(inst)
-                inst._acquire_lock()
+                inst._acquire_lock(pid)
 
                 if hasattr(cls, "_pyroDaemon"):
                     cls._pyroDaemon.register(inst)
-                    Pyro4.current_context.track_resource(inst)
 
                 return inst
  
@@ -133,11 +152,31 @@ class InstanceManager:
     @classmethod
     def add_existing_instance(cls, port):
         assert cls._is_port_taken(port), "No Malmo mod utilizing the port specified."
-        instance = InstanceManager.Instance(port=port, existing=True)
+        instance = InstanceManager.Instance(port=port, existing=True, status_dir=status_dir)
         cls._instance_pool.append(instance)
         cls.ninstances += 1
         return instance
 
+    @classmethod
+    def add_keep_alive(cls,_pid, _callback):
+        logger.debug("Recieved keep-alive callback from client {}. Starting thread.".format(_pid))
+        def check_client_connected(client_pid, keep_alive_proxy):
+            logger.debug("Client keep-alive connection monitor started for {}.".format(client_pid))
+            while True:
+                time.sleep(InstanceManager.KEEP_ALIVE_PYRO_FREQUENCY)
+                try:
+                    keep_alive_proxy.call()
+                except:
+                    bad_insts = [inst for inst in cls._instance_pool if inst.owner == client_pid]
+                    for inst in bad_insts:
+                        inst.close()
+
+        keep_alive_thread = threading.Thread(
+            target=check_client_connected,
+            args=(_pid, _callback)
+        )
+        keep_alive_thread.setDaemon(True)
+        keep_alive_thread.start()
 
     @staticmethod
     def _is_port_taken(port, address='0.0.0.0'):
@@ -265,6 +304,10 @@ class InstanceManager:
                     logger.info("Minecraft process {} survived SIGKILL; giving up".format(p.pid))
 
 
+    @classmethod
+    def is_remote(cls):
+        return cls.REMOTE
+
     @Pyro4.expose
     class Instance(object):
         """
@@ -279,27 +322,34 @@ class InstanceManager:
 
         This scheme has a single failure point of the process dying before the watcher process is launched.
         """
+        MAX_PIPE_LENGTH = 500
 
-        def __init__(self, port=None, existing=False):
+        def __init__(self, port=None, existing=False, status_dir=None): 
             """
             Launches the subprocess.
             """
             self.running = False
+            self._starting = True
             self.minecraft_process = None
             self.watcher_process = None
             self._port = None
             self._host = InstanceManager.DEFAULT_IP
             self.locked = False
+            self.uuid = str(uuid.uuid4()).replace("-","")[:6]
             self.existing = existing
             self.minecraft_dir = None
             self.instance_dir = None
+            self._status_dir = status_dir
+            self.owner = None
 
-            # Launch the instance!
-            self.launch(port, existing)
+            self._setup_logging()
+            self._target_port = port
+            
+        def launch(self):
+            port = self._target_port
+            self._starting = True
 
-
-        def launch(self, port=None, existing=False):
-            if not existing:
+            if not self.existing:
                 if not port:
                     port = InstanceManager._get_valid_port()
 
@@ -341,13 +391,13 @@ class InstanceManager:
                         error_str = ""
                         for l in lines:
                             spline = "\n".join(l.split("\n")[:-1])
-                            logger.error(spline)
+                            self._logger.error(spline)
                             error_str += spline +"\n"
                         # Throw an exception!
                         raise EOFError(error_str + "\n\nMinecraft process finished unexpectedly. There was an error with Malmo.")
                     
                     lines.append(line)
-                    logger.debug("\n".join(line.split("\n")[:-1]))
+                    self._logger.debug("\n".join(line.split("\n")[:-1]))
                     
 
                     MALMOENVPORTSTR =  "***** Start MalmoEnvServer on port " 
@@ -362,12 +412,14 @@ class InstanceManager:
 
                     if  client_ready:
                         break
-
-
-                logger.info("Minecraft process ready")
+                
+                if not self.port:
+                    raise RuntimeError("Malmo failed to start the MalmoEnv server! Check the logs from the Minecraft process.");
+                self._logger.info("Minecraft process ready")
                  
+
                 if not port == self._port:
-                    logger.warning("Tried to launch Minecraft on port {} but that port was taken, instead Minecraft is using port {}.".format(port, self.port))
+                    self._logger.warning("Tried to launch Minecraft on port {} but that port was taken, instead Minecraft is using port {}.".format(port, self.port))
                 # supress entire output, otherwise the subprocess will block
                 # NB! there will be still logs under Malmo/Minecraft/run/logs
                 # FNULL = open(os.devnull, 'w')
@@ -376,7 +428,7 @@ class InstanceManager:
                     if not os.path.exists(os.path.join(logdir, 'logs')):
                             os.makedirs((os.path.join(logdir, 'logs')))
 
-                    file_path = os.path.join(logdir, 'logs', 'minecraft_proc_{}.log'.format(self._port))
+                    file_path = os.path.join(logdir, 'logs', 'mc_{}.log'.format(self._target_port - 9000))
 
                     logger.info("Logging output of Minecraft to {}".format(file_path))
 
@@ -400,11 +452,11 @@ class InstanceManager:
                             if 'STDERR' in linestr or 'ERROR' in linestr:
                                 # Opportune place to suppress harmless MC errors.
                                 if not ('hitResult' in linestr):
-                                    logger.error(linestr)
+                                    self._logger.error(linestr)
                             elif 'LOGTOPY' in linestr:
-                                logger.info(linestr)
+                                self._logger.info(linestr)
                             else:
-                                logger.debug(linestr)
+                                self._logger.debug(linestr)
                             mine_log.write(line)
                             mine_log.flush()
                     finally:
@@ -422,6 +474,8 @@ class InstanceManager:
 
             self.running = True
 
+            self._starting = False
+
             # Make a hook to kill
             atexit.register(lambda: self._destruct())
 
@@ -435,8 +489,11 @@ class InstanceManager:
         def close(self):
             """Closes the object.
             """
-            self._destruct()
+            self._destruct(should_close=True)
 
+        @property
+        def status_dir(self):
+            return self._status_dir
 
         @property
         def host(self):
@@ -445,6 +502,26 @@ class InstanceManager:
         @property
         def port(self):
             return self._port
+
+        def get_output(self):
+            while self.running or self._starting:
+                try:
+                    level, line = self._output_stream.pop()
+                    # print("didnt' get it")
+                    return (line.levelno, line.getMessage(), line.name), self.running or self._starting
+                except IndexError:
+                    time.sleep(0.1)
+            else:
+                return None, False
+
+        def _setup_logging(self):
+            # Set up an output stream handler.
+            self._logger = logging.getLogger(__name__ + ".instance.{}".format(str(self.uuid)))
+            self._output_stream = collections.deque(maxlen=self.MAX_PIPE_LENGTH)
+            for level in [logging.DEBUG]:
+                handler = comms.QueueLogger(self._output_stream)
+                handler.setLevel(level)
+                self._logger.addHandler(handler)
 
         ###########################
         ##### PRIVATE METHODS #####
@@ -469,9 +546,10 @@ class InstanceManager:
             rundir = os.path.join(minecraft_dir, 'run')
             
             cmd = [launch_script, '-port', str(port), '-env', '-runDir', rundir]
+            if self.status_dir:
+                cmd += ['-performanceDir', self.status_dir]
 
-
-            logger.info("Starting Minecraft process: " + str(cmd))
+            self._logger.info("Starting Minecraft process: " + str(cmd))
             # print(cmd)
 
             if replaceable:
@@ -492,7 +570,7 @@ class InstanceManager:
             Launches the process watcher for the parent and minecraft process.
             """
             parent_conn, child_conn = multiprocessing.Pipe()
-            logger.info("Starting process watcher for process {} @ {}:{}".format(child_pid, child_host, child_port))
+            self._logger.info("Starting process watcher for process {} @ {}:{}".format(child_pid, child_host, child_port))
             p = multiprocessing.Process(
                 target=InstanceManager._process_watcher, args=(
                     parent_pid, child_pid, 
@@ -522,7 +600,6 @@ class InstanceManager:
                 sock.close()
                 return ok == 1
             except Exception as e:
-                print(e)
                 logger.error("Attempted to send kill command to minecraft process and failed.")
                 return False
 
@@ -532,11 +609,15 @@ class InstanceManager:
             """
             self._destruct()
 
-        def _destruct(self):
+        def _destruct(self, should_close=False):
             """
             Do our best as the parent process to destruct and kill the child + watcher.
             """
-            if self.running and not self.existing:
+            if (self.running or should_close) and not self.existing:
+                self.running = False
+                self._starting = False
+
+
                 # Wait for the process to start.
                 time.sleep(1)
                 # kill the minecraft process and its subprocesses
@@ -560,24 +641,25 @@ class InstanceManager:
                 if self in InstanceManager._instance_pool:
                     InstanceManager._instance_pool.remove(self)
                     self.release_lock()
-                
-                self.running = False
             pass
 
         
         def __repr__(self):
-            return ("Malmo[proc={}, addr={}:{}, locked={}]".format(
+            return ("Malmo[{}, proc={}, addr={}:{}, locked={}]".format(
+                self.uuid,
                 self.minecraft_process.pid if not self.existing else "EXISTING",
                 self.ip,
                 self.port,
                 self.locked
             ))
 
-        def _acquire_lock(self):
+        def _acquire_lock(self, owner=None):
             self.locked = True
+            self.owner = owner
 
         def release_lock(self):
             self.locked = False
+            self.owner = None
 
 
 def _check_for_launch_errors(line):
@@ -618,15 +700,51 @@ def _check_for_launch_errors(line):
             "If all else fails, JUST PUT THIS IN A DOCKER CONTAINER! :)")
 
 
+
+def launch_queue_logger_thread(output_producer, should_end):
+    def queue_logger_thread(out_prod, should_end):
+        while not should_end():
+            try:
+                line, running = out_prod.get_output()
+                if not running:
+                    break
+                if line:
+                    level = line[0]
+                    record = line[1]
+                    name = line[2]
+                    lgr = logging.getLogger(name)
+                    lgr.log(level, record)
+            except Exception as e:
+                print(e)
+                break
+        
+    
+    thread = threading.Thread(
+        target=queue_logger_thread,
+        args=(output_producer, should_end))
+    thread.setDaemon(True)
+    thread.start()
+            
+
+
 def launch_instance_manager():
     """Defines the entry point for the remote procedure call server.
     """
     # Todo: Use name servers in the docker contexct (set up a docker compose?)
     # pyro4-ns
     try:
-
+        print("Removing the performance directory!")
+        try:
+            shutil.rmtree(InstanceManager.STATUS_DIR)
+        except:
+            pass
+        finally:
+            if not os.path.exists(InstanceManager.STATUS_DIR):
+                os.makedirs(InstanceManager.STATUS_DIR)
         print("autoproxy?",Pyro4.config.AUTOPROXY)
-        # TODO: Share logger!
+        InstanceManager.REMOTE = True
+        Pyro4.config.COMMTIMEOUT = InstanceManager.KEEP_ALIVE_PYRO_FREQUENCY  
+
         
         Pyro4.Daemon.serveSimple(
             {
@@ -638,6 +756,43 @@ def launch_instance_manager():
         print(e)
         print("Start the Pyro name server with pyro4-ns and re-run this script.")
 
+
+class CustomAsyncRemoteMethod(Pyro4.core._AsyncRemoteMethod):
+    def __call__(self, *args, **kwargs):
+        res = super().__call__(*args, **kwargs)
+        val = res.value
+        if isinstance(val, Pyro4.Proxy):
+            val._pyroAsync(asynchronous=True)
+ 
+        return val
+
+
 if os.getenv(MINERL_INSTANCE_MANAGER_REMOTE):
-    sys.excepthook = Pyro4.util.excepthook        
+    sys.excepthook = Pyro4.util.excepthook  
+    Pyro4.core._AsyncRemoteMethod = CustomAsyncRemoteMethod     
     InstanceManager = Pyro4.Proxy("PYRONAME:" + INSTANCE_MANAGER_PYRO )
+    InstanceManager._pyroAsync(asynchronous=True)
+
+    # Set up the keep alive signal.
+    logger.debug("Starting client keep-alive server...")
+    def keep_alive_pyro():
+        class KeepAlive(object):
+            @Pyro4.expose
+            @Pyro4.callback
+            def call(self):
+                return True
+
+        daemon = Pyro4.core.Daemon()
+        callback = KeepAlive()
+        daemon.register(callback)
+
+        InstanceManager.add_keep_alive(os.getpid(), callback)
+
+        logger.debug("Client keep-alive server started.")
+        daemon.requestLoop()
+
+    thread = threading.Thread(target=keep_alive_pyro)
+    thread.setDaemon(True)
+    thread.start()
+        
+        
