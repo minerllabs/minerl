@@ -13,14 +13,17 @@ def assert_version(data_directory):
         with open(version_file, 'r') as f:
             try:
                 txt = int(f.read())
-            except Exception as e:
+            except FileNotFoundError:
                 raise AssertionError("less")
+            except Exception as e:
+                print('VERSION number not found in data folder')
+                raise e
             current_version = txt
 
         assert DATA_VERSION <= txt, "more"
         assert DATA_VERSION >= txt, "less"
     except AssertionError as e:
-        _raise_error(e,data_directory)
+        _raise_error(e, data_directory)
 
 
 def assert_prefix(tail):
