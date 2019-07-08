@@ -11,6 +11,7 @@ if __name__=="__main__":
     import minerl
     import os
     if os.name == 'nt':
+        import msvcrt
         getch = msvcrt
     else:
         import getch
