@@ -172,22 +172,25 @@ class DataPipeline:
                         time.sleep(0.1)
         logger.debug("Epoch complete.")
 
-    @staticmethod
-    def load_data(file_dir: str, environment: str, skip_interval=0, debug=False):
+    def load_data(self, stream_name: str, skip_interval=0):
         """
         Loading mechanism for loading a trajectory from a file as a generator
-        :param file_dir: file path to data directory
-        :param environment: the environment name e.g. MineRLObtainDiamond-v0
+        :param stream_name: name of stream to load or the file path to the file to load
         :param skip_interval: NOT IMPLEMENTED how many frames to skip between observations
         :return: iterator over files
         """
-        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval, environment=environment,
-                                             debug=debug)
+        if '/' in stream_name:
+            file_dir = stream_name
+        else:
+            file_dir = os.path.join(self.data_dir, self.environment, stream_name)
+        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval,
+                                             environment=self.environment)
         action_seq, observation_seq, reward_seq, done_seq = seq
 
         for idx in range(len(reward_seq[0])):
             # Wrap in dict
-            gym_spec = gym.envs.registration.spec(environment)
+
+            gym_spec = gym.envs.registration.spec(self.environment)
             action_dict = DataPipeline.map_to_dict(action_seq[idx], gym_spec._kwargs['action_space'])
             observation_dict = DataPipeline.map_to_dict(observation_seq[idx], gym_spec._kwargs['observation_space'])
 
@@ -341,7 +344,6 @@ class DataPipeline:
             if len([f for f in os.listdir(path) if f.endswith('.npz')]) > 0:
                 assert_prefix(path)
                 directoryList.append(path)
-
 
         for d in os.listdir(path):
             new_path = os.path.join(path, d)
