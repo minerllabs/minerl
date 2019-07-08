@@ -9,6 +9,7 @@ To use:
 if __name__=="__main__":
     import pyglet
     import minerl
+    import os
     if os.name == 'nt':
         getch = msvcrt
     else:
@@ -17,7 +18,6 @@ if __name__=="__main__":
     import argparse
     import logging
     import coloredlogs
-    import os
     import time
     import tqdm 
     import numpy as np
