@@ -12,3 +12,7 @@ output/
 .vscode/
 .idea/
 *.log*
+.mixin.out/
+errors.txt
+local_out/
+output/
