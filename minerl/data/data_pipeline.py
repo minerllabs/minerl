@@ -189,12 +189,13 @@ class DataPipeline:
 
         for idx in range(len(reward_seq[0])):
             # Wrap in dict
-
+            action_slice = [x[idx] for x in action_seq]
+            observation_slice = [x[idx] for x in observation_seq]
             gym_spec = gym.envs.registration.spec(self.environment)
-            action_dict = DataPipeline.map_to_dict(action_seq[idx], gym_spec._kwargs['action_space'])
-            observation_dict = DataPipeline.map_to_dict(observation_seq[idx], gym_spec._kwargs['observation_space'])
+            action_dict = DataPipeline.map_to_dict(action_slice, gym_spec._kwargs['action_space'])
+            observation_dict = DataPipeline.map_to_dict(observation_slice, gym_spec._kwargs['observation_space'])
 
-            yield observation_dict, reward_seq[idx], done_seq[idx], action_dict
+            yield observation_dict, reward_seq[0][idx], done_seq[0][idx], action_dict
 
     ############################
     #     PRIVATE METHODS      #
