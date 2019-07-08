@@ -182,7 +182,7 @@ class DataPipeline:
         if '/' in stream_name:
             file_dir = stream_name
         else:
-            file_dir = os.path.join(self.data_dir, self.environment, stream_name)
+            file_dir = os.path.join(self.data_dir, stream_name)
         seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval,
                                              environment=self.environment)
         action_seq, observation_seq, reward_seq, done_seq = seq
