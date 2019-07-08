@@ -1,3 +1,11 @@
+"""A module for viewing individual streams from the dataset!
+
+To use:
+```
+    python3 -m minerl.stream_viewier <environment name> <trajectory name>
+```
+"""
+
 if __name__=="__main__":
     import pyglet
     import minerl
