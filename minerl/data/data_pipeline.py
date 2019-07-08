@@ -246,26 +246,42 @@ class DataPipeline:
 
             num_states = len(reward_vec)
 
+            # TEMP - calculate number of frmaes
+            frames = []
+            ret, frame_num = True, 0
+            while ret:
+                ret, frame = cap.read()
+                if ret:
+                    cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
+                    frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
+                    frame_num += 1
+
+            max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            if max_seq_len == -1:
+                stop_idx = 0
+                frames = frames[frame_num - num_states:]
+            else:
+                frames = []
+                frame_num, stop_idx = 0, 0
+
+                # Advance video capture past first i-frame to start of experiment
+                cap = cv2.VideoCapture(video_path)
+                for _ in range(max_frame_num - num_states):
+                    ret, _ = cap.read()
+                    frame_num += 1
+                    if not ret:
+                        return None
+
             # Rendered Frames
-            frame_num, stop_idx = 0, 0
-            max_frame_num = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             observables = list(info_dict.keys()).copy()
             observables.append('pov')
             actionables = list(action_dict.keys())
-
-            # Advance video capture past first i-frame to start of experiment
-            for _ in range(max_frame_num - num_states):
-                ret, _ = cap.read()
-                frame_num += 1
-                if not ret:
-                    return None
 
             # Loop through the video and construct frames
             # of observations to be sent via the multiprocessing queue
             # in chunks of worker_batch_size to the batch_iter loop.
             while True:
                 ret = True
-                frames = []
                 start_idx = stop_idx
 
                 # Collect up to worker_batch_size number of frames
@@ -317,9 +333,10 @@ class DataPipeline:
                     data_queue.put(batches)
                     logger.debug("Enqueued from file {}".format(file_dir))
 
-
                 if not ret:
                     break
+                else:
+                    frames = []
 
             # logger.error("Finished")
             return None
