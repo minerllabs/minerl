@@ -251,6 +251,7 @@ if __name__=="__main__":
         key = ''
         position = 0
         speed = 1
+        new_position = 0
         while key != QUIT:
             key = getch.getch()
             if key == FORWARD:
