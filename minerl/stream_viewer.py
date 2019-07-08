@@ -9,10 +9,15 @@ To use:
 if __name__=="__main__":
     import pyglet
     import minerl
-    import getch
+    if os.name == 'nt':
+        getch = msvcrt
+    else:
+        import getch
+
     import argparse
     import logging
     import coloredlogs
+    import os
     import time
     import tqdm 
     import numpy as np
