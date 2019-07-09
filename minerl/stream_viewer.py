@@ -9,12 +9,25 @@ To use:
 if __name__=="__main__":
     import pyglet
     import minerl
+    import sys
     import os
     if os.name == 'nt':
         import msvcrt
         getch = msvcrt
     else:
         import getch
+
+        
+    try:
+        from pyglet.gl import *
+    except ImportError as e:
+        raise ImportError('''
+        Error occured while running `from pyglet.gl import *`
+        HINT: make sure you have OpenGL install. On Ubuntu, you can run 'apt-get install python-opengl'.
+        If you're running on a server, you may need a virtual frame buffer; something like this should work:
+        'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'
+        ''')
+
 
     import argparse
     import logging
@@ -118,7 +131,10 @@ if __name__=="__main__":
                 width = int(scale * width)
                 height = int(scale * height)
             self.window = pyglet.window.Window(width=width, height=height, 
-                display=self.display, vsync=False, resizable=True)            
+                display=self.display, vsync=False, resizable=True)
+            self.window.dispatch_events()   
+            self.window.switch_to()
+            self.window.flip()   
             self.width = width
             self.height = height
             self.isopen = True
@@ -131,6 +147,28 @@ if __name__=="__main__":
             @self.window.event
             def on_close():
                 self.isopen = False
+
+        def imshow(self, arr):
+
+            assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
+            image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
+                'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
+            gl.glTexParameteri(gl.GL_TEXTURE_2D, 
+                gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+            texture = image.get_texture()
+            texture.width = self.width
+            texture.height = self.height
+            self.window.clear()
+            self.window.switch_to()
+            e = self.window.dispatch_events()
+            if e: 
+                try:
+                    list(e)
+                except:
+                    pass
+            
+            texture.blit(0, 0) # draw
+            self.window.flip()
 
     class ControlsViewer(ScaledWindowImageViewer):
         def __init__(self):
@@ -217,8 +255,13 @@ if __name__=="__main__":
         def render_info(self, obs,reward,done,action):
             self.window.clear()
             self.window.switch_to()
-            self.window.dispatch_events()
-
+            e = self.window.dispatch_events()
+            if e: 
+                try:
+                    list(e)
+                except:
+                    pass
+            
             self.process_actions(action)
 
             for label in self.key_labels:
@@ -227,7 +270,11 @@ if __name__=="__main__":
             self.camera_point.draw()
             self.window.flip()
         
-
+    def get_key():
+        key = getch.getch()
+        if os.name == 'nt':
+            key = key.decode(sys.getdefaultencoding())
+        return key
 
     def main(opts):
         logger.info("Welcome to the MineRL Stream viewer! "
@@ -252,8 +299,10 @@ if __name__=="__main__":
         position = 0
         speed = 1
         new_position = 0
+    
+
         while key != QUIT:
-            key = getch.getch()
+            key = get_key()
             if key == FORWARD:
                 new_position = min(position + speed, file_len -1)
             elif key == BACK:
@@ -262,6 +311,8 @@ if __name__=="__main__":
                 speed*=2
             elif key == SLOWE_DOWN:
                 speed = max(1, speed //2)
+
+            print(key)
                 
             
             indicator.update(new_position - position)
