@@ -311,8 +311,6 @@ if __name__=="__main__":
                 speed*=2
             elif key == SLOWE_DOWN:
                 speed = max(1, speed //2)
-
-            print(key)
                 
             
             indicator.update(new_position - position)
