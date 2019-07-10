@@ -9,7 +9,9 @@ import pySmartDL
 import logging
 
 from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
+
 logger = logging.getLogger(__name__)
+
 
 def download(directory=None, resolution='low', texture_pack= 0, update_environment_variables=True, disable_cache=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
@@ -30,7 +32,6 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
     elif update_environment_variables:
         os.environ['MINERL_DATA_ROOT'] = os.path.expanduser(
             os.path.expandvars(os.path.normpath(directory)))
-
     
     if os.path.exists(directory): 
         try:
@@ -50,19 +51,17 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
             except:
                 pass
 
-
-    # TODO pull JSON defining dataset URLS from webserver instead of hard-coding
-    # TODO add hashed to website to verify downloads for mirrors
-    filename, hashname = "data_texture_{}_{}_res.tar.gz".format(texture_pack, resolution), \
-                     "data_texture_{}_{}_res.md5".format(texture_pack, resolution)
-    urls = ["https://router.sneakywines.me/minerl/" + filename]
-    hash_url = "https://router.sneakywines.me/minerl/" + hashname
+    filename, hashname = "minerl_{}/data_texture_{}_{}_res.tar.gz".format(DATA_VERSION, texture_pack, resolution), \
+                         "minerl_{}/data_texture_{}_{}_res.md5".format(DATA_VERSION, texture_pack, resolution)
+    urls = ["https://router.sneakywines.me/" + filename]
+    hash_url = "https://router.sneakywines.me/" + hashname
 
     try:
+        logger.info("Fetching download hash ...")
         response = requests.get(hash_url)
         md5_hash = response.text
     except TimeoutError:
-        print("Timeout error while retrieving hash for requested dataset version.")
+        logger.error("Timeout while retrieving hash for requested dataset version. Are you connected to the internet?")
         return None
 
     if disable_cache:
@@ -70,28 +69,32 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
     else:
         download_path = None
 
-    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path)
+    logger.info("Verifying download hash ...")
+    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20)
 
     obj.add_hash_verification('md5', md5_hash)
     try:
         obj.start()
     except pySmartDL.HashFailedException:
-        print("Hash check failed! Is server under maintenance?")
+        logger.error("Hash check failed! Is server under maintenance?")
         return None
     except pySmartDL.CanceledException:
-        print("Download canceled by user")
+        logger.error("Download canceled by user")
         return None
-    except HTTPError:
-        print("HTTP error encountered when downloading - please try again")
+    except HTTPError as e:
+        logger.error("HTTP error encountered when downloading - please try again")
+        logger.error(e.errno)
         return None
-    except URLError:
-        print("URL error encountered when downloading - please try again")
+    except URLError as e:
+        logger.error("URL error encountered when downloading - please try again")
+        logger.error(e.errno)
         return None
-    except IOError:
-        print("IO error encountered when downloading - please try again")
+    except IOError as e:
+        logger.error("IO error encountered when downloading - please try again")
+        logger.error(e.errno)
         return None
 
-    logging.info('Extracting downloaded files ... ')
+    logging.info('Extracting downloaded files - this may take some time ')
     try:
         tf = None
         tf = tarfile.open(obj.get_dest(), mode="r:*")
