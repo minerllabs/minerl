@@ -35,6 +35,10 @@ if __name__=="__main__":
     import time
     import tqdm 
     import numpy as np
+    import matplotlib.pyplot as plt
+
+    plt.style.use('dark_background')
+    # plt.ion()
     from gym.envs.classic_control import rendering
 
     coloredlogs.install(logging.DEBUG)
@@ -73,6 +77,14 @@ if __name__=="__main__":
         @property
         def center(self):
             return self._x + self._w//2, self._y + self._h//2
+
+        @property
+        def x(self):
+            return self._x
+
+        @property
+        def y(self):
+            return self._y
 
         @property
         def height(self):
@@ -153,38 +165,42 @@ if __name__=="__main__":
             texture = image.get_texture()
             texture.width = width if width else self.width
             texture.height = height if height else self.height
-            self.window.clear()
-            self.window.switch_to()
-            self.window.dispatch_events()
             
             texture.blit(pos_x, pos_y) # draw
 
         def imshow(self, arr):
+            self.window.clear()
+            self.window.switch_to()
+            self.window.dispatch_events()
             self.blit_texture(arr)
             self.window.flip()
 
-    SZ = 30
+    SZ = 35
     BIG_FONT_SIZE = int(0.5*SZ)
     SMALL_FONT_SIZE=int(0.4*SZ)
     SMALLER_FONT_SIZE=int(0.35*SZ)
+    USING_COLOR = (255,0,0,255)
+    CAMERA_USING_COLOR =(162, 54, 69)
+    CUM_SUM_SPACE  = .02
     class SampleViewer(ScaledWindowImageViewer):
         
-        def __init__(self, environment, stream_name="", instructions=None):
+        def __init__(self, environment, stream_name="", instructions=None, cum_rewards=None):
             super().__init__(SZ*28, SZ*14)
             
             self.instructions = instructions
             self.f_ox, self.fo_y = SZ, SZ
             self.key_labels = self.make_key_labels()
             self.window.set_caption("{}: {}".format(environment, stream_name))
+            self.cum_rewards = cum_rewards
             
 
             # Set up camera control stuff.
             cam_x = self.f_ox + SZ*7
-            cam_y = self.fo_y + SZ/2
-            cam_size = SZ*5
+            cam_y = self.fo_y
+            cam_size = int(SZ*5*0.8)
             self.camera_rect = Rect(cam_x,cam_y, cam_size, cam_size, color=(36, 109, 94))
             self.camera_labels = [
-                pyglet.text.Label('Camera Control', font_size=SMALL_FONT_SIZE, x= cam_x + cam_size/2, y= cam_y + cam_size +2, anchor_x='center'),
+                pyglet.text.Label('Camera Control', font_size=SMALLER_FONT_SIZE, x= cam_x + cam_size/2, y= cam_y + cam_size +2, anchor_x='center'),
                 pyglet.text.Label('PITCH →', font_size=SMALLER_FONT_SIZE,font_name='Courier New', x= cam_x + cam_size/2, y= cam_y - SMALLER_FONT_SIZE- 4, anchor_x='center'),
                 pyglet.text.Label('Y\nA\nW\n↓', font_size=SMALLER_FONT_SIZE,  font_name='Courier New', multiline=True,width=1, x= cam_x - SMALLER_FONT_SIZE -2, y= cam_y +cam_size/2, anchor_x='left')
             ]
@@ -205,7 +221,9 @@ if __name__=="__main__":
                 def on_key_release(symbol, modifier):
                     if symbol in self.keys_down:
                         self.keys_down.remove(symbol)
-                
+            if self.cum_rewards is not None:
+                self.make_cum_reward_plotter()
+
         def make_instructions(self, environment, stream_name):
             if len(stream_name) >= 46:
                 stream_name = stream_name[:44] + "..."
@@ -218,6 +236,67 @@ if __name__=="__main__":
             self.progress_label = pyglet.text.Label("",  multiline=False, width=14*SZ, font_name='Courier New', font_size=SMALLER_FONT_SIZE, anchor_x='left', x= 14*SZ, y= 2)
             self.progress_label.set_style('background_color', (0,0,0,255))
             self.meter = tqdm.tqdm()
+
+
+        def make_cum_reward_plotter(self):
+            # First let us matplot lib plot the cum rewards to an image.
+            # Make a random plot...
+            plt.clf()
+            fig = plt.figure(figsize=(2,2))
+            plt.tight_layout(pad=0)
+            fig.add_subplot(111)
+
+            plt.subplots_adjust(left=0.0, bottom=0, right=1, top=1, wspace=0, hspace=0)
+            # plt.title("Cumulative Rewards")
+                        
+            # fig.patch.set_visible(False)
+            # plt.gca().axis('off')
+            ax = plt.gca()
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            ax.spines['left'].set_visible(False)
+
+            plt.plot(self.cum_rewards)
+            plt.xticks([])
+            plt.yticks([])
+            self._total_space = len(self.cum_rewards)*(CUM_SUM_SPACE)
+            plt.xlim(- self._total_space, len(self.cum_rewards) + self._total_space)
+
+            # If we haven't already shown or saved the plot, then we need to
+            # draw the figure first...
+            fig.canvas.draw()
+
+            # Now we can save it to a numpy array.
+            data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+            data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            self.cum_reward_image =data
+            
+            # Create the rectangle.
+            width = height = int(self.camera_rect.height)
+            x,y = self.camera_rect.center
+            y += int(self.camera_rect.height//2 + SZ*2)
+            x -= width//2
+            self.cum_reward_rect = Rect(x-1,y-1, width+2,height+2, color=(255,255,255))
+            self.cum_reward_label = pyglet.text.Label(
+                'Net Reward', font_size=SMALLER_FONT_SIZE, x=x+width//2, y=y+height+5,
+            anchor_x='center', align='center')
+            self.cum_reward_line = Rect(x, y, w=2, h=height, color=CAMERA_USING_COLOR)
+            self.cum_reward_info_label = pyglet.text.Label('', multiline=True, width=width, 
+                font_size=SMALLER_FONT_SIZE/1.1, font_name='Courier New', x=x+3, y=y-3, anchor_x='left', anchor_y='top')
+
+
+        def update_reward_info(self, rew, step, max_step):
+            self.cum_reward_line.set(x=self.cum_reward_rect.x+ 1 + int(
+                (step + self._total_space)/(max_step + self._total_space*2)*(self.cum_reward_rect.width-2)
+                ))
+            self.cum_reward_info_label.document.text = (
+                "r(t): {0:.2f}\nnet:  {1:.2f}".format(rew, self.cum_rewards[step])
+            )
+            if rew > 0:
+                self.cum_reward_info_label.set_style('color', (255,0,0,255))
+            else:
+                self.cum_reward_info_label.set_style('color', (255,255,255,255))
 
         def make_key_labels(self):
             keys = {}
@@ -265,7 +344,6 @@ if __name__=="__main__":
             for k in self.key_labels:
                 self.key_labels[k].set_style('color', (128,128,128,255))
 
-            USING_COLOR = (255,0,0,255)
             
             for x in action:
                 try:
@@ -282,7 +360,7 @@ if __name__=="__main__":
             center_x, center_y = self.camera_rect.center
 
             if abs(delta_x) > 0 or abs(delta_y) > 0:
-                camera_color = (162, 54, 69)
+                camera_color = CAMERA_USING_COLOR
             else:
                 camera_color = (255,255,255)
             self.camera_point.set(center_x + delta_x, center_y + delta_y, color=camera_color)
@@ -302,7 +380,7 @@ if __name__=="__main__":
                     self.key_labels[a].document.text = ""
 
 
-        def render(self, obs,reward,done,action, step, max):
+        def render(self, obs,reward, done,action, step, max):
             self.window.clear()
             self.window.switch_to()
             e = self.window.dispatch_events()
@@ -326,6 +404,20 @@ if __name__=="__main__":
             
                 self.progress_label.document.text =  prog_str
                 self.progress_label.draw()
+
+            if self.cum_rewards is not None:
+                self.update_reward_info(reward, step,max)
+                self.cum_reward_label.draw()
+                self.cum_reward_rect.draw()
+                self.blit_texture(self.cum_reward_image, 
+                    self.cum_reward_rect.x+1,
+                    self.cum_reward_rect.y+1,
+                    width=self.cum_reward_rect.width-2,
+                    height= self.cum_reward_rect.height-2)
+                self.cum_reward_line.draw()
+                self.cum_reward_info_label.draw()
+
+                
             self.window.flip()
 
     QUIT=key.Q
@@ -351,15 +443,18 @@ if __name__=="__main__":
         
         logger.info("Building data pipeline for {}".format(opts.environment))
         data = minerl.data.make(opts.environment)
-        height, width = data.observation_space.spaces['pov'].shape[:2]
-
-        controls_viewer = SampleViewer(opts.environment, opts.stream_name, instructions=instructions_txt)
 
         
         logger.info("Loading data for {}...".format(opts.stream_name))
         data_frames = list(data.load_data(opts.stream_name))
+        cum_rewards = np.cumsum([x[1] for x in data_frames])
         file_len = len(data_frames)
         logger.info("Data loading complete!".format(opts.stream_name))
+
+        height, width = data.observation_space.spaces['pov'].shape[:2]
+
+        controls_viewer = SampleViewer(opts.environment, opts.stream_name, 
+            instructions=instructions_txt, cum_rewards=cum_rewards)
         
 
         indicator = tqdm.tqdm(total=file_len)
@@ -378,8 +473,10 @@ if __name__=="__main__":
 
             # Display video viewer
             obs, rew, done, action = data_frames[position]
+            
+            # print(cum_rewards[position])
             # Display info stuff!
-            controls_viewer.render(obs,rew,done,action, position, len(data_frames))
+            controls_viewer.render(obs,rew, done,action, position, len(data_frames))
             if QUIT in controls_viewer.keys_down:
                 leave = True
             elif FORWARD in controls_viewer.keys_down:
@@ -387,10 +484,10 @@ if __name__=="__main__":
             elif  BACK in controls_viewer.keys_down:
                 new_position = max(position -speed, 0)
             elif FRAME_UP in controls_viewer.keys_down:
-                new_position = position + 1
+                new_position = min(position + 1, len(data_frames)-1)
                 controls_viewer.keys_down.remove(FRAME_UP)
             elif FRAME_DOWN in controls_viewer.keys_down:
-                new_position = position - 1
+                new_position = max(position - 1, 0)
                 controls_viewer.keys_down.remove(FRAME_DOWN)
             elif SPEED_UP in controls_viewer.keys_down:
                 speed*=2

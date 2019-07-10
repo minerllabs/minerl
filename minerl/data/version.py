@@ -50,7 +50,7 @@ def _raise_error(exception, directory=None):
     comparison = str(exception)
     if comparison == "more":
         if directory:
-            dir_str = "direction={}".format(directory)
+            dir_str = "directory={}".format(directory)
         else:
             dir_str = ""
         e = RuntimeError(
