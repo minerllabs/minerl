@@ -26,7 +26,8 @@ import json
 J = os.path.join
 E = os.path.exists
 EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
-WORKING_DIR = os.path.abspath("./output")
+_outout_root = os.path.expanduser(os.getenv("MINERL_OUTPUT_ROOT"))
+WORKING_DIR = os.path.abspath("./output") if not _outout_root else _outout_root
 DATA_DIR = J(WORKING_DIR, "data_new")
 
 RENDER_DIR = J(WORKING_DIR, "rendered_new")
@@ -343,6 +344,25 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     tree_counts = sorted([meta['tick'] - i for i  in range(400) if calc_num_trees(univ_json[str(meta['tick'] - i)])  >= 64])
                     meta['tick'] = meta['tick'] if not tree_counts else tree_counts[0]
                     
+                if expName == 'o_iron' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
+                    # When we are in survival treechop, let us go through the universal json.
+                    def calc_if_crafted(tick):
+                        try:
+                            changes = tick['diff']['changes']
+                            for change in changes:
+                                if change['item'] == 'minecraft:iron_pickaxe' and change['quantity_change'] > 0:
+                                    return True
+                        except KeyError:
+                            pass
+                        
+                        return False
+
+                    if univ_json is None:
+                        univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
+
+                    has_crafted = sorted([meta['tick'] - i for i  in range(400) if calc_if_crafted(univ_json[str(meta['tick'] - i)])])
+                    if has_crafted and not (has_crafted[0] == meta['tick']): print("hey! I changed ya") 
+                    meta['tick'] = meta['tick'] if not has_crafted else has_crafted[0]
                         
             else:
                 continue
@@ -354,7 +374,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
             startMarker = marker
 
         if 'stopRecording' in meta and meta['stopRecording'] and startTime != None:
-            segments.append((startMarker, marker, expName, startTick, meta['tick']))
+            if not (expName == 'none'):
+                segments.append((startMarker, marker, expName, startTick, meta['tick']))
             # segments.append((startTime, key, expName, startTick, meta['tick'], startMarker, marker))
             startTime = None
             startTick = None
