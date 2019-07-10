@@ -90,7 +90,6 @@ def add_key_frames(inputPath, segments):
         print(split_cmd)
         FAILED_COMMANDS.append(split_cmd)
 
-
 def extract_subclip(inputPath, start_tick, stop_tick, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_tick), '-i',
                  J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
@@ -383,7 +382,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                         cond_satisfied = sorted([meta['tick'] - i for i in range(min(400, meta['tick'] - startTick)) if condition(univ_json[str(meta['tick'] - i)])])
                         if cond_satisfied and not cond_satisfied[0] == meta['tick']: print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
-                        meta['tick'] = meta['tick'] if not cond_satisfied else cond_satisfied[0]
+                        meta['tick'] = meta['tick'] - 1 if not cond_satisfied else cond_satisfied[0]
 
             else:
                 continue
@@ -475,6 +474,14 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 if univ_json is None:
                     univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
+                # Record if this stream is a winner
+                if 'server_metadata' in metadata \
+                        and 'winners' in metadata['server_metadata'] \
+                        and len(metadata['server_metadata']['winners']) > 0:
+                    winner = metadata['server_metadata']['winners'][0]
+                else:
+                    winner = None
+
                 # Remove potentially stale elements
                 if E(output_name): os.remove(output_name)
                 if E(univ_output_name): os.remove(univ_output_name)
@@ -491,13 +498,10 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
                 # BAH removed iron pick and bed as it is crafted and not necessary
                 elif experimentName in ['o_dia'] \
-                        and 'server_metadata' in metadata \
-                        and 'winners' in metadata['server_metadata'] \
-                        and len(metadata['server_metadata']['winners']) > 0:
-                    player = metadata['server_metadata']['winners'][0]
+                        and winner is not None:
                     duration = metadata['server_metadata']['duration']
-                    if player in metadata['server_metadata'] and 'obtained_goal' in metadata['server_metadata'][player]:
-                        goal = metadata['server_metadata'][player]['obtained_goal']
+                    if winner in metadata['server_metadata'] and 'obtained_goal' in metadata['server_metadata'][winner]:
+                        goal = metadata['server_metadata'][winner]['obtained_goal']
                         found_tick = math.floor(goal / duration * (stopTick - startTick))
                         found_tick = min(found_tick + startTick, stopTick) - startTick  # Don't set this past the end
                         # print(experimentName,'found tick', found_tick, output_dir)
