@@ -40,12 +40,7 @@ if __name__=="__main__":
     coloredlogs.install(logging.DEBUG)
     logger = logging.getLogger(__name__)
 
-    QUIT='q'
-    FORWARD='k'
-    BACK='j'
-    SPEED_UP ='x'
-    SLOWE_DOWN ='z'
-
+    import pyglet.window.key as key
 
     def parse_args():
         parser = argparse.ArgumentParser("MineRL Stream Viewer")
@@ -124,7 +119,7 @@ if __name__=="__main__":
 
     class ScaledWindowImageViewer(rendering.SimpleImageViewer):
         def __init__(self, width, height):
-            super().__init__(None, 640)
+            super().__init__(None, 2700)
 
             if width > self.maxwidth:
                 scale = self.maxwidth / width
@@ -148,7 +143,7 @@ if __name__=="__main__":
             def on_close():
                 self.isopen = False
 
-        def imshow(self, arr):
+        def blit_texture(self, arr, pos_x=0, pos_y=0, width=None, height=None):
 
             assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
             image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
@@ -156,79 +151,132 @@ if __name__=="__main__":
             gl.glTexParameteri(gl.GL_TEXTURE_2D, 
                 gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
             texture = image.get_texture()
-            texture.width = self.width
-            texture.height = self.height
+            texture.width = width if width else self.width
+            texture.height = height if height else self.height
             self.window.clear()
             self.window.switch_to()
-            e = self.window.dispatch_events()
-            if e: 
-                try:
-                    list(e)
-                except:
-                    pass
+            self.window.dispatch_events()
             
-            texture.blit(0, 0) # draw
+            texture.blit(pos_x, pos_y) # draw
+
+        def imshow(self, arr):
+            self.blit_texture(arr)
             self.window.flip()
 
-    class ControlsViewer(ScaledWindowImageViewer):
-        def __init__(self):
-            super().__init__(600, 300)
+    SZ = 30
+    BIG_FONT_SIZE = int(0.5*SZ)
+    SMALL_FONT_SIZE=int(0.4*SZ)
+    SMALLER_FONT_SIZE=int(0.35*SZ)
+    class SampleViewer(ScaledWindowImageViewer):
+        
+        def __init__(self, environment, stream_name="", instructions=None):
+            super().__init__(SZ*28, SZ*14)
             
+            self.instructions = instructions
+            self.f_ox, self.fo_y = SZ, SZ
             self.key_labels = self.make_key_labels()
-            self.camera_rect = Rect(300,40, 200, 200, color=(36, 109, 94))
-            self.camera_point = Point(*self.camera_rect.center, radius=10)
+            self.window.set_caption("{}: {}".format(environment, stream_name))
+            
+
+            # Set up camera control stuff.
+            cam_x = self.f_ox + SZ*7
+            cam_y = self.fo_y + SZ/2
+            cam_size = SZ*5
+            self.camera_rect = Rect(cam_x,cam_y, cam_size, cam_size, color=(36, 109, 94))
+            self.camera_labels = [
+                pyglet.text.Label('Camera Control', font_size=SMALL_FONT_SIZE, x= cam_x + cam_size/2, y= cam_y + cam_size +2, anchor_x='center'),
+                pyglet.text.Label('PITCH →', font_size=SMALLER_FONT_SIZE,font_name='Courier New', x= cam_x + cam_size/2, y= cam_y - SMALLER_FONT_SIZE- 4, anchor_x='center'),
+                pyglet.text.Label('Y\nA\nW\n↓', font_size=SMALLER_FONT_SIZE,  font_name='Courier New', multiline=True,width=1, x= cam_x - SMALLER_FONT_SIZE -2, y= cam_y +cam_size/2, anchor_x='left')
+            ]
+            self.camera_labels[-1].document.set_style(0, len(self.camera_labels[-1].document.text),{'line_spacing': SMALLER_FONT_SIZE+2} )
+            self.camera_info_label = pyglet.text.Label('[0,0]', font_size=SMALLER_FONT_SIZE-1, x= cam_x + cam_size, y= cam_y, anchor_x='right', anchor_y='bottom')
+            self.camera_point = Point(*self.camera_rect.center, radius=SZ/4)
+
+            if self.instructions:
+                self.make_instructions(environment, stream_name)
+
+                self.keys_down = []
+                @self.window.event
+                def on_key_press(symbol, modifier):
+                    if symbol not in self.keys_down:
+                        self.keys_down.append(symbol)
+                
+                @self.window.event
+                def on_key_release(symbol, modifier):
+                    if symbol in self.keys_down:
+                        self.keys_down.remove(symbol)
+                
+        def make_instructions(self, environment, stream_name):
+            if len(stream_name) >= 46:
+                stream_name = stream_name[:44] + "..."
+
+            self.instructions_labels = [
+                pyglet.text.Label(environment, font_size=BIG_FONT_SIZE, y = self.height-SZ, x = SZ/2, anchor_x='left'),
+                pyglet.text.Label(stream_name, font_size=SMALLER_FONT_SIZE, font_name= 'Courier New', anchor_x='left', x=1.4*SZ, y= self.height-SZ*1.5),
+                pyglet.text.Label(self.instructions,  multiline=True, width=12*SZ, font_size=SMALLER_FONT_SIZE, anchor_x='left', x= SZ/2, y= self.height-SZ*2.3),
+            ]
+            self.progress_label = pyglet.text.Label("",  multiline=False, width=14*SZ, font_name='Courier New', font_size=SMALLER_FONT_SIZE, anchor_x='left', x= 14*SZ, y= 2)
+            self.progress_label.set_style('background_color', (0,0,0,255))
+            self.meter = tqdm.tqdm()
 
         def make_key_labels(self):
             keys = {}
-            SZ = 40
             default_params = {  
                         "font_name": 'Courier New',
-                        "font_size": 24,
+                        "font_size": BIG_FONT_SIZE,
                         "anchor_x":'center', "anchor_y":'center'}
-            fo_x, fo_y = 0, SZ
+            info_text_params = {
+                "font_name": 'Courier New',
+                "font_size": SMALL_FONT_SIZE,
+                 "anchor_y":'center'
+            }
+            fo_x, fo_y = self.f_ox, self.fo_y
             o_x, o_y = fo_x + SZ*3, fo_y + SZ*2 
 
             keys.update( {
-                "forward": pyglet.text.Label('W', x=o_x, y= o_y + SZ, **default_params),
-                "left": pyglet.text.Label('A', x=o_x - SZ, y= o_y , **default_params),
-                "back": pyglet.text.Label('S', x=o_x , y= o_y , **default_params),
-                "right": pyglet.text.Label('D', x=o_x + SZ, y= o_y , **default_params),
+                "forward": pyglet.text.Label('↑', x=o_x, y= o_y + SZ, **default_params),
+                "left": pyglet.text.Label('←', x=o_x - SZ, y= o_y + SZ/2 , **default_params),
+                "back": pyglet.text.Label('↓', x=o_x , y= o_y , **default_params),
+                "right": pyglet.text.Label('→', x=o_x + SZ, y= o_y +SZ/2, **default_params),
             })
+
+            keys["attack"] = pyglet.text.Label('attack', x=o_x + SZ*1.5, y= o_y +SZ*1.2 ,anchor_x='center',  **info_text_params)
 
             # sprint & sneak
 
             o_x, o_y = fo_x + SZ, fo_y
             keys.update({
-                "sprint": pyglet.text.Label('spnt', x=o_x + SZ*3.5, y= o_y, **default_params),
-                "sneak": pyglet.text.Label('snk', x=o_x , y= o_y , **default_params)})
+                "sprint": pyglet.text.Label('sprint', x=o_x + SZ*3.5, y= o_y, anchor_x='center',  **info_text_params),
+                "sneak": pyglet.text.Label('sneak', x=o_x , y= o_y ,anchor_x='center', **info_text_params)})
 
             # jump
             o_x, o_y = fo_x + SZ*3, fo_y + SZ
-            keys["jump"] = pyglet.text.Label('[ JUMP ]', x=o_x, y= o_y , **default_params)
+            keys["jump"] = pyglet.text.Label('[ JUMP ]', x=o_x, y= o_y ,anchor_x='center',  **info_text_params)
 
-            o_x, o_y = fo_x + SZ, fo_y
-            keys["place"] = pyglet.text.Label('', x=o_x, y= o_y +SZ*6, **default_params)
-            keys["craft"] = pyglet.text.Label('', x=o_x, y= o_y +SZ*5.4, **default_params)
-            keys["nearbyCraft"] = pyglet.text.Label('', x=o_x, y= o_y +SZ*4.8, **default_params)
-            keys["nearbySmelt"] = pyglet.text.Label('', x=o_x, y= o_y +SZ*4.2, **default_params)
+            o_x, o_y = fo_x + SZ/4, fo_y
+            keys["place"] = pyglet.text.Label('', x=o_x, y= o_y +SZ*6, anchor_x='left', **info_text_params)
+            keys["craft"] = pyglet.text.Label('', x=o_x, y= o_y +SZ*5.4, anchor_x='left', **info_text_params)
+            keys["nearbyCraft"] = pyglet.text.Label('', x=o_x, y= o_y +SZ*4.8,anchor_x='left', **info_text_params)
+            keys["nearbySmelt"] = pyglet.text.Label('', x=o_x, y= o_y +SZ*4.2,anchor_x='left', **info_text_params)
 
             return keys
 
         def process_actions(self, action):
             for k in self.key_labels:
-                self.key_labels[k].set_style('background_color', (0,0,0,0))
+                self.key_labels[k].set_style('color', (128,128,128,255))
 
             USING_COLOR = (255,0,0,255)
             
             for x in action:
                 try:
                     if action[x] > 0:
-                        self.key_labels[x].set_style('background_color', USING_COLOR)
+                        self.key_labels[x].set_style('color', USING_COLOR)
                 except:
                     pass
 
             # Update mouse poisiton.
             delta_y, delta_x = action['camera'] 
+            self.camera_info_label.document.text = "[{0:.2f},{1:.2f}]".format(float(delta_y), float(delta_x))
             delta_x = np.clip(delta_x/60, -1,1)*self.camera_rect.width/2
             delta_y = np.clip(delta_y/60,-1,1)*self.camera_rect.height/2
             center_x, center_y = self.camera_rect.center
@@ -238,55 +286,75 @@ if __name__=="__main__":
             else:
                 camera_color = (255,255,255)
             self.camera_point.set(center_x + delta_x, center_y + delta_y, color=camera_color)
+            # self.camera_info_label.set_style('color', list(camera_color)+ [255])
+            
             # self.key_labels["a"].set_style('background_color', (255,255,0,255))
 
             for a, p in [
-                ("place", "pl"),
-                ("nearbyCraft", 'nC'),
-                ("craft", 'c '),
-                ("nearbySmelt", 'nS') ]:
+                ("place", "place      "),
+                ("nearbyCraft", 'nearbyCraft'),
+                ("craft", 'craft      '),
+                ("nearbySmelt", 'nearbySmelt') ]:
                 if a in action:
-                    self.key_labels[a].set_style('font_size', 16)
-                    self.key_labels[a].document.text = "{}: {}".format(p, action[a]) 
+                    self.key_labels[a].set_style('font_size', SMALL_FONT_SIZE)
+                    self.key_labels[a].document.text = "{} {}".format(p, action[a]) 
                 else:
                     self.key_labels[a].document.text = ""
 
 
-        def render_info(self, obs,reward,done,action):
+        def render(self, obs,reward,done,action, step, max):
             self.window.clear()
             self.window.switch_to()
             e = self.window.dispatch_events()
-            if e: 
-                try:
-                    list(e)
-                except:
-                    pass
             
+            self.blit_texture(obs["pov"], SZ*14, 0, self.width -SZ*14, self.width -SZ*14)
             self.process_actions(action)
 
             for label in self.key_labels:
                 self.key_labels[label].draw()
+
             self.camera_rect.draw()
+            for label in self.camera_labels:
+                label.draw()
+            self.camera_info_label.draw()
             self.camera_point.draw()
+            
+            if self.instructions:
+                for label in self.instructions_labels:
+                    label.draw()
+                prog_str = self.meter.format_meter(step, max, 0, ncols=52) + " "*48
+            
+                self.progress_label.document.text =  prog_str
+                self.progress_label.draw()
             self.window.flip()
-        
-    def get_key():
-        key = getch.getch()
-        if os.name == 'nt':
-            key = key.decode(sys.getdefaultencoding())
-        return key
+
+    QUIT=key.Q
+    FORWARD=key.RIGHT
+    BACK=key.LEFT
+    SPEED_UP =key.X
+    SLOWE_DOWN =key.Z
+    FRAME_UP = key.UP
+    FRAME_DOWN = key.DOWN
 
     def main(opts):
-        logger.info("Welcome to the MineRL Stream viewer! "
-                    "Navigate through your file with 'j' (go back) 'k' (go forward)! To quit press `q`.")
+        instructions_txt = (
+            "Instructions:\n"
+            "   → - Go forward at speed \n"
+            "   ← - Go back at speed \n"
+            "   ↑ - Move forward 1 frame \n"
+            "   ↓ - Move back 1 frame \n"
+            "   X - Speed up 2X \n"
+            "   Z - Slow down 2X \n"
+            "   Q - Quit \n"
+        )
+        logger.info("Welcome to the MineRL Stream viewer! \n" + instructions_txt)
         
         logger.info("Building data pipeline for {}".format(opts.environment))
         data = minerl.data.make(opts.environment)
         height, width = data.observation_space.spaces['pov'].shape[:2]
 
-        controls_viewer = ControlsViewer()
-        # controls_viewer.render_info(None, None, None, data.action_space.sample()); time.sleep(10); return
-        video_viewer = ScaledWindowImageViewer(height*8, width*8)
+        controls_viewer = SampleViewer(opts.environment, opts.stream_name, instructions=instructions_txt)
+
         
         logger.info("Loading data for {}...".format(opts.stream_name))
         data_frames = list(data.load_data(opts.stream_name))
@@ -299,30 +367,38 @@ if __name__=="__main__":
         position = 0
         speed = 1
         new_position = 0
-    
+        leave = False
 
-        while key != QUIT:
-            key = get_key()
-            if key == FORWARD:
-                new_position = min(position + speed, file_len -1)
-            elif key == BACK:
-                new_position = max(position -speed, 0)
-            elif key == SPEED_UP:
-                speed*=2
-            elif key == SLOWE_DOWN:
-                speed = max(1, speed //2)
 
-            print(key)
-                
-            
+        
+        while not leave:
             indicator.update(new_position - position)
             indicator.refresh()
             position = new_position
 
             # Display video viewer
             obs, rew, done, action = data_frames[position]
-            video_viewer.imshow(obs["pov"])
             # Display info stuff!
-            controls_viewer.render_info(obs,rew,done,action)
+            controls_viewer.render(obs,rew,done,action, position, len(data_frames))
+            if QUIT in controls_viewer.keys_down:
+                leave = True
+            elif FORWARD in controls_viewer.keys_down:
+                new_position = min(position + speed, file_len -1)
+            elif  BACK in controls_viewer.keys_down:
+                new_position = max(position -speed, 0)
+            elif FRAME_UP in controls_viewer.keys_down:
+                new_position = position + 1
+                controls_viewer.keys_down.remove(FRAME_UP)
+            elif FRAME_DOWN in controls_viewer.keys_down:
+                new_position = position - 1
+                controls_viewer.keys_down.remove(FRAME_DOWN)
+            elif SPEED_UP in controls_viewer.keys_down:
+                speed*=2
+                controls_viewer.keys_down.remove(SPEED_UP)
+            elif SLOWE_DOWN in controls_viewer.keys_down:
+                speed = max(1, speed //2)
+                controls_viewer.keys_down.remove(SLOWE_DOWN)
+
+            time.sleep(0.05)
 
     main(parse_args())
