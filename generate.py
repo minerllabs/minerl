@@ -94,7 +94,7 @@ def extract_subclip(inputPath, start_tick, stop_tick, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_tick), '-i',
                  J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
-    # print('Running: ' + ' '.join(split_cmd))
+    print('Running: ' + ' '.join(split_cmd))
     try:
         subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
     except Exception as e:
@@ -445,7 +445,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         and 'found_block' in metadata['server_metadata']:
                     duration = metadata['server_metadata']['duration']
                     found_block = metadata['server_metadata']['found_block']
-                    found_tick = math.ceil(found_block / duration * (stopTick - startTick))
+                    found_tick = math.floor(found_block / duration * (stopTick - startTick))
                     found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
                 # BAH removed iron pick and bed as it is crafted and not necessary
                 elif experimentName in ['o_dia'] \
@@ -456,7 +456,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     duration = metadata['server_metadata']['duration']
                     if player in metadata['server_metadata'] and 'obtained_goal' in metadata['server_metadata'][player]:
                         goal = metadata['server_metadata'][player]['obtained_goal']
-                        found_tick = math.ceil(goal / duration * (stopTick - startTick))
+                        found_tick = math.floor(goal / duration * (stopTick - startTick))
                         found_tick = min(found_tick + startTick, stopTick) - startTick  # Don't set this past the end
                         # print(experimentName,'found tick', found_tick, output_dir)
                     else:
