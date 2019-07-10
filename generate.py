@@ -26,8 +26,8 @@ import json
 J = os.path.join
 E = os.path.exists
 EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
-_outout_root = os.path.expanduser(os.getenv("MINERL_OUTPUT_ROOT"))
-WORKING_DIR = os.path.abspath("./output") if not _outout_root else _outout_root
+_outout_root = (os.getenv("MINERL_OUTPUT_ROOT"))
+WORKING_DIR = os.path.expanduser(os.path.abspath("./output") if not _outout_root else _outout_root)
 DATA_DIR = J(WORKING_DIR, "data_new")
 
 RENDER_DIR = J(WORKING_DIR, "rendered_new")
