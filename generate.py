@@ -383,9 +383,10 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         cond_satisfied = []
 
                         for i in range(min(400, meta['tick'] - startTick)):
+                            considered_tick = (meta['tick'] - i)
                             try:
-                                if condition(univ_json[str(meta['tick'] - i)]):
-                                    cond_satisfied.append(i)
+                                if condition(univ_json[str(considered_tick)]):
+                                    cond_satisfied.append(considered_tick)
                             except KeyError:
                                 pass
 
