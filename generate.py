@@ -332,7 +332,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         for slot in gui['slots']:
                             # accounts for log and log2
                             if slot and 'log' in slot['name']:
-                                num_logs +=  slot['count']
+                                num_logs += slot['count']
                     return num_logs >= 64
                 
                 def o_iron_finished(tick):
@@ -380,9 +380,19 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         if univ_json is None:
                             univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
-                        cond_satisfied = sorted([meta['tick'] - i for i in range(min(400, meta['tick'] - startTick)) if condition(univ_json[str(meta['tick'] - i)])])
-                        if cond_satisfied and not cond_satisfied[0] == meta['tick']: print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
+                        cond_satisfied = []
+
+                        for i in range(min(400, meta['tick'] - startTick)):
+                            try:
+                                if condition(univ_json[str(meta['tick'] - i)]):
+                                    cond_satisfied.append(i)
+                            except KeyError:
+                                pass
+
+                        cond_satisfied = sorted(cond_satisfied)
+                        if cond_satisfied and not (cond_satisfied)[0] == meta['tick']: print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
                         meta['tick'] = meta['tick'] - 1 if not cond_satisfied else cond_satisfied[0]
+
 
             else:
                 continue
