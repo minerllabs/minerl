@@ -34,6 +34,8 @@ if __name__=="__main__":
     import coloredlogs
     import time
     import tqdm 
+    import matplotlib
+    matplotlib.use('Agg')
     import numpy as np
     import matplotlib.pyplot as plt
 
@@ -241,17 +243,15 @@ if __name__=="__main__":
         def make_cum_reward_plotter(self):
             # First let us matplot lib plot the cum rewards to an image.
             # Make a random plot...
-            plt.clf()
+            # plt.clf()
             fig = plt.figure(figsize=(2,2))
-            plt.tight_layout(pad=0)
-            fig.add_subplot(111)
+            ax = fig.add_subplot(111)
 
             plt.subplots_adjust(left=0.0, bottom=0, right=1, top=1, wspace=0, hspace=0)
             # plt.title("Cumulative Rewards")
                         
             # fig.patch.set_visible(False)
             # plt.gca().axis('off')
-            ax = plt.gca()
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
             ax.spines['bottom'].set_visible(False)
@@ -268,8 +268,9 @@ if __name__=="__main__":
             fig.canvas.draw()
 
             # Now we can save it to a numpy array.
-            data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-            data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            data = np.array(fig.canvas.renderer.buffer_rgba())
+            data = data.reshape(fig.canvas.get_width_height()[::-1] + (4,))[:,:,:3]
+
             self.cum_reward_image =data
             
             # Create the rectangle.
