@@ -325,7 +325,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         else:
                             break
                 
-                if expName == 'survivaltreechop' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
+                if expName == 'survivaltreechop' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording'] and startTick is not None:
                     # When we are in survival treechop, let us go through the universal json.
                     def calc_num_trees(tick):
                         gui = tick['slots']['gui']
@@ -353,7 +353,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
             startTick = meta['tick']
             startMarker = marker
 
-        if 'stopRecording' in meta and meta['stopRecording'] and startTime != None:
+        if 'stopRecording' in meta and meta['stopRecording'] and startTime is not None:
             segments.append((startMarker, marker, expName, startTick, meta['tick']))
             # segments.append((startTime, key, expName, startTick, meta['tick'], startMarker, marker))
             startTime = None
