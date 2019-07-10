@@ -325,30 +325,30 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         else:
                             break
                 
-                # if expName == 'survivaltreechop' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
-                #     # When we are in survival treechop, let us go through the universal json.
-                #     def calc_num_trees(tick):
-                #         gui = tick['slots']['gui']
-                #         num_logs = 0
-                #         if 'ContainerPlayer' in gui['type']:
-                #             for slot in gui['slots']:
-                #                 # accounts for log and log2
-                #                 if slot and 'log' in slot['name']:
-                #                     num_logs +=  slot['count']
-                #         return num_logs
-                #
-                #     if univ_json is None:
-                #         univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
-                #
-                #     tree_counts = sorted([meta['tick'] - i for i in range(400) if calc_num_trees(univ_json[str(meta['tick'] - i)])  >= 64])
-                #     meta['tick'] = meta['tick'] if not tree_counts else tree_counts[0]
+                if expName == 'survivaltreechop' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
+                    # When we are in survival treechop, let us go through the universal json.
+                    def calc_num_trees(tick):
+                        gui = tick['slots']['gui']
+                        num_logs = 0
+                        if 'ContainerPlayer' in gui['type']:
+                            for slot in gui['slots']:
+                                # accounts for log and log2
+                                if slot and 'log' in slot['name']:
+                                    num_logs +=  slot['count']
+                        return num_logs
+
+                    if univ_json is None:
+                        univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
+
+                    tree_counts = sorted([meta['tick'] - i for i in range(min(400, meta['tick'] - startTick)) if calc_num_trees(univ_json[str(meta['tick'] - i)])  >= 64])
+                    meta['tick'] = meta['tick'] if not tree_counts else tree_counts[0]
                     
                         
             else:
                 continue
 
         if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta:
-            # If we encounter a start marker after a start marker there is an error and we should throw away this segemnt
+            # If we encounter a start marker after a start marker there is an error and we should throw away this segment
             startTime = key
             startTick = meta['tick']
             startMarker = marker
