@@ -357,7 +357,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     
                     return False
 
-                def o_nav_finished(tick):
+                def nav_finished(tick):
                     try:
                         for block in tick['touched_blocks']:
                             if 'minecraft:diamond_block' in block['name']:
@@ -370,7 +370,9 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 finish_conditions = {
                     'survivaltreechop': treechop_finished,
                     'o_iron': o_iron_finished,
-                    'o_dia': o_dia_finished
+                    'o_dia': o_dia_finished,
+                    'navigate': nav_finished,
+                    'navigateextreme': nav_finished 
                 }
                 
                 for finish_expName in finish_conditions:
