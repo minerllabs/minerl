@@ -95,7 +95,7 @@ def extract_subclip(inputPath, start_tick, stop_tick, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_tick), '-i',
                  J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
-    print('Running: ' + ' '.join(split_cmd))
+    # print('Running: ' + ' '.join(split_cmd))
     try:
         subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
     except Exception as e:
@@ -326,49 +326,68 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         else:
                             break
                 
-                if expName == 'survivaltreechop' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
-                    # When we are in survival treechop, let us go through the universal json.
-                    def calc_num_trees(tick):
-                        gui = tick['slots']['gui']
-                        num_logs = 0
-                        if 'ContainerPlayer' in gui['type']:
-                            for slot in gui['slots']:
-                                # accounts for log and log2
-                                if slot and 'log' in slot['name']:
-                                    num_logs +=  slot['count']
-                        return num_logs
-
-                    if univ_json is None:
-                        univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
-
-                    tree_counts = sorted([meta['tick'] - i for i  in range(400) if calc_num_trees(univ_json[str(meta['tick'] - i)])  >= 64])
-                    meta['tick'] = meta['tick'] if not tree_counts else tree_counts[0]
+                def treechop_finished(tick):
+                    gui = tick['slots']['gui']
+                    num_logs = 0
+                    if 'ContainerPlayer' in gui['type']:
+                        for slot in gui['slots']:
+                            # accounts for log and log2
+                            if slot and 'log' in slot['name']:
+                                num_logs +=  slot['count']
+                    return num_logs >= 64
+                
+                def o_iron_finished(tick):
+                    try:
+                        changes = tick['diff']['changes']
+                        for change in changes:
+                            if change['item'] == 'minecraft:iron_pickaxe' and change['quantity_change'] > 0:
+                                return True
+                    except KeyError:
+                        pass
+                    return False
                     
-                if expName == 'o_iron' and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording']:
-                    # When we are in survival treechop, let us go through the universal json.
-                    def calc_if_crafted(tick):
-                        try:
-                            changes = tick['diff']['changes']
-                            for change in changes:
-                                if change['item'] == 'minecraft:iron_pickaxe' and change['quantity_change'] > 0:
-                                    return True
-                        except KeyError:
-                            pass
-                        
-                        return False
+                def o_dia_finished(tick):
+                    try:
+                        changes = tick['diff']['changes']
+                        for change in changes:
+                            if change['item'] == 'minecraft:diamond' and change['quantity_change'] > 0:
+                                return True
+                    except KeyError:
+                        pass
+                    
+                    return False
 
-                    if univ_json is None:
-                        univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
+                def o_nav_finished(tick):
+                    try:
+                        for block in tick['touched_blocks']:
+                            if 'minecraft:diamond_block' in block['name']:
+                                return True
+                    except KeyError:
+                        pass
+                    
+                    return False
 
-                    has_crafted = sorted([meta['tick'] - i for i  in range(400) if calc_if_crafted(univ_json[str(meta['tick'] - i)])])
-                    if has_crafted and not (has_crafted[0] == meta['tick']): print("hey! I changed ya") 
-                    meta['tick'] = meta['tick'] if not has_crafted else has_crafted[0]
-                        
+                finish_conditions = {
+                    'survivaltreechop': treechop_finished,
+                    'o_iron': o_iron_finished,
+                    'o_dia': o_dia_finished
+                }
+                
+                for finish_expName in finish_conditions:
+                    condition = finish_conditions[finish_expName]
+                    if expName == finish_expName and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording'] and startTick is not None:
+                        if univ_json is None:
+                            univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
+
+                        cond_satisfied = sorted([meta['tick'] - i for i in range(min(400, meta['tick'] - startTick)) if condition(univ_json[str(meta['tick'] - i)])])
+                        if cond_satisfied and not cond_satisfied[0] == meta['tick']: print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
+                        meta['tick'] = meta['tick'] if not cond_satisfied else cond_satisfied[0]
+
             else:
                 continue
 
         if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta:
-            # If we encounter a start marker after a start marker there is an error and we should throw away this segemnt
+            # If we encounter a start marker after a start marker there is an error and we should throw away this segment
             startTime = key
             startTick = meta['tick']
             startMarker = marker
