@@ -94,7 +94,7 @@ def extract_subclip(inputPath, start_tick, stop_tick, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_tick), '-i',
                  J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
-    print('Running: ' + ' '.join(split_cmd))
+    # print('Running: ' + ' '.join(split_cmd))
     try:
         subprocess.check_output(split_cmd, stderr=subprocess.STDOUT)
     except Exception as e:
