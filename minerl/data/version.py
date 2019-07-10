@@ -42,9 +42,9 @@ def assert_prefix(tail):
         assert DATA_VERSION <= ver, "more"
         assert DATA_VERSION >= ver, "less"
 
-
     except AssertionError as e:
         _raise_error(e)
+
 
 def _raise_error(exception, directory=None):
     comparison = str(exception)
@@ -53,7 +53,7 @@ def _raise_error(exception, directory=None):
             dir_str = "direction={}".format(directory)
         else:
             dir_str = ""
-        e =  RuntimeError(
+        e = RuntimeError(
             "YOUR DATASET IS OUT OF DATE! The latest is on version v{} but yours is lower!\n\n"
             "\tRe-download the data using `minerl.data.download({})`".format(
                 DATA_VERSION, dir_str))
