@@ -392,7 +392,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                         cond_satisfied = sorted(cond_satisfied)
                         if cond_satisfied and not (cond_satisfied)[0] == meta['tick']: print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
-                        meta['tick'] = meta['tick'] - 1 if not cond_satisfied else cond_satisfied[0]
+                        meta['tick'] = meta['tick'] - 1 if not cond_satisfied or cond_satisfied[0] == meta['tick'] else cond_satisfied[0]
 
 
             else:
