@@ -421,13 +421,17 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                         if cond_satisfied:
                             meta['tick'] = cond_satisfied[0]
+                            print('Marked a winner')
                         else:
                             # Add change if winner
                             try:
                                 if len(metadata['server_metadata']['winners']) > 0:
                                     adjust(univ_json, meta['tick'])
+                                    print('Adjusted a winner')
+                                else:
+                                    print('Not a winner')
                             except (KeyError) as e:
-                                pass
+                                print('Def not a winner')
 
             else:
                 continue
