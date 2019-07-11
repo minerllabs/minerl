@@ -105,7 +105,7 @@ class DataPipeline:
             index = _map_to_dict(index, handler_list, key, space, result)
         return result
 
-    def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None):
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
         """
         Returns a generator for iterating through sequences of the dataset.
         Loads num_workers files at once as defined in minerl.data.make() and return up to
@@ -147,7 +147,8 @@ class DataPipeline:
             # for arg1, arg2, arg3 in files:
             #     DataPipeline._load_data_pyfunc(arg1, arg2, arg3)
             #     break
-            map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files)
+            map_promise = self.processing_pool.starmap_async(
+                lambda f: DataPipeline._load_data_pyfunc(f, include_metadata=include_metadata), files)
 
             # random_queue = PriorityQueue(maxsize=pool_size)
 
@@ -155,7 +156,10 @@ class DataPipeline:
             while True:
                 try:
                     sequence = data_queue.get_nowait()
-                    action_batch, observation_batch, reward_batch, done_batch = sequence
+                    if include_metadata:
+                        action_batch, observation_batch, reward_batch, done_batch, meta = sequence
+                    else:
+                        action_batch, observation_batch, reward_batch, done_batch = sequence
 
                     # Wrap in dict
                     gym_spec = gym.envs.registration.spec(self.environment)
@@ -163,7 +167,10 @@ class DataPipeline:
                     action_dict = self.map_to_dict(action_batch, gym_spec._kwargs['action_space'])
                     observation_dict = self.map_to_dict(observation_batch, gym_spec._kwargs['observation_space'])
 
-                    yield observation_dict, reward_batch[0], done_batch[0], action_dict
+                    if include_metadata:
+                        yield observation_dict, reward_batch[0], done_batch[0], action_dict, meta
+                    else:
+                        yield observation_dict, reward_batch[0], done_batch[0], action_dict
                 except Empty:
                     if map_promise.ready():
                         epoch += 1
@@ -172,7 +179,7 @@ class DataPipeline:
                         time.sleep(0.1)
         logger.debug("Epoch complete.")
 
-    def load_data(self, stream_name: str, skip_interval=0):
+    def load_data(self, stream_name: str, skip_interval=0, include_metadata=False):
         """
         Loading mechanism for loading a trajectory from a file as a generator
         :param stream_name: name of stream to load or the file path to the file to load
@@ -184,8 +191,11 @@ class DataPipeline:
         else:
             file_dir = os.path.join(self.data_dir, stream_name)
         seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval,
-                                             environment=self.environment)
-        action_seq, observation_seq, reward_seq, done_seq = seq
+                                             environment=self.environment, include_metadata=include_metadata)
+        if include_metadata:
+            action_seq, observation_seq, reward_seq, done_seq, meta = seq
+        else:
+            action_seq, observation_seq, reward_seq, done_seq = seq
 
         for idx in range(len(reward_seq[0])):
             # Wrap in dict
@@ -194,8 +204,10 @@ class DataPipeline:
             gym_spec = gym.envs.registration.spec(self.environment)
             action_dict = DataPipeline.map_to_dict(action_slice, gym_spec._kwargs['action_space'])
             observation_dict = DataPipeline.map_to_dict(observation_slice, gym_spec._kwargs['observation_space'])
-
-            yield observation_dict, reward_seq[0][idx], done_seq[0][idx], action_dict
+            if include_metadata:
+                yield observation_dict, reward_seq[0][idx], done_seq[0][idx], action_dict, meta
+            else:
+                yield observation_dict, reward_seq[0][idx], done_seq[0][idx], action_dict
 
     ############################
     #     PRIVATE METHODS      #
@@ -217,14 +229,14 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, environment=None):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, include_metadata=False):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
         :param skip_interval: Number of time steps to skip between each sample
         :param max_seq_len: Number of time steps in each enqueued batch
         :param data_queue: multiprocessing data queue, or None to return streams directly
-        :param environment: environment used to wrap returned data as dict, or None to return raw data
+        :param include_metadata: whether or not to return an additional tuple containing metadata
         :return:
         """
 
@@ -232,6 +244,7 @@ class DataPipeline:
 
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
         numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
+        meta_path = str(os.path.join(file_dir, 'metadata.json'))
 
         try:
             # Start video decompression
@@ -240,13 +253,17 @@ class DataPipeline:
             # Load numpy file
             state = np.load(numpy_path, allow_pickle=True)
 
+            # Load metadata file
+            with open(meta_path) as file:
+                meta = json.load(file)
+
             action_dict = {key: state[key] for key in state if key.startswith('action_')}
             reward_vec = state['reward']
             info_dict = {key: state[key] for key in state if key.startswith('observation_')}
 
             num_states = len(reward_vec)
 
-            # TEMP - calculate number of frmaes
+            # TEMP - calculate number of frames
             frames = []
             ret, frame_num = True, 0
             while ret:
@@ -325,7 +342,11 @@ class DataPipeline:
                     logger.error("error drawing batch from npz file:", err)
                     raise err
 
-                batches = [action_data, observation_data, [reward_data], [np.array(done_data, dtype=np.bool)]]
+                if include_metadata:
+                    batches = [action_data, observation_data, [reward_data], [np.array(done_data, dtype=np.bool)], meta]
+                else:
+                    batches = [action_data, observation_data, [reward_data], [np.array(done_data, dtype=np.bool)]]
+
 
                 if data_queue is None:
                     return batches
