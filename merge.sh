@@ -64,7 +64,7 @@ if [ -f $path/list_all.txt ]; then
   while read p; do
     # ensure alphabtical order
     echo $p
-    cat $p* > $working_dir/streams/$p.bin
+    cat $p-* > $working_dir/streams/$p.bin
   done <unique.txt
   rm unique.txt
 fi 
