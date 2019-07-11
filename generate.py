@@ -131,8 +131,10 @@ def parse_metadata(startMarker, stopMarker):
 
         return metadata
     except ValueError as e:
+        raise e
         return {'BIG_FAT_ERROR', str(e)}
     except KeyError as e:
+        raise e
         return {'BIG_FAT_KEY_ERROR', str(e)}
 
 
@@ -368,9 +370,11 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     return False
 
                 def o_dia_adjust(univ, t):
+                    print(univ[t])
                     try:
                         univ[t]['diff']['changes'] = {
                             'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}
+                        print(univ[t])
                     except KeyError:
                         pass
 
@@ -427,7 +431,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                             try:
                                 if len(metadata['server_metadata']['winners']) > 0:
                                     adjust(univ_json, meta['tick'])
-                                    print('Adjusted a winner')
                                 else:
                                     print('Not a winner')
                             except (KeyError) as e:
