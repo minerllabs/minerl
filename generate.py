@@ -422,10 +422,11 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         else:
                             # Add change if winner
                             try:
-                                metadata = parse_metadata(startMarker, meta['tick'])
-                                if metadata['server_metadata']['players'][0] in metadata['server_metadata']['winners']:
+                                splitadata = parse_metadata(startMarker, marker)
+                                if splitadata['server_metadata']['players'][0] in splitadata['server_metadata']['winners']:
                                     adjust(univ_json, meta['tick'])
-                            except KeyError:
+                                    
+                            except (KeyError) as e:
                                 pass
 
             else:
