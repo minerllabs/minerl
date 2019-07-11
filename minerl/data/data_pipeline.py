@@ -190,7 +190,7 @@ class DataPipeline:
         else:
             file_dir = os.path.join(self.data_dir, stream_name)
         seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval,
-                                             environment=self.environment, include_metadata=include_metadata)
+                                             include_metadata=include_metadata)
         if include_metadata:
             action_seq, observation_seq, reward_seq, done_seq, meta = seq
         else:
