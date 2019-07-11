@@ -132,6 +132,8 @@ def parse_metadata(startMarker, stopMarker):
         return metadata
     except ValueError as e:
         return {'BIG_FAT_ERROR', str(e)}
+    except KeyError as e:
+        return {'BIG_FAT_KEY_ERROR', str(e)}
 
 
 class ThreadManager(object):
@@ -334,6 +336,9 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                             if slot and 'log' in slot['name']:
                                 num_logs += slot['count']
                     return num_logs >= 64
+
+                def treechop_adjust(univ, t):
+                    return
                 
                 def o_iron_finished(tick):
                     try:
@@ -344,6 +349,13 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     except KeyError:
                         pass
                     return False
+
+                def o_iron_adjust(univ, t):
+                    try:
+                        univ[t]['diff']['changes'] = {
+                            'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1}
+                    except KeyError:
+                        pass
                     
                 def o_dia_finished(tick):
                     try:
@@ -353,8 +365,14 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                 return True
                     except KeyError:
                         pass
-                    
                     return False
+
+                def o_dia_adjust(univ, t):
+                    try:
+                        univ[t]['diff']['changes'] = {
+                            'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}
+                    except KeyError:
+                        pass
 
                 def nav_finished(tick):
                     try:
@@ -363,19 +381,24 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                 return True
                     except KeyError:
                         pass
-                    
                     return False
 
+                def nav_adjust(univ, t):
+                    try:
+                        univ[t]['navigateHelper'] = 'minecraft:diamond_block'
+                    except KeyError:
+                        pass
+
                 finish_conditions = {
-                    'survivaltreechop': treechop_finished,
-                    'o_iron': o_iron_finished,
-                    'o_dia': o_dia_finished,
-                    'navigate': nav_finished,
-                    'navigateextreme': nav_finished 
+                    'survivaltreechop': (treechop_finished, treechop_adjust),
+                    'o_iron': (o_iron_finished, o_iron_adjust),
+                    'o_dia': (o_dia_finished, o_dia_adjust),
+                    'navigate': (nav_finished, nav_adjust),
+                    'navigateextreme': (nav_finished, nav_adjust)
                 }
                 
                 for finish_expName in finish_conditions:
-                    condition = finish_conditions[finish_expName]
+                    condition, adjust = finish_conditions[finish_expName]
                     if expName == finish_expName and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording'] and startTick is not None:
                         if univ_json is None:
                             univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
@@ -391,10 +414,18 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                 pass
 
                         cond_satisfied = sorted(cond_satisfied)
-                        if cond_satisfied and not (cond_satisfied)[0] == meta['tick']: print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
-                        # TODO add change if winner
-                        meta['tick'] = meta['tick'] if not cond_satisfied else cond_satisfied[0]
+                        if cond_satisfied and not (cond_satisfied)[0] == meta['tick']:
+                            print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
 
+                        if cond_satisfied:
+                            meta['tick'] = cond_satisfied[0]
+                        else:
+                            # Add change if winner
+                            try:
+                                if metadata['server_metadata']['players'][0] in metadata['server_metadata']['winners']:
+                                    adjust(univ_json, meta['tick'])
+                            except KeyError:
+                                pass
 
             else:
                 continue
@@ -536,38 +567,38 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 # Split universal action json
                 json_to_write = {}
                 for idx in range(startTick, stopTick + 1):
-                    if found_tick == idx - startTick:
-                        foo = univ_json[str(idx)]
-                        if experimentName in ['navigate', 'navigateextreme']:
-                            foo['navigateHelper'] = 'minecraft:diamond_block'
-                            json_to_write[str(idx - startTick)] = foo
-                        elif experimentName in ['o_dia', 'o_iron', 'o_bed']:
-                            if experimentName == 'o_dia':
-                                foo['diff']['changes'] = [
-                                    {'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
-                                # print('Stuck a diamond in it')
-                            elif experimentName == 'o_iron':
-                                foo['diff']['changes'].append(
-                                    {'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1})
-                            elif experimentName == 'o_bed':
-                                # Go forward in the json and find the next bed
-                                found_bed = False
-                                for j in range(32):
-                                    index = idx + j
-                                    if str(index) in univ_json and 'changes' in univ_json[index]['diff']:
-                                        for entry in univ_json[index]['diff']['changes']:
-                                            if entry['item'] == 'minecraft:bed':
-                                                foo['diff']['changes'].append(entry)
-                                                found_bed = True
-                                                break
-                                    if found_bed:
-                                        break
-                                if not found_bed:
-                                    foo['diff']['changes'].append(
-                                        {'item': 'minecraft:bed', 'variant': 0, 'quantity_change': 1})
-                            json_to_write[str(idx - startTick)] = foo
-                    else:
-                        json_to_write[str(idx - startTick)] = univ_json[str(idx)]
+                    # if found_tick == idx - startTick:
+                    #     foo = univ_json[str(idx)]
+                    #     if experimentName in ['navigate', 'navigateextreme']:
+                    #         foo['navigateHelper'] = 'minecraft:diamond_block'
+                    #         json_to_write[str(idx - startTick)] = foo
+                    #     elif experimentName in ['o_dia', 'o_iron', 'o_bed']:
+                    #         if experimentName == 'o_dia':
+                    #             foo['diff']['changes'] = [
+                    #                 {'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
+                    #             # print('Stuck a diamond in it')
+                    #         elif experimentName == 'o_iron':
+                    #             foo['diff']['changes'].append(
+                    #                 {'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1})
+                    #         elif experimentName == 'o_bed':
+                    #             # Go forward in the json and find the next bed
+                    #             found_bed = False
+                    #             for j in range(32):
+                    #                 index = idx + j
+                    #                 if str(index) in univ_json and 'changes' in univ_json[index]['diff']:
+                    #                     for entry in univ_json[index]['diff']['changes']:
+                    #                         if entry['item'] == 'minecraft:bed':
+                    #                             foo['diff']['changes'].append(entry)
+                    #                             found_bed = True
+                    #                             break
+                    #                 if found_bed:
+                    #                     break
+                    #             if not found_bed:
+                    #                 foo['diff']['changes'].append(
+                    #                     {'item': 'minecraft:bed', 'variant': 0, 'quantity_change': 1})
+                    #         json_to_write[str(idx - startTick)] = foo
+                    # else:
+                    json_to_write[str(idx - startTick)] = univ_json[str(idx)]
 
                 # Split universal.json
                 json.dump(json_to_write, open(univ_output_name, 'w'))
