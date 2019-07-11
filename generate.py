@@ -436,7 +436,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                             except (KeyError, TypeError) as e:
                                 print('Def not a winner')
                                 traceback.print_exc()
-                                print(metadata)
 
             else:
                 continue
