@@ -447,10 +447,12 @@ if __name__=="__main__":
 
         
         logger.info("Loading data for {}...".format(opts.stream_name))
-        data_frames = list(data.load_data(opts.stream_name))
+        data_frames = list(data.load_data(opts.stream_name, include_metadata=True))
+        meta = data_frames[0][-1] 
         cum_rewards = np.cumsum([x[1] for x in data_frames])
         file_len = len(data_frames)
         logger.info("Data loading complete!".format(opts.stream_name))
+        logger.info("META DATA: {}".format(meta))
 
         height, width = data.observation_space.spaces['pov'].shape[:2]
 
@@ -473,7 +475,8 @@ if __name__=="__main__":
             position = new_position
 
             # Display video viewer
-            obs, rew, done, action = data_frames[position]
+            obs, rew, done, action, meta = data_frames[position]
+            
             
             # print(cum_rewards[position])
             # Display info stuff!
