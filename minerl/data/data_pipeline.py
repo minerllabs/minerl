@@ -137,7 +137,7 @@ class DataPipeline:
         logger.debug(str(self.number_of_workers) + str(max_size))
 
         # Setup arguments for the workers.
-        files = [(file_dir, max_sequence_len, data_queue) for file_dir in data_list]
+        files = [(file_dir, max_sequence_len, data_queue, include_metadata) for file_dir in data_list]
 
         epoch = 0
 
@@ -147,8 +147,7 @@ class DataPipeline:
             # for arg1, arg2, arg3 in files:
             #     DataPipeline._load_data_pyfunc(arg1, arg2, arg3)
             #     break
-            map_promise = self.processing_pool.starmap_async(
-                lambda f: DataPipeline._load_data_pyfunc(f, include_metadata=include_metadata), files)
+            map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files)
 
             # random_queue = PriorityQueue(maxsize=pool_size)
 
