@@ -137,7 +137,7 @@ class DataPipeline:
         logger.debug(str(self.number_of_workers) + str(max_size))
 
         # Setup arguments for the workers.
-        files = [(file_dir, max_sequence_len, data_queue, include_metadata) for file_dir in data_list]
+        files = [(file_dir, max_sequence_len, data_queue, 0, include_metadata) for file_dir in data_list]
 
         epoch = 0
 
