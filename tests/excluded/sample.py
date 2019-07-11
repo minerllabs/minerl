@@ -13,12 +13,12 @@ coloredlogs.install(logging.DEBUG)
 NUM_EPISODES = 4
 
 
-def step_data(environment='MineRLTreechop-v0'):
+def step_data(environment='MineRLObtainDiamond-v0'):
     d = minerl.data.make(environment)
 
     # Iterate through batches of data
     counter = 0
-    for act, obs, rew, done in d.seq_iter(num_epochs=-1, max_sequence_len=-1, queue_size=1, seed=1234):
+    for obs,  act, rew,  next_obs, done in d.sarsd_iter(num_epochs=-1, max_sequence_len=-1, queue_size=1, seed=1234):
         print("Act shape:", len(act), act)
         print("Obs shape:", len(obs), obs)
         print("Rew shape:", len(rew), rew)
