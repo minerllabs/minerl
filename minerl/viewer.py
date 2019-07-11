@@ -445,11 +445,14 @@ if __name__=="__main__":
         logger.info("Building data pipeline for {}".format(opts.environment))
         data = minerl.data.make(opts.environment)
 
+        # for _ in data.seq_iter( 1, -1, None, None, include_metadata=True):
+        #     print(_[-1])
+        #     pass
         
         logger.info("Loading data for {}...".format(opts.stream_name))
         data_frames = list(data.load_data(opts.stream_name, include_metadata=True))
         meta = data_frames[0][-1] 
-        cum_rewards = np.cumsum([x[1] for x in data_frames])
+        cum_rewards = np.cumsum([x[2] for x in data_frames])
         file_len = len(data_frames)
         logger.info("Data loading complete!".format(opts.stream_name))
         logger.info("META DATA: {}".format(meta))
@@ -475,8 +478,8 @@ if __name__=="__main__":
             position = new_position
 
             # Display video viewer
-            obs, rew, done, action, meta = data_frames[position]
-            
+            obs, action, rew, next_obs, done, meta = data_frames[position]
+            print(obs['inventory'])
             
             # print(cum_rewards[position])
             # Display info stuff!
