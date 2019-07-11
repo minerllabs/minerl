@@ -70,7 +70,7 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
         download_path = None
 
     logger.info("Verifying download hash ...")
-    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20)
+    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
 
     obj.add_hash_verification('md5', md5_hash)
     try:
