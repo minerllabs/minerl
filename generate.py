@@ -407,6 +407,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                         cond_satisfied = []
                         metadata = parse_metadata(startMarker, marker)
+                        print(metadata)
 
                         for i in range(min(400, meta['tick'] - startTick)):
                             considered_tick = (meta['tick'] - i)
