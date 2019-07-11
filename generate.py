@@ -131,12 +131,9 @@ def parse_metadata(startMarker, stopMarker):
             metadata['success'] = metadata['server_metadata']['players'][0] in metadata['server_metadata']['winners']
 
         return metadata
-    except ValueError as e:
+    except Exception as e:
+        traceback.print_exc()
         raise e
-        return {'BIG_FAT_ERROR', str(e)}
-    except KeyError as e:
-        raise e
-        return {'BIG_FAT_KEY_ERROR', str(e)}
 
 
 class ThreadManager(object):
