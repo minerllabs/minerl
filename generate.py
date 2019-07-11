@@ -354,8 +354,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                 def o_iron_adjust(univ, t):
                     try:
-                        univ[t]['diff']['changes'] = {
-                            'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1}
+                        univ[t]['diff']['changes'] = [{
+                            'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1}]
                     except KeyError:
                         pass
                     
@@ -372,8 +372,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 def o_dia_adjust(univ, t):
                     print(univ[t])
                     try:
-                        univ[t]['diff']['changes'] = {
-                            'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}
+                        univ[t]['diff']['changes'] = [{
+                            'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
                         print(univ[t])
                     except KeyError:
                         pass
@@ -400,7 +400,9 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     'navigate': (nav_finished, nav_adjust),
                     'navigateextreme': (nav_finished, nav_adjust)
                 }
-                
+
+                metadata = parse_metadata(startMarker, marker)
+
                 for finish_expName in finish_conditions:
                     condition, adjust = finish_conditions[finish_expName]
                     if expName == finish_expName and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording'] and startTick is not None:
@@ -421,8 +423,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         if cond_satisfied and not (cond_satisfied)[0] == meta['tick']:
                             print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
 
-                        metadata = parse_metadata(startMarker, marker)
-
                         if cond_satisfied:
                             meta['tick'] = cond_satisfied[0]
                             print('Marked a winner')
@@ -430,11 +430,12 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                             # Add change if winner
                             try:
                                 if len(metadata['server_metadata']['winners']) > 0:
-                                    adjust(univ_json, meta['tick'])
+                                    adjust(univ_json, str(meta['tick']))
                                 else:
                                     print('Not a winner')
-                            except (KeyError) as e:
+                            except KeyError as e:
                                 print('Def not a winner')
+                                print(metadata)
 
             else:
                 continue
