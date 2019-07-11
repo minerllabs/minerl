@@ -399,8 +399,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     'navigateextreme': (nav_finished, nav_adjust)
                 }
 
-                metadata = parse_metadata(startMarker, marker)
-
                 for finish_expName in finish_conditions:
                     condition, adjust = finish_conditions[finish_expName]
                     if expName == finish_expName and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording'] and startTick is not None:
@@ -408,6 +406,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                             univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
                         cond_satisfied = []
+                        metadata = parse_metadata(startMarker, marker)
 
                         for i in range(min(400, meta['tick'] - startTick)):
                             considered_tick = (meta['tick'] - i)
