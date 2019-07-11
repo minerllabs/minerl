@@ -19,6 +19,7 @@ import numpy
 import tqdm
 import subprocess
 import json
+import traceback
 
 #######################
 ### UTILITIES
@@ -433,8 +434,9 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                     adjust(univ_json, str(meta['tick']))
                                 else:
                                     print('Not a winner')
-                            except KeyError as e:
+                            except (KeyError, TypeError) as e:
                                 print('Def not a winner')
+                                traceback.print_exc()
                                 print(metadata)
 
             else:
