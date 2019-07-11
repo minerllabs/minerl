@@ -521,41 +521,41 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     #       print('fb', 'found_block' in metadata['server_metadata'])
                     found_tick = -1
 
-                # Split universal action json
+                # 
                 json_to_write = {}
                 for idx in range(startTick, stopTick + 1):
-                    if found_tick == idx - startTick:
-                        foo = univ_json[str(idx)]
-                        if experimentName in ['navigate', 'navigateextreme']:
-                            foo['navigateHelper'] = 'minecraft:diamond_block'
-                            json_to_write[str(idx - startTick)] = foo
-                        elif experimentName in ['o_dia', 'o_iron', 'o_bed']:
-                            if experimentName == 'o_dia':
-                                foo['diff']['changes'] = [
-                                    {'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
-                                # print('Stuck a diamond in it')
-                            elif experimentName == 'o_iron':
-                                foo['diff']['changes'].append(
-                                    {'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1})
-                            elif experimentName == 'o_bed':
-                                # Go forward in the json and find the next bed
-                                found_bed = False
-                                for j in range(32):
-                                    index = idx + j
-                                    if str(index) in univ_json and 'changes' in univ_json[index]['diff']:
-                                        for entry in univ_json[index]['diff']['changes']:
-                                            if entry['item'] == 'minecraft:bed':
-                                                foo['diff']['changes'].append(entry)
-                                                found_bed = True
-                                                break
-                                    if found_bed:
-                                        break
-                                if not found_bed:
-                                    foo['diff']['changes'].append(
-                                        {'item': 'minecraft:bed', 'variant': 0, 'quantity_change': 1})
-                            json_to_write[str(idx - startTick)] = foo
-                    else:
-                        json_to_write[str(idx - startTick)] = univ_json[str(idx)]
+                    # if found_tick == idx - startTick:
+                    #     foo = univ_json[str(idx)]
+                    #     if experimentName in ['navigate', 'navigateextreme']:
+                    #         foo['navigateHelper'] = 'minecraft:diamond_block'
+                    #         json_to_write[str(idx - startTick)] = foo
+                    #     elif experimentName in ['o_dia', 'o_iron', 'o_bed']:
+                    #         if experimentName == 'o_dia':
+                    #             foo['diff']['changes'] = [
+                    #                 {'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
+                    #             print('Stuck a diamond in it', found_tick, idx )
+                    #         elif experimentName == 'o_iron':
+                    #             foo['diff']['changes'].append(
+                    #                 {'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1})
+                    #         elif experimentName == 'o_bed':
+                    #             # Go forward in the json and find the next bed
+                    #             found_bed = False
+                    #             for j in range(32):
+                    #                 index = idx + j
+                    #                 if str(index) in univ_json and 'changes' in univ_json[index]['diff']:
+                    #                     for entry in univ_json[index]['diff']['changes']:
+                    #                         if entry['item'] == 'minecraft:bed':
+                    #                             foo['diff']['changes'].append(entry)
+                    #                             found_bed = True
+                    #                             break
+                    #                 if found_bed:
+                    #                     break
+                    #             if not found_bed:
+                    #                 foo['diff']['changes'].append(
+                    #                     {'item': 'minecraft:bed', 'variant': 0, 'quantity_change': 1})
+                    #         json_to_write[str(idx - startTick)] = foo
+                    # else:
+                    json_to_write[str(idx - startTick)] = univ_json[str(idx)]
 
                 # Split universal.json
                 json.dump(json_to_write, open(univ_output_name, 'w'))
