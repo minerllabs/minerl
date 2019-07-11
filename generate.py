@@ -422,6 +422,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         else:
                             # Add change if winner
                             try:
+                                metadata = parse_metadata(startMarker, meta['tick'])
                                 if metadata['server_metadata']['players'][0] in metadata['server_metadata']['winners']:
                                     adjust(univ_json, meta['tick'])
                             except KeyError:
@@ -517,13 +518,13 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 if univ_json is None:
                     univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
-                # Record if this stream is a winner
-                if 'server_metadata' in metadata \
-                        and 'winners' in metadata['server_metadata'] \
-                        and len(metadata['server_metadata']['winners']) > 0:
-                    winner = metadata['server_metadata']['winners'][0]
-                else:
-                    winner = None
+                # # Record if this stream is a winner
+                # if 'server_metadata' in metadata \
+                #         and 'winners' in metadata['server_metadata'] \
+                #         and len(metadata['server_metadata']['winners']) > 0:
+                #     winner = metadata['server_metadata']['winners'][0]
+                # else:
+                #     winner = None
 
                 # Remove potentially stale elements
                 if E(output_name): os.remove(output_name)
@@ -531,38 +532,38 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 if E(meta_output_name): os.remove(meta_output_name)
 
                 # Determine if this is a nav exp and we are missing the touch block handler
-                metadata = parse_metadata(startMarker, stopMarker)
-                if experimentName in ['navigate', 'navigateextreme'] \
-                        and 'server_metadata' in metadata \
-                        and 'found_block' in metadata['server_metadata']:
-                    duration = metadata['server_metadata']['duration']
-                    found_block = metadata['server_metadata']['found_block']
-                    found_tick = math.floor(found_block / duration * (stopTick - startTick))
-                    found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
-                # BAH removed iron pick and bed as it is crafted and not necessary
-                elif experimentName in ['o_dia'] \
-                        and winner is not None:
-                    duration = metadata['server_metadata']['duration']
-                    if winner in metadata['server_metadata'] and 'obtained_goal' in metadata['server_metadata'][winner]:
-                        goal = metadata['server_metadata'][winner]['obtained_goal']
-                        found_tick = math.floor(goal / duration * (stopTick - startTick))
-                        found_tick = min(found_tick + startTick, stopTick) - startTick  # Don't set this past the end
-                        # print(experimentName,'found tick', found_tick, output_dir)
-                    else:
-                        # print('NO TICK')
-                        # print(player in metadata['server_metadata'])
-                        # if player in metadata['server_metadata']:
-                        #     print('obtained_goal' in metadata['server_metadata'][player])
-                        #     print(output_dir)
-                        #     print(metadata['server_metadata'][player])
-                        found_tick = -1
-                else:
-                    # if experimentName in ['navigate', 'navigateextreme']:
-                    #     print('oops', metadata)
-                    #     print('sm', 'server_metadata' in metadata)
-                    #     if 'server_metadata' in metadata:
-                    #       print('fb', 'found_block' in metadata['server_metadata'])
-                    found_tick = -1
+                # metadata = parse_metadata(startMarker, stopMarker)
+                # if experimentName in ['navigate', 'navigateextreme'] \
+                #         and 'server_metadata' in metadata \
+                #         and 'found_block' in metadata['server_metadata']:
+                #     duration = metadata['server_metadata']['duration']
+                #     found_block = metadata['server_metadata']['found_block']
+                #     found_tick = math.floor(found_block / duration * (stopTick - startTick))
+                #     found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
+                # # BAH removed iron pick and bed as it is crafted and not necessary
+                # elif experimentName in ['o_dia'] \
+                #         and winner is not None:
+                #     duration = metadata['server_metadata']['duration']
+                #     if winner in metadata['server_metadata'] and 'obtained_goal' in metadata['server_metadata'][winner]:
+                #         goal = metadata['server_metadata'][winner]['obtained_goal']
+                #         found_tick = math.floor(goal / duration * (stopTick - startTick))
+                #         found_tick = min(found_tick + startTick, stopTick) - startTick  # Don't set this past the end
+                #         # print(experimentName,'found tick', found_tick, output_dir)
+                #     else:
+                #         # print('NO TICK')
+                #         # print(player in metadata['server_metadata'])
+                #         # if player in metadata['server_metadata']:
+                #         #     print('obtained_goal' in metadata['server_metadata'][player])
+                #         #     print(output_dir)
+                #         #     print(metadata['server_metadata'][player])
+                #         found_tick = -1
+                # else:
+                #     # if experimentName in ['navigate', 'navigateextreme']:
+                #     #     print('oops', metadata)
+                #     #     print('sm', 'server_metadata' in metadata)
+                #     #     if 'server_metadata' in metadata:
+                #     #       print('fb', 'found_block' in metadata['server_metadata'])
+                #     found_tick = -1
 
                 # 
                 json_to_write = {}
