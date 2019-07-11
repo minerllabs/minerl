@@ -255,8 +255,8 @@ class DataPipeline:
             # Load metadata file
             with open(meta_path) as file:
                 meta = json.load(file)
-                if 'steam_name' not in meta:
-                    meta['steam_name'] = file_dir
+                if 'stream_name' not in meta:
+                    meta['stream_name'] = file_dir
 
             action_dict = {key: state[key] for key in state if key.startswith('action_')}
             reward_vec = state['reward']
