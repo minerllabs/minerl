@@ -293,9 +293,9 @@ class DataPipeline:
             reward_vec = state['reward']
             info_dict = {key: state[key] for key in state if key.startswith('observation_')}
 
-            num_states = len(reward_vec) +1
+            num_states = len(reward_vec) + 1
 
-            # TEMP - calculate number of frames
+            # TEMP - calculate number of frames, fastest when max_seq_len == -1
             frames = []
             ret, frame_num = True, 0
             while ret:
@@ -305,7 +305,7 @@ class DataPipeline:
                     frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
                     frame_num += 1
 
-            max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
             if max_seq_len == -1:
                 stop_idx = 0
                 frames = frames[frame_num - num_states:]
@@ -348,6 +348,9 @@ class DataPipeline:
 
                 if len(frames) == 0:
                     break
+                if frame_num == max_frame_num:
+                    frames[-2] = frames[-1]
+
 
                 stop_idx = start_idx + len(frames)
                 # print('Num frames in batch:', stop_idx - start_idx)
@@ -417,7 +420,7 @@ class DataPipeline:
         if os.path.isfile(path):
             return []
 
-        # add dir to directorylist if it contains .txt files
+        # add dir to directory list if it contains .txt files
         if len([f for f in os.listdir(path) if f.endswith('.mp4')]) > 0:
             if len([f for f in os.listdir(path) if f.endswith('.npz')]) > 0:
                 assert_prefix(path)

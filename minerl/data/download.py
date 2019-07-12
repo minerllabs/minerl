@@ -70,7 +70,7 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
         download_path = None
 
     logger.info("Verifying download hash ...")
-    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20)
+    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
 
     obj.add_hash_verification('md5', md5_hash)
     try:
@@ -87,6 +87,10 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
         return None
     except URLError as e:
         logger.error("URL error encountered when downloading - please try again")
+        logger.error(e.errno)
+        return None
+    except TimeoutError as e:
+        logger.error("Timeout encountered when downloading - is your connection stable")
         logger.error(e.errno)
         return None
     except IOError as e:
