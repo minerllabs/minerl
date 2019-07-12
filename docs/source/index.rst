@@ -76,7 +76,7 @@ components:
    :caption: Tutorials and Guides
    :maxdepth: 2
 
-   tutorials/getting_started
+   tutorials/index
    tutorials/first_agent
    tutorials/data_sampling
 

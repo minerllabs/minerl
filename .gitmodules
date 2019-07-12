@@ -1,3 +1,6 @@
 [submodule "minerl/env/Malmo"]
 	path = minerl/env/Malmo
 	url = https://github.com/cmu-rl/Malmo.git
+[submodule "minerl/dependencies/pySmartDL"]
+	path = minerl/dependencies/pySmartDL
+	url = https://github.com/minerllabs/pySmartDL.git
