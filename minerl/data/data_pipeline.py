@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 from minerl.data.version import assert_version, assert_prefix
 
-
 if os.name != "nt":
     class WindowsError(OSError):
         pass
@@ -57,9 +56,23 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
-        self.action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
-        self.observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
+        self._action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
+        self._observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
 
+
+    @property
+    def action_space(self):
+        """
+        Returns: action space of current MineRL environment
+        """
+        return self._action_space
+
+    @property
+    def observation_space(self):
+        """
+        Returns: action space of current MineRL environment
+        """
+        return self._observation_space
 
     # Correct way
     # @staticmethod
