@@ -20,7 +20,8 @@ Now we can build the datast for :code:`MineRLObtainDiamond-v0`
     data = minerl.data.make('MineRLObtainDiamond-v0')
     
     # Iterate through a single epoch gathering sequences of at most 32 steps
-    for current_state, action, reward, next_state, done in data.seq_iter(num_epochs=1, max_sequence_len=32):
+    for (current_state, action, reward, next_state, done)
+        in data.sarsd_iter(num_epochs=1, max_sequence_len=32):
 
         print("Number of different actions:", len(act))
         for action in act:
@@ -46,4 +47,55 @@ Now we can build the datast for :code:`MineRLObtainDiamond-v0`
 Visualizing The Data :code:`minerl.viewer`
 =============================================================
 
-Todo!
+To help you get familiar with the MineRL dataset,
+the :code:`minerl` python package also provides a data trajectory viewer called
+:code:`minerl.viewer`:
+
+
+.. image:: ../assets/cropped_viewer.gif
+  :width: 90 %
+  :alt: 
+  :align: center
+
+
+The :code:`minerl.viewer` program lets you step through individual
+trajectories, 
+showing the observation seen the player, the action
+they took (including camera, movement, and any action described by an MineRL
+environment's action space), and the reward they received.
+
+.. exec::
+ 
+    import minerl
+    import minerl.viewer
+
+    help_str = minerl.viewer.parser.format_help()
+
+    print(".. code-block:: bash\n") 
+    for line  in help_str.split("\n"):
+        print("\t{}".format(line))
+
+
+**Try it out on a random trajectory by running:** 
+
+.. code-block:: bash
+
+    # Visualizes a random trajectory of MineRLObtainDiamondDense-v0
+    python3 -m minerl.viewer MineRLObtainDiamondDense-v0 
+
+
+
+**Try it out on a specific trajectory by running:**
+
+.. exec::
+ 
+    import minerl
+    import minerl.viewer
+
+    traj_name = minerl.viewer._DOC_TRAJ_NAME
+
+    print(".. code-block:: bash\n")
+
+    print("\t# Visualizes a specific trajectory. {}...".format(traj_name[:17]))
+    print("\tpython3 -m minerl.viewer MineRLTreechop-v0 \\")
+    print("\t\t{}".format(traj_name))
