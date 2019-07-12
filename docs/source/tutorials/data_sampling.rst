@@ -23,17 +23,18 @@ Now we can build the datast for :code:`MineRLObtainDiamond-v0`
     for (current_state, action, reward, next_state, done)
         in data.sarsd_iter(num_epochs=1, max_sequence_len=32):
 
-        print("Number of different actions:", len(act))
-        for action in act:
-            print(act)
-        print("Number of different observations:", len(obs), obs)
-        for observation in obs:
-            print(obs)
-        print("Rewards:", rew)
-        print("Dones:", done)
+            # Print the POV @ the first step of the sequence
+            print(current_state['pov'][0])
 
+            # Print the final reward pf the sequence!
+            print(reward[-1])
 
+            # Check if final (next_state) is terminal.
+            print(done[-1])
 
+            # ... do something with the data.
+            print("At the end of trajectories the length"
+                  "can be < max_sequence_len", len(reward))
 
 
 .. note:: 
