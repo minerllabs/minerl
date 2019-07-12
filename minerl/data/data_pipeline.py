@@ -349,7 +349,7 @@ class DataPipeline:
                 if len(frames) == 0:
                     break
                 if frame_num == max_frame_num:
-                    frames[-2] = frames[-1]
+                    frames[-1] = frames[-2]
 
 
                 stop_idx = start_idx + len(frames)
