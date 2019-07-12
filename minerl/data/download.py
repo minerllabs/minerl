@@ -89,6 +89,10 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
         logger.error("URL error encountered when downloading - please try again")
         logger.error(e.errno)
         return None
+    except TimeoutError as e:
+        logger.error("Timeout encountered when downloading - is your connection stable")
+        logger.error(e.errno)
+        return None
     except IOError as e:
         logger.error("IO error encountered when downloading - please try again")
         logger.error(e.errno)
