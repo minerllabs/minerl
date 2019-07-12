@@ -368,11 +368,11 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     return False
 
                 def o_dia_adjust(univ, t):
-                    print(univ[t])
+                    # print(univ[t])
                     try:
                         univ[t]['diff']['changes'] = [{
                             'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
-                        print(univ[t])
+                        # print(univ[t])
                     except KeyError:
                         pass
 
@@ -407,9 +407,9 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                         cond_satisfied = []
                         metadata = parse_metadata(startMarker, marker)
-                        print("Here is the metadata:")
-                        print(metadata)
-                        print("there it was")
+                        # print("Here is the metadata:")
+                        # print(metadata)
+                        # print("there it was")
 
                         for i in range(min(400, meta['tick'] - startTick)):
                             considered_tick = (meta['tick'] - i)
@@ -420,21 +420,18 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                 pass
 
                         cond_satisfied = sorted(cond_satisfied)
-                        if cond_satisfied and not (cond_satisfied)[0] == meta['tick']:
-                            print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
+                        # if cond_satisfied and not (cond_satisfied)[0] == meta['tick']:
+                        #     print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
 
                         if cond_satisfied:
                             meta['tick'] = cond_satisfied[0]
-                            print('Marked a winner')
                         else:
                             # Add change if winner
                             try:
                                 if len(metadata['server_metadata']['winners']) > 0:
                                     adjust(univ_json, str(meta['tick']))
                                 else:
-                                    print('Not a winner')
                             except (KeyError, TypeError) as e:
-                                print('Def not a winner')
                                 traceback.print_exc()
 
             else:
