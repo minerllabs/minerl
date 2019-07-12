@@ -575,7 +575,7 @@ def main():
         func = functools.partial(_render_videos, manager)
         num_rendered = list(
             tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1,
-                      position=0, maxinterval=1))
+                      position=0, maxinterval=1, smoothing=0))
 
     print('Rendered {} new files!'.format(sum(num_rendered)))
 
