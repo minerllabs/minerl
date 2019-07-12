@@ -282,8 +282,9 @@ if __name__=="__main__":
             fig.canvas.draw()
 
             # Now we can save it to a numpy array.
-            data = np.array(fig.canvas.renderer.buffer_rgba())
-            data = data.reshape(fig.canvas.get_width_height()[::-1] + (4,))[:,:,:3]
+            data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+            # print(data)
+            data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))[:,:,:3]
 
             self.cum_reward_image =data
             
