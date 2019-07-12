@@ -6,6 +6,23 @@ To use:
 ```
 """
 
+import argparse
+from  minerl.data import FILE_PREFIX
+
+_DOC_TRAJ_NAME="{}absolute_zucchini_basilisk-13_36805-50154".format(FILE_PREFIX)
+
+parser = argparse.ArgumentParser("python3 -m minerl.viewer")
+parser.add_argument("environment", type=str, 
+    help='The MineRL environment to visualize. e.g. MineRLObtainDiamondDense-v0')
+
+parser.add_argument("stream_name", type=str,  nargs='?', default=None,
+    help="(optional) The name of the trajectory to visualize. "
+    "e.g. {}."
+    "".format(_DOC_TRAJ_NAME))
+
+
+
+
 if __name__=="__main__":
     import pyglet
     import minerl
@@ -16,6 +33,8 @@ if __name__=="__main__":
         getch = msvcrt
     else:
         import getch
+
+    import random
 
         
     try:
@@ -29,7 +48,6 @@ if __name__=="__main__":
         ''')
 
 
-    import argparse
     import logging
     import coloredlogs
     import time
@@ -49,10 +67,6 @@ if __name__=="__main__":
     import pyglet.window.key as key
 
     def parse_args():
-        parser = argparse.ArgumentParser("MineRL Stream Viewer")
-        parser.add_argument("environment", type=str)
-        parser.add_argument("stream_name", type=str)
-
         return parser.parse_args()
 
 
@@ -448,6 +462,9 @@ if __name__=="__main__":
         # for _ in data.seq_iter( 1, -1, None, None, include_metadata=True):
         #     print(_[-1])
         #     pass
+        if opts.stream_name == None:
+            trajs = data.get_trajectory_names()
+            opts.stream_name = random.choice(trajs)
         
         logger.info("Loading data for {}...".format(opts.stream_name))
         data_frames = list(data.load_data(opts.stream_name, include_metadata=True))
@@ -479,7 +496,7 @@ if __name__=="__main__":
 
             # Display video viewer
             obs, action, rew, next_obs, done, meta = data_frames[position]
-            print(obs['inventory'])
+            # print(obs['inventory'])
             
             # print(cum_rewards[position])
             # Display info stuff!

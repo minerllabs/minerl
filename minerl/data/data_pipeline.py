@@ -230,6 +230,15 @@ class DataPipeline:
             yield_list = [observation_dict, action_dict, reward_seq[0][idx], next_observation_dict, done_seq[0][idx]] 
             yield yield_list + [meta] if include_metadata else yield_list
             
+
+    def get_trajectory_names(self):
+        """Gets all the trajectory names
+        
+        Returns:
+            A list of experiment names: [description]
+        """
+        return [os.path.basename(x) for x in self._get_all_valid_recordings(self.data_dir)]
+
     ############################
     #     PRIVATE METHODS      #
     ############################
