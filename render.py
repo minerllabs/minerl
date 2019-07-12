@@ -178,12 +178,15 @@ def render_metadata(renders: list):
                             markers = json.load(f) 
                             has_any_exps = False
                             for marker in markers:
-                                exp_metadata = marker['metadata']['expMetadata']
+#                                print(marker.keys())
+                                exp_metadata = marker['value']['metadata']['expMetadata']
 
                                 for exp in RENDER_ONLY_EXPERIMENTS:
                                     has_any_exps = (exp in exp_metadata) or has_any_exps
 
                             assert has_any_exps
+#                    finally:
+ #                       pass
                     except (KeyError, FileNotFoundError):
                         raise AssertionError("Couldn't open metadata json.")
 

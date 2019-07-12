@@ -33,6 +33,7 @@ BLACKLIST_TXT = J(WORKING_DIR, 'blacklist.txt')
 BLOCK_SIZE = 1024*1024
 PARSE_COMMAND = [os.path.abspath('./merging/parse'), '-f']
 Z7_COMMAND = ["7z"]
+TEMP_ROOT='/mnt/ramdisk'
 
 ACTION_FILE = 'actions.tmcpr'
 RECORDING_FILE = 'recording.tmcpr'
@@ -164,7 +165,7 @@ def get_files_to_merge(blacklist):
                 files_to_merge.append(stream_name)
             
         except AssertionError as e:
-            print(e)
+            print("FAILED", e)
             # raise
 
     return list(set(files_to_merge))
@@ -177,7 +178,7 @@ def merge_stream(stream_name):
     # 4. Place ifles
     try:
         target_name = J(MERGED_DIR, "{}.mcpr".format(stream_name))
-        tempdir = tempfile.mkdtemp()
+        tempdir = tempfile.mkdtemp(dir=TEMP_ROOT)
         bin_name = J(tempdir, "{}.bin".format(stream_name))
         # Concatenate
         shards = sorted(glob.glob(J(DOWNLOADED_DIR, "{}-*".format(stream_name))))
@@ -207,8 +208,10 @@ def merge_stream(stream_name):
 
                 return (time.time() - t0)
             else:
+                print("FAILED_TO_ZIP {}".format(stream_name))
                 return "FAILED to ZIP", stream_name
         else:
+            print("FAILED_TO_PARSE {}".format(stream_name))
             return "FAILED TO PARSE", stream_name
     finally:
         shutil.rmtree(tempdir)
