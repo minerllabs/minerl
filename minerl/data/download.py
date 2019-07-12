@@ -51,8 +51,8 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
             except:
                 pass
 
-    filename, hashname = "minerl_{}/data_texture_{}_{}_res.tar.gz".format(DATA_VERSION, texture_pack, resolution), \
-                         "minerl_{}/data_texture_{}_{}_res.md5".format(DATA_VERSION, texture_pack, resolution)
+    filename, hashname = "minerl_v{}/data_texture_{}_{}_res.tar.gz".format(DATA_VERSION, texture_pack, resolution), \
+                         "minerl_v{}/data_texture_{}_{}_res.md5".format(DATA_VERSION, texture_pack, resolution)
     urls = ["https://router.sneakywines.me/" + filename]
     hash_url = "https://router.sneakywines.me/" + hashname
 
