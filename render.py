@@ -45,6 +45,7 @@ RENDERED_LOG_PATH = [J(d,  'replay_logs') for d in MINECRAFT_DIR]
 FINISHED_FILE = [J(d, 'finished.txt') for d in MINECRAFT_DIR]
 LOG_FILE = [J(d, 'logs', 'debug.log') for d in MINECRAFT_DIR]
 MC_LAUNCHER = [J(d, 'launch.sh') for d in MINECRAFT_DIR]
+RENDER_ONLY_EXPERIMENTS = ['o_dia', 'survivaltreechop', 'navigate', 'navigateextreme', 'o_iron']
 
 # Error directories
 ERROR_PARENT_DIR = J(WORKING_DIR, 'error_logs')
@@ -169,6 +170,22 @@ def render_metadata(renders: list):
                         jbos = json.load(f)
                         # assert (ile["duration"] > 60000 or jbos["duration"] == 0)
                         assert (jbos["duration"] > 300000)
+
+                        # go through and check if we got the experiments.
+
+                    try:
+                        with open(J(render_path, 'markers.json'), 'r') as f:
+                            markers = json.load(f) 
+                            has_any_exps = False
+                            for marker in markers:
+                                exp_metadata = marker['metadata']['expMetadata']
+
+                                for exp in RENDER_ONLY_EXPERIMENTS:
+                                    has_any_exps = (exp in exp_metadata) or has_any_exps
+
+                            assert has_any_exps
+                    except (KeyError, FileNotFoundError):
+                        raise AssertionError("Couldn't open metadata json.")
 
                     # check that stream_meta_data is good
                     with open(J(render_path, 'stream_meta_data.json'), 'r') as f:
