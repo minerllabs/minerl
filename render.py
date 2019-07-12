@@ -37,8 +37,8 @@ MERGED_DIR = J(WORKING_DIR, "merged_new")
 RENDER_DIR = J(WORKING_DIR, "rendered_new")
 
 # Minecraft Files
-NUM_MINECRAFT_DIR = 4
-MINECRAFT_DIR = [J('/', 'home', 'hero', 'minecraft_{}'.format(i)) for i in range(NUM_MINECRAFT_DIR)]
+NUM_MINECRAFT_DIR = 12
+MINECRAFT_DIR = [J('/', 'home', 'madcowd', 'rendering', 'minecraft_{}'.format(i)) for i in range(NUM_MINECRAFT_DIR)]
 RECORDING_PATH = [J(d, 'replay_recordings') for d in MINECRAFT_DIR]
 RENDERED_VIDEO_PATH = [J(d, 'replay_videos') for d in MINECRAFT_DIR]
 RENDERED_LOG_PATH = [J(d,  'replay_logs') for d in MINECRAFT_DIR]
