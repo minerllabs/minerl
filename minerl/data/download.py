@@ -5,7 +5,11 @@ from urllib.error import HTTPError
 import requests
 import shutil
 import tarfile
-import pySmartDL
+import minerl
+
+
+from minerl.dependencies.pySmartDL import pySmartDL
+
 import logging
 
 from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
@@ -70,6 +74,8 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
         download_path = None
 
     logger.info("Verifying download hash ...")
+
+    
     obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
 
     obj.add_hash_verification('md5', md5_hash)
