@@ -110,9 +110,6 @@ if __name__=="__main__":
         def width(self):
             return self._w
 
-        def __repr__(self):
-            return f"Rect(x={self._x}, y={self._y}, w={self._w}, h={self._h})"
-
 
     class Point:
         def __init__(self, x, y, radius, color=None):
@@ -139,9 +136,6 @@ if __name__=="__main__":
                         self._x + self._radius, self._y -height/2,
                         self._x, self._y + height/2))  
             self._color_str = ['c3B', self._color + self._color +  self._color]
-
-        def __repr__(self):
-            return f"Point(x={self._x}, y={self._y}, w={self._w}, h={self._h})"
 
 
 

@@ -3,4 +3,4 @@
 	url = https://github.com/cmu-rl/Malmo.git
 [submodule "minerl/dependencies/pySmartDL"]
 	path = minerl/dependencies/pySmartDL
-	url = git@github.com:minerllabs/pySmartDL.git
+	url = https://github.com/minerllabs/pySmartDL.git
