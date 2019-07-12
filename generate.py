@@ -19,6 +19,7 @@ import numpy
 import tqdm
 import subprocess
 import json
+import traceback
 
 #######################
 ### UTILITIES
@@ -130,10 +131,9 @@ def parse_metadata(startMarker, stopMarker):
             metadata['success'] = metadata['server_metadata']['players'][0] in metadata['server_metadata']['winners']
 
         return metadata
-    except ValueError as e:
-        return {'BIG_FAT_ERROR', str(e)}
-    except KeyError as e:
-        return {'BIG_FAT_KEY_ERROR', str(e)}
+    except Exception as e:
+        traceback.print_exc()
+        raise e
 
 
 class ThreadManager(object):
@@ -352,8 +352,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                 def o_iron_adjust(univ, t):
                     try:
-                        univ[t]['diff']['changes'] = {
-                            'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1}
+                        univ[t]['diff']['changes'] = [{
+                            'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1}]
                     except KeyError:
                         pass
                     
@@ -368,9 +368,11 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     return False
 
                 def o_dia_adjust(univ, t):
+                    print(univ[t])
                     try:
-                        univ[t]['diff']['changes'] = {
-                            'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}
+                        univ[t]['diff']['changes'] = [{
+                            'item': 'minecraft:diamond', 'variant': 0, 'quantity_change': 1}]
+                        print(univ[t])
                     except KeyError:
                         pass
 
@@ -396,7 +398,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     'navigate': (nav_finished, nav_adjust),
                     'navigateextreme': (nav_finished, nav_adjust)
                 }
-                
+
                 for finish_expName in finish_conditions:
                     condition, adjust = finish_conditions[finish_expName]
                     if expName == finish_expName and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording'] and startTick is not None:
@@ -404,6 +406,10 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                             univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
                         cond_satisfied = []
+                        metadata = parse_metadata(startMarker, marker)
+                        print("Here is the metadata:")
+                        print(metadata)
+                        print("there it was")
 
                         for i in range(min(400, meta['tick'] - startTick)):
                             considered_tick = (meta['tick'] - i)
@@ -417,17 +423,19 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         if cond_satisfied and not (cond_satisfied)[0] == meta['tick']:
                             print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
 
-                        metadata = parse_metadata(startMarker, marker)
-
                         if cond_satisfied:
                             meta['tick'] = cond_satisfied[0]
+                            print('Marked a winner')
                         else:
                             # Add change if winner
                             try:
                                 if len(metadata['server_metadata']['winners']) > 0:
-                                    adjust(univ_json, meta['tick'])
-                            except (KeyError) as e:
-                                pass
+                                    adjust(univ_json, str(meta['tick']))
+                                else:
+                                    print('Not a winner')
+                            except (KeyError, TypeError) as e:
+                                print('Def not a winner')
+                                traceback.print_exc()
 
             else:
                 continue
