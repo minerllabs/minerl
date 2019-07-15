@@ -25,6 +25,7 @@ import os
 import traceback
 import pathlib 
 import Pyro4.core
+import argparse
 
  
 import shutil
@@ -569,6 +570,8 @@ class InstanceManager:
             """
             Launches the process watcher for the parent and minecraft process.
             """
+
+            multiprocessing.freeze_support()
             parent_conn, child_conn = multiprocessing.Pipe()
             self._logger.info("Starting process watcher for process {} @ {}:{}".format(child_pid, child_host, child_port))
             p = multiprocessing.Process(
@@ -732,6 +735,11 @@ def launch_instance_manager():
     """
     # Todo: Use name servers in the docker contexct (set up a docker compose?)
     # pyro4-ns
+    parser = argparse.ArgumentParser("python3 launch_instance_manager.py")
+    parser.add_argument("--seed", type=int, default=None, 
+        help="The default seed for the environment.")
+    opts = parser.parse_args()
+    
     try:
         print("Removing the performance directory!")
         try:

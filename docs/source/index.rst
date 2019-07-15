@@ -88,6 +88,13 @@ components:
    environments/index
 
 .. toctree::
+   :caption: Notes
+   :maxdepth: 2
+
+   notes/windows
+
+
+.. toctree::
     :maxdepth: 2
     :caption: minerl package API Reference
 
