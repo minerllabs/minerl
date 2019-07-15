@@ -46,7 +46,7 @@ class Enum(gym.spaces.Discrete):
         try:
             if isinstance(action, str):
                 return self.values.index(action)
-            elif action < super().n:
+            elif action < self.n:
                 return action
         except ValueError:
             raise ValueError("\"{}\" not valid ENUM value in values {}".format(action, self.values))

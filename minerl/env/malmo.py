@@ -569,6 +569,8 @@ class InstanceManager:
             """
             Launches the process watcher for the parent and minecraft process.
             """
+
+            multiprocessing.freeze_support()
             parent_conn, child_conn = multiprocessing.Pipe()
             self._logger.info("Starting process watcher for process {} @ {}:{}".format(child_pid, child_host, child_port))
             p = multiprocessing.Process(
