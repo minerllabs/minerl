@@ -10,10 +10,6 @@ def assert_version(data_directory):
 
     try:
         if os.path.exists(version_file):
-            1/0
-            
-
-            assert os.path.exists(version_file), "more"
             with open(version_file, 'r') as f:
                 try:
                     txt = int(f.read())
