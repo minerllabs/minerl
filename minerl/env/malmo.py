@@ -75,6 +75,7 @@ class InstanceManager:
 
     DEFAULT_IP = "localhost"
     _instance_pool = []
+    _malmo_base_port = 9000
     ninstances = 0
     X11_DIR = '/tmp/.X11-unix'
     headless = False
@@ -209,10 +210,16 @@ class InstanceManager:
         return port in [instance.port for instance in cls._instance_pool]
 
     @classmethod
+    def configure_malmo_base_port(cls, malmo_base_port):
+        """Configure the lowest or base port for Malmo"""
+        cls._malmo_base_port = malmo_base_port
+
+    @classmethod
     def _get_valid_port(cls):
-        port = (cls.ninstances  % 5000) + 9000
+        malmo_base_port = cls._malmo_base_port
+        port = (cls.ninstances  % 5000) + malmo_base_port
         while cls._is_port_taken(port) or \
-              cls._is_display_port_taken(port - 9000, cls.X11_DIR) or \
+              cls._is_display_port_taken(port - malmo_base_port, cls.X11_DIR) or \
               cls._port_in_instance_pool(port):
             port += 1
         return port
