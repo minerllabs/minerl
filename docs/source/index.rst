@@ -79,6 +79,7 @@ components:
    tutorials/index
    tutorials/first_agent
    tutorials/data_sampling
+   tutorials/docker
 
 
 .. toctree::
