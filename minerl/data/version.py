@@ -23,9 +23,12 @@ def assert_version(data_directory):
             assert DATA_VERSION <= txt, "more"
             assert DATA_VERSION >= txt, "less"
         else:
-            fs = (glob.glob(os.path.join(data_directory, '*-*/*')))
-            for f in fs:
-                assert_prefix(f)
+            for exp in os.listdir(data_directory):
+                if VERSION_FILE_NAME not in exp:
+                    exp_dir =  os.path.join(data_directory, exp)
+                    for f in os.listdir(exp_dir):
+                        assert_prefix(os.path.join(exp_dir, f))
+                
     except AssertionError as e:
         _raise_error(e, data_directory)
 
