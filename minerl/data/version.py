@@ -24,7 +24,7 @@ def assert_version(data_directory):
             assert DATA_VERSION >= txt, "less"
         else:
             for exp in os.listdir(data_directory):
-                if VERSION_FILE_NAME not in exp:
+                if 'MineRL' in exp:
                     exp_dir =  os.path.join(data_directory, exp)
                     for f in os.listdir(exp_dir):
                         assert_prefix(os.path.join(exp_dir, f))
