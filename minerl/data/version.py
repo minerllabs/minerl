@@ -1,6 +1,6 @@
 import os
 import re
-
+import glob
 DATA_VERSION = 1
 FILE_PREFIX = "v{}_".format(DATA_VERSION)
 VERSION_FILE_NAME = "VERSION"
@@ -9,19 +9,26 @@ def assert_version(data_directory):
     version_file = os.path.join(data_directory, VERSION_FILE_NAME)
 
     try:
-        assert os.path.exists(version_file), "more"
-        with open(version_file, 'r') as f:
-            try:
-                txt = int(f.read())
-            except FileNotFoundError:
-                raise AssertionError("less")
-            except Exception as e:
-                print('VERSION number not found in data folder')
-                raise e
-            current_version = txt
+        if os.path.exists(version_file):
+            with open(version_file, 'r') as f:
+                try:
+                    txt = int(f.read())
+                except FileNotFoundError:
+                    raise AssertionError("less")
+                except Exception as e:
+                    print('VERSION number not found in data folder')
+                    raise e
+                current_version = txt
 
-        assert DATA_VERSION <= txt, "more"
-        assert DATA_VERSION >= txt, "less"
+            assert DATA_VERSION <= txt, "more"
+            assert DATA_VERSION >= txt, "less"
+        else:
+            for exp in os.listdir(data_directory):
+                if 'MineRL' in exp:
+                    exp_dir =  os.path.join(data_directory, exp)
+                    for f in os.listdir(exp_dir):
+                        assert_prefix(os.path.join(exp_dir, f))
+                
     except AssertionError as e:
         _raise_error(e, data_directory)
 
