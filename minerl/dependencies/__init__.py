@@ -1,2 +1,2 @@
 
-import minerl.dependencies.pySmartDL
+import minerl.dependencies.pySmartDL.pySmartDL
