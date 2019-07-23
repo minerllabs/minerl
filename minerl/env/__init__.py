@@ -33,10 +33,10 @@ register(
     entry_point='minerl.env:MineRLEnv',
     kwargs={
         'xml': os.path.join(missions_dir, 'treechop.xml'),
-        'observation_space': spaces.Dict({
+        'observation_space': spaces.Dict(spaces={
             'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
         }),
-        'action_space': spaces.Dict({
+        'action_space': spaces.Dict(spaces={
             "forward": spaces.Discrete(2), 
             "back": spaces.Discrete(2), 
             "left": spaces.Discrete(2), 
@@ -111,7 +111,7 @@ The agent is given a sparse reward (+100 upon reaching the goal, at which point 
     return navigate_text
 
 
-navigate_action_space = spaces.Dict({
+navigate_action_space = spaces.Dict(spaces={
     "forward": spaces.Discrete(2),
     "back": spaces.Discrete(2),
     "left": spaces.Discrete(2),
@@ -123,9 +123,9 @@ navigate_action_space = spaces.Dict({
     "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
     "place": spaces.Enum('none', 'dirt')})
 
-navigate_observation_space = spaces.Dict({
+navigate_observation_space = spaces.Dict(spaces={
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-    'inventory': spaces.Dict({
+    'inventory': spaces.Dict(spaces={
         'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int)
     }),
     'compassAngle': spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)
@@ -185,7 +185,7 @@ register(
 #     Obtain Iron     #
 #######################
 
-obtain_observation_space = spaces.Dict({
+obtain_observation_space = spaces.Dict(spaces={
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
     'inventory': spaces.Dict({
         'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
@@ -207,8 +207,8 @@ obtain_observation_space = spaces.Dict({
         'iron_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
         'iron_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
     }),
-    'equipped_items': spaces.Dict({
-        'mainhand': spaces.Dict({
+    'equipped_items': spaces.Dict(spaces={
+        'mainhand': spaces.Dict(spaces={
             'type': spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                 'iron_axe', 'iron_pickaxe', 'other'),
             'damage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
@@ -217,7 +217,7 @@ obtain_observation_space = spaces.Dict({
     })
 })
 
-obtain_action_space = spaces.Dict({
+obtain_action_space = spaces.Dict(spaces={
     "forward": spaces.Discrete(2),
     "back": spaces.Discrete(2),
     "left": spaces.Discrete(2),
