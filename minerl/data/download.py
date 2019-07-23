@@ -6,6 +6,8 @@ import requests
 import shutil
 import tarfile
 import minerl
+import time
+from threading import Thread
 
 
 from minerl.dependencies.pySmartDL import pySmartDL
@@ -17,7 +19,7 @@ from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
 logger = logging.getLogger(__name__)
 
 
-def download(directory=None, resolution='low', texture_pack= 0, update_environment_variables=True, disable_cache=False):
+def download(directory=None, resolution='low', texture_pack=0, update_environment_variables=True, disable_cache=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
@@ -105,13 +107,13 @@ def download(directory=None, resolution='low', texture_pack= 0, update_environme
         return None
 
     logging.info('Extracting downloaded files - this may take some time ')
-    try:
-        tf = None
-        tf = tarfile.open(obj.get_dest(), mode="r:*")
-        tf.extractall(path=directory)
-    finally:
-        if tf is not None:
-            tf.close()
+
+    with tarfile.open(obj.get_dest(), mode="r:*") as tf:
+        t = Thread(target=tf.extractall(path=directory))
+        t.start()
+        while t.isAlive():
+            time.sleep(1)
+            print('.', end='')
 
     if disable_cache:
         os.remove(obj.get_dest())
