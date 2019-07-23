@@ -6,8 +6,8 @@ python:
 - '3.7'
 cache:
   pip: true
-#  directories:
-#  - $HOME/data
+  directories:
+    - $HOME/data
 addons:
   apt:
     packages:
@@ -23,9 +23,11 @@ addons:
     - libxi-dev
 env:
   - MINERL_DATA_ROOT=$HOME/data
+  - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 install:
 - pip install .
 - pip install pytest-xdist
+- python -c "import minerl; minerl.data.download()"
 #- python -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(experiment='MineRLObtainDiamond-v0')"
 services: xvfb
 script:
