@@ -6,7 +6,6 @@ python:
 - '3.7'
 cache:
   pip: true
-  branch: bash
   directories:
   - $HOME/data
 addons:
