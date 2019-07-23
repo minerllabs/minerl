@@ -7,6 +7,7 @@ import shutil
 import tarfile
 import minerl
 import time
+import tqdm
 from threading import Thread
 
 
@@ -25,9 +26,12 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
     
     Args:
         directory (os.path): destination root for downloading MineRLv0 datasets
-        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ] respectively (note: high resolution is not currently supported). Defaults to 'low'.
-        texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults to 0.
-        update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment variable (note: for some os this is only for the current shell) Defaults to True.
+        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ]
+            respectively (note: high resolution is not currently supported). Defaults to 'low'.
+        texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults
+            to 0.
+        update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment
+            variable (note: for some os this is only for the current shell) Defaults to True.
         disable_cache (bool, optional): downloads temporary files to local directory. Defaults to False
     """
     if directory is None:
@@ -38,6 +42,8 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
     elif update_environment_variables:
         os.environ['MINERL_DATA_ROOT'] = os.path.expanduser(
             os.path.expandvars(os.path.normpath(directory)))
+
+    logger.info("Downloading dataset to {}".format(directory))
     
     if os.path.exists(directory): 
         try:
@@ -106,14 +112,14 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         logger.error(e.errno)
         return None
 
-    logging.info('Extracting downloaded files - this may take some time ')
-
+    logging.info('Extracting downloaded files - this may take some time =)')
     with tarfile.open(obj.get_dest(), mode="r:*") as tf:
         t = Thread(target=tf.extractall(path=directory))
         t.start()
+        ticker = tqdm.tqdm()
         while t.isAlive():
             time.sleep(1)
-            print('.', end='')
+            ticker.update(1)
 
     if disable_cache:
         os.remove(obj.get_dest())
