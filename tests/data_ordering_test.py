@@ -61,7 +61,7 @@ def test_data(environment='MineRLObtainDiamond-v0'):
             for key, space in d.action_space.spaces.items():
                 _check_space(key, space, act, correct_len)
 
-        break
+            break
 
     return True
 
