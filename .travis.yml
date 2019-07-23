@@ -6,8 +6,8 @@ python:
 - '3.7'
 cache:
   pip: true
-  directories:
-    - $HOME/data
+#  directories:
+#  - $HOME/data
 addons:
   apt:
     packages:
