@@ -49,22 +49,19 @@ def _check_space(key, space, observation, correct_len):
 
 
 def test_data(environment='MineRLObtainDiamond-v0'):
-    d = minerl.data.make(environment, num_workers=8)
+    for _ in range(20):
+        d = minerl.data.make(environment, num_workers=1)
 
-    # Iterate through batches of data
-    counter = tqdm.tqdm()
-    for obs, act, rew, nObs, done in d.sarsd_iter(num_epochs=1, max_sequence_len=128):
-        correct_len = len(rew)
+        # Iterate through batches of data
+        for obs, act, rew, nObs, done in d.sarsd_iter(num_epochs=1, max_sequence_len=2):
+            correct_len = len(rew)
+            for key, space in d.observation_space.spaces.items():
+                _check_space(key, space, obs, correct_len)
 
-        for key, space in d.observation_space.spaces.items():
-            _check_space(key, space, obs, correct_len)
+            for key, space in d.action_space.spaces.items():
+                _check_space(key, space, act, correct_len)
 
-        for key, space in d.action_space.spaces.items():
-            _check_space(key, space, act, correct_len)
-
-        counter.update(correct_len)
-
-    return counter.n / counter.last_print_t if counter.last_print_n > 0 else 0
+    return True
 
 
 if __name__ == '__main__':
