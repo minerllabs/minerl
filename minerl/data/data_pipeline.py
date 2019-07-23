@@ -1,3 +1,4 @@
+import collections
 import functools
 import json
 import logging
@@ -97,7 +98,7 @@ class DataPipeline:
         def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
             if isinstance(gym_space, spaces.Dict):
                 dont_count = False
-                inner_dict = dict()
+                inner_dict = collections.OrderedDict()
                 for idx, (k, s) in enumerate(gym_space.spaces.items()):
                     if key in ['equipped_items', 'mainhand']:
                         dont_count = True
@@ -112,7 +113,7 @@ class DataPipeline:
             else:
                 dst[key] = src[i]
                 return i + 1
-        result = dict()
+        result = collections.OrderedDict()
         index = 0
         for key, space in target_space.spaces.items():
             index = _map_to_dict(index, handler_list, key, space, result)
@@ -128,7 +129,6 @@ class DataPipeline:
             "\nNOTE: The new method `DataPipeline.sarsd_iter` has a different return signature! "
             "\n\t  Please see how to use it @ http://www.minerl.io/docs/tutorials/data_sampling.html")
 
-
     def sarsd_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
         """
         Returns a generator for iterating through (state, action, reward, next_state, is_terminal)
@@ -137,14 +137,19 @@ class DataPipeline:
         max_sequence_len consecutive samples wrapped in a dict observation space
         
         Args:
-            num_epochs (int, optional): number of epochs to ittereate over or -1
-             to loop forever. Defaults to -1.
-            max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32.
+            num_epochs (int, optional): number of epochs to iterate over or -1
+                to loop forever. Defaults to -1
+            max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32
             seed (int, optional): seed for random directory walk - note, specifying seed as well as a finite num_epochs
-             will cause the ordering of examples to be the same after every call to seq_iter
+                will cause the ordering of examples to be the same after every call to seq_iter
+            queue_size (int, optional): maximum number of elements to buffer at a time, each worker may hold an
+                additional item while waiting to enqueue. Defaults to 16*self.number_of_workers or 2*
+                self.number_of_workers if max_sequence_len == -1
+            include_metadata (bool, optional): adds an additional member to the tuple containing metadata about the
+                stream the data was loaded from. Defaults to False
 
         Yields:
-            A tuple of (state, player_action, reward_from_action, next_state, is_next_state_terminal).
+            A tuple of (state, player_action, reward_from_action, next_state, is_next_state_terminal, (metadata)).
             Each element is in the format of the environment action/state/reward space and contains as many
             samples are requested.
         """
