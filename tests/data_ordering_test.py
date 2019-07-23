@@ -48,7 +48,7 @@ def _check_space(key, space, observation, correct_len):
         assert False, "Unsupported dict type"
 
 
-def test_data(environment='MineRLObtainDiamondDense-v0'):
+def test_data(environment='MineRLObtainDiamond-v0'):
     d = minerl.data.make(environment, num_workers=8)
 
     # Iterate through batches of data
