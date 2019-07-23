@@ -5,9 +5,9 @@ python:
 - '3.6'
 - '3.7'
 cache:
-  pip
+  - pip
   directories:
-  - $HOME/data
+    - $HOME/data
 addons:
   apt:
     packages:
@@ -29,7 +29,7 @@ install:
 - python -c "import minerl; minerl.data.download()"
 services: xvfb
 script:
-- xvfb-run -a pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
+  - xvfb-run -a pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
 branches:
   only:
   - master
