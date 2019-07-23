@@ -8,6 +8,7 @@ cache:
   directories:
   - $HOME/data
   - $HOME/:cache/pip
+  - /tmp/
 addons:
   apt:
     packages:
@@ -25,7 +26,7 @@ env:
   - MINERL_DATA_ROOT=$HOME/data
 install:
 - pip install .
-- python -c "import minerl; minerl.data.download()"
+- python -c "import minerl; minerl.data.download(disable_cache=True)"
 services: xvfb
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
