@@ -17,7 +17,7 @@ def _check_shape(num_samples, sample_shape, obs):
         for i in range(len(obs.shape) - 1):
             assert (obs.shape[i + 1] == sample_shape[i])
     else:
-        assert False, "unsupported box data type"
+        assert False, "unsupported data type"
 
 
 def _check_space(key, space, observation, correct_len):

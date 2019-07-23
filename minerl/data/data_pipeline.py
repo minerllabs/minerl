@@ -306,9 +306,9 @@ class DataPipeline:
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
 
-            action_dict = {key: state[key] for key in state if key.startswith('action_')}
+            action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action_')])
             reward_vec = state['reward']
-            info_dict = {key: state[key] for key in state if key.startswith('observation_')}
+            info_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('observation_')])
 
             num_states = len(reward_vec) + 1
 
