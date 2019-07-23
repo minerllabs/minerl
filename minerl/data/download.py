@@ -93,6 +93,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         # Check if experiment is already downloaded
         if os.path.exists(os.path.join(directory, experiment)):
             logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
+            return directory
         filename = "minerl_v{}/{}.tar.gz".format(DATA_VERSION, experiment)
         urls = ["https://router.sneakywines.me/" + filename]
         obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
