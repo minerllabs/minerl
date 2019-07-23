@@ -131,10 +131,9 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
     with tarfile.open(obj.get_dest(), mode="r:*") as tf:
         t = Thread(target=tf.extractall(path=directory))
         t.start()
-        ticker = tqdm.tqdm()
         while t.isAlive():
-            time.sleep(1)
-            ticker.update(1)
+            time.sleep(5)
+            logging.info('.')
 
         logging.info('Success - extracted files to {}'.format(directory))
 
