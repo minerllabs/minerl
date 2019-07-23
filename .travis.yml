@@ -7,7 +7,7 @@ python:
 cache:
   pip
   directories:
-    - $HOME/data
+  - $HOME/data
 addons:
   apt:
     packages:
