@@ -26,11 +26,12 @@ env:
   - MINERL_DATA_ROOT=$HOME/data
 install:
 - pip install .
+- pip install pytest-xdist
 - python -c "import minerl; minerl.data.download(disable_cache=True)"
 services: xvfb
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-  - xvfb-run -a pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
+  - xvfb-run -a pytest -n auto --ignore=minerl/env/Malmo --ignore=tests/excluded
 branches:
   only:
   - master
