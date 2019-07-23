@@ -247,7 +247,6 @@ class DataPipeline:
 
             yield_list = [observation_dict, action_dict, reward_seq[0][idx], next_observation_dict, done_seq[0][idx]] 
             yield yield_list + [meta] if include_metadata else yield_list
-            
 
     def get_trajectory_names(self):
         """Gets all the trajectory names
