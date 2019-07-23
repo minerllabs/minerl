@@ -4,10 +4,10 @@ python:
 - '3.5'
 - '3.6'
 - '3.7'
-cache: pip
-#  - pip
-#  directories:
-#    - $HOME/data
+cache:
+  directories:
+  - $HOME/data
+  - $HOME/:cache/pip
 addons:
   apt:
     packages:
@@ -23,12 +23,12 @@ addons:
     - libxi-dev
 env:
   - MINERL_DATA_ROOT=$HOME/data
-  - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 install:
 - pip install .
 - python -c "import minerl; minerl.data.download()"
 services: xvfb
 script:
+  - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
   - xvfb-run -a pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
 branches:
   only:
