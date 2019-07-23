@@ -44,7 +44,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
             os.path.expandvars(os.path.normpath(directory)))
 
     logger.info("Downloading dataset to {}".format(directory))
-    
+
     if os.path.exists(directory): 
         try:
             assert_version(directory)
@@ -83,7 +83,6 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
 
     logger.info("Verifying download hash ...")
 
-    
     obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
 
     obj.add_hash_verification('md5', md5_hash)
