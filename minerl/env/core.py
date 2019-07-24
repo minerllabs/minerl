@@ -560,8 +560,6 @@ class MineRLEnv(gym.Env):
                 "the info dictionary returned by the step function.")
             return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
-
-
     def _renderObs(self, obs):
         if self.viewer is None:
             from gym.envs.classic_control import rendering
@@ -594,7 +592,7 @@ class MineRLEnv(gym.Env):
         return self.viewer.isopen
 
     def render(self, mode='human'):
-        if mode == 'human':
+        if mode == 'human' and os.environ['AICROWD_IS_GRADING'] is None:
             self._renderObs(self._last_pov)
         return self._last_pov
 

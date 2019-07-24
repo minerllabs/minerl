@@ -223,6 +223,10 @@ class DataPipeline:
             file_dir = stream_name
         else:
             file_dir = os.path.join(self.data_dir, stream_name)
+
+        if DataPipeline._is_blacklisted(stream_name):
+            raise RuntimeError("This stream is corrupted (and will be removed in the next version of the data!)")
+        
         seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval,
                                              include_metadata=include_metadata)
         if include_metadata:
@@ -423,12 +427,27 @@ class DataPipeline:
             logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
             return None
 
+
+    @staticmethod
+    def _is_blacklisted(path):
+        for p in [
+            'tempting_capers_shapeshifter-14'
+        ]:
+            if p in path:
+                return True
+        
+        return False
+
     @staticmethod
     def _get_all_valid_recordings(path):
         directoryList = []
 
         # return nothing if path is a file
         if os.path.isfile(path):
+            return []
+
+        # Skip this file.
+        if DataPipeline._is_blacklisted(path):
             return []
 
         # add dir to directory list if it contains .txt files
