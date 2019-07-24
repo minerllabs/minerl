@@ -4,6 +4,7 @@
 [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
 [![PyPI version](https://badge.fury.io/py/minerl.svg)](https://badge.fury.io/py/minerl)
 [!["Open Issues"](https://img.shields.io/github/issues-raw/minerllabs/minerl.svg)](https://github.com/minerllabs/minerl/issues)
+[![GitHub issues by-label](https://img.shields.io/github/issues/minerllabs/minerl/bug.svg?color=red)](https://github.com/minerllabs/minerl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Abug)
 [![Discord](https://img.shields.io/discord/565639094860775436.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BT9uegr)
 
 [![Support us on patron](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fwguss_imushroom&style=for-the-badge)](https://www.patreon.com/wguss_imushroom)
