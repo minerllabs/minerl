@@ -86,7 +86,7 @@ class InstanceManager:
     MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
     SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Schemas') 
     STATUS_DIR = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'performance')
-    MAXINSTANCES = 10
+    MAXINSTANCES = None
     KEEP_ALIVE_PYRO_FREQUENCY = 5
     REMOTE = False
 
@@ -168,7 +168,7 @@ class InstanceManager:
                 return inst
         # Otherwise make a new instance if possible
         if cls.managed:
-            if len(cls._instance_pool) < cls.MAXINSTANCES:
+            if cls.MAXINSTANCES is None or cls.ninstances < cls.MAXINSTANCES:
                 cls.ninstances += 1
                 # Make the status directory.
 
@@ -816,8 +816,16 @@ def launch_instance_manager():
     parser.add_argument("--seeding_type", type=str, default=SeedType.CONSTANT, 
         help="The seeding type for the environment. Defaults to 1 (CONSTANT)"
              "if a seed specified, otherwise 0 (NONE): \n{}".format(SeedType.__doc__))
+    parser.add_argument("--max_instances", type=int, default=None,
+        help="The maximum number of instances the instance manager is able to spawn,"
+              "before an exception is thrown. Defaults to Unlimited.")
     opts = parser.parse_args()
     
+    if opts.max_instances is not None:
+        assert opts.max_instances > 0, "Maximum instances must be more than zero!"
+        InstanceManager.MAXINSTANCES = opts.max_instances
+    
+
     try:
         print("Removing the performance directory!")
         try:
