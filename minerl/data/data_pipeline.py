@@ -174,7 +174,7 @@ class DataPipeline:
             # for arg1, arg2, arg3 in files:
             #     DataPipeline._load_data_pyfunc(arg1, arg2, arg3)
             #     break
-            map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files)
+            map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files, error_callback=None)
 
             # random_queue = PriorityQueue(maxsize=pool_size)
 
@@ -364,7 +364,6 @@ class DataPipeline:
                 if frame_num == max_frame_num:
                     frames[-1] = frames[-2]
 
-
                 stop_idx = start_idx + len(frames)
                 # print('Num frames in batch:', stop_idx - start_idx)
 
@@ -399,7 +398,6 @@ class DataPipeline:
                 batches = [current_observation_data, action_data, [reward_data], next_observation_data, [np.array(done_data, dtype=np.bool)]]
                 if include_metadata:
                     batches += [meta]
-
 
                 if data_queue is None:
                     return batches
