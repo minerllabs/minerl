@@ -277,12 +277,9 @@ if __name__=="__main__":
             fig.canvas.draw()
 
             # Now we can save it to a numpy array.
-            if version.parse(matplotlib.__version__) < version.parse('3.1'):
-                data = np.array(fig.canvas.renderer.buffer_rgba())
-                data = data.reshape(fig.canvas.get_width_height()[::-1] + (4,))[:, :, :3]
-            else:
-                data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-                data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))[:, :, :3]
+
+            data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+            data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))[:, :, :3]
 
             self.cum_reward_image =data
             

@@ -11,4 +11,4 @@ psutil>=5.6.2
 Pyro4>=4.76
 getch>=1.0; sys_platform != 'win32' and sys_platform != 'cygwin'
 coloredlogs>=10.0
-matplotlib>=3.0.3
+matplotlib==3.0.3
