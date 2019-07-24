@@ -126,6 +126,7 @@ class MineRLEnv(gym.Env):
 
         self.xml_file = xml
         self.has_init = False
+        self._seed = None
         self.had_to_clean = False
 
         self._already_closed = False
@@ -398,16 +399,20 @@ class MineRLEnv(gym.Env):
 
     def reset(self):
         # Add support for existing instances.
-        if not self.has_init:
-            self.init()
+        try:
+            if not self.has_init:
+                self.init()
 
-        while not self.done:
-            self.done = self._quit_episode()
+            while not self.done:
+                self.done = self._quit_episode()
 
-            if not self.done:
-                time.sleep(0.1)
+                if not self.done:
+                    time.sleep(0.1)
 
-        return self._start_up()
+            return self._start_up()
+        finally:
+            # We don't force the same seed every episode, you gotta send it yourself queen.
+            self._seed = None
 
     @retry
     def _start_up(self):
@@ -496,12 +501,16 @@ class MineRLEnv(gym.Env):
         return ok != 0
 
     def seed(self, seed=None):
-        """Seeds the environment.
+        """Seeds the environment!
 
         Note:
-            This is NOT implemented.
+        THIS MUST BE CALLED BEFORE :code:`env.reset()`
+        
+        Args:
+            seed (long, optional):  Defaults to None.
         """
-        logger.warn("Seeds not supported yet.")
+        assert isinstance(seed, int), "Seed must be an int!"
+        self._seed = seed
 
     def step(self, action):
 
@@ -671,7 +680,10 @@ class MineRLEnv(gym.Env):
         while ok != 1:
             xml = etree.tostring(self.xml)
             token = (self._get_token() + ":" + str(self.agent_count) +
-                     ":" + str(self.synchronous).lower()).encode()
+                     ":" + str(self.synchronous).lower())
+            if self._seed:
+                token += ":{}".format(self._seed)
+            token = token.encode()
             comms.send_message(self.client_socket, xml)
             comms.send_message(self.client_socket, token)
 
