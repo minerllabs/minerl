@@ -17,7 +17,7 @@
         </ServerInitialConditions>
         <ServerHandlers>
             <DefaultWorldGenerator forceReset="true"/>
-            <ServerQuitFromTimeUp timeLimitMs="300000" description="out_of_time"/>
+            <ServerQuitFromTimeUp timeLimitMs="900000" description="out_of_time"/>
             <ServerQuitWhenAnyAgentFinishes/>
         </ServerHandlers>
     </ServerSection>

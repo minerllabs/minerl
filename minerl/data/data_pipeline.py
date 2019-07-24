@@ -179,7 +179,7 @@ class DataPipeline:
             # for arg1, arg2, arg3 in files:
             #     DataPipeline._load_data_pyfunc(arg1, arg2, arg3)
             #     break
-            map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files)
+            map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files, error_callback=None)
 
             # random_queue = PriorityQueue(maxsize=pool_size)
 
@@ -228,6 +228,10 @@ class DataPipeline:
             file_dir = stream_name
         else:
             file_dir = os.path.join(self.data_dir, stream_name)
+
+        if DataPipeline._is_blacklisted(stream_name):
+            raise RuntimeError("This stream is corrupted (and will be removed in the next version of the data!)")
+        
         seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval,
                                              include_metadata=include_metadata)
         if include_metadata:
@@ -368,7 +372,6 @@ class DataPipeline:
                 if frame_num == max_frame_num:
                     frames[-1] = frames[-2]
 
-
                 stop_idx = start_idx + len(frames)
                 # print('Num frames in batch:', stop_idx - start_idx)
 
@@ -404,7 +407,6 @@ class DataPipeline:
                 if include_metadata:
                     batches += [meta]
 
-
                 if data_queue is None:
                     return batches
                 else:
@@ -429,12 +431,27 @@ class DataPipeline:
             logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
             return None
 
+
+    @staticmethod
+    def _is_blacklisted(path):
+        for p in [
+            'tempting_capers_shapeshifter-14'
+        ]:
+            if p in path:
+                return True
+        
+        return False
+
     @staticmethod
     def _get_all_valid_recordings(path):
         directoryList = []
 
         # return nothing if path is a file
         if os.path.isfile(path):
+            return []
+
+        # Skip this file.
+        if DataPipeline._is_blacklisted(path):
             return []
 
         # add dir to directory list if it contains .txt files
