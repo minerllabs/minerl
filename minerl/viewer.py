@@ -7,6 +7,7 @@ To use:
 """
 
 import argparse
+from packaging import version
 from  minerl.data import FILE_PREFIX
 
 _DOC_TRAJ_NAME="{}absolute_zucchini_basilisk-13_36805-50154".format(FILE_PREFIX)
@@ -276,9 +277,9 @@ if __name__=="__main__":
             fig.canvas.draw()
 
             # Now we can save it to a numpy array.
+
             data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-            # print(data)
-            data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))[:,:,:3]
+            data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))[:, :, :3]
 
             self.cum_reward_image =data
             
@@ -287,7 +288,7 @@ if __name__=="__main__":
             x,y = self.camera_rect.center
             y += int(self.camera_rect.height//2 + SZ*2)
             x -= width//2
-            self.cum_reward_rect = Rect(x-1,y-1, width+2,height+2, color=(255,255,255))
+            self.cum_reward_rect = Rect(x-1,y-1, width+2,height+2, color=(255, 255, 255))
             self.cum_reward_label = pyglet.text.Label(
                 'Net Reward', font_size=SMALLER_FONT_SIZE, x=x+width//2, y=y+height+5,
             anchor_x='center', align='center')

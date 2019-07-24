@@ -21,10 +21,10 @@
     </ServerInitialConditions>
 
     <ServerHandlers>
-      <!--<FileWorldGenerator
+      <FileWorldGenerator
         src= "$(MISSIONS_DIR)/forest_survival"
-        destroyAfterUse = "true"/>-->
-      <BiomeGenerator forceReset="true" biome="4"/>
+        forceReset="true"/>
+<!--      <BiomeGenerator forceReset="true" biome="4"/>-->
       <ServerQuitFromTimeUp timeLimitMs="400000"/>
       <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
@@ -52,6 +52,9 @@
       <RewardForCollectingItem>
         <Item reward="1" type="log" />
       </RewardForCollectingItem>
+      <AgentQuitFromPossessingItem>
+        <Item type="log" amount="64"/>
+      </AgentQuitFromPossessingItem>
      <VideoProducer want_depth="false">
        <Width>64</Width>
        <Height>64</Height>
