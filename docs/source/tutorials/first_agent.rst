@@ -67,7 +67,7 @@ Taking actions
 **As a warm up let's create a random agent.** 🧠 
 
 Now we can reset this environment to its first position
-and get our first observation from the agent by reseting the environment.
+and get our first observation from the agent by resetting the environment.
 
 .. code-block:: python
 

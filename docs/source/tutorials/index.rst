@@ -11,6 +11,7 @@ main python package, :code:`minerl`.
 
 .. _OpenJDK 8: https://openjdk.java.net/install/
 .. _Windows installer: https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+.. _checkout the environment documentation: http://minerl.io/docs/environments/
 
 1. First **make sure you have JDK 1.8** installed on your
    system.
@@ -37,10 +38,20 @@ main python package, :code:`minerl`.
         depending on your system you may need the user flag:
         :code:`pip3 install --upgrade minerl --user` to install property
 
-3. (Optional) Download the dataset - 13.6 GB::
+3. (Optional) Download the dataset ~ 15.1 GB:
+
+   .. code-block:: python
 
         import minerl
         minerl.data.download(directory="/your/local/path/")
+
+   Or simply download a single experiment
+
+   .. code-block:: python
+
+        minerl.data.download('/your/local/path',experiment='MineRLObtainDiamond-v0')
+
+   For a complete list of published experiments, `checkout the environment documentation`_.
 
 **That's it! Now you're good to go :) 💯💯💯**
 
