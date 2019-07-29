@@ -492,7 +492,7 @@ class MineRLEnv(gym.Env):
                     "Something went wrong resetting the environment! "
                     "`done` was true on first frame.")
 
-        return self._process_observation(obs, info), {}
+        return self._process_observation(obs, info)
 
     def _quit_episode(self):
         comms.send_message(self.client_socket, "<Quit/>".encode())
