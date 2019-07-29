@@ -6,6 +6,10 @@ import gym
 import sys
 import tqdm
 import numpy as np
+import logging
+
+logging.getLogger().setLevel(logging.DEBUG)
+logging.basicConfig()
 
 
 # Helper functions
