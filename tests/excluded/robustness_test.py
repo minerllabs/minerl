@@ -27,7 +27,7 @@ def main():
     env = gym.make('MineRLNavigateDense-v0')
     
     for _ in range(NUM_EPISODES):
-        obs, info = env.reset()
+        obs = env.reset()
         done = False
         while not done:
             random_act = env.action_space.sample()

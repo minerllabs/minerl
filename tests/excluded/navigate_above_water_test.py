@@ -23,7 +23,7 @@ def main():
     env = gym.make('MineRLNavigateDense-v0')
     env.seed(420)
     for _ in range(NUM_EPISODES):
-        obs, info = env.reset()
+        obs = env.reset()
         done = False
         netr = 0
         while not done:
