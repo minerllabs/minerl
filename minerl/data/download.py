@@ -3,21 +3,39 @@ from urllib.error import URLError
 from urllib.error import HTTPError
 
 import requests
+import shutil
 import tarfile
-import pySmartDL
+import minerl
+import time
+import tqdm
+from threading import Thread
+
+
+from minerl.dependencies.pySmartDL import pySmartDL
+
 import logging
 
+from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
 
-def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0, update_environment_variables=True, disable_cache=False):
+logger = logging.getLogger(__name__)
+
+
+def download(directory=None, resolution='low', texture_pack=0, update_environment_variables=True, disable_cache=False,
+             experiment=None):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
     Args:
         directory (os.path): destination root for downloading MineRLv0 datasets
-        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ] respectively (note: high resolution is not currently supported). Defaults to 'low'.
-        texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults to 0.
-        update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment variable (note: for some os this is only for the current shell) Defaults to True.
+        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ]
+            respectively (note: high resolution is not currently supported). Defaults to 'low'.
+        texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults
+            to 0.
+        update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment
+            variable (note: for some os this is only for the current shell) Defaults to True.
         disable_cache (bool, optional): downloads temporary files to local directory. Defaults to False
+        experiment (str, optional): specify the desired experiment to download. Will only download data for this
+            experiment. Note there is no hash verification for individual experiments
     """
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
@@ -28,56 +46,104 @@ def download(directory: os.path, resolution: str = 'low', texture_pack: int = 0,
         os.environ['MINERL_DATA_ROOT'] = os.path.expanduser(
             os.path.expandvars(os.path.normpath(directory)))
 
-    # TODO pull JSON defining dataset URLS from webserver instead of hard-coding
-    # TODO add hashed to website to verify downloads for mirrors
-    filename, hashname = "data_texture_{}_{}_res.tar.gz".format(texture_pack, resolution), \
-                     "data_texture_{}_{}_res.md5".format(texture_pack, resolution)
-    urls = ["https://router.sneakywines.me/minerl/" + filename]
-    hash_url = "https://router.sneakywines.me/minerl/" + hashname
-
-    try:
-        response = requests.get(hash_url)
-        md5_hash = response.text
-    except TimeoutError:
-        print("Timeout error while retrieving hash for requested dataset version.")
-        return None
-
-    if disable_cache:
-        download_path = os.path.join(directory, '')
+    if experiment is not None:
+        logger.info("Downloading experiment {} to {}".format(experiment, directory))
     else:
-        download_path = None
+        logger.info("Downloading dataset to {}".format(directory))
 
-    obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logging.getLogger(__name__), dest=download_path)
+    if os.path.exists(directory):
+        try:
+            assert_version(directory)
+        except RuntimeError as r:
+            if r.comparison == "less":
+                raise r
+            logger.error(str(r))
+            logger.error("Deleting existing data and forcing a data update!")
+            try:
+                shutil.rmtree(directory)
+            except Exception as e:
+                logger.error("Could not delete {}. Do you have permission?".format(directory))
+                raise e
+            try:
+                os.makedirs(directory)
+            except:
+                pass
 
-    obj.add_hash_verification('md5', md5_hash)
+    download_path = os.path.join(directory, '') if disable_cache else None
+
+    if experiment is None:
+        filename, hashname = "minerl_v{}/data_texture_{}_{}_res.tar.gz".format(DATA_VERSION, texture_pack, resolution), \
+                             "minerl_v{}/data_texture_{}_{}_res.md5".format(DATA_VERSION, texture_pack, resolution)
+        urls = ["https://router.sneakywines.me/" + filename]
+        hash_url = "https://router.sneakywines.me/" + hashname
+
+        try:
+            logger.info("Fetching download hash ...")
+            response = requests.get(hash_url)
+            md5_hash = response.text
+        except TimeoutError:
+            logger.error(
+                "Timeout while retrieving hash for requested dataset version. Are you connected to the internet?")
+            return None
+
+        obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
+        logger.info("Verifying download hash ...")
+        obj.add_hash_verification('md5', md5_hash)
+    else:
+        # Check if experiment is already downloaded
+        if os.path.exists(os.path.join(directory, experiment)):
+            logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
+            return directory
+        filename = "minerl_v{}/{}.tar.gz".format(DATA_VERSION, experiment)
+        urls = ["https://router.sneakywines.me/" + filename]
+        obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
+
     try:
         obj.start()
     except pySmartDL.HashFailedException:
-        print("Hash check failed! Is server under maintenance?")
+        logger.error("Hash check failed! Is server under maintenance?")
         return None
     except pySmartDL.CanceledException:
-        print("Download canceled by user")
+        logger.error("Download canceled by user")
         return None
-    except HTTPError:
-        print("HTTP error encountered when downloading - please try again")
+    except HTTPError as e:
+        logger.error("HTTP error encountered when downloading")
+        if experiment is not None:
+            logger.error("is {}  a valid minerl environment?".format(experiment))
+        logger.error(e.errno)
         return None
-    except URLError:
-        print("URL error encountered when downloading - please try again")
+    except URLError as e:
+        logger.error("URL error encountered when downloading - please try again")
+        logger.error(e.errno)
         return None
-    except IOError:
-        print("IO error encountered when downloading - please try again")
+    except TimeoutError as e:
+        logger.error("Timeout encountered when downloading - is your connection stable")
+        logger.error(e.errno)
+        return None
+    except IOError as e:
+        logger.error("IO error encountered when downloading - please try again")
+        logger.error(e.errno)
         return None
 
-    logging.info('Extracting downloaded files ... ')
-    try:
-        tf = None
-        tf = tarfile.open(obj.get_dest(), mode="r:*")
-        tf.extractall(path=directory)
-    finally:
-        if tf is not None:
-            tf.close()
+    logging.info('Success - downloaded {}'.format(obj.get_dest()))
+
+    logging.info('Extracting downloaded files - this may take some time')
+    with tarfile.open(obj.get_dest(), mode="r:*") as tf:
+        t = Thread(target=tf.extractall(path=directory))
+        t.start()
+        while t.isAlive():
+            time.sleep(5)
+            logging.info('.')
+
+        logging.info('Success - extracted files to {}'.format(directory))
 
     if disable_cache:
+        logging.info('Deleting cached tar file')
         os.remove(obj.get_dest())
+
+    try:
+        assert_version(directory)
+    except RuntimeError as r:
+        logger.error(str(r))
 
     return directory

@@ -36,7 +36,7 @@ register(
         'observation_space': spaces.Dict({
             'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
         }),
-        'action_space': spaces.Dict({
+        'action_space': spaces.Dict(spaces={
             "forward": spaces.Discrete(2), 
             "back": spaces.Discrete(2), 
             "left": spaces.Discrete(2), 
@@ -125,7 +125,7 @@ navigate_action_space = spaces.Dict({
 
 navigate_observation_space = spaces.Dict({
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-    'inventory': spaces.Dict({
+    'inventory': spaces.Dict(spaces={
         'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int)
     }),
     'compassAngle': spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)
@@ -442,7 +442,6 @@ item are given here::
     },
     max_episode_steps=18000,
 )
-
 
 
 #######################

@@ -76,7 +76,7 @@ components:
    :caption: Tutorials and Guides
    :maxdepth: 2
 
-   tutorials/getting_started
+   tutorials/index
    tutorials/first_agent
    tutorials/data_sampling
 
@@ -86,6 +86,13 @@ components:
    :maxdepth: 2
 
    environments/index
+
+.. toctree::
+   :caption: Notes
+   :maxdepth: 2
+
+   notes/windows
+
 
 .. toctree::
     :maxdepth: 2
