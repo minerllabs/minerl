@@ -70,38 +70,29 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
                 pass
 
     download_path = os.path.join(directory, '') if disable_cache else None
+    mirrors = ["https://router.sneakywines.me/"]#, "https://router2.sneakywines.me/"]
 
     if experiment is None:
-        filename, hashname = "minerl_v{}/data_texture_{}_{}_res.tar.gz".format(DATA_VERSION, texture_pack, resolution), \
-                             "minerl_v{}/data_texture_{}_{}_res.md5".format(DATA_VERSION, texture_pack, resolution)
-        urls = ["https://router.sneakywines.me/" + filename]
-        hash_url = "https://router.sneakywines.me/" + hashname
-
-        try:
-            logger.info("Fetching download hash ...")
-            response = requests.get(hash_url)
-            md5_hash = response.text
-        except TimeoutError:
-            logger.error(
-                "Timeout while retrieving hash for requested dataset version. Are you connected to the internet?")
-            return None
+        filename = "minerl-v{}/data_texture_{}_{}_res.tar.gz".format(DATA_VERSION, texture_pack, resolution)
+        urls = [mirror + filename for mirror in mirrors]
 
         obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
-        logger.info("Verifying download hash ...")
-        obj.add_hash_verification('md5', md5_hash)
     else:
         # Check if experiment is already downloaded
         if os.path.exists(os.path.join(directory, experiment)):
             logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
             return directory
-        filename = "minerl_v{}/{}.tar.gz".format(DATA_VERSION, experiment)
-        urls = ["https://router.sneakywines.me/" + filename]
+        filename = "minerl-v{}/{}.tar.gz".format(DATA_VERSION, experiment)
+        urls = [mirror + filename for mirror in mirrors]
         obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
-
     try:
+        logger.info("Fetching download hash ...")
+        obj.fetch_hash_sums()
+        logger.info("Starting download ...")
         obj.start()
     except pySmartDL.HashFailedException:
-        logger.error("Hash check failed! Is server under maintenance?")
+        logger.error("Hash check failed! Is server under maintenance??")
+        logger.error("URL {}".format(obj.url))
         return None
     except pySmartDL.CanceledException:
         logger.error("Download canceled by user")
