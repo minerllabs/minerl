@@ -79,23 +79,41 @@ def test_data(environment='MineRLObtainDiamond-v0'):
     return True
 
 
-def test_envs():
-    for environment in ENVIRONMENTS:
-        d = minerl.data.make(environment, num_workers=1)
-        logging.info('Testing {}'.format(environment))
+def run_once(environment):
+    d = minerl.data.make(environment, num_workers=1)
+    logging.info('Testing {}'.format(environment))
 
-        # Iterate through single batch of data
-        for obs, act, rew, nObs, done in d.sarsd_iter(num_epochs=1, max_sequence_len=2):
-            correct_len = len(rew)
-            for key, space in d.observation_space.spaces.items():
-                _check_space(key, space, obs, correct_len)
+    # Iterate through single batch of data
+    for obs, act, rew, nObs, done in d.sarsd_iter(num_epochs=1, max_sequence_len=2):
+        correct_len = len(rew)
+        for key, space in d.observation_space.spaces.items():
+            _check_space(key, space, obs, correct_len)
 
-            for key, space in d.action_space.spaces.items():
-                _check_space(key, space, act, correct_len)
+        for key, space in d.action_space.spaces.items():
+            _check_space(key, space, act, correct_len)
 
-            break
-
+        break
     return True
+
+
+def test_navigate():
+    run_once('MineRLNavigate-v0')
+    run_once('MineRLNavigateDense-v0')
+
+
+def test_navigate_extreme():
+    run_once('MineRLNavigateExtreme-v0')
+    run_once('MineRLNavigateExtremeDense-v0')
+
+
+def test_obtain_iron_pickaxe():
+    run_once('MineRLObtainIronPickaxe-v0')
+    run_once('MineRLObtainIronPickaxeDense-v0')
+
+
+def test_obtain_diamond():
+    run_once('MineRLObtainDiamond-v0')
+    run_once('MineRLObtainDiamondDense-v0')
 
 
 if __name__ == '__main__':
