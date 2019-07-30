@@ -30,7 +30,7 @@ install:
 services: xvfb
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-  - xvfb-run -a pytest -n auto --ignore=minerl/env/Malmo --ignore=tests/excluded
+  - xvfb-run -a pytest -n auto --ignore=minerl --ignore=tests/excluded
 branches:
   only:
   - master
