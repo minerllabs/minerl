@@ -1,8 +1,8 @@
 # Basic package test
 import os
+
 import gym
 import minerl
-
 
 def main():
     """
@@ -23,6 +23,7 @@ def main():
 
 
 def test_import():
+    print(minerl.data.version)
     assert main() is True
 
 
