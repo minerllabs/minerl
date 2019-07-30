@@ -93,7 +93,7 @@ def gen_obtain_debug_actions(env):
 
 def test_env(environment='MineRLObtainTest-v0'):
     env = gym.make(environment)
-    obs, _ = env.reset()
+    obs = env.reset()
     done = False
     acts = []
     print(obs)
@@ -121,7 +121,7 @@ def step_env(environment='MineRLObtainIronPickaxe-v0'):
     env = gym.make(environment) # or try 'MineRLNavigateDense-v0'
 
     for _ in range(NUM_EPISODES):
-        obs, info = env.reset()
+        obs = env.reset()
         done = False
 
         while not done:

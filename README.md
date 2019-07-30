@@ -31,7 +31,7 @@ import gym
 env = gym.make('MineRLNavigateDense-v0')
 
 
-obs, _ = env.reset()
+obs = env.reset()
 
 done = False
 while not done:
