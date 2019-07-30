@@ -31,6 +31,7 @@ services: xvfb
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
   - xvfb-run -a pytest -n auto --ignore=tests/excluded --ignore=tests/local --ignore=minerl
+
 branches:
   only:
   - master
