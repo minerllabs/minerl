@@ -71,7 +71,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
                 pass
 
     download_path = os.path.join(directory, '') if disable_cache else None
-    mirrors = ["https://router.sneakywines.me/"]#, "https://router2.sneakywines.me/"]
+    mirrors = ["https://router.sneakywines.me/"] #, "https://router2.sneakywines.me/"]
 
     if experiment is None:
         min_str = '_minimal' if minimal else ''
