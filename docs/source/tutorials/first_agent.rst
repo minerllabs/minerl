@@ -71,7 +71,7 @@ and get our first observation from the agent by resetting the environment.
 
 .. code-block:: python
 
-    obs, _ = env.reset()
+    obs = env.reset()
 
 The :code:`obs` variable will be a dictionary containing the following
 observations returned by the environment. In the case of the
@@ -156,7 +156,7 @@ the angle between the agent's movement direction and it's target,  :code:`compas
     env = gym.make('MineRLNavigateDense-v0') 
     
     
-    obs, _ = env.reset() 
+    obs  = env.reset() 
     done = False 
     net_reward = 0
     

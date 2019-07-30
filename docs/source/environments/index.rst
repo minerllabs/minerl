@@ -91,7 +91,7 @@ environment!
             # Run a random agent through the environment
             env = gym.make("{}") # A {} env
 
-            obs, _ = env.reset()
+            obs = env.reset()
             done = False
 
             while not done:

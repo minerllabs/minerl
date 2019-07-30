@@ -32,7 +32,7 @@ def main():
     reward_list = []
     for _ in range(NUM_EPISODES):
         env.seed(22)
-        obs, info = env.reset()
+        obs = env.reset()
         done = False
         netr = 0
         rewards = []

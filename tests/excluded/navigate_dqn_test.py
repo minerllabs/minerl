@@ -87,7 +87,7 @@ if __name__ == '__main__':
         update_target()
 
         episode_rewards = [0.0]
-        obs, info = (env.reset())
+        obs = (env.reset())
         # obs = test_obs
         obs = observation_wrapper(obs)
         
@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
             episode_rewards[-1] += rew
             if done:
-                obs, info = env.reset()
+                obs = env.reset()
                 
                 obs = observation_wrapper(obs)
                 episode_rewards.append(0)

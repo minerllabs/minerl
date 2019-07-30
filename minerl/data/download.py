@@ -131,6 +131,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         logging.info('Success - extracted files to {}'.format(directory))
 
     if disable_cache:
+        logging.info('Deleting cached tar file')
         os.remove(obj.get_dest())
 
     try:
