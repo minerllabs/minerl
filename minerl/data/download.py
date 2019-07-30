@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def download(directory=None, resolution='low', texture_pack=0, update_environment_variables=True, disable_cache=False,
-             experiment=None):
+             experiment=None, minimal=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
@@ -36,6 +36,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         disable_cache (bool, optional): downloads temporary files to local directory. Defaults to False
         experiment (str, optional): specify the desired experiment to download. Will only download data for this
             experiment. Note there is no hash verification for individual experiments
+        minimal (bool, optional): download a minimal version of the dataset
     """
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
@@ -73,7 +74,8 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
     mirrors = ["https://router.sneakywines.me/"]#, "https://router2.sneakywines.me/"]
 
     if experiment is None:
-        filename = "minerl-v{}/data_texture_{}_{}_res.tar.gz".format(DATA_VERSION, texture_pack, resolution)
+        min_str = '_minimal' if minimal else ''
+        filename = "minerl-v{}/data_texture_{}_{}_res{}.tar.gz".format(DATA_VERSION, texture_pack, resolution, min_str)
         urls = [mirror + filename for mirror in mirrors]
 
         obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)

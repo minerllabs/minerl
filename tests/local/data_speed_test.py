@@ -8,7 +8,7 @@ import tqdm
 import numpy as np
 
 
-def time_data(environment='MineRLObtainDiamondDense-v0'):
+def time_data(environment='MineRLObtainDiamond-v0'):
     d = minerl.data.make(environment, num_workers=8)
 
     # Iterate through batches of data
