@@ -26,7 +26,7 @@ env:
 install:
 - pip install .
 - pip install pytest-xdist
-- python -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(disable_cache=True)"
+- python -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(minimal=True)"
 services: xvfb
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
