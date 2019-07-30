@@ -11,6 +11,14 @@ import logging
 logging.getLogger().setLevel(logging.DEBUG)
 logging.basicConfig()
 
+ENVIRONMENTS = ['MineRLNavigate-v0',
+                'MineRLNavigateDense-v0',
+                'MineRLNavigateExtreme-v0',
+                'MineRLNavigateExtremeDense-v0',
+                'MineRLObtainIronPickaxe-v0',
+                'MineRLObtainIronPickaxeDense-v0',
+                'MineRLObtainDiamond-v0',
+                'MineRLObtainDiamondDense-v0']
 
 # Helper functions
 def _check_shape(num_samples, sample_shape, obs):
@@ -25,6 +33,7 @@ def _check_shape(num_samples, sample_shape, obs):
 
 
 def _check_space(key, space, observation, correct_len):
+    logging.debug('checking key {}'.format(key))
     if isinstance(space, minerl.spaces.Dict):
         for k, s in space.spaces.items():
             _check_space(k, s, observation[key], correct_len)
@@ -71,15 +80,9 @@ def test_data(environment='MineRLObtainDiamond-v0'):
 
 
 def test_envs():
-    for environment in ['MineRLNavigate-v0',
-                        'MineRLNavigateDense-v0',
-                        'MineRLNavigateExtreme-v0',
-                        'MineRLNavigateExtremeDense-v0',
-                        'MineRLObtainIronPickaxe-v0',
-                        'MineRLObtainIronPickaxeDense-v0',
-                        'MineRLObtainDiamond-v0',
-                        'MineRLObtainDiamondDense-v0']:
+    for environment in ENVIRONMENTS:
         d = minerl.data.make(environment, num_workers=1)
+        logging.info('Testing {}'.format(environment))
 
         # Iterate through single batch of data
         for obs, act, rew, nObs, done in d.sarsd_iter(num_epochs=1, max_sequence_len=2):
