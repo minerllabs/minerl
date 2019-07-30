@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def download(directory=None, resolution='low', texture_pack=0, update_environment_variables=True, disable_cache=False,
-             experiment=None):
+             experiment=None, minimal=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
@@ -36,6 +36,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         disable_cache (bool, optional): downloads temporary files to local directory. Defaults to False
         experiment (str, optional): specify the desired experiment to download. Will only download data for this
             experiment. Note there is no hash verification for individual experiments
+        minimal (bool, optional): download a minimal version of the dataset
     """
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
@@ -70,38 +71,30 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
                 pass
 
     download_path = os.path.join(directory, '') if disable_cache else None
+    mirrors = ["https://router.sneakywines.me/"] #, "https://router2.sneakywines.me/"]
 
     if experiment is None:
-        filename, hashname = "minerl_v{}/data_texture_{}_{}_res.tar.gz".format(DATA_VERSION, texture_pack, resolution), \
-                             "minerl_v{}/data_texture_{}_{}_res.md5".format(DATA_VERSION, texture_pack, resolution)
-        urls = ["https://router.sneakywines.me/" + filename]
-        hash_url = "https://router.sneakywines.me/" + hashname
-
-        try:
-            logger.info("Fetching download hash ...")
-            response = requests.get(hash_url)
-            md5_hash = response.text
-        except TimeoutError:
-            logger.error(
-                "Timeout while retrieving hash for requested dataset version. Are you connected to the internet?")
-            return None
+        min_str = '_minimal' if minimal else ''
+        filename = "minerl-v{}/data_texture_{}_{}_res{}.tar.gz".format(DATA_VERSION, texture_pack, resolution, min_str)
+        urls = [mirror + filename for mirror in mirrors]
 
         obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
-        logger.info("Verifying download hash ...")
-        obj.add_hash_verification('md5', md5_hash)
     else:
         # Check if experiment is already downloaded
         if os.path.exists(os.path.join(directory, experiment)):
             logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
             return directory
-        filename = "minerl_v{}/{}.tar.gz".format(DATA_VERSION, experiment)
-        urls = ["https://router.sneakywines.me/" + filename]
+        filename = "minerl-v{}/{}.tar.gz".format(DATA_VERSION, experiment)
+        urls = [mirror + filename for mirror in mirrors]
         obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
-
     try:
+        logger.info("Fetching download hash ...")
+        obj.fetch_hash_sums()
+        logger.info("Starting download ...")
         obj.start()
     except pySmartDL.HashFailedException:
-        logger.error("Hash check failed! Is server under maintenance?")
+        logger.error("Hash check failed! Is server under maintenance??")
+        logger.error("URL {}".format(obj.url))
         return None
     except pySmartDL.CanceledException:
         logger.error("Download canceled by user")
@@ -133,7 +126,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         t.start()
         while t.isAlive():
             time.sleep(5)
-            logging.info('.')
+            logging.info('.', end='')
 
         logging.info('Success - extracted files to {}'.format(directory))
 

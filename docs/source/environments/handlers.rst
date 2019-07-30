@@ -5,7 +5,7 @@ Environment Handlers
 Minecraft is an extremely complex environment which provides players
 with visual, auditory, and informational observation of many complex
 data types.
-Further players interact with Minecraft using more than just embodied actions:
+Furthermore, players interact with Minecraft using more than just embodied actions:
 players can craft, build, destroy, smelt, enchant, manage their inventory,
 and even communicate with other players via a text chat.
 

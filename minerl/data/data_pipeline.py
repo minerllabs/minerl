@@ -385,6 +385,9 @@ class DataPipeline:
                         if key == 'pov':
                             current_observation_data[i] = np.asanyarray(frames[:-1])
                             next_observation_data[i] = np.asanyarray(frames[1:])
+                        elif key == 'observation_compassAngle':
+                            current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx-1, 0])
+                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx-1, 0])
                         else:
                             current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx-1])
                             next_observation_data[i] = np.asanyarray(info_dict[key][start_idx+1:stop_idx])
