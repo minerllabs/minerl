@@ -70,6 +70,31 @@ def test_data(environment='MineRLObtainDiamond-v0'):
     return True
 
 
+def test_envs():
+    for environment in ['MineRLNavigate-v0',
+                        'MineRLNavigateDense-v0',
+                        'MineRLNavigateExtreme-v0',
+                        'MineRLNavigateExtremeDense-v0',
+                        'MineRLObtainIronPickaxe-v0',
+                        'MineRLObtainIronPickaxeDense-v0',
+                        'MineRLObtainDiamond-v0',
+                        'MineRLObtainDiamondDense-v0']:
+        d = minerl.data.make(environment, num_workers=1)
+
+        # Iterate through single batch of data
+        for obs, act, rew, nObs, done in d.sarsd_iter(num_epochs=1, max_sequence_len=2):
+            correct_len = len(rew)
+            for key, space in d.observation_space.spaces.items():
+                _check_space(key, space, obs, correct_len)
+
+            for key, space in d.action_space.spaces.items():
+                _check_space(key, space, act, correct_len)
+
+            break
+
+    return True
+
+
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         rate = test_data(sys.argv[1])
