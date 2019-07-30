@@ -592,7 +592,8 @@ class MineRLEnv(gym.Env):
         return self.viewer.isopen
 
     def render(self, mode='human'):
-        if mode == 'human' and os.environ['AICROWD_IS_GRADING'] is None:
+        if mode == 'human' and (
+            not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
             self._renderObs(self._last_pov)
         return self._last_pov
 
