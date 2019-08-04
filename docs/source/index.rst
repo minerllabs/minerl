@@ -34,6 +34,7 @@ MineRL: Towards AI in Minecraft
 Welcome to documentation for the MineRL_
 project and its related repositories and components!
 
+
 .. image:: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fwguss_imushroom&style=for-the-badge
    :target: https://www.patreon.com/wguss_imushroom
 
@@ -69,6 +70,12 @@ components:
   - :code:`minerl.data` -- The main python module for ext with the *MineRL-v0* dataset 
 
 .. _please consider supporting us on Patreon: https://www.patreon.com/wguss_imushroom
+
+*It's this simple to trian AI in Minecraft..*
+
+.. image:: assets/demo.gif
+  :scale: 100 %
+  :alt: 
 
 
 
