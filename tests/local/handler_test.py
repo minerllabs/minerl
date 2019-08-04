@@ -2,6 +2,9 @@ import minerl
 import time
 import gym
 import numpy as np
+import logging
+import coloredlogs
+coloredlogs.install(level=logging.DEBUG)
 
 
 def gen_obtain_debug_actions(env):
