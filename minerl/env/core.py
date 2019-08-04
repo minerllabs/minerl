@@ -205,7 +205,12 @@ class MineRLEnv(gym.Env):
             xml = f.read()
         # Todo: This will fail when using a remote instance manager.
         xml = xml.replace('$(MISSIONS_DIR)', missions_dir)
-        xml = xml.replace('$(ENV_NAME)', self.spec.id)
+
+        if self.spec is not None:
+            xml = xml.replace('$(ENV_NAME)', self.spec.id)
+        else:
+            xml = xml.replace('$(ENV_NAME)', 'Custom MineRL Env')
+
         # Bootstrap the environment if it hasn't been.
         role = 0
 
