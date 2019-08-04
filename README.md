@@ -93,5 +93,3 @@ python3 -m minerl.viewer MineRLObtainDiamondDense-v0
 
 ## MineRL Competition
 If you're here for the MineRL competition. Please check [the main competition website here](https://www.aicrowd.com/challenges/neurips-2019-minerl-competition).
-
-The quick-start kit and baselines [can be found here!](https://github.com/minerllabs/quick_start)
