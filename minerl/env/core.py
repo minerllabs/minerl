@@ -38,7 +38,7 @@ import minerl.env.spaces
 import numpy as np
 from lxml import etree
 from minerl.env import comms
-from minerl.env.comms import retry
+from minerl.env.comms import retry, FatalException
 from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger_thread
 
 logger = logging.getLogger(__name__)
@@ -340,13 +340,6 @@ class MineRLEnv(gym.Env):
 
         info['pov'] = pov
 
-        def correction(out):
-            if isinstance(out, dict) or isinstance(out, collections.OrderedDict):
-                for k in out:
-                    out[k] = correction(out)
-            else:
-                return out*0
-
         def process_dict(space, info_dict):
             if isinstance(space, gym.spaces.Dict):
                 out_dict = {}
@@ -354,7 +347,9 @@ class MineRLEnv(gym.Env):
                     if k in info_dict:
                         out_dict[k] = process_dict(space.spaces[k], info_dict[k])
                     else:
-                        out_dict[k] = correction(space.spaces[k].sample())
+                        raise FatalException("Expected key {} not found in info_dict. ".format(k) + \
+                            "Valid keys are {}. Is there a mismatch ".format(info_dict.keys()) + \
+                            "between your observation_space and your xml file?")
                 return out_dict
             else:
                 return info_dict

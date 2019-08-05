@@ -30,6 +30,18 @@ retry_count = 20
 retry_timeout = 10
 
 
+
+class FatalException(Exception):
+    """Once this exception is thrown, the process should die without retries.
+
+    Args:
+        message (str): The exception message.
+    """
+
+    def __init__(self, message):
+        super(FatalException, self).__init__(message)
+
+
 def retry(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -37,6 +49,9 @@ def retry(func):
         for i in range(retry_count):
             try:
                 return func(*args, **kwargs)
+            except FatalException as e:
+                logger.error("A fatal exception occurred.")
+                raise e
             except Pyro4.errors.PyroError as e: 
                 logger.error("An error occurred contacting the instance manager. Is it started!?")
                 raise e
