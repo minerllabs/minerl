@@ -680,7 +680,7 @@ class MineRLEnv(gym.Env):
             xml = etree.tostring(self.xml)
             token = (self._get_token() + ":" + str(self.agent_count) +
                      ":" + str(self.synchronous).lower())
-            if self._seed:
+            if self._seed is not None:
                 token += ":{}".format(self._seed)
             token = token.encode()
             comms.send_message(self.client_socket, xml)
