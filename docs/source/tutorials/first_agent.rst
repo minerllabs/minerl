@@ -156,7 +156,7 @@ the angle between the agent's movement direction and it's target,  :code:`compas
     env = gym.make('MineRLNavigateDense-v0') 
     
     
-    obs  = env.reset() 
+    obs, _ = env.reset() 
     done = False 
     net_reward = 0
     
