@@ -11,7 +11,7 @@ def main():
     Runs a test which runs many instances of minerl simultaneously.
     """
     parser = argparse.ArgumentParser(description='The multi-environment stress test.')
-    parser.add_argument("ninstances", help='Number of instances', type=str)
+    parser.add_argument("ninstances", help='Number of instances', type=int)
 
     opts = parser.parse_args()
     should_stop = False
