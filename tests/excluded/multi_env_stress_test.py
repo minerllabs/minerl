@@ -18,10 +18,9 @@ def main():
 
     opts = parser.parse_args()
     should_stop = False
-    should_start = False
 
-    def run_instance():
-        nonlocal should_stop, should_start
+    def run_instance(env):
+        nonlocal should_stop
         try:
             env.reset() 
             done = False
