@@ -18,17 +18,20 @@ def main():
 
     def run_instance():
         nonlocal should_stop
-        env = gym.make('MineRLTreechop-v0')
-        env.reset() 
+        try:
+            env = gym.make('MineRLTreechop-v0')
+            env.reset() 
 
-        done = False
-        while not (done or should_stop):
-            env.step(env.action_space.sample())
-        
+            done = False
+            while not (done or should_stop):
+                env.step(env.action_space.sample())
+        except:
+            pass
 
     threads = [threading.Thread(target=run_instance) for _ in range(opts.ninstances)]
 
     for thread in threads:
+        time.sleep(1) # Wait for  the thread to start.
         thread.start()
 
     time.sleep(20)
