@@ -18,10 +18,16 @@ def main():
 
     opts = parser.parse_args()
     should_stop = False
+    should_start = False
 
-    def run_instance(env):
-        nonlocal should_stop
+    def run_instance():
+        nonlocal should_stop, should_start
         try:
+            env = gym.make('MineRLTreechop-v0')
+            
+
+            while not should_start:
+                time.sleep(0.05)
             env.reset() 
             done = False
             while not (done or should_stop):
@@ -29,16 +35,13 @@ def main():
         except:
             pass
 
-    threads = []
-
-    for _ in range(opts.ninstances):
-        env = gym.make('MineRLTreechop-v0')
-        # time.sleep(3) # Wait for  the thread to start.
-        threads.append(threading.Thread(target=run_instance, args=(env)))
+    threads = [threading.Thread(target=run_instance) for _ in range(opts.ninstances)]
 
     for thread in threads:
+        time.sleep(8) # Wait for  the thread to start.
         thread.start()
-    
+
+    input()
     should_start = True
     time.sleep(100) # Wait for the thread to finish.
     should_stop = True
