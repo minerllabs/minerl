@@ -71,7 +71,7 @@ class MissionInitException(Exception):
 
 MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
-
+MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv' # Default id for a MineRLEnv
 
 class MineRLEnv(gym.Env):
     """The MineRLEnv class.
@@ -205,7 +205,12 @@ class MineRLEnv(gym.Env):
             xml = f.read()
         # Todo: This will fail when using a remote instance manager.
         xml = xml.replace('$(MISSIONS_DIR)', missions_dir)
-        xml = xml.replace('$(ENV_NAME)', self.spec.id)
+
+        if self.spec is not None:
+            xml = xml.replace('$(ENV_NAME)', self.spec.id)
+        else:
+            xml = xml.replace('$(ENV_NAME)', MINERL_CUSTOM_ENV_ID)
+
         # Bootstrap the environment if it hasn't been.
         role = 0
 
