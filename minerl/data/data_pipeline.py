@@ -357,7 +357,7 @@ class DataPipeline:
                 # Collect up to worker_batch_size number of frames
                 try:
                     # Go until max_seq_len +1 for S_t, A_t,  -> R_t, S_{t+1}, D_{t+1}
-                    while ret and frame_num < max_frame_num and (len(frames) < max_seq_len + 1 or max_seq_len == -1):
+                    while ret and frame_num < max_frame_num and (len(frames) < max_seq_len or max_seq_len == -1):
                         ret, frame = cap.read()
                         if ret:
                             cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
