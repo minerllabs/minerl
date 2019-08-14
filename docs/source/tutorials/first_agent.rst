@@ -146,7 +146,7 @@ towards the target.** 🧠🧠🧠
 
 To do this at every step of the environment we will take the `noop`
 action with a few modifications; in particular, we will only move forward,
-jump, attack, and changw the agent's direction to minimize
+jump, attack, and change the agent's direction to minimize
 the angle between the agent's movement direction and it's target,  :code:`compassAngle`.
 
 .. code-block:: python
