@@ -399,7 +399,7 @@ class DataPipeline:
 
                     reward_data = np.asanyarray(reward_vec[start_idx:stop_idx-1], dtype=np.float32)
 
-                    done_data = [False for _ in range(stop_idx - start_idx)]
+                    done_data = [False for _ in range(len(reward_data))]
                     if frame_num == max_frame_num:
                         done_data[-1] = True
                 except Exception as err:
