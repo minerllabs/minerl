@@ -334,7 +334,6 @@ class DataPipeline:
             num_states = len(reward_vec) + 1
 
             # TEMP - calculate number of frames, fastest when max_seq_len == -1
-            # frames, prev_frames  = [], []
             ret, frame_num = True, 0
             while ret:
                 ret, _ = DataPipeline.read_frame(cap)
