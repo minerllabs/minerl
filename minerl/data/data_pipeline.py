@@ -379,7 +379,6 @@ class DataPipeline:
                     logger.error("error reading capture device:", err)
                     raise err
 
-                print(len(frames))
                 if len(frames) <= 1:
                     break
 
@@ -426,14 +425,12 @@ class DataPipeline:
                     batches += [meta]
 
                 if data_queue is None:
-                    print("Returning data batches")
                     return batches
                 else:
                     data_queue.put(batches)
-                    # logger.debug("Enqueued from file {}".format(file_dir))
+                    logger.debug("Enqueued from file {}".format(file_dir))
 
                 if not ret:
-                    print("Yeah, we out")
                     break
                 else:
                     frames = [frames[-1]]
@@ -451,15 +448,8 @@ class DataPipeline:
             print("File not found!")
             raise e
         except Exception as e:
-            # raise e
-            # 264
-
-            import traceback
-            traceback.print_exc()
-            # logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
-            # return None
-        finally: 
-            print("Finished!")
+            logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
+            return None
 
 
     @staticmethod
