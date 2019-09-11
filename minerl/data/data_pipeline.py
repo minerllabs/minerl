@@ -309,7 +309,7 @@ class DataPipeline:
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
                 
-                # Hotfix for incorrect success metadata from server
+                # Hotfix for incorrect success metadata from server [TODO: remove]
                 reward_threshold = {
                     'MineRLTreechop-v0': 64,
                     'MineRLNavigate-v0': 100,
