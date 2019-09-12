@@ -54,9 +54,8 @@
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <RewardForCollectingItem>
+            <RewardForPossessingItem>
                 <Item amount="1" reward="1" type="log" />
-                <Item amount="1" reward="1" type="log2" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
                 <Item amount="1" reward="4" type="crafting_table" />
@@ -67,7 +66,7 @@
                 <Item amount="1" reward="64" type="iron_ore" />
                 <Item amount="1" reward="128" type="iron_ingot" />
                 <Item amount="1" reward="256" type="iron_pickaxe" />
-            </RewardForCollectingItem>
+            </RewardForPossessingItem>
             <AgentQuitFromCraftingItem>
                 <Item type="iron_pickaxe"/>
             </AgentQuitFromCraftingItem>

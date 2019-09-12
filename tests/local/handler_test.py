@@ -20,6 +20,8 @@ def gen_obtain_debug_actions(env):
 
     # Testing craft handlers
     act(place='log')
+    act()
+    act(place='log2')
     act(craft='stick')
     act(craft='stick')  # Should fail - no more planks remaining
     act(craft='planks')
@@ -57,6 +59,8 @@ def gen_obtain_debug_actions(env):
     act(camera=np.array([0.0, -90.0], dtype=np.float32))
     [act(attack=1) for _ in range(20)]
     [act(forward=1) for _ in range(10)]
+    [act(attack=1) for _ in range(20)]
+    [act(forward=1) for _ in range(10)]
 
     # Test empty equip command
     act(equip='air')
@@ -70,7 +74,12 @@ def gen_obtain_debug_actions(env):
     act(craft='stick')
     act(nearbyCraft='iron_pickaxe')
     act(equip='iron_pickaxe')
-    act(attack=1)
+
+    act(place='diamond_ore')    
+
+    [act(attack=1) for _ in range(20)]
+    [act(forward=1) for _ in range(10)]
+
 
     return actions
 
@@ -87,6 +96,7 @@ def test_env(environment='MineRLObtainTest-v0'):
             time.sleep(0.1)
             if reward != 0:
                 print(reward)
+                print(obs['inventory'])
             if done:
                 break
 
