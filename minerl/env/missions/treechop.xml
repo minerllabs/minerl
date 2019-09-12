@@ -25,6 +25,7 @@
         src= "$(MISSIONS_DIR)/forest_survival"
         forceReset="true"/>
 <!--      <BiomeGenerator forceReset="true" biome="4"/>-->
+      <RandomizedStartDecorator/>
       <ServerQuitFromTimeUp timeLimitMs="400000"/>
       <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
@@ -33,7 +34,7 @@
   <AgentSection mode="Survival">
     <Name>MineRLAgent</Name>
     <AgentStart>
-      <!--<Placement x ="-22" y="61" z="278" yaw="134" pitch="22.2"/>-->
+      <!-- <Randomized>true</Randomized> -->
       <Inventory>
         <InventoryItem slot="0" type="iron_axe"/>
       </Inventory>
