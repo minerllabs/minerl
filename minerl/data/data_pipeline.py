@@ -303,7 +303,6 @@ class DataPipeline:
         :param include_metadata: whether or not to return an additional tuple containing metadata
         :return:
         """
-
         logger.debug("Loading from file {}".format(file_dir))
         
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
@@ -322,29 +321,32 @@ class DataPipeline:
                 meta = json.load(file)
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
-                    # Hotfix for incorrect success metadata from server
-                    reward_threshold = {
-                        'MineRLTreechop-v0': 64,
-                        'MineRLNavigate-v0': 100,
-                        'MineRLNavigateExtreme-v0': 100,
-                        'MineRLObtainIronPickaxe-v0': 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
-                        'MineRLObtainDiamond-v0': 1024 + 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
-                    }
-                    reward_list = {
-                        'MineRLNavigateDense-v0': [100],
-                        'MineRLNavigateExtreme-v0': [100],
-                        'MineRLObtainIronPickaxeDense-v0': [256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
-                        'MineRLObtainDiamondDense-v0': [1024, 256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
-                    }
+                
+                # Hotfix for incorrect success metadata from server [TODO: remove]
+                reward_threshold = {
+                    'MineRLTreechop-v0': 64,
+                    'MineRLNavigate-v0': 100,
+                    'MineRLNavigateExtreme-v0': 100,
+                    'MineRLObtainIronPickaxe-v0': 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
+                    'MineRLObtainDiamond-v0': 1024 + 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
+                }
+                reward_list = {
+                    'MineRLNavigateDense-v0': [100],
+                    'MineRLNavigateExtreme-v0': [100],
+                    'MineRLObtainIronPickaxeDense-v0': [256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
+                    'MineRLObtainDiamondDense-v0': [1024, 256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
+                }
+
+
+                try:
+                    meta['success'] = meta['total_reward'] >= reward_threshold[env_str]
+                except KeyError:
                     try:
-                        meta['success'] = meta['reward'] >= reward_threshold[env_str]
+                        # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
+                        quantized_reward_vec = int(state['total_reward'] // 8)
+                        meta['success'] = all(reward//8 in quantized_reward_vec for reward in reward_list[env_str])
                     except KeyError:
-                        try:
-                            # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
-                            quantized_reward_vec = int(state['reward'] // 8)
-                            meta['success'] = all(reward//8 in quantized_reward_vec for reward in reward_list[env_str])
-                        except KeyError:
-                            logger.warning("success in metadata may be incorrect")
+                        logger.warning("success in metadata may be incorrect")
 
             action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action_')])
             reward_vec = state['reward']
