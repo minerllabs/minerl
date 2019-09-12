@@ -169,7 +169,7 @@ class DataPipeline:
         logger.debug(str(self.number_of_workers) + str(max_size))
 
         # Setup arguments for the workers.
-        files = [(file_dir, max_sequence_len, data_queue, 0, include_metadata) for file_dir in data_list]
+        files = [(file_dir, max_sequence_len, data_queue, self.environment, 0, include_metadata) for file_dir in data_list]
 
         epoch = 0
 
@@ -231,8 +231,8 @@ class DataPipeline:
 
         if DataPipeline._is_blacklisted(stream_name):
             raise RuntimeError("This stream is corrupted (and will be removed in the next version of the data!)")
-        
-        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval,
+
+        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, self.environment, skip_interval=skip_interval,
                                              include_metadata=include_metadata)
         if include_metadata:
             observation_seq, action_seq, reward_seq, next_observation_seq, done_seq, meta = seq
@@ -293,7 +293,7 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, include_metadata=False):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, env_str="", skip_interval=0, include_metadata=False):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
@@ -303,7 +303,6 @@ class DataPipeline:
         :param include_metadata: whether or not to return an additional tuple containing metadata
         :return:
         """
-
         logger.debug("Loading from file {}".format(file_dir))
         
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
@@ -322,6 +321,32 @@ class DataPipeline:
                 meta = json.load(file)
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
+                
+                # Hotfix for incorrect success metadata from server [TODO: remove]
+                reward_threshold = {
+                    'MineRLTreechop-v0': 64,
+                    'MineRLNavigate-v0': 100,
+                    'MineRLNavigateExtreme-v0': 100,
+                    'MineRLObtainIronPickaxe-v0': 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
+                    'MineRLObtainDiamond-v0': 1024 + 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
+                }
+                reward_list = {
+                    'MineRLNavigateDense-v0': [100],
+                    'MineRLNavigateExtreme-v0': [100],
+                    'MineRLObtainIronPickaxeDense-v0': [256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
+                    'MineRLObtainDiamondDense-v0': [1024, 256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
+                }
+
+
+                try:
+                    meta['success'] = meta['total_reward'] >= reward_threshold[env_str]
+                except KeyError:
+                    try:
+                        # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
+                        quantized_reward_vec = int(state['total_reward'] // 8)
+                        meta['success'] = all(reward//8 in quantized_reward_vec for reward in reward_list[env_str])
+                    except KeyError:
+                        logger.warning("success in metadata may be incorrect")
 
             action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action_')])
             reward_vec = state['reward']
@@ -458,7 +483,7 @@ class DataPipeline:
         ]:
             if p in path:
                 return True
-        
+
         return False
 
     @staticmethod
