@@ -511,3 +511,28 @@ register(
     },
     max_episode_steps=2000,
 )
+
+register(
+    id='MineRLObtainTestDense-v0',
+    entry_point='minerl.env:MineRLEnv',
+    kwargs={
+        'xml': os.path.join(missions_dir, 'obtainDebugDense.xml'),
+        'observation_space': obtain_observation_space,
+        'action_space':  spaces.Dict({
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
+            "attack": spaces.Discrete(2),
+            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
+            "place": spaces.Enum('none', 'dirt', 'log', 'log2', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'diamond_ore'),
+            "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
+            "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
+            "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
+            "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')})
+    },
+    max_episode_steps=2000,
+)
