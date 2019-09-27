@@ -76,8 +76,8 @@ The agent begins in a forest biome (near many trees) with an iron axe for cuttin
 #      NAVIGATE       #
 #######################
 
-def make_navigate_text(top, dense):
-    navigate_text = """
+def make_navigate_text(top, dense, deterministic=False, include_gifs=True):
+    gif_text = """
 .. image:: ../assets/navigate{}1.mp4.gif
     :scale: 100 %
     :alt:
@@ -94,9 +94,15 @@ def make_navigate_text(top, dense):
     :scale: 100 %
     :alt:
 
-In this task, the agent must move to a goal location denoted by a diamond block. This represents a basic primitive used in many tasks throughout Minecraft. In addition to standard observations, the agent has access to a “compass” observation, which points near the goal location, 64 meters from the start location. The goal has a small random horizontal offset from the compass location and may be slightly below surface level. On the goal location is a unique block, so the agent must find the final goal by searching based on local visual features.
+ """
+    navigate_text = gif_text if include_gifs else ""  # Check if GIFs are included in the docstring
+    navigate_text += """
+In this task, the agent must move to a goal location denoted by a diamond block. This represents a basic primitive used in many tasks throughout Minecraft. In addition to standard observations, the agent has access to a “compass” observation, which points near the goal location, 64 meters from the start location. """
+    if not deterministic:
+        navigate_text += """The goal has a small random horizontal offset from the compass location and may be slightly below surface level. On the goal location is a unique block, so the agent must find the final goal by searching based on local visual features. """
+    navigate_text += """
+The agent is given a sparse reward (+100 upon reaching the goal, at which point the episode terminates)."""
 
-The agent is given a sparse reward (+100 upon reaching the goal, at which point the episode terminates). """
     if dense:
         navigate_text += "**This variant of the environment is dense reward-shaped where the agent is given a reward every tick for how much closer (or negative reward for farther) the agent gets to the target.**\n"
     else:
@@ -105,6 +111,8 @@ The agent is given a sparse reward (+100 upon reaching the goal, at which point 
     if top is "normal":
         navigate_text += "\nIn this environment, the agent spawns on a random survival map.\n"
         navigate_text = navigate_text.format(*["" for _ in range(4)])
+    elif top is "flat":
+        navigate_text += "\nIn this environment, the agent spawns on a flat world survival map.\n"
     else:
         navigate_text += "\nIn this environment, the agent spawns in an extreme hills biome.\n"
         navigate_text = navigate_text.format(*["extreme" for _ in range(4)])
@@ -163,7 +171,7 @@ register(
         'xml': os.path.join(missions_dir, 'navigationDenseFlatDeterministic.xml'),
         'observation_space': navigate_observation_space,
         'action_space': navigate_action_space,
-        'docstr': make_navigate_text('normal', True)
+        'docstr': make_navigate_text('flat', True, deterministic=True, include_gifs=False)
     },
     max_episode_steps=2000,
 )
@@ -175,7 +183,7 @@ register(
         'xml': os.path.join(missions_dir, 'navigationDenseFlat.xml'),
         'observation_space': navigate_observation_space,
         'action_space': navigate_action_space,
-        'docstr': make_navigate_text('normal', True)
+        'docstr': make_navigate_text('flat', True, deterministic=False, include_gifs=False)
     },
     max_episode_steps=2000,
 )
