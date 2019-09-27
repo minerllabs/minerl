@@ -12,24 +12,37 @@
         <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-            <AllowSpawning>true</AllowSpawning>
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
-            <DefaultWorldGenerator forceReset="true"/>
-            <ServerQuitFromTimeUp timeLimitMs="900000" description="out_of_time"/>
+            <FlatWorldGenerator forceReset="true"/>
+            <ServerQuitFromTimeUp timeLimitMs="100000" description="out_of_time"/>
             <ServerQuitWhenAnyAgentFinishes/>
         </ServerHandlers>
     </ServerSection>
 
     <AgentSection mode="Survival">
         <Name>MalmoTutorialBot</Name>
-        <AgentStart/>
+        <AgentStart>
+            <Inventory>
+                <InventoryItem slot="0" type="dirt"/>
+                <InventoryItem slot="1" type="planks" quantity="3"/>
+                <InventoryItem slot="2" type="log2" quantity="2"/>
+                <InventoryItem slot="3" type="log" quantity="2"/>
+                <InventoryItem slot="4" type="iron_ore" quantity="4"/>
+                <InventoryItem slot="5" type="cobblestone" quantity="11"/>
+                <InventoryItem slot="6" type="furnace"/>
+                <InventoryItem slot="7" type="diamond_ore"/>
+            </Inventory>
+        </AgentStart>
         <AgentHandlers>
             <!--  Observations     -->
             <VideoProducer want_depth="false">
-                <Width>64</Width>
-                <Height>64</Height>
+                <Width>640</Width>
+                <Height>640</Height>
             </VideoProducer>
             <FileBasedPerformanceProducer/>
             <ObservationFromFullInventory flat="false"/>
@@ -45,7 +58,6 @@
             </HumanLevelCommands>
             <CameraCommands/>
             <SimpleCraftCommands/>
-            <!--      Provided as demonstration - don't use these for determining action space  ordering    -->
             <!--        <Item type="minecraft:stick"/>-->
             <!--        <Item type="minecraft:planks"/>-->
             <!--        <Item type="minecraft:torch"/>-->
@@ -57,45 +69,33 @@
             <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <NearbySmeltCommands/>
             <!--        <Item type="minecraft:iron_ingot"/>-->
-            <!--        <Item type="minecraft:coal"/>-->
             <PlaceCommands/>
             <!--          <Item type="minecraft:crafting_table"/>-->
             <!--          <Item type="minecraft:furnace"/>-->
             <!--          <Item type="minecraft:torch"/>-->
+            <EquipCommands/>
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <PauseCommand/>
 
             <!--  Rewards   -->
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <!-- <RewardForCollectingItem>
-                <Item reward="1" type="log" />
-                <Item reward="2" type="planks" />
-                <Item reward="4" type="stick" />
-                <Item reward="4" type="crafting_table" />
-                <Item reward="8" type="wooden_pickaxe" />
-                <Item reward="16" type="stone" />
-                <Item reward="32" type="furnace" />
-                <Item reward="32" type="stone_pickaxe" />
-                <Item reward="64" type="iron_ore" />
-                <Item reward="128" type="iron_ingot" />
-                <Item reward="256" type="iron_pickaxe" />
-                <Item reward="1024" type="diamond" />
-            </RewardForCollectingItem> -->
-            <RewardForPossessingItem>
+            <RewardForCollectingItemQuantity>
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
                 <Item amount="1" reward="4" type="crafting_table" />
                 <Item amount="1" reward="8" type="wooden_pickaxe" />
-                <Item amount="1" reward="16" type="stone" />
+                <Item amount="1" reward="16" type="cobblestone" />
                 <Item amount="1" reward="32" type="furnace" />
                 <Item amount="1" reward="32" type="stone_pickaxe" />
                 <Item amount="1" reward="64" type="iron_ore" />
                 <Item amount="1" reward="128" type="iron_ingot" />
                 <Item amount="1" reward="256" type="iron_pickaxe" />
                 <Item amount="1" reward="1024" type="diamond" />
-            </RewardForPossessingItem>
+            </RewardForCollectingItemQuantity>
             <AgentQuitFromPossessingItem>
                 <Item type="diamond"/>
             </AgentQuitFromPossessingItem>

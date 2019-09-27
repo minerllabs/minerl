@@ -169,7 +169,7 @@ class DataPipeline:
         logger.debug(str(self.number_of_workers) + str(max_size))
 
         # Setup arguments for the workers.
-        files = [(file_dir, max_sequence_len, data_queue, 0, include_metadata) for file_dir in data_list]
+        files = [(file_dir, max_sequence_len, data_queue, self.environment, 0, include_metadata) for file_dir in data_list]
 
         epoch = 0
 
@@ -231,8 +231,8 @@ class DataPipeline:
 
         if DataPipeline._is_blacklisted(stream_name):
             raise RuntimeError("This stream is corrupted (and will be removed in the next version of the data!)")
-        
-        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, skip_interval=skip_interval,
+
+        seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, self.environment, skip_interval=skip_interval,
                                              include_metadata=include_metadata)
         if include_metadata:
             observation_seq, action_seq, reward_seq, next_observation_seq, done_seq, meta = seq
@@ -265,6 +265,19 @@ class DataPipeline:
     ############################
 
     @staticmethod
+    def read_frame(cap):
+        try:
+            ret, frame = cap.read()
+            if ret:
+                cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
+                frame = np.asarray(np.clip(frame, 0, 255), dtype=np.uint8)
+            
+            return ret, frame
+        except Exception as err:
+            logger.error("error reading capture device:", err)
+            raise err
+
+    @staticmethod
     def _roundrobin(*iterables):
         "roundrobin('ABC', 'D', 'EF') --> A D E B F C"
         # Recipe credited to George Sakkis
@@ -280,7 +293,7 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, skip_interval=0, include_metadata=False):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, env_str="", skip_interval=0, include_metadata=False):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
@@ -290,7 +303,6 @@ class DataPipeline:
         :param include_metadata: whether or not to return an additional tuple containing metadata
         :return:
         """
-
         logger.debug("Loading from file {}".format(file_dir))
         
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
@@ -309,38 +321,61 @@ class DataPipeline:
                 meta = json.load(file)
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
+                
+                # Hotfix for incorrect success metadata from server [TODO: remove]
+                reward_threshold = {
+                    'MineRLTreechop-v0': 64,
+                    'MineRLNavigate-v0': 100,
+                    'MineRLNavigateExtreme-v0': 100,
+                    'MineRLObtainIronPickaxe-v0': 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
+                    'MineRLObtainDiamond-v0': 1024 + 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
+                }
+                reward_list = {
+                    'MineRLNavigateDense-v0': [100],
+                    'MineRLNavigateExtreme-v0': [100],
+                    'MineRLObtainIronPickaxeDense-v0': [256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
+                    'MineRLObtainDiamondDense-v0': [1024, 256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
+                }
+
+
+                try:
+                    meta['success'] = meta['total_reward'] >= reward_threshold[env_str]
+                except KeyError:
+                    try:
+                        # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
+                        quantized_reward_vec = int(state['total_reward'] // 8)
+                        meta['success'] = all(reward//8 in quantized_reward_vec for reward in reward_list[env_str])
+                    except KeyError:
+                        logger.warning("success in metadata may be incorrect")
 
             action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action_')])
             reward_vec = state['reward']
             info_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('observation_')])
 
+
+            # There is no action or reward for the terminal state of an episode.
+            # Hence in Publish.py we shorten the action and reward vector to reflect this.
+            # We know FOR SURE that the last video frame corresponds to the last state (from Universal.json).
             num_states = len(reward_vec) + 1
 
             # TEMP - calculate number of frames, fastest when max_seq_len == -1
-            frames = []
             ret, frame_num = True, 0
             while ret:
-                ret, frame = cap.read()
-                if ret:
-                    cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
-                    frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
+                ret, _ = DataPipeline.read_frame(cap)
+                if ret: 
                     frame_num += 1
-
+                
             max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
-            if max_seq_len == -1:
-                stop_idx = 0
-                frames = frames[frame_num - num_states:]
-            else:
-                frames = []
-                frame_num, stop_idx = 0, 0
+            frames = []
+            frame_num, stop_idx = 0, 0
 
-                # Advance video capture past first i-frame to start of experiment
-                cap = cv2.VideoCapture(video_path)
-                for _ in range(max_frame_num - num_states):
-                    ret, _ = cap.read()
-                    frame_num += 1
-                    if not ret:
-                        return None
+            # Advance video capture past first i-frame to start of experiment
+            cap = cv2.VideoCapture(video_path)
+            for _ in range(max_frame_num - num_states):
+                ret, _ = DataPipeline.read_frame(cap)
+                frame_num += 1
+                if not ret:
+                    return None
 
             # Rendered Frames
             observables = list(info_dict.keys()).copy()
@@ -350,6 +385,8 @@ class DataPipeline:
             # Loop through the video and construct frames
             # of observations to be sent via the multiprocessing queue
             # in chunks of worker_batch_size to the batch_iter loop.
+
+
             while True:
                 ret = True
                 start_idx = stop_idx
@@ -358,21 +395,22 @@ class DataPipeline:
                 try:
                     # Go until max_seq_len +1 for S_t, A_t,  -> R_t, S_{t+1}, D_{t+1}
                     while ret and frame_num < max_frame_num and (len(frames) < max_seq_len + 1 or max_seq_len == -1):
-                        ret, frame = cap.read()
-                        if ret:
-                            cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
-                            frames.append(np.asarray(np.clip(frame, 0, 255), dtype=np.uint8))
-                            frame_num += 1
+                        ret, frame = DataPipeline.read_frame(cap)
+                        frames.append(frame)
+                        frame_num += 1
+
                 except Exception as err:
                     logger.error("error reading capture device:", err)
                     raise err
 
-                if len(frames) == 0:
+                if len(frames) <= 1:
                     break
+
                 if frame_num == max_frame_num:
                     frames[-1] = frames[-2]
 
-                stop_idx = start_idx + len(frames)
+                # Next sarsd pair index
+                stop_idx = start_idx + len(frames) - 1
                 # print('Num frames in batch:', stop_idx - start_idx)
 
                 # Load non-image data from npz
@@ -386,20 +424,20 @@ class DataPipeline:
                             current_observation_data[i] = np.asanyarray(frames[:-1])
                             next_observation_data[i] = np.asanyarray(frames[1:])
                         elif key == 'observation_compassAngle':
-                            current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx-1, 0])
-                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx-1, 0])
+                            current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx, 0])
+                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx+1:stop_idx+1, 0])
                         else:
-                            current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx-1])
-                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx+1:stop_idx])
+                            current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx])
+                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx+1:stop_idx+1])
 
-                    # We are getting S_t, A_t -> R_t,   S_{t+1}, D_{t+1} so there are less actions and rewards
+                    # We are getting (S_t, A_t -> R_t),   S_{t+1}, D_{t+1} so there are less actions and rewards
                     for i, key in enumerate(actionables):
                         
-                        action_data[i] = np.asanyarray(action_dict[key][start_idx: stop_idx-1])
+                        action_data[i] = np.asanyarray(action_dict[key][start_idx: stop_idx])
 
-                    reward_data = np.asanyarray(reward_vec[start_idx:stop_idx-1], dtype=np.float32)
+                    reward_data = np.asanyarray(reward_vec[start_idx:stop_idx], dtype=np.float32)
 
-                    done_data = [False for _ in range(stop_idx - start_idx)]
+                    done_data = [False for _ in range(len(reward_data))]
                     if frame_num == max_frame_num:
                         done_data[-1] = True
                 except Exception as err:
@@ -419,7 +457,7 @@ class DataPipeline:
                 if not ret:
                     break
                 else:
-                    frames = []
+                    frames = [frames[-1]]
 
             # logger.error("Finished")
             return None
@@ -427,8 +465,11 @@ class DataPipeline:
             logger.debug("Caught windows error {} - this is expected when closing the data pool".format(e))
             return None
         except BrokenPipeError:
+            
+            print("Broken pipe!")
             return None
         except FileNotFoundError as e: 
+            print("File not found!")
             raise e
         except Exception as e:
             logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
@@ -442,7 +483,7 @@ class DataPipeline:
         ]:
             if p in path:
                 return True
-        
+
         return False
 
     @staticmethod
