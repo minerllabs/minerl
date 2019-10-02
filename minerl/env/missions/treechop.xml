@@ -22,7 +22,7 @@
 
     <ServerHandlers>
       <DefaultWorldGenerator forceReset="true" 
-        generatorOptions='{"useCaves": true,"useStrongholds": false,"useVillages": false,"useMineShafts": true,"useTemples": false,"useRavines": true,"useMonuments": false,"useMansions": false,"useLavaOceans": false,"useWaterLakes": false,"useDungeons": false,"fixedBiome": 2,"biomeSize": 8,"seaLevel": 2,"riverSize": 2,"waterLakeChance": 1,"lavaLakeChance": 10,"dungeonChance": 8,"biomeDepthWeight": 1,"biomeDepthOffset": 0,"biomeScaleWeight": 1,"biomeScaleOffset": 1,"lowerLimitScale": 512,"upperLimitScale": 512,"baseSize": 8.5,"stretchY": 12}'/>
+        generatorOptions='{"useCaves": true,"useStrongholds": false,"useVillages": false,"useMineShafts": true,"useTemples": false,"useRavines": true,"useMonuments": false,"useMansions": false,"useLavaOceans": false,"useWaterLakes": false,"useDungeons": false,"fixedBiome": 2,"biomeSize": 8,"seaLevel": 2,"riverSize": 2,"waterLakeChance": 1,"useLavaLakes":false,"lavaLakeChance": 10,"dungeonChance": 8,"biomeDepthWeight": 1,"biomeDepthOffset": 0,"biomeScaleWeight": 1,"biomeScaleOffset": 1,"lowerLimitScale": 512,"upperLimitScale": 512,"baseSize": 8.5,"stretchY": 12}'/>
       <ServerQuitFromTimeUp timeLimitMs="400000"/>
       <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>
