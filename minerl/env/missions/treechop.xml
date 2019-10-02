@@ -25,7 +25,9 @@
         src= "$(MISSIONS_DIR)/forest_survival"
         forceReset="true"/>
 <!--      <BiomeGenerator forceReset="true" biome="4"/>-->
-      <RandomizedStartDecorator/>
+      <DefaultWorldGenerato forceReset="true" 
+        generatorOptions='{"useCaves":true,"useStrongholds":false,"useVillages":false,"useMineShafts":true,"useTemples":false,"useRavines":true,"useMonuments":false,"useMansions":false,"useLavaOceans":false,"useWaterLakes":false,"useLavaLakes":false,"useDungeons":false,"fixedBiome":2,"biomeSize":4,"seaLevel":1,"riverSize":1,"waterLakeChance":4,"lavaLakeChance":1,"dungeonChance":8,"dirtSize":33,"dirtCount":10,"dirtMinHeight":0,"dirtMaxHeight":255,"gravelSize":33,"gravelCount":8,"gravelMinHeight":0,"gravelMaxHeight":255,"graniteSize":33,"graniteCount":10,"graniteMinHeight":0,"graniteMaxHeight":80,"dioriteSize":33,"dioriteCount":10,"dioriteMinHeight":0,"dioriteMaxHeight":80,"andesiteSize":33,"andesiteCount":10,"andesiteMinHeight":0,"andesiteMaxHeight":80,"coalSize":17,"coalCount":20,"coalMinHeight":0,"coalMaxHeight":128,"ironSize":9,"ironCount":20,"ironMinHeight":0,"ironMaxHeight":64,"goldSize":9,"goldCount":2,"goldMinHeight":0,"goldMaxHeight":32,"redstoneSize":8,"redstoneCount":8,"redstoneMinHeight":0,"redstoneMaxHeight":16,"diamondSize":8,"diamondCount":1,"diamondMinHeight":0,"diamondMaxHeight":16,"lapisSize":7,"lapisCount":1,"lapisMinHeight":0,"lapisMaxHeight":32,"coordinateScale":684,"heightScale":684,"mainNoiseScaleX":80,"mainNoiseScaleY":160,"mainNoiseScaleZ":80,"depthNoiseScaleX":200,"depthNoiseScaleZ":200,"depthNoiseScaleExponent":0.5,"biomeDepthWeight":1,"biomeDepthOffset":0,"biomeScaleWeight":1,"biomeScaleOffset":1,"lowerLimitScale":512,"upperLimitScale":512,"baseSize":8.5,"stretchY":12,"lapisCenterHeight":16,"lapisSpread":16}'/>
+      <!-- <RandomizedStartDecorator/> -->
       <ServerQuitFromTimeUp timeLimitMs="400000"/>
       <ServerQuitWhenAnyAgentFinishes/>
     </ServerHandlers>

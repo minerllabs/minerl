@@ -23,10 +23,11 @@ def main():
     """
     Tests running a simple environment.
     """
-    env = gym.make('MineRLNavigateDense-v0')
+    env = gym.make('MineRLTreechop-v0')
     
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []
+    # env.seed(25)
     for _ in range(NUM_EPISODES):
         obs = env.reset()
         done = False
@@ -34,7 +35,7 @@ def main():
         while not done:
             random_act = env.action_space.noop()
             
-            random_act['camera'] = [0, 0.1*obs["compassAngle"]]
+            # random_act['camera'] = [0, 0.1*obs["compassAngle"]]
             random_act['back'] = 0
             random_act['forward'] = 1
             random_act['jump'] = 1
