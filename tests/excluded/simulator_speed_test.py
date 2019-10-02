@@ -11,7 +11,8 @@ coloredlogs.install(level=logging.INFO)
 
 
 def run_episode(thr_num, *args):
- env = gym.make('MineRLNavigate-v0')
+ env = gym.make('MineRLObtainDiamondDense-v0')
+ env.seed(17)
  for _ in range(1000):
    env.reset()
    done = False
