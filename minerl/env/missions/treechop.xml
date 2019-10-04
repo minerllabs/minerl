@@ -50,9 +50,10 @@
       </HumanLevelCommands>
       <CameraCommands/>
       <PauseCommand/>
-      <RewardForCollectingItem>
+      <RewardForPossessingItem sparse="false">
+      <!-- <RewardForCollectingItem sparse="true"> -->
         <Item reward="1" type="log" />
-      </RewardForCollectingItem>
+      </RewardForPossessingItem>
       <AgentQuitFromPossessingItem>
         <Item type="log" amount="64"/>
       </AgentQuitFromPossessingItem>
