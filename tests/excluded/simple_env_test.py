@@ -27,6 +27,7 @@ def main():
     
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []
+    env.seed(25)
     for _ in range(NUM_EPISODES):
         obs = env.reset()
         done = False
@@ -39,10 +40,8 @@ def main():
             random_act['forward'] = 1
             random_act['jump'] = 1
             random_act['attack'] = 1
-            # print(random_act)
             obs, reward, done, info = env.step(
                 random_act)
-            # print(obs["compassAngle"])
             netr += reward
             print(reward, netr)
             env.render()
