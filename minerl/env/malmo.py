@@ -278,7 +278,7 @@ class InstanceManager:
     @classmethod
     def _get_valid_port(cls):
         malmo_base_port = cls._malmo_base_port
-        port = 17 * os.getpid() % 3989 + malmo_base_port
+        port = (17 * os.getpid()) % 3989 + malmo_base_port
         port = (cls.ninstances  % 5000) + port
         while cls._is_port_taken(port) or \
               cls._is_display_port_taken(port - malmo_base_port, cls.X11_DIR) or \
