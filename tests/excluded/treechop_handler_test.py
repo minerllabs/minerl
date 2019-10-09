@@ -25,14 +25,25 @@ def gen_obtain_debug_actions(env):
         for key, value in kwargs.items():
             action[key] = value
         actions.append(action)
+    
 
+    [act(forward=1, jump=1) for _ in range(10)]
+
+    act(camera=np.array([-45.0, 0.0], dtype=np.float32))
     [act(attack=1) for _ in range(40)]
 
     act(camera=np.array([45.0, 0.0], dtype=np.float32))
 
+
+    [act(forward=1, jump=1) for _ in range(3)]
+
+    [act(forward=1) for _ in range(5)]
+
+
+    act(camera=np.array([-90, 0.0], dtype=np.float32))
+
     [act(attack=1) for _ in range(40)]
 
-    [act(forward=1) for _ in range(10)]
 
     return actions
 
@@ -40,8 +51,8 @@ def main():
     """
     Tests running a simple environment.
     """
-    env = gym.make('MineRLTreechopDebug-v0')
-    
+    env = gym.make('MineRLTreechop-v0')
+
     env.seed(17)
     obs = env.reset()
     done = False
