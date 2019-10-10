@@ -31,18 +31,17 @@
                 <InventoryItem slot="0" type="dirt"/>
                 <InventoryItem slot="1" type="planks" quantity="3"/>
                 <InventoryItem slot="2" type="log2" quantity="2"/>
-                <InventoryItem slot="3" type="log" quantity="2"/>
+                <InventoryItem slot="3" type="log" quantity="3"/>
                 <InventoryItem slot="4" type="iron_ore" quantity="4"/>
-                <InventoryItem slot="5" type="cobblestone" quantity="11"/>
-                <InventoryItem slot="6" type="furnace"/>
-                <InventoryItem slot="7" type="diamond_ore"/>
+                <InventoryItem slot="5" type="diamond_ore" quantity="2"/>
+                <InventoryItem slot="6" type="cobblestone" quantity="17"/>
             </Inventory>
         </AgentStart>
         <AgentHandlers>
             <!--  Observations     -->
             <VideoProducer want_depth="false">
-                <Width>640</Width>
-                <Height>640</Height>
+                <Width>64</Width>
+                <Height>64</Height>
             </VideoProducer>
             <FileBasedPerformanceProducer/>
             <ObservationFromFullInventory flat="false"/>
@@ -82,7 +81,9 @@
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <RewardForPossessingItem>
+            <!-- Working for sparse rewards -->
+            <RewardForPossessingItem sparse="true"> 
+            <!-- <RewardForPossessingItem Sparse='false'> -->
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
@@ -96,8 +97,9 @@
                 <Item amount="1" reward="256" type="iron_pickaxe" />
                 <Item amount="1" reward="1024" type="diamond" />
             </RewardForPossessingItem>
+            <!-- </RewardForCollectingItemQuantity> -->
             <AgentQuitFromPossessingItem>
-                <Item type="diamond"/>
+                <Item type="diamond" amount="2"/>
             </AgentQuitFromPossessingItem>
         </AgentHandlers>
     </AgentSection>
