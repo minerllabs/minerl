@@ -62,33 +62,22 @@
             <!--          <Item type="minecraft:crafting_table"/>-->
             <!--          <Item type="minecraft:furnace"/>-->
             <!--          <Item type="minecraft:torch"/>-->
+            <EquipCommands/>
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <PauseCommand/>
 
             <!--  Rewards   -->
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <!-- <RewardForCollectingItem>
-                <Item reward="1" type="log" />
-                <Item reward="2" type="planks" />
-                <Item reward="4" type="stick" />
-                <Item reward="4" type="crafting_table" />
-                <Item reward="8" type="wooden_pickaxe" />
-                <Item reward="16" type="stone" />
-                <Item reward="32" type="furnace" />
-                <Item reward="32" type="stone_pickaxe" />
-                <Item reward="64" type="iron_ore" />
-                <Item reward="128" type="iron_ingot" />
-                <Item reward="256" type="iron_pickaxe" />
-                <Item reward="1024" type="diamond" />
-            </RewardForCollectingItem> -->
-            <RewardForPossessingItem>
+            <RewardForPossessingItem sparse="true">
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
                 <Item amount="1" reward="4" type="crafting_table" />
                 <Item amount="1" reward="8" type="wooden_pickaxe" />
-                <Item amount="1" reward="16" type="stone" />
+                <Item amount="1" reward="16" type="cobblestone" />
                 <Item amount="1" reward="32" type="furnace" />
                 <Item amount="1" reward="32" type="stone_pickaxe" />
                 <Item amount="1" reward="64" type="iron_ore" />
