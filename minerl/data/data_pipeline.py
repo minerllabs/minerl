@@ -343,7 +343,8 @@ class DataPipeline:
                 except KeyError:
                     try:
                         # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
-                        quantized_reward_vec = int(meta['total_reward'] // 8)
+                        # print(list(state.keys()))
+                        quantized_reward_vec = state['reward'].astype(np.int) // 8
                         meta['success'] = all(reward//8 in quantized_reward_vec for reward in reward_list[env_str])
                     except KeyError:
                         logger.warning("success in metadata may be incorrect")
