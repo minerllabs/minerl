@@ -1,10 +1,4 @@
-import java.util.UUID;
-
 pipeline {
-  parameters {
-      string(name: 'temporary_data_dir', defaultValue: '')
-  }
-
   agent any
   stages {
     stage('Requirements') {
@@ -15,11 +9,8 @@ git submodule update --init'''
     }
     stage('Download data'){
       steps{
-        uuid = UUID.randomUUID()
-        filename = "minerl_data-${uuid}"
-        env.temporary_data_dir = "/tmp/${filename}/"
         sh '''
-  python3 -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(directory='${env.temporary_data_dir}', minimal=True)"
+  python3 -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(directory='./data', minimal=True)"
   '''
       }
     }
@@ -34,7 +25,7 @@ pytest -n 18 --ignore=minerl/env/Malmo --ignore=tests/excluded
     }
     stage('Cleanup') {
       steps{
-        sh "rm -rf ${env.temporary_data_dir}"
+        sh "rm -rf ./data"
       }
     }
   }
