@@ -1,11 +1,5 @@
 pipeline {
   agent any
-  
-  
-  environment {
-        DISPLAY=":0"
-    }
-  
   stages {
     stage('Requirements') {
       steps {
@@ -16,11 +10,12 @@ pip3 install -e . --user'''
     }
     stage('Run PyTest') {
       steps {
-        sh '''export DISPLAY=:0
-echo "Running with $DISPLAY"
-pytest -n 12 --ignore=minerl/env/Malmo --ignore=tests/excluded
+        sh '''pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
       }
     }
+  }
+  environment {
+    DISPLAY = ':0'
   }
 }
