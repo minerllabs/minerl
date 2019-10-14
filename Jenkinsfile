@@ -16,6 +16,6 @@ pip3 install -e . --user'''
     }
   }
   environment {
-    DISPLAY = ':0'
+    DISPLAY = ':1'
   }
 }
