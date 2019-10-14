@@ -14,9 +14,9 @@ echo "Current display $DISPLAY"
 # glxgears
 export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 
-python3 tests/local/handler_test.py
+#python3 tests/local/handler_test.py
 
-# pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
+pytest -n 12 --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
       }
     }
