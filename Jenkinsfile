@@ -18,6 +18,7 @@ git submodule update --init'''
         sh '''
 echo "Current display $DISPLAY"
 export PYTHONPATH=$WORKSPACE:$PYTHONPATH
+export MINERL_DATA_ROOT=$WORKSPACE/data
 pytest -n 18 --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
       }
