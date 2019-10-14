@@ -11,11 +11,7 @@ git submodule update --init'''
       steps {
         sh '''
 echo "Current display $DISPLAY"
-# glxgears
 export PYTHONPATH=$WORKSPACE:$PYTHONPATH
-
-#python3 tests/local/handler_test.py
-
 pytest -n 18 --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
       }

@@ -121,7 +121,7 @@ def test_env(environment='MineRLObtainTest-v0'):
     done = False
     inventories = []
     rewards = []
-    for _ in range(10):
+    for _ in range(2):
         env.reset()
         total_reward = 0
         print_next_inv = False
@@ -154,7 +154,6 @@ def test_env(environment='MineRLObtainTest-v0'):
         inventories.append(obs['inventory'])
         rewards.append(total_reward)
 
-    time.sleep(0.2)
     for r, i in zip(inventories, rewards):
         print(r)
         print(i)
@@ -166,6 +165,6 @@ def test_env(environment='MineRLObtainTest-v0'):
     
 
 if __name__ == '__main__':
-    # test_env()
+    test_env()
     test_dense_env()
 
