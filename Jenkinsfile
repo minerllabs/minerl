@@ -1,5 +1,11 @@
 pipeline {
   agent any
+  
+  
+  environment {
+        DISPLAY=":0"
+    }
+  
   stages {
     stage('Requirements') {
       steps {
