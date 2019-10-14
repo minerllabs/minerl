@@ -166,6 +166,6 @@ def test_env(environment='MineRLObtainTest-v0'):
     
 
 if __name__ == '__main__':
-    test_env()
+    # test_env()
     test_dense_env()
 

@@ -37,3 +37,7 @@ var/
 tests/logs/
 .vscode/settings.json
 */performance
+
+
+# Jenkins
+jenkins_home/

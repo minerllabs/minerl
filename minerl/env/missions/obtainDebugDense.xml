@@ -82,8 +82,7 @@
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
             <!-- Working for sparse rewards -->
-            <RewardForPossessingItem sparse="false", excludeLoops="false"> 
-            <!-- <RewardForPossessingItem Sparse='false'> -->
+            <RewardForPossessingItem sparse="false" excludeLoops="false">
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
