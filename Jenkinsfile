@@ -4,8 +4,7 @@ pipeline {
     stage('Requirements') {
       steps {
         sh '''pip3 install -r requirements.txt
-git submodule update --init
-pip3 install -e . --user'''
+git submodule update --init'''
       }
     }
     stage('Run PyTest') {
@@ -13,7 +12,7 @@ pip3 install -e . --user'''
         sh '''
 echo "Current display $DISPLAY"
 # glxgears
-
+export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 
 python3 tests/local/handler_test.py
 
