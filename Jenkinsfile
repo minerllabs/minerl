@@ -12,7 +12,10 @@ pip3 install -e . --user'''
       steps {
         sh '''
 echo "Current display $DISPLAY"
-glxgears
+# glxgears
+
+
+python3 tests/local/handler_test.py
 
 # pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
