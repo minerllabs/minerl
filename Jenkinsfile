@@ -16,7 +16,7 @@ export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 
 #python3 tests/local/handler_test.py
 
-pytest -n 12 --ignore=minerl/env/Malmo --ignore=tests/excluded
+pytest -n 18 --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
       }
     }
