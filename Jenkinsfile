@@ -20,6 +20,6 @@ glxgears
     }
   }
   environment {
-    DISPLAY = ':1'
+    DISPLAY = ':0'
   }
 }
