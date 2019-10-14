@@ -143,5 +143,5 @@ RUN python3 -m pip install --upgrade \
 USER jenkins
 
 ################################3 MINERL THINGS.
-ENV MINERL_DATA_ROOT /minerl
+# ENV MINERL_DATA_ROOT /minerl
 WORKDIR /var/jenkins_home
