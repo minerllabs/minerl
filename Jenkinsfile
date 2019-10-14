@@ -9,11 +9,7 @@ git submodule update --init'''
     }
     stage('Download data') {
       steps {
-        sh '''python3 -c " \\
-import logging; \\
-import minerl; \\
-logging.basicConfig(level=logging.DEBUG);  \\
-minerl.data.download(directory=\'./data\', minimal=True)"
+        sh '''python3 -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(directory=\'./data\', minimal=True)"
  '''
       }
     }
