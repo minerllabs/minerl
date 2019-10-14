@@ -10,7 +10,11 @@ pip3 install -e . --user'''
     }
     stage('Run PyTest') {
       steps {
-        sh '''pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
+        sh '''
+echo "Current display $DISPLAY"
+glxgears
+
+# pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
       }
     }
