@@ -10,7 +10,7 @@ pip3 install -e . --user'''
     }
     stage('Run PyTest') {
       steps {
-        sh 'pytest'
+        sh 'pytest -n 12 --ignore=minerl/env/Malmo --ignore=tests/excluded'
       }
     }
   }
