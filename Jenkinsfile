@@ -15,8 +15,8 @@ git submodule update --init'''
     }
     stage('Download data'){
       steps{
-        def uuid = UUID.randomUUID()
-        def filename = "minerl_data-${uuid}"
+        uuid = UUID.randomUUID()
+        filename = "minerl_data-${uuid}"
         env.temporary_data_dir = "/tmp/${filename}/"
         sh '''
   python3 -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(directory='${env.temporary_data_dir}', minimal=True)"
