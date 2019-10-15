@@ -27,7 +27,7 @@ echo "Current display $DISPLAY"
 '''
               sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
-pytest -n 8 --junitxml=basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore=minerl/dependencies
+pytest -n 8 --junitxml=./results/basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore=minerl/dependencies
 '''
             }
 
@@ -39,7 +39,7 @@ pytest -n 8 --junitxml=basic_report.xml --ignore=minerl/env/Malmo --ignore=tests
               dir(path: 'minerl/dependencies/pySmartDL/') {
                 sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
-pytest --junitxml=pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded
+pytest --junitxml=./results/pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
               }
 
@@ -52,7 +52,7 @@ pytest --junitxml=pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/
             ansiColor(colorMapName: 'xterm') {
               sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
-pytest --junitxml=advanced_report.xml $WORKSPACE/minerl/tests/local'''
+pytest --junitxml=./results/advanced_report.xml ./minerl/tests/local'''
             }
 
           }
@@ -62,6 +62,8 @@ pytest --junitxml=advanced_report.xml $WORKSPACE/minerl/tests/local'''
     stage('Cleanup') {
       steps {
         sh 'rm -rf ./data'
+        junit './results/*'
+        sh 'rm -rf ./results'
       }
     }
   }
