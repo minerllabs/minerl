@@ -126,10 +126,18 @@ def test_env(environment='MineRLObtainTest-v0'):
         total_reward = 0
         print_next_inv = False
 
+        # Test holding a non-observeable item (red_flower)
+        action = env.action_space.no_op()
+        action['equip'] = 'red_flower'
+        obs, _, _, _ = env.step(action)
+        obs, _, _, _ = env.step(env.action_space.no_op())
+        assert obs['equipped_items']['mainhand']['type'] == 'other', '{} is not of type other'.format(obs['equipped_items']['mainhand']['type'])
+
         for action in gen_obtain_debug_actions(env):
             for key, value in action.items():
                 if isinstance(value, str) and value in reward_dict and key not in ['equip']:
                     print('Action of {}:{} if successful gets {}'.format(key, value, reward_dict[value]))
+
             obs, reward, done, info = env.step(action)
 
             if print_next_inv:
