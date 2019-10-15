@@ -5,6 +5,9 @@ pipeline {
       steps {
         sh 'pip3 install -r requirements.txt'
         sh 'git submodule update --init'
+        script {
+          export PYTHONPATH=$WORKSPACE:$PYTHONPATH
+          export MINERL_DATA_DIR=$WORKSPACE/data
       }
     }
     stage('Download data') {
