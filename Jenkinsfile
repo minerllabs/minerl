@@ -27,7 +27,7 @@ pipeline {
         }
         stage('PySmartDL') {
           steps {
-            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               dir(path: 'minerl/dependencies/pySmartDL/') {
                 sh 'pytest --junitxml=./results/pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded'
               }
@@ -39,7 +39,7 @@ pipeline {
         stage('Advanced MineRL') {
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-              sh 'pytest --junitxml=./results/advanced_report.xml ./minerl/tests/local'
+              sh 'pytest --junitxml=./results/advanced_report.xml ./tests/local'
             }
 
           }
