@@ -5,6 +5,7 @@ pipeline {
       steps {
         sh 'pip3 install -r requirements.txt'
         sh 'git submodule update --init'
+      }
     }
     stage('Download data') {
       steps {
