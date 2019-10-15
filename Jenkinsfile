@@ -5,9 +5,6 @@ pipeline {
       steps {
         sh 'pip3 install -r requirements.txt'
         sh 'git submodule update --init'
-        sh 'echo "Current display $DISPLAY" '
-        sh 'export PYTHONPATH=$WORKSPACE:$PYTHONPATH'
-        sh 'export MINERL_DATA_ROOT=$WORKSPACE/data'
       }
     }
     stage('Download data') {
@@ -39,6 +36,9 @@ pipeline {
         stage('Advanced MineRL') {
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+              sh 'echo "Current display $DISPLAY" '
+              sh 'export PYTHONPATH=$WORKSPACE:$PYTHONPATH'
+              sh 'export MINERL_DATA_ROOT=$WORKSPACE/data'
               sh 'pytest --junitxml=./results/advanced_report.xml ./tests/local'
             }
 
