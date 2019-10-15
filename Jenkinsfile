@@ -50,7 +50,7 @@ pipeline {
       steps {
         sh 'rm -rf ./data'
         sh 'pwd; ls ./results'
-        junit './results/*'
+        junit '**/results/*.xml'
         sh 'rm -rf ./results'
       }
     }
