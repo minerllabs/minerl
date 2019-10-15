@@ -18,7 +18,10 @@ pipeline {
           agent any
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-              sh 'pytest -n 8 --junitxml=./results/basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore=minerl/dependencies'
+              sh '''
+                export "PYTHONPATH=${WORKSPACE}:${PYTHONPATH}"
+                export "MINERL_DATA_DIR=${WORKSPACE}/data"
+                pytest -n 8 --junitxml=./results/basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore=minerl/dependencies'''
             }
 
           }
