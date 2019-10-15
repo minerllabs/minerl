@@ -8,6 +8,7 @@ pipeline {
         script {
           export PYTHONPATH=$WORKSPACE:$PYTHONPATH
           export MINERL_DATA_DIR=$WORKSPACE/data
+        }
       }
     }
     stage('Download data') {
