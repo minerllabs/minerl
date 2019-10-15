@@ -25,7 +25,7 @@ echo "Current display $DISPLAY"
 '''
           sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
-pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
+pytest --junitxml --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
         }
 
