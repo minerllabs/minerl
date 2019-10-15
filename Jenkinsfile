@@ -5,11 +5,6 @@ pipeline {
       steps {
         sh 'pip3 install -r requirements.txt'
         sh 'git submodule update --init'
-        script {
-          export "PYTHONPATH=${WORKSPACE}:${PYTHONPATH}"
-          export "MINERL_DATA_DIR=${WORKSPACE}/data"
-        }
-
       }
     }
     stage('Download data') {
@@ -43,7 +38,11 @@ pipeline {
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
               sh 'echo "Current display $DISPLAY $PYTHONPATH $MINERL_DATA_ROOT" '
-              sh 'pytest --junitxml=./results/advanced_report.xml ./tests/local'
+              sh '''
+                export "PYTHONPATH=${WORKSPACE}:${PYTHONPATH}"
+                export "MINERL_DATA_DIR=${WORKSPACE}/data"
+                pytest --junitxml=./results/advanced_report.xml ./tests/local
+              '''
             }
 
           }
