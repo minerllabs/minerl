@@ -51,7 +51,7 @@ pytest --junitxml=pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/
           steps {
             ansiColor(colorMapName: 'xterm') {
               dir(path: 'minerl/tests/local') {
-                sh 'echo pwd'
+                sh 'pwd'
                 sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
 pytest --junitxml=advanced_report.xml
