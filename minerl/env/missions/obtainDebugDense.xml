@@ -35,6 +35,7 @@
                 <InventoryItem slot="4" type="iron_ore" quantity="4"/>
                 <InventoryItem slot="5" type="diamond_ore" quantity="2"/>
                 <InventoryItem slot="6" type="cobblestone" quantity="17"/>
+                <InventoryItem slot="7" type="red_flower" quantity="1"/>
             </Inventory>
         </AgentStart>
         <AgentHandlers>

@@ -311,6 +311,12 @@ class MineRLEnv(gym.Env):
         else:
             info = {}
 
+        # Ensure mainhand observations are valid
+        try:
+            if info['equipped_items']['mainhand'] not in self.observation_space.spaces['equipped_items'].spaces['mainhand'].spaces['type']:
+                info['equipped_items']['mainhand']['type'] = self.observation_space.spaces['equipped_items'].spaces['mainhand'].spaces['type'].values[-1]    
+        except Exception as e:
+            pass
         # Process Info: (HotFix until updated in Malmo.)
         if "inventory" in info and "inventory" in self.observation_space.spaces:
             inventory_spaces = self.observation_space.spaces['inventory'].spaces
