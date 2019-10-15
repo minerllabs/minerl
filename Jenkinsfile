@@ -37,9 +37,7 @@ pipeline {
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
               sh 'echo "Current display $DISPLAY" '
-              sh 'export PYTHONPATH=$WORKSPACE:$PYTHONPATH'
-              sh 'export MINERL_DATA_ROOT=$WORKSPACE/data'
-              sh 'pytest --junitxml=./results/advanced_report.xml ./tests/local'
+              sh ' pytest --junitxml=./results/advanced_report.xml ./tests/local'
             }
 
           }
@@ -57,5 +55,7 @@ pipeline {
   }
   environment {
     DISPLAY = ':0'
+    MINERL_DATA_ROOT = '=$WORKSPACE/data'
+    PYTHONPATH = '$WORKSPACE:$PYTHONPATH'
   }
 }
