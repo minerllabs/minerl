@@ -5,6 +5,7 @@ pipeline {
       steps {
         sh 'pip3 install -r requirements.txt'
         sh 'git submodule update --init'
+        sh 'python -m pip install -e . --upgrade '
       }
     }
     stage('Download data') {
@@ -44,7 +45,7 @@ pipeline {
               sh '''
                 export "PYTHONPATH=${WORKSPACE}:${PYTHONPATH}"
                 export "MINERL_DATA_DIR=${WORKSPACE}/data"
-                pytest --junitxml=./results/advanced_report.xml ./tests/local
+                pytest -n 2 --junitxml=./results/advanced_report.xml ./tests/local
               '''
             }
 
