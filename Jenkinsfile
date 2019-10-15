@@ -15,6 +15,7 @@ pipeline {
     stage('Run PyTest') {
       parallel {
         stage('Basic MineRL') {
+          agent any
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
               sh 'pytest -n 8 --junitxml=./results/basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore=minerl/dependencies'
@@ -36,7 +37,7 @@ pipeline {
         stage('Advanced MineRL') {
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-              sh 'echo "Current display $DISPLAY" '
+              sh 'echo "Current display $DISPLAY $PYTHONPATH $MINERL_DATA_ROOT" '
               sh ' pytest --junitxml=./results/advanced_report.xml ./tests/local'
             }
 
