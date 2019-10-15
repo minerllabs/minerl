@@ -49,7 +49,7 @@ pipeline {
     stage('Cleanup') {
       steps {
         sh 'rm -rf ./data'
-        sh 'pwd; ls'
+        sh 'pwd; ls ./results'
         junit './results/*'
         sh 'rm -rf ./results'
       }
