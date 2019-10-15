@@ -52,7 +52,7 @@ pytest --junitxml=pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/
             ansiColor(colorMapName: 'xterm') {
               sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
-pytest --junitxml=advanced_report.xml minerl/tests/local'''
+pytest --junitxml=advanced_report.xml $WORKSPACE/minerl/tests/local'''
             }
 
           }
