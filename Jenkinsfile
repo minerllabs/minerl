@@ -27,7 +27,7 @@ echo "Current display $DISPLAY"
 '''
               sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
-pytest -n 8 --junitxml=basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore =minerl/dependencies
+pytest -n 8 --junitxml=basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore=minerl/dependencies
 '''
             }
 
@@ -51,6 +51,7 @@ pytest --junitxml=pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/
           steps {
             ansiColor(colorMapName: 'xterm') {
               dir(path: 'minerl/tests/local') {
+                sh 'echo pwd'
                 sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
 pytest --junitxml=advanced_report.xml
