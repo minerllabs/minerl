@@ -5,7 +5,7 @@ pipeline {
       steps {
         sh 'pip3 install -r requirements.txt'
         sh 'git submodule update --init'
-        sh 'python -m pip install -e . --upgrade '
+        sh 'pip3 install -e . --upgrade '
       }
     }
     stage('Download data') {
