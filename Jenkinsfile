@@ -24,31 +24,36 @@ pipeline {
                 export "MINERL_DATA_DIR=${WORKSPACE}/data"
                 pytest -n 8 --junitxml=./results/basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore=minerl/dependencies'''
             }
-
+          }
+        }
+        stage('Basic MineRL Test') {
+          agent any
+          steps {
+            catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+              sh 'pytest -n 8 --junitxml=./results/basic_report_2.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore=minerl/dependencies'
+            }
           }
         }
         stage('PySmartDL') {
           steps {
             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               dir(path: 'minerl/dependencies/pySmartDL/') {
-                sh 'pytest --junitxml=./results/pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded'
+                sh '''
+                  export "MINERL_DATA_DIR=${WORKSPACE}/data"
+                  pytest --junitxml=./results/pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded'''
               }
-
             }
-
           }
         }
         stage('Advanced MineRL') {
           steps {
             catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-              sh 'echo "Current display $DISPLAY $PYTHONPATH $MINERL_DATA_ROOT" '
               sh '''
                 export "PYTHONPATH=${WORKSPACE}:${PYTHONPATH}"
                 export "MINERL_DATA_DIR=${WORKSPACE}/data"
                 pytest -n 2 --junitxml=./results/advanced_report.xml ./tests/local
               '''
             }
-
           }
         }
       }
@@ -56,7 +61,6 @@ pipeline {
     stage('Cleanup') {
       steps {
         sh 'rm -rf ./data'
-        sh 'pwd; ls ./results'
         junit '**/results/*.xml'
         sh 'rm -rf ./results'
       }
