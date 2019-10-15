@@ -15,17 +15,20 @@ git submodule update --init'''
     }
     stage('Run PyTest') {
       steps {
-        ansiColor(colorMapName: 'xterm')
-        sh '''
+        ansiColor(colorMapName: 'xterm') {
+          sh '''
 echo "Current display $DISPLAY"   
 
 
 
 
- export PYTHONPATH=$WORKSPACE:$PYTHONPATH
+'''
+          sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
 pytest --ignore=minerl/env/Malmo --ignore=tests/excluded
 '''
+        }
+
       }
     }
     stage('Cleanup') {
