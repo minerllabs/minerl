@@ -9,6 +9,7 @@ pipeline {
           export "PYTHONPATH=${WORKSPACE}:${PYTHONPATH}"
           export "MINERL_DATA_DIR=${WORKSPACE}/data"
         }
+
       }
     }
     stage('Download data') {
@@ -60,7 +61,5 @@ pipeline {
   }
   environment {
     DISPLAY = ':0'
-    MINERL_DATA_ROOT = '=$WORKSPACE/data'
-    PYTHONPATH = '$WORKSPACE:$PYTHONPATH'
   }
 }
