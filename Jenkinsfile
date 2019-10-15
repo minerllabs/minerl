@@ -14,21 +14,53 @@ git submodule update --init'''
       }
     }
     stage('Run PyTest') {
-      steps {
-        ansiColor(colorMapName: 'xterm') {
-          sh '''
+      parallel {
+        stage('Basic MineRL') {
+          steps {
+            ansiColor(colorMapName: 'xterm') {
+              sh '''
 echo "Current display $DISPLAY"   
 
 
 
 
 '''
-          sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
+              sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
 export MINERL_DATA_ROOT=$WORKSPACE/data
-pytest --junitxml=$WORKSPACE/report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded
+pytest -n 8 --junitxml=basic_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded --ignore=tests/local --ignore =minerl/dependencies
 '''
-        }
+            }
 
+          }
+        }
+        stage('PySmartDL') {
+          steps {
+            ansiColor(colorMapName: 'xterm') {
+              dir(path: 'minerl/dependencies/pySmartDL/') {
+                sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
+export MINERL_DATA_ROOT=$WORKSPACE/data
+pytest --junitxml=pysmartdl_report.xml --ignore=minerl/env/Malmo --ignore=tests/excluded
+'''
+              }
+
+            }
+
+          }
+        }
+        stage('Advanced MineRL') {
+          steps {
+            ansiColor(colorMapName: 'xterm') {
+              dir(path: 'minerl/tests/local') {
+                sh '''export PYTHONPATH=$WORKSPACE:$PYTHONPATH
+export MINERL_DATA_ROOT=$WORKSPACE/data
+pytest --junitxml=advanced_report.xml
+'''
+              }
+
+            }
+
+          }
+        }
       }
     }
     stage('Cleanup') {
