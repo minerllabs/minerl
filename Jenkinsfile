@@ -52,6 +52,7 @@ pipeline {
     stage('Cleanup') {
       steps {
         sh 'rm -rf ./data'
+        sh 'rm -rf /tmp/pySmartDL
         junit '**/results/*.xml'
         sh 'rm -rf ./results'
       }
