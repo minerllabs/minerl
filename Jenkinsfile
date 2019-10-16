@@ -42,7 +42,7 @@ pipeline {
               sh '''
                 export "PYTHONPATH=${WORKSPACE}:${PYTHONPATH}"
                 export "MINERL_DATA_DIR=${WORKSPACE}/data"
-                pytest -n 2 --junitxml=./results/advanced_report.xml ./tests/local
+                pytest --junitxml=./results/advanced_report.xml ./tests/local
               '''
             }
           }
