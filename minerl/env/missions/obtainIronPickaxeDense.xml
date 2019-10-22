@@ -66,13 +66,13 @@
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <RewardForPossessingItem sparse="false" avoidLoops="false">
+            <RewardForPossessingItem sparse="false" excludeLoops="false">
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
                 <Item amount="1" reward="4" type="crafting_table" />
                 <Item amount="1" reward="8" type="wooden_pickaxe" />
-                <Item amount="1" reward="16" type="stone" />
+                <Item amount="1" reward="16" type="cobblestone" />
                 <Item amount="1" reward="32" type="furnace" />
                 <Item amount="1" reward="32" type="stone_pickaxe" />
                 <Item amount="1" reward="64" type="iron_ore" />
