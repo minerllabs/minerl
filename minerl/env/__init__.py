@@ -24,13 +24,19 @@ from gym.envs.registration import register
 from collections import OrderedDict
 from minerl.env import spaces
 from minerl.env.core import MineRLEnv, missions_dir
+from minerl.env.recording import MineRLRecorder, MINERL_RECORDING_PATH
 
 import numpy as np
 
-  
+if MINERL_RECORDING_PATH is not None:
+    entry_point = 'minerl.env:MineRLRecorder'
+else:
+    entry_point = 'minerl.env:MineRLEnv'
+
+
 register(
     id='MineRLTreechop-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'treechop.xml'),
         'observation_space': spaces.Dict({
@@ -133,7 +139,7 @@ navigate_observation_space = spaces.Dict({
 
 register(
     id='MineRLNavigate-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'navigation.xml'),
         'observation_space': navigate_observation_space,
@@ -145,7 +151,7 @@ register(
 
 register(
     id='MineRLNavigateDense-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'navigationDense.xml'),
         'observation_space': navigate_observation_space,
@@ -158,7 +164,7 @@ register(
 
 register(
     id='MineRLNavigateExtreme-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'navigationExtreme.xml'),
         'observation_space': navigate_observation_space,
@@ -170,7 +176,7 @@ register(
 
 register(
     id='MineRLNavigateExtremeDense-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'navigationExtremeDense.xml'),
         'observation_space': navigate_observation_space,
@@ -236,7 +242,7 @@ obtain_action_space = spaces.Dict({
 
 register(
     id='MineRLObtainIronPickaxe-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainIronPickaxe.xml'),
         'observation_space': obtain_observation_space,
@@ -285,7 +291,7 @@ item is given here::
 
 register(
     id='MineRLObtainIronPickaxeDense-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainIronPickaxeDense.xml'),
         'observation_space': obtain_observation_space,
@@ -337,7 +343,7 @@ item are given here::
 #######################
 register(
     id='MineRLObtainDiamond-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainDiamond.xml'),
         'observation_space': obtain_observation_space,
@@ -394,7 +400,7 @@ item is given here::
 
 register(
     id='MineRLObtainDiamondDense-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainDiamondDense.xml'),
         'observation_space': obtain_observation_space,
@@ -450,7 +456,7 @@ item are given here::
 
 register(
     id='MineRLNavigateDenseFixed-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'navigationDenseFixedMap.xml'),
         'observation_space': navigate_observation_space,
@@ -461,7 +467,7 @@ register(
 
 register(
     id='MineRLTreechopDebug-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'treechopDebug.xml'),
         'observation_space': spaces.Dict({
@@ -489,7 +495,7 @@ register(
 
 register(
     id='MineRLObtainTest-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainDebug.xml'),
         'observation_space': obtain_observation_space,
@@ -514,7 +520,7 @@ register(
 
 register(
     id='MineRLObtainTestDense-v0',
-    entry_point='minerl.env:MineRLEnv',
+    entry_point=entry_point,
     kwargs={
         'xml': os.path.join(missions_dir, 'obtainDebugDense.xml'),
         'observation_space': obtain_observation_space,
