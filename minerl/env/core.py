@@ -297,12 +297,12 @@ class MineRLEnv(gym.Env):
         """
         Process observation into the proper dict space.
         """
-        pov = np.frombuffer(pov, dtype=np.uint8)
 
         if pov is None or len(pov) == 0:
             pov = np.zeros(
                 (self.height, self.width, self.depth), dtype=np.uint8)
         else:
+            pov = np.frombuffer(pov, dtype=np.uint8)
             pov = pov.reshape((self.height, self.width, self.depth))[
                 ::-1, :, :]
 
@@ -485,19 +485,20 @@ class MineRLEnv(gym.Env):
             logger.debug("Peeking the client.")
             peek_message = "<Peek/>"
             comms.send_message(self.client_socket, peek_message.encode())
-            obs = comms.recv_message(self.client_socket)
+            # obs = comms.recv_message(self.client_socket)
+
             info = comms.recv_message(self.client_socket).decode('utf-8')
 
             reply = comms.recv_message(self.client_socket)
             done, = struct.unpack('!b', reply)
             self.done = done == 1
-            if obs is None or len(obs) == 0:
-                if time.time() - start_time > MAX_WAIT:
-                    self.client_socket.close()
-                    self.client_socket = None
-                    raise MissionInitException(
-                        'too long waiting for first observation')
-                time.sleep(0.1)
+            # if obs is None or len(obs) == 0:
+                # if time.time() - start_time > MAX_WAIT:
+                    # self.client_socket.close()
+                    # self.client_socket = None
+                    # raise MissionInitException(
+                        # 'too long waiting for first observation')
+                # time.sleep(0.1)
             if self.done:
                 raise RuntimeError(
                     "Something went wrong resetting the environment! "
@@ -540,7 +541,8 @@ class MineRLEnv(gym.Env):
                 comms.send_message(self.client_socket, step_message.encode())
 
                 # Receive the observation.
-                obs = comms.recv_message(self.client_socket)
+                # obs = comms.recv_message(self.client_socket)
+                obs = None
 
                 # Receive reward done and sent.
                 reply = comms.recv_message(self.client_socket)
