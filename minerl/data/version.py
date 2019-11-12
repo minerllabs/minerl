@@ -1,7 +1,7 @@
 import os
 import re
 import glob
-DATA_VERSION = 1
+DATA_VERSION = 123456789
 FILE_PREFIX = "v{}_".format(DATA_VERSION)
 VERSION_FILE_NAME = "VERSION"
 
