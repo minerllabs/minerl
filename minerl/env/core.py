@@ -711,9 +711,6 @@ class MineRLEnv(gym.Env):
         return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
 
 
-def make():
-    return Env()
-
 
 def register(id, **kwargs):
     # TODO create doc string based on registered envs
