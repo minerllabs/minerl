@@ -21,7 +21,14 @@ def make(environment=None , data_dir=None, num_workers=4, worker_batch_size=32, 
     """
 
     # Ensure path is setup
-    if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
+    if ((
+            data_dir is None and 'MINERL_DATA_ROOT' in os.environ
+        )
+        or
+        (
+             'AICROWD_IS_GRADING' in os.environ and os.environ['AICROWD_IS_GRADING'] is not None
+        )
+    ):
         data_dir = os.environ['MINERL_DATA_ROOT']
     elif data_dir is not None and not os.path.exists(data_dir):
         if force_download:
