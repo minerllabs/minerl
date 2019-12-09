@@ -173,7 +173,7 @@ class InstanceManager:
                 cls.ninstances += 1
                 # Make the status directory.
 
-                if hasattr(cls, "_pyroDaemon"):
+                if hasattr(cls, "_pyroDaemon") or os.getenv("AICROWD_TRAINING", None):
                     status_dir = os.path.join(cls.STATUS_DIR, 'mc_{}'.format(cls.ninstances))
                     if not os.path.exists(status_dir):
                         os.makedirs(status_dir)
