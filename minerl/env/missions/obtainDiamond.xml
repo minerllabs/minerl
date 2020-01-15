@@ -23,7 +23,7 @@
     </ServerSection>
 
     <AgentSection mode="Survival">
-        <Name>MalmoTutorialBot</Name>
+        <Name>MineRL Agent</Name>
         <AgentStart/>
         <AgentHandlers>
             <!--  Observations     -->
