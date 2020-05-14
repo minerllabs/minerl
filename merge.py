@@ -33,7 +33,7 @@ BLACKLIST_TXT = J(WORKING_DIR, 'blacklist.txt')
 BLOCK_SIZE = 1024*1024
 PARSE_COMMAND = [os.path.abspath('./merging/parse'), '-f']
 Z7_COMMAND = ["7z"]
-TEMP_ROOT='/mnt/ramdisk'
+TEMP_ROOT='/tmp'
 
 ACTION_FILE = 'actions.tmcpr'
 RECORDING_FILE = 'recording.tmcpr'

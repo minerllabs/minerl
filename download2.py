@@ -16,6 +16,7 @@ if not os.path.exists(target_dir):
     os.makedirs(target_dir)
 print("Downloading to {}".format(target_dir))
 
+
 obj_count = 0
 new_objs = 0
 for bucket_prefix in bucket_prefixes:

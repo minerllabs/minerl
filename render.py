@@ -34,7 +34,7 @@ J = os.path.join
 E = os.path.exists
 WORKING_DIR = "output"
 MERGED_DIR = J(WORKING_DIR, "merged_new")
-RENDER_DIR = J(WORKING_DIR, "rendered_new")
+RENDER_DIR = J(WORKING_DIR, "rendered_comp_val")
 
 # Minecraft Files
 NUM_MINECRAFT_DIR = 12

@@ -29,9 +29,9 @@ E = os.path.exists
 EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
 _outout_root = (os.getenv("MINERL_OUTPUT_ROOT"))
 WORKING_DIR = os.path.expanduser(os.path.abspath("./output") if not _outout_root else _outout_root)
-DATA_DIR = J(WORKING_DIR, "data_new")
+DATA_DIR = J(WORKING_DIR, "data_comp_val")
 
-RENDER_DIR = J(WORKING_DIR, "rendered_new")
+RENDER_DIR = J(WORKING_DIR, "rendered_comp_val")
 BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
 ACTION_FILE = "actions.tmcpr"
@@ -494,9 +494,9 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
             tqdm.tqdm.write('No segments in ' + inputPath)
         return 0
     try:
-        if not E(J(inputPath, 'keyframes_recording.mp4')):
-            # os.remove(J(inputPath, 'keyframes_recording.mp4'))
-            add_key_frames(inputPath, segments)
+        if  E(J(inputPath, 'keyframes_recording.mp4')):
+            os.remove(J(inputPath, 'keyframes_recording.mp4'))
+        add_key_frames(inputPath, segments)
     except subprocess.CalledProcessError as exception:
         open('errors.txt', 'a+').write("Error splitting {}:\033[0;31;47m {}        \033[0m 0;31;47m".format(recordingName, exception) + inputPath + '\n')
         return 0
