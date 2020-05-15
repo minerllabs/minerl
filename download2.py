@@ -3,35 +3,52 @@ import tqdm
 import botocore
 import string
 import os 
+import subprocess
+import time
+from pathlib import Path
+from constants import BASE_DIR, DOWNLOAD_DIR, OUTPUT_DIR, BUCKET_NAME
+
+
+J =  os.path.join
+
 
 s3 = boto3.resource('s3')
-bucket = s3.Bucket('pizza-party')
-bucket_prefixes = ['2018','2019','2020']
-parent_dir = "output"
-target_dir = os.path.join(parent_dir, "downloaded_new")
+bucket = s3.Bucket(BUCKET_NAME)
 
-if not os.path.exists(parent_dir):
-    os.makedirs(parent_dir)
-if not os.path.exists(target_dir):
-    os.makedirs(target_dir)
-print("Downloading to {}".format(target_dir))
+def main():
+    bucket_prefixes = ['2018','2019','2020']
+    Path(DOWNLOAD_DIR).mkdir(exist_ok=True)
 
 
-obj_count = 0
-new_objs = 0
-for bucket_prefix in bucket_prefixes:
-    print ("Year: ",bucket_prefix)
-    for obj in tqdm.tqdm(bucket.objects.filter(Prefix=bucket_prefix)):
-        try:
+    print("Downloading to {}".format(DOWNLOAD_DIR))
+
+
+    obj_count = 0
+    new_objs = 0
+    files_to_download = []
+    for bucket_prefix in bucket_prefixes:
+        print ("Year: ",bucket_prefix)
+        for i, obj in enumerate(tqdm.tqdm(bucket.objects.filter(Prefix=bucket_prefix))):
+            if i > 200:
+                break
+
             key = obj.key
             filename = key.split("/")[-1]
-            if not os.path.isfile(os.path.join(target_dir, filename)):
-                bucket.download_file(obj.key, os.path.join(target_dir, filename))
+            if not os.path.isfile(os.path.join(DOWNLOAD_DIR, filename)):
+                files_to_download.append((obj.key, DOWNLOAD_DIR, filename))
                 new_objs += 1
-        except botocore.exceptions.ClientError as e:
-            if e.response['Error']['Code'] == "404":
-                print("The object does not exist.")
-            else:
-                raise
-        obj_count += 1
-print ("Total Files: ",obj_count, "New Files",new_objs)
+
+            obj_count += 1
+
+    print ("Total Files: ",obj_count, "New Files",new_objs)
+    time.sleep(1)
+    print("Beginning download...")
+    subprocess.check_call(
+        f"aws s3 sync s3://{BUCKET_NAME} {DOWNLOAD_DIR}".split(" "), 
+    )
+    print("Download complete.")
+
+    
+
+if __name__ == '__main__':
+    main()

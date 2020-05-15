@@ -16,6 +16,22 @@ import argparse
 
 from subprocess import Popen, PIPE, STDOUT
 
+from constants import (
+    MERGED_DIR, 
+    BLACKLIST_TXT, 
+    PARSE_COMMAND, 
+    Z7_COMMAND, 
+    TEMP_ROOT,
+    BLOCK_SIZE,
+    ACTION_FILE,
+    RECORDING_FILE,
+    TEMP_FILE,
+    GLOB_STR_BASE
+)
+
+from constants import OUTPUT_DIR as WORKING_DIR
+from constants import DOWNLOAD_DIR as DOWNLOADED_DIR
+
 try:
     from subprocess import DEVNULL # py3k
 except ImportError:
@@ -26,18 +42,6 @@ except ImportError:
 J = os.path.join
 E = os.path.exists
 
-WORKING_DIR = os.path.abspath('./output')
-MERGED_DIR = J(WORKING_DIR, 'merged_new')
-DOWNLOADED_DIR = J(WORKING_DIR, 'downloaded_new')
-BLACKLIST_TXT = J(WORKING_DIR, 'blacklist.txt')
-BLOCK_SIZE = 1024*1024
-PARSE_COMMAND = [os.path.abspath('./merging/parse'), '-f']
-Z7_COMMAND = ["7z"]
-TEMP_ROOT='/tmp'
-
-ACTION_FILE = 'actions.tmcpr'
-RECORDING_FILE = 'recording.tmcpr'
-TEMP_FILE = 'tmp.tmcpr'
 
 
 def remove(path):
@@ -151,7 +155,7 @@ def concat(infiles, outfile):
 def get_files_to_merge(blacklist):
 
     files_to_merge = []
-    downloaded_streams = glob.glob(J(DOWNLOADED_DIR, "player*"))
+    downloaded_streams = list(glob.glob(J(GLOB_STR_BASE, "player*")))
     for f in tqdm.tqdm(downloaded_streams):
         try:
             assert os.path.isfile(f), "{} was not a file. Your download dir could be wrong."
@@ -160,14 +164,13 @@ def get_files_to_merge(blacklist):
             who, version = delimited_name[0], delimited_name[1]
             stream_name = "{}-{}".format(who, version)
 
-            if ( not  E(J(MERGED_DIR, "{}.mcpr".format(stream_name))) 
-                and not (stream_name in blacklist)):
-                files_to_merge.append(stream_name)
+            # if ( not  E(J(MERGED_DIR, "{}.mcpr".format(stream_name))) 
+            #     and not (stream_name in blacklist)):
+            files_to_merge.append(stream_name)
             
         except AssertionError as e:
             print("FAILED", e)
             # raise
-
     return list(set(files_to_merge))
 
 
@@ -181,7 +184,8 @@ def merge_stream(stream_name):
         tempdir = tempfile.mkdtemp(dir=TEMP_ROOT)
         bin_name = J(tempdir, "{}.bin".format(stream_name))
         # Concatenate
-        shards = sorted(glob.glob(J(DOWNLOADED_DIR, "{}-*".format(stream_name))))
+        shards = sorted(glob.glob(J(GLOB_STR_BASE, "{}-*".format(stream_name))))
+        
         # print(shards)
         t0 = time.time()
         concat(shards, bin_name)
@@ -204,6 +208,11 @@ def merge_stream(stream_name):
                     Z7_COMMAND + ["a", zip_file , J(results_dir, "*") ], cwd=tempdir, stdout=DEVNULL)
                 proc.wait()
                 os.rename(J(tempdir, zip_file), J(tempdir, mcpr_file))
+
+                # Overwrite files.
+                if E( J(MERGED_DIR,  mcpr_file)):
+                    os.remove(J(MERGED_DIR,  mcpr_file))
+                
                 shutil.move( J(tempdir, mcpr_file), MERGED_DIR)
 
                 return (time.time() - t0)

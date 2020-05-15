@@ -24,49 +24,64 @@ import time
 import shutil
 import psutil
 import traceback
+from pathlib import Path
 import re
 from shutil import copyfile
+
+from constants import (
+    OUTPUT_DIR as WORKING_DIR,
+    DOWNLOAD_DIR as DOWNLOADED_DIR, 
+    NUM_MINECRAFTS as NUM_MINECRAFT_DIR,
+    RENDERERS_DIR,
+)
+
+
+
 
 # 3
 # UTILITIES
 #######################
-J = os.path.join
-E = os.path.exists
-WORKING_DIR = "output"
-MERGED_DIR = J(WORKING_DIR, "merged_new")
-RENDER_DIR = J(WORKING_DIR, "rendered_comp_val")
+from constants import (
+    MERGED_DIR,
+    RENDER_DIR,
+    J,
+    E
+)
 
-# Minecraft Files
-NUM_MINECRAFT_DIR = 12
-MINECRAFT_DIR = [J('/', 'home', 'madcowd', 'rendering', 'minecraft_{}'.format(i)) for i in range(NUM_MINECRAFT_DIR)]
-RECORDING_PATH = [J(d, 'replay_recordings') for d in MINECRAFT_DIR]
-RENDERED_VIDEO_PATH = [J(d, 'replay_videos') for d in MINECRAFT_DIR]
-RENDERED_LOG_PATH = [J(d,  'replay_logs') for d in MINECRAFT_DIR]
-FINISHED_FILE = [J(d, 'finished.txt') for d in MINECRAFT_DIR]
-LOG_FILE = [J(d, 'logs', 'debug.log') for d in MINECRAFT_DIR]
-MC_LAUNCHER = [J(d, 'launch.sh') for d in MINECRAFT_DIR]
-RENDER_ONLY_EXPERIMENTS = ['o_dia', 'survivaltreechop', 'navigate', 'navigateextreme', 'o_iron']
+# RENDERERS:
+from constants import (
+    MINECRAFT_DIR,
+    RECORDING_PATH,
+    RENDERED_VIDEO_PATH,
+    RENDERED_LOG_PATH,
+    FINISHED_FILE,
+    LOG_FILE,
+    MC_LAUNCHER,
+    RENDER_ONLY_EXPERIMENTS
+)
+
 
 # Error directories
-ERROR_PARENT_DIR = J(WORKING_DIR, 'error_logs')
-EOF_EXCEP_DIR = J(ERROR_PARENT_DIR, 'end_of_file_reached')
-ZEROLEN_DIR = J(ERROR_PARENT_DIR, 'zero_length')
-NULL_PTR_EXCEP_DIR = J(ERROR_PARENT_DIR, 'null_pointer_except')
-ZIP_ERROR_DIR = J(ERROR_PARENT_DIR, 'zip_file')
-MISSING_RENDER_OUTPUT = J(ERROR_PARENT_DIR, 'missing_output')
+from constants import (
+    ERROR_PARENT_DIR,
+    EOF_EXCEP_DIR,
+    ZEROLEN_DIR,
+    NULL_PTR_EXCEP_DIR,
+    ZIP_ERROR_DIR,
+    MISSING_RENDER_OUTPUT,
+    OTHER_ERROR_DIR
+)
 
-BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
 
-END_OF_STREAM = 'end_of_stream.txt'
-ACTION_FILE = "actions.tmcpr"
-BAD_MARKER_NAME, GOOD_MARKER_NAME = 'INVALID', 'VALID'
-SKIPPED_RENDER_FLAG = 'SKIPPED_RENDER'
+from constants import (BLACKLIST_TXT as BLACKLIST_PATH)
 
-METADATA_FILES = [
-    'metaData.json',
-    'markers.json',
-    'mods.json',
-    'stream_meta_data.json']
+from constants import (
+    END_OF_STREAM,
+    ACTION_FILE,
+    BAD_MARKER_NAME, GOOD_MARKER_NAME,
+    SKIPPED_RENDER_FLAG,
+    METADATA_FILES
+)
 
 
 def touch(path):
@@ -367,6 +382,10 @@ def render_videos(render: tuple, index=0, debug=False):
         copy_time = os.path.getmtime(
             J(RECORDING_PATH[index], (recording_name + ".mcpr")))
 
+        if not E(LOG_FILE[index]):
+            os.makedirs(os.path.dirname(LOG_FILE[index]), exist_ok=True)
+            Path(LOG_FILE[index]).touch()
+
         logFile = open(LOG_FILE[index], 'r', os.O_NONBLOCK)
         lineCounter = 0  # RAH So we can print line number of the error
 
@@ -425,6 +444,11 @@ def render_videos(render: tuple, index=0, debug=False):
                         if debug:
                             print('ZIP file error')
                         errorDir = ZIP_ERROR_DIR
+                    
+                    # elif re.search(r"Exception", logLine):
+                        # if debug:
+                        #     print("Unknown exception!!!")
+                        # error_dir = OTHER_ERROR_DIR
                     
                     if not errorDir is None:
                         if debug:
