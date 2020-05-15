@@ -290,11 +290,13 @@ def launchMC(index):
 
 
 def logError(errorDIR, recording_name, skip_path, index=0):
+    print(f"\t\tLogging error for {recording_name} in directory {errorDIR}.")
     try:
         shutil.move(J(RECORDING_PATH[index], recording_name+'.mcpr'),
                     J(errorDIR, recording_name+'.mcpr'))
         shutil.copy(LOG_FILE[index], J(errorDIR, recording_name+'.log'))
-    except:
+    except Exception as e:
+        print("\t\tERRROR", e)
         pass
     try:
         shutil.rmtree(J(RECORDING_PATH[index], recording_name+'.mcpr.tmp'))
@@ -303,7 +305,8 @@ def logError(errorDIR, recording_name, skip_path, index=0):
                 os.utime(skip_path, None)  # => Set skip time to now
             except OSError:
                 pass  # File deleted between open() and os.utime() calls
-    except:
+    except Exception as e:
+        print("\t\tERRROR s", e)
         pass
 
 
