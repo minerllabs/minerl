@@ -9,7 +9,7 @@ BASE_DIR = os.environ.get('MINERL_OUTPUT_ROOT', os.path.expanduser(
 
 RENDERERS_DIR = os.path.expanduser(
     J('~', 'renderers'))
-NUM_MINECRAFTS=30
+NUM_MINECRAFTS=20
 
 
 OUTPUT_DIR = J(BASE_DIR, 'output')
@@ -50,6 +50,7 @@ NULL_PTR_EXCEP_DIR = J(ERROR_PARENT_DIR, 'null_pointer_except')
 ZIP_ERROR_DIR = J(ERROR_PARENT_DIR, 'zip_file')
 MISSING_RENDER_OUTPUT = J(ERROR_PARENT_DIR, 'missing_output')
 OTHER_ERROR_DIR = J(ERROR_PARENT_DIR, 'other')
+X11_ERROR_DIR = J(ERROR_PARENT_DIR, 'x11_error')
 
 # metadata decomp
 

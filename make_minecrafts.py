@@ -146,10 +146,10 @@ if __name__ == "__main__":
       os.remove(mzip)
     download('https://minerl.s3.amazonaws.com/assets/minecraft.zip', mzip)
     libs_zip =J(MINECRAFT_TEMPLATE, 'cracked_libs', 'libs.zip')
-    download('https://minerl.s3.amazonaws.com/assets/libs.zip', )
     with zipfile.ZipFile(mzip, 'r') as zip_ref:
       zip_ref.extractall(BASE_DIR)
 
+    download('https://minerl.s3.amazonaws.com/assets/libs.zip', libs_zip)
     with zipfile.ZipFile(libs_zip, 'r') as zip_ref:
       zip_ref.extractall(J(MINECRAFT_TEMPLATE, 'cracked_libs'))
 

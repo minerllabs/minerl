@@ -69,7 +69,8 @@ from constants import (
     NULL_PTR_EXCEP_DIR,
     ZIP_ERROR_DIR,
     MISSING_RENDER_OUTPUT,
-    OTHER_ERROR_DIR
+    OTHER_ERROR_DIR,
+    X11_ERROR_DIR
 )
 
 
@@ -122,7 +123,8 @@ def construct_render_dirs(blacklist):
         ZEROLEN_DIR,
         NULL_PTR_EXCEP_DIR,
         ZIP_ERROR_DIR,
-        MISSING_RENDER_OUTPUT]
+        MISSING_RENDER_OUTPUT,
+        X11_ERROR_DIR]
 
     for dir in dirs:
         if not E(dir):
@@ -193,15 +195,13 @@ def render_metadata(renders: list):
                             markers = json.load(f) 
                             has_any_exps = False
                             for marker in markers:
-#                                print(marker.keys())
                                 exp_metadata = marker['value']['metadata']['expMetadata']
 
                                 for exp in RENDER_ONLY_EXPERIMENTS:
                                     has_any_exps = (exp in exp_metadata) or has_any_exps
 
                             assert has_any_exps
-#                    finally:
- #                       pass
+
                     except (KeyError, FileNotFoundError):
                         raise AssertionError("Couldn't open metadata json.")
 
@@ -322,7 +322,7 @@ def relaunchMC(p, errorDIR, recording_name, skip_path, index):
 
 
 # 4.Render the videos
-def _render_videos(manager, file, debug=False):
+def _render_videos(manager, file, debug=True):
     n = manager.get_index()
     ret = render_videos(file, index=n, debug=debug)
     manager.free_index(n)
@@ -440,10 +440,15 @@ def render_videos(render: tuple, index=0, debug=False):
                             print("\tNullPointerException")
                         errorDir = NULL_PTR_EXCEP_DIR
 
-                    elif re.search(r"zip error", logLine):
+                    elif re.search(r"zip error", logLine) or re.search(r"zip file close", logLine):
                         if debug:
                             print('ZIP file error')
                         errorDir = ZIP_ERROR_DIR
+
+                    elif re.search(r'connect to X11 window server', logLine):
+                        if debug:
+                            print("X11 error")
+                        errorDir = X11_ERROR_DIR
                     
                     # elif re.search(r"Exception", logLine):
                         # if debug:
@@ -453,6 +458,7 @@ def render_videos(render: tuple, index=0, debug=False):
                     if not errorDir is None:
                         if debug:
                             print("\tline {}: {}".format(lineCounter, logLine))
+                        logError(errorDir, recording_name, skip_path)
                         # p = relaunchMC(p, errorDir, recording_name, skip_path)
                         break
             time.sleep(0.1)
@@ -544,8 +550,9 @@ def render_videos(render: tuple, index=0, debug=False):
         if p is not None:
             try:
                 p.wait(400)
-            except TimeoutError:
+            except (TimeoutError, subprocess.TimeoutExpired):
                 p.kill()
+            time.sleep(10)
     return 1
 
 
@@ -591,8 +598,17 @@ def main():
           " out of {} total files".format(
               len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))
           )
+
+
+    unfinished_renders = [ v for v in valid_renders if 
+            not len(glob.glob(J(v[1], '*.mp4')))
+    ]
+
+    print("... found {} unfinished renders out of {} valid renders"
+        .format(len(unfinished_renders), len(valid_renders)))
+
+
     print("Rendering videos: ")
-    # render_videos(valid_renders)
 
     # Render videos in multiprocessing queue
     multiprocessing.freeze_support()
@@ -601,12 +617,10 @@ def main():
         manager = ThreadManager(multiprocessing.Manager(), NUM_MINECRAFT_DIR, 0, 1)
         func = functools.partial(_render_videos, manager)
         num_rendered = list(
-            tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1,
+            tqdm.tqdm(pool.imap_unordered(func, unfinished_renders), total=len(unfinished_renders), desc='Files', miniters=1,
                       position=0, maxinterval=1, smoothing=0))
 
     print('Rendered {} new files!'.format(sum(num_rendered)))
-
-    # from IPython import embed; embed()
 
 
 if __name__ == "__main__":
