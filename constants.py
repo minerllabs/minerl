@@ -64,3 +64,46 @@ METADATA_FILES = [
     'markers.json',
     'mods.json',
     'stream_meta_data.json']
+
+
+# generation
+
+EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
+FAILED_COMMANDS = []
+GENERATE_VERSION = '1'
+
+
+
+def touch(path):
+    with open(path, 'w'):
+        pass
+
+
+def remove(path):
+    if E(path):
+        os.remove(path)
+
+
+
+class ThreadManager(object):
+    def __init__(self, man, num_workers, first_index, max_load):
+        self.max_load = max_load
+        self.first_index = first_index
+        self.workers = man.list([0 for _ in range(num_workers)])
+        self.worker_lock = man.Lock()
+
+    def get_index(self):
+        while True:
+            with self.worker_lock:
+                load = min(self.workers)
+                if load < self.max_load:
+                    index = self.workers.index(load)
+                    self.workers[index] += 1
+                    # print('Load is {} incrementing {}'.format(load, index))
+                    return index + self.first_index
+                else:
+                    time.sleep(0.01)
+
+    def free_index(self, i):
+        with self.worker_lock:
+            self.workers[i - self.first_index] -= 1

@@ -24,38 +24,25 @@ import traceback
 #######################
 ### UTILITIES
 #######################
-J = os.path.join
-E = os.path.exists
-EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
-_outout_root = (os.getenv("MINERL_OUTPUT_ROOT"))
-WORKING_DIR = os.path.expanduser(os.path.abspath("./output") if not _outout_root else _outout_root)
-DATA_DIR = J(WORKING_DIR, "data_comp_val")
-
-RENDER_DIR = J(WORKING_DIR, "rendered_comp_val")
-BLACKLIST_PATH = J(WORKING_DIR, "blacklist.txt")
-
-ACTION_FILE = "actions.tmcpr"
-BAD_MARKER_NAME, GOOD_MARKER_NAME = 'INVALID', 'VALID'
-
-METADATA_FILES = [
-    'metaData.json',
-    'markers.json',
-    'mods.json',
-    'stream_meta_data.json']
-
-FAILED_COMMANDS = []
-
-GENERATE_VERSION = '1'
+from constants import (
+    J, E
+    EXP_MIN_LEN_TICKS,
+    OUTPUT_DIR as WORKING_DIR,
+    DATA_DIR,
+    RENDER_DIR,
+    BLACKLIST_TXT as BLACKLIST_PATH,
+    ACTION_FILE,
+    GOOD_MARKER_NAME, BAD_MARKER_NAME,
+    METADATA_FILES,
+    FAILED_COMMANDS,
+    GENERATE_VERSION,
+    touch,
+    remove,
+    ThreadManager
+)
 
 
-def touch(path):
-    with open(path, 'w'):
-        pass
 
-
-def remove(path):
-    if E(path):
-        os.remove(path)
 
 
 def format_seconds(ticks):
@@ -135,30 +122,6 @@ def parse_metadata(startMarker, stopMarker):
         traceback.print_exc()
         raise e
 
-
-class ThreadManager(object):
-    def __init__(self, man, num_workers, first_index, max_load):
-        self.max_load = max_load
-        self.first_index = first_index
-        self.workers = man.list([0 for _ in range(num_workers)])
-        self.worker_lock = man.Lock()
-
-    def get_index(self):
-        while True:
-            with self.worker_lock:
-                load = min(self.workers)
-                if load < self.max_load:
-                    index = self.workers.index(load)
-                    self.workers[index] += 1
-                    # print('Load is {} incrementing {}'.format(load, index))
-                    # print(self.gpu_workers)
-                    return index + self.first_index
-                else:
-                    time.sleep(0.01)
-
-    def free_index(self, i):
-        with self.worker_lock:
-            self.workers[i - self.first_index] -= 1
 
 
 ##################
