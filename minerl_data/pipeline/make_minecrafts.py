@@ -10,7 +10,7 @@ from minerl_data.util.constants import RENDERERS_DIR as BASE_DIR
 from minerl_data.util.constants import NUM_MINECRAFTS
 
 
-MINECRAFT_TEMPLATE= os.path.abspath(J('.', 'template_minecraft'))
+MINECRAFT_TEMPLATE= os.path.abspath(J(os.path.dirname(__file__), '..', 'assets', 'template_minecraft'))
 DOTMINECRAFT = os.path.abspath(J(BASE_DIR, '.minecraft'))
 LAUNCH_STR = (
   '''
@@ -36,7 +36,7 @@ LAUNCH_STR = (
   -XX:G1ReservePercent=20 \\
   -XX:MaxGCPauseMillis=50 \\
   -XX:G1HeapRegionSize=32M  \\
-  -Djava.library.path={1}/cracked_libs \\
+  -Djava.library.path={1} \\
   -Dminecraft.launcher.brand=minecraft-launcher \\
   -Dminecraft.launcher.version=2.1.1349 \\
   -Dminecraft.client.jar={0}/versions/1.12.2/1.12.2.jar \\
@@ -139,19 +139,22 @@ import zipfile
 
 if __name__ == "__main__":
   print("Downloading mincraft assets and binaries.")
+  cracked_libs = J(BASE_DIR, 'cracked_libs')
   os.makedirs(BASE_DIR, exist_ok=True)
   if not os.path.exists(DOTMINECRAFT):
     mzip = J(BASE_DIR, 'mine.zip')
     if os.path.exists(mzip):
       os.remove(mzip)
+
     download('https://minerl.s3.amazonaws.com/assets/minecraft.zip', mzip)
-    libs_zip =J(MINECRAFT_TEMPLATE, 'cracked_libs', 'libs.zip')
     with zipfile.ZipFile(mzip, 'r') as zip_ref:
       zip_ref.extractall(BASE_DIR)
 
+    os.makedirs(J(BASE_DIR, 'cracked_libs'), exist_ok=True)
+    libs_zip =J(cracked_libs,'libs.zip')
     download('https://minerl.s3.amazonaws.com/assets/libs.zip', libs_zip)
     with zipfile.ZipFile(libs_zip, 'r') as zip_ref:
-      zip_ref.extractall(J(MINECRAFT_TEMPLATE, 'cracked_libs'))
+      zip_ref.extractall(cracked_libs)
 
 
   for i, mc in enumerate(range(NUM_MINECRAFTS)):
@@ -161,7 +164,7 @@ if __name__ == "__main__":
     shutil.copytree(MINECRAFT_TEMPLATE, target_mc_name)
     xauth = os.path.join(target_mc_name, 'xauth')
     with open(os.path.join(target_mc_name, 'launch.sh'), 'w') as f:
-        f.write(LAUNCH_STR.format(DOTMINECRAFT, MINECRAFT_TEMPLATE, target_mc_name, i +20, xauth))
+        f.write(LAUNCH_STR.format(DOTMINECRAFT, cracked_libs, target_mc_name, i +20, xauth))
 
     file = (os.path.join(target_mc_name, 'launch.sh'))
     st = os.stat(file)

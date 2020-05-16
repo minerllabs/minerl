@@ -294,20 +294,25 @@ def logError(errorDIR, recording_name, skip_path, index=0):
     try:
         shutil.move(J(RECORDING_PATH[index], recording_name+'.mcpr'),
                     J(errorDIR, recording_name+'.mcpr'))
-        shutil.copy(LOG_FILE[index], J(errorDIR, recording_name+'.log'))
     except Exception as e:
         print("\t\tERRROR", e)
         pass
+
+
+    shutil.copy(LOG_FILE[index], J(errorDIR, recording_name+'.log'))
+
     try:
         shutil.rmtree(J(RECORDING_PATH[index], recording_name+'.mcpr.tmp'))
-        with open(skip_path, 'a'):
-            try:
-                os.utime(skip_path, None)  # => Set skip time to now
-            except OSError:
-                pass  # File deleted between open() and os.utime() calls
     except Exception as e:
         print("\t\tERRROR s", e)
         pass
+    
+
+    with open(skip_path, 'a'):
+        try:
+            os.utime(skip_path, None)  # => Set skip time to now
+        except OSError:
+            pass  # File deleted between open() and os.utime() calls
 
 
 def relaunchMC(p, errorDIR, recording_name, skip_path, index):
@@ -445,13 +450,17 @@ def render_videos(render: tuple, index=0, debug=False):
                         if debug:
                             print("X11 error")
                         errorDir = X11_ERROR_DIR
+                    elif re.search(r'no lwjgl64 in java', logLine):
+                        if debug:
+                            print("missing lwjgl.")
+                        errorDir = OTHER_ERROR_DIR
                     
                     # elif re.search(r"Exception", logLine):
                         # if debug:
                         #     print("Unknown exception!!!")
                         # error_dir = OTHER_ERROR_DIR
                     
-                    if not errorDir is None:
+                    if errorDir:
                         if debug:
                             print("\tline {}: {}".format(lineCounter, logLine))
                         logError(errorDir, recording_name, skip_path)
@@ -530,6 +539,7 @@ def render_videos(render: tuple, index=0, debug=False):
             if debug:
                 print("\tMissing one or more file")
                 print("\tSkipping this file in the future")
+                print(f"\t{video_path} {marker_path} {log_path}")
             logError(MISSING_RENDER_OUTPUT, recording_name, skip_path)
             try:
                 os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
@@ -551,6 +561,13 @@ def render_videos(render: tuple, index=0, debug=False):
             time.sleep(10)
     return 1
 
+def clean_render_dirs():
+    paths_to_clear = [RENDERED_VIDEO_PATH, RECORDING_PATH, RENDERED_LOG_PATH]
+    for p in paths_to_clear:
+        map(remove, [glob.glob(J(x, '*')) for x in p])
+
+        
+    pass
 
 
 def main():
@@ -583,6 +600,7 @@ def main():
 
 
     print("Rendering videos: ")
+    clean_render_dirs()
 
     # Render videos in multiprocessing queue
     multiprocessing.freeze_support()
