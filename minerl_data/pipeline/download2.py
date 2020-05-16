@@ -6,7 +6,7 @@ import os
 import subprocess
 import time
 from pathlib import Path
-from constants import BASE_DIR, DOWNLOAD_DIR, OUTPUT_DIR, BUCKET_NAME
+from minerl_data.util.constants import BASE_DIR, DOWNLOAD_DIR, OUTPUT_DIR, BUCKET_NAME
 
 
 J =  os.path.join

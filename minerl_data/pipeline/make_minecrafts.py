@@ -6,8 +6,8 @@ import urllib.request
 from os.path import join as J, exists as E
 
 
-from constants import RENDERERS_DIR as BASE_DIR
-from constants import NUM_MINECRAFTS
+from minerl_data.util.constants import RENDERERS_DIR as BASE_DIR
+from minerl_data.util.constants import NUM_MINECRAFTS
 
 
 MINECRAFT_TEMPLATE= os.path.abspath(J('.', 'template_minecraft'))

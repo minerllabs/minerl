@@ -1,4 +1,16 @@
 import os
+import sys
+
+def we_are_frozen():
+    # All of the modules are built-in to the interpreter, e.g., by py2exe
+    return hasattr(sys, "frozen")
+
+def module_path():
+    encoding = sys.getfilesystemencoding()
+    if we_are_frozen():
+        return os.path.dirname((sys.executable))
+    return os.path.dirname((__file__))
+
 
 J =  os.path.join
 E = os.path.exists
@@ -19,7 +31,7 @@ BUCKET_NAME = 'pizza-party'
 # MERGING
 MERGED_DIR = J(OUTPUT_DIR, 'merged')
 BLACKLIST_TXT = J(OUTPUT_DIR, 'blacklist.txt')
-PARSE_COMMAND = [os.path.abspath(J('merging', 'parse')), '-f']
+PARSE_COMMAND = [os.path.abspath(J(os.path.dirname((__file__)), '..', 'pipeline', 'merging', 'parse')), '-f']
 Z7_COMMAND = ["7z"]
 TEMP_ROOT='/tmp'
 BLOCK_SIZE = 1024*1024
