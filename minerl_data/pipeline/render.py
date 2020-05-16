@@ -289,7 +289,7 @@ def launchMC(index):
     return p
 
 
-def logError(errorDIR, recording_name, skip_path, index=0):
+def logError(errorDIR, recording_name, skip_path, index):
     print(f"\t\tLogging error for {recording_name} in directory {errorDIR}.")
     try:
         shutil.move(J(RECORDING_PATH[index], recording_name+'.mcpr'),
@@ -298,8 +298,10 @@ def logError(errorDIR, recording_name, skip_path, index=0):
         print("\t\tERRROR", e)
         pass
 
-
-    shutil.copy(LOG_FILE[index], J(errorDIR, recording_name+'.log'))
+    
+    logFile = open(LOG_FILE[index], 'r', os.O_NONBLOCK).read()
+    with open(J(errorDIR, recording_name+'.log'), 'w') as f:
+        f.write(logFile)
 
     try:
         shutil.rmtree(J(RECORDING_PATH[index], recording_name+'.mcpr.tmp'))
@@ -318,7 +320,7 @@ def logError(errorDIR, recording_name, skip_path, index=0):
 def relaunchMC(p, errorDIR, recording_name, skip_path, index):
     killMC(p)
     # time.sleep(15)  # Give the OS time to release this file
-    logError(errorDIR, recording_name, skip_path)
+    logError(errorDIR, recording_name, skip_path, index)
     return launchMC(index)
 
 
@@ -396,10 +398,17 @@ def render_videos(render: tuple, index=0, debug=False):
         # Wait for completion (it creates a finished.txt file)
         video_path = None
         notFound = True
+        errorDir = None
         while notFound:
             if os.path.exists(FINISHED_FILE[index]) or p.poll() is not None:
                 if os.path.exists(FINISHED_FILE[index]):
                     os.remove(FINISHED_FILE[index])
+
+                    notFound = False
+                    numSuccessfulRenders += 1
+                else:
+                    notFound = True
+
                 try:
                     if debug:
                         print("Waiting for Minecraft to close")
@@ -414,18 +423,16 @@ def render_videos(render: tuple, index=0, debug=False):
                     tqdm.tqdm.write("Error stopping")
                 # p = launchMC(index)
 
-                notFound = False
-                numSuccessfulRenders += 1
                 # if(numSuccessfulRenders > maxConsecutiveRenders):
                 #     killMC(p)
                 #     numSuccessfulRenders = 0
                 #     # time.sleep(5)
                 #     p = launchMC()
+                break
             else:
                 logLine = logFile.readline()
                 if len(logLine) > 0:
                     lineCounter += 1
-                    errorDir = None
                     if re.search(r"EOFException:", logLine):
                         if debug:
                             print("\tfound java.io.EOFException")
@@ -437,9 +444,10 @@ def render_videos(render: tuple, index=0, debug=False):
                         errorDir = ZEROLEN_DIR
 
                     elif re.search(r"NullPointerException", logLine):
-                        if debug:
-                            print("\tNullPointerException")
-                        errorDir = NULL_PTR_EXCEP_DIR
+                        if not re.search(r'exceptionCaught', logLine):
+                            if debug:
+                                print("\tNullPointerException")
+                            errorDir = NULL_PTR_EXCEP_DIR
 
                     elif re.search(r"zip error", logLine) or re.search(r"zip file close", logLine):
                         if debug:
@@ -463,12 +471,15 @@ def render_videos(render: tuple, index=0, debug=False):
                     if errorDir:
                         if debug:
                             print("\tline {}: {}".format(lineCounter, logLine))
-                        logError(errorDir, recording_name, skip_path)
-                        # p = relaunchMC(p, errorDir, recording_name, skip_path)
                         break
-            time.sleep(0.1)
+                        # p = relaunchMC(p, errorDir, recording_name, skip_path)
 
+
+        time.sleep(1)
         logFile.close()
+        if errorDir:
+            print(errorDir)
+            logError(errorDir, recording_name, skip_path, index)
         if notFound:
             try:
                 os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
@@ -540,7 +551,7 @@ def render_videos(render: tuple, index=0, debug=False):
                 print("\tMissing one or more file")
                 print("\tSkipping this file in the future")
                 print(f"\t{video_path} {marker_path} {log_path}")
-            logError(MISSING_RENDER_OUTPUT, recording_name, skip_path)
+            logError(MISSING_RENDER_OUTPUT, recording_name, skip_path, index)
             try:
                 os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
             except:
