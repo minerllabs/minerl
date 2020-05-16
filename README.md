@@ -1,4 +1,4 @@
-# Automated rendering pipeline
+# Automated rendering pipeline (OUTDATED)
 
 ## About
 
