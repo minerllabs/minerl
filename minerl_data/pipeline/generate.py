@@ -406,8 +406,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
             startMarker = marker
 
         if 'stopRecording' in meta and meta['stopRecording'] and startTime != None:
-            if not (expName == 'none'):
-                segments.append((startMarker, marker, expName, startTick, meta['tick']))
+            # if not (expName == 'none'):
+            segments.append((startMarker, marker, expName, startTick, meta['tick']))
             # segments.append((startTime, key, expName, startTick, meta['tick'], startMarker, marker))
             startTime = None
             startTick = None

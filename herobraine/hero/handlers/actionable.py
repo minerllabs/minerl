@@ -9,6 +9,9 @@ from herobraine.hero import KEYMAP
 from herobraine.hero.spaces import DiscreteRange
 
 
+from minerl.env import spaces as minerl_spaces
+
+
 class CommandAction(AgentHandler):
     """
     An action handler based on commands
@@ -67,7 +70,7 @@ class ItemListCommandAction(CommandAction):
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
         self._default = 0  # 'none'
-        super().__init__(self._command, spaces.Discrete(len(self._items)))
+        super().__init__(self._command, minerl_spaces.Enum(self._items))
 
     @property
     def items(self):

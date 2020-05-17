@@ -8,7 +8,7 @@ import gym
 import minerl
 from herobraine.hero.mc import INVERSE_KEYMAP
 
-publishable_env_specs = [Navigate, NavigateDense, NavigateExtreme, NavigateExtremeDense, Treechop, ObtainIronPickaxe, ObtainIronPickaxeDense, ObtainDiamond, ObtainDiamondDense]
+publishable_env_specs = [Navigate, NavigateDense, NavigateExtreme, NavigateExtremeDense, Treechop, ObtainIronPickaxe, ObtainIronPickaxeDense, ObtainDiamond, ObtainDiamondDense, SurvivalLimited]
 
 def map_action_space(act):
     act_handlers = []
@@ -97,7 +97,7 @@ def create_spec(gym_spec: gym.envs.registration.EnvSpec, folder: str, name: str)
         'action_space': action_space,
         'observation_space': obs_space,
         'reward_space': rew_space,
-        'gym_sped': gym_spec,
+        'gym_spec': gym_spec,
         'env_folder': folder,
         'env_name': name
     }
@@ -113,6 +113,7 @@ environments.append(('MineRLObtainIronPickaxe-v0', 'o_iron'))
 environments.append(('MineRLObtainIronPickaxeDense-v0', 'o_iron'))
 environments.append(('MineRLObtainDiamond-v0', 'o_dia'))
 environments.append(('MineRLObtainDiamondDense-v0', 'o_dia'))
+environments.append(('MineRLSurvivalLimited-v0', 'none'))
 
 publishable_environments = [
     create_spec(gym.envs.registration.spec(name), folder, name) for name, folder in environments

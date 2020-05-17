@@ -46,10 +46,10 @@ from minerl_data.util.constants import (
     BAD_MARKER_NAME,
     GOOD_MARKER_NAME,
     ACTION_FILE,
+    DATA_DIR,
     ThreadManager
 )
 
-DATA_DIR = os.environ.get('MINERL_DATA_ROOT')
 
 
 

@@ -80,9 +80,11 @@ METADATA_FILES = [
 
 # generation
 
+DATA_DIR = J(OUTPUT_DIR, 'data')
 EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
 FAILED_COMMANDS = []
 GENERATE_VERSION = '1'
+
 
 
 

@@ -100,6 +100,8 @@ MC_ITEM_IDS = [
     "minecraft:wooden_pickaxe", "minecraft:wooden_pressure_plate", "minecraft:wooden_shovel", "minecraft:wooden_slab",
     "minecraft:wooden_sword", "minecraft:wool", "minecraft:writable_book", "minecraft:written_book",
     "minecraft:yellow_flower", "minecraft:yellow_glazed_terracotta", "minecraft:yellow_shulker_box"]
+
+ALL_ITEMS = [x.split(':')[-1] for x in MC_ITEM_IDS]
 #
 # KEYMAP = {
 #     '17': 'W',
