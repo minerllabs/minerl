@@ -182,3 +182,4 @@ cython_debug/
 
 
 scripts/results
+.DS_STORE

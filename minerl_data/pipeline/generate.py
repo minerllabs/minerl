@@ -25,7 +25,7 @@ import traceback
 ### UTILITIES
 #######################
 from minerl_data.util.constants import (
-    J, E
+    J, E,
     EXP_MIN_LEN_TICKS,
     OUTPUT_DIR as WORKING_DIR,
     DATA_DIR,

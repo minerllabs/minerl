@@ -31,68 +31,127 @@ import herobraine.hero.handlers as handlers
 
 import minerl
 
-LOW_RESOLUTION = (64, 64)
 
 PUBLISHER_VERSION = minerl.data.DATA_VERSION
 
 #######################
 #      UTILITIES      #
 #######################
-J = os.path.join
-E = os.path.exists
-EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
+from minerl_data.util.constants import (
+    J, E,
+    touch,
+    remove,
+    METADATA_FILES,
+    ACTION_FILE,
+    BAD_MARKER_NAME,
+    GOOD_MARKER_NAME,
+    ACTION_FILE,
+    ThreadManager
+)
+
 DATA_DIR = os.environ.get('MINERL_DATA_ROOT')
 
-ACTION_FILE = "actions.tmcpr"
-BAD_MARKER_NAME, GOOD_MARKER_NAME = 'INVALID', 'VALID'
 
-METADATA_FILES = [
-    'metaData.json',
-    'markers.json',
-    'mods.json',
-    'stream_meta_data.json']
 
 FAILED_COMMANDS = []
 
 
-def touch(path):
-    with open(path, 'w'):
-        pass
-
-
-def remove(path):
-    if E(path):
-        os.remove(path)
-
-
-class ThreadManager(object):
-    def __init__(self, man, num_workers, first_index, max_load):
-        self.max_load = max_load
-        self.first_index = first_index
-        self.workers = man.list([0 for _ in range(num_workers)])
-        self.worker_lock = man.Lock()
-
-    def get_index(self):
-        while True:
-            with self.worker_lock:
-                load = min(self.workers)
-                if load < self.max_load:
-                    index = self.workers.index(load)
-                    self.workers[index] += 1
-                    # print('Load is {} incrementing {}'.format(load, index))
-                    # print(self.gpu_workers)
-                    return index + self.first_index
-                else:
-                    time.sleep(0.01)
-
-    def free_index(self, i):
-        with self.worker_lock:
-            self.workers[i - self.first_index] -= 1
 
 
 ##################
 ### PIPELINE
 #################
+
+def remove_initial_frames(universal):
+    """
+    Removes the intial frames of an episode.
+    """
+     # Detect teleportation frames
+    # Check for a pressure_plate starting the experiment
+    touched_pressure_plate, start_tick, skip_next_n = False, None, 0
+    for tick, obs in universal.items():
+        # If we see more than 5 ticks of consecutive air
+        # if len(universal["0"]['touched_blocks']) == 0 \
+        #         and len(universal["1"]['touched_blocks']) == 0 \
+        #         and len(universal["2"]['touched_blocks']) == 0 \
+        #         and len(universal["3"]['touched_blocks']) == 0 \
+        #         and len(universal["4"]['touched_blocks']) == 0:
+        #     break
+        # Determine the first time we are touching a stone pressure plate
+        if skip_next_n > 0:
+            skip_next_n -= 1
+            pass
+        elif any([block['name'] == 'minecraft:stone_pressure_plate' for block in obs['touched_blocks']]):
+            # print('\nTouched pressure plate {}'.format(tick))
+            touched_pressure_plate = True
+            skip_next_n = 5
+        # If we have touched a pressure plate skip until we touch the next non air block
+        elif touched_pressure_plate and len(obs['touched_blocks']) > 0:
+            # print('\nTouched ground at {}'.format(tick))
+            start_tick = tick
+            break
+        pass
+    
+    # Truncate the beginning of the episode (we align videos and unviersals by the end)
+    if start_tick is None:
+        # If we could not find a pressure_plate we may have started in the air - skip till we are on the ground
+        on_ground_for = 0
+        for tick, obs in universal.items():
+            if len(obs['touched_blocks']) != 0:
+                on_ground_for += 1
+                if on_ground_for == 5:
+                    start_tick = tick
+                    # print('\nout of the air at {}'.format(tick))
+                    break
+            else:
+                on_ground_for = 0
+    if start_tick is None:
+        # If not on the ground for at least 5 how about 1
+        for tick, obs in universal.items():
+            if len(obs['touched_blocks']) != 0:
+                start_tick = tick
+                break
+    # Remove teleportation frames
+    if start_tick is None:
+        start_tick = 0
+        print(len(universal.keys()))
+    for i in range(int(start_tick)):
+        universal.pop(str(i), None)
+
+    # Then remove all high speed travel
+    prev_pos = None
+    for tick, obs in universal.items():
+        p = obs['compass']['position']
+        pos = np.array([p['x'], p['y'], p['z']])
+        if prev_pos is None:
+            prev_pos = pos
+            continue
+        elif np.linalg.norm(pos - prev_pos) < (4.3/20) and len(obs['custom_action']['actions']) > 0:
+            start_tick = tick
+            # print('\nslowed down to {} at {}'.format(
+            #     math.sqrt(sum([(new - old)**2 for new, old in zip(pos, prev_pos)])), tick))
+            break
+        elif np.linalg.norm(pos - prev_pos) < (0.001/20):
+            start_tick = tick
+            # print('\nstopped at {}'.format(tick))
+            break
+        prev_pos = pos
+
+    # Remove high speed travel frames
+    for i in range(int(start_tick)):
+        # print("popping")
+        universal.pop(str(i), None)
+
+    # Then remove all no-ops after we touch the ground
+    for tick, obs in universal.items():
+        if len(obs['custom_action']['actions']) != 0:
+            start_tick = tick
+            # tqdm.tqdm.write('started moving at {}'.format(tick))
+            break
+
+    # Remove no-op frames
+    for i in range(int(start_tick)):
+        universal.pop(str(i), None)
 
 # 1. Construct data working dirs.
 def construct_data_dirs():
@@ -165,93 +224,11 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
         # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
         action_handlers = environment['action_space']
 
+        # Process universal json
         with open(universal_source, 'r') as json_file:
             universal = json.load(json_file)
 
-            # Detect teleportation frames
-            # Check for a pressure_plate starting the experiment
-            touched_pressure_plate, start_tick, skip_next_n = False, None, 0
-            for tick, obs in universal.items():
-                # If we see more than 5 ticks of consecutive air
-                # if len(universal["0"]['touched_blocks']) == 0 \
-                #         and len(universal["1"]['touched_blocks']) == 0 \
-                #         and len(universal["2"]['touched_blocks']) == 0 \
-                #         and len(universal["3"]['touched_blocks']) == 0 \
-                #         and len(universal["4"]['touched_blocks']) == 0:
-                #     break
-                # Determine the first time we are touching a stone pressure plate
-                if skip_next_n > 0:
-                    skip_next_n -= 1
-                    pass
-                elif any([block['name'] == 'minecraft:stone_pressure_plate' for block in obs['touched_blocks']]):
-                    # print('\nTouched pressure plate {}'.format(tick))
-                    touched_pressure_plate = True
-                    skip_next_n = 5
-                # If we have touched a pressure plate skip until we touch the next non air block
-                elif touched_pressure_plate and len(obs['touched_blocks']) > 0:
-                    # print('\nTouched ground at {}'.format(tick))
-                    start_tick = tick
-                    break
-                pass
-            if start_tick is None:
-                # If we could not find a pressure_plate we may have started in the air - skip till we are on the ground
-                on_ground_for = 0
-                for tick, obs in universal.items():
-                    if len(obs['touched_blocks']) != 0:
-                        on_ground_for += 1
-                        if on_ground_for == 5:
-                            start_tick = tick
-                            # print('\nout of the air at {}'.format(tick))
-                            break
-                    else:
-                        on_ground_for = 0
-            if start_tick is None:
-                # If not on the ground for at least 5 how about 1
-                for tick, obs in universal.items():
-                    if len(obs['touched_blocks']) != 0:
-                        start_tick = tick
-                        break
-            # Remove teleportation frames
-            if start_tick is None:
-                start_tick = 0
-                print(len(universal.keys()))
-            for i in range(int(start_tick)):
-                universal.pop(str(i), None)
-
-            # Then remove all high speed travel
-            prev_pos = None
-            for tick, obs in universal.items():
-                p = obs['compass']['position']
-                pos = np.array([p['x'], p['y'], p['z']])
-                if prev_pos is None:
-                    prev_pos = pos
-                    continue
-                elif np.linalg.norm(pos - prev_pos) < (4.3/20) and len(obs['custom_action']['actions']) > 0:
-                    start_tick = tick
-                    # print('\nslowed down to {} at {}'.format(
-                    #     math.sqrt(sum([(new - old)**2 for new, old in zip(pos, prev_pos)])), tick))
-                    break
-                elif np.linalg.norm(pos - prev_pos) < (0.001/20):
-                    start_tick = tick
-                    # print('\nstopped at {}'.format(tick))
-                    break
-                prev_pos = pos
-
-            # Remove high speed travel frames
-            for i in range(int(start_tick)):
-                # print("popping")
-                universal.pop(str(i), None)
-
-            # Then remove all no-ops after we touch the ground
-            for tick, obs in universal.items():
-                if len(obs['custom_action']['actions']) != 0:
-                    start_tick = tick
-                    # tqdm.tqdm.write('started moving at {}'.format(tick))
-                    break
-
-            # Remove no-op frames
-            for i in range(int(start_tick)):
-                universal.pop(str(i), None)
+            universal = remove_initial_frames(universal)
 
             all_handlers = [hdl for sublist in [info_handlers, reward_handlers, action_handlers] for hdl in sublist]
             for hdl in all_handlers:
@@ -302,6 +279,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                 raise e
 
             # published = {'action': action, 'reward': reward, 'info': info}
+
 
         # Don't release ones with 1024 reward (they are bad streams)
         if sum(published['reward']) == 1024.0:
