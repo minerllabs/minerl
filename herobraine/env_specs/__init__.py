@@ -69,11 +69,11 @@ def map_observation_space(obs, hand=None):
             continue
         elif command_string == handlers.TypeObservation.to_string():
             item_list = list(space.values)
-            handler = handlers.TypeObservation(hand, item_list)
+            handler = handlers.TypeObservation('mainhand', item_list)
         elif command_string == handlers.DamageObservation.to_string():
-            handler = handlers.DamageObservation(hand)
+            handler = handlers.DamageObservation('mainhand')
         elif command_string == handlers.MaxDamageObservation.to_string():
-            handler = handlers.MaxDamageObservation(hand)
+            handler = handlers.MaxDamageObservation('mainhand')
         else:
             raise NotImplementedError('No string matched observation handler {}'.format(command_string))
         obs_handlers.append(handler)
@@ -92,8 +92,7 @@ def create_spec(gym_spec: gym.envs.registration.EnvSpec, folder: str, name: str)
     action_space = map_action_space(gym_spec._kwargs['action_space'])
     obs_space = map_observation_space(gym_spec._kwargs['observation_space'])
     rew_space = map_reward_space(name)
-
-    return {
+    spe =  {
         'action_space': action_space,
         'observation_space': obs_space,
         'reward_space': rew_space,
@@ -101,6 +100,7 @@ def create_spec(gym_spec: gym.envs.registration.EnvSpec, folder: str, name: str)
         'env_folder': folder,
         'env_name': name
     }
+    return spe
 
 
 environments = list()
@@ -114,10 +114,14 @@ environments.append(('MineRLObtainIronPickaxeDense-v0', 'o_iron'))
 environments.append(('MineRLObtainDiamond-v0', 'o_dia'))
 environments.append(('MineRLObtainDiamondDense-v0', 'o_dia'))
 environments.append(('MineRLSurvivalLimited-v0', 'none'))
+# environments.append(('MineRLSurvivalDiamond-v0', 'none'))
 
-publishable_environments = [
-    create_spec(gym.envs.registration.spec(name), folder, name) for name, folder in environments
-]
+def get_publishable_environments():
+    publishable_environments = [
+        create_spec(gym.envs.registration.spec(name), folder, name) for name, folder in environments
+    ]
+
+    return publishable_environments
 
 
 

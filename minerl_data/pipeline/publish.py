@@ -153,12 +153,15 @@ def remove_initial_frames(universal):
     for i in range(int(start_tick)):
         universal.pop(str(i), None)
 
+    return universal
+
 # 1. Construct data working dirs.
 def construct_data_dirs():
     """
     Constructs the render directories omitting
     elements on a blacklist.
     """
+    print(DATA_DIR)
     if not E(DATA_DIR):
         os.makedirs(DATA_DIR)
 
@@ -167,6 +170,7 @@ def construct_data_dirs():
         for experiment_dir in tqdm.tqdm(next(os.walk(J(DATA_DIR, experiment_folder)))[1], desc='Experiments', position=1):
             if not experiment_folder.startswith('MineRL') and \
                     'tempting_capers_shapeshifter-14' not in experiment_folder:
+                    # TODO: Add this to the list.
                 data_dirs.append((experiment_dir, experiment_folder))
             # time.sleep(0.001)
     print()
@@ -196,7 +200,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
     # Gather all renderable environments for this experiment directory
     rendered_envs = 0
     filtered_environments = [
-        env_spec for env_spec in envs.publishable_environments if env_spec['env_folder'] == experiment_folder]
+        env_spec for env_spec in envs.get_publishable_environments() if env_spec['env_folder'] == experiment_folder]
 
     for environment in filtered_environments:
         dest_folder = J(output_root, environment['env_name'], 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):]))
@@ -282,21 +286,22 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
 
         # Don't release ones with 1024 reward (they are bad streams)
-        if sum(published['reward']) == 1024.0:
-            print('skipping 1024 reward')
-            continue
-        elif sum(published['reward']) < 64 and 'Obtain' not in environment['env_name']:
-            print('skipping less than 64 reward')
-            continue
-        elif sum(published['reward']) == 0.0:
-            print('skipping 0 reward')
-            continue
-        elif sum(published['action_forward']) == 0:
-            print('skipping 0 forward')
-            continue
-        elif sum(published['action_attack']) == 0 and 'Navigate' not in environment['env_name']:
-            print('skipping 0 attack')
-            continue
+        if not 'Survival' in environment['env_name']:
+            if sum(published['reward']) == 1024.0 and 'Obtain' in environment['env_name']:
+                print('skipping 1024 reward', environment['env_name'])
+                continue
+            elif sum(published['reward']) < 64 and ('Obtain' not in environment['env_name']):
+                print('skipping less than 64 reward', environment['env_name'])
+                continue
+            elif sum(published['reward']) == 0.0:
+                print('skipping 0 reward', environment['env_name'])
+                continue
+            elif sum(published['action_forward']) == 0:
+                print('skipping 0 forward', environment['env_name'])
+                continue
+            elif sum(published['action_attack']) == 0 and 'Navigate' not in environment['env_name']:
+                print('skipping 0 attack', environment['env_name'])
+                continue
 
         # Setup destination root
         if not E(dest_folder):
@@ -340,6 +345,7 @@ def publish():
     The main render script.
     """
     valid_data = construct_data_dirs()
+    print(valid_data)
 
     print("Publishing segments: ")
     numSegments = []

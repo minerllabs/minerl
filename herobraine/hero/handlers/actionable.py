@@ -70,7 +70,7 @@ class ItemListCommandAction(CommandAction):
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
         self._default = 0  # 'none'
-        super().__init__(self._command, minerl_spaces.Enum(self._items))
+        super().__init__(self._command, minerl_spaces.Enum(*self._items))
 
     @property
     def items(self):

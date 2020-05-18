@@ -1,4 +1,6 @@
 
+import gym.spaces as spaces
+# TODO: Make this minerl spaces
 
 class EnvSpec:
     def __init__(self, name, resolution):
@@ -21,3 +23,28 @@ class EnvSpec:
 
     def create_actionables(self):
         raise NotImplementedError('subclasses must override create_actionables()!')
+
+    def get_observation_space(self):
+        # Todo: handle nested dict space.
+        
+        ss = {
+            o.to_string(): o.space for o in self.create_observables() if not hasattr(o, 'hand')
+        }
+        try:
+            ss.update({
+                'equipped_items': spaces.Dict({
+                    'mainhand': spaces.Dict({
+                         o.to_string(): o.space for o in self.create_observables() if hasattr(o, 'hand')
+                    })
+                })
+            })
+        except Exception as e:
+            print(e)
+            pass
+            
+        return spaces.Dict(spaces=ss)
+
+    def get_action_space(self):
+        return spaces.Dict(spaces={
+            a.to_string(): a.space for a in self.create_actionables()
+        })

@@ -8,6 +8,9 @@ import numpy as np
 from herobraine.hero import AgentHandler, mc
 from herobraine.hero.spaces import Text
 
+from minerl.env import spaces as minerl_spaces
+
+
 def strip_of_prefix(minecraft_name):
     # Names in minecraft start with 'minecraft:', like:
     # 'minecraft:log', or 'minecraft:cobblestone'
@@ -161,7 +164,10 @@ class FlatInventoryObservation(AgentHandler):
     logger = logging.getLogger(__name__ + ".FlatInventoryObservation")
 
     def __init__(self, item_list):
-        super().__init__(gym.spaces.Box(low=0, high=1, shape=[len(item_list), ]))
+        super().__init__(gym.spaces.Dict(spaces={
+            k: gym.spaces.Box(low=0, high=2304, shape=(), dtype=np.int) 
+            for k in item_list
+        }))
         self.num_items = len(item_list)
         self.items = item_list
 
@@ -283,6 +289,7 @@ class HotbarObservation(GUIContainerObservation):
 #         # mission_spec.observeEquipedDurrability()
 
 
+
 class TypeObservation(AgentHandler):
     """
     Returns the item list index  of the tool in the given hand
@@ -301,7 +308,7 @@ class TypeObservation(AgentHandler):
         self._other = len(items) - 1  # 'other'
         assert(items.index('none') == self._default)
         assert(items.index('other') == self._other)
-        super().__init__(gym.spaces.Discrete(len(self._items)))
+        super().__init__(minerl_spaces.Enum(*self._items))
 
     @property
     def items(self):
