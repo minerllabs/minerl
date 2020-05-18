@@ -56,34 +56,34 @@ class SurvivalLimited(EnvSpec):
 
 
 
-# spec = SurvivalLimited()
+spec = SurvivalLimited()
 
-# gym.register(
-#     id='MineRLSurvivalLimited-v0',
-#     entry_point='minerl.env:MineRLEnv',
-#     kwargs={
-#         'observation_space': spec.get_observation_space(),
-#         'action_space': spec.get_action_space(),
-#         'docstr': """
-# .. image:: ../assets/treechop1.mp4.gif
-#   :scale: 100 %
-#   :alt: 
+gym.register(
+    id='MineRLSurvivalLimited-v0',
+    entry_point='minerl.env:MineRLEnv',
+    kwargs={
+        'observation_space': spec.get_observation_space(),
+        'action_space': spec.get_action_space(),
+        'docstr': """
+.. image:: ../assets/treechop1.mp4.gif
+  :scale: 100 %
+  :alt: 
 
-# .. image:: ../assets/treechop2.mp4.gif
-#   :scale: 100 %
-#   :alt: 
+.. image:: ../assets/treechop2.mp4.gif
+  :scale: 100 %
+  :alt: 
 
-# .. image:: ../assets/treechop3.mp4.gif
-#   :scale: 100 %
-#   :alt: 
+.. image:: ../assets/treechop3.mp4.gif
+  :scale: 100 %
+  :alt: 
 
-# .. image:: ../assets/treechop4.mp4.gif
-#   :scale: 100 %
-#   :alt: 
-# In treechop, the agent must collect 64 `minercaft:log`. This replicates a common scenario in Minecraft, as logs are necessary to craft a large amount of items in the game, and are a key resource in Minecraft.
+.. image:: ../assets/treechop4.mp4.gif
+  :scale: 100 %
+  :alt: 
+In treechop, the agent must collect 64 `minercaft:log`. This replicates a common scenario in Minecraft, as logs are necessary to craft a large amount of items in the game, and are a key resource in Minecraft.
 
-# The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.\n"""
-#     },
-#     max_episode_steps=8000,
-#     reward_threshold=64.0,
-# )
+The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.\n"""
+    },
+    max_episode_steps=8000,
+    reward_threshold=64.0,
+)
