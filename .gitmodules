@@ -1,9 +1,3 @@
 [submodule "hero"]
 	path = hero
 	url = git@github.com:cmu-rl/malmo.git
-[submodule "src/deps/baselines"]
-	path = src/deps/baselines
-	url = git@github.com:cmu-rl/baselines.git
-[submodule "third-party/openai-baselines"]
-	path = third-party/openai-baselines
-	url = git@github.com:cmu-rl/baselines.git
