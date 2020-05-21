@@ -19,6 +19,8 @@ import gym
 logger = logging.getLogger(__name__)
 
 from minerl.data.version import assert_version, assert_prefix
+import copy
+import tqdm
 
 if os.name != "nt":
     class WindowsError(OSError):
@@ -92,31 +94,111 @@ class DataPipeline:
     #         _map_to_dict(index, handler_list, key, space, result)
     #     return result
 
-    @staticmethod
-    def map_to_dict(handler_list: list, target_space: gym.spaces.space):
+    # @staticmethod
+    # def map_to_dict(handler_list: list, target_space: gym.spaces.space):
+    #     # 1. Flatten dictionary
+    #     # 2. Sort by first key (TODO: this is the case until we support nested dicts)
+    #     # 3. Extract the dictionary items thereby
+    #     def space_dict(space):
+    #         if isinstance(space, spaces.Dict) or isinstance(space, gym.spaces.Dict):
+    #             return collections.OrderedDict({k: space_dict(v) for k,v in space.spaces.items()})
+    #         else:
+    #             return space
+        
+    #     cor_space = space_dict(target_space)
 
-        def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
-            if isinstance(gym_space, spaces.Dict):
-                dont_count = False
-                inner_dict = collections.OrderedDict()
-                for idx, (k, s) in enumerate(gym_space.spaces.items()):
-                    if key in ['equipped_items', 'mainhand']:
-                        dont_count = True
-                        i = _map_to_dict(i, src, k, s, inner_dict)
-                    else:
-                        _map_to_dict(idx, src[i].T, k, s, inner_dict)
-                dst[key] = inner_dict
-                if dont_count:
-                    return i
-                else:
-                    return i + 1
-            else:
-                dst[key] = src[i]
-                return i + 1
+    #     # Now flatten the dictonary
+    #     def flatten_dict(dct, _prefix=""):
+    #         if isinstance(dct, collections.OrderedDict):
+    #             out_dict = {}
+    #             for k,v in dct.items():
+    #                 out_dict.update(flatten_dict(v, _prefix=_prefix  + "." + k))
+    #             return out_dict
+    #         else:
+    #             return {_prefix: dct}
+    #     flat_space = collections.OrderedDict(flatten_dict(cor_space))
+        
+    #     sorted_keys = sorted(flat_space.keys(), key=lambda x: x.split(".")[-1])
+    #     # Now get the index maps
+    #     for k in list(flat_space.keys())[:]:
+    #         indx = sorted_keys.index(k)
+    #         flat_space[k] = indx
+
+    #     # TODO: We are getting lucky because the POV observations line up as the last space.
+
+    #     # Now reconstitute the dictionary
+    #     def build_nested_dict(fltdict):
+    #         out= {}
+    #         for k,v in fltdict.items():
+    #             cur_dict = out
+    #             for nest in k.split(".")[1:-1]:
+    #                 if not nest in cur_dict:
+    #                     cur_dict[nest] = {}
+    #                 cur_dict = cur_dict[nest]
+    #             # Set the nest value.
+    #             # v in the setting is the handler thing
+                
+    #             cur_dict[k.split(".")[-1]] = 
+                
+
+
+
+    #         if isinstance(fltdict, collections.OrderedDict):
+    #             return collections.OrderedDict({k: build_nested_dict(v) for k, v in fltdict.items()})
+    #         else:
+    #             return handler_list[fltdict]
+            
+    #     result = {}
+
+
+        # result = build_nested_dict(flat_space)
+
+
+        # return result
+    @staticmethod
+    def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
+        # inventory does wierd compression. -_-
+        if isinstance(gym_space, spaces.Dict) or isinstance(gym_space, gym.spaces.Dict):
+            inner_dict = collections.OrderedDict()
+            for idx, (k, s) in enumerate(gym_space.spaces.items()):
+                DataPipeline._map_to_dict(idx, src[i].T, k, s, inner_dict)
+            dst[key] = inner_dict
+        else:
+            dst[key] = src[i]
+        return i + 1
+    
+    
+    @staticmethod
+    def map_to_dict(handler_list: list, target_space: gym.spaces.space, equip_spaces=None, obs=False):
+
         result = collections.OrderedDict()
         index = 0
         for key, space in target_space.spaces.items():
-            index = _map_to_dict(index, handler_list, key, space, result)
+            if obs and key == 'inventory':
+                result[key] = zip(space.spaces.keys(), handler_list[index])
+                index +=1
+            else:
+                index = DataPipeline._map_to_dict(index, handler_list, key, space, result)
+
+        if equip_spaces:
+            # Reconstitute the equipped items.
+            nest_bb = collections.OrderedDict()
+            for s in equip_spaces:
+                nest_bb[s] = result[s]
+                del result[s]
+            nested = collections.OrderedDict({
+                'equipped_itmes': collections.OrderedDict({
+                    'mainhand': nest_bb
+                })
+            })
+
+            result.update(nested)
+        
+        result = collections.OrderedDict(sorted(result.items()))
+        
+        
+                
+
         return result
 
     def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
@@ -238,16 +320,30 @@ class DataPipeline:
             observation_seq, action_seq, reward_seq, next_observation_seq, done_seq, meta = seq
         else:
             observation_seq, action_seq, reward_seq, next_observation_seq, done_seq = seq
+        # make a copty  
+        gym_spec = gym.envs.registration.spec(self.environment)
+        target_space = copy.deepcopy(gym_spec._kwargs['observation_space'])
+        had_equipped_items = False
+        equip_spaces = None
+        if 'equipped_items' in target_space.spaces:
+            had_equipped_items = True
+            equip_spaces = target_space.spaces['equipped_items'].spaces['mainhand'].spaces
+            target_space.spaces.update(equip_spaces)
+            del target_space.spaces['equipped_items']
+            x = list(target_space.spaces.items())
+            target_space.spaces = collections.OrderedDict(
+                sorted(x, key=lambda x:
+                x[0] if x[0] is not 'pov' else 'z' )
+            )
 
-        for idx in range(len(reward_seq[0])):
+        for idx in tqdm.tqdm(range(len(reward_seq[0]))):
             # Wrap in dict
             action_slice = [x[idx] for x in action_seq]
             observation_slice = [x[idx] for x in observation_seq]
             next_observation_slice = [x[idx] for x in next_observation_seq]
-            gym_spec = gym.envs.registration.spec(self.environment)
             action_dict = DataPipeline.map_to_dict(action_slice, gym_spec._kwargs['action_space'])
-            observation_dict = DataPipeline.map_to_dict(observation_slice, gym_spec._kwargs['observation_space'])
-            next_observation_dict = DataPipeline.map_to_dict(next_observation_slice, gym_spec._kwargs['observation_space'])
+            observation_dict = DataPipeline.map_to_dict(observation_slice, target_space, equip_spaces=equip_spaces, obs=True)
+            next_observation_dict = DataPipeline.map_to_dict(next_observation_slice, target_space, equip_spaces=equip_spaces, obs=True)
 
             yield_list = [observation_dict, action_dict, reward_seq[0][idx], next_observation_dict, done_seq[0][idx]] 
             yield yield_list + [meta] if include_metadata else yield_list
@@ -422,6 +518,7 @@ class DataPipeline:
                 try:
                     for i, key in enumerate(observables):
                         if key == 'pov':
+                            print(i)
                             current_observation_data[i] = np.asanyarray(frames[:-1])
                             next_observation_data[i] = np.asanyarray(frames[1:])
                         elif key == 'observation_compassAngle':

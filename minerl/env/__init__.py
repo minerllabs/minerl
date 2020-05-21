@@ -32,6 +32,8 @@ if MINERL_RECORDING_PATH is not None:
     entry_point = 'minerl.env:MineRLRecorder'
 else:
     entry_point = 'minerl.env:MineRLEnv'
+from herobraine.env_specs import register_envs
+
 
 
 register(
