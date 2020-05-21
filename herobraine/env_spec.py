@@ -82,7 +82,8 @@ class EnvSpec(abc.ABC):
                 'observation_space': self.get_observation_space(),
                 'action_space': self.get_action_space(),
                 'docstr': self.get_docstring(),
-                'xml': os.path.join(MISSIONS_DIR, self.xml)
+                'xml': os.path.join(MISSIONS_DIR, self.xml),
+                'spec': self,
             },
             max_episode_steps=self.max_episode_steps,
         )
