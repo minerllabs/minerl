@@ -207,3 +207,12 @@ item is given here::
     <Item amount="1" reward="256" type="iron_pickaxe" />
 
 \n"""
+
+
+class ObtainDiamondSurvival(ObtainDiamond):
+    def __init__(self, dense):
+        super(ObtainDiamondSurvival, self).__init__(dense)
+        self.name = "MineRLObtainDiamondSurvival-v0"
+        
+    def is_from_folder(self, folder: str):
+        return folder == 'none'

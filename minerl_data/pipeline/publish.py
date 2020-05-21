@@ -173,7 +173,7 @@ def construct_data_dirs():
                     # TODO: Add this to the list.
                 data_dirs.append((experiment_dir, experiment_folder))
             # time.sleep(0.001)
-    print()
+
     return data_dirs
 
 
@@ -338,6 +338,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
             shutil.rmtree(dest_folder, ignore_errors=True)
             continue
 
+    print(rendered_envs)
     return rendered_envs
 
 
@@ -373,6 +374,7 @@ def publish():
         print('\n' * numW)
         print("Exception in pool: ", type(e),  e)
         print('Vectorized {} files in total!'.format(sum(numSegments)))
+        raise e
         if E('errors.txt'):
             print('Errors:')
             print(open('errors.txt', 'r').read())

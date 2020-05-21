@@ -357,16 +357,18 @@ class KeyboardAction(ContinuousMovementAction):
         self.keys = keys
 
     def from_universal(self, x):
-        actions_mapped = []
-        for action in x['custom_action']['actions'].keys():
-            print(action)
-            try:
-                actions_mapped += [KEYMAP[action]]
-            except KeyError:
-                pass
+        actions_mapped = list(x['custom_action']['actions'].keys())
+        # actions_mapped is just the raw key codes.
+
+        # for action in x['custom_action']['actions'].keys():
+        #     try:
+        #         actions_mapped += [KEYMAP[action]]
+        #     except KeyError:
+        #         pass
 
         offset = self.space.begin if isinstance(self.space, DiscreteRange) else 0
         default = 0
+
         for i, key in enumerate(self.keys):
             if key in actions_mapped:
                 if isinstance(self.space, DiscreteRange):

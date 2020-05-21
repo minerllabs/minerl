@@ -3,7 +3,7 @@ import collections
 from herobraine.env_spec import EnvSpec
 from herobraine.env_specs.treechop_specs import Treechop
 from herobraine.env_specs.navigate_specs import Navigate
-from herobraine.env_specs.obtain_specs import ObtainIronPickaxe,  ObtainDiamond
+from herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe
 
 MINERL_TREECHOP_V0 = Treechop()
 
@@ -18,6 +18,9 @@ MINERL_OBTAIN_DIAMOND_DENSE_V0 = ObtainDiamond(dense=True)
 
 MINERL_OBTAIN_IRON_PICKAXE_V0 =  ObtainIronPickaxe(dense=False)
 MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0 = ObtainIronPickaxe(dense=True)
+
+# Survival envs
+MINERL_OBTAIN_DIAMOND_SURVIVAL_V0 = ObtainDiamondSurvival(dense=False)
 
 
 ENVS = [env for env in locals().values() if isinstance(env, EnvSpec)]

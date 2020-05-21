@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 def we_are_frozen():
     # All of the modules are built-in to the interpreter, e.g., by py2exe
@@ -111,12 +112,12 @@ class ThreadManager(object):
             with self.worker_lock:
                 load = min(self.workers)
                 if load < self.max_load:
-                    index = self.workers.index(load)
-                    self.workers[index] += 1
-                    # print('Load is {} incrementing {}'.format(load, index))
-                    return index + self.first_index
-                else:
-                    time.sleep(0.01)
+                    index = self.workers.index(load) # Error -> None.
+                    if index is not None:
+                        self.workers[index] += 1
+                        # print('Load is {} incrementing {}'.format(load, index))
+                        return index + self.first_index
+            time.sleep(0.01)
 
     def free_index(self, i):
         with self.worker_lock:
