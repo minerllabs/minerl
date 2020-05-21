@@ -1,13 +1,14 @@
 import abc
 
+import herobraine
 
 from herobraine.hero import handlers
 from herobraine.hero.mc import INVERSE_KEYMAP
-from herobraine.env_specs.env_spec import EnvSpec
+from herobraine.env_spec import EnvSpec
 
 from typing import List
 
-class SimpleEnvSpec(EnvSpec, abc.ABC):
+class SimpleEnvSpec(EnvSpec):
     """
     A simple base environment from which all othe simple envs inherit.
     """
@@ -18,7 +19,7 @@ class SimpleEnvSpec(EnvSpec, abc.ABC):
         "right",
         "jump",
         "sneak",
-        "sprint"
+        "sprint",
         "attack"
     ]
     
@@ -43,53 +44,3 @@ class SimpleEnvSpec(EnvSpec, abc.ABC):
             handlers.Camera()
         ]
 
-# Place_handler = [
-#     w, A, S, D
-# ] 
-# Place_handler = [
-#     W, A
-# ] 
-
-# act1 = [
-#     handlers.KeyboardAction("move", "S", "W"),
-#     handlers.CraftItem([
-#         'planks',
-#         'stick',
-#         'torch']),
-# ]
-
-
-# ac2 = [
-#     handlers.KeyboardAction("move", "S", "W"), -
-#     handlers.KeyboardAction("attack", "BUTTON0"),
-#     handlers.KeyboardAction("use", "BUTTON1"),
-#     handlers.CraftItem([
-#         'planks',
-#         'torch']),
-# ]
-
-# # Step 1. 
-# # h.to_string() <-> malmo
-# {
-#     handlers.KeyboardAction: [
-#         handlers.KeyboardAction("move", "S", "W"),
-#         handlers.KeyboardAction("move", "S", "W"),
-#         handlers.KeyboardAction("attack", "BUTTON0"),
-#         handlers.KeyboardAction("use", "BUTTON1"),
-#         ]
-# }
-
-
-
-# {
-#     "move": [
-#         handlers.KeyboardAction("move", "S", "W"),
-#         handlers.KeyboardAction("move", "S", "W"),],
-#     "attack": [
-#         handlers.KeyboardAction("attack", "BUTTON0"),
-#     ],
-#     "use": sum([
-#         handlers.KeyboardAction("hotbar", "1", "2", "3"),
-#         handlers.KeyboardAction("hotbar", "1", "2", "3", "4", "5"),
-#     ])
-# }

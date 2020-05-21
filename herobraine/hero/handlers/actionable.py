@@ -2,14 +2,12 @@ from abc import ABC
 
 import gym
 import numpy as np
-from gym import spaces
+
 
 from herobraine.hero import AgentHandler
 from herobraine.hero import KEYMAP
-
-
-from minerl.env import spaces as minerl_spaces
-
+from herobraine.hero import spaces
+from herobraine.hero.spaces import DiscreteRange
 
 class CommandAction(AgentHandler):
     """
@@ -51,7 +49,7 @@ class CommandAction(AgentHandler):
 
         return cmd
 
-    def __add__(self, other):
+    def __or__(self, other):
         if not self.command == other.command:
             raise ValueError("Command must be the same between {} and {}".format(self.command, other.command))
 
@@ -75,7 +73,7 @@ class ItemListCommandAction(CommandAction):
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
         self._default = 0  # 'none'
-        super().__init__(self._command, minerl_spaces.Enum(*self._items))
+        super().__init__(self._command, spaces.Enum(*self._items))
 
     @property
     def items(self):
@@ -113,7 +111,7 @@ class ItemListCommandAction(CommandAction):
         return cmd
 
         
-    def __add__(self, other):
+    def __or__(self, other):
         """
         Merges two ItemListCommandActions into one by unioning their items.
         Assert that the commands are the same.
@@ -128,15 +126,25 @@ class ItemListCommandAction(CommandAction):
         new_items = list(set(self._items) | set(other._items))
         return ItemListCommandAction(self._command, new_items)
 
+    def __eq__(self, other):
+        """
+        Asserts equality betwen item list command actions.
+        """
+        if not isinstance(other, ItemListCommandAction):
+            return False
+        if self._command != other._command:
+            return False
 
+        # Check that all items are in self._items
+        if not all(x in self._items for x in other._items):
+            return False
 
+        # Check that all items are in other._items
+        if not all(x in other._items for x in self._items):
+            return False
 
-# Tests merging two item list commands
-def test_merge_item_list_command_actions():
-    assert ItemListCommandAction('test', ['A', 'B', 'C', 'D']) + ItemListCommandAction('test2', ['E', 'F']) == ItemListCommandAction('test', ['A', 'B', 'C', 'D', 'E', 'F'])
+        return True
 
-if __name__ == '__main__':
-    test_merge_item_list_command_actions()
 
 
 class CraftItem(ItemListCommandAction):
@@ -306,60 +314,6 @@ class ContinuousMovementAction(CommandAction, ABC):
         pass
 
 
-class KeyboardAction(ContinuousMovementAction):
-    """
-    Handles keyboard actions.
-
-    """
-
-    def to_string(self):
-        return self.command
-
-    def __init__(self, command, keys):
-        if len(keys) == 2:
-            # Like move or strafe. Example: -1 for left, 1 for right
-            super().__init__(command, DiscreteRange(-1, 2))
-        else:
-            # Its a n-key action with discrete items.
-            # Eg hotbar actions
-            super().__init__(command, spaces.Discrete(len(keys)+1))
-        self.keys = keys
-
-    def from_universal(self, x):
-        actions_mapped = []
-        for action in x['custom_action']['actions'].keys():
-            try:
-                actions_mapped += [KEYMAP[action]]
-            except KeyError:
-                pass
-
-        offset = self.space.begin if isinstance(self.space, DiscreteRange) else 0
-        default = 0
-        for i, key in enumerate(self.keys):
-            if key in actions_mapped:
-                if isinstance(self.space, DiscreteRange):
-                    return i*2 + offset
-                else:
-                    return i + 1 + offset
-
-        # if "BUTTON1" in actions_mapped:
-        #     print("BUTTON1")
-        # If no key waspressed.
-        return default
-
-    
-    def __add__(self, other):
-        """
-        Combines two keyboard actions into one by unioning their keys.
-        """
-        if not isinstance(other, KeyboardAction):
-            raise TypeError("other must be an instance of KeyboardAction")
-
-        new_keys = list(set(self.keys + other.keys))
-        return KeyboardAction(self._command, new_keys)
-
-
-
 class Camera(ContinuousMovementAction):
     """
     Uses <delta_pitch, delta_yaw> vector in degrees to rotate the camera. pitch range [-180, 180], yaw range [-180, 180]
@@ -383,4 +337,87 @@ class Camera(ContinuousMovementAction):
         else:
             return np.array([0.0, 0.0], dtype=np.float32)
 
+
+class KeyboardAction(ContinuousMovementAction):
+    """
+    Handles keyboard actions.
+
+    """
+
+    def to_string(self):
+        return self.command
+
+    def __init__(self, command, *keys):
+        if len(keys) == 2:
+            # Like move or strafe. Example: -1 for left, 1 for right
+            super().__init__(command, DiscreteRange(-1, 2))
+        else:
+            # Its a n-key action with discrete items.
+            # Eg hotbar actions
+            super().__init__(command, spaces.Discrete(len(keys)+1))
+        self.keys = keys
+
+    def from_universal(self, x):
+        actions_mapped = []
+        for action in x['custom_action']['actions'].keys():
+            print(action)
+            try:
+                actions_mapped += [KEYMAP[action]]
+            except KeyError:
+                pass
+
+        offset = self.space.begin if isinstance(self.space, DiscreteRange) else 0
+        default = 0
+        for i, key in enumerate(self.keys):
+            if key in actions_mapped:
+                if isinstance(self.space, DiscreteRange):
+                    return i*2 + offset
+                else:
+                    return i + 1 + offset
+
+        # if "BUTTON1" in actions_mapped:
+        #     print("BUTTON1")
+        # If no key waspressed.
+        return default
+
+class SingleKeyboardAction(ContinuousMovementAction):
+        """
+        Handles keyboard actions.
+        """
+
+        def to_string(self):
+            return self.command
+
+        def __init__(self, command, key):
+            super().__init__(command, spaces.Discrete(2))
+            self.key = key
+
+        def from_universal(self, x):
+            if 'custom_action' in x and 'actions' in x['custom_action']:
+                if self.key in x['custom_action']['actions'].keys():
+                    return 1
+                else:
+                    return 0
+
+
     
+    def __or__(self, other):
+        """
+        Combines two keyboard actions into one by unioning their keys.
+        """
+        if not isinstance(other, KeyboardAction):
+            raise TypeError("other must be an instance of KeyboardAction")
+
+        new_keys = list(set(self.keys + other.keys))
+        return KeyboardAction(self._command, new_keys)
+
+
+    def __eq__(self, other):
+        """
+        Tests for equality between two keyboard actions.
+        """
+        if not isinstance(other, KeyboardAction):
+            return False
+
+        return self._command == other._command and self.keys == other.keys
+

@@ -2,7 +2,9 @@ from typing import List
 
 import herobraine
 import herobraine.hero.handlers as handlers
-from herobraine.env_specs.env_spec import EnvSpec
+from herobraine.env_spec import EnvSpec
+
+from herobraine.env_specs.simple_env_spec import SimpleEnvSpec
 
 TREECHOP_DOC = """
 .. image:: ../assets/treechop1.mp4.gif
@@ -31,12 +33,12 @@ class Treechop(SimpleEnvSpec):
             name='MineRLTreechop-v0', xml='treechop.xml',
             max_episode_steps=8000, reward_threshold=64.0)
 
-    def is_from_folder(folder: str) -> bool:
+    def is_from_folder(self, folder: str) -> bool:
         return folder == 'survivaltreechop'
 
     def create_mission_handlers(self) -> List[herobraine.hero.AgentHandler]:
         return [
-            handlers.EpisodeLength(self.episode_len),
+            handlers.EpisodeLength(8000//20),
             handlers.RewardForCollectingItems(
                 {"log": 1.0}
             )

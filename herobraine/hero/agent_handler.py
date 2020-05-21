@@ -47,6 +47,25 @@ class AgentHandler(ABC):
         raise NotImplementedError()
 
 
+    def __or__(self, other):
+        """
+        Checks to see if self and other have the same to_string
+        and if so returns self, otherwise raises an exception.
+        """
+        if self.to_string() == other.to_string():
+            return self
+        raise Exception("Incompatible handlers!")
+
+
+    def __eq__(self, other):
+        """
+        Checks to see if self and other have the same to_string
+        and if so returns self, otherwise raises an exception.
+        """
+        return self.to_string() == other.to_string()
+
+
+
 class HandlerCollection(MutableMapping):
     """
     A mapping of agent handlers and various forms thereof

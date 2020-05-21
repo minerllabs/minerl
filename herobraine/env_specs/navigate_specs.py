@@ -11,7 +11,7 @@ class Navigate(SimpleEnvSpec):
     def __init__(self, dense, extreme):
         suffix = f"{'Extreme' if extreme else ''}{'Dense' if dense else ''}"
         name = f"MineRLNavigate{suffix}-v0" 
-        xml = f'navigation{suffix}'.xml
+        xml = f'navigation{suffix}.xml'
         self.dense, self.extreme = dense, extreme
         super().__init__(name, xml, max_episode_steps=6000)
 
@@ -20,7 +20,7 @@ class Navigate(SimpleEnvSpec):
 
     def create_mission_handlers(self) -> List[herobraine.hero.AgentHandler]:
         mission_handlers = [
-            handlers.EpisodeLength(self.episode_len),
+            handlers.EpisodeLength(6000//20),
             handlers.RewardForTouchingBlock(
                 {"diamond_block", 100.0}
             ),
@@ -38,7 +38,9 @@ class Navigate(SimpleEnvSpec):
         return mission_handlers
 
     def create_observables(self) -> List[herobraine.hero.AgentHandler]:
-        return super().create_observables() +  [handlers.CompassObservation()]
+        return super().create_observables() +  [
+            handlers.CompassObservation(),
+            handlers.FlatInventoryObservation(['dirt'])] 
 
     def create_actionables(self) -> List[herobraine.hero.AgentHandler]:
         return super().create_actionables() + [handlers.PlaceBlock(['none', 'dirt'])]

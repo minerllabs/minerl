@@ -2,13 +2,9 @@ import logging
 from typing import Tuple
 
 import gym
-import gym.spaces
 import numpy as np
 
-from herobraine.hero import AgentHandler, mc
-from herobraine.hero.spaces import Text
-
-from minerl.env import spaces as minerl_spaces
+from herobraine.hero import AgentHandler, mc, spaces
 
 
 def strip_of_prefix(minecraft_name):
@@ -31,7 +27,7 @@ class ObservationFromFullStats(AgentHandler):
         return ['XPos', 'ZPos', ]
 
     def __init__(self):
-        space = gym.spaces.Box(0, 1, [6], dtype=np.float32)
+        space = spaces.Box(0, 1, [6], dtype=np.float32)
         super().__init__(space)
 
     def flaten_handler(self):
@@ -56,12 +52,13 @@ class POVObservation(AgentHandler):
     def __init__(self, video_resolution: Tuple[int, int], include_depth: bool = False):
         self.include_depth = include_depth
         self.video_resolution = video_resolution
+        space = None
         if include_depth:
-            space = gym.spaces.Box(0, 255, list(video_resolution)[::-1] + [4], dtype=np.uint8)
+            space = spaces.Box(0, 255, list(video_resolution)[::-1] + [4], dtype=np.uint8)
             self.video_depth = 4
 
         else:
-            space = gym.spaces.Box(0, 255, list(video_resolution)[::-1] + [3], dtype=np.uint8)
+            space = spaces.Box(0, 255, list(video_resolution)[::-1] + [3], dtype=np.uint8)
             self.video_depth = 3
         self.video_height = video_resolution[0]
         self.video_width = video_resolution[1]
@@ -90,6 +87,19 @@ class POVObservation(AgentHandler):
             self.logger.warning("No video found in observation! Yielding 0 image.")
             return self.space.sample() * 0
 
+    def __or__(self, other):
+        """
+        Combines two POV observations into one. If all of the properties match return self
+        otherwise raise an exception.
+        """
+        if isinstance(other, POVObservation) and self.include_depth == other.include_depth and \
+                self.video_resolution == other.video_resolution:
+            return POVObservation(self.video_resolution, include_depth=self.include_depth)
+        else:
+            raise ValueError("Incompatible observables!")
+
+    # def __eq__(self, other):
+
 
 class GUIContainerObservation(AgentHandler):
     """
@@ -111,8 +121,8 @@ class GUIContainerObservation(AgentHandler):
         return 'gui_container'
 
     def __init__(self, container_name, num_slots):
-        super().__init__(gym.spaces.Tuple([
-            gym.spaces.MultiDiscrete([len(mc.MC_ITEM_IDS), 16, 64]) for _ in range(num_slots)]))
+        super().__init__(spaces.Tuple([
+            spaces.MultiDiscrete([len(mc.MC_ITEM_IDS), 16, 64]) for _ in range(num_slots)]))
         self.container_name = container_name
         self.num_slots = num_slots
 
@@ -151,6 +161,27 @@ class GUIContainerObservation(AgentHandler):
 
         return hotbar_vec
 
+    def __or__(self, other):
+        """
+        Combines two gui container observations into one.
+        The new observable has the max of self and other's num_slots.
+        Container names must match.
+        """
+        if isinstance(other, GUIContainerObservation):
+            if self.container_name != other.container_name:
+                raise ValueError("Observations can only be combined if they share a container name.")
+            return GUIContainerObservation(self.container_name, max(self.num_slots, other.num_slots))
+        else:
+            raise ValueError('Observations can only be combined with gui container observations')
+
+    def __eq__(self, other):
+         return (
+             isinstance(other, GUIContainerObservation) 
+             and self.container_name == other.container_name 
+             and self.num_slots == other.num_slots)
+
+
+
 
 class FlatInventoryObservation(AgentHandler):
     """
@@ -167,8 +198,9 @@ class FlatInventoryObservation(AgentHandler):
     logger = logging.getLogger(__name__ + ".FlatInventoryObservation")
 
     def __init__(self, item_list):
-        super().__init__(gym.spaces.Dict(spaces={
-            k: gym.spaces.Box(low=0, high=2304, shape=(), dtype=np.int) 
+        item_list = sorted(item_list)
+        super().__init__(spaces.Dict(spaces={
+            k: spaces.Box(low=0, high=2304, shape=(), dtype=np.int) 
             for k in item_list
         }))
         self.num_items = len(item_list)
@@ -236,6 +268,20 @@ class FlatInventoryObservation(AgentHandler):
 
         return item_vec
 
+    def __or__(self, other):
+        """
+        Combines two flat inventory observations into one by taking the
+        union of their items.
+        Asserts that other is also a flat observation.
+        """
+        assert isinstance(other, FlatInventoryObservation)
+        return FlatInventoryObservation(list(set(self.items) | (set(other.items))))
+
+
+    def __eq__(self, other):
+        return isinstance(other, FlatInventoryObservation) and \
+               (self.items) == (other.items)
+
 
 class DeathObservation(AgentHandler):
 
@@ -263,36 +309,6 @@ class HotbarObservation(GUIContainerObservation):
         mission_spec.observeHotBar()
 
 
-# class DurabilityObservation(AgentHandler):
-#     """
-#     Counts the remining damage left on a pickaxe.
-#     """
-#
-#     @staticmethod
-#     def to_string():
-#         return 'durability'
-#
-#     def __init__(self):
-#         super().__init__("Durability", 1562)
-#
-#     def from_universal(self, obs):
-#         try:
-#             hotbar_index = obs['hotbar']
-#             max_damage = obs['slots']['inventory'][hotbar_index]['maxDamage']
-#             damage = obs['slots']['inventory'][hotbar_index]['damage']
-#             if max_damage > 0:
-#                 return np.array(max_damage - damage, dtype=np.int32)
-#             else:
-#                 return np.zeros([1], dtype=np.int32)
-#         except KeyError:
-#             return self.space.sample()
-#
-#     def add_to_mission_spec(self, mission_spec):
-#         raise NotImplementedError('add_to_mission_spec not implemented for DurabilityObservation')
-#         # mission_spec.observeEquipedDurrability()
-
-
-
 class TypeObservation(AgentHandler):
     """
     Returns the item list index  of the tool in the given hand
@@ -301,17 +317,17 @@ class TypeObservation(AgentHandler):
 
     def __init__(self, hand: str, items: list):
         """
-        Initializes the space of the handler with a gym.spaces.Dict
+        Initializes the space of the handler with a spaces.Dict
         of all of the spaces for each individual command.
         """
-        self._items = items
+        self._items = sorted(items)
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
         self._default = 0  # 'none'
-        self._other = len(items) - 1  # 'other'
-        assert(items.index('none') == self._default)
-        assert(items.index('other') == self._other)
-        super().__init__(minerl_spaces.Enum(*self._items))
+        self._other = len(items) - 1  # 'othe
+        assert 'other' in items
+        assert 'none' in items
+        super().__init__(spaces.Enum(*self._items))
 
     @property
     def items(self):
@@ -341,20 +357,37 @@ class TypeObservation(AgentHandler):
                 if obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerPlayer':
                     offset -= 1
                 return np.array(
-                    self._univ_items.index(obs['slots']['gui']['slots'][offset + hotbar_index]['name']), dtype=np.int32)
+                    self._univ_items.index(obs['slots']['gui']['slots'][offset + hotbar_index]['name']),
+                    dtype=np.int32)
             else:
                 raise NotImplementedError('type not implemented for hand type' + self._hand)
         except KeyError:
             # No item in hotbar slot - return 'none'
-            return np.array(self._default, dtype=np.int32)
+            return np.array(self.space['none'], dtype=np.int32)
         except ValueError:
-            return np.array(self._other, dtype=np.int32)
+            return np.array(self.space['other'], dtype=np.int32)
 
 
 
     def add_to_mission_spec(self, mission_spec):
         raise NotImplementedError('add_to_mission_spec not implemented for TypeObservation')
         # mission_spec.observeEquipedDurrability()
+
+    def __or__(self, other):
+        """
+        Combines two TypeObservation's (self and other) into one by 
+        taking the union of self.items and other.items
+        """
+        if isinstance(other, TypeObservation):
+            return TypeObservation(self.hand, list(set(self.items + other.items)))
+        else:
+            raise TypeError('Operands have to be of type TypeObservation')
+
+    def __eq__(self, other):
+        return self.hand == other.hand and self.items == other.items
+
+
+
 
 
 class DamageObservation(AgentHandler):
@@ -365,21 +398,14 @@ class DamageObservation(AgentHandler):
 
     def __init__(self, hand: str):
         """
-        Initializes the space of the handler with a gym.spaces.Dict
+        Initializes the space of the handler with a spaces.Dict
         of all of the spaces for each individual command.
         """
 
         self._hand = hand
         self._default = 0  # 'none'
-        super().__init__(gym.spaces.Discrete(1562))
+        super().__init__(spaces.Box(low=-1, high=1562, shape=(), dtype=np.int))
 
-    @property
-    def items(self):
-        return self._items
-
-    @property
-    def universal_items(self):
-        return self._univ_items
 
     @property
     def hand(self):
@@ -412,6 +438,10 @@ class DamageObservation(AgentHandler):
     def add_to_mission_spec(self, mission_spec):
         raise NotImplementedError('add_to_mission_spec not implemented for TypeObservation')
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self._hand == other._hand 
+
+
 
 class MaxDamageObservation(AgentHandler):
     """
@@ -421,21 +451,14 @@ class MaxDamageObservation(AgentHandler):
 
     def __init__(self, hand: str):
         """
-        Initializes the space of the handler with a gym.spaces.Dict
+        Initializes the space of the handler with a spaces.Dict
         of all of the spaces for each individual command.
         """
 
         self._hand = hand
         self._default = 0  # 'none'
-        super().__init__(gym.spaces.Discrete(1562))
+        super().__init__(spaces.Box(low=-1, high=1562, shape=(), dtype=np.int))
 
-    @property
-    def items(self):
-        return self._items
-
-    @property
-    def universal_items(self):
-        return self._univ_items
 
     @property
     def hand(self):
@@ -464,6 +487,11 @@ class MaxDamageObservation(AgentHandler):
 
     def add_to_mission_spec(self, mission_spec):
         raise NotImplementedError('add_to_mission_spec not implemented for TypeObservation')
+
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self._hand == other._hand 
+
+
 
 
 class PlayerInventoryObservation(GUIContainerObservation):
@@ -499,7 +527,7 @@ class CompassObservation(AgentHandler):
 
     def __init__(self):
 
-        super().__init__(gym.spaces.Box(low=0, high=1, shape=(1,), dtype=np.float32))
+        super().__init__(spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32))
 
     def add_to_mission_spec(self, mission_spec):
         mission_spec.observeCompass()
@@ -534,7 +562,7 @@ class CompassDistanceObservation(AgentHandler):
 
     def __init__(self):
 
-        super().__init__(gym.spaces.Box(low=0, high=128, shape=(1,), dtype=np.uint8))
+        super().__init__(spaces.Box(low=0, high=128, shape=(1,), dtype=np.uint8))
 
     def add_to_mission_spec(self, mission_spec):
         mission_spec.observeCompass()
@@ -565,7 +593,7 @@ class ChatObservation(AgentHandler):
         return 'chat'
 
     def __init__(self):
-        super().__init__(Text([1]))
+        super().__init__(spaces.Text([1]))
 
     def add_to_mission_spec(self, mission_spec):
         mission_spec.observeChat()
@@ -585,7 +613,7 @@ class RecentCommandsObservation(AgentHandler):
         return 'recent_commands'
 
     def __init__(self):
-        super().__init__(Text([1]))
+        super().__init__(spaces.Text([1]))
 
     def add_to_mission_spec(self, mission_spec):
         mission_spec.observeRecentCommands()

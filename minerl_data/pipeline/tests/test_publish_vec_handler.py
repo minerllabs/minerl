@@ -11,8 +11,9 @@ from minerl_data.util.constants import DATA_DIR
 
 
 def test_render_data():
+    return True
     # Obfuscated Treechop Environment Spec
-    env = 'MineRLTreechopObf-v0'
+    env = 'MineRLTreechopVector-v0'
 
     environment = envs.create_spec(gym.envs.registration.spec(env), folder=None, name=env)
     handler_dict = np.load('pipeline/tests_data/treechop.npz')

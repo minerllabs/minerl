@@ -200,10 +200,10 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
     # Gather all renderable environments for this experiment directory
     rendered_envs = 0
     filtered_environments = [
-        env_spec for env_spec in envs.get_publishable_environments() if env_spec['env_folder'] == experiment_folder]
+        env_spec for env_spec in envs.ENVS if env_spec.is_from_folder(experiment_folder)]
 
     for environment in filtered_environments:
-        dest_folder = J(output_root, environment['env_name'], 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):]))
+        dest_folder = J(output_root, environment.name, 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):]))
         recording_dest = J(dest_folder, 'recording.mp4')
         rendered_dest = J(dest_folder, 'rendered.npz')
         metadata_dest = J(dest_folder, 'metadata.json')
@@ -223,10 +223,10 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
             continue
 
         # Load relevant handlers
-        info_handlers = [obs for obs in environment['observation_space'] if not isinstance(obs, handlers.POVObservation)]
-        reward_handlers = environment['reward_space']
+        info_handlers = [obs for obs in environment.observables if not isinstance(obs, handlers.POVObservation)]
+        reward_handlers = [r for r in environment.mission_handlers if isinstance(r, handlers.RewardHandler)]
         # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
-        action_handlers = environment['action_space']
+        action_handlers = environment.actionables
 
         # Process universal json
         with open(universal_source, 'r') as json_file:
@@ -258,7 +258,8 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
                 
             except NotImplementedError as err:
-                print('Exception:', repr(err), 'found with environment:', environment['env_name'])
+                print('Exception:', repr(err), 'found with environment:', environment.name)
+                raise err
                 for hdl in all_handlers:
                     try:
                         hdl.from_universal({})
@@ -286,21 +287,21 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
 
         # Don't release ones with 1024 reward (they are bad streams)
-        if not 'Survival' in environment['env_name']:
-            if sum(published['reward']) == 1024.0 and 'Obtain' in environment['env_name']:
-                print('skipping 1024 reward', environment['env_name'])
+        if not 'Survival' in environment.name:
+            if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name:
+                print('skipping 1024 reward', environment.name)
                 continue
-            elif sum(published['reward']) < 64 and ('Obtain' not in environment['env_name']):
-                print('skipping less than 64 reward', environment['env_name'])
+            elif sum(published['reward']) < 64 and ('Obtain' not in environment.name):
+                print('skipping less than 64 reward', environment.name)
                 continue
             elif sum(published['reward']) == 0.0:
-                print('skipping 0 reward', environment['env_name'])
+                print('skipping 0 reward', environment.name)
                 continue
             elif sum(published['action_forward']) == 0:
-                print('skipping 0 forward', environment['env_name'])
+                print('skipping 0 forward', environment.name)
                 continue
-            elif sum(published['action_attack']) == 0 and 'Navigate' not in environment['env_name']:
-                print('skipping 0 attack', environment['env_name'])
+            elif sum(published['action_attack']) == 0 and 'Navigate' not in environment.name:
+                print('skipping 0 attack', environment.name)
                 continue
 
         # Setup destination root
