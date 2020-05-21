@@ -184,9 +184,13 @@ class Dict(gym.spaces.Dict, MineRLSpace):
         return self._unflattened
 
     def flat_map(self, x):
-        return np.concatenate(
-            [v.flat_map(x[k]) for k, v in (self.spaces.items()) if v.is_flattenable()]
-        )
+        try:
+            return np.concatenate(
+                [v.flat_map(x[k]) for k, v in (self.spaces.items()) if v.is_flattenable()]
+            )
+        except ValueError:
+            # No flattenable handlers found
+            return np.array([])
 
     def unflattenable_map(self, x: OrderedDict) -> OrderedDict:
         """

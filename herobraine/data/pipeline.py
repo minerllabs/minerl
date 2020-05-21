@@ -23,7 +23,7 @@ class DataPipeline:
     def __init__(self,
                  observables: List[AgentHandler],
                  actionables: List[AgentHandler],
-                 mission_handlers : List[AgentHandler],
+                 mission_handlers: List[AgentHandler],
                  data_directory,
                  num_workers,
                  worker_batch_size,
@@ -44,8 +44,7 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = Pool(self.number_of_workers)
 
-
-    def batch_iter(self, batch_size,  max_sequence_len):
+    def batch_iter(self, batch_size, max_sequence_len):
         """
         Returns a generator for iterating through batches of the dataset.
         :param batch_size:
@@ -58,17 +57,15 @@ class DataPipeline:
         logger.info("Starting batch iterator on {}".format(self.data_dir))
         self.data_list = self._get_all_valid_recordings(self.data_dir)
 
-        pool_size = self.size_to_dequeue*4
+        pool_size = self.size_to_dequeue * 4
         m = multiprocessing.Manager()
-        data_queue = m.Queue(maxsize=self.size_to_dequeue//self.worker_batch_size*4)
+        data_queue = m.Queue(maxsize=self.size_to_dequeue // self.worker_batch_size * 4)
         # Construct the arguments for the workers.
         files = [(d, self.observables, self.actionables, self.mission_handlers,
                   max_sequence_len, self.worker_batch_size, data_queue)
                  for d in self.data_list]
 
         random_queue = PriorityQueue(maxsize=pool_size)
-
-
 
         map_promise = self.processing_pool.map_async(DataPipeline._load_data_pyfunc, files)
 
@@ -78,12 +75,12 @@ class DataPipeline:
         incr = 0
         while not map_promise.ready() or not data_queue.empty() or not random_queue.empty():
             # if not map_promise.ready() and data_queue.empty() and random_queue.qsize() < 32:
-                # print("mp: {} d: {} r: {}".format(map_promise.ready(), data_queue.qsize(), random_queue.qsize()))
+            # print("mp: {} d: {} r: {}".format(map_promise.ready(), data_queue.qsize(), random_queue.qsize()))
 
             while not data_queue.empty() and not random_queue.full():
                 for ex in data_queue.get():
                     if not random_queue.full():
-                        r_num = np.random.rand(1)[0]*(1 - start) + start
+                        r_num = np.random.rand(1)[0] * (1 - start) + start
                         random_queue.put(
                             (r_num, ex)
                         )
@@ -100,7 +97,7 @@ class DataPipeline:
                         continue
                 batch_with_incr = [random_queue.get() for _ in range(batch_size)]
 
-                r1, batch  = zip(*batch_with_incr)
+                r1, batch = zip(*batch_with_incr)
                 start = 0
                 traj_obs, traj_acts, traj_handlers = zip(*batch)
 
@@ -141,7 +138,8 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(args: Tuple[Any, List[AgentHandler], List[AgentHandler], List[AgentHandler], int, int, Any], ):
+    def _load_data_pyfunc(
+            args: Tuple[Any, List[AgentHandler], List[AgentHandler], List[AgentHandler], int, int, Any], ):
         """
         Loads a action trajectory from a given file and incrementally yields via a data_queue.
         :param args:
@@ -164,7 +162,7 @@ class DataPipeline:
                 univ = np.array(list(univ.values()))
 
             # Litty viddy
-            frame_skip = 0#np.random.randint(0, len(univ)//2, 1)[0]
+            frame_skip = 0  # np.random.randint(0, len(univ)//2, 1)[0]
             frame_num = 0
             reset = True
             batches = []
@@ -226,18 +224,17 @@ class DataPipeline:
                         # If there is some error constructing the batch we just start a new sequence
                         # at the point that the exception was observed
                         logger.warn("Exception {} caught in the middle of parsing {} in "
-                                     "a worker of the data pipeline.".format(e, inst_dir))
+                                    "a worker of the data pipeline.".format(e, inst_dir))
                         reset = True
 
                 frame_num += 1
-            
+
             # logger.error("Finished")
             return batches
-            
+
         except Exception as e:
             logger.error("Caught Exception")
             return None
-        
 
         # logger.error("Finished")
         return None

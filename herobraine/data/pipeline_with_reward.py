@@ -24,7 +24,7 @@ class DataPipelineWithReward:
     def __init__(self,
                  observables: List[AgentHandler],
                  actionables: List[AgentHandler],
-                 mission_handlers : List[AgentHandler],
+                 mission_handlers: List[AgentHandler],
                  nsteps,
                  gamma,
                  data_directory,
