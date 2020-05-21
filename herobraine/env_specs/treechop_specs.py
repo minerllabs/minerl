@@ -4,14 +4,33 @@ import herobraine
 import herobraine.hero.handlers as handlers
 from herobraine.env_specs.env_spec import EnvSpec
 
+TREECHOP_DOC = """
+.. image:: ../assets/treechop1.mp4.gif
+  :scale: 100 %
+  :alt: 
 
-class Treechop(EnvSpec):
-    def __init__(self, name='MineRLTreechop-v0'):
-        self.resolution = tuple((64, 64))
-        self.episode_len = 400
-        super().__init__(name, self.resolution)
+.. image:: ../assets/treechop2.mp4.gif
+  :scale: 100 %
+  :alt: 
 
-    @staticmethod
+.. image:: ../assets/treechop3.mp4.gif
+  :scale: 100 %
+  :alt: 
+
+.. image:: ../assets/treechop4.mp4.gif
+  :scale: 100 %
+  :alt: 
+In treechop, the agent must collect 64 `minercaft:log`. This replicates a common scenario in Minecraft, as logs are necessary to craft a large amount of items in the game, and are a key resource in Minecraft.
+
+The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.
+"""
+
+class Treechop(SimpleEnvSpec):
+    def __init__(self):
+        super().__init__(
+            name='MineRLTreechop-v0', xml='treechop.xml',
+            max_episode_steps=8000, reward_threshold=64.0)
+
     def is_from_folder(folder: str) -> bool:
         return folder == 'survivaltreechop'
 
@@ -23,20 +42,5 @@ class Treechop(EnvSpec):
             )
         ]
 
-    def create_observables(self) -> List[herobraine.hero.AgentHandler]:
-        return [
-            handlers.POVObservation(self.resolution),
-            handlers.FlatInventoryObservation(["log:0", "log:1", "log:2", "log:3", "log2:0", "log2:1"])
-        ]
-
-    def create_actionables(self) -> List[herobraine.hero.AgentHandler]:
-        actionables = [
-            handlers.KeyboardAction("move", "S", "W"),
-            handlers.KeyboardAction("strafe", "A", "D"),
-            handlers.KeyboardAction("jump", "SPACE"),
-            handlers.KeyboardAction("crouch", "SHIFT"),
-            handlers.KeyboardAction("attack", "BUTTON0"),
-        ]
-        actionables += [handlers.MouseAction("pitch", "cameraPitch")]
-        actionables += [handlers.MouseAction("turn", "cameraYaw")]
-        return actionables
+    def get_docstring(self):
+        return TREECHOP_DOC

@@ -34,6 +34,9 @@ class ObservationFromFullStats(AgentHandler):
         space = gym.spaces.Box(0, 1, [6], dtype=np.float32)
         super().__init__(space)
 
+    def flaten_handler(self):
+        return []
+
     def from_universal(self, x):
         try:
             return self.space.sample()

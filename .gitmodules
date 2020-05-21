@@ -1,3 +1,0 @@
-[submodule "hero"]
-	path = hero
-	url = git@github.com:cmu-rl/malmo.git

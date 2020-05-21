@@ -6,7 +6,6 @@ from gym import spaces
 
 from herobraine.hero import AgentHandler
 from herobraine.hero import KEYMAP
-from herobraine.hero.spaces import DiscreteRange
 
 
 from minerl.env import spaces as minerl_spaces
@@ -51,6 +50,12 @@ class CommandAction(AgentHandler):
             verb, adjective)
 
         return cmd
+
+    def __add__(self, other):
+        if not self.command == other.command:
+            raise ValueError("Command must be the same between {} and {}".format(self.command, other.command))
+
+        return self
 
 
 class ItemListCommandAction(CommandAction):
@@ -106,6 +111,32 @@ class ItemListCommandAction(CommandAction):
                 verb)
 
         return cmd
+
+        
+    def __add__(self, other):
+        """
+        Merges two ItemListCommandActions into one by unioning their items.
+        Assert that the commands are the same.
+        """
+
+        if not isinstance(other, ItemListCommandAction):
+            raise TypeError("other must be an instance of ItemListCommandAction")
+
+        if self._command != other._command:
+            raise ValueError("Command must be the same for merging")
+
+        new_items = list(set(self._items) | set(other._items))
+        return ItemListCommandAction(self._command, new_items)
+
+
+
+
+# Tests merging two item list commands
+def test_merge_item_list_command_actions():
+    assert ItemListCommandAction('test', ['A', 'B', 'C', 'D']) + ItemListCommandAction('test2', ['E', 'F']) == ItemListCommandAction('test', ['A', 'B', 'C', 'D', 'E', 'F'])
+
+if __name__ == '__main__':
+    test_merge_item_list_command_actions()
 
 
 class CraftItem(ItemListCommandAction):
@@ -316,43 +347,17 @@ class KeyboardAction(ContinuousMovementAction):
         # If no key waspressed.
         return default
 
-class SingleKeyboardAction(ContinuousMovementAction):
+    
+    def __add__(self, other):
         """
-        Handles keyboard actions.
+        Combines two keyboard actions into one by unioning their keys.
         """
+        if not isinstance(other, KeyboardAction):
+            raise TypeError("other must be an instance of KeyboardAction")
 
-        def to_string(self):
-            return self.command
+        new_keys = list(set(self.keys + other.keys))
+        return KeyboardAction(self._command, new_keys)
 
-        def __init__(self, command, key):
-            super().__init__(command, spaces.Discrete(2))
-            self.key = key
-
-        def from_universal(self, x):
-            if 'custom_action' in x and 'actions' in x['custom_action']:
-                if self.key in x['custom_action']['actions'].keys():
-                    return 1
-                else:
-                    return 0
-
-
-class MouseAction(ContinuousMovementAction):
-    """
-    The same as a keyboard action except it captures
-    """
-
-    def __init__(self, command, key):
-        self._command = command
-        self.key = key
-        super().__init__(command, spaces.Box(-1,1, [1]))
-
-    def from_universal(self, x):
-        if self.key in x['custom_action']:
-
-            assert not np.isnan(np.sum(x['custom_action'][self.key])), "NAN in action!"
-            return ([x['custom_action'][self.key] / 360])
-        else:
-            return np.array([0.0]).tolist()
 
 
 class Camera(ContinuousMovementAction):
@@ -378,24 +383,4 @@ class Camera(ContinuousMovementAction):
         else:
             return np.array([0.0, 0.0], dtype=np.float32)
 
-
-class DiscreteMouseAction(ContinuousMovementAction):
-    """
-    The same as a keyboard action except it captures
-    """
-
-    def __init__(self, command, key):
-        self._command = command
-        self.key = key
-        super().__init__(command, DiscreteRange(-1,2))
-
-    def from_universal(self, x):
-        if self.key in x['custom_action']:
-            # assert not np.isnan(np.sum(x['custom_action'][self.key])), "NAN in action!"
-            val = ([x['custom_action'][self.key]])
-            out = int(np.sign(val))
-            assert out in [-1,0,1]
-            return out
-
-        else:
-            return 0
+    

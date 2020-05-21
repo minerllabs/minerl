@@ -69,6 +69,7 @@ class List(gym.Space):
     def __repr__(self):
         return "List(" + ", ".join([str(s) for s in self.spaces]) + ")"
 
+
     def to_jsonable(self, sample_n):
         # serialize as list-repr of tuple of vectors
         return [space.to_jsonable([sample[i] for sample in sample_n]) \

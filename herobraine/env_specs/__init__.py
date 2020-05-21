@@ -122,13 +122,3 @@ def get_publishable_environments():
     ]
 
     return publishable_environments
-
-
-
-
-
-
-
-
-
-
