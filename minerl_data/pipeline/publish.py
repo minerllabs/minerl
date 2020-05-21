@@ -31,7 +31,6 @@ import herobraine.hero.handlers as handlers
 
 import minerl
 
-
 PUBLISHER_VERSION = minerl.data.DATA_VERSION
 
 #######################
@@ -50,23 +49,18 @@ from minerl_data.util.constants import (
     ThreadManager
 )
 
-
-
-
 FAILED_COMMANDS = []
 
 
-
-
 ##################
-### PIPELINE
-#################
+#    PIPELINE    #
+##################
 
 def remove_initial_frames(universal):
     """
     Removes the intial frames of an episode.
     """
-     # Detect teleportation frames
+    # Detect teleportation frames
     # Check for a pressure_plate starting the experiment
     touched_pressure_plate, start_tick, skip_next_n = False, None, 0
     for tick, obs in universal.items():
@@ -91,7 +85,7 @@ def remove_initial_frames(universal):
             start_tick = tick
             break
         pass
-    
+
     # Truncate the beginning of the episode (we align videos and unviersals by the end)
     if start_tick is None:
         # If we could not find a pressure_plate we may have started in the air - skip till we are on the ground
@@ -126,12 +120,12 @@ def remove_initial_frames(universal):
         if prev_pos is None:
             prev_pos = pos
             continue
-        elif np.linalg.norm(pos - prev_pos) < (4.3/20) and len(obs['custom_action']['actions']) > 0:
+        elif np.linalg.norm(pos - prev_pos) < (4.3 / 20) and len(obs['custom_action']['actions']) > 0:
             start_tick = tick
             # print('\nslowed down to {} at {}'.format(
             #     math.sqrt(sum([(new - old)**2 for new, old in zip(pos, prev_pos)])), tick))
             break
-        elif np.linalg.norm(pos - prev_pos) < (0.001/20):
+        elif np.linalg.norm(pos - prev_pos) < (0.001 / 20):
             start_tick = tick
             # print('\nstopped at {}'.format(tick))
             break
@@ -155,6 +149,7 @@ def remove_initial_frames(universal):
 
     return universal
 
+
 # 1. Construct data working dirs.
 def construct_data_dirs():
     """
@@ -167,10 +162,11 @@ def construct_data_dirs():
 
     data_dirs = []
     for experiment_folder in tqdm.tqdm(next(os.walk(DATA_DIR))[1], desc='Directories', position=0):
-        for experiment_dir in tqdm.tqdm(next(os.walk(J(DATA_DIR, experiment_folder)))[1], desc='Experiments', position=1):
+        for experiment_dir in tqdm.tqdm(next(os.walk(J(DATA_DIR, experiment_folder)))[1], desc='Experiments',
+                                        position=1):
             if not experiment_folder.startswith('MineRL') and \
                     'tempting_capers_shapeshifter-14' not in experiment_folder:
-                    # TODO: Add this to the list.
+                # TODO: Add this to the list.
                 data_dirs.append((experiment_dir, experiment_folder))
             # time.sleep(0.001)
 
@@ -252,11 +248,12 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                 published = {'observation_' + hdl.to_string(): np.array(
                     [hdl.from_universal(universal[tick]) for tick in universal]) for hdl in info_handlers}
                 published['reward'] = np.array(
-                    [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal], dtype=np.float32)[1:]
+                    [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal],
+                    dtype=np.float32)[1:]
                 published.update({'action_' + hdl.to_string(): np.array(
                     [hdl.from_universal(universal[tick]) for tick in universal])[1:] for hdl in action_handlers})
 
-                
+
             except NotImplementedError as err:
                 print('Exception:', repr(err), 'found with environment:', environment.name)
                 raise err
@@ -284,7 +281,6 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                 raise e
 
             # published = {'action': action, 'reward': reward, 'info': info}
-
 
         # Don't release ones with 1024 reward (they are bad streams)
         if not 'Survival' in environment.name:
@@ -321,7 +317,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                     metadata_out['success'] = source['success']
                 else:
                     metadata_out['success'] = False
-                metadata_out['duration_ms'] = len(published['reward']) * 50 #source['end_time'] - source['start_time']
+                metadata_out['duration_ms'] = len(published['reward']) * 50  # source['end_time'] - source['start_time']
                 metadata_out['duration_steps'] = len(published['reward'])
                 metadata_out['total_reward'] = sum(published['reward'])
                 metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
@@ -372,7 +368,7 @@ def publish():
             pool.join()
             raise e
         print('\n' * numW)
-        print("Exception in pool: ", type(e),  e)
+        print("Exception in pool: ", type(e), e)
         print('Vectorized {} files in total!'.format(sum(numSegments)))
         raise e
         if E('errors.txt'):
@@ -390,7 +386,6 @@ def publish():
 
 
 def package(out_dir=DATA_DIR):
-
     # Verify version
     if DATA_DIR is None:
         raise RuntimeError('MINERL_DATA_ROOT is not set!')
@@ -437,8 +432,8 @@ def package(out_dir=DATA_DIR):
 
     archives = [a for a in os.listdir(out_dir) if a.endswith('.tar.gz')]
 
-    with open(J(out_dir,'MD5SUMS'), 'w') as md5_file, \
-            open(J(out_dir,'SHA1SUMS'), 'w') as sha1_file, \
+    with open(J(out_dir, 'MD5SUMS'), 'w') as md5_file, \
+            open(J(out_dir, 'SHA1SUMS'), 'w') as sha1_file, \
             open(J(out_dir, 'SHA256SUMS'), 'w') as sha256_file:
         for archive in archives:
             logging.info('Generating hashes for {}'.format(archive))

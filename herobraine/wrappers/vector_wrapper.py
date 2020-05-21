@@ -60,7 +60,10 @@ class VecWrapper(EnvSpec):
 
     def get_observation_space(self):
         # TODO: UPDATE TO REFLECT {pov: "vector"} version
-        return spaces.Box(low=-0.5, high=0.5, shape=self.observation_vector_len, dtype=np.float32)
+        return spaces.Dict({
+            'vector' : spaces.Box(low=-0.5, high=0.5, shape=self.observation_vector_len, dtype=np.float32)
+        })
+        return
 
     def get_action_space(self):
         # TODO: UPDATE TO REFLECT {pov: "vector"} version
