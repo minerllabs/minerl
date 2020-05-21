@@ -3,11 +3,11 @@ from abc import ABC
 import gym
 import numpy as np
 
-
 from herobraine.hero import AgentHandler
 from herobraine.hero import KEYMAP
 from herobraine.hero import spaces
 from herobraine.hero.spaces import DiscreteRange
+
 
 class CommandAction(AgentHandler):
     """
@@ -110,7 +110,6 @@ class ItemListCommandAction(CommandAction):
 
         return cmd
 
-        
     def __or__(self, other):
         """
         Merges two ItemListCommandActions into one by unioning their items.
@@ -144,7 +143,6 @@ class ItemListCommandAction(CommandAction):
             return False
 
         return True
-
 
 
 class CraftItem(ItemListCommandAction):
@@ -205,6 +203,7 @@ class SmeltItem(CraftItem):
                 # return self._items.index('other')
         else:
             return self._default
+
 
 class SmeltItemNearby(SmeltItem):
     """
@@ -354,7 +353,7 @@ class KeyboardAction(ContinuousMovementAction):
         else:
             # Its a n-key action with discrete items.
             # Eg hotbar actions
-            super().__init__(command, spaces.Discrete(len(keys)+1))
+            super().__init__(command, spaces.Discrete(len(keys) + 1))
         self.keys = keys
 
     def from_universal(self, x):
@@ -371,7 +370,7 @@ class KeyboardAction(ContinuousMovementAction):
         for i, key in enumerate(self.keys):
             if key in actions_mapped:
                 if isinstance(self.space, DiscreteRange):
-                    return i*2 + offset
+                    return i * 2 + offset
                 else:
                     return i + 1 + offset
 
@@ -380,27 +379,26 @@ class KeyboardAction(ContinuousMovementAction):
         # If no key waspressed.
         return default
 
+
 class SingleKeyboardAction(ContinuousMovementAction):
-        """
-        Handles keyboard actions.
-        """
+    """
+    Handles keyboard actions.
+    """
 
-        def to_string(self):
-            return self.command
+    def to_string(self):
+        return self.command
 
-        def __init__(self, command, key):
-            super().__init__(command, spaces.Discrete(2))
-            self.key = key
+    def __init__(self, command, key):
+        super().__init__(command, spaces.Discrete(2))
+        self.key = key
 
-        def from_universal(self, x):
-            if 'custom_action' in x and 'actions' in x['custom_action']:
-                if self.key in x['custom_action']['actions'].keys():
-                    return 1
-                else:
-                    return 0
+    def from_universal(self, x):
+        if 'custom_action' in x and 'actions' in x['custom_action']:
+            if self.key in x['custom_action']['actions'].keys():
+                return 1
+            else:
+                return 0
 
-
-    
     def __or__(self, other):
         """
         Combines two keyboard actions into one by unioning their keys.
@@ -411,7 +409,6 @@ class SingleKeyboardAction(ContinuousMovementAction):
         new_keys = list(set(self.keys + other.keys))
         return KeyboardAction(self._command, new_keys)
 
-
     def __eq__(self, other):
         """
         Tests for equality between two keyboard actions.
@@ -420,4 +417,3 @@ class SingleKeyboardAction(ContinuousMovementAction):
             return False
 
         return self._command == other._command and self.keys == other.keys
-

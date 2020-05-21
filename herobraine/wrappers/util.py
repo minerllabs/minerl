@@ -1,10 +1,12 @@
 import collections
+import numpy as np
 from functools import reduce
 
 from typing import List, Tuple
 
 from herobraine.hero import AgentHandler
-from herobraine.hero.spaces import MineRLSpace, Box
+from herobraine.hero.spaces import MineRLSpace, Box, Dict
+
 
 def union_spaces(hdls_1 : List[AgentHandler], hdls_2 : List[AgentHandler]) -> List[MineRLSpace]:
     # Merge action/observation spaces from two environments
@@ -15,9 +17,6 @@ def union_spaces(hdls_1 : List[AgentHandler], hdls_2 : List[AgentHandler]) -> Li
 
     return merged_hdls
 
-def extract_non_vector_handlers(hdls : List[AgentHandler]):
-    # return [hdl for hdl ]
-    pass
 
 def flatten_spaces(hdls : List[AgentHandler]) -> Tuple[List[Box], List[MineRLSpace]]:
     return [hdl.space.flattened for hdl in hdls if hdl.space.is_flattenable()], [hdl for hdl in hdls if not hdl.space.is_flattenable()]  # return [hdl.space.flattened for hdl in hdls if hdl.space.is_flattenable()], [hdl for hdl in hdls if not hdl.space.is_flattenable()]

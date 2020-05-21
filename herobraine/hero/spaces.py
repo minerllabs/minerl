@@ -45,9 +45,8 @@ class MineRLSpace(abc.ABC):
         return True
 
 
-
 class Tuple(gym.spaces.Tuple, MineRLSpace):
-    
+
     def no_op(self):
         raise NotImplementedError()
 
@@ -61,12 +60,7 @@ class Tuple(gym.spaces.Tuple, MineRLSpace):
         raise NotImplementedError()
 
 
-
-
 class Box(gym.spaces.Box, MineRLSpace):
-    # def __init__(self, low, high, shape=None, dtype=np.float32):
-    #     super.__init__(low, high, shape, dtype)
-
     def no_op(self):
         return np.zeros(shape=self.shape).astype(self.dtype)
 
@@ -84,13 +78,12 @@ class Box(gym.spaces.Box, MineRLSpace):
 
     def is_flattenable(self):
         return len(self.shape) <= 2
-            
 
 
 class Discrete(gym.spaces.Discrete, MineRLSpace):
     def __init__(self, *args, **kwargs):
         super(Discrete, self).__init__(*args, **kwargs)
-        self.eye = np.eye(self.n)
+        self.eye = np.eye(self.n, dtype=np.float32)
 
     def no_op(self):
         return 0
@@ -148,7 +141,7 @@ class Enum(Discrete, MineRLSpace):
                 return action
         except ValueError:
             raise ValueError("\"{}\" not valid ENUM value in values {}".format(action, self.values))
-    
+
         # TODO support more action formats through np.all < super().n
         raise ValueError("spaces.Enum: action must be of type str or int")
 
@@ -166,7 +159,7 @@ class Dict(gym.spaces.Dict, MineRLSpace):
 
     def create_flattened_space(self):
         shape = sum([s.flattened.shape[0] for s in self.spaces.values()
-            if s.is_flattenable()])
+                     if s.is_flattenable()])
         return Box(low=0, high=1, shape=[shape], dtype=np.float32)
 
     def create_unflattened_space(self):
@@ -176,7 +169,7 @@ class Dict(gym.spaces.Dict, MineRLSpace):
         # First calss support for unflattenable spaces..
         return Dict({
             k: (
-                v.unflattened if hasattr(v, 'unflattened') 
+                v.unflattened if hasattr(v, 'unflattened')
                 else v
             ) for k, v in self.spaces.items() if not v.is_flattenable()
         })
@@ -195,26 +188,44 @@ class Dict(gym.spaces.Dict, MineRLSpace):
             [v.flat_map(x[k]) for k, v in (self.spaces.items()) if v.is_flattenable()]
         )
 
-    def unflattenable_map(self, x):
+    def unflattenable_map(self, x: OrderedDict) -> OrderedDict:
         """
         Selects the unflattened part of x
         """
         return OrderedDict({
             k: (
-                v.unflattenable_map(x[k]) if hasattr(v, 'unflattenable_map') 
-                else v
+                v.unflattenable_map(x[k]) if hasattr(v, 'unflattenable_map')
+                else x[k]
             )
             # filter
-            for k,v in (self.spaces.items()) if not v.is_flattenable()
-        })  
-        
-    def unmap(self, x : Box):
+            for k, v in (self.spaces.items()) if not v.is_flattenable()
+        })
+
+    def unmap(self, x):
+        unmapped = collections.OrderedDict()
+        cur_index = 0
+        for k, v in self.spaces.items():
+            if v.is_flattenable():
+                unmapped[k] = v.unmap(x[cur_index:cur_index + v.flattened.shape[0]])
+                cur_index += v.flattened.shape[0]
+            else:
+                raise ValueError('Dict space contains is_flattenable values - unmap with unmap_mixed')
+
+        return unmapped
+
+    def unmap_mixed(self, x: Box, aux: OrderedDict):
         # split x
         unmapped = collections.OrderedDict()
         cur_index = 0
         for k, v in self.spaces.items():
-            unmapped[k] = v.unmap(x[cur_index:cur_index + v.flattened.shape[0]])
-            cur_index += v.flattened.shape[0]
+            if v.is_flattenable():
+                try:
+                    unmapped[k] = v.unmap_mixed(x[cur_index:cur_index + v.flattened.shape[0]], aux[k])
+                except (KeyError, AttributeError):
+                    unmapped[k] = v.unmap(x[cur_index:cur_index + v.flattened.shape[0]])
+                cur_index += v.flattened.shape[0]
+            else:
+                unmapped[k] = aux[k]
 
         return unmapped
 
@@ -222,7 +233,7 @@ class Dict(gym.spaces.Dict, MineRLSpace):
 class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):
     def __init__(self, *args, **kwargs):
         super(MultiDiscrete, self).__init__(*args, **kwargs)
-        self.eyes = [np.eye(n) for n in self.nvec]
+        self.eyes = [np.eye(n, dtype=np.float32) for n in self.nvec]
 
     def no_op(self):
         return (np.zeros(self.nvec.shape) * self.nvec).astype(self.dtype)
@@ -289,8 +300,6 @@ class Text(gym.Space):
         return False
 
 
-
-
 class DiscreteRange(Discrete):
     """
     {begin, begin+1, ..., end-2, end - 1}
@@ -305,7 +314,7 @@ class DiscreteRange(Discrete):
     def __init__(self, begin, end):
         self.begin = begin
         self.end = end
-        super().__init__(end-begin)
+        super().__init__(end - begin)
 
     def sample(self):
         return super().sample() + self.begin
@@ -314,7 +323,7 @@ class DiscreteRange(Discrete):
         return super().contains(x - self.begin)
 
     def no_op(self):
-        return self.begin 
+        return self.begin
 
     def create_flattened_space(self):
         return Box(low=0, high=1, shape=(self.n,))
@@ -324,10 +333,9 @@ class DiscreteRange(Discrete):
 
     def unmap(self, x):
         return np.argmax(x).flatten().tolist()[0] + self.begin
-        
+
     def __repr__(self):
         return "DiscreteRange({}, {})".format(self.begin, self.n + self.begin)
 
     def __eq__(self, other):
         return self.n == other.n and self.begin == other.begin
-

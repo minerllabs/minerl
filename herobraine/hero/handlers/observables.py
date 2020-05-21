@@ -15,6 +15,7 @@ def strip_of_prefix(minecraft_name):
 
     return minecraft_name
 
+
 class ObservationFromFullStats(AgentHandler):
     logger = logging.getLogger(__name__ + ".ObservationFromFullStats")
 
@@ -38,6 +39,7 @@ class ObservationFromFullStats(AgentHandler):
             return self.space.sample()
         except NotImplementedError:
             raise NotImplementedError('Observation from full state not implementing from_universal')
+
 
 class POVObservation(AgentHandler):
     """
@@ -122,7 +124,7 @@ class GUIContainerObservation(AgentHandler):
 
     def __init__(self, container_name, num_slots):
         super().__init__(spaces.Tuple([
-            spaces.MultiDiscrete([len(mc.MC_ITEM_IDS), 16, 64]) for _ in range(num_slots)]))
+            spaces.MultiDiscrete([len(mc.MC_ITEM_IDS), 16, 64], dtype=np.int32) for _ in range(num_slots)]))
         self.container_name = container_name
         self.num_slots = num_slots
 
@@ -175,12 +177,10 @@ class GUIContainerObservation(AgentHandler):
             raise ValueError('Observations can only be combined with gui container observations')
 
     def __eq__(self, other):
-         return (
-             isinstance(other, GUIContainerObservation) 
-             and self.container_name == other.container_name 
-             and self.num_slots == other.num_slots)
-
-
+        return (
+                isinstance(other, GUIContainerObservation)
+                and self.container_name == other.container_name
+                and self.num_slots == other.num_slots)
 
 
 class FlatInventoryObservation(AgentHandler):
@@ -200,7 +200,7 @@ class FlatInventoryObservation(AgentHandler):
     def __init__(self, item_list):
         item_list = sorted(item_list)
         super().__init__(spaces.Dict(spaces={
-            k: spaces.Box(low=0, high=2304, shape=(), dtype=np.int) 
+            k: spaces.Box(low=0, high=2304, shape=(), dtype=np.int32)
             for k in item_list
         }))
         self.num_items = len(item_list)
@@ -276,7 +276,6 @@ class FlatInventoryObservation(AgentHandler):
         """
         assert isinstance(other, FlatInventoryObservation)
         return FlatInventoryObservation(list(set(self.items) | (set(other.items))))
-
 
     def __eq__(self, other):
         return isinstance(other, FlatInventoryObservation) and \
@@ -367,8 +366,6 @@ class TypeObservation(AgentHandler):
         except ValueError:
             return np.array(self.space['other'], dtype=np.int32)
 
-
-
     def add_to_mission_spec(self, mission_spec):
         raise NotImplementedError('add_to_mission_spec not implemented for TypeObservation')
         # mission_spec.observeEquipedDurrability()
@@ -387,9 +384,6 @@ class TypeObservation(AgentHandler):
         return self.hand == other.hand and self.items == other.items
 
 
-
-
-
 class DamageObservation(AgentHandler):
     """
     Returns the item list index  of the tool in the given hand
@@ -405,7 +399,6 @@ class DamageObservation(AgentHandler):
         self._hand = hand
         self._default = 0  # 'none'
         super().__init__(spaces.Box(low=-1, high=1562, shape=(), dtype=np.int))
-
 
     @property
     def hand(self):
@@ -439,8 +432,7 @@ class DamageObservation(AgentHandler):
         raise NotImplementedError('add_to_mission_spec not implemented for TypeObservation')
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and self._hand == other._hand 
-
+        return isinstance(other, self.__class__) and self._hand == other._hand
 
 
 class MaxDamageObservation(AgentHandler):
@@ -458,7 +450,6 @@ class MaxDamageObservation(AgentHandler):
         self._hand = hand
         self._default = 0  # 'none'
         super().__init__(spaces.Box(low=-1, high=1562, shape=(), dtype=np.int))
-
 
     @property
     def hand(self):
@@ -489,9 +480,7 @@ class MaxDamageObservation(AgentHandler):
         raise NotImplementedError('add_to_mission_spec not implemented for TypeObservation')
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and self._hand == other._hand 
-
-
+        return isinstance(other, self.__class__) and self._hand == other._hand
 
 
 class PlayerInventoryObservation(GUIContainerObservation):
@@ -524,7 +513,6 @@ class CompassObservation(AgentHandler):
     def to_string():
         return 'compassAngle'
 
-
     def __init__(self):
 
         super().__init__(spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32))
@@ -544,11 +532,13 @@ class CompassObservation(AgentHandler):
         # TODO np datatype parameter support for compressed replay buffers
         # process the compass handler
         if "angle" in obs:
-            t = np.array([(obs['angle'] + 0.5) % 1.0]); return t
+            t = np.array([(obs['angle'] + 0.5) % 1.0]);
+            return t
         else:
             print(obs)
             self.logger.warning("No compass found in observation! Yielding random angle.")
             return self.space.sample()
+
 
 class CompassDistanceObservation(AgentHandler):
     """
@@ -582,6 +572,7 @@ class CompassDistanceObservation(AgentHandler):
             print(obs)
             self.logger.warning("No compass found in observation! Yielding random distance.")
             return self.space.sample()
+
 
 class ChatObservation(AgentHandler):
     """

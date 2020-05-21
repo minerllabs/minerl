@@ -3,8 +3,11 @@ import numpy as np
 from functools import reduce
 from collections import OrderedDict
 
+from typing import List
+
 from herobraine.env_spec import EnvSpec
 from herobraine.hero import spaces
+from herobraine.hero.spaces import Box
 from herobraine.wrappers.util import union_spaces, flatten_spaces
 
 
@@ -50,18 +53,10 @@ class VecWrapper(EnvSpec):
         return wrapped_act
 
     def unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        unwraped_obs = self.env_to_wrap.get_observation_space().unflattened.unmap(obs)
-        print(unwraped_obs)
-
-        return unwraped_obs
+        return self.env_to_wrap.get_observation_space().unmap_mixed(obs['vector'], obs)
 
     def unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        # well the space is a vector and a non vector
-        unwrapped_act = self.env_to_wrap.get_action_space().unmap(act['vector'])
-        # Now merge unwrapped_act into act (which contains the remainder)
-        # TODO:
-        print(unwrapped_act)
-        return self.env_to_wrap.get_action_space().unmap(act)
+        return self.env_to_wrap.get_action_space().unmap_mixed(act['vector'], act)
 
     def get_observation_space(self):
         # TODO: UPDATE TO REFLECT {pov: "vector"} version
