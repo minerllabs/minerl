@@ -34,12 +34,13 @@ from typing import Iterable
 import gym
 import gym.envs.registration
 import gym.spaces
-import minerl.env.spaces
 import numpy as np
 from lxml import etree
 from minerl.env import comms
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger_thread
+
+import herobraine.hero.spaces as spaces
 
 logger = logging.getLogger(__name__)
 
@@ -161,7 +162,7 @@ class MineRLEnv(gym.Env):
         self.observation_space = observation_space
 
         def map_space(space):
-            if isinstance(space, gym.spaces.Discrete) or isinstance(space, minerl.env.spaces.Enum):
+            if isinstance(space, gym.spaces.Discrete) or isinstance(space, spaces.Enum):
                 return 0
             elif isinstance(space, gym.spaces.Box):
                 return np.zeros(shape=space.shape, dtype=space.dtype)
@@ -378,7 +379,7 @@ class MineRLEnv(gym.Env):
         action_str = []
         for act in action_in:
             # Process enums.
-            if isinstance(self.action_space.spaces[act], minerl.env.spaces.Enum):
+            if isinstance(self.action_space.spaces[act], spaces.Enum):
                 if isinstance(action_in[act], int):
                     action_in[act] = self.action_space.spaces[act].values[action_in[act]]
                 else:
