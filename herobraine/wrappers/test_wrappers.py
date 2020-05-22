@@ -5,11 +5,29 @@
 # ordered dict - WTH
 import collections
 
+from herobraine.hero.spaces import Dict
 from herobraine.hero.test_spaces import assert_equal_recursive
-from herobraine.wrappers import vector_wrapper
+from herobraine.wrappers.vector_wrapper import VecWrapper
+from herobraine.wrappers.vector_obfuscation_wrapper import VectorObfWrapper
 import herobraine.env_specs as envs
 from herobraine.wrappers.util import union_spaces
 import numpy as np
+
+
+def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=None):
+    """
+    Tests that wrap_action composed with unwrap action is the identity.
+    1. Construct an VecWrapper of an EnvSpec called ObtainDiamond
+    2. Sample actions from its action space
+    3. Wrap and unwrap those actions.
+    4. Assert that the result is the same as the sample
+    """
+    vec_env = VectorObfWrapper(VecWrapper(base_env, common_env))
+
+    s = base_env.get_action_space().sample()
+    ws = vec_env.wrap_action(s)
+    us = vec_env.unwrap_action(ws)
+    assert_equal_recursive(s, us)
 
 
 def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=None):
@@ -20,7 +38,7 @@ def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=N
     3. Wrap and unwrap those actions.
     4. Assert that the result is the same as the sample
     """
-    vec_env = vector_wrapper.VecWrapper(base_env, common_env)
+    vec_env = VecWrapper(base_env, common_env)
 
     s = base_env.get_action_space().sample()
     ws = vec_env.wrap_action(s)
@@ -50,7 +68,7 @@ def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_
     3. Wrap and unwrap those observations.
     4. Assert that the result is the same as the sample
     """
-    vec_env = vector_wrapper.VecWrapper(base_env, common_env)
+    vec_env = VecWrapper(base_env, common_env)
 
     s = base_env.get_observation_space().sample()
     ws = vec_env.wrap_observation(s)
@@ -70,6 +88,20 @@ def test_wrap_unwrap_observation_treechop():
 
 def test_wrap_unwrap_observation_navigate():
     test_wrap_unwrap_observation(base_env=envs.MINERL_NAVIGATE_DENSE_EXTREME_V0)
+
+
+def test_vector_action_space(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=None):
+    vec_env = VecWrapper(base_env, common_env)
+    assert isinstance(vec_env.get_action_space(), Dict)
+    assert isinstance(vec_env.get_observation_space(), Dict)
+    print(vec_env.get_action_space())
+    print(vec_env.get_action_space().spaces)
+    assert ('vector' in vec_env.get_action_space().spaces)
+    assert ('vector' in vec_env.get_observation_space().spaces)
+
+
+def test_diamond_space():
+    test_vector_action_space(envs.MINERL_OBTAIN_DIAMOND_V0)
 
 
 def test_union_spaces():

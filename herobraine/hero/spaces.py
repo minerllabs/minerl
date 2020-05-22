@@ -17,7 +17,7 @@ import collections
 import abc
 
 
-class MineRLSpace(abc.ABC):
+class MineRLSpace(abc.ABC, gym.Space):
 
     @property
     def flattened(self) -> gym.spaces.Box:
@@ -153,7 +153,6 @@ class Enum(Discrete, MineRLSpace):
 
 
 class Dict(gym.spaces.Dict, MineRLSpace):
-
     def no_op(self):
         return OrderedDict([(k, space.no_op()) for k, space in self.spaces.items()])
 

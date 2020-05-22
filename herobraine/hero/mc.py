@@ -130,9 +130,19 @@ KEYMAP = {
     '16': 'drop',
     '42': 'sneak',
     '29': 'sprint',
-    '-100': 'attack',
-    '-99': 'use',
-    '-98': 'pick'
+    '-100': 'attack',  # BUTTON0 Left Click
+    '-99': 'use',  # BUTTON1 Right Click
+    '-98': 'pick',  # BUTTON2 Middle Click
+    '20': 'chat',  # This and following not currently in use
+    '33': 'swapHands',
+    '15': 'playerlist',  # Show player list gui
+    '53': 'command',  # Start typing server cmd
+    '60': 'screenshot',
+    '63': 'togglePerspective',
+    '87': 'fullscreen',
+    '46': 'saveToolbarActivator',
+    '45': 'loadToolbarActivator',
+    '38': 'advancements',
 }
 
 KEYMAP.update({
