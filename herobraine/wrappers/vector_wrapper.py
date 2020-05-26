@@ -26,7 +26,7 @@ class VecWrapper(EnvWrapper):
     def is_from_folder(folder: str) -> bool:
         pass
 
-    def __init__(self, env_to_wrap: EnvSpec, common_env=None):
+    def __init__(self, env_to_wrap: EnvSpec, common_env=None, name=None):
         self.env_to_wrap = env_to_wrap
         self.common_env = env_to_wrap if common_env is None else common_env        
 
@@ -38,7 +38,8 @@ class VecWrapper(EnvWrapper):
         self.action_vector_len = sum(space.shape[0] for space in self.flat_actions)
         self.observation_vector_len = sum(space.shape[0] for space in self.flat_observations)
 
-        super().__init__(env_to_wrap.name.split('-')[0] + 'Vector-' + env_to_wrap.name.split('-')[-1],
+        self.env_name = name if name is not None else env_to_wrap.name
+        super().__init__(self.env_name.split('-')[0] + 'Vector-' + self.env_name.split('-')[-1],
                          env_to_wrap.xml)
 
     def wrap_observation(self, obs: OrderedDict) -> OrderedDict:
