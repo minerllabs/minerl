@@ -25,6 +25,7 @@ class VectorObfWrapper(VecWrapper):
         self.obf_vector_len = 256
         # TODO Fixxx that init
         # super().__init__(env_to_wrap.name.split('-')[0] + 'Obf-' + env_to_wrap.name.split('-')[-1], env_to_wrap.xml)
+        
         # TODO load these from file
         self.action_matrix, self.action_matrix_inverse = \
             get_invertible_matrix_pair([self.action_vector_len, self.obf_vector_len])

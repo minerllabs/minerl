@@ -24,14 +24,20 @@ class Obtain(SimpleEnvSpec):
             xml=f"obtain{suffix}{dense_suffix}.xml",
             max_episode_steps=max_episode_steps,
         )
+    def is_from_folder(self, folder: str):
+        return folder == f'o_{self.target_item}'
+
+    def get_docstring(self):
+        return ""
 
     def create_mission_handlers(self) -> List[AgentHandler]:
+
         reward_handler = (
             handlers.RewardForCollectingItems if self.dense 
             else handlers.RewardForCollectingItemsOnce)
         
         return [
-            reward_handler(self.reward_schedule)
+            reward_handler(self.reward_schedule if self.reward_schedule else {self.target_item: 1})
         ]
 
     def create_observables(self) -> List[AgentHandler]:

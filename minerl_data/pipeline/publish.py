@@ -334,7 +334,6 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
             shutil.rmtree(dest_folder, ignore_errors=True)
             continue
 
-    print(rendered_envs)
     return rendered_envs
 
 

@@ -26,15 +26,17 @@ class VecWrapper(EnvWrapper):
     def is_from_folder(folder: str) -> bool:
         pass
 
-    def __init__(self, env_to_wrap: EnvSpec, common_env=None):
+    def __init__(self, env_to_wrap: EnvSpec, common_envs=None):
         self.env_to_wrap = env_to_wrap
-        self.common_env = env_to_wrap if common_env is None else common_env        
+        self.common_envs = [env_to_wrap] if common_envs is None else common_envs        
 
         # Gather all of the handlers for the common_env
-        self.common_actions = union_spaces(self.env_to_wrap.actionables, self.common_env.actionables)
-        self.common_observations = union_spaces(self.env_to_wrap.observables, self.common_env.observables)
+        self.common_actions = reduce(union_spaces, common_envs.actionables)
+        self.common_observations = reduce(union_spaces, common_envs.observables)
         self.flat_actions, self.remaining_action_space = flatten_spaces(self.common_actions)
         self.flat_observations, self.remaining_observation_space = flatten_spaces(self.common_observations)
+        
+        
         self.action_vector_len = sum(space.shape[0] for space in self.flat_actions)
         self.observation_vector_len = sum(space.shape[0] for space in self.flat_observations)
 
@@ -42,22 +44,22 @@ class VecWrapper(EnvWrapper):
                          env_to_wrap.xml)
 
     def wrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        flat_obs_part = self.common_env.get_observation_space().flat_map(obs)
-        wrapped_obs = self.common_env.get_observation_space().unflattenable_map(obs)
+        flat_obs_part = self.get_observation_space().flat_map(obs)
+        wrapped_obs = self.get_observation_space().unflattenable_map(obs)
         wrapped_obs['vector'] = flat_obs_part
         return wrapped_obs
 
     def wrap_action(self, act: OrderedDict) -> OrderedDict:
-        flat_act_part = self.common_env.get_action_space().flat_map(act)
-        wrapped_act = self.common_env.get_action_space().unflattenable_map(act)
+        flat_act_part = self.get_action_space().flat_map(act)
+        wrapped_act = self.get_action_space().unflattenable_map(act)
         wrapped_act['vector'] = flat_act_part
         return wrapped_act
 
     def unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        return self.common_env.get_observation_space().unmap_mixed(obs['vector'], obs)
+        return self.get_observation_space().unmap_mixed(obs['vector'], obs)
 
     def unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        return self.common_env.get_action_space().unmap_mixed(act['vector'], act)
+        return self.get_action_space().unmap_mixed(act['vector'], act)
 
     def get_observation_space(self):
         obs_list = self.remaining_observation_space
@@ -65,7 +67,6 @@ class VecWrapper(EnvWrapper):
         return spaces.Dict(spaces=OrderedDict(obs_list))
 
     def get_flattenable_observation_space(self):
-        # TODO use this merged space to wrap actions
         obs_list = [(hdl.to_string(), hdl.space) for hdl in self.common_observations]
         return spaces.Dict(spaces=OrderedDict(obs_list))
 
