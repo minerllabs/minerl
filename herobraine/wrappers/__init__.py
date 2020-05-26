@@ -1,0 +1,2 @@
+from herobraine.wrappers.obfuscation_wrapper import Obfuscated
+from herobraine.wrappers.vector_wrapper import Vectorized

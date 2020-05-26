@@ -8,21 +8,56 @@ from herobraine.env_spec import EnvSpec
 
 class EnvWrapper(EnvSpec):
 
-    @abc.abstractmethod
-    def wrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        pass
+    def __init__(self, env_to_wrap: EnvSpec):
+        self.env_to_wrap = env_to_wrap
+        super().__init__(self.update_name(env_to_wrap.name), env_to_wrap.xml, max_episode_steps=None, reward_threshold=None)
 
     @abc.abstractmethod
-    def wrap_action(self, act: OrderedDict) -> OrderedDict:
+    def _update_name(self, name: str) -> str:
         pass
 
+    def update_name(self, name: str) -> str:
+        if isinstance(self.env_to_wrap, EnvWrapper):
+            name = self.env_to_wrap.update_name(name)
+        return self._update_name(name)
+
     @abc.abstractmethod
+    def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
+        pass
+
+    def wrap_observation(self, obs: OrderedDict):
+        if isinstance(self.env_to_wrap, EnvWrapper):
+            obs = self.env_to_wrap.wrap_observation(obs)
+        return self._wrap_observation(obs)
+
+    @abc.abstractmethod
+    def _wrap_action(self, act: OrderedDict) -> OrderedDict:
+        pass
+
+    def wrap_action(self, act: OrderedDict):
+        if isinstance(self.env_to_wrap, EnvWrapper):
+            act = self.env_to_wrap.wrap_action(act)
+        return self._wrap_action(act)
+
+    @abc.abstractmethod
+    def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
+        pass
+
     def unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        pass
+        obs = self._unwrap_observation(obs)
+        if isinstance(self.env_to_wrap, EnvWrapper):
+            obs = self.env_to_wrap.unwrap_observation(obs)
+        return obs
 
     @abc.abstractmethod
-    def unwrap_action(self, act: OrderedDict) -> OrderedDict:
+    def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
         pass
+
+    def unwrap_action(self, act: OrderedDict) -> OrderedDict:
+        act = self._unwrap_action(act)
+        if isinstance(self.env_to_wrap, EnvWrapper):
+            act = self.env_to_wrap.unwrap_action(act)
+        return act
 
     @abc.abstractmethod
     def get_observation_space(self):
@@ -35,3 +70,15 @@ class EnvWrapper(EnvSpec):
     @abc.abstractmethod
     def get_docstring(self):
         pass
+
+    def is_from_folder(self, folder: str) -> bool:
+        return self.env_to_wrap.is_from_folder()
+
+    def create_mission_handlers(self):
+        return self.env_to_wrap.create_mission_handlers()
+
+    def create_actionables(self):
+        return self.env_to_wrap.create_actionables()
+
+    def create_observables(self):
+        return self.env_to_wrap.create_observables()
