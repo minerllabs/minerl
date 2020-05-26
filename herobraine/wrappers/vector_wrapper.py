@@ -26,11 +26,7 @@ class VecWrapper(EnvWrapper):
     def is_from_folder(folder: str) -> bool:
         pass
 
-<<<<<<< HEAD
-    def __init__(self, env_to_wrap: EnvSpec, common_envs=None):
-=======
-    def __init__(self, env_to_wrap: EnvSpec, common_env=None, name=None):
->>>>>>> d0737928de4d09d0ab62b58f02a328db20b9f47d
+    def __init__(self, env_to_wrap: EnvSpec, common_envs=None, name=None):
         self.env_to_wrap = env_to_wrap
         self.common_envs = [env_to_wrap] if common_envs is None else common_envs        
 

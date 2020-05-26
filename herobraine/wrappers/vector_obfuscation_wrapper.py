@@ -24,19 +24,13 @@ class VectorObfWrapper(VecWrapper):
     def __init__(self, env_to_wrap: VecWrapper):
         super().__init__(env_to_wrap, name=env_to_wrap.name.split('-')[0] + 'Obf-' + env_to_wrap.name.split('-')[-1])
         self.obf_vector_len = 256
-<<<<<<< HEAD
-        # TODO Fixxx that init
-        # super().__init__(env_to_wrap.name.split('-')[0] + 'Obf-' + env_to_wrap.name.split('-')[-1], env_to_wrap.xml)
-        
-=======
 
->>>>>>> d0737928de4d09d0ab62b58f02a328db20b9f47d
         # TODO load these from file
         np.random.seed(42)
         self.action_matrix, self.action_matrix_inverse = \
-            get_invertible_matrix_pair([self.action_vector_len, self.obf_vector_len])
+            get_invertible_matrix_pair([super().action_vector_len, self.obf_vector_len])
         self.observation_matrix, self.observation_matrix_inverse = \
-            get_invertible_matrix_pair([self.observation_vector_len, self.obf_vector_len])
+            get_invertible_matrix_pair([super().observation_vector_len, self.obf_vector_len])
 
     def get_observation_space(self):
         obs_space = super().get_observation_space()
