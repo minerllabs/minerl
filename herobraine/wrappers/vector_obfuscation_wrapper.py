@@ -17,7 +17,7 @@ from herobraine.wrappers.wrapper import EnvWrapper
 
 def get_invertible_matrix_pair(shape):
     mat = np.random.random(shape)
-    return mat, np.linalg.inv(mat)
+    return mat, mat.T @ np.linalg.inv(mat @ mat.T)
 
 
 class VectorObfWrapper(VecWrapper):
@@ -28,9 +28,9 @@ class VectorObfWrapper(VecWrapper):
         # TODO load these from file
         np.random.seed(42)
         self.action_matrix, self.action_matrix_inverse = \
-            get_invertible_matrix_pair([super().action_vector_len, self.obf_vector_len])
+            get_invertible_matrix_pair([self.action_vector_len, self.obf_vector_len])
         self.observation_matrix, self.observation_matrix_inverse = \
-            get_invertible_matrix_pair([super().observation_vector_len, self.obf_vector_len])
+            get_invertible_matrix_pair([self.observation_vector_len, self.obf_vector_len])
 
     def get_observation_space(self):
         obs_space = super().get_observation_space()

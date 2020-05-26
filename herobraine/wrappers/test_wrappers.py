@@ -22,7 +22,7 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=None):
     3. Wrap and unwrap those actions.
     4. Assert that the result is the same as the sample
     """
-    vec_env = VectorObfWrapper(VecWrapper(base_env, common_env))
+    vec_env = VectorObfWrapper(base_env)
 
     s = base_env.get_action_space().sample()
     ws = vec_env.wrap_action(s)
@@ -30,7 +30,7 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=None):
     assert_equal_recursive(s, us)
 
 
-def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=None):
+def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=None):
     """
     Tests that wrap_action composed with unwrap action is the identity.
     1. Construct an VecWrapper of an EnvSpec called ObtainDiamond
@@ -38,15 +38,15 @@ def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=N
     3. Wrap and unwrap those actions.
     4. Assert that the result is the same as the sample
     """
-    vec_env = VecWrapper(base_env, common_env)
+    vec_env = VecWrapper(base_env, common_envs)
 
     s = base_env.get_action_space().sample()
     ws = vec_env.wrap_action(s)
     us = vec_env.unwrap_action(ws)
     assert_equal_recursive(s, us)
 
-    if common_env is not None:
-        s = base_env.get_action_space().sample()
+    if common_envs is not None:
+        s = common_envs[0].get_action_space().sample()
         ws = vec_env.wrap_action(s)
         us = vec_env.unwrap_action(ws)
         assert_equal_recursive(s, us)
@@ -60,7 +60,7 @@ def test_wrap_unwrap_action_navigate():
     test_wrap_unwrap_action(base_env=envs.MINERL_NAVIGATE_DENSE_EXTREME_V0)
 
 
-def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=None):
+def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=None):
     """
     Tests that wrap_observation composed with unwrap observation is the identity.
     1. Construct an VecWrapper of an EnvSpec called ObtainDiamond
@@ -68,15 +68,15 @@ def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_
     3. Wrap and unwrap those observations.
     4. Assert that the result is the same as the sample
     """
-    vec_env = VecWrapper(base_env, common_env)
+    vec_env = VecWrapper(base_env, common_envs)
 
     s = base_env.get_observation_space().sample()
     ws = vec_env.wrap_observation(s)
     us = vec_env.unwrap_observation(ws)
     assert_equal_recursive(s, us)
 
-    if common_env is not None:
-        s = common_env.get_observation_space().sample()
+    if common_envs is not None:
+        s = common_envs.get_observation_space().sample()
         ws = vec_env.wrap_observation(s)
         us = vec_env.unwrap_observation(ws)
         assert_equal_recursive(s, us)
@@ -117,19 +117,19 @@ def test_union_spaces():
 
 def test_vec_wrapping_with_common_envs():
     base_env = envs.MINERL_TREECHOP_V0
-    common_env = envs.MINERL_NAVIGATE_DENSE_V0
+    common_env = [envs.MINERL_NAVIGATE_DENSE_V0]
 
     test_wrap_unwrap_observation(base_env, common_env)
     test_wrap_unwrap_action(base_env, common_env)
 
     base_env = envs.MINERL_OBTAIN_DIAMOND_V0
-    common_env = envs.MINERL_NAVIGATE_DENSE_V0
+    common_env = [envs.MINERL_NAVIGATE_DENSE_V0]
 
     test_wrap_unwrap_observation(base_env, common_env)
     test_wrap_unwrap_action(base_env, common_env)
 
     base_env = envs.MINERL_OBTAIN_IRON_PICKAXE_V0
-    common_env = envs.MINERL_OBTAIN_DIAMOND_V0
+    common_env = [envs.MINERL_OBTAIN_DIAMOND_V0]
 
     test_wrap_unwrap_observation(base_env, common_env)
     test_wrap_unwrap_action(base_env, common_env)
