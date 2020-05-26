@@ -481,6 +481,7 @@ item are given here::
 for e in old_envs:
     if not 'reward_threshold' in e:
         e['reward_threshold'] = None
+    e['spec'] = None
 
 
 

@@ -91,5 +91,6 @@ class EnvSpec(abc.ABC):
             reg_spec.update(dict(reward_threshold=self.reward_threshold))
         
         gym.register(**reg_spec)
+
         
         
