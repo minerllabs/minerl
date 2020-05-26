@@ -18,8 +18,8 @@ def test_render_data():
     environment = envs.create_spec(gym.envs.registration.spec(env), folder=None, name=env)
     handler_dict = np.load('pipeline/tests_data/treechop.npz')
 
-    action_keys = [(key,key[7:]) for key in handler_dict.keys() if key.startswith('action_')]
-    observation_keys = [(key,key[12:]) for key in handler_dict.keys() if key.startswith('observation_')]
+    action_keys = [(key, key[7:]) for key in handler_dict.keys() if key.startswith('action_')]
+    observation_keys = [(key, key[12:]) for key in handler_dict.keys() if key.startswith('observation_')]
 
     action_dict = {handler_str: handler_dict[key] for key, handler_str in action_keys}
     observation_dict = {handler_str: handler_dict[key] for key, handler_str in observation_keys}
