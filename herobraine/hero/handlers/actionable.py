@@ -12,7 +12,7 @@ from herobraine.hero.spaces import DiscreteRange
 class CommandAction(AgentHandler):
     """
     An action handler based on commands
-    # Todo: support blacklisting commands.
+    # Todo: support blacklisting commands. (note this has to work with mergeing somehow)
     """
 
     def __init__(self, command: str, space: gym.Space):
@@ -25,6 +25,9 @@ class CommandAction(AgentHandler):
 
     @property
     def command(self):
+        return self._command
+
+    def to_string(self):
         return self._command
 
     def to_hero(self, x):
