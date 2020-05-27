@@ -67,7 +67,7 @@ class EnvWrapper(EnvSpec):
         return self.env_to_wrap.get_docstring()
         
     def is_from_folder(self, folder: str) -> bool:
-        return self.env_to_wrap.is_from_folder()
+        return self.env_to_wrap.is_from_folder(folder)
 
     def create_mission_handlers(self):
         return self.env_to_wrap.create_mission_handlers()

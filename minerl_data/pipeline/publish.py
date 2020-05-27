@@ -48,9 +48,23 @@ from minerl_data.util.constants import (
     DATA_DIR,
     ThreadManager
 )
+from herobraine.hero import spaces
+import collections
+from herobraine.wrappers.wrapper import EnvWrapper
+from collections import OrderedDict
+from herobraine.wrappers.obfuscation_wrapper import Obfuscated
 
 FAILED_COMMANDS = []
 
+def flatten(d, parent_key='', sep='$'): 
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
 
 ##################
 #    PIPELINE    #
@@ -238,20 +252,50 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                 except (NotImplementedError, AttributeError):
                     continue
             try:
-                # info = {hdl.to_string(): np.array(
-                #     [hdl.from_universal(universal[tick]) for tick in universal]) for hdl in info_handlers}
-                # reward = np.array(
-                #     [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal])
-                # action = np.array(
-                #     [hdl.from_universal(universal[tick]) for hdl in action_handlers for tick in universal])
 
-                published = {'observation_' + hdl.to_string(): np.array(
-                    [hdl.from_universal(universal[tick]) for tick in universal]) for hdl in info_handlers}
-                published['reward'] = np.array(
+                published = dict(
+                    reward=np.array(
                     [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal],
-                    dtype=np.float32)[1:]
-                published.update({'action_' + hdl.to_string(): np.array(
-                    [hdl.from_universal(universal[tick]) for tick in universal])[1:] for hdl in action_handlers})
+                    dtype=np.float32)[1:])
+
+                
+                for tick in universal:
+                    tick_data = {}
+                    for _prefix, hdlrs in [
+                        ("observation",info_handlers),
+                        ("action",action_handlers)]:
+                        if not _prefix in tick_data:
+                            tick_data[_prefix] = OrderedDict()
+
+                        for handler in hdlrs:
+                            # Apply the handler from_universal to the universal[tick]
+                            val = handler.from_universal(universal[tick])
+                            assert val in handler.space, f"{val} is not in {handler.space} for handler {handler.to_string()}"
+
+                            tick_data[_prefix][handler.to_string()] = val
+
+                        # Perhaps we can wrap here
+                        # TODO: Apply wrapping.
+                        if isinstance(environment, EnvWrapper):
+                            if _prefix == "observation":
+                                tick_data[_prefix]['pov'] = None
+                                tick_data[_prefix] = environment.wrap_observation(tick_data[_prefix])
+                                del tick_data[_prefix]['pov']
+                            elif _prefix == "action":
+                                tick_data[_prefix] = environment.wrap_action(tick_data[_prefix])
+                        
+                    tick_data = flatten(tick_data, sep='$')
+                    for k,v in tick_data.items():
+                        try:
+                            published[k].append(v)
+                        except KeyError:
+                            published[k] = [v]
+
+                # Adjust the aciton one forward (recall that the action packet is one off.)
+                for k in published:
+                    if k.startswith("action"):
+                        published[k] = published[k][1:]
+
 
 
             except NotImplementedError as err:
@@ -266,7 +310,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                     except KeyError:
                         pass
                 continue
-            except KeyError:
+            except KeyError as err:
                 print("Key error in file - check from_universal for handlers")
                 continue
             except Exception as e:
@@ -279,11 +323,18 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                         print("Exception <", repr(f), "> for command handler:", hdl)
                         continue
                 raise e
+            except AssertionError as e:
+                # Warn the user if some of the observatiosn or actions don't fall in the gym.space 
+                # (The space checking assertion error from above was raised)
+                print(f"Warning! {e}")
+                continue
+
 
             # published = {'action': action, 'reward': reward, 'info': info}
 
+        # TODO: Blacklist streams properly.
         # Don't release ones with 1024 reward (they are bad streams)
-        if not 'Survival' in environment.name:
+        if not 'Survival' in environment.name and not isinstance(environment, Obfuscated):
             if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name:
                 print('skipping 1024 reward', environment.name)
                 continue
@@ -293,10 +344,10 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
             elif sum(published['reward']) == 0.0:
                 print('skipping 0 reward', environment.name)
                 continue
-            elif sum(published['action_forward']) == 0:
+            elif sum(published['action$forward']) == 0:
                 print('skipping 0 forward', environment.name)
                 continue
-            elif sum(published['action_attack']) == 0 and 'Navigate' not in environment.name:
+            elif sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
                 print('skipping 0 attack', environment.name)
                 continue
 

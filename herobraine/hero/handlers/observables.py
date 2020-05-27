@@ -196,7 +196,7 @@ class FlatInventoryObservation(AgentHandler):
     def __init__(self, item_list):
         item_list = sorted(item_list)
         super().__init__(spaces.Dict(spaces={
-            k: spaces.Box(low=0, high=64, shape=(), dtype=np.int32)
+            k: spaces.Box(low=0, high=512, shape=(), dtype=np.int32)
             for k in item_list
         }))
         self.num_items = len(item_list)
@@ -213,24 +213,26 @@ class FlatInventoryObservation(AgentHandler):
         :param obs:
         :return:
         """
-        item_vec = [0 for _ in self.items]
+        item_dict = self.space.no_op()
         if 'inventory' in obs:
             # TODO change to map
             for stack in obs['inventory']:
                 if 'type' in stack and 'quantity' in stack:
                     try:
                         i = self.items.index(stack['type'])
-                        item_vec[i] += stack['quantity']
+                        item_dict[stack['type']] += stack['quantity']
                     except ValueError:
                         continue
         else:
             self.logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
             self.logger.warning(obs)
 
-        return item_vec
+        # TODO: ADD LOGG
+        return item_dict
 
     def from_universal(self, obs):
-        item_vec = [0 for _ in self.items]
+        
+        item_dict = self.space.no_op()
 
         try:
             if obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerPlayer' or \
@@ -252,17 +254,16 @@ class FlatInventoryObservation(AgentHandler):
                 try:
                     name = strip_of_prefix(stack['name'])
                     name = 'log' if name == 'log2' else name
-                    i = self.items.index(name)
-                    item_vec[i] += stack['count']
+                    item_dict[name] += stack['count']
                 except (KeyError, ValueError):
                     continue
 
         except KeyError as e:
             self.logger.warning("KeyError found in universal observation! Yielding empty inventory.")
             self.logger.error(e)
-            return item_vec
+            return item_dict
 
-        return item_vec
+        return item_dict
 
     def __or__(self, other):
         """
@@ -339,7 +340,7 @@ class TypeObservation(AgentHandler):
         return self._default
 
     def to_string(self):
-        return 'type'
+        return f'equipped_items.{self._hand}.type'
 
     def from_universal(self, obs):
         try:
@@ -402,7 +403,7 @@ class DamageObservation(AgentHandler):
         return self._default
 
     def to_string(self):
-        return 'damage'
+        return f'equipped_items.{self._hand}.damage'
 
     def from_universal(self, obs):
         try:
@@ -452,7 +453,7 @@ class MaxDamageObservation(AgentHandler):
         return self._default
 
     def to_string(self):
-        return 'maxDamage'
+        return f'equipped_items.{self._hand}.maxDamage'
 
     def from_universal(self, obs):
         try:
@@ -511,7 +512,7 @@ class CompassObservation(AgentHandler):
 
     def from_universal(self, obs):
         if "compass" in obs and "angle" in obs["compass"]:
-            y = [((obs["compass"]["angle"] * 360.0 + 180) % 360.0) - 180]
+            y = np.array(((obs["compass"]["angle"] * 360.0 + 180) % 360.0) - 180)
             return y
         else:
             self.logger.warning("No compass angle found in universal observation! Yielding random angle.")
@@ -521,10 +522,9 @@ class CompassObservation(AgentHandler):
         # TODO np datatype parameter support for compressed replay buffers
         # process the compass handler
         if "angle" in obs:
-            t = np.array([(obs['angle'] + 0.5) % 1.0]);
+            t = np.array((obs['angle'] + 0.5) % 1.0);
             return t
         else:
-            print(obs)
             self.logger.warning("No compass found in observation! Yielding random angle.")
             return self.space.sample()
 

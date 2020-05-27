@@ -28,6 +28,80 @@ class EnvSpec(abc.ABC):
     def to_string(self):
         return self.name
 
+
+    # # V0
+    # # publish
+    # {  
+    #     "inventory": {
+    #         "dirt": 0,
+    #         "cobblestone": 0,
+    #     },
+    #     "observation_equipped_items.mainhand.damage": 0
+    # }
+
+    # wrapper.wrap() 
+
+    # {      
+    #     "inventory": {
+    #         "dirt": 0,
+    #         "cobblestone": 0,
+    #     },
+    #     "observation_equipped_items":{
+    #          "mainhand": {"damage": 0}
+    #     }
+    # }
+
+    # # compress
+    
+    # {      
+    #     "inventory$dirt": 0,
+    #     "inventory$cobblestone": 0,
+    #     "observation_equipped_items$mainhand$damage": 0
+    # }
+
+    # # decompress/datapipeline
+    # {      
+    #     "inventory": {
+    #         "dirt": 0,
+    #         "cobblestone": 0,
+    #     },
+    #     "observation_equipped_items":{
+    #          "mainhand": {"damage": 0}
+    #     }
+    # }
+
+    
+    # # V1
+    # # publish
+    # {  
+    #     "inventory": {
+    #         "dirt": 0,
+    #         "cobblestone": 0,
+    #     },
+    #     "observation_equipped_items.mainhand.damage": 0
+    # }
+
+
+    # # compress
+    # {      
+    #     "inventory$dirt": 0,
+    #     "inventory$cobblestone": 0,
+    #     "observation_equipped_items.mainhand.damage": 0
+    # }
+
+    # # decompress
+    # {      
+    #     "inventory": {
+    #         "dirt": 0,
+    #         "cobblestone": 0,
+    #     },
+    #     "observation_equipped_items.mainhand.damage": 0
+    # }
+    
+    
+
+
+
     @abstractmethod
     def is_from_folder(self, folder: str) -> bool:
         raise NotImplementedError('subclasses must override is_from_folder()!')
@@ -46,24 +120,9 @@ class EnvSpec(abc.ABC):
 
     def get_observation_space(self):
         # Todo: handle nested dict space.
-        
-        ss = {
-            o.to_string(): o.space for o in self.observables if not hasattr(o, 'hand')
-        }
-        try:
-            if [o.space for o in self.observables if hasattr(o, 'hand')]:
-                ss.update({
-                    'equipped_items': spaces.Dict({
-                        'mainhand': spaces.Dict({
-                            o.to_string(): o.space for o in self.observables if hasattr(o, 'hand')
-                        })
-                    })
-                })
-        except Exception as e:
-            print(e)
-            pass
-            
-        return spaces.Dict(spaces=ss)
+       return spaces.Dict(spaces={
+            o.to_string(): o.space for o in self.observables 
+        })
 
     def get_action_space(self):
         return spaces.Dict(spaces={

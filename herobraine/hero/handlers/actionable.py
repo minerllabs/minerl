@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import gym
 import numpy as np
@@ -113,20 +113,24 @@ class ItemListCommandAction(CommandAction):
 
         return cmd
 
+    @abstractmethod
+    def from_universal(self, x):
+        raise NotImplementedError()
+
     def __or__(self, other):
         """
         Merges two ItemListCommandActions into one by unioning their items.
         Assert that the commands are the same.
         """
 
-        if not isinstance(other, ItemListCommandAction):
+        if not isinstance(other, self.__class__):
             raise TypeError("other must be an instance of ItemListCommandAction")
 
         if self._command != other._command:
             raise ValueError("Command must be the same for merging")
 
         new_items = list(set(self._items) | set(other._items))
-        return ItemListCommandAction(self._command, new_items)
+        return self.__class__(new_items)
 
     def __eq__(self, other):
         """

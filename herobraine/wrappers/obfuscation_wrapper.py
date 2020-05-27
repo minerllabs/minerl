@@ -16,7 +16,7 @@ class Obfuscated(EnvWrapper):
     def __init__(self, env_to_wrap: Vectorized):
         super().__init__(env_to_wrap)
 
-        self.obf_vector_len = 49
+        self.obf_vector_len = 256
 
         # TODO load these from file
         assert isinstance(env_to_wrap, Vectorized), 'Obfuscated env wrappers only supported for vectorized environments'
@@ -30,7 +30,7 @@ class Obfuscated(EnvWrapper):
         return name.split('-')[0] + 'Obf-' + name.split('-')[-1]
 
     def get_observation_space(self):
-        obs_space = super().get_observation_space()
+        obs_space =self.env_to_wrap.get_observation_space()
         obs_space.spaces['vector'] = spaces.Box(low=-np.inf, high=np.inf, shape=[self.obf_vector_len])
         return obs_space
 

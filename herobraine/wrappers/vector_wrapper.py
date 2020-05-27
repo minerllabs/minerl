@@ -15,10 +15,6 @@ class Vectorized(EnvWrapper):
     def _update_name(self, name: str) -> str:
         return name.split('-')[0] + 'Vector-' + name.split('-')[-1]
 
-    @staticmethod
-    def is_from_folder(folder: str) -> bool:
-        pass
-
     def __init__(self, env_to_wrap: EnvSpec, common_envs=None):
         self.env_to_wrap = env_to_wrap
         self.common_envs = [env_to_wrap] if common_envs is None or len(common_envs) == 0 else common_envs
@@ -39,15 +35,16 @@ class Vectorized(EnvWrapper):
         super().__init__(env_to_wrap)
 
     def create_observables(self):
-        return self.common_observations
+        return self.env_to_wrap.observables
 
     def create_actionables(self):
-        return self.common_actions
+        return self.env_to_wrap.actionables
 
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
         flat_obs_part = self.common_observation_space.flat_map(obs)
         wrapped_obs = self.common_observation_space.unflattenable_map(obs)
         wrapped_obs['vector'] = flat_obs_part
+        
         return wrapped_obs
 
     def _wrap_action(self, act: OrderedDict) -> OrderedDict:
@@ -57,10 +54,10 @@ class Vectorized(EnvWrapper):
         return wrapped_act
 
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        return self.common_observation_space.unmap_mixed(obs['vector'], obs)
+        return self.env_to_wrap.unwrap_mixed(obs['vector'],obs)
 
     def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        return self.common_action_space.unmap_mixed(act['vector'], act)
+        return self.env_to_wrap.unmap_mixed(act['vector'], act)
 
     def get_observation_space(self):
         obs_list = self.remaining_observation_space
