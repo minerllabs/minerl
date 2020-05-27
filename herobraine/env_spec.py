@@ -1,4 +1,3 @@
-
 from abc import abstractmethod
 # import minerl.env.spaces as spaces
 import gym
@@ -28,7 +27,6 @@ class EnvSpec(abc.ABC):
     def to_string(self):
         return self.name
 
-
     # # V0
     # # publish
     # {  
@@ -52,7 +50,7 @@ class EnvSpec(abc.ABC):
     # }
 
     # # compress
-    
+
     # {      
     #     "inventory$dirt": 0,
     #     "inventory$cobblestone": 0,
@@ -70,7 +68,6 @@ class EnvSpec(abc.ABC):
     #     }
     # }
 
-    
     # # V1
     # # publish
     # {  
@@ -80,7 +77,6 @@ class EnvSpec(abc.ABC):
     #     },
     #     "observation_equipped_items.mainhand.damage": 0
     # }
-
 
     # # compress
     # {      
@@ -97,10 +93,6 @@ class EnvSpec(abc.ABC):
     #     },
     #     "observation_equipped_items.mainhand.damage": 0
     # }
-    
-    
-
-
 
     @abstractmethod
     def is_from_folder(self, folder: str) -> bool:
@@ -120,12 +112,12 @@ class EnvSpec(abc.ABC):
 
     def get_observation_space(self):
         # Todo: handle nested dict space.
-       return spaces.Dict(spaces={
-            o.to_string(): o.space for o in self.observables 
+        return spaces.Dict({
+            o.to_string(): o.space for o in self.observables
         })
 
     def get_action_space(self):
-        return spaces.Dict(spaces={
+        return spaces.Dict({
             a.to_string(): a.space for a in self.actionables
         })
 
@@ -148,8 +140,5 @@ class EnvSpec(abc.ABC):
         )
         if self.reward_threshold:
             reg_spec.update(dict(reward_threshold=self.reward_threshold))
-        
-        gym.register(**reg_spec)
 
-        
-        
+        gym.register(**reg_spec)
