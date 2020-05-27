@@ -1,13 +1,9 @@
-import collections
 import numpy as np
 from functools import reduce
 from collections import OrderedDict
 
-from typing import List
-
 from herobraine.env_spec import EnvSpec
 from herobraine.hero import spaces
-from herobraine.hero.spaces import Box
 from herobraine.wrappers.util import union_spaces, flatten_spaces
 from herobraine.wrappers.wrapper import EnvWrapper
 
@@ -20,7 +16,7 @@ class Vectorized(EnvWrapper):
     def is_from_folder(folder: str) -> bool:
         pass
 
-    def __init__(self, env_to_wrap: EnvSpec, common_envs=None, name=None):
+    def __init__(self, env_to_wrap: EnvSpec, common_envs=None):
         self.env_to_wrap = env_to_wrap
         self.common_envs = [env_to_wrap] if common_envs is None or len(common_envs) == 0 else common_envs
 

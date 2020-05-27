@@ -1,16 +1,7 @@
-import collections
 import numpy as np
-from functools import reduce
 from collections import OrderedDict
 
-from typing import List
-
-from gym import Space
-
-from herobraine.env_spec import EnvSpec
 from herobraine.hero import spaces
-from herobraine.hero.spaces import Box
-from herobraine.wrappers.util import union_spaces, flatten_spaces
 from herobraine.wrappers.vector_wrapper import Vectorized
 from herobraine.wrappers.wrapper import EnvWrapper
 
