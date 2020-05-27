@@ -5,7 +5,7 @@ import gym
 from herobraine.env_spec import EnvSpec
 from herobraine.env_specs.treechop_specs import Treechop
 from herobraine.env_specs.navigate_specs import Navigate
-from herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain
+from herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, ObtainDiamondDebug
 from herobraine.wrappers import Obfuscated, Vectorized
 
 MINERL_TREECHOP_V0 = Treechop()
@@ -56,10 +56,21 @@ MINERL_OBTAIN_IRON_PICKAXE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IRON_PIC
 MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0 = Obfuscated(
     Vectorized(MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0, common_envs=common_envs))
 
-ENVS = [env for env in locals().values() if isinstance(env, EnvSpec)]
 # ENVS = [MINERL_TREECHOP_OBF_V0]
 
+
+# Test envornments
+MINERL_OBTAIN_TEST_V0 = ObtainDiamondDebug(dense=False)
+MINERL_OBTAIN_TEST_VEC_V0 = Vectorized(ObtainDiamondDebug(dense=False))
+MINERL_OBTAIN_TEST_OBF_V0 = Obfuscated(Vectorized(ObtainDiamondDebug(dense=False)))
+
+MINERL_OBTAIN_TEST_DENSE_V0 = ObtainDiamondDebug(dense=True)
+MINERL_OBTAIN_TEST_DENSE_VEC_V0 = Vectorized(ObtainDiamondDebug(dense=True))
+MINERL_OBTAIN_TEST_DENSE_OBF_V0 = Obfuscated(Vectorized(ObtainDiamondDebug(dense=True)))
+
+
 # Register the envs.
+ENVS = [env for env in locals().values() if isinstance(env, EnvSpec)]
 for env in ENVS:
     if env.name not in gym.envs.registry.env_specs:
         env.register()

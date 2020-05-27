@@ -1,6 +1,7 @@
 from herobraine.env_specs.simple_env_spec import SimpleEnvSpec
 from herobraine.hero import handlers, AgentHandler
 from typing import List
+from gym import spaces
 
 none = 'none'
 
@@ -152,6 +153,7 @@ item are given here::
 \n"""
 
 
+
 class ObtainIronPickaxe(Obtain):
     def __init__(self, dense):
         super(ObtainIronPickaxe, self).__init__(
@@ -214,7 +216,6 @@ item is given here::
 
 \n"""
 
-
 class ObtainDiamondSurvival(ObtainDiamond):
     def __init__(self, dense):
         super(ObtainDiamondSurvival, self).__init__(dense)
@@ -222,3 +223,26 @@ class ObtainDiamondSurvival(ObtainDiamond):
         
     def is_from_folder(self, folder: str):
         return folder == 'none'
+
+
+class ObtainDiamondDebug(ObtainDiamond):
+    def __init__(self, dense):
+        super().__init__(dense=dense)
+        
+        self.name=f"MineRLObtainTest{'' if not dense else 'Dense'}-v0"
+        self.xml=f"obtainDebug{'' if not dense else 'Dense'}.xml"
+
+    def create_actionables(self):
+        return super().create_actionables() + [
+            handlers.PlaceBlock(['none', 'dirt', 'log', 'log2', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'diamond_ore']),
+            handlers.EquipItem(['none', 'red_flower', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe']),
+            handlers.CraftItem(['none', 'torch', 'stick', 'planks', 'crafting_table']),
+            handlers.CraftItemNearby(['none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace']),
+            handlers.SmeltItemNearby(['none', 'iron_ingot', 'coal']),
+        ]
+
+    def is_from_folder(self, folder: str):
+        return False
+
+    def get_docstring(self):
+        return """This envirnment intended for continuious integration testing only!!"""

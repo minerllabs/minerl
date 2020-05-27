@@ -8,16 +8,11 @@ class EnvWrapper(EnvSpec):
 
     def __init__(self, env_to_wrap: EnvSpec):
         self.env_to_wrap = env_to_wrap
-        super().__init__(self.update_name(env_to_wrap.name), env_to_wrap.xml, max_episode_steps=None, reward_threshold=None)
+        super().__init__(self._update_name(env_to_wrap.name), env_to_wrap.xml, max_episode_steps=None, reward_threshold=None)
 
     @abc.abstractmethod
     def _update_name(self, name: str) -> str:
         pass
-
-    def update_name(self, name: str) -> str:
-        if isinstance(self.env_to_wrap, EnvWrapper):
-            name = self.env_to_wrap.update_name(name)
-        return self._update_name(name)
 
     @abc.abstractmethod
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
