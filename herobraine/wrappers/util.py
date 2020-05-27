@@ -12,16 +12,21 @@ def union_spaces(hdls_1: List[AgentHandler], hdls_2: List[AgentHandler]) -> List
     # Merge action/observation spaces from two environments
     hdls = hdls_1 + hdls_2
     hdl_dict = collections.defaultdict(list)
-    for hdl in hdls:
-        try:
-            hdl.to_string()
-        except NotImplementedError:
-            print(hdl)
-            print(hdl is None)
     _ = [hdl_dict[hdl.to_string()].append(hdl) for hdl in hdls if hdl is not None]  # Join matching handlers
     merged_hdls = [reduce(lambda a, b: a | b, matching) for matching in hdl_dict.values()]
 
     return merged_hdls
+
+
+def intersect_space(space, sample):
+    if isinstance(space, Dict):
+        new_sample = collections.OrderedDict()
+        for key, value in space.spaces.items():
+            new_sample[key] = intersect_space(value, sample[key])
+        return new_sample
+    else:
+        # TODO split list spaces too
+        return sample
 
 
 def flatten_spaces(hdls: List[AgentHandler]) -> Tuple[list, List[Tuple[str, MineRLSpace]]]:
