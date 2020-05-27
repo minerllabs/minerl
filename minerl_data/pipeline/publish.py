@@ -313,6 +313,11 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
             except KeyError as err:
                 print("Key error in file - check from_universal for handlers")
                 continue
+            except AssertionError as e:
+                # Warn the user if some of the observatiosn or actions don't fall in the gym.space 
+                # (The space checking assertion error from above was raised)
+                print(f"Warning! {e}")
+                continue
             except Exception as e:
                 print("caught exception:", repr(e))
                 for hdl in all_handlers:
@@ -323,11 +328,6 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                         print("Exception <", repr(f), "> for command handler:", hdl)
                         continue
                 raise e
-            except AssertionError as e:
-                # Warn the user if some of the observatiosn or actions don't fall in the gym.space 
-                # (The space checking assertion error from above was raised)
-                print(f"Warning! {e}")
-                continue
 
 
             # published = {'action': action, 'reward': reward, 'info': info}
