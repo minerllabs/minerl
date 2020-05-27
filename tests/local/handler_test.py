@@ -131,7 +131,7 @@ def test_env(environment='MineRLObtainTest-v0'):
         action['equip'] = 'red_flower'
         obs, _, _, _ = env.step(action)
         obs, _, _, _ = env.step(env.action_space.no_op())
-        assert obs['equipped_items']['mainhand']['type'] == 'other', '{} is not of type other'.format(obs['equipped_items']['mainhand']['type'])
+        assert obs['equipped_items.mainhand.type'] == 'other', '{} is not of type other'.format(obs['equipped_items.mainhand.type'])
 
         for action in gen_obtain_debug_actions(env):
             for key, value in action.items():
