@@ -57,7 +57,6 @@ class Vectorized(EnvWrapper):
 
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
         full_obs = self.common_observation_space.unmap_mixed(obs['vector'], obs)
-        print( self.env_to_wrap.get_observation_space())
         return intersect_space(self.env_to_wrap.get_observation_space(), full_obs)
 
     def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
