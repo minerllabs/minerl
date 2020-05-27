@@ -53,10 +53,10 @@ class Vectorized(EnvWrapper):
         return wrapped_act
 
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        return self.get_action_space().unmap_mixed(obs['vector'], obs)
+        return self.get_unwrapped_observation_space().unmap_mixed(obs['vector'], obs)
 
     def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        return self.get_action_space().unmap_mixed(act['vector'], act)
+        return self.get_unwrapped_action_space().unmap_mixed(act['vector'], act)
 
     def get_observation_space(self):
         obs_list = self.remaining_observation_space
@@ -65,7 +65,6 @@ class Vectorized(EnvWrapper):
 
     def get_unwrapped_observation_space(self):
         obs_list = [(hdl.to_string(), hdl.space) for hdl in self.common_observations]
-        obs_list += self.remaining_observation_space
         return spaces.Dict(spaces=obs_list)
 
     # def get_flattenable_observation_space(self):
@@ -83,7 +82,6 @@ class Vectorized(EnvWrapper):
 
     def get_unwrapped_action_space(self):
         act_list = [(hdl.to_string(), hdl.space) for hdl in self.common_actions]
-        act_list += self.remaining_action_space
         return spaces.Dict(spaces=act_list)
 
     # def get_flattenable_action_space(self):
