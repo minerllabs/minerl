@@ -268,7 +268,7 @@ class PlaceBlock(ItemListCommandAction):
 
 class EquipItem(ItemListCommandAction):
     """
-    An action handler for placing a specific block
+    An action handler for observing a list of equipped items
     """
 
     def to_string(self):
