@@ -22,7 +22,6 @@ class MineRLSpace(abc.ABC, gym.Space):
     An interface for MineRL spaces.
     """
 
-
     @property
     def flattened(self) -> gym.spaces.Box:
         if not hasattr(self, '_flattened'):
@@ -72,6 +71,7 @@ class Box(gym.spaces.Box, MineRLSpace):
         self._flat_high = self.high.flatten().astype(np.float32)
 
     CENTER = 0
+
     def no_op(self):
         return np.zeros(shape=self.shape).astype(self.dtype)
 
@@ -92,7 +92,6 @@ class Box(gym.spaces.Box, MineRLSpace):
         low = x + Box.CENTER
         high = low * (self.high - self.low) + self.low
         return high.reshape(self.shape).astype(self.dtype)
-
 
     def is_flattenable(self):
         return len(self.shape) <= 2
@@ -203,7 +202,8 @@ class Dict(gym.spaces.Dict, MineRLSpace):
     def flat_map(self, x):
         try:
             return np.concatenate(
-                [v.flat_map(x[k]) if k in x else v.flat_map(v.no_op()) for (k, v) in (self.spaces.items()) if v.is_flattenable()]
+                [v.flat_map(x[k]) if k in x else v.flat_map(v.no_op()) for (k, v) in (self.spaces.items()) if
+                 v.is_flattenable()]
             )
         except ValueError:
             # No flattenable handlers found
@@ -249,7 +249,6 @@ class Dict(gym.spaces.Dict, MineRLSpace):
                 unmapped[k] = aux[k]
 
         return unmapped
-
 
 
 class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):

@@ -4,6 +4,7 @@
 # A method which asserts equality between an ordered dict of numpy arrays and another
 # ordered dict - WTH
 import collections
+from functools import reduce
 
 from herobraine.hero.spaces import Dict
 from herobraine.hero.test_spaces import assert_equal_recursive
@@ -45,12 +46,6 @@ def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=
     us = vec_env.unwrap_action(ws)
     assert_equal_recursive(s, us)
 
-    if common_envs is not None:
-        s = common_envs[0].get_action_space().sample()
-        ws = vec_env.wrap_action(s)
-        us = vec_env.unwrap_action(ws)
-        assert_equal_recursive(s, us)
-
 
 def test_wrap_unwrap_action_treechop():
     test_wrap_unwrap_action(base_env=envs.MINERL_TREECHOP_V0)
@@ -60,7 +55,7 @@ def test_wrap_unwrap_action_navigate():
     test_wrap_unwrap_action(base_env=envs.MINERL_NAVIGATE_DENSE_EXTREME_V0)
 
 
-def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=[]):
+def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=None):
     """
     Tests that wrap_observation composed with unwrap observation is the identity.
     1. Construct an VecWrapper of an EnvSpec called ObtainDiamond
@@ -75,11 +70,20 @@ def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_
     us = vec_env.unwrap_observation(ws)
     assert_equal_recursive(s, us)
 
-    for common_env in common_envs:
-        s = common_env.get_observation_space().sample()
-        ws = vec_env.wrap_observation(s)
-        us = vec_env.unwrap_observation(ws)
-        assert_equal_recursive(s, us)
+
+def map_common_space_no_op(common_envs):
+    no_ops = []
+    unwraped = []
+    for base_env in common_envs:
+        vec_env = wrappers.Vectorized(base_env, common_envs)
+
+        s = base_env.get_observation_space().no_op()
+        no_ops.append(s)
+
+        us = vec_env.unwrap_observation(s)
+        unwraped.append(us)
+    assert reduce(assert_equal_recursive, no_ops)
+    assert reduce(assert_equal_recursive, unwraped)
 
 
 def test_wrap_unwrap_observation_treechop():
@@ -133,3 +137,19 @@ def test_vec_wrapping_with_common_envs():
 
     test_wrap_unwrap_observation(base_env, common_env)
     test_wrap_unwrap_action(base_env, common_env)
+
+
+def test_published_envs():
+    map_common_space_no_op([
+        envs.MINERL_TREECHOP_OBF_V0,
+        envs.MINERL_NAVIGATE_OBF_V0,
+        envs.MINERL_NAVIGATE_DENSE_OBF_V0,
+        envs.MINERL_NAVIGATE_DENSE_EXTREME_OBF_V0,
+        envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0,
+        envs.MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0])
+    # test_wrap_unwrap_observation(envs.MINERL_TREECHOP_OBF_V0)
+    # test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_OBF_V0)
+    # test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_DENSE_OBF_V0)
+    # test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_DENSE_EXTREME_OBF_V0)
+    # test_wrap_unwrap_observation(envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0)
+    # test_wrap_unwrap_observation(envs.MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0)

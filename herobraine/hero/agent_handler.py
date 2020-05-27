@@ -5,6 +5,8 @@ from xml.etree.ElementTree import Element
 
 import gym
 
+from herobraine.hero.spaces import MineRLSpace
+
 
 class AgentHandler(ABC):
     """
@@ -13,13 +15,13 @@ class AgentHandler(ABC):
     between universal action format, hero (malmo), and herobriane (ML stuff).
     """
 
-    def __init__(self, space: gym.Space):
+    def __init__(self, space: MineRLSpace):
         self.space = space
 
     def add_to_mission_spec(self, mission_spec):
         pass
 
-    def to_string(self):
+    def to_string(self) -> str:
         raise NotImplementedError()
 
     def add_to_mission_xml(self, etree: Element, namespace: str):

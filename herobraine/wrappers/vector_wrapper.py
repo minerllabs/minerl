@@ -11,6 +11,7 @@ from herobraine.wrappers.wrapper import EnvWrapper
 class Vectorized(EnvWrapper):
     """
     Normalizes and flattens a typical env space for obfuscation.
+    common_envs : specified
     """
     def _update_name(self, name: str) -> str:
         return name.split('-')[0] + 'Vector-' + name.split('-')[-1]
