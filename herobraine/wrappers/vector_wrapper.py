@@ -25,7 +25,11 @@ class Vectorized(EnvWrapper):
 
         # Gather all of the handlers for the common_env
         self.common_actions = reduce(union_spaces, [env.actionables for env in self.common_envs])
+        self.common_action_space = spaces.Dict(
+            [(hdl.to_string(), hdl.space) for hdl in self.common_actions])
         self.common_observations = reduce(union_spaces, [env.observables for env in self.common_envs])
+        self.common_observation_space = spaces.Dict(
+            [(hdl.to_string(), hdl.space) for hdl in self.common_observations])
         self.flat_actions, self.remaining_action_space = flatten_spaces(self.common_actions)
         self.flat_observations, self.remaining_observation_space = flatten_spaces(self.common_observations)
 
@@ -41,56 +45,32 @@ class Vectorized(EnvWrapper):
         return self.common_actions
 
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        flat_obs_part = self.get_unwrapped_observation_space().flat_map(obs)
-        wrapped_obs = self.get_unwrapped_observation_space().unflattenable_map(obs)
+        flat_obs_part = self.common_observation_space.flat_map(obs)
+        wrapped_obs = self.common_observation_space.unflattenable_map(obs)
         wrapped_obs['vector'] = flat_obs_part
         return wrapped_obs
 
     def _wrap_action(self, act: OrderedDict) -> OrderedDict:
-        flat_act_part = self.get_unwrapped_action_space().flat_map(act)
-        wrapped_act = self.get_unwrapped_action_space().unflattenable_map(act)
+        flat_act_part = self.common_action_space.flat_map(act)
+        wrapped_act = self.common_action_space.unflattenable_map(act)
         wrapped_act['vector'] = flat_act_part
         return wrapped_act
 
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        return self.get_unwrapped_observation_space().unmap_mixed(obs['vector'], obs)
+        return self.common_observation_space.unmap_mixed(obs['vector'], obs)
 
     def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        return self.get_unwrapped_action_space().unmap_mixed(act['vector'], act)
+        return self.common_action_space.unmap_mixed(act['vector'], act)
 
     def get_observation_space(self):
         obs_list = self.remaining_observation_space
         obs_list.append(('vector', spaces.Box(low=0, high=1, shape=[self.observation_vector_len], dtype=np.float32)))
-        return spaces.Dict(spaces=OrderedDict(obs_list))
-
-    def get_unwrapped_observation_space(self):
-        obs_list = [(hdl.to_string(), hdl.space) for hdl in self.common_observations]
-        return spaces.Dict(spaces=obs_list)
-
-    # def get_flattenable_observation_space(self):
-    #     obs_list = [(hdl.to_string(), hdl.space) for hdl in self.common_observations]
-    #     return spaces.Dict(spaces=OrderedDict(obs_list))
-    #
-    # def get_unflattenable_observation_space(self):
-    #     obs_list = self.remaining_observation_space
-    #     return spaces.Dict(spaces=OrderedDict(obs_list))
+        return spaces.Dict(OrderedDict(obs_list))
 
     def get_action_space(self):
         act_list = self.remaining_action_space
         act_list.append(('vector', spaces.Box(low=0, high=1, shape=[self.action_vector_len], dtype=np.float32)))
-        return spaces.Dict(spaces=OrderedDict(act_list))
-
-    def get_unwrapped_action_space(self):
-        act_list = [(hdl.to_string(), hdl.space) for hdl in self.common_actions]
-        return spaces.Dict(spaces=act_list)
-
-    # def get_flattenable_action_space(self):
-    #     act_list = [(hdl.to_string(), hdl.space) for hdl in self.common_actions]
-    #     return spaces.Dict(spaces=OrderedDict(act_list))
-    #
-    # def get_unflattenable_action_space(self):
-    #     act_list = self.remaining_action_space
-    #     return spaces.Dict(spaces=OrderedDict(act_list))
+        return spaces.Dict(OrderedDict(act_list))
 
     def get_docstring(self):
         return self.env_to_wrap.get_docstring()
