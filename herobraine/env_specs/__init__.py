@@ -1,5 +1,8 @@
 import collections
 
+import gym
+
+print("LOADING FLFLFLFLFLFLFLF")
 from herobraine.env_spec import EnvSpec
 from herobraine.env_specs.treechop_specs import Treechop
 from herobraine.env_specs.navigate_specs import Navigate
@@ -58,4 +61,5 @@ ENVS = [env for env in locals().values() if isinstance(env, EnvSpec)]
 
 # Register the envs.
 for env in ENVS:
-    env.register()
+    if env.name not in gym.envs.registry.env_specs:
+        env.register()

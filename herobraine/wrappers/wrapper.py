@@ -1,8 +1,6 @@
 import abc
 from collections import OrderedDict
 
-import gym
-
 from herobraine.env_spec import EnvSpec
 
 
