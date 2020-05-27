@@ -158,8 +158,7 @@ class CraftItem(ItemListCommandAction):
     """
     _command = "craft"
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return "craft"
 
     def __init__(self, items: list):
@@ -191,8 +190,7 @@ class CraftItemNearby(CraftItem):
     """
     _command = "craftNearby"
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'nearbyCraft'
 
 
@@ -217,8 +215,7 @@ class SmeltItemNearby(SmeltItem):
     """
     _command = 'smeltNearby'
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'nearbySmelt'
 
 
@@ -227,8 +224,7 @@ class PlaceBlock(ItemListCommandAction):
     An action handler for placing a specific block
     """
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'place'
 
     def __init__(self, blocks: list):
@@ -271,8 +267,7 @@ class EquipItem(ItemListCommandAction):
     An action handler for placing a specific block
     """
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'equip'
 
     def __init__(self, items: list):
@@ -321,8 +316,7 @@ class Camera(ContinuousMovementAction):
     Uses <delta_pitch, delta_yaw> vector in degrees to rotate the camera. pitch range [-180, 180], yaw range [-180, 180]
     """
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'camera'
 
     def __init__(self):

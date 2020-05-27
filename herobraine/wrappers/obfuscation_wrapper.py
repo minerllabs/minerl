@@ -16,7 +16,7 @@ class Obfuscated(EnvWrapper):
     def __init__(self, env_to_wrap: Vectorized):
         super().__init__(env_to_wrap)
 
-        self.obf_vector_len = 256
+        self.obf_vector_len = 49
 
         # TODO load these from file
         assert isinstance(env_to_wrap, Vectorized), 'Obfuscated env wrappers only supported for vectorized environments'
@@ -40,19 +40,19 @@ class Obfuscated(EnvWrapper):
         return act_space
 
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        obs['vector'] = obs['vector'].dot(self.observation_matrix)
+        obs['vector'] = obs['vector'] @ (self.observation_matrix)
         return obs
 
     def _wrap_action(self, act: OrderedDict) -> OrderedDict:
-        act['vector'] = act['vector'].dot(self.action_matrix)
+        act['vector'] = act['vector'] @ (self.action_matrix)
         return act
 
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        obs['vector'] = obs['vector'].dot(self.observation_matrix_inverse)
+        obs['vector'] = obs['vector'] @ (self.observation_matrix_inverse)
         return obs
 
     def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        act['vector'] = act['vector'].dot(self.action_matrix_inverse)
+        act['vector'] = act['vector'] @ (self.action_matrix_inverse)
         return act
 
     def get_docstring(self):

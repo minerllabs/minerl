@@ -19,8 +19,7 @@ class AgentHandler(ABC):
     def add_to_mission_spec(self, mission_spec):
         pass
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         raise NotImplementedError()
 
     def add_to_mission_xml(self, etree: Element, namespace: str):

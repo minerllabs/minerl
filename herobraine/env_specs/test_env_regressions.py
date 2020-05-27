@@ -493,6 +493,7 @@ def test_env_regressions():
         k2 =  env['kwargs']
         assert newspec._kwargs['action_space'] == env['kwargs']['action_space']
         assert newspec._kwargs['observation_space'] == env['kwargs']['observation_space']
+        print(k1.keys(), k2.keys())
         assert  set(k1.keys()) == set(k2.keys())
         assert newspec.max_episode_steps == env['max_episode_steps']
         if 'reward_threshold' in env or hasattr(newspec, 'reward_threshold'): 

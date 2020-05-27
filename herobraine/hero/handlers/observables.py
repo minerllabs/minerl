@@ -19,8 +19,7 @@ def strip_of_prefix(minecraft_name):
 class ObservationFromFullStats(AgentHandler):
     logger = logging.getLogger(__name__ + ".ObservationFromFullStats")
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'observation_from_full_stats'
 
     @staticmethod
@@ -47,8 +46,7 @@ class POVObservation(AgentHandler):
     """
     logger = logging.getLogger(__name__ + ".POVObservation")
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'pov'
 
     def __init__(self, video_resolution: Tuple[int, int], include_depth: bool = False):
@@ -118,8 +116,7 @@ class GUIContainerObservation(AgentHandler):
         "size"
     ]
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'gui_container'
 
     def __init__(self, container_name, num_slots):
@@ -188,8 +185,7 @@ class FlatInventoryObservation(AgentHandler):
     Handles GUI Container Observations for selected items
     """
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'inventory'
 
     def to_hero(self, x) -> str:
@@ -284,8 +280,7 @@ class FlatInventoryObservation(AgentHandler):
 
 class DeathObservation(AgentHandler):
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'alive'
 
     def from_hero(self, obs_dict):
@@ -297,8 +292,7 @@ class HotbarObservation(GUIContainerObservation):
     Handles hotbar observation.
     """
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'hotbar'
 
     def __init__(self):
@@ -344,8 +338,7 @@ class TypeObservation(AgentHandler):
     def default(self):
         return self._default
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'type'
 
     def from_universal(self, obs):
@@ -408,8 +401,7 @@ class DamageObservation(AgentHandler):
     def default(self):
         return self._default
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'damage'
 
     def from_universal(self, obs):
@@ -459,8 +451,7 @@ class MaxDamageObservation(AgentHandler):
     def default(self):
         return self._default
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'maxDamage'
 
     def from_universal(self, obs):
@@ -488,8 +479,7 @@ class PlayerInventoryObservation(GUIContainerObservation):
     Handles player inventory observations.
     """
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'normal_inventory'
 
     def __init__(self):
@@ -509,8 +499,7 @@ class CompassObservation(AgentHandler):
     """
     logger = logging.getLogger(__name__ + ".CompassObservation")
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'compassAngle'
 
     def __init__(self):
@@ -546,8 +535,7 @@ class CompassDistanceObservation(AgentHandler):
     """
     logger = logging.getLogger(__name__ + ".CompassDistanceObservation")
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'compass_distance'
 
     def __init__(self):
@@ -579,8 +567,7 @@ class ChatObservation(AgentHandler):
     Handles chat observations.
     """
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'chat'
 
     def __init__(self):
@@ -599,8 +586,7 @@ class RecentCommandsObservation(AgentHandler):
     Handles recent command observations
     """
 
-    @staticmethod
-    def to_string():
+    def to_string(self):
         return 'recent_commands'
 
     def __init__(self):
