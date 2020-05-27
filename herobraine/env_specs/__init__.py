@@ -58,5 +58,4 @@ ENVS = [env for env in locals().values() if isinstance(env, EnvSpec)]
 
 # Register the envs.
 for env in ENVS:
-    print(env)
     env.register()

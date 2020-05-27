@@ -59,18 +59,15 @@ class EnvWrapper(EnvSpec):
             act = self.env_to_wrap.unwrap_action(act)
         return act
 
-    @abc.abstractmethod
     def get_observation_space(self):
-        pass
+        return self.env_to_wrap.get_observation_space()
 
-    @abc.abstractmethod
     def get_action_space(self):
-        pass
+        return self.env_to_wrap.get_action_space()
 
-    @abc.abstractmethod
     def get_docstring(self):
-        pass
-
+        return self.env_to_wrap.get_docstring()
+        
     def is_from_folder(self, folder: str) -> bool:
         return self.env_to_wrap.is_from_folder()
 
