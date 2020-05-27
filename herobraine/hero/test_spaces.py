@@ -19,7 +19,7 @@ def test_unmap_flat_map():
 def test_box_flat_map():
     b = Box(shape=[3, 2], low=-2, high=2, dtype=np.float32)
     x = b.sample()
-    assert (np.array_equal(b.unmap(b.flat_map(x)), x))
+    assert (np.allclose(b.unmap(b.flat_map(x)), x))
 
 
 # A method which asserts equality between an ordered dict of numpy arrays and another
@@ -29,6 +29,7 @@ def assert_equal_recursive(npa_dict, dict_to_test):
     assert isinstance(dict_to_test, collections.OrderedDict)
     for key, value in npa_dict.items():
         if isinstance(value, np.ndarray):
+            print(key)
             assert np.allclose(value, dict_to_test[key])
             # assert np.array_equal(value, dict_to_test[key])
         elif isinstance(value, collections.OrderedDict):

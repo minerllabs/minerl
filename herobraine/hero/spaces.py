@@ -67,8 +67,8 @@ class Box(gym.spaces.Box, MineRLSpace):
     def __init__(self, *args, **kwargs):
         super(Box, self).__init__(*args, **kwargs)
 
-        self._flat_low = self.low.flatten().astype(np.float32)
-        self._flat_high = self.high.flatten().astype(np.float32)
+        self._flat_low = self.low.flatten().astype(np.float64)
+        self._flat_high = self.high.flatten().astype(np.float64)
 
     CENTER = 0
 
@@ -82,7 +82,7 @@ class Box(gym.spaces.Box, MineRLSpace):
             return Box(low=self._flat_low, high=self._flat_high)
 
     def flat_map(self, x):
-        return (x.flatten() - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
+        return (x.flatten().astype(np.float64) - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
 
     def unmap(self, x):
         """
@@ -90,8 +90,12 @@ class Box(gym.spaces.Box, MineRLSpace):
         Then reshapes it back to the original shape.
         """
         low = x + Box.CENTER
-        high = low * (self.high - self.low) + self.low
-        return high.reshape(self.shape).astype(self.dtype)
+        high = low * (self._flat_high - self._flat_low) + self._flat_low
+        reshaped =  high.reshape(self.shape)
+        if np.issubdtype(self.dtype, np.integer):
+            return np.round(reshaped).astype(self.dtype)
+        else:
+            return reshaped.astype(self.dtype)
 
     def is_flattenable(self):
         return len(self.shape) <= 2

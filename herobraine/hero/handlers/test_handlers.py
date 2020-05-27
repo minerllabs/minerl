@@ -4,9 +4,16 @@ from herobraine.hero.handlers.observables import CompassObservation, FlatInvento
 
 
 def test_merge_item_list_command_actions():
-    assert ItemListCommandAction('test', ['A', 'B', 'C', 'D']) | ItemListCommandAction('test', ['E',
-                                                                                                'F']) == ItemListCommandAction(
-        'test', ['A', 'B', 'C', 'D', 'E', 'F'])
+    class TestItemListCommandAction(ItemListCommandAction):
+        def __init__(self, items : list):
+            super().__init__("test", items)
+        def to_string(self):
+            return "test_item_list_command"
+
+
+
+    assert TestItemListCommandAction(['A', 'B', 'C', 'D']) | TestItemListCommandAction(['E', 'F']) == TestItemListCommandAction(
+         ['A', 'B', 'C', 'D', 'E', 'F'])
 
 
 def test_merge_type_observation():

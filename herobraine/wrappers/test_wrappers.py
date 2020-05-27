@@ -72,18 +72,9 @@ def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_
 
 
 def map_common_space_no_op(common_envs):
-    no_ops = []
-    unwraped = []
     for base_env in common_envs:
-        vec_env = wrappers.Vectorized(base_env, common_envs)
-
         s = base_env.get_observation_space().no_op()
-        no_ops.append(s)
-
-        us = vec_env.unwrap_observation(s)
-        unwraped.append(us)
-    assert reduce(assert_equal_recursive, no_ops)
-    assert reduce(assert_equal_recursive, unwraped)
+        us = base_env.unwrap_observation(s)
 
 
 def test_wrap_unwrap_observation_treechop():

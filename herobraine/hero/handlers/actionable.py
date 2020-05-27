@@ -113,7 +113,6 @@ class ItemListCommandAction(CommandAction):
 
         return cmd
 
-    @abstractmethod
     def from_universal(self, x):
         raise NotImplementedError()
 
