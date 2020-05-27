@@ -20,6 +20,7 @@ class Vectorized(EnvWrapper):
         self.env_to_wrap = env_to_wrap
         self.common_envs = [env_to_wrap] if common_envs is None or len(common_envs) == 0 else common_envs
 
+
         # Gather all of the handlers for the common_env
         self.common_actions = reduce(union_spaces, [env.actionables for env in self.common_envs])
         self.common_action_space = spaces.Dict(

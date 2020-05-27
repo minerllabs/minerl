@@ -121,22 +121,26 @@ def test_union_spaces():
 
 def test_vec_wrapping_with_common_envs():
     base_env = envs.MINERL_TREECHOP_V0
-    common_env = [envs.MINERL_NAVIGATE_DENSE_V0]
+    common_env = [envs.MINERL_TREECHOP_V0, envs.MINERL_NAVIGATE_DENSE_V0]
 
     test_wrap_unwrap_observation(base_env, common_env)
     test_wrap_unwrap_action(base_env, common_env)
 
     base_env = envs.MINERL_OBTAIN_DIAMOND_V0
-    common_env = [envs.MINERL_NAVIGATE_DENSE_V0]
+    common_env = [envs.MINERL_OBTAIN_DIAMOND_V0, envs.MINERL_NAVIGATE_DENSE_V0]
 
     test_wrap_unwrap_observation(base_env, common_env)
     test_wrap_unwrap_action(base_env, common_env)
 
-    base_env = envs.MINERL_OBTAIN_IRON_PICKAXE_V0
-    common_env = [envs.MINERL_OBTAIN_DIAMOND_V0]
+    common_envs = [
+        envs.MINERL_OBTAIN_DIAMOND_V0, 
+        envs.MINERL_TREECHOP_V0, 
+        envs.MINERL_NAVIGATE_V0, 
+        envs.MINERL_OBTAIN_IRON_PICKAXE_V0]
 
-    test_wrap_unwrap_observation(base_env, common_env)
-    test_wrap_unwrap_action(base_env, common_env)
+    for base_env in common_envs:
+        test_wrap_unwrap_observation(base_env, common_envs)
+        test_wrap_unwrap_action(base_env, common_envs)
 
 
 def test_published_envs():
