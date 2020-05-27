@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from herobraine.env_spec import EnvSpec
 from herobraine.hero import spaces
-from herobraine.wrappers.util import union_spaces, flatten_spaces
+from herobraine.wrappers.util import union_spaces, flatten_spaces, intersect_space
 from herobraine.wrappers.wrapper import EnvWrapper
 
 
@@ -54,10 +54,12 @@ class Vectorized(EnvWrapper):
         return wrapped_act
 
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        return self.env_to_wrap.get_observation_space().unwrap_mixed(obs['vector'], obs)
+        full_obs = self.common_observation_space.unmap_mixed(obs['vector'], obs)
+        return intersect_space(self.env_to_wrap.get_observation_space(), full_obs)
 
     def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        return self.env_to_wrap.get_action_space().unmap_mixed(act['vector'], act)
+        full_act = self.common_action_space.unmap_mixed(act['vector'], act)
+        return intersect_space(self.env_to_wrap.get_action_space(), full_act)
 
     def get_observation_space(self):
         obs_list = self.remaining_observation_space
