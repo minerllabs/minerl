@@ -41,6 +41,7 @@ from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger_thread
 
 import herobraine.hero.spaces as spaces
+from herobraine.wrappers.wrapper import EnvWrapper
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +102,7 @@ class MineRLEnv(gym.Env):
 
     STEP_OPTIONS = 0
 
-    def __init__(self, xml, observation_space, action_space, port=None, noop_action=None, docstr=None):
+    def __init__(self, xml, observation_space, action_space, spec, port=None, noop_action=None, docstr=None):
         self.action_space = None
         self.observation_space = None
         self._default_action = noop_action
@@ -132,6 +133,7 @@ class MineRLEnv(gym.Env):
 
         self._already_closed = False
         self.instance = self._get_new_instance(port)
+        self.spec = spec
 
 
         self._setup_spaces(observation_space, action_space)
@@ -162,9 +164,9 @@ class MineRLEnv(gym.Env):
         self.observation_space = observation_space
 
         def map_space(space):
-            if isinstance(space, gym.spaces.Discrete) or isinstance(space, spaces.Enum):
+            if isinstance(space, spaces.Discrete) or isinstance(space, spaces.Enum):
                 return 0
-            elif isinstance(space, gym.spaces.Box):
+            elif isinstance(space, spaces.Box):
                 return np.zeros(shape=space.shape, dtype=space.dtype)
             else:
                 try:
@@ -178,6 +180,8 @@ class MineRLEnv(gym.Env):
 
         def noop_func(a):
             return deepcopy(self._default_action)
+        
+        # Todo: Use space noops.
 
         boundmethd = _bind(self.action_space, noop_func)
         self.action_space.noop = boundmethd
@@ -369,6 +373,11 @@ class MineRLEnv(gym.Env):
         obs_dict = process_dict(self.observation_space, info)
 
         self._last_pov = obs_dict['pov']
+
+        # Now we wrap
+        if isinstance(self.spec, EnvWrapper):
+            obs_dict = self.spec.wrap_observation(obs_dict)
+
         return obs_dict
 
     def _process_action(self, action_in) -> str:
@@ -376,6 +385,10 @@ class MineRLEnv(gym.Env):
         Process the actions into a proper command.
         """
         action_in = deepcopy(action_in)
+
+        if isinstance(self.spec, EnvWrapper):
+            action_in = self.spec.unwrap_action(action_in)
+
         action_str = []
         for act in action_in:
             # Process enums.

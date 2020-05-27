@@ -1,12 +1,13 @@
 import time
 
-import minerl
 import itertools
 import gym
 import sys
 import tqdm
 import numpy as np
 import logging
+import herobraine.hero.spaces as spaces
+import herobraine.
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.basicConfig()
@@ -34,25 +35,25 @@ def _check_shape(num_samples, sample_shape, obs):
 
 def _check_space(key, space, observation, correct_len):
     logging.debug('checking key {}'.format(key))
-    if isinstance(space, minerl.spaces.Dict):
+    if isinstance(space, spaces.Dict):
         for k, s in space.spaces.items():
             _check_space(k, s, observation[key], correct_len)
-    elif isinstance(space, minerl.spaces.MultiDiscrete):
+    elif isinstance(space, spaces.MultiDiscrete):
         # print("MultiDiscrete")
         # print(space.shape)
         # print(observation[key])
         _check_shape(correct_len, space.shape, observation[key])
-    elif isinstance(space, minerl.spaces.Box):
+    elif isinstance(space, spaces.Box):
         # print("Box")
         # print(space.shape)
         # print(observation[key])
         _check_shape(correct_len, space.shape, observation[key])
-    elif isinstance(space, minerl.spaces.Discrete):
+    elif isinstance(space, spaces.Discrete):
         # print("Discrete")
         # print(space.shape)
         # print(observation[key])
         _check_shape(correct_len, space.shape, observation[key])
-    elif isinstance(space, minerl.spaces.Enum):
+    elif isinstance(space, spaces.Enum):
         # print("Enum")
         # print(space.shape)
         # print(observation[key])

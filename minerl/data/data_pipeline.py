@@ -77,83 +77,6 @@ class DataPipeline:
         """
         return self._observation_space
 
-    # Correct way
-    # @staticmethod
-    # def map_to_dict(handler_list: list, target_space: gym.spaces.space):
-    #
-    #     def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
-    #         if isinstance(gym_space, spaces.Dict):
-    #             inner = dict()
-    #             for idx, (k, s) in enumerate(gym_space.spaces.items()):
-    #                 _map_to_dict(idx, src[i], k, s, inner)
-    #             dst[key] = inner
-    #         else:
-    #             dst[key] = src[i]
-    #     result = dict()
-    #     for index, (key, space) in enumerate(target_space.spaces.items()):
-    #         _map_to_dict(index, handler_list, key, space, result)
-    #     return result
-
-    # @staticmethod
-    # def map_to_dict(handler_list: list, target_space: gym.spaces.space):
-    #     # 1. Flatten dictionary
-    #     # 2. Sort by first key (TODO: this is the case until we support nested dicts)
-    #     # 3. Extract the dictionary items thereby
-    #     def space_dict(space):
-    #         if isinstance(space, spaces.Dict) or isinstance(space, gym.spaces.Dict):
-    #             return collections.OrderedDict({k: space_dict(v) for k,v in space.spaces.items()})
-    #         else:
-    #             return space
-        
-    #     cor_space = space_dict(target_space)
-
-    #     # Now flatten the dictonary
-    #     def flatten_dict(dct, _prefix=""):
-    #         if isinstance(dct, collections.OrderedDict):
-    #             out_dict = {}
-    #             for k,v in dct.items():
-    #                 out_dict.update(flatten_dict(v, _prefix=_prefix  + "." + k))
-    #             return out_dict
-    #         else:
-    #             return {_prefix: dct}
-    #     flat_space = collections.OrderedDict(flatten_dict(cor_space))
-        
-    #     sorted_keys = sorted(flat_space.keys(), key=lambda x: x.split(".")[-1])
-    #     # Now get the index maps
-    #     for k in list(flat_space.keys())[:]:
-    #         indx = sorted_keys.index(k)
-    #         flat_space[k] = indx
-
-    #     # TODO: We are getting lucky because the POV observations line up as the last space.
-
-    #     # Now reconstitute the dictionary
-    #     def build_nested_dict(fltdict):
-    #         out= {}
-    #         for k,v in fltdict.items():
-    #             cur_dict = out
-    #             for nest in k.split(".")[1:-1]:
-    #                 if not nest in cur_dict:
-    #                     cur_dict[nest] = {}
-    #                 cur_dict = cur_dict[nest]
-    #             # Set the nest value.
-    #             # v in the setting is the handler thing
-                
-    #             cur_dict[k.split(".")[-1]] = 
-                
-
-
-
-    #         if isinstance(fltdict, collections.OrderedDict):
-    #             return collections.OrderedDict({k: build_nested_dict(v) for k, v in fltdict.items()})
-    #         else:
-    #             return handler_list[fltdict]
-            
-    #     result = {}
-
-
-        # result = build_nested_dict(flat_space)
-
-
         # return result
     @staticmethod
     def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
@@ -180,24 +103,7 @@ class DataPipeline:
             else:
                 index = DataPipeline._map_to_dict(index, handler_list, key, space, result)
 
-        if equip_spaces:
-            # Reconstitute the equipped items.
-            nest_bb = collections.OrderedDict()
-            for s in equip_spaces:
-                nest_bb[s] = result[s]
-                del result[s]
-            nested = collections.OrderedDict({
-                'equipped_itmes': collections.OrderedDict({
-                    'mainhand': nest_bb
-                })
-            })
-
-            result.update(nested)
-        
         result = collections.OrderedDict(sorted(result.items()))
-        
-        
-                
 
         return result
 
@@ -323,18 +229,12 @@ class DataPipeline:
         # make a copty  
         gym_spec = gym.envs.registration.spec(self.environment)
         target_space = copy.deepcopy(gym_spec._kwargs['observation_space'])
-        had_equipped_items = False
-        equip_spaces = None
-        if 'equipped_items' in target_space.spaces:
-            had_equipped_items = True
-            equip_spaces = target_space.spaces['equipped_items'].spaces['mainhand'].spaces
-            target_space.spaces.update(equip_spaces)
-            del target_space.spaces['equipped_items']
-            x = list(target_space.spaces.items())
-            target_space.spaces = collections.OrderedDict(
-                sorted(x, key=lambda x:
-                x[0] if x[0] is not 'pov' else 'z' )
-            )
+
+        x = list(target_space.spaces.items())
+        target_space.spaces = collections.OrderedDict(
+            sorted(x, key=lambda x:
+            x[0] if x[0] is not 'pov' else 'z' )
+        )
 
         for idx in tqdm.tqdm(range(len(reward_seq[0]))):
             # Wrap in dict
