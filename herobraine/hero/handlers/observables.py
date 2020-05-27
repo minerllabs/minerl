@@ -200,7 +200,7 @@ class FlatInventoryObservation(AgentHandler):
     def __init__(self, item_list):
         item_list = sorted(item_list)
         super().__init__(spaces.Dict(spaces={
-            k: spaces.Box(low=0, high=2304, shape=(), dtype=np.int32)
+            k: spaces.Box(low=0, high=64, shape=(), dtype=np.int32)
             for k in item_list
         }))
         self.num_items = len(item_list)

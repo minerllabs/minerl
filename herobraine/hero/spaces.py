@@ -61,20 +61,30 @@ class Tuple(gym.spaces.Tuple, MineRLSpace):
 
 
 class Box(gym.spaces.Box, MineRLSpace):
+    CENTER = 0.5
     def no_op(self):
         return np.zeros(shape=self.shape).astype(self.dtype)
 
     def create_flattened_space(self):
+        self._flat_low = self.low.flatten().astype(np.float32)
+        self._flat_high = self.high.flatten().astype(np.float32)
         if len(self.shape) > 2:
             raise TypeError("Box spaces with 3D tensor shapes cannot be flattened.")
         else:
-            return Box(low=self.low.flatten(), high=(self.high.flatten()))
+            return Box(low=self._flat_low, high=self._flat_high)
 
     def flat_map(self, x):
-        return x.flatten()
+        return (x.flatten() - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
 
     def unmap(self, x):
-        return x.reshape(self.shape)
+        """
+        Un-normalizes the flattened x to its original high and low.
+        Then reshapes it back to the original shape.
+        """
+        low = x + Box.CENTER
+        high = low * (self.high - self.low) + self.low
+        return high.reshape(self.shape).astype(self.dtype)
+
 
     def is_flattenable(self):
         return len(self.shape) <= 2
