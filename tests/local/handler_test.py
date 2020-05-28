@@ -6,6 +6,7 @@ import logging
 import coloredlogs
 from herobraine.wrappers.vector_wrapper import Vectorized
 from herobraine.env_specs.obtain_specs import ObtainDiamondDebug
+from herobraine.hero.test_spaces import assert_equal_recursive
 
 coloredlogs.install(level=logging.DEBUG)
 reward_dict = {
@@ -137,7 +138,10 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
         obs, _, _, _ = env.step(env.action_space.no_op())
         wobs, _, _, _ = wenv.step(wenv.action_space.no_op())
 
-        assert obs == wrapper.unwrap_observation(wobs)
+        print(obs)
+        print(wobs)
+        print(wrapper.unwrap_observation(wobs))
+        assert_equal_recursive(obs, wrapper.unwrap_observation(wobs))
 
         for action in gen_obtain_debug_actions(env):
             for key, value in action.items():
@@ -164,7 +168,9 @@ def test_dense_env():
 
 
 def test_env(environment='MineRLObtainTest-v0', interactive=False):
-    return False
+    if not interactive:
+        # Disable tests for now
+        assert False
     env = gym.make(environment)
     done = False
     inventories = []
