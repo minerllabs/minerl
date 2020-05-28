@@ -7,7 +7,8 @@ import tqdm
 import numpy as np
 import logging
 import herobraine.hero.spaces as spaces
-import herobraine.
+
+import minerl
 
 logging.getLogger().setLevel(logging.DEBUG)
 logging.basicConfig()
@@ -20,6 +21,7 @@ ENVIRONMENTS = ['MineRLNavigate-v0',
                 'MineRLObtainIronPickaxeDense-v0',
                 'MineRLObtainDiamond-v0',
                 'MineRLObtainDiamondDense-v0']
+
 
 # Helper functions
 def _check_shape(num_samples, sample_shape, obs):
