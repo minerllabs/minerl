@@ -65,13 +65,15 @@ class Vectorized(EnvWrapper):
 
     def get_observation_space(self):
         obs_list = self.remaining_observation_space
-        obs_list.append(('vector', spaces.Box(low=0, high=1, shape=[self.observation_vector_len], dtype=np.float32)))
-        return spaces.Dict(OrderedDict(obs_list))
+        # Todo: add maximum.
+        obs_list.append(('vector', spaces.Box(low=-self.observation_vector_len, high=self.observation_vector_len, shape=[self.observation_vector_len], dtype=np.float32)))
+        return spaces.Dict(sorted(obs_list))
 
     def get_action_space(self):
         act_list = self.remaining_action_space
-        act_list.append(('vector', spaces.Box(low=0, high=1, shape=[self.action_vector_len], dtype=np.float32)))
-        return spaces.Dict(OrderedDict(act_list))
+        act_list.append(('vector', spaces.Box(low=-self.action_vector_len, high=self.action_vector_len, shape=[self.action_vector_len], dtype=np.float32)))
+        return spaces.Dict(sorted(act_list))
+        
 
     def get_docstring(self):
         return self.env_to_wrap.get_docstring()

@@ -19,38 +19,45 @@ class EnvWrapper(EnvSpec):
         pass
 
     def wrap_observation(self, obs: OrderedDict):
-
-        # print(obs, self.env_to_wrap.get_observation_space())
-        for k in self.env_to_wrap.get_observation_space().spaces:
-            print(k)
-            print(k, obs[k] in self.env_to_wrap.get_observation_space()[k])
-
-        print(obs.keys(), self.env_to_wrap.get_observation_space().spaces.keys())
-        print(obs in self.env_to_wrap.get_observation_space())
-        space = self.env_to_wrap.get_observation_space()
-        print(obs in space)
-        assert obs in self.env_to_wrap.get_observation_space()
+        # self = obfuscated
+        # env_to_wrap = vector
+        # obs is just a treechop ob
         if isinstance(self.env_to_wrap, EnvWrapper):
             obs = self.env_to_wrap.wrap_observation(obs)
-        return self._wrap_observation(obs)
+
+        assert obs in self.env_to_wrap.get_observation_space()
+
+        wrapped_obs =  self._wrap_observation(obs)
+
+        assert wrapped_obs in self.get_observation_space()
+        return wrapped_obs
 
     @abc.abstractmethod
     def _wrap_action(self, act: OrderedDict) -> OrderedDict:
         pass
 
     def wrap_action(self, act: OrderedDict):
-        assert act in self.env_to_wrap.get_action_space()
         if isinstance(self.env_to_wrap, EnvWrapper):
             act = self.env_to_wrap.wrap_action(act)
-        return self._wrap_action(act)
+
+        assert act in self.env_to_wrap.get_action_space()
+
+        wrapped_act = self._wrap_action(act)
+        
+        assert wrapped_act in self.get_action_space()
+        return wrapped_act
 
     @abc.abstractmethod
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
         pass
 
     def unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
+        # self = obf
+        # env_towrap = vect
+        # obs = tofu_obs
         assert obs in self.get_observation_space()
         obs = self._unwrap_observation(obs)
+        assert obs in self.env_to_wrap.get_observation_space()
         if isinstance(self.env_to_wrap, EnvWrapper):
             obs = self.env_to_wrap.unwrap_observation(obs)
         return obs
@@ -62,8 +69,12 @@ class EnvWrapper(EnvSpec):
     def unwrap_action(self, act: OrderedDict) -> OrderedDict:
         assert act in self.get_action_space()
         act = self._unwrap_action(act)
+        assert act in self.env_to_wrap.get_action_space()
+        # Todo: remove redundant assertion.
+
         if isinstance(self.env_to_wrap, EnvWrapper):
             act = self.env_to_wrap.unwrap_action(act)
+    
         return act
 
 

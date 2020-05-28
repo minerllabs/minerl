@@ -93,7 +93,7 @@ def test_obfuscated_data():
     for i, (s,a,r,sp1,d) in enumerate(data):
         (so,ao,ro,sp1o,do) = obf_data[i]
         
-        treechop_obf.spec.wrap_observation(so)
+        treechop_obf.spec.wrap_observation(s)
 
 
 
