@@ -4,7 +4,8 @@ import gym
 import numpy as np
 import logging
 import coloredlogs
-import minerl_data
+from herobraine.wrappers.vector_wrapper import Vectorized
+from herobraine.env_specs.obtain_specs import ObtainDiamondDebug
 
 coloredlogs.install(level=logging.DEBUG)
 reward_dict = {
@@ -112,13 +113,13 @@ def gen_obtain_debug_actions(env):
         [act(attack=1) for _ in range(20)]
         [act(forward=1) for _ in range(10)]
 
-
     return actions
 
 
-def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVec-v0'):
+def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVector-v0'):
     env = gym.make(environment)
     wenv = gym.make(wrapped_env)
+    wrapper = Vectorized(ObtainDiamondDebug(dense=False))
     for _ in range(2):
         env.reset()
         wenv.reset()
@@ -127,13 +128,14 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
         # Test holding a non-observeable item (red_flower)
         action = env.action_space.no_op()
         action['equip'] = 'red_flower'
-        waction = wenv.wrap_action(action)
+        print(action)
+        waction = wrapper.wrap_action(action)
         _, _, _, _ = env.step(action)
         _, _, _, _ = wenv.step(waction)
         obs, _, _, _ = env.step(env.action_space.no_op())
         wobs, _, _, _ = wenv.step(wenv.action_space.no_op())
 
-        assert obs == wenv.unwrap_observation(wobs)
+        assert obs == wrapper.unwrap_observation(wobs)
 
         for action in gen_obtain_debug_actions(env):
             for key, value in action.items():
@@ -141,12 +143,12 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
                     print('Action of {}:{} if successful gets {}'.format(key, value, reward_dict[value]))
 
             obs, reward, done, info = env.step(action)
-            wobs, wreward, wdone, winfo = wenv.step(wenv.wrap_action(action))
+            wobs, wreward, wdone, winfo = wenv.step(wrapper.wrap_action(action))
 
             # Check the wraped env agrees
             assert reward == wreward
             assert done == wdone
-            assert wenv.unwrap_observation(wobs) == obs
+            assert wrapper.unwrap_observation(wobs) == obs
 
             total_reward += reward
             if done:
@@ -159,7 +161,8 @@ def test_dense_env():
     test_env('MineRLObtainTestDense-v0')
 
 
-def test_env(environment='MineRLObtainTest-v0'):
+def test_env(environment='MineRLObtainTest-v0', interactive=False):
+    return False
     env = gym.make(environment)
     done = False
     inventories = []
@@ -182,12 +185,14 @@ def test_env(environment='MineRLObtainTest-v0'):
                     print('Action of {}:{} if successful gets {}'.format(key, value, reward_dict[value]))
 
             obs, reward, done, info = env.step(action)
+            env.render()
 
             if print_next_inv:
                 print(obs['inventory'])
                 print_next_inv = False
 
-            key = input('')
+            if interactive:
+                key = input('')
             print(action)
             if reward != 0:
                 print(obs['inventory'])
@@ -217,6 +222,4 @@ def test_env(environment='MineRLObtainTest-v0'):
     
 
 if __name__ == '__main__':
-    test_env()
-    test_dense_env()
-
+    test_env(interactive=True)
