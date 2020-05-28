@@ -116,11 +116,17 @@ def gen_obtain_debug_actions(env):
 
     return actions
 
+def test_wrapped_obf_env():
+    return test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVectorObf-v0')
+
+
 
 def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVector-v0'):
 
     env = gym.make(environment)
+    env.seed(1)
     wenv = gym.make(wrapped_env)
+    wenv.seed(1)
     # TODO: 
     for _ in range(2):
         env.reset()
@@ -137,7 +143,10 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
         obs, _, _, _ = env.step(env.action_space.no_op())
         wobs, _, _, _ = wenv.step(wenv.env_spec.wrap_action(env.action_space.no_op()))
 
-        assert_equal_recursive(obs, wenv.env_spec.unwrap_observation(wobs))
+        unwobsed = wenv.env_spec.unwrap_observation(wobs)
+        del obs['pov']
+        del unwobsed['pov']
+        assert_equal_recursive(obs, unwobsed)
 
         for action in gen_obtain_debug_actions(env):
             for key, value in action.items():
@@ -150,7 +159,12 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
             # Check the wraped env agrees
             assert reward == wreward
             assert done == wdone
-            assert wrapper.unwrap_observation(wobs) == obs
+
+            unwobsed = wenv.env_spec.unwrap_observation(wobs)
+            del obs['pov']
+            del unwobsed['pov']
+            # TODO: Make sure that items drop in the same direction with the same seed.
+            assert_equal_recursive(obs, unwobsed)
 
             total_reward += reward
             if done:
