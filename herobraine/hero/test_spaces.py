@@ -29,7 +29,6 @@ def assert_equal_recursive(npa_dict, dict_to_test):
     assert isinstance(dict_to_test, collections.OrderedDict)
     for key, value in npa_dict.items():
         if isinstance(value, np.ndarray):
-            print(key)
             assert np.allclose(value, dict_to_test[key])
             # assert np.array_equal(value, dict_to_test[key])
         elif isinstance(value, collections.OrderedDict):
