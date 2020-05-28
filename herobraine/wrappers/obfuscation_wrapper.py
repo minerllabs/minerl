@@ -4,6 +4,7 @@ from collections import OrderedDict
 from herobraine.hero import spaces
 from herobraine.wrappers.vector_wrapper import Vectorized
 from herobraine.wrappers.wrapper import EnvWrapper
+import copy
 
 
 def get_invertible_matrix_pair(shape):
@@ -14,12 +15,13 @@ def get_invertible_matrix_pair(shape):
 class Obfuscated(EnvWrapper):
 
     def __init__(self, env_to_wrap: Vectorized):
-        super().__init__(env_to_wrap)
-
         self.obf_vector_len = 256
+
+        super().__init__(env_to_wrap)
 
         # TODO load these from file
         assert isinstance(env_to_wrap, Vectorized), 'Obfuscated env wrappers only supported for vectorized environments'
+
         np.random.seed(42)
         self.action_matrix, self.action_matrix_inverse = \
             get_invertible_matrix_pair([self.env_to_wrap.action_vector_len, self.obf_vector_len])
@@ -29,13 +31,13 @@ class Obfuscated(EnvWrapper):
     def _update_name(self, name: str) -> str:
         return name.split('-')[0] + 'Obf-' + name.split('-')[-1]
 
-    def get_observation_space(self):
-        obs_space =self.env_to_wrap.get_observation_space()
+    def create_observation_space(self):
+        obs_space = copy.deepcopy(self.env_to_wrap.observation_space)
         obs_space.spaces['vector'] = spaces.Box(low=-np.inf, high=np.inf, shape=[self.obf_vector_len])
         return obs_space
 
-    def get_action_space(self):
-        act_space = self.env_to_wrap.get_action_space()
+    def create_action_space(self):
+        act_space = copy.deepcopy(self.env_to_wrap.action_space)
         act_space.spaces['vector'] = spaces.Box(low=-np.inf, high=np.inf, shape=[self.obf_vector_len])
         return act_space
 

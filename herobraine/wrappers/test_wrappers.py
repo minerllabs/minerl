@@ -25,7 +25,7 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=None):
     """
     vec_env = wrappers.Obfuscated(wrappers.Vectorized(base_env, common_envs))
 
-    s = base_env.get_action_space().sample()
+    s = base_env.action_space.sample()
     ws = vec_env.wrap_action(s)
     us = vec_env.unwrap_action(ws)
     assert_equal_recursive(s, us)
@@ -41,7 +41,7 @@ def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=
     """
     vec_env = wrappers.Vectorized(base_env, common_envs)
 
-    s = base_env.get_action_space().sample()
+    s = base_env.action_space.sample()
     ws = vec_env.wrap_action(s)
     us = vec_env.unwrap_action(ws)
     assert_equal_recursive(s, us)
@@ -65,7 +65,7 @@ def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_
     """
     vec_env = wrappers.Vectorized(base_env, common_envs)
 
-    s = base_env.get_observation_space().sample()
+    s = base_env.observation_space.sample()
     ws = vec_env.wrap_observation(s)
     us = vec_env.unwrap_observation(ws)
     assert_equal_recursive(s, us)
@@ -73,7 +73,7 @@ def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_
 
 def map_common_space_no_op(common_envs):
     for base_env in common_envs:
-        s = base_env.get_observation_space().no_op()
+        s = base_env.observation_space.no_op()
         us = base_env.unwrap_observation(s)
 
 
@@ -87,12 +87,12 @@ def test_wrap_unwrap_observation_navigate():
 
 def test_vector_action_space(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_env=None):
     vec_env = wrappers.Vectorized(base_env, common_env)
-    assert isinstance(vec_env.get_action_space(), Dict)
-    assert isinstance(vec_env.get_observation_space(), Dict)
-    print(vec_env.get_action_space())
-    print(vec_env.get_action_space().spaces)
-    assert ('vector' in vec_env.get_action_space().spaces)
-    assert ('vector' in vec_env.get_observation_space().spaces)
+    assert isinstance(vec_env.action_space, Dict)
+    assert isinstance(vec_env.observation_space, Dict)
+    print(vec_env.action_space)
+    print(vec_env.action_space.spaces)
+    assert ('vector' in vec_env.action_space.spaces)
+    assert ('vector' in vec_env.observation_space.spaces)
 
 
 def test_diamond_space():

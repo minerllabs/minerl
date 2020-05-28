@@ -57,23 +57,22 @@ class Vectorized(EnvWrapper):
 
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
         full_obs = self.common_observation_space.unmap_mixed(obs['vector'], obs)
-        return intersect_space(self.env_to_wrap.get_observation_space(), full_obs)
+        return intersect_space(self.env_to_wrap.observation_space, full_obs)
 
     def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
         full_act = self.common_action_space.unmap_mixed(act['vector'], act)
-        return intersect_space(self.env_to_wrap.get_action_space(), full_act)
+        return intersect_space(self.env_to_wrap.action_space, full_act)
 
-    def get_observation_space(self):
+    def create_observation_space(self):
         obs_list = self.remaining_observation_space
         # Todo: add maximum.
         obs_list.append(('vector', spaces.Box(low=-self.observation_vector_len, high=self.observation_vector_len, shape=[self.observation_vector_len], dtype=np.float32)))
         return spaces.Dict(sorted(obs_list))
 
-    def get_action_space(self):
+    def create_action_space(self):
         act_list = self.remaining_action_space
         act_list.append(('vector', spaces.Box(low=-self.action_vector_len, high=self.action_vector_len, shape=[self.action_vector_len], dtype=np.float32)))
         return spaces.Dict(sorted(act_list))
-        
 
     def get_docstring(self):
         return self.env_to_wrap.get_docstring()

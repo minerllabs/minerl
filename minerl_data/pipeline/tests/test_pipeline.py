@@ -93,7 +93,17 @@ def test_obfuscated_data():
     for i, (s,a,r,sp1,d) in enumerate(data):
         (so,ao,ro,sp1o,do) = obf_data[i]
         
-        treechop_obf.spec.wrap_observation(s)
+        assert_equal_recursive(treechop_obf.spec.wrap_observation(s), so)
+        assert_equal_recursive(treechop_obf.spec.wrap_observation(sp1), sp1o)
+
+        # and now the dual
+        assert_equal_recursive(s, treechop_obf.spec.unwrap_observation(so))
+        assert_equal_recursive(sp1, treechop_obf.spec.unwrap_observation(sp1o))
+
+        assert r == ro
+        assert d == do
+
+    
 
 
 

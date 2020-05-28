@@ -25,11 +25,11 @@ class EnvWrapper(EnvSpec):
         if isinstance(self.env_to_wrap, EnvWrapper):
             obs = self.env_to_wrap.wrap_observation(obs)
 
-        assert obs in self.env_to_wrap.get_observation_space()
+        assert obs in self.env_to_wrap.observation_space
 
         wrapped_obs =  self._wrap_observation(obs)
 
-        assert wrapped_obs in self.get_observation_space()
+        assert wrapped_obs in self.observation_space
         return wrapped_obs
 
     @abc.abstractmethod
@@ -40,11 +40,13 @@ class EnvWrapper(EnvSpec):
         if isinstance(self.env_to_wrap, EnvWrapper):
             act = self.env_to_wrap.wrap_action(act)
 
-        assert act in self.env_to_wrap.get_action_space()
+        assert act in self.env_to_wrap.action_space
 
         wrapped_act = self._wrap_action(act)
         
-        assert wrapped_act in self.get_action_space()
+
+        print(self, self.action_space, self.env_to_wrap, self.env_to_wrap.action_space)
+        assert wrapped_act in self.action_space
         return wrapped_act
 
     @abc.abstractmethod
@@ -55,9 +57,9 @@ class EnvWrapper(EnvSpec):
         # self = obf
         # env_towrap = vect
         # obs = tofu_obs
-        assert obs in self.get_observation_space()
+        assert obs in self.observation_space
         obs = self._unwrap_observation(obs)
-        assert obs in self.env_to_wrap.get_observation_space()
+        assert obs in self.env_to_wrap.observation_space
         if isinstance(self.env_to_wrap, EnvWrapper):
             obs = self.env_to_wrap.unwrap_observation(obs)
         return obs
@@ -67,9 +69,9 @@ class EnvWrapper(EnvSpec):
         pass
 
     def unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        assert act in self.get_action_space()
+        assert act in self.action_space
         act = self._unwrap_action(act)
-        assert act in self.env_to_wrap.get_action_space()
+        assert act in self.env_to_wrap.action_space
         # Todo: remove redundant assertion.
 
         if isinstance(self.env_to_wrap, EnvWrapper):
@@ -78,11 +80,11 @@ class EnvWrapper(EnvSpec):
         return act
 
 
-    def get_observation_space(self):
-        return self.env_to_wrap.get_observation_space()
+    def create_observation_space(self):
+        return self.env_to_wrap.observation_space
 
-    def get_action_space(self):
-        return self.env_to_wrap.get_action_space()
+    def create_action_space(self):
+        return self.env_to_wrap.action_space
 
     def get_docstring(self):
         return self.env_to_wrap.get_docstring()

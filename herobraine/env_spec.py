@@ -23,76 +23,24 @@ class EnvSpec(abc.ABC):
         self.observables = self.create_observables()
         self.actionables = self.create_actionables()
         self.mission_handlers = self.create_mission_handlers()
+        
+        self._observation_space = self.create_observation_space()
+        print(self, self._observation_space)
+        self._action_space = self.create_action_space()
+        print(self, self._action_space)
+
+
+    @property
+    def observation_space(self):
+        return self._observation_space
+
+    @property
+    def action_space(self):
+        return self._action_space
+
 
     def to_string(self):
         return self.name
-
-    # # V0
-    # # publish
-    # {  
-    #     "inventory": {
-    #         "dirt": 0,
-    #         "cobblestone": 0,
-    #     },
-    #     "observation_equipped_items.mainhand.damage": 0
-    # }
-
-    # wrapper.wrap() 
-
-    # {      
-    #     "inventory": {
-    #         "dirt": 0,
-    #         "cobblestone": 0,
-    #     },
-    #     "observation_equipped_items":{
-    #          "mainhand": {"damage": 0}
-    #     }
-    # }
-
-    # # compress
-
-    # {      
-    #     "inventory$dirt": 0,
-    #     "inventory$cobblestone": 0,
-    #     "observation_equipped_items$mainhand$damage": 0
-    # }
-
-    # # decompress/datapipeline
-    # {      
-    #     "inventory": {
-    #         "dirt": 0,
-    #         "cobblestone": 0,
-    #     },
-    #     "observation_equipped_items":{
-    #          "mainhand": {"damage": 0}
-    #     }
-    # }
-
-    # # V1
-    # # publish
-    # {  
-    #     "inventory": {
-    #         "dirt": 0,
-    #         "cobblestone": 0,
-    #     },
-    #     "observation_equipped_items.mainhand.damage": 0
-    # }
-
-    # # compress
-    # {      
-    #     "inventory$dirt": 0,
-    #     "inventory$cobblestone": 0,
-    #     "observation_equipped_items.mainhand.damage": 0
-    # }
-
-    # # decompress
-    # {      
-    #     "inventory": {
-    #         "dirt": 0,
-    #         "cobblestone": 0,
-    #     },
-    #     "observation_equipped_items.mainhand.damage": 0
-    # }
 
     @abstractmethod
     def is_from_folder(self, folder: str) -> bool:
@@ -110,13 +58,13 @@ class EnvSpec(abc.ABC):
     def create_actionables(self):
         raise NotImplementedError('subclasses must override create_actionables()!')
 
-    def get_observation_space(self):
+    def create_observation_space(self):
         # Todo: handle nested dict space.
         return spaces.Dict({
             o.to_string(): o.space for o in self.observables
         })
 
-    def get_action_space(self):
+    def create_action_space(self):
         return spaces.Dict({
             a.to_string(): a.space for a in self.actionables
         })
@@ -130,8 +78,8 @@ class EnvSpec(abc.ABC):
             id=self.name,
             entry_point=EnvSpec.ENTRYPOINT,
             kwargs={
-                'observation_space': self.get_observation_space(),
-                'action_space': self.get_action_space(),
+                'observation_space': self.observation_space,
+                'action_space': self.action_space,
                 'docstr': self.get_docstring(),
                 'xml': os.path.join(MISSIONS_DIR, self.xml),
                 'spec': self,
