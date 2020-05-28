@@ -61,12 +61,12 @@ MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0 = Obfuscated(
 
 # Test envornments
 MINERL_OBTAIN_TEST_V0 = ObtainDiamondDebug(dense=False)
-MINERL_OBTAIN_TEST_VEC_V0 = Vectorized(ObtainDiamondDebug(dense=False))
-MINERL_OBTAIN_TEST_OBF_V0 = Obfuscated(Vectorized(ObtainDiamondDebug(dense=False)))
+MINERL_OBTAIN_TEST_VEC_V0 = Vectorized(MINERL_OBTAIN_TEST_V0)
+MINERL_OBTAIN_TEST_OBF_V0 = Obfuscated(MINERL_OBTAIN_TEST_VEC_V0)
 
 MINERL_OBTAIN_TEST_DENSE_V0 = ObtainDiamondDebug(dense=True)
-MINERL_OBTAIN_TEST_DENSE_VEC_V0 = Vectorized(ObtainDiamondDebug(dense=True))
-MINERL_OBTAIN_TEST_DENSE_OBF_V0 = Obfuscated(Vectorized(ObtainDiamondDebug(dense=True)))
+MINERL_OBTAIN_TEST_DENSE_VEC_V0 = Vectorized(MINERL_OBTAIN_TEST_DENSE_V0)
+MINERL_OBTAIN_TEST_DENSE_OBF_V0 = Obfuscated(MINERL_OBTAIN_TEST_DENSE_VEC_V0)
 
 
 # Register the envs.

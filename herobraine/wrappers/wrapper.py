@@ -27,7 +27,7 @@ class EnvWrapper(EnvSpec):
 
         assert obs in self.env_to_wrap.observation_space
 
-        wrapped_obs =  self._wrap_observation(obs)
+        wrapped_obs = self._wrap_observation(obs)
 
         assert wrapped_obs in self.observation_space
         return wrapped_obs
