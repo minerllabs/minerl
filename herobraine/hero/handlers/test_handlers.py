@@ -12,8 +12,8 @@ def test_merge_item_list_command_actions():
 
 
 
-    assert TestItemListCommandAction(['A', 'B', 'C', 'D']) | TestItemListCommandAction(['E', 'F']) == TestItemListCommandAction(
-         ['A', 'B', 'C', 'D', 'E', 'F'])
+    assert TestItemListCommandAction(['none', 'A', 'B', 'C', 'D']) | TestItemListCommandAction(['none', 'E', 'F']) == TestItemListCommandAction(
+         ['none', 'A', 'B', 'C', 'D', 'E', 'F'])
 
 
 def test_merge_type_observation():

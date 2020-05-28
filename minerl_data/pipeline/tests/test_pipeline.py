@@ -7,12 +7,14 @@ import os
 import subprocess
 import minerl
 import zipfile
+import numpy as np
 
 from os.path import join as J
 
 from minerl_data.pipeline.make_minecrafts import download
 from minerl_data.pipeline.tests import old_data_pipeline
 from herobraine.hero.test_spaces import assert_equal_recursive
+from collections import OrderedDict
 
 TESTS_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tests_data'))
 
@@ -65,8 +67,37 @@ def _test_pipeline(copy_test_data_out=False, upload_test_data=''):
 
                 # Upload the result.
                 subprocess.check_call(f'gsutil cp {zip_result_dir} {upload_test_data}'.split(' '))
-
             
+def test_obfuscated_data():
+    sample_data_dir = os.path.join(TESTS_DATA, 'out', 'test_pipeline', 'output', 'data')
+    os.environ.update(dict(
+        MINERL_DATA_ROOT=sample_data_dir
+    ))
+    treechop = minerl.data.make('MineRLTreechop-v0')
+    treechop_obf = minerl.data.make('MineRLTreechopVectorObf-v0')
+
+    trajname=  'v2_cool_sweet_potato_nymph-13_724-5408'
+    assert set(treechop_obf.get_trajectory_names()) == {
+        'v2_cool_sweet_potato_nymph-13_724-5408',
+        'v2_cool_sweet_potato_nymph-13_5564-6194'  # TODO THIS SHOULDN'T BE HERE
+    }
+    assert set(treechop.get_trajectory_names()) == {
+        'v2_cool_sweet_potato_nymph-13_724-5408'
+    }
+
+    # We want to see that the obfuscated data can be unwrapped to yield the original data.
+    obf_data = list(treechop_obf.load_data(trajname))
+    data = list(treechop.load_data(trajname))
+
+    # Take the data and obfuscate to compare to obf_data
+    for i, (s,a,r,sp1,d) in enumerate(data):
+        (so,ao,ro,sp1o,do) = obf_data[i]
+        
+        treechop_obf.spec.wrap_observation(so)
+
+
+
+
 def test_dataloader_regression():
     sample_data_dir = os.path.join(TESTS_DATA, 'out', 'test_pipeline', 'output', 'data')
     sweet_potato_path = os.path.join(TESTS_DATA, 'sweet_potato.zip')
@@ -84,11 +115,6 @@ def test_dataloader_regression():
         MINERL_DATA_ROOT=sample_data_dir
     ))
     treechop = minerl.data.make('MineRLTreechop-v0')
-    treechop_obf = minerl.data.make('MineRLTreechopVectorObf-v0')
-    assert treechop_obf.get_trajectory_names() == [
-        'v2_cool_sweet_potato_nymph-13_5564-6194',  # TODO THIS SHOULDN'T BE HERE
-        'v2_cool_sweet_potato_nymph-13_724-5408'
-    ] 
     assert treechop.get_trajectory_names() == [
         'v2_cool_sweet_potato_nymph-13_724-5408'
     ]
@@ -105,21 +131,34 @@ def test_dataloader_regression():
 
     old_data = list(treechop_old.load_data(old_trajname, include_metadata=True))
 
-    for i, x in enumerate(old_data):
-        # print("new frame")
-        # import matplotlib.pyplot as plt
-        # print("new data")
-        # plt.imshow(new_data[i][0]['pov'])
-        # # New data is smooth
-        # # Old data is not
-        # plt.show()
-        # print("old data")
-        # plt.imshow(old_data[i][0]['pov'])
-        # plt.show()
-        # for j, y in enumerate(x): 
-        # TODO: Rerender data, AO if off
-        assert_equal_recursive(x[1], new_data[i][1])
+    assert len(old_data) == len(new_data)
+    for i in range(len(old_data)):
+        ns,na,nr,nsp1,nd,nmeta = new_data[i]
+        o_s,oa,o_r,osp1,od,ometa = old_data[i]
 
+        # Assert actions are the same
+        assert_equal_recursive(na, oa)
+
+        # Remove 'pov' from ns,nsp1,os,osp1
+        del ns['pov']
+        del nsp1['pov']
+        del o_s['pov']
+        del osp1['pov']
+        
+        # assert states are the same WITHOUT POV
+        assert_equal_recursive(ns, o_s)
+        assert_equal_recursive(nsp1, osp1)
+
+        # assert meta is the same
+        if 'stream_name' in ometa: del ometa['stream_name']
+        if 'stream_name' in nmeta: del nmeta['stream_name']
+        assert_equal_recursive(OrderedDict(ometa), OrderedDict(nmeta))
+
+        # asser the new done (nd) is equal to the old done
+        assert np.allclose(nd, od)
+
+        # assert the new reward (nr) is equal to the old reward (o_r)
+        assert np.allclose(nr, o_r)
 
 
 def test_ao_on_or_off():
@@ -131,4 +170,4 @@ def test_ao_on_or_off():
 
 if __name__ == '__main__':
     # test_pipeline(copy_test_data_out=True)
-    test_dataloader_regression()
+    test_obfuscated_data()

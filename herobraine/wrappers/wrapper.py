@@ -19,6 +19,17 @@ class EnvWrapper(EnvSpec):
         pass
 
     def wrap_observation(self, obs: OrderedDict):
+
+        # print(obs, self.env_to_wrap.get_observation_space())
+        for k in self.env_to_wrap.get_observation_space().spaces:
+            print(k)
+            print(k, obs[k] in self.env_to_wrap.get_observation_space()[k])
+
+        print(obs.keys(), self.env_to_wrap.get_observation_space().spaces.keys())
+        print(obs in self.env_to_wrap.get_observation_space())
+        space = self.env_to_wrap.get_observation_space()
+        print(obs in space)
+        assert obs in self.env_to_wrap.get_observation_space()
         if isinstance(self.env_to_wrap, EnvWrapper):
             obs = self.env_to_wrap.wrap_observation(obs)
         return self._wrap_observation(obs)
@@ -28,6 +39,7 @@ class EnvWrapper(EnvSpec):
         pass
 
     def wrap_action(self, act: OrderedDict):
+        assert act in self.env_to_wrap.get_action_space()
         if isinstance(self.env_to_wrap, EnvWrapper):
             act = self.env_to_wrap.wrap_action(act)
         return self._wrap_action(act)
@@ -37,6 +49,7 @@ class EnvWrapper(EnvSpec):
         pass
 
     def unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
+        assert obs in self.get_observation_space()
         obs = self._unwrap_observation(obs)
         if isinstance(self.env_to_wrap, EnvWrapper):
             obs = self.env_to_wrap.unwrap_observation(obs)
@@ -47,10 +60,12 @@ class EnvWrapper(EnvSpec):
         pass
 
     def unwrap_action(self, act: OrderedDict) -> OrderedDict:
+        assert act in self.get_action_space()
         act = self._unwrap_action(act)
         if isinstance(self.env_to_wrap, EnvWrapper):
             act = self.env_to_wrap.unwrap_action(act)
         return act
+
 
     def get_observation_space(self):
         return self.env_to_wrap.get_observation_space()

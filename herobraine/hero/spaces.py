@@ -153,13 +153,21 @@ class Enum(Discrete, MineRLSpace):
         Returns:
             int:  A random index for one of the enum types.
         """
-        return super().sample()
+        return self.values[super().sample()]
+
+    def flat_map(self, x):
+        return super().flat_map(self[x])
+
+    def unmap(self, x):
+        return self.values[self[super().unmap(x)]]
+
+
 
     def no_op(self):
         if self.default:
             return self.default
         else:
-            return super().no_op()
+            return self.values[super().no_op()]
 
     def __getitem__(self, action):
         try:
@@ -178,6 +186,9 @@ class Enum(Discrete, MineRLSpace):
 
     def __len__(self):
         return len(self.values)
+
+    def __contains__(self, x):
+        return x in self.values
 
 
 class Dict(gym.spaces.Dict, MineRLSpace):
@@ -260,6 +271,16 @@ class Dict(gym.spaces.Dict, MineRLSpace):
                 unmapped[k] = aux[k]
 
         return unmapped
+
+    def __contains__(self, x):
+        if not isinstance(x, dict) or len(x) != len(self.spaces):
+            return False
+        for k, space in self.spaces.items():
+            if k not in x:
+                return False
+            if not space.contains(x[k]):
+                return False
+        return True
 
 
 class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):
