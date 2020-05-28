@@ -117,9 +117,11 @@ def gen_obtain_debug_actions(env):
 
 
 def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVector-v0'):
+
+    wrapper = Vectorized(ObtainDiamondDebug(dense=False))
     env = gym.make(environment)
     wenv = gym.make(wrapped_env)
-    wrapper = Vectorized(ObtainDiamondDebug(dense=False))
+    # TODO: 
     for _ in range(2):
         env.reset()
         wenv.reset()
@@ -222,4 +224,4 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
     
 
 if __name__ == '__main__':
-    test_env(interactive=True)
+    test_wrapped_env()
