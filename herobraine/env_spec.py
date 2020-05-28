@@ -25,10 +25,7 @@ class EnvSpec(abc.ABC):
         self.mission_handlers = self.create_mission_handlers()
         
         self._observation_space = self.create_observation_space()
-        print(self, self._observation_space)
         self._action_space = self.create_action_space()
-        print(self, self._action_space)
-
 
     @property
     def observation_space(self):

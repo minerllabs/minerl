@@ -45,7 +45,6 @@ class EnvWrapper(EnvSpec):
         wrapped_act = self._wrap_action(act)
         
 
-        print(self, self.action_space, self.env_to_wrap, self.env_to_wrap.action_space)
         assert wrapped_act in self.action_space
         return wrapped_act
 
