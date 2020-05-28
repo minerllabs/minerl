@@ -124,7 +124,7 @@ class Enum(Discrete, MineRLSpace):
     An enum space. It can either be the enum string or a integer.
     """
 
-    def __init__(self, *values: str):
+    def __init__(self, *values: str, default=None):
         """Initializes the Enum space with a set of possible
         values that the enum can take.
 
@@ -139,6 +139,7 @@ class Enum(Discrete, MineRLSpace):
         """
         if not isinstance(values, tuple):
             values = (values,)
+        self.default = default if default is not None else values[0]
         super().__init__(len(values))
         self.values = list(sorted(values))
 
@@ -153,6 +154,12 @@ class Enum(Discrete, MineRLSpace):
             int:  A random index for one of the enum types.
         """
         return super().sample()
+
+    def no_op(self):
+        if self.default:
+            return self.default
+        else:
+            return super().no_op()
 
     def __getitem__(self, action):
         try:

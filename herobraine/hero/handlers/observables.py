@@ -317,7 +317,7 @@ class TypeObservation(AgentHandler):
         self._items = sorted(items)
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
-        self._default = 0  # 'none'
+        self._default = 'none' # 'none'
         self._other = len(items) - 1  # 'othe
         assert 'other' in items
         assert 'none' in items
