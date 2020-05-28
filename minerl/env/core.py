@@ -330,8 +330,8 @@ class MineRLEnv(gym.Env):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
         try:
-            if info['equipped_items']['mainhand'] not in bottom_env_spec.observation_space.spaces['equipped_items.mainhand.type']:
-                info['equipped_items.mainhand.type'] = "other" # Todo: use handlers.
+            if info['equipped_items.mainhand.type'] not in bottom_env_spec.observation_space.spaces['equipped_items.mainhand.type']:
+                info['equipped_items.mainhand.type'] = "other" # Todo: use handlers. TODO: USE THEM<
         except Exception as e:
             pass
         # Process Info: (HotFix until updated in Malmo.)
