@@ -135,7 +135,7 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
         _, _, _, _ = env.step(action)
         _, _, _, _ = wenv.step(waction)
         obs, _, _, _ = env.step(env.action_space.no_op())
-        wobs, _, _, _ = wenv.step(wenv.action_space.no_op())
+        wobs, _, _, _ = wenv.step(wenv.env_spec.wrap_action(env.action_space.no_op()))
 
         assert_equal_recursive(obs, wenv.env_spec.unwrap_observation(wobs))
 

@@ -319,10 +319,10 @@ class MineRLEnv(gym.Env):
         # Ensure mainhand observations are valid
         try:
             info['equipped_items.mainhand.type'] = info['equipped_items']['mainhand']['type']
-            info['equipped_items.mainhand.damage'] = info['equipped_items']['mainhand']['damage']
-            info['equipped_items.mainhand.maxDamage'] = info['equipped_items']['mainhand']['maxDamage']
-            del info['equipped_items']
+            info['equipped_items.mainhand.damage'] = np.array(info['equipped_items']['mainhand']['damage'])
+            info['equipped_items.mainhand.maxDamage'] = np.array(info['equipped_items']['mainhand']['maxDamage'])
         except Exception as e:
+            del info['equipped_items']
             print(e)
         
         bottom_env_spec = self.env_spec
@@ -339,7 +339,7 @@ class MineRLEnv(gym.Env):
             inventory_spaces = bottom_env_spec.observation_space.spaces['inventory'].spaces
 
             items = inventory_spaces.keys()
-            inventory_dict = {k: 0 for k in inventory_spaces}
+            inventory_dict = {k: np.array(0) for k in inventory_spaces}
             # TODO change to maalmo
             for stack in info['inventory']:
                 if 'type' in stack and 'quantity' in stack:
@@ -368,20 +368,22 @@ class MineRLEnv(gym.Env):
         # A function which updates a nested dictionary.
         def recursive_update(nested_dict, nested_update):
             for k, v in nested_update.items():
-                if isinstance(v, collections.Mapping):
-                    r = recursive_update(nested_dict.get(k, {}), v)
-                    nested_dict[k] = r
-                else:
-                    nested_dict[k] = v
+                if k in nested_dict:
+                    if isinstance(v, collections.Mapping):
+                        r = recursive_update(nested_dict.get(k, {}), v)
+                        nested_dict[k] = r
+                    else:
+                        nested_dict[k] = v
             return nested_dict
 
-        recursive_update(obs_dict, info)
+        obs_dict =  recursive_update(obs_dict, info)
 
         self._last_pov = obs_dict['pov']
 
         # Now we wrap
         if isinstance(self.env_spec, EnvWrapper):
             obs_dict = self.env_spec.wrap_observation(obs_dict)
+            print("poo")
 
         return obs_dict
 
@@ -449,7 +451,7 @@ class MineRLEnv(gym.Env):
             # We don't force the same seed every episode, you gotta send it yourself queen.
             self._seed = None
 
-    @retry
+    
     def _start_up(self):
         self.resets += 1
 
