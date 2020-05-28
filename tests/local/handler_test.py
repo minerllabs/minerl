@@ -113,6 +113,9 @@ def gen_obtain_debug_actions(env):
 
         [act(attack=1) for _ in range(20)]
         [act(forward=1) for _ in range(10)]
+    
+    [act() for _ in range(10)]
+    
 
     return actions
 
@@ -164,13 +167,14 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
             del obs['pov']
             del unwobsed['pov']
             # TODO: Make sure that items drop in the same direction with the same seed.
-            assert_equal_recursive(obs, unwobsed)
 
             total_reward += reward
             if done:
+                assert_equal_recursive(obs, unwobsed)
                 break
 
         print("MISSION DONE")
+        assert_equal_recursive(obs, unwobsed)
 
 
 def test_dense_env():
