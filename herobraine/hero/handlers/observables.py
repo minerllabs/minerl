@@ -318,10 +318,10 @@ class TypeObservation(AgentHandler):
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
         self._default = 'none' # 'none'
-        self._other = len(items) - 1  # 'othe
+        self._other = 'other' # 'othe
         assert 'other' in items
         assert 'none' in items
-        super().__init__(spaces.Enum(*self._items))
+        super().__init__(spaces.Enum(*self._items, default='none'))
 
     @property
     def items(self):
