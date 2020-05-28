@@ -41,3 +41,4 @@ tests/logs/
 
 # Jenkins
 jenkins_home/
+tests_data/

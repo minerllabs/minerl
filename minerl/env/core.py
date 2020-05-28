@@ -318,8 +318,16 @@ class MineRLEnv(gym.Env):
 
         # Ensure mainhand observations are valid
         try:
-            if info['equipped_items']['mainhand'] not in self.observation_space.spaces['equipped_items'].spaces['mainhand'].spaces['type']:
-                info['equipped_items']['mainhand']['type'] = self.observation_space.spaces['equipped_items'].spaces['mainhand'].spaces['type'].values[-1]    
+            info['equipped_items.mainhand.type'] = info['equipped_items']['mainhand']['type']
+            info['equipped_items.mainhand.damage'] = info['equipped_items']['mainhand']['damage']
+            info['equipped_items.mainhand.maxDamage'] = info['equipped_items']['mainhand']['maxDamage']
+            del info['equipped_items']
+        except Exception as e:
+            print(e)
+        
+        try:
+            if info['equipped_items']['mainhand'] not in self.observation_space.spaces['equipped_items.mainhand.type']:
+                info['equipped_items.mainhand.type'] = "other" # Todo: use handlers.
         except Exception as e:
             pass
         # Process Info: (HotFix until updated in Malmo.)

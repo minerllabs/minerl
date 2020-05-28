@@ -236,14 +236,21 @@ class DataPipeline:
             x[0] if x[0] is not 'pov' else 'z' )
         )
 
+        def tree_slice(tree, slc):
+            if isinstance(tree, OrderedDict):
+                return OrderedDict(
+                    [(k,tree_slice(v, slc)) for k,v in tree.items()]
+                )
+            else:
+                return tree[slc]
+
+        # Now we just need to slice the dict.
         for idx in tqdm.tqdm(range(len(reward_seq[0]))):
             # Wrap in dict
-            action_slice = [x[idx] for x in action_seq]
-            observation_slice = [x[idx] for x in observation_seq]
-            next_observation_slice = [x[idx] for x in next_observation_seq]
-            action_dict = DataPipeline.map_to_dict(action_slice, gym_spec._kwargs['action_space'])
-            observation_dict = DataPipeline.map_to_dict(observation_slice, target_space, equip_spaces=equip_spaces, obs=True)
-            next_observation_dict = DataPipeline.map_to_dict(next_observation_slice, target_space, equip_spaces=equip_spaces, obs=True)
+            action_dict = tree_slice(action_seq, idx)
+            observation_dict = tree_slice(observation_seq, idx)
+            next_observation_dict = tree_slice(next_observation_seq, idx)
+
 
             yield_list = [observation_dict, action_dict, reward_seq[0][idx], next_observation_dict, done_seq[0][idx]] 
             yield yield_list + [meta] if include_metadata else yield_list
@@ -345,9 +352,35 @@ class DataPipeline:
                     except KeyError:
                         logger.warning("success in metadata may be incorrect")
 
-            action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action_')])
+            action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action$')])
             reward_vec = state['reward']
-            info_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('observation_')])
+            info_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('observation$')])
+
+            # Recursively sorts nested dicts
+            def recursive_sort(dct):
+                for key in list(dct.keys()):
+                    if isinstance(dct[key], OrderedDict):
+                        dct[key] = recursive_sort(dct[key])
+                        dct[key] = OrderedDict(sorted(dct[key].items()))
+                return dct
+
+
+            def unflatten(dct, sep='$'):
+                out_dict = OrderedDict({})
+                for k,v in dct.items():
+                    keys = k.split(sep)
+                    cur_dict =out_dict
+                    for key in keys[:-1]:
+                        if key not in cur_dict:
+                            cur_dict[key] = OrderedDict({})
+                        cur_dict = cur_dict[key]
+                    cur_dict[keys[-1]] = v
+                        
+                # Sort dict recursively
+                recursive_sort(out_dict)
+                return out_dict
+
+
 
 
             # There is no action or reward for the terminal state of an episode.
@@ -375,10 +408,6 @@ class DataPipeline:
                     return None
 
             # Rendered Frames
-            observables = list(info_dict.keys()).copy()
-            observables.append('pov')
-            actionables = list(action_dict.keys())
-
             # Loop through the video and construct frames
             # of observations to be sent via the multiprocessing queue
             # in chunks of worker_batch_size to the batch_iter loop.
@@ -411,27 +440,22 @@ class DataPipeline:
                 # print('Num frames in batch:', stop_idx - start_idx)
 
                 # Load non-image data from npz
-                current_observation_data = [None for _ in observables]
-                action_data = [None for _ in actionables]
-                next_observation_data = [None for _ in observables]
+                current_observation_data = OrderedDict()
+                action_data = OrderedDict()
+                next_observation_data = OrderedDict()
 
                 try:
-                    for i, key in enumerate(observables):
-                        if key == 'pov':
-                            print(i)
-                            current_observation_data[i] = np.asanyarray(frames[:-1])
-                            next_observation_data[i] = np.asanyarray(frames[1:])
-                        elif key == 'observation_compassAngle':
-                            current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx, 0])
-                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx+1:stop_idx+1, 0])
+                    for key in list(info_dict.keys()) + ['observation$pov']:
+                        if 'pov' in key:
+                            current_observation_data[key] = np.asanyarray(frames[:-1])
+                            next_observation_data[key] = np.asanyarray(frames[1:])
                         else:
-                            current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx])
-                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx+1:stop_idx+1])
+                            current_observation_data[key] = np.asanyarray(info_dict[key][start_idx:stop_idx])
+                            next_observation_data[key] = np.asanyarray(info_dict[key][start_idx+1:stop_idx+1])
 
                     # We are getting (S_t, A_t -> R_t),   S_{t+1}, D_{t+1} so there are less actions and rewards
-                    for i, key in enumerate(actionables):
-                        
-                        action_data[i] = np.asanyarray(action_dict[key][start_idx: stop_idx])
+                    for key in action_dict:
+                        action_data[key] = np.asanyarray(action_dict[key][start_idx: stop_idx])
 
                     reward_data = np.asanyarray(reward_vec[start_idx:stop_idx], dtype=np.float32)
 
@@ -441,6 +465,12 @@ class DataPipeline:
                 except Exception as err:
                     logger.error("error drawing batch from npz file:", err)
                     raise err
+
+                # unflatten these dictioanries.
+                current_observation_data = unflatten(current_observation_data)['observation']
+                action_data = unflatten(action_data)['action']
+                next_observation_data = unflatten(next_observation_data)['observation']
+                
 
                 batches = [current_observation_data, action_data, [reward_data], next_observation_data, [np.array(done_data, dtype=np.bool)]]
                 if include_metadata:
