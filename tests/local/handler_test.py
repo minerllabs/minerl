@@ -118,7 +118,6 @@ def gen_obtain_debug_actions(env):
 
 def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVec-v0'):
     env = gym.make(environment)
-    assert isinstance(wrapped_env, minerl_data.EnvWrapper)
     wenv = gym.make(wrapped_env)
     for _ in range(2):
         env.reset()
@@ -188,7 +187,8 @@ def test_env(environment='MineRLObtainTest-v0'):
                 print(obs['inventory'])
                 print_next_inv = False
 
-            # time.sleep(0.02)
+            key = input('')
+            print(action)
             if reward != 0:
                 print(obs['inventory'])
                 print(reward)
@@ -197,10 +197,10 @@ def test_env(environment='MineRLObtainTest-v0'):
             if done:
                 break
 
-        while not done:
-            obs, reward, done, info = env.step(env.action_space.no_op())
-            if reward != 0:
-                print(reward)
+        # while not done:
+        #     obs, reward, done, info = env.step(env.action_space.no_op())
+        #     if reward != 0:
+        #         print(reward)
         print("MISSION DONE")
 
         inventories.append(obs['inventory'])
