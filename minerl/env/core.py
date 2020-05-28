@@ -102,7 +102,7 @@ class MineRLEnv(gym.Env):
 
     STEP_OPTIONS = 0
 
-    def __init__(self, xml, observation_space, action_space, spec, port=None, noop_action=None, docstr=None):
+    def __init__(self, xml, observation_space, action_space, env_spec, port=None, noop_action=None, docstr=None):
         self.action_space = None
         self.observation_space = None
         self._default_action = noop_action
@@ -133,7 +133,7 @@ class MineRLEnv(gym.Env):
 
         self._already_closed = False
         self.instance = self._get_new_instance(port)
-        self.spec = spec
+        self.env_spec = env_spec
 
 
         self._setup_spaces(observation_space, action_space)
@@ -325,14 +325,18 @@ class MineRLEnv(gym.Env):
         except Exception as e:
             print(e)
         
+        bottom_env_spec = self.env_spec
+        while isinstance(bottom_env_spec, EnvWrapper):
+            bottom_env_spec = bottom_env_spec.env_to_wrap
+
         try:
-            if info['equipped_items']['mainhand'] not in self.observation_space.spaces['equipped_items.mainhand.type']:
+            if info['equipped_items']['mainhand'] not in bottom_env_spec.observation_space.spaces['equipped_items.mainhand.type']:
                 info['equipped_items.mainhand.type'] = "other" # Todo: use handlers.
         except Exception as e:
             pass
         # Process Info: (HotFix until updated in Malmo.)
-        if "inventory" in info and "inventory" in self.observation_space.spaces:
-            inventory_spaces = self.observation_space.spaces['inventory'].spaces
+        if "inventory" in info and "inventory" in bottom_env_spec.observation_space.spaces:
+            inventory_spaces = bottom_env_spec.observation_space.spaces['inventory'].spaces
 
             items = inventory_spaces.keys()
             inventory_dict = {k: 0 for k in inventory_spaces}
@@ -351,7 +355,7 @@ class MineRLEnv(gym.Env):
                         # We only care to observe what was specified in the space.
                         continue
             info['inventory'] = inventory_dict
-        elif "inventory" in self.observation_space.spaces and not "inventory" in info:
+        elif "inventory" in bottom_env_spec.observation_space.spaces and not "inventory" in info:
             # logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
             # logger.warning(info)
             pass
@@ -359,32 +363,25 @@ class MineRLEnv(gym.Env):
 
         info['pov'] = pov
 
-        def correction(out):
-            if isinstance(out, dict) or isinstance(out, collections.OrderedDict):
-                for k in out:
-                    out[k] = correction(out)
-            else:
-                return out*0
+        obs_dict = bottom_env_spec.observation_space.no_op()
+        
+        # A function which updates a nested dictionary.
+        def recursive_update(nested_dict, nested_update):
+            for k, v in nested_update.items():
+                if isinstance(v, collections.Mapping):
+                    r = recursive_update(nested_dict.get(k, {}), v)
+                    nested_dict[k] = r
+                else:
+                    nested_dict[k] = v
+            return nested_dict
 
-        def process_dict(space, info_dict):
-            if isinstance(space, gym.spaces.Dict):
-                out_dict = {}
-                for k in space.spaces:
-                    if k in info_dict:
-                        out_dict[k] = process_dict(space.spaces[k], info_dict[k])
-                    else:
-                        out_dict[k] = correction(space.spaces[k].sample())
-                return out_dict
-            else:
-                return info_dict
-
-        obs_dict = process_dict(self.observation_space, info)
+        recursive_update(obs_dict, info)
 
         self._last_pov = obs_dict['pov']
 
         # Now we wrap
-        if isinstance(self.spec, EnvWrapper):
-            obs_dict = self.spec.wrap_observation(obs_dict)
+        if isinstance(self.env_spec, EnvWrapper):
+            obs_dict = self.env_spec.wrap_observation(obs_dict)
 
         return obs_dict
 
@@ -394,22 +391,27 @@ class MineRLEnv(gym.Env):
         """
         action_in = deepcopy(action_in)
 
-        if isinstance(self.spec, EnvWrapper):
-            action_in = self.spec.unwrap_action(action_in)
+        if isinstance(self.env_spec, EnvWrapper):
+            action_in = self.env_spec.unwrap_action(action_in)
+
+        bottom_env_spec = self.env_spec
+        while isinstance(bottom_env_spec, EnvWrapper):
+            bottom_env_spec = bottom_env_spec.env_to_wrap
+
 
         action_str = []
         for act in action_in:
             # Process enums.
-            if isinstance(self.action_space.spaces[act], spaces.Enum):
+            if isinstance(bottom_env_spec.action_space.spaces[act], spaces.Enum):
                 if isinstance(action_in[act], int):
-                    action_in[act] = self.action_space.spaces[act].values[action_in[act]]
+                    action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
                 else:
                     assert isinstance(
                         action_in[act], str), "Enum action {} must be str or int".format(act)
-                    assert action_in[act] in self.action_space.spaces[act].values, "Invalid value for enum action {}, {}".format(
+                    assert action_in[act] in bottom_env_spec.action_space.spaces[act].values, "Invalid value for enum action {}, {}".format(
                         act, action_in[act])
 
-            elif isinstance(self.action_space.spaces[act], gym.spaces.Box):
+            elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Box):
                 subact = action_in[act]
                 assert not isinstance(
                     subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)

@@ -119,7 +119,6 @@ def gen_obtain_debug_actions(env):
 
 def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVector-v0'):
 
-    wrapper = Vectorized(ObtainDiamondDebug(dense=False))
     env = gym.make(environment)
     wenv = gym.make(wrapped_env)
     # TODO: 
@@ -132,13 +131,13 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
         action = env.action_space.no_op()
         action['equip'] = 'red_flower'
         print(action)
-        waction = wrapper.wrap_action(action)
+        waction = wenv.env_spec.wrap_action(action)
         _, _, _, _ = env.step(action)
         _, _, _, _ = wenv.step(waction)
         obs, _, _, _ = env.step(env.action_space.no_op())
         wobs, _, _, _ = wenv.step(wenv.action_space.no_op())
 
-        assert_equal_recursive(obs, wrapper.unwrap_observation(wobs))
+        assert_equal_recursive(obs, wenv.env_spec.unwrap_observation(wobs))
 
         for action in gen_obtain_debug_actions(env):
             for key, value in action.items():
@@ -146,7 +145,7 @@ def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtai
                     print('Action of {}:{} if successful gets {}'.format(key, value, reward_dict[value]))
 
             obs, reward, done, info = env.step(action)
-            wobs, wreward, wdone, winfo = wenv.step(wrapper.wrap_action(action))
+            wobs, wreward, wdone, winfo = wenv.step(wenv.env_spec.wrap_action(action))
 
             # Check the wraped env agrees
             assert reward == wreward
