@@ -8,16 +8,19 @@ from herobraine.hero import AgentHandler
 from herobraine.hero.spaces import MineRLSpace, Box, Dict
 
 
+# TODO: Make a test.
 def union_spaces(hdls_1: List[AgentHandler], hdls_2: List[AgentHandler]) -> List[MineRLSpace]:
     # Merge action/observation spaces from two environments
     hdls = hdls_1 + hdls_2
     hdl_dict = collections.defaultdict(list)
-    _ = [hdl_dict[hdl.to_string()].append(hdl) for hdl in hdls if hdl is not None]  # Join matching handlers
+    _ = [hdl_dict[hdl.to_string()].append(hdl) for hdl in hdls]  # Join matching handlers
     merged_hdls = [reduce(lambda a, b: a | b, matching) for matching in hdl_dict.values()]
 
     return merged_hdls
 
 
+
+# TODO: make a test.
 def intersect_space(space, sample):
     if isinstance(space, Dict):
         new_sample = collections.OrderedDict()
@@ -29,6 +32,7 @@ def intersect_space(space, sample):
         return sample
 
 
+# TODO: make a test
 def flatten_spaces(hdls: List[AgentHandler]) -> Tuple[list, List[Tuple[str, MineRLSpace]]]:
     return [hdl.space.flattened for hdl in hdls if hdl.space.is_flattenable()], \
            [(hdl.to_string(), hdl.space) for hdl in hdls if

@@ -233,7 +233,7 @@ class ObtainDiamondDebug(ObtainDiamond):
         self.xml=f"obtainDebug{'' if not dense else 'Dense'}.xml"
 
     def create_actionables(self):
-        return super().create_actionables() + [
+        return SimpleEnvSpec.create_actionables(self) + [
             handlers.PlaceBlock(['none', 'dirt', 'log', 'log2', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'diamond_ore']),
             handlers.EquipItem(['none', 'red_flower', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe']),
             handlers.CraftItem(['none', 'torch', 'stick', 'planks', 'crafting_table']),
