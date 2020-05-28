@@ -116,7 +116,7 @@ class Discrete(gym.spaces.Discrete, MineRLSpace):
         return self.eye[x]
 
     def unmap(self, x):
-        return np.argmax(x).flatten().tolist()[0]
+        return np.array(np.argmax(x).flatten().tolist()[0], dtype=self.dtype)
 
 
 class Enum(Discrete, MineRLSpace):
@@ -379,7 +379,7 @@ class DiscreteRange(Discrete):
         return self.eye[x - self.begin]
 
     def unmap(self, x):
-        return np.argmax(x).flatten().tolist()[0] + self.begin
+        return np.array(np.argmax(x).flatten().tolist()[0] + self.begin, dtype=self.dtype)
 
     def __repr__(self):
         return "DiscreteRange({}, {})".format(self.begin, self.n + self.begin)
