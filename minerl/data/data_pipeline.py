@@ -10,6 +10,7 @@ from queue import PriorityQueue, Empty
 from typing import List, Tuple, Any
 from itertools import cycle, islice
 from minerl.env import spaces
+import herobraine
 
 import cv2
 import os
@@ -58,10 +59,15 @@ class DataPipeline:
         self.worker_batch_size = worker_batch_size
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
-
+        
+        self._env_spec = gym.envs.registration.spec(self.environment)._kwargs['spec']
         self._action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
         self._observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
 
+
+    @property
+    def spec(self) -> herobraine.env_spec.EnvSpec:
+        return self._env_spec
 
     @property
     def action_space(self):
@@ -69,6 +75,8 @@ class DataPipeline:
         Returns: action space of current MineRL environment
         """
         return self._action_space
+
+    
 
     @property
     def observation_space(self):
