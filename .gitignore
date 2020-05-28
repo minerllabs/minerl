@@ -183,3 +183,4 @@ cython_debug/
 
 scripts/results
 .DS_STORE
+tests_data/

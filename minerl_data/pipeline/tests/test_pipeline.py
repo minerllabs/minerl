@@ -120,6 +120,11 @@ def test_dataloader_regression():
         # TODO: Rerender data, AO if off
         assert_equal_recursive(x[1], new_data[i][1])
 
+
+
+def test_ao_on_or_off():
+    assert False, "AO has not been fixed."
+
     
 
 
