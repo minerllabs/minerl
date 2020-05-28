@@ -187,9 +187,10 @@ class Enum(Discrete, MineRLSpace):
     def __len__(self):
         return len(self.values)
 
-    def __contains__(self, x):
+    def contains(self, x):
         return x in self.values
 
+    __contains__ = contains
 
 class Dict(gym.spaces.Dict, MineRLSpace):
     def no_op(self):
@@ -271,16 +272,6 @@ class Dict(gym.spaces.Dict, MineRLSpace):
                 unmapped[k] = aux[k]
 
         return unmapped
-
-    def __contains__(self, x):
-        if not isinstance(x, dict) or len(x) != len(self.spaces):
-            return False
-        for k, space in self.spaces.items():
-            if k not in x:
-                return False
-            if not space.contains(x[k]):
-                return False
-        return True
 
 
 class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):
@@ -374,6 +365,9 @@ class DiscreteRange(Discrete):
 
     def contains(self, x):
         return super().contains(x - self.begin)
+
+        
+    __contains__ = contains
 
     def no_op(self):
         return self.begin
