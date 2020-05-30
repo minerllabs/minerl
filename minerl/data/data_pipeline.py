@@ -60,7 +60,7 @@ class DataPipeline:
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
         
-        self._env_spec = gym.envs.registration.spec(self.environment)._kwargs['spec']
+        self._env_spec = gym.envs.registration.spec(self.environment)._kwargs['env_spec']
         self._action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
         self._observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
 

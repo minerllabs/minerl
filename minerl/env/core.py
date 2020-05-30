@@ -322,8 +322,8 @@ class MineRLEnv(gym.Env):
             info['equipped_items.mainhand.damage'] = np.array(info['equipped_items']['mainhand']['damage'])
             info['equipped_items.mainhand.maxDamage'] = np.array(info['equipped_items']['mainhand']['maxDamage'])
         except Exception as e:
-            del info['equipped_items']
-            print(e)
+            if 'equipped_items' in info:
+                del info['equipped_items']
         
         bottom_env_spec = self.env_spec
         while isinstance(bottom_env_spec, EnvWrapper):
@@ -383,7 +383,6 @@ class MineRLEnv(gym.Env):
         # Now we wrap
         if isinstance(self.env_spec, EnvWrapper):
             obs_dict = self.env_spec.wrap_observation(obs_dict)
-            print("poo")
 
         return obs_dict
 
@@ -399,6 +398,9 @@ class MineRLEnv(gym.Env):
         bottom_env_spec = self.env_spec
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
+
+        action_in['camera'] = [0, np.clip(action_in['camera'][1], -5,5)]
+        print(action_in)
 
 
         action_str = []
@@ -427,6 +429,7 @@ class MineRLEnv(gym.Env):
 
             action_str.append(
                 "{} {}".format(act, str(action_in[act])))
+                
 
         return "\n".join(action_str)
 
