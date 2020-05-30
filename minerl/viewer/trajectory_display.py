@@ -9,7 +9,7 @@ import pyglet
 
 from minerl.viewer.scaled_image_display import ScaledImageDisplay
 from minerl.viewer.primitives import Rect, Point
-
+import abc
 
 SZ = 35
 BIG_FONT_SIZE = int(0.5*SZ)
@@ -19,7 +19,8 @@ USING_COLOR = (255,0,0,255)
 CAMERA_USING_COLOR =(162, 54, 69)
 CUM_SUM_SPACE  = .02
 
-class TrajectoryDisplay(ScaledImageDisplay):
+
+class TrajectoryDisplayBase(ScaledImageDisplay):
     
     def __init__(self, environment, stream_name="", instructions=None, cum_rewards=None):
         super().__init__(SZ*28, SZ*14)
@@ -29,24 +30,17 @@ class TrajectoryDisplay(ScaledImageDisplay):
 
         self.instructions = instructions
         self.f_ox, self.fo_y = SZ, SZ
-        self.key_labels = self.make_key_labels()
         self.window.set_caption("{}: {}".format(environment, stream_name))
         self.cum_rewards = cum_rewards
-        
+        self.reward_height = int(SZ*5*0.8)
+
 
         # Set up camera control stuff.
         cam_x = self.f_ox + SZ*7
         cam_y = self.fo_y
-        cam_size = int(SZ*5*0.8)
+        cam_size = self.reward_height
         self.camera_rect = Rect(cam_x,cam_y, cam_size, cam_size, color=(36, 109, 94))
-        self.camera_labels = [
-            pyglet.text.Label('Camera Control', font_size=SMALLER_FONT_SIZE, x= cam_x + cam_size/2, y= cam_y + cam_size +2, anchor_x='center'),
-            pyglet.text.Label('PITCH →', font_size=SMALLER_FONT_SIZE,font_name='Courier New', x= cam_x + cam_size/2, y= cam_y - SMALLER_FONT_SIZE- 4, anchor_x='center'),
-            pyglet.text.Label('Y\nA\nW\n↓', font_size=SMALLER_FONT_SIZE,  font_name='Courier New', multiline=True,width=1, x= cam_x - SMALLER_FONT_SIZE -2, y= cam_y +cam_size/2, anchor_x='left')
-        ]
-        self.camera_labels[-1].document.set_style(0, len(self.camera_labels[-1].document.text),{'line_spacing': SMALLER_FONT_SIZE+2} )
-        self.camera_info_label = pyglet.text.Label('[0,0]', font_size=SMALLER_FONT_SIZE-1, x= cam_x + cam_size, y= cam_y, anchor_x='right', anchor_y='bottom')
-        self.camera_point = Point(*self.camera_rect.center, radius=SZ/4)
+
 
         if self.instructions:
             self.make_instructions(environment, stream_name)
@@ -64,6 +58,7 @@ class TrajectoryDisplay(ScaledImageDisplay):
         if self.cum_rewards is not None:
             self.make_cum_reward_plotter()
 
+        
     def make_instructions(self, environment, stream_name):
         if len(stream_name) >= 46:
             stream_name = stream_name[:44] + "..."
@@ -77,7 +72,7 @@ class TrajectoryDisplay(ScaledImageDisplay):
         self.progress_label.set_style('background_color', (0,0,0,255))
         self.meter = tqdm.tqdm()
 
-
+        
     def make_cum_reward_plotter(self):
         # First let us matplot lib plot the cum rewards to an image.
         # Make a random plot...
@@ -113,9 +108,9 @@ class TrajectoryDisplay(ScaledImageDisplay):
         self.cum_reward_image =data
         
         # Create the rectangle.
-        width = height = int(self.camera_rect.height)
+        width = height = self.reward_height
         x,y = self.camera_rect.center
-        y += int(self.camera_rect.height//2 + SZ*2)
+        y += int(self.reward_height//2 + SZ*2)
         x -= width//2
         self.cum_reward_rect = Rect(x-1,y-1, width+2,height+2, color=(255, 255, 255))
         self.cum_reward_label = pyglet.text.Label(
@@ -137,6 +132,73 @@ class TrajectoryDisplay(ScaledImageDisplay):
             self.cum_reward_info_label.set_style('color', (255,0,0,255))
         else:
             self.cum_reward_info_label.set_style('color', (255,255,255,255))
+
+    
+    def render(self, obs,reward, done,action, step, max):
+        self.window.clear()
+        self.window.switch_to()
+        e = self.window.dispatch_events()
+        
+        self.blit_texture(obs["pov"], SZ*14, 0, self.width -SZ*14, self.width -SZ*14)
+        self.process_actions(action)
+        self.process_observations(obs)
+
+
+        if self.instructions:
+            for label in self.instructions_labels:
+                label.draw()
+            prog_str = self.meter.format_meter(step, max, 0, ncols=52) + " "*48
+        
+            self.progress_label.document.text =  prog_str
+            self.progress_label.draw()
+
+        if self.cum_rewards is not None:
+            self.update_reward_info(reward, step,max)
+            self.cum_reward_label.draw()
+            self.cum_reward_rect.draw()
+            self.blit_texture(self.cum_reward_image, 
+                self.cum_reward_rect.x+1,
+                self.cum_reward_rect.y+1,
+                width=self.cum_reward_rect.width-2,
+                height= self.cum_reward_rect.height-2)
+            self.cum_reward_line.draw()
+            self.cum_reward_info_label.draw()
+
+        # Custom render loop.
+        self._render(obs, reward, done, action, step, max)
+        self.window.flip()
+
+    
+    @abc.abstractmethod
+    def _render(self, obs, reward, done, action, step, max):
+        pass
+
+    @abc.abstractmethod
+    def process_actions(actions):
+        pass
+
+    @abc.abstractmethod
+    def process_observations(obs):
+        pass
+
+
+
+class HumanTrajectoryDisplay(TrajectoryDisplayBase):
+    
+    def __init__(self, environment, stream_name="", instructions=None, cum_rewards=None):
+        super().__init__(environment, stream_name=stream_name, instructions=instructions, cum_rewards=cum_rewards)
+        
+        self.camera_labels = [
+            pyglet.text.Label('Camera Control', font_size=SMALLER_FONT_SIZE, x= cam_x + cam_size/2, y= cam_y + cam_size +2, anchor_x='center'),
+            pyglet.text.Label('PITCH →', font_size=SMALLER_FONT_SIZE,font_name='Courier New', x= cam_x + cam_size/2, y= cam_y - SMALLER_FONT_SIZE- 4, anchor_x='center'),
+            pyglet.text.Label('Y\nA\nW\n↓', font_size=SMALLER_FONT_SIZE,  font_name='Courier New', multiline=True,width=1, x= cam_x - SMALLER_FONT_SIZE -2, y= cam_y +cam_size/2, anchor_x='left')
+        ]
+        self.camera_labels[-1].document.set_style(0, len(self.camera_labels[-1].document.text),{'line_spacing': SMALLER_FONT_SIZE+2} )
+        self.camera_info_label = pyglet.text.Label('[0,0]', font_size=SMALLER_FONT_SIZE-1, x= cam_x + cam_size, y= cam_y, anchor_x='right', anchor_y='bottom')
+        self.camera_point = Point(*self.camera_rect.center, radius=SZ/4)
+
+        self.key_labels = self.make_key_labels()
+
 
     def make_key_labels(self):
         keys = {}
@@ -219,15 +281,12 @@ class TrajectoryDisplay(ScaledImageDisplay):
             else:
                 self.key_labels[a].document.text = ""
 
+    def process_observations(self,obs):
+        # TODO: ADD INVENTORY
+        pass
 
-    def render(self, obs,reward, done,action, step, max):
-        self.window.clear()
-        self.window.switch_to()
-        e = self.window.dispatch_events()
-        
-        self.blit_texture(obs["pov"], SZ*14, 0, self.width -SZ*14, self.width -SZ*14)
-        self.process_actions(action)
 
+    def _render(self, obs,reward, done,action, step, max):
         for label in self.key_labels:
             self.key_labels[label].draw()
 
@@ -236,26 +295,66 @@ class TrajectoryDisplay(ScaledImageDisplay):
             label.draw()
         self.camera_info_label.draw()
         self.camera_point.draw()
-        
-        if self.instructions:
-            for label in self.instructions_labels:
-                label.draw()
-            prog_str = self.meter.format_meter(step, max, 0, ncols=52) + " "*48
-        
-            self.progress_label.document.text =  prog_str
-            self.progress_label.draw()
 
-        if self.cum_rewards is not None:
-            self.update_reward_info(reward, step,max)
-            self.cum_reward_label.draw()
-            self.cum_reward_rect.draw()
-            self.blit_texture(self.cum_reward_image, 
-                self.cum_reward_rect.x+1,
-                self.cum_reward_rect.y+1,
-                width=self.cum_reward_rect.width-2,
-                height= self.cum_reward_rect.height-2)
-            self.cum_reward_line.draw()
-            self.cum_reward_info_label.draw()
 
-            
-        self.window.flip()
+# Currently fixed size vector displays.
+ACTION_VEC_SIZE = 64
+
+class VectorTrajectoryDisplay(TrajectoryDisplayBase):
+    
+    def __init__(self, environment, stream_name="", instructions=None, cum_rewards=None):
+        super().__init__(environment, 
+            stream_name=stream_name,
+            instructions=instructions, 
+            cum_rewards=cum_rewards)
+
+
+        # Set up vectors
+        cam_x = self.f_ox +SZ*1.7
+        cam_y = self.fo_y + SZ/4
+        self.vec_rec_height = int(SZ)
+        self.vec_rec_width = int(SZ/5.87)
+        self.act_rects = [
+            Rect(cam_x + int(self.vec_rec_width*1.1*i),cam_y, self.vec_rec_width, self.vec_rec_height, color=(36, 109, 94))
+            for i in range(ACTION_VEC_SIZE)]
+
+        self.obs_rects = [
+            Rect(cam_x + int(self.vec_rec_width*1.1*i),cam_y + self.vec_rec_height*2.7, self.vec_rec_width, self.vec_rec_height, color=(36, 109, 94))
+            for i in range(ACTION_VEC_SIZE)]
+
+        # Labels
+        default_params = {  
+            "font_name": 'Courier New',
+            "font_size": SMALL_FONT_SIZE-2,
+            "anchor_x":'left', "anchor_y":'center'}
+        diff = 0
+        self.act_label = pyglet.text.Label("action:", x=self.f_ox - SZ/2, y= cam_y + int(self.vec_rec_height*diff), **default_params)
+        self.state_label = pyglet.text.Label("state:", x=self.f_ox - SZ/2, y= cam_y + self.vec_rec_height*2.7 + int(self.vec_rec_height*diff), **default_params)
+
+
+    def process_actions(self, action):
+        action_vec = action['vector']
+
+        for i, v in enumerate(action_vec):
+            self.act_rects[i].set(h=int(self.vec_rec_height*v))
+            self.act_rects[i].set(color=( 36, 109,  94) if v > 0 else CAMERA_USING_COLOR)
+
+
+    def process_observations(self,obs):
+        action_vec = obs['vector']
+
+        for i, v in enumerate(action_vec):
+            self.obs_rects[i].set(h=int(self.vec_rec_height*v))
+            self.obs_rects[i].set(color=( 36, 109,  94) if v > 0 else CAMERA_USING_COLOR)
+
+
+
+    def _render(self, obs,reward, done,action, step, max):
+        for r in self.act_rects:
+            r.draw()
+
+        self.act_label.draw()
+        self.state_label.draw()
+
+        for r in self.obs_rects:
+            r.draw()

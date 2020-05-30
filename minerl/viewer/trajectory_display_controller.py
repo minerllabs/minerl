@@ -10,7 +10,7 @@ import os
 import pyglet
 import pyglet.window.key as key
 
-from minerl.viewer.trajectory_display import TrajectoryDisplay
+from minerl.viewer.trajectory_display import HumanTrajectoryDisplay, VectorTrajectoryDisplay
 
 QUIT=key.Q
 FORWARD=key.RIGHT
@@ -36,17 +36,19 @@ class TrajectoryDisplayController(object):
     based on a sequence of data frames.
     """
     
-    def __init__(self, data_frames, header, subtext, instructions=DEFAULT_INSTRUCTIONS, cum_rewards=None):
+    def __init__(self, 
+        data_frames, header, subtext, instructions=DEFAULT_INSTRUCTIONS, cum_rewards=None, 
+        vector_display=False):
         assert len(data_frames) > 0, "Empty dataframes provided."
 
         self.data_frames = data_frames
         self.position = 0
         self.speed = 1
-        self.display = self._make_display(header, subtext, instructions)
+        self.display = self._make_display(header, subtext, instructions, vector_display=vector_display)
 
 
 
-    def _make_display(self, header, subtext, instructions, cum_rewards=None):
+    def _make_display(self, header, subtext, instructions, cum_rewards=None, vector_display=False):
         """Makes the trajectory display. Forms the reward plot from the data frames
         
         Args:
@@ -57,10 +59,15 @@ class TrajectoryDisplayController(object):
 
         cum_rewards = np.cumsum([x[2] for x in self.data_frames]) if cum_rewards is None else cum_rewards
         
-        return TrajectoryDisplay(
-            header, subtext, instructions=instructions,
-            cum_rewards=cum_rewards)
+        if not vector_display:
+            return HumanTrajectoryDisplay(
+                header, subtext, instructions=instructions,
+                cum_rewards=cum_rewards)
 
+        else:
+            return VectorTrajectoryDisplay(
+                header, subtext, instructions=instructions,
+                cum_rewards=cum_rewards)
     
     def run(self, onFrameChange=None):
         """Runs the trajectory display controller. 

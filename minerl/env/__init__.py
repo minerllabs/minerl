@@ -26,38 +26,40 @@ from herobraine.hero import spaces
 from minerl.env.core import MineRLEnv, missions_dir
 from minerl.env.recording import MineRLRecorder, MINERL_RECORDING_PATH
 
+# TODO: Properly integrate recording.
+
 import numpy as np
 
 
 import herobraine.env_specs
 
-register(
-    id='MineRLTreechopDebug-v0',
-    entry_point=entry_point,
-    kwargs={
-        'xml': os.path.join(missions_dir, 'treechopDebug.xml'),
-        'observation_space': spaces.Dict({
-            'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-        }),
-        'action_space': spaces.Dict(spaces={
-            "forward": spaces.Discrete(2), 
-            "back": spaces.Discrete(2), 
-            "left": spaces.Discrete(2), 
-            "right": spaces.Discrete(2), 
-            "jump": spaces.Discrete(2), 
-            "sneak": spaces.Discrete(2), 
-            "sprint": spaces.Discrete(2), 
-            "attack": spaces.Discrete(2),
-            "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
-        }),
-        'docstr': """
-        In treechop debug, the agent must collect 2 `minercaft:log`. This tests the handlers for rewards and completion.
+# register(
+#     id='MineRLTreechopDebug-v0',
+#     entry_point=entry_point,
+#     kwargs={
+#         'xml': os.path.join(missions_dir, 'treechopDebug.xml'),
+#         'observation_space': spaces.Dict({
+#             'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
+#         }),
+#         'action_space': spaces.Dict(spaces={
+#             "forward": spaces.Discrete(2), 
+#             "back": spaces.Discrete(2), 
+#             "left": spaces.Discrete(2), 
+#             "right": spaces.Discrete(2), 
+#             "jump": spaces.Discrete(2), 
+#             "sneak": spaces.Discrete(2), 
+#             "sprint": spaces.Discrete(2), 
+#             "attack": spaces.Discrete(2),
+#             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
+#         }),
+#         'docstr': """
+#         In treechop debug, the agent must collect 2 `minercaft:log`. This tests the handlers for rewards and completion.
 
-        The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.\n"""
-            },
-            max_episode_steps=1000,
-            reward_threshold=2.0,
-)
+#         The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.\n"""
+#             },
+#             max_episode_steps=1000,
+#             reward_threshold=2.0,
+# )
 
 # register(
 #     id='MineRLObtainTest-v0',

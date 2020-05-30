@@ -62,7 +62,8 @@ def main(opts):
     trajectory_display_controller = TrajectoryDisplayController(
         data_frames, 
         header=opts.environment, 
-        subtext=opts.stream_name
+        subtext=opts.stream_name,
+        vector_display='VectorObf' in opts.environment
     )
     trajectory_display_controller.run()
 
