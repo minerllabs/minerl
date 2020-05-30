@@ -91,3 +91,13 @@ class EnvSpec(abc.ABC):
             reg_spec.update(dict(reward_threshold=self.reward_threshold))
 
         gym.register(**reg_spec)
+
+
+    def __repr__(self):
+        """
+        Prints the class, name, observation space, and action space of the handler.
+        """
+        return '{}-{}-spaces({},{})'.format(self.__class__.__name__, self.name, self.observation_space, self.action_space)
+
+
+

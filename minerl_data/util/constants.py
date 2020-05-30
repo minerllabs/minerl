@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+from os.path import join as J
 
 def we_are_frozen():
     # All of the modules are built-in to the interpreter, e.g., by py2exe
@@ -12,6 +13,8 @@ def module_path():
         return os.path.dirname((sys.executable))
     return os.path.dirname((__file__))
 
+
+ASSETS_DIR = os.path.abspath(J(os.path.dirname(__file__), '..', 'assets'))
 
 J =  os.path.join
 E = os.path.exists

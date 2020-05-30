@@ -278,7 +278,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                         # TODO: Apply wrapping.
                         if isinstance(environment, EnvWrapper):
                             if _prefix == "observation":
-                                tick_data[_prefix]['pov'] = None
+                                tick_data[_prefix]['pov'] = environment.observation_space['pov'].no_op()
                                 tick_data[_prefix] = environment.wrap_observation(tick_data[_prefix])
                                 del tick_data[_prefix]['pov']
                             elif _prefix == "action":

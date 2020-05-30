@@ -196,7 +196,7 @@ class FlatInventoryObservation(AgentHandler):
     def __init__(self, item_list):
         item_list = sorted(item_list)
         super().__init__(spaces.Dict(spaces={
-            k: spaces.Box(low=0, high=512, shape=(), dtype=np.int32)
+            k: spaces.Box(low=0, high=2304, shape=(), dtype=np.int32, normalizer_scale='log')
             for k in item_list
         }))
         self.num_items = len(item_list)
@@ -349,16 +349,19 @@ class TypeObservation(AgentHandler):
                 hotbar_index = obs['hotbar']
                 if obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerPlayer':
                     offset -= 1
-                return np.array(
-                    self._univ_items.index(obs['slots']['gui']['slots'][offset + hotbar_index]['name']),
-                    dtype=np.int32)
+                    item_name = (obs['slots']['gui']['slots'][offset + hotbar_index]['name'].split("minecraft:")[-1])
+                    if not item_name in self._items:
+                        raise ValueError()
+                    if item_name == 'air':
+                        raise KeyError()
+                    return item_name
             else:
                 raise NotImplementedError('type not implemented for hand type' + self._hand)
         except KeyError:
             # No item in hotbar slot - return 'none'
-            return np.array(self.space['none'], dtype=np.int32)
+            return 'none'
         except ValueError:
-            return np.array(self.space['other'], dtype=np.int32)
+            return  'other'
 
     def add_to_mission_spec(self, mission_spec):
         raise NotImplementedError('add_to_mission_spec not implemented for TypeObservation')

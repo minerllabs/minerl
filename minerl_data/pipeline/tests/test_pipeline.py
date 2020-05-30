@@ -18,7 +18,7 @@ from collections import OrderedDict
 
 TESTS_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tests_data'))
 
-def _test_pipeline(copy_test_data_out=False, upload_test_data=''):
+def test_pipeline(copy_test_data_out=False, upload_test_data=''):
     # 0. Download and unzip a sample stream.
     sample_stream =  os.path.join(TESTS_DATA, 'sample_stream.zip')
     if not os.path.exists(sample_stream):
@@ -57,7 +57,7 @@ def _test_pipeline(copy_test_data_out=False, upload_test_data=''):
         test_name = 'test_pipeline'
         if copy_test_data_out:
             test_data_out = os.path.join(TESTS_DATA, 'out', test_name)
-            os.makedirs(os.path.join(TESTS_DATA, 'out'))
+            os.makedirs(os.path.join(TESTS_DATA, 'out'), exist_ok=True)
             shutil.copytree(tmpdir, test_data_out)
         if upload_test_data:
             # Zip it and upload it.
@@ -69,6 +69,7 @@ def _test_pipeline(copy_test_data_out=False, upload_test_data=''):
                 subprocess.check_call(f'gsutil cp {zip_result_dir} {upload_test_data}'.split(' '))
             
 def test_obfuscated_data():
+    # Neeed to reproducedata.
     sample_data_dir = os.path.join(TESTS_DATA, 'out', 'test_pipeline', 'output', 'data')
     os.environ.update(dict(
         MINERL_DATA_ROOT=sample_data_dir
@@ -178,6 +179,6 @@ def test_ao_on_or_off():
 
 
 
-if __name__ == '__main__':
-    # test_pipeline(copy_test_data_out=True)
-    test_obfuscated_data()
+# if __name__ == '__main__':
+#     # test_pipeline(copy_test_data_out=True)
+#     # test_obfuscated_data()
