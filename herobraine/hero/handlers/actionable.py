@@ -249,7 +249,12 @@ class PlaceBlock(ItemListCommandAction):
             for action in obs['custom_action']['actions'].keys():
                 try:
                     if int(action) == -99 and self._prev_inv is not None:
-                        return self._univ_items.index(self._prev_inv[int(-10 + obs['hotbar'])]['name'])
+
+                        item_name = self._prev_inv[int(-10 + obs['hotbar'])]['name'].split("minecraft:")[-1]
+                        if item_name not in self._items:
+                            raise ValueError()
+                        else:
+                            return item_name
                 except ValueError:
                     return self._default
         except TypeError:

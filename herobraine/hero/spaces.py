@@ -64,11 +64,18 @@ class Tuple(gym.spaces.Tuple, MineRLSpace):
 
 
 class Box(gym.spaces.Box, MineRLSpace):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args,  normalizer_scale='linear', **kwargs,):
         super(Box, self).__init__(*args, **kwargs)
 
         self._flat_low = self.low.flatten().astype(np.float64)
         self._flat_high = self.high.flatten().astype(np.float64)
+        
+        if normalizer_scale == 'log':
+            self.max_log = np.log(1 + (self._flat_high - self._flat_low))
+        else:
+            assert normalizer_scale == 'linear', "only log and linear are supported"
+
+        self.normalizer_scale = normalizer_scale
 
     CENTER = 0
 
@@ -82,7 +89,10 @@ class Box(gym.spaces.Box, MineRLSpace):
             return Box(low=self._flat_low, high=self._flat_high)
 
     def flat_map(self, x):
-        return (x.flatten().astype(np.float64) - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
+        if self.normalizer_scale == 'linear':
+            return (x.flatten().astype(np.float64) - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
+        elif self.normalizer_scale == 'log':
+            return np.log(x.flatten().astype(np.float64) - self._flat_low + 1) / self.max_log - Box.CENTER
 
     def unmap(self, x):
         """
@@ -90,7 +100,12 @@ class Box(gym.spaces.Box, MineRLSpace):
         Then reshapes it back to the original shape.
         """
         low = x + Box.CENTER
-        high = low * (self._flat_high - self._flat_low) + self._flat_low
+        
+        if self.normalizer_scale == 'linear':
+            high = low * (self._flat_high - self._flat_low) + self._flat_low
+        elif self.normalizer_scale == 'log':
+            high = np.exp(low* self.max_log) -1 + self._flat_low
+        
         reshaped =  high.reshape(self.shape)
         if np.issubdtype(self.dtype, np.integer):
             return np.round(reshaped).astype(self.dtype)
@@ -99,6 +114,19 @@ class Box(gym.spaces.Box, MineRLSpace):
 
     def is_flattenable(self):
         return len(self.shape) <= 2
+
+    def clip(self, x):
+        # Clips the vector x between the vectors self.low and self.high.
+        return np.clip(x, self.low, self.high)
+
+
+    def __repr__(self):
+        # Prints the name of the class and its information
+        # Specifically, the shape, the max of self.high, and the min of self.low
+        # :return: string representation of the Box
+        return "Box(low={0}, high={1}, shape={2})".format(np.min(self.low), np.max(self.high), self.shape)
+
+
 
 
 class Discrete(gym.spaces.Discrete, MineRLSpace):

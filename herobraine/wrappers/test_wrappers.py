@@ -15,7 +15,7 @@ from herobraine.wrappers.util import union_spaces
 import numpy as np
 
 
-def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=None):
+def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=[ envs.MINERL_NAVIGATE_DENSE_V0, envs.MINERL_OBTAIN_DIAMOND_V0]):
     """
     Tests that wrap_action composed with unwrap action is the identity.
     1. Construct an VecWrapper of an EnvSpec called ObtainDiamond
@@ -23,12 +23,18 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=None):
     3. Wrap and unwrap those actions.
     4. Assert that the result is the same as the sample
     """
-    vec_env = wrappers.Obfuscated(wrappers.Vectorized(base_env, common_envs))
+    vec_env = envs.MINERL_OBTAIN_DIAMOND_OBF_V0
 
-    s = base_env.action_space.sample()
-    ws = vec_env.wrap_action(s)
-    us = vec_env.unwrap_action(ws)
-    assert_equal_recursive(s, us)
+    for _ in range(1000):
+        s = base_env.action_space.sample()
+        ws = vec_env.wrap_action(s)
+        us = vec_env.unwrap_action(ws)
+        assert_equal_recursive(s, us)
+
+        # Now we should see that the spaces align for going the other direction.
+        s = vec_env.action_space.sample()
+        us = vec_env.unwrap_action(s)
+        assert  us in base_env.action_space
 
 
 def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=None):

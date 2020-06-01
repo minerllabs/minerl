@@ -42,7 +42,7 @@ def package_files(directory):
 
 setup(
     name="minerl_data",
-    version='0.0.1',
+    version='0.0.2',
     packages=setuptools.find_packages(),
     author="William Guss, Brandon Houghton",
     cmdclass={
