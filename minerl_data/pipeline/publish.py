@@ -271,7 +271,6 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                             # Apply the handler from_universal to the universal[tick]
                             val = handler.from_universal(universal[tick])
                             assert val in handler.space, f"{val} is not in {handler.space} for handler {handler.to_string()}"
-
                             tick_data[_prefix][handler.to_string()] = val
 
                         # Perhaps we can wrap here

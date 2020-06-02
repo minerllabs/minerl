@@ -177,7 +177,8 @@ class CraftItem(ItemListCommandAction):
     def from_universal(self, obs):
         if 'diff' in obs and 'crafted' in obs['diff'] and len(obs['diff']['crafted']) > 0:
             try:
-                return self._univ_items.index(obs['diff']['crafted'][0]['item'])
+                x =  self._univ_items.index(obs['diff']['crafted'][0]['item'])
+                return obs['diff']['crafted'][0]['item'].split('minecraft:')[-1]
             except ValueError:
                 return self._default
                 # return self._items.index('other')
@@ -202,7 +203,8 @@ class SmeltItem(CraftItem):
     def from_universal(self, obs):
         if 'diff' in obs and 'smelted' in obs['diff'] and len(obs['diff']['smelted']) > 0:
             try:
-                return self._univ_items.index(obs['diff']['smelted'][0]['item'])
+                x =  self._univ_items.index(obs['diff']['smelted'][0]['item'])
+                return obs['diff']['smelted'][0]['item'].split('minecraft:')[-1]
             except ValueError:
                 return self._default
                 # return self._items.index('other')
@@ -298,7 +300,7 @@ class EquipItem(ItemListCommandAction):
                 item = self._univ_items.index(obs['slots']['gui']['slots'][-10 + hotbar_index]['name'])
                 if item != self.previous:
                     self.previous = item
-                    return item
+                    return obs['slots']['gui']['slots'][-10 + hotbar_index]['name'].split('minecraft:')[-1]
         except KeyError:
             return self._default
         except ValueError:

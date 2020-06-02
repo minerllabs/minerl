@@ -24,10 +24,10 @@ class Obfuscated(EnvWrapper):
         assert isinstance(env_to_wrap, Vectorized), 'Obfuscated env wrappers only supported for vectorized environments'
 
         # Get the directory for the actions
-        with open('action.secret', 'rb') as f:
+        with open('action.secret.compat', 'rb') as f:
             self.ac_enc, self.ac_dec = dill.load(f)
 
-        with open('obs.secret', 'rb') as f:
+        with open('obs.secret.compat', 'rb') as f:
             self.obs_enc, self.obs_dec = dill.load(f)
 
         # Compute the no op vertors

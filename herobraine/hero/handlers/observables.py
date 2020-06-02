@@ -349,13 +349,16 @@ class TypeObservation(AgentHandler):
                 hotbar_index = obs['hotbar']
                 if obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerPlayer':
                     offset -= 1
-                    item_name = (obs['slots']['gui']['slots'][offset + hotbar_index]['name'].split("minecraft:")[-1])
-                    if not item_name in self._items:
-                        raise ValueError()
-                    if item_name == 'air':
-                        raise KeyError()
-                    return item_name
-            else:
+
+                item_name = (
+                    obs['slots']['gui']['slots'][offset + hotbar_index]['name'].split("minecraft:")[-1])
+                if not item_name in self._items:
+                    raise ValueError()
+                if item_name == 'air':
+                    raise KeyError()
+
+                return item_name
+            else: 
                 raise NotImplementedError('type not implemented for hand type' + self._hand)
         except KeyError:
             # No item in hotbar slot - return 'none'
