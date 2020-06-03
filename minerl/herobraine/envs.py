@@ -38,10 +38,11 @@ MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0 = ObtainIronPickaxe(dense=True)
 # })
 # MINERL_OBTAIN_BED_V0 = Obtain(target_item='bed', dense=False, reward_schedule=None)
 
-
+# Competition environments.
+# TODO: Determine naming schemes
 common_envs = [MINERL_OBTAIN_DIAMOND_V0, MINERL_TREECHOP_V0, MINERL_NAVIGATE_V0, MINERL_OBTAIN_IRON_PICKAXE_V0]
 
-# Obfuscated environments.
+
 MINERL_TREECHOP_OBF_V0 = Obfuscated(Vectorized(MINERL_TREECHOP_V0, common_envs=common_envs))
 
 MINERL_NAVIGATE_OBF_V0 = Obfuscated(Vectorized(MINERL_NAVIGATE_V0, common_envs=common_envs))

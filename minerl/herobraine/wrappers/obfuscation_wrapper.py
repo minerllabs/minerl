@@ -3,32 +3,34 @@ from collections import OrderedDict
 
 from minerl.herobraine.hero import spaces
 from minerl.herobraine.wrappers.vector_wrapper import Vectorized
-from minerl.herobraine.wrappers.wrapper import EnvWrapper
+from minerl.herobraine.wrapper import EnvWrapper
 import copy
 import dill
+import os
 
+# TODO: Force obfuscator nets to use these.
+SIZE_FILE_NAME = 'size'
+ACTION_OBFUSCATOR_FILE_NAME = 'action.secret.compat'
+OBSERVATION_OBFUSCATOR_FILE_NAME = 'obs.secret.compat'
 
-def get_invertible_matrix_pair(shape):
-    mat = np.random.random(shape)
-    return mat, mat.T @ np.linalg.inv(mat @ mat.T)
-
-OBG_VECTOR_LEN = 64
 class Obfuscated(EnvWrapper):
 
-    def __init__(self, env_to_wrap: Vectorized, obf_vector_len=64, name=''):
-        self.obf_vector_len = obf_vector_len
+    def __init__(self, env_to_wrap: Vectorized, obfuscator_dir, name=''):
+        """The obfuscation class.
+
+        Args:
+            env_to_wrap (Vectorized): The vectorized environment to wrap.
+            obfuscator_dir (str, os.path.Path): The path to the obfuscator neural networks.
+            name (str, optional): A method to overide the name. Defaults to ''.
+        """
+        self.obf_vector_len, \
+            self.ac_enc, self.ac_dec, \
+            self.obs_enc, self.obs_dec = Obfuscated._get_obfuscator(obfuscator_dir)
 
         super().__init__(env_to_wrap)
 
         # TODO load these from file
         assert isinstance(env_to_wrap, Vectorized), 'Obfuscated env wrappers only supported for vectorized environments'
-
-        # Get the directory for the actions
-        with open('action.secret.compat', 'rb') as f:
-            self.ac_enc, self.ac_dec = dill.load(f)
-
-        with open('obs.secret.compat', 'rb') as f:
-            self.obs_enc, self.obs_dec = dill.load(f)
 
         # Compute the no op vertors
         self.observation_no_op = self.env_to_wrap.wrap_observation(self.env_to_wrap.env_to_wrap.observation_space.no_op())['vector']
@@ -36,6 +38,31 @@ class Obfuscated(EnvWrapper):
 
         if name:
             self.name = name
+    
+    @staticmethod
+    def _get_obfuscator(obfuscator_dir : Union[str, os.path.Path]):
+        """Gets the obfuscator from a directory.
+
+        Args:
+            obfuscator_dir (Union[str, os.path.Path]): The directory containg the pickled obfuscators.
+        """
+        # TODO: This code should be centralized with the make_obfuscator network.
+        assert os.path.exists(obfuscator_dir), f"{obfuscator_dir} not found."
+        assert os.listdir(obfuscator_dir) == {SIZE_FILE_NAME, ACTION_OBFUSCATOR_FILE_NAME, OBSERVATION_OBFUSCATOR_FILE_NAME}
+
+        # TODO: store size within the pdill.
+        with open(os.path.join(obfuscator_dir), 'r') as f:
+            obf_vector_len = int(f.read())
+
+        
+        # Get the directory for the actions
+        with open(os.path.join(obfuscator_dir, 'action.secret.compat'), 'rb') as f:
+            ac_enc, ac_dec = dill.load(f)
+
+        with open(os.path.join(obfuscator_dir, 'obs.secret.compat', 'rb')) as f:
+            obs_enc, obs_dec = dill.load(f)
+
+        return obf_vector_len, ac_enc, ac_dec,  obs_enc, obs_dec
 
         
 
