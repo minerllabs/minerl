@@ -10,7 +10,7 @@ import time
 import tqdm
 from threading import Thread
 
-from .utils import download_with_resume
+from .util import download_with_resume
 
 
 import logging
