@@ -22,7 +22,7 @@ copyright = '2019, William H. Guss, Brandon Houghton'
 author = 'William H. Guss, Brandon Houghton'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0'
+release = '0.2.0_alpha'
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,7 +33,7 @@ release = '0.2.0'
 extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.autodoc',
-    'sphinxcontrib.napoleon',
+    'sphinx.ext.napoleon',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
