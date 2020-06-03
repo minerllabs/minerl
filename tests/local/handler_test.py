@@ -200,7 +200,7 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
     done = False
     inventories = []
     rewards = []
-    for _ in range(2):
+    for _ in range(1):
         env.reset()
         total_reward = 0
         print_next_inv = False
@@ -226,7 +226,6 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
 
             if interactive:
                 key = input('')
-            print(action)
             if reward != 0:
                 print(obs['inventory'])
                 print(reward)
@@ -255,4 +254,4 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
     
 
 if __name__ == '__main__':
-    test_wrapped_obf_env()
+    test_env()
