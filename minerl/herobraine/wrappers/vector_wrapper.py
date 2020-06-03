@@ -5,7 +5,7 @@ from collections import OrderedDict
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.hero import spaces
 from minerl.herobraine.wrappers.util import union_spaces, flatten_spaces, intersect_space
-from minerl.herobraine.wrappers.wrapper import EnvWrapper
+from minerl.herobraine.wrapper import EnvWrapper
 
 
 class Vectorized(EnvWrapper):

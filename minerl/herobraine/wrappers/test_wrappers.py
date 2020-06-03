@@ -10,7 +10,7 @@ from minerl.herobraine.hero.spaces import Dict
 from minerl.herobraine.hero.test_spaces import assert_equal_recursive
 
 import minerl.herobraine.wrappers as wrappers
-import minerl.herobraine.env_specs as envs
+import minerl.herobraine.envs as envs
 from minerl.herobraine.wrappers.util import union_spaces
 import numpy as np
 
