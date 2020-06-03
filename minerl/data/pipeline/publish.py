@@ -50,7 +50,7 @@ from minerl.data.util.constants import (
 )
 from minerl.herobraine.hero import spaces
 import collections
-from minerl.herobraine.wrappers.wrapper import EnvWrapper
+from minerl.herobraine.wrapper import EnvWrapper
 from collections import OrderedDict
 from minerl.herobraine.wrappers.obfuscation_wrapper import Obfuscated
 

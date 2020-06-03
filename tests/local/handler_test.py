@@ -123,7 +123,7 @@ def gen_obtain_debug_actions(env):
 
 
 def test_acitons():
-    wrapper = minerl.herobraine.env_specs.MINERL_OBTAIN_TEST_DENSE_OBF_V0
+    wrapper = minerl.herobraine.envs.MINERL_OBTAIN_TEST_DENSE_OBF_V0
     acts = gen_obtain_debug_actions(wrapper.env_to_wrap.env_to_wrap)
     for act in acts: 
         wrapper.wrap_action(act)
