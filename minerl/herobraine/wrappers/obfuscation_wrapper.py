@@ -1,3 +1,5 @@
+from typing import Union
+
 import numpy as np
 from collections import OrderedDict
 
@@ -40,7 +42,7 @@ class Obfuscated(EnvWrapper):
             self.name = name
     
     @staticmethod
-    def _get_obfuscator(obfuscator_dir : Union[str, os.path.Path]):
+    def _get_obfuscator(obfuscator_dir: Union[str, os.path]):
         """Gets the obfuscator from a directory.
 
         Args:
