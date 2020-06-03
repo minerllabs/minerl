@@ -40,8 +40,8 @@ from minerl.env import comms
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger_thread
 
-import herobraine.hero.spaces as spaces
-from herobraine.wrappers.wrapper import EnvWrapper
+import minerl.herobraine.hero.spaces as spaces
+from minerl.herobraine.wrappers.wrapper import EnvWrapper
 
 logger = logging.getLogger(__name__)
 

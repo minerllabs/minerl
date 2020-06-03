@@ -10,7 +10,7 @@ import time
 import tqdm
 from threading import Thread
 
-from .util import download_with_resume
+from minerl.data.util import download_with_resume
 
 
 import logging

@@ -6,7 +6,7 @@ import sys
 import tqdm
 import numpy as np
 import logging
-import herobraine.hero.spaces as spaces
+import minerl.herobraine.hero.spaces as spaces
 
 import minerl
 

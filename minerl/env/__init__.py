@@ -22,7 +22,7 @@ import os
 # Perform the registration.
 from gym.envs.registration import register
 from collections import OrderedDict
-from herobraine.hero import spaces
+from minerl.herobraine.hero import spaces
 from minerl.env.core import MineRLEnv, missions_dir
 from minerl.env.recording import MineRLRecorder, MINERL_RECORDING_PATH
 
@@ -31,7 +31,7 @@ from minerl.env.recording import MineRLRecorder, MINERL_RECORDING_PATH
 import numpy as np
 
 
-import herobraine.env_specs
+import minerl.herobraine.env_specs
 
 # register(
 #     id='MineRLTreechopDebug-v0',

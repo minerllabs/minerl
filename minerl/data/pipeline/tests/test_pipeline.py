@@ -11,9 +11,9 @@ import numpy as np
 
 from os.path import join as J
 
-from minerl_data.pipeline.make_minecrafts import download
-from minerl_data.pipeline.tests import old_data_pipeline
-from herobraine.hero.test_spaces import assert_equal_recursive
+from minerl.data.pipeline.make_minecrafts import download
+from minerl.data.pipeline.tests import old_data_pipeline
+from minerl.herobraine.hero.test_spaces import assert_equal_recursive
 from collections import OrderedDict
 
 TESTS_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tests_data'))
@@ -44,14 +44,14 @@ def test_pipeline(copy_test_data_out=False, upload_test_data=''):
 
 
         # Now we run the generate script.
-        subprocess.check_call('python3 -m minerl_data.pipeline.generate'.split(' '))
+        subprocess.check_call('python3 -m minerl.data.pipeline.generate'.split(' '))
         
         # Now make the version.
         with open(os.path.join(data_root, minerl.data.VERSION_FILE_NAME), 'w') as f:
             f.write(str(minerl.data.DATA_VERSION))
 
         # Now we run the publish script.
-        subprocess.check_call('python3 -m minerl_data.pipeline.publish'.split(' '))
+        subprocess.check_call('python3 -m minerl.data.pipeline.publish'.split(' '))
 
         # Assert that the resulting files are the same as the reference.
         test_name = 'test_pipeline'

@@ -10,7 +10,7 @@ from queue import PriorityQueue, Empty
 from typing import List, Tuple, Any
 from itertools import cycle, islice
 from minerl.env import spaces
-import herobraine
+import minerl.herobraine
 
 import cv2
 import os
@@ -66,7 +66,7 @@ class DataPipeline:
 
 
     @property
-    def spec(self) -> herobraine.env_spec.EnvSpec:
+    def spec(self) -> minerl.herobraine.env_spec.EnvSpec:
         return self._env_spec
 
     @property

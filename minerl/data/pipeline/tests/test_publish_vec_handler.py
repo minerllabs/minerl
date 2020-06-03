@@ -3,11 +3,11 @@ import json
 import signal
 import tarfile
 
-import herobraine.env_specs as envs
+import minerl.herobraine.env_specs as envs
 
 import gym
 
-from minerl_data.util.constants import DATA_DIR
+from minerl.data.util.constants import DATA_DIR
 
 
 def test_render_data():

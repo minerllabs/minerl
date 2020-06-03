@@ -20,7 +20,7 @@ J =  os.path.join
 E = os.path.exists
 
 BASE_DIR = os.environ.get('MINERL_OUTPUT_ROOT', os.path.expanduser(
-    J('~', 'minerl_data')
+    J('~', 'minerl.data')
 ) )
 
 RENDERERS_DIR = os.path.expanduser(

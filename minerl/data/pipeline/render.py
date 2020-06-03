@@ -28,7 +28,7 @@ from pathlib import Path
 import re
 from shutil import copyfile
 
-from minerl_data.util.constants import (
+from minerl.data.util.constants import (
     OUTPUT_DIR as WORKING_DIR,
     DOWNLOAD_DIR as DOWNLOADED_DIR, 
     NUM_MINECRAFTS as NUM_MINECRAFT_DIR,
@@ -41,7 +41,7 @@ from minerl_data.util.constants import (
 # 3
 # UTILITIES
 #######################
-from minerl_data.util.constants import (
+from minerl.data.util.constants import (
     MERGED_DIR,
     RENDER_DIR,
     J,
@@ -49,7 +49,7 @@ from minerl_data.util.constants import (
 )
 
 # RENDERERS:
-from minerl_data.util.constants import (
+from minerl.data.util.constants import (
     MINECRAFT_DIR,
     RECORDING_PATH,
     RENDERED_VIDEO_PATH,
@@ -62,7 +62,7 @@ from minerl_data.util.constants import (
 
 
 # Error directories
-from minerl_data.util.constants import (
+from minerl.data.util.constants import (
     ERROR_PARENT_DIR,
     EOF_EXCEP_DIR,
     ZEROLEN_DIR,
@@ -74,9 +74,9 @@ from minerl_data.util.constants import (
 )
 
 
-from minerl_data.util.constants import (BLACKLIST_TXT as BLACKLIST_PATH)
+from minerl.data.util.constants import (BLACKLIST_TXT as BLACKLIST_PATH)
 
-from minerl_data.util.constants import (
+from minerl.data.util.constants import (
     END_OF_STREAM,
     ACTION_FILE,
     BAD_MARKER_NAME, GOOD_MARKER_NAME,

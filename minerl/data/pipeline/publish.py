@@ -26,8 +26,8 @@ import json
 import signal
 import tarfile
 
-import herobraine.env_specs as envs
-import herobraine.hero.handlers as handlers
+import minerl.herobraine.env_specs as envs
+import minerl.herobraine.hero.handlers as handlers
 
 import minerl
 
@@ -36,7 +36,7 @@ PUBLISHER_VERSION = minerl.data.DATA_VERSION
 #######################
 #      UTILITIES      #
 #######################
-from minerl_data.util.constants import (
+from minerl.data.util.constants import (
     J, E,
     touch,
     remove,
@@ -48,11 +48,11 @@ from minerl_data.util.constants import (
     DATA_DIR,
     ThreadManager
 )
-from herobraine.hero import spaces
+from minerl.herobraine.hero import spaces
 import collections
-from herobraine.wrappers.wrapper import EnvWrapper
+from minerl.herobraine.wrappers.wrapper import EnvWrapper
 from collections import OrderedDict
-from herobraine.wrappers.obfuscation_wrapper import Obfuscated
+from minerl.herobraine.wrappers.obfuscation_wrapper import Obfuscated
 
 FAILED_COMMANDS = []
 

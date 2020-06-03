@@ -1,4 +1,4 @@
-# herobraine_parse<br />
+# minerl.herobraine_parse<br />
 To use parse.sh:<br />
 simply run ./parse.sh <br />
 input stream are by default in ./deepmine-alpha-data/<br />

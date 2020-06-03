@@ -16,7 +16,7 @@ import argparse
 
 from subprocess import Popen, PIPE, STDOUT
 
-from minerl_data.util.constants import (
+from minerl.data.util.constants import (
     MERGED_DIR, 
     BLACKLIST_TXT, 
     PARSE_COMMAND, 
@@ -29,8 +29,8 @@ from minerl_data.util.constants import (
     GLOB_STR_BASE
 )
 
-from minerl_data.util.constants import OUTPUT_DIR as WORKING_DIR
-from minerl_data.util.constants import DOWNLOAD_DIR as DOWNLOADED_DIR
+from minerl.data.util.constants import OUTPUT_DIR as WORKING_DIR
+from minerl.data.util.constants import DOWNLOAD_DIR as DOWNLOADED_DIR
 
 try:
     from subprocess import DEVNULL # py3k
