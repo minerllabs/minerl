@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from minerl.herobraine.hero import spaces
 from minerl.herobraine.wrappers.vector_wrapper import Vectorized
-from minerl.herobraine.wrappers.wrapper import EnvWrapper
+from minerl.herobraine.wrapper import EnvWrapper
 import copy
 import dill
 
