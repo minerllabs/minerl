@@ -8,6 +8,7 @@ from minerl.herobraine.wrappers.vector_wrapper import Vectorized
 from minerl.herobraine.env_specs.obtain_specs import ObtainDiamondDebug
 from minerl.herobraine.hero.test_spaces import assert_equal_recursive
 from minerl.herobraine.wrappers.obfuscation_wrapper import Obfuscated
+import minerl.herobraine.envs as envs
 import minerl.herobraine
 
 coloredlogs.install(level=logging.DEBUG)
@@ -123,7 +124,7 @@ def gen_obtain_debug_actions(env):
 
 
 def test_acitons():
-    wrapper = minerl.herobraine.envs.MINERL_OBTAIN_TEST_DENSE_OBF_V0
+    wrapper = envs.MINERL_OBTAIN_TEST_DENSE_OBF_V0
     acts = gen_obtain_debug_actions(wrapper.env_to_wrap.env_to_wrap)
     for act in acts: 
         wrapper.wrap_action(act)
@@ -194,7 +195,7 @@ def test_dense_env():
 def test_env(environment='MineRLObtainTest-v0', interactive=False):
     if not interactive:
         # Disable tests for now
-        assert False
+        pass#assert False
     env = gym.make(environment)
     done = False
     inventories = []
