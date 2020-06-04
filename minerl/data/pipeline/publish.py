@@ -26,7 +26,7 @@ import json
 import signal
 import tarfile
 
-import minerl.herobraine.env_specs as envs
+import minerl.herobraine.envs as envs
 import minerl.herobraine.hero.handlers as handlers
 
 import minerl

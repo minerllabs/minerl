@@ -72,7 +72,8 @@ def package_files(directory):
             and not "Malmo/doc" in path
             and not "Malmo/test" in path
             and not "Malmo/MalmoEnv" in path
-            and not "Malmo/ALE_ROMS" in path):
+            and not "Malmo/ALE_ROMS" in path
+            and not "Malmo/scripts" in path):
             
             paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
 
@@ -81,7 +82,9 @@ def package_files(directory):
 
 data_files = []
 data_files += package_files('minerl/env/missions')
-data_files += package_files('minerl/env/Malmo')
+data_files += package_files('minerl/herobraine/env_specs/missions')
+data_files += package_files('minerl/herobraine/env_specs/obfuscations')
+data_files += package_files('minerl/data/assets')
 
 
 setuptools.setup(
