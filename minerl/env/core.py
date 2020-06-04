@@ -48,7 +48,6 @@ logger = logging.getLogger(__name__)
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
 
 
-
 class EnvException(Exception):
     """A special exception thrown in the creation of an environment's Malmo mission XML.
 
@@ -73,7 +72,8 @@ class MissionInitException(Exception):
 
 MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
-MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv' # Default id for a MineRLEnv
+MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv'  # Default id for a MineRLEnv
+
 
 class MineRLEnv(gym.Env):
     """The MineRLEnv class.
@@ -117,7 +117,6 @@ class MineRLEnv(gym.Env):
         self.ns = '{http://ProjectMalmo.microsoft.com}'
         self.client_socket = None
 
-
         self.exp_uid = ""
         self.done = True
         self.synchronous = True
@@ -135,9 +134,7 @@ class MineRLEnv(gym.Env):
         self.instance = self._get_new_instance(port)
         self.env_spec = env_spec
 
-
         self._setup_spaces(observation_space, action_space)
-
 
         self.resets = 0
         self.done = True
@@ -151,13 +148,12 @@ class MineRLEnv(gym.Env):
             instance = InstanceManager.add_existing_instance(port)
         else:
             instance = InstanceManager.get_instance(os.getpid())
-        
+
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
-        
+
         instance.launch()
         return instance
-
 
     def _setup_spaces(self, observation_space, action_space):
         self.action_space = action_space
@@ -174,18 +170,18 @@ class MineRLEnv(gym.Env):
                 except NameError:
                     raise ValueError(
                         'Specify non-None default_action in gym.register or extend all action spaces with default() method')
+
         if self._default_action is None:
             self._default_action = {key: map_space(
                 space) for key, space in action_space.spaces.items()}
 
         def noop_func(a):
             return deepcopy(self._default_action)
-        
+
         # Todo: Use space noops.
 
         boundmethd = _bind(self.action_space, noop_func)
         self.action_space.noop = boundmethd
-
 
     def init(self):
         """Initializes the MineRL Environment.
@@ -232,7 +228,6 @@ class MineRLEnv(gym.Env):
         else:
             self.exp_uid = exp_uid
 
-        
         # Force single agent
         self.agent_count = 1
         turn_based = self.xml.find(
@@ -280,7 +275,7 @@ class MineRLEnv(gym.Env):
         self.height = int(video_producer.find(self.ns + 'Height').text)
         want_depth = video_producer.attrib["want_depth"]
         self.depth = 4 if want_depth is not None and (
-            want_depth == "true" or want_depth == "1" or want_depth is True) else 3
+                want_depth == "true" or want_depth == "1" or want_depth is True) else 3
         # print(etree.tostring(self.xml))
 
         self.has_init = True
@@ -309,7 +304,7 @@ class MineRLEnv(gym.Env):
                 (self.height, self.width, self.depth), dtype=np.uint8)
         else:
             pov = pov.reshape((self.height, self.width, self.depth))[
-                ::-1, :, :]
+                  ::-1, :, :]
 
         if info:
             info = json.loads(info)
@@ -324,14 +319,15 @@ class MineRLEnv(gym.Env):
         except Exception as e:
             if 'equipped_items' in info:
                 del info['equipped_items']
-        
+
         bottom_env_spec = self.env_spec
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
         try:
-            if info['equipped_items.mainhand.type'] not in bottom_env_spec.observation_space.spaces['equipped_items.mainhand.type']:
-                info['equipped_items.mainhand.type'] = "other" # Todo: use handlers. TODO: USE THEM<
+            if info['equipped_items.mainhand.type'] not in bottom_env_spec.observation_space.spaces[
+                    'equipped_items.mainhand.type']:
+                info['equipped_items.mainhand.type'] = "other"  # Todo: use handlers. TODO: USE THEM<
         except Exception as e:
             pass
         # Process Info: (HotFix until updated in Malmo.)
@@ -360,11 +356,10 @@ class MineRLEnv(gym.Env):
             # logger.warning(info)
             pass
 
-
         info['pov'] = pov
 
         obs_dict = bottom_env_spec.observation_space.no_op()
-        
+
         # A function which updates a nested dictionary.
         def recursive_update(nested_dict, nested_update):
             for k, v in nested_update.items():
@@ -376,7 +371,7 @@ class MineRLEnv(gym.Env):
                         nested_dict[k] = v
             return nested_dict
 
-        obs_dict =  recursive_update(obs_dict, info)
+        obs_dict = recursive_update(obs_dict, info)
 
         self._last_pov = obs_dict['pov']
 
@@ -399,9 +394,8 @@ class MineRLEnv(gym.Env):
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
-        action_in['camera'] = [0, np.clip(action_in['camera'][1], -5,5)]
+        action_in['camera'] = [0, np.clip(action_in['camera'][1], -5, 5)]
         print(action_in)
-
 
         action_str = []
         for act in action_in:
@@ -412,7 +406,8 @@ class MineRLEnv(gym.Env):
                 else:
                     assert isinstance(
                         action_in[act], str), "Enum action {} must be str or int".format(act)
-                    assert action_in[act] in bottom_env_spec.action_space.spaces[act].values, "Invalid value for enum action {}, {}".format(
+                    assert action_in[act] in bottom_env_spec.action_space.spaces[
+                        act].values, "Invalid value for enum action {}, {}".format(
                         act, action_in[act])
 
             elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Box):
@@ -429,7 +424,6 @@ class MineRLEnv(gym.Env):
 
             action_str.append(
                 "{} {}".format(act, str(action_in[act])))
-                
 
         return "\n".join(action_str)
 
@@ -454,13 +448,11 @@ class MineRLEnv(gym.Env):
             # We don't force the same seed every episode, you gotta send it yourself queen.
             self._seed = None
 
-    
     def _start_up(self):
         self.resets += 1
 
         try:
             if not self.client_socket:
-
                 logger.debug("Creating socket connection!")
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -502,7 +494,7 @@ class MineRLEnv(gym.Env):
             if self.instance:
                 self.instance.kill()
             self.instance = self._get_new_instance()
-                
+
             self.had_to_clean = False
         else:
             self.had_to_clean = True
@@ -562,8 +554,8 @@ class MineRLEnv(gym.Env):
             if not self.done:
 
                 step_message = "<Step" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
-                    malmo_command + \
-                    "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
+                               malmo_command + \
+                               "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
 
                 # Send Actions.
                 comms.send_message(self.client_socket, step_message.encode())
@@ -612,8 +604,8 @@ class MineRLEnv(gym.Env):
                         scale = self.maxwidth / width
                         width = int(scale * width)
                         height = int(scale * height)
-                    self.window = pyglet.window.Window(width=width, height=height, 
-                        display=self.display, vsync=False, resizable=True)            
+                    self.window = pyglet.window.Window(width=width, height=height,
+                                                       display=self.display, vsync=False, resizable=True)
                     self.width = width
                     self.height = height
                     self.isopen = True
@@ -627,13 +619,13 @@ class MineRLEnv(gym.Env):
                     def on_close():
                         self.isopen = False
 
-            self.viewer = ScaledWindowImageViewer(self.width*4, self.height*4)
+            self.viewer = ScaledWindowImageViewer(self.width * 4, self.height * 4)
         self.viewer.imshow(obs)
         return self.viewer.isopen
 
     def render(self, mode='human'):
         if mode == 'human' and (
-            not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
+                not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
             self._renderObs(self._last_pov)
         return self._last_pov
 
@@ -735,7 +727,6 @@ class MineRLEnv(gym.Env):
                 logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
                 time.sleep(1)
 
-
     def _get_token(self):
         return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
 
@@ -762,12 +753,9 @@ def _bind(instance, func, as_name=None):
     return bound_method
 
 
-
-
-
-
 class TraceRecording(object):
     _id_counter = 0
+
     def __init__(self, directory=None):
         """
         Create a TraceRecording, writing into directory
@@ -813,7 +801,7 @@ class TraceRecording(object):
         If len(observations) == 1, then len(actions) == 0, and we have only called reset and done a null episode.
         """
         if len(self.observations) > 0:
-            if len(self.episodes)==0:
+            if len(self.episodes) == 0:
                 self.episodes_first = self.episode_id
 
             self.episodes.append({
@@ -846,12 +834,13 @@ class TraceRecording(object):
                 def json_encode(obj):
                     if isinstance(obj, np.ndarray):
                         offset = bin_f.tell()
-                        while offset%8 != 0:
+                        while offset % 8 != 0:
                             bin_f.write(b'\x00')
                             offset += 1
                         obj.tofile(bin_f)
                         size = bin_f.tell() - offset
-                        return {'__type': 'ndarray', 'shape': obj.shape, 'order': 'C', 'dtype': str(obj.dtype), 'npyfile': bin_fn, 'npyoff': offset, 'size': size}
+                        return {'__type': 'ndarray', 'shape': obj.shape, 'order': 'C', 'dtype': str(obj.dtype),
+                                'npyfile': bin_fn, 'npyoff': offset, 'size': size}
                     return obj
 
                 json.dump({'episodes': self.episodes}, batch_f, default=json_encode)
