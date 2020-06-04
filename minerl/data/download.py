@@ -75,11 +75,12 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
                 pass
 
     download_path = os.path.join(directory, 'download') if not disable_cache else tempfile.mkdtemp()
-    mirrors = ["https://router.sneakywines.me/"] #, "https://router2.sneakywines.me/"]
+    mirrors = ["https://minerl.s3.amazonaws.com/"] #, "https://router2.sneakywines.me/"]
+
 
     if experiment is None:
         min_str = '_minimal' if minimal else ''
-        filename = "minerl-v{}/data_texture_{}_{}_res{}.tar.gz".format(DATA_VERSION, texture_pack, resolution, min_str)
+        filename = "v{}/data_texture_{}_{}_res{}.tar.gz".format(DATA_VERSION, texture_pack, resolution, min_str)
         urls = [mirror + filename for mirror in mirrors]
         
     else:
@@ -87,7 +88,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         if os.path.exists(os.path.join(directory, experiment)):
             logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
             return directory
-        filename = "minerl-v{}/{}.tar.gz".format(DATA_VERSION, experiment)
+        filename = "minerl/v{}/{}.tar.gz".format(DATA_VERSION, experiment)
         urls = [mirror + filename for mirror in mirrors]
     try:
         logger.info("Fetching download hash ...")
