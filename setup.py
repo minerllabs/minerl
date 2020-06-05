@@ -89,7 +89,7 @@ data_files += package_files('minerl/data/assets')
 
 setuptools.setup(
       name='minerl',
-      version='0.9.9.pfn',
+      version='0.9.10.pfn',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
