@@ -57,8 +57,7 @@ MINERL_OBTAIN_DIAMOND_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_DIAMOND_V0, c
 MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_DIAMOND_DENSE_V0, common_envs=comp_envs), comp_obfuscator_dir)
 
 MINERL_OBTAIN_IRON_PICKAXE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IRON_PICKAXE_V0, common_envs=comp_envs), comp_obfuscator_dir)
-MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0 = Obfuscated(
-    Vectorized(MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0, common_envs=comp_envs), comp_obfuscator_dir)
+MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0, common_envs=comp_envs), comp_obfuscator_dir)
 
 # ENVS = [MINERL_OBTAIN_IRON_PICKAXE_OBF_V0]
 
