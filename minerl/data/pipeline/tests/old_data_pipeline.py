@@ -9,7 +9,7 @@ from collections import OrderedDict
 from queue import PriorityQueue, Empty
 from typing import List, Tuple, Any
 from itertools import cycle, islice
-from minerl.env import spaces
+from minerl.herobraine.hero import spaces
 
 import cv2
 import os
