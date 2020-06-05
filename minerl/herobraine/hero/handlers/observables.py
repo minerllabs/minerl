@@ -39,7 +39,6 @@ class ObservationFromFullStats(AgentHandler):
         except NotImplementedError:
             raise NotImplementedError('Observation from full state not implementing from_universal')
 
-
 class POVObservation(AgentHandler):
     """
     Handles POV observations.
@@ -99,7 +98,6 @@ class POVObservation(AgentHandler):
             raise ValueError("Incompatible observables!")
 
     # def __eq__(self, other):
-
 
 class GUIContainerObservation(AgentHandler):
     """
@@ -178,7 +176,6 @@ class GUIContainerObservation(AgentHandler):
                 isinstance(other, GUIContainerObservation)
                 and self.container_name == other.container_name
                 and self.num_slots == other.num_slots)
-
 
 class FlatInventoryObservation(AgentHandler):
     """
@@ -278,7 +275,6 @@ class FlatInventoryObservation(AgentHandler):
         return isinstance(other, FlatInventoryObservation) and \
                (self.items) == (other.items)
 
-
 class DeathObservation(AgentHandler):
 
     def to_string(self):
@@ -286,7 +282,6 @@ class DeathObservation(AgentHandler):
 
     def from_hero(self, obs_dict):
         return obs_dict["IsAlive"] if "IsAlive" in obs_dict else True
-
 
 class HotbarObservation(GUIContainerObservation):
     """
@@ -301,7 +296,6 @@ class HotbarObservation(GUIContainerObservation):
 
     def add_to_mission_spec(self, mission_spec):
         mission_spec.observeHotBar()
-
 
 class TypeObservation(AgentHandler):
     """
@@ -335,12 +329,22 @@ class TypeObservation(AgentHandler):
     def hand(self):
         return self._hand
 
+    def proc(self, hero_obs):
+        minerl_obs = {}
+        for o in self.task.observation_handlers:
+            minerl_obs[o.to_string()] = o.from_hero(hero_obs)
+
+
+
     @property
     def default(self):
         return self._default
 
     def to_string(self):
         return f'equipped_items.{self._hand}.type'
+
+    def from_hero(self, obs_dict):
+        return obs['equipped_item']['mainhand']['type']
 
     def from_universal(self, obs):
         try:

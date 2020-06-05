@@ -32,7 +32,6 @@ class RewardHandler(AgentHandler, ABC):
         """
         return obs_dict["reward"]
 
-
 class ConstantReward(RewardHandler):
     """
     A constant reward handler
@@ -46,65 +45,6 @@ class ConstantReward(RewardHandler):
 
     def from_universal(self, x):
         return self.constant
-
-
-# class RewardForCollectingItems(RewardHandler):
-#     """
-#     The standard malmo reward for collecting item.
-#     """
-#
-#     def __init__(self, item_name, reward, **args):
-#         """
-#         Adds a reward for collecting a certain set of items.
-#         :param item_name: The name
-#         :param reward: The reward
-#         :param args: So on and so forth.
-#         """
-#         super().__init__()
-#
-#         item_dict = {
-#             item_name: reward
-#         }
-#         itemreward = []
-#         for a in args:
-#             if len(itemreward) == 2:
-#                 item_dict[itemreward[0]] = itemreward[1]
-#                 itemreward = []
-#             itemreward.append(a)
-#         self.reward_dict = item_dict
-#
-#
-#     def add_to_mission_xml(self, etree: Element, namespace: str):
-#         """
-#         Adds the following to the mission xml
-#            <RewardForCollectingItem>
-#             <Item  reward="1" type="log" />
-#           </RewardForCollectingItem>
-#         :param etree:
-#         :param namespace:
-#         :return:
-#         """
-#         child = Element("RewardForCollectingItem")
-#         for item,reward in self.reward_dict.items():
-#             item_eml = Element("Item")
-#             item_eml.set("reward", str(reward))
-#             item_eml.set("type", item)
-#             child.append(item_eml)
-#
-#         for agenthandlers in etree.iter('{{{}}}AgentHandlers'.format(namespace)):
-#             agenthandlers.append(child)
-#         super().add_to_mission_xml(etree, namespace)
-#
-#     def from_universal(self, x):
-#         total_reward = 0
-#         if 'inventory' in x and 'changes' in x['inventory']:
-#             for change_json in x['inventory']['changes']:
-#                 item_name = strip_of_prefix(change_json['item'])
-#                 if item_name in self.reward_dict and 'quantity_change' in change_json:
-#                     total_reward += change_json['quantity_change'] * self.reward_dict[item_name]
-#         return total_reward
-
-
 
 class RewardForCollectingItems(RewardHandler):
     """
@@ -132,7 +72,6 @@ class RewardForCollectingItems(RewardHandler):
                     if change_json['quantity_change'] > 0:
                         total_reward += change_json['quantity_change'] * self.reward_dict[item_name]
         return total_reward
-
 
 class RewardForCollectingItemsOnce(RewardHandler):
     """
@@ -166,7 +105,6 @@ class RewardForCollectingItemsOnce(RewardHandler):
     def reset(self):
         # print(self.seen_dict.keys())
         self.seen_dict = dict()
-
 
 class RewardForCraftingItem(RewardHandler):
     """
@@ -231,7 +169,6 @@ class RewardForCraftingItem(RewardHandler):
     def reset(self):
         self.skip_next = False
         self.prev_container = None
-
 
 class RewardForTouchingBlock(RewardHandler):
     """
