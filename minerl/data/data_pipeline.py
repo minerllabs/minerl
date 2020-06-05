@@ -28,6 +28,14 @@ if os.name != "nt":
         pass
 
 
+def tree_slice(tree, slc):
+    if isinstance(tree, OrderedDict):
+        return OrderedDict(
+            [(k,tree_slice(v, slc)) for k,v in tree.items()]
+        )
+    else:
+        return tree[slc]
+        
 class DataPipeline:
     """
     Creates a data pipeline object used to itterate through the MineRL-v0 dataset
@@ -188,17 +196,11 @@ class DataPipeline:
                     else:
                         observation_seq, action_seq, reward_seq, next_observation_seq, done_seq = sequence
 
-                    # Wrap in dict
-                    gym_spec = gym.envs.registration.spec(self.environment)
-
-                    observation_dict = DataPipeline.map_to_dict(observation_seq, gym_spec._kwargs['observation_space'])
-                    action_dict = DataPipeline.map_to_dict(action_seq, gym_spec._kwargs['action_space'])
-                    next_observation_dict = DataPipeline.map_to_dict(next_observation_seq, gym_spec._kwargs['observation_space'])
                     
                     if include_metadata:
-                        yield observation_dict, action_dict, reward_seq[0], next_observation_dict, done_seq[0], meta
+                        yield observation_seq, action_seq, reward_seq[0], next_observation_seq, done_seq[0], meta
                     else:
-                        yield observation_dict, action_dict, reward_seq[0], next_observation_dict, done_seq[0]
+                        yield observation_seq, action_seq, reward_seq[0], next_observation_seq, done_seq[0]
                 
                 except Empty:
                     if map_promise.ready():
@@ -243,14 +245,6 @@ class DataPipeline:
             sorted(x, key=lambda x:
             x[0] if x[0] is not 'pov' else 'z' )
         )
-
-        def tree_slice(tree, slc):
-            if isinstance(tree, OrderedDict):
-                return OrderedDict(
-                    [(k,tree_slice(v, slc)) for k,v in tree.items()]
-                )
-            else:
-                return tree[slc]
 
         # Now we just need to slice the dict.
         for idx in tqdm.tqdm(range(len(reward_seq[0]))):
@@ -500,15 +494,17 @@ class DataPipeline:
         except WindowsError as e:
             logger.debug("Caught windows error {} - this is expected when closing the data pool".format(e))
             return None
-        except BrokenPipeError:
+        except BrokenPipeError as e:
             
             print("Broken pipe!")
+            import traceback
+            traceback.print_exc()
             return None
         except FileNotFoundError as e: 
             print("File not found!")
             raise e
         except Exception as e:
-            logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
+            logger.debug(f"Exception \'{e}\' caught on file \"{file_dir}\" by a worker of the data pipeline.")
             return None
 
 

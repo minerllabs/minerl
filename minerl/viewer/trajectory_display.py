@@ -34,13 +34,13 @@ class TrajectoryDisplayBase(ScaledImageDisplay):
         self.cum_rewards = cum_rewards
         self.reward_height = int(SZ*5*0.8)
 
+        
 
         # Set up camera control stuff.
         cam_x = self.f_ox + SZ*7
         cam_y = self.fo_y
         cam_size = self.reward_height
         self.camera_rect = Rect(cam_x,cam_y, cam_size, cam_size, color=(36, 109, 94))
-
 
         if self.instructions:
             self.make_instructions(environment, stream_name)
@@ -188,6 +188,13 @@ class HumanTrajectoryDisplay(TrajectoryDisplayBase):
     def __init__(self, environment, stream_name="", instructions=None, cum_rewards=None):
         super().__init__(environment, stream_name=stream_name, instructions=instructions, cum_rewards=cum_rewards)
         
+
+        # Set up camera control stuff.
+        cam_x = self.f_ox + SZ*7
+        cam_y = self.fo_y
+        cam_size = self.reward_height
+        self.camera_rect = Rect(cam_x,cam_y, cam_size, cam_size, color=(36, 109, 94))
+
         self.camera_labels = [
             pyglet.text.Label('Camera Control', font_size=SMALLER_FONT_SIZE, x= cam_x + cam_size/2, y= cam_y + cam_size +2, anchor_x='center'),
             pyglet.text.Label('PITCH →', font_size=SMALLER_FONT_SIZE,font_name='Courier New', x= cam_x + cam_size/2, y= cam_y - SMALLER_FONT_SIZE- 4, anchor_x='center'),
