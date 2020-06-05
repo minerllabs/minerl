@@ -11,6 +11,7 @@ import numpy as np
 
 from os.path import join as J
 
+import minerl.herobraine.envs
 from minerl.data.pipeline.make_minecrafts import download
 from minerl.data.pipeline.tests import old_data_pipeline
 from minerl.herobraine.hero.test_spaces import assert_equal_recursive
@@ -132,8 +133,6 @@ def test_dataloader_regression():
 
     # Todo: Up the version numbers
 
-    # import matplotlib
-    # matplotlib.use('MACOSX')
     new_data = list(treechop.load_data(trajname, include_metadata=True))
     # Todo make some tests
 
@@ -149,6 +148,11 @@ def test_dataloader_regression():
 
         # Assert actions are the same
         assert_equal_recursive(na, oa)
+
+        # plt.imshow(ns['pov'])
+        # plt.show()
+        # plt.imshow(o_s['pov'])
+        # plt.show()
 
         # Remove 'pov' from ns,nsp1,os,osp1
         del ns['pov']
@@ -175,10 +179,14 @@ def test_dataloader_regression():
 def test_ao_on_or_off():
     assert False, "AO has not been fixed."
 
-    
 
 
+# import matplotlib
+# from matplotlib import pyplot as plt
+# matplotlib.use('MACOSX')
 
-# if __name__ == '__main__':
+
+if __name__ == '__main__':
+    test_dataloader_regression()
 #     # test_pipeline(copy_test_data_out=True)
 # #     # test_obfuscated_data()

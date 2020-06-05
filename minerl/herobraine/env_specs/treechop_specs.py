@@ -4,7 +4,7 @@ import minerl.herobraine
 import minerl.herobraine.hero.handlers as handlers
 from minerl.herobraine.env_spec import EnvSpec
 
-from minerl.herobraine.env_specs.simple_env_spec import SimpleEnvSpec
+import minerl.herobraine.env_specs.simple_env_spec as ses 
 
 TREECHOP_DOC = """
 .. image:: ../assets/treechop1.mp4.gif
@@ -27,7 +27,7 @@ In treechop, the agent must collect 64 `minercaft:log`. This replicates a common
 The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.
 """
 
-class Treechop(SimpleEnvSpec):
+class Treechop(ses.SimpleEnvSpec):
     def __init__(self):
         super().__init__(
             name='MineRLTreechop-v0', xml='treechop.xml',

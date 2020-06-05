@@ -1,6 +1,6 @@
 import abc
 
-import minerl.herobraine
+import minerl
 
 from minerl.herobraine.hero import handlers
 from minerl.herobraine.hero.mc import INVERSE_KEYMAP
