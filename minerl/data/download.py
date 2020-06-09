@@ -75,7 +75,9 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
                 pass
 
     download_path = os.path.join(directory, 'download') if not disable_cache else tempfile.mkdtemp()
-    mirrors = ["https://minerl.s3.amazonaws.com/"] #, "https://router2.sneakywines.me/"]
+    mirrors = [
+        "https://minerl.s3.amazonaws.com/",
+        "https://minerl-asia.s3.amazonaws.com/"] #, "https://router2.sneakywines.me/"]
 
 
     if experiment is None:
@@ -98,7 +100,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         logger.info("Starting download ...")
         dest_file =  os.path.join(download_path, filename)
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
-        download_with_resume(urls[0],dest_file)
+        download_with_resume(urls,dest_file)
     except HTTPError as e:
         logger.error("HTTP error encountered when downloading")
         if experiment is not None:
