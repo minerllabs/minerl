@@ -368,7 +368,7 @@ class MineRLEnv(gym.Env):
                         r = recursive_update(nested_dict.get(k, {}), v)
                         nested_dict[k] = r
                     else:
-                        nested_dict[k] = v
+                        nested_dict[k] = np.array(v)
             return nested_dict
 
         obs_dict = recursive_update(obs_dict, info)
