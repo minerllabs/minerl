@@ -22,6 +22,11 @@ logger = logging.getLogger(__name__)
 from minerl.data.version import assert_version, assert_prefix
 import copy
 import tqdm
+import queue
+
+import minerl.data.util
+from minerl.data.util import forever, minibatch_gen
+import concurrent
 
 if os.name != "nt":
     class WindowsError(OSError):
@@ -94,122 +99,7 @@ class DataPipeline:
         return self._observation_space
 
         # return result
-    @staticmethod
-    def _map_to_dict(i: int, src: list, key: str, gym_space: gym.spaces.space, dst: dict):
-        # inventory does wierd compression. -_-
-        if isinstance(gym_space, spaces.Dict) or isinstance(gym_space, gym.spaces.Dict):
-            inner_dict = collections.OrderedDict()
-            for idx, (k, s) in enumerate(gym_space.spaces.items()):
-                DataPipeline._map_to_dict(idx, src[i].T, k, s, inner_dict)
-            dst[key] = inner_dict
-        else:
-            dst[key] = src[i]
-        return i + 1
-    
-    
-    @staticmethod
-    def map_to_dict(handler_list: list, target_space: gym.spaces.space, equip_spaces=None, obs=False):
-
-        result = collections.OrderedDict()
-        index = 0
-        for key, space in target_space.spaces.items():
-            if obs and key == 'inventory':
-                result[key] = zip(space.spaces.keys(), handler_list[index])
-                index +=1
-            else:
-                index = DataPipeline._map_to_dict(index, handler_list, key, space, result)
-
-        result = collections.OrderedDict(sorted(result.items()))
-
-        return result
-
-    def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
-        """DEPRECATED METHOD FOR SAMPLING DATA FROM THE MINERL DATASET.
-
-        This function is now :code:`DataPipeline.sarsd_iter()`
-        """
-        raise DeprecationWarning(
-            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.sarsd_iter()."
-            "\nNOTE: The new method `DataPipeline.sarsd_iter` has a different return signature! "
-            "\n\t  Please see how to use it @ http://www.minerl.io/docs/tutorials/data_sampling.html")
-
-    def sarsd_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
-        """
-        Returns a generator for iterating through (state, action, reward, next_state, is_terminal)
-        tuples in the dataset.
-        Loads num_workers files at once as defined in minerl.data.make() and return up to
-        max_sequence_len consecutive samples wrapped in a dict observation space
-        
-        Args:
-            num_epochs (int, optional): number of epochs to iterate over or -1
-                to loop forever. Defaults to -1
-            max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32
-            seed (int, optional): seed for random directory walk - note, specifying seed as well as a finite num_epochs
-                will cause the ordering of examples to be the same after every call to seq_iter
-            queue_size (int, optional): maximum number of elements to buffer at a time, each worker may hold an
-                additional item while waiting to enqueue. Defaults to 16*self.number_of_workers or 2*
-                self.number_of_workers if max_sequence_len == -1
-            include_metadata (bool, optional): adds an additional member to the tuple containing metadata about the
-                stream the data was loaded from. Defaults to False
-
-        Yields:
-            A tuple of (state, player_action, reward_from_action, next_state, is_next_state_terminal, (metadata)).
-            Each element is in the format of the environment action/state/reward space and contains as many
-            samples are requested.
-        """
-        logger.debug("Starting seq iterator on {}".format(self.data_dir))
-        if seed is not None:
-            np.random.seed(seed)
-        data_list = self._get_all_valid_recordings(self.data_dir)
-
-        m = multiprocessing.Manager()
-        if queue_size is not None:
-            max_size = queue_size
-        elif max_sequence_len == -1:
-            max_size = 2*self.number_of_workers
-        else:
-            max_size = 16*self.number_of_workers
-        data_queue = m.Queue(maxsize=max_size)
-        logger.debug(str(self.number_of_workers) + str(max_size))
-
-        # Setup arguments for the workers.
-        files = [(file_dir, max_sequence_len, data_queue, self.environment, 0, include_metadata) for file_dir in data_list]
-
-        epoch = 0
-
-        while epoch < num_epochs or num_epochs == -1:
-
-            # Debug
-            # for arg1, arg2, arg3 in files:
-            #     DataPipeline._load_data_pyfunc(arg1, arg2, arg3)
-            #     break
-            map_promise = self.processing_pool.starmap_async(DataPipeline._load_data_pyfunc, files, error_callback=None)
-
-            # random_queue = PriorityQueue(maxsize=pool_size)
-
-            # We map the files -> load_data -> batch_pool -> random shuffle -> yield.
-            while True:
-                try:
-                    sequence = data_queue.get_nowait()
-                    if include_metadata:
-                        observation_seq, action_seq, reward_seq, next_observation_seq, done_seq, meta = sequence
-                    else:
-                        observation_seq, action_seq, reward_seq, next_observation_seq, done_seq = sequence
-
-                    
-                    if include_metadata:
-                        yield observation_seq, action_seq, reward_seq[0], next_observation_seq, done_seq[0], meta
-                    else:
-                        yield observation_seq, action_seq, reward_seq[0], next_observation_seq, done_seq[0]
-                
-                except Empty:
-                    if map_promise.ready():
-                        epoch += 1
-                        break
-                    else:
-                        time.sleep(0.1)
-        logger.debug("Epoch complete.")
-
+   
     def load_data(self, stream_name: str, skip_interval=0, include_metadata=False):
         """Iterates over an individual trajectory named stream_name.
         
@@ -247,15 +137,17 @@ class DataPipeline:
         )
 
         # Now we just need to slice the dict.
-        for idx in tqdm.tqdm(range(len(reward_seq[0]))):
+        for idx in tqdm.tqdm(range(len(reward_seq))):
             # Wrap in dict
             action_dict = tree_slice(action_seq, idx)
             observation_dict = tree_slice(observation_seq, idx)
             next_observation_dict = tree_slice(next_observation_seq, idx)
 
 
-            yield_list = [observation_dict, action_dict, reward_seq[0][idx], next_observation_dict, done_seq[0][idx]] 
+            yield_list = [observation_dict, action_dict, reward_seq[idx], next_observation_dict, done_seq[idx]] 
             yield yield_list + [meta] if include_metadata else yield_list
+
+    
 
     def get_trajectory_names(self):
         """Gets all the trajectory names
@@ -352,6 +244,7 @@ class DataPipeline:
                         quantized_reward_vec = state['reward'].astype(np.int) // 8
                         meta['success'] = all(reward//8 in quantized_reward_vec for reward in reward_list[env_str])
                     except KeyError:
+                        
                         logger.warning("success in metadata may be incorrect")
 
             action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action$')])
@@ -407,7 +300,7 @@ class DataPipeline:
                 ret, _ = DataPipeline.read_frame(cap)
                 frame_num += 1
                 if not ret:
-                    return None
+                    raise RuntimeError()
 
             # Rendered Frames
             # Loop through the video and construct frames
@@ -474,7 +367,7 @@ class DataPipeline:
                 next_observation_data = unflatten(next_observation_data)['observation']
                 
 
-                batches = [current_observation_data, action_data, [reward_data], next_observation_data, [np.array(done_data, dtype=np.bool)]]
+                batches = [current_observation_data, action_data, reward_data, next_observation_data, np.array(done_data, dtype=np.bool)]
                 if include_metadata:
                     batches += [meta]
 
@@ -483,29 +376,81 @@ class DataPipeline:
                 else:
                     data_queue.put(batches)
                     logger.debug("Enqueued from file {}".format(file_dir))
+                
 
                 if not ret:
                     break
                 else:
                     frames = [frames[-1]]
 
-            # logger.error("Finished")
+
+            logger.error("Finished")
             return None
         except WindowsError as e:
             logger.debug("Caught windows error {} - this is expected when closing the data pool".format(e))
-            return None
-        except BrokenPipeError as e:
-            
-            print("Broken pipe!")
-            import traceback
-            traceback.print_exc()
             return None
         except FileNotFoundError as e: 
             print("File not found!")
             raise e
         except Exception as e:
-            logger.debug(f"Exception \'{e}\' caught on file \"{file_dir}\" by a worker of the data pipeline.")
+            logger.error(f"Exception \'{e}\' caught on file \"{file_dir}\" by a worker of the data pipeline.")
             return None
+
+
+
+    def batch_iter(self,
+        batch_size : int, 
+        seq_len : int,
+        num_epochs : int = -1,
+        preload_buffer_size : int = 2, 
+        seed : int = None, 
+        include_metadata : bool = False ):
+        """Returns batches of sequences length SEQ_LEN of the data of size BATCH_SIZE.
+        The iterator produces batches sequentially. If an element of a batch reaches the
+        end of its 
+
+
+        Args:
+            batch_size (int): The batch size.
+            seq_len (int): The size of sequences to produce.
+            num_epochs (int, optional): The number of epochs to iterate over the data. Defaults to -1.
+            preload_buffer_size (int, optional): The data iterator uses a queue to prevent blocking, the queue size is the number of trajectories to load into the buffer. Adjust based on memory constraints.. Defaults to 32.
+            seed (int, optional): [description]. Defaults to None.
+            include_metadata (bool, optional): [description]. Defaults to False.
+
+        Returns:
+            Generator: A generator that yields (sarsd) batches
+        """
+        for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
+            trajectory_queue = queue.Queue(maxsize=preload_buffer_size)
+            def traj_iter():
+                for _ in jobs:
+                    s,a,r,sp1,d =  trajectory_queue.get()
+                    yield dict(
+                        obs=s,
+                        act=a,
+                        reward=r,
+                        next_obs=sp1,
+                        done=d
+                    )
+                
+            jobs = [(f, -1, None) for f  in self._get_all_valid_recordings(self.data_dir)]
+            np.random.shuffle(jobs)
+            trajectory_loader = minerl.data.util.OrderedJobStreamer(
+                job,
+                jobs,
+                trajectory_queue,
+                # executor=concurrent.futures.ThreadPoolExecutor,
+                max_workers=preload_buffer_size
+            )
+            trajectory_loader.start()
+
+            for seg_batch in minibatch_gen(traj_iter(), batch_size=batch_size, nsteps=seq_len):
+                yield seg_batch['obs'], seg_batch['act'],  seg_batch['reward'], seg_batch['next_obs'],seg_batch['done']
+
+
+            trajectory_loader.shutdown()
+
 
 
     @staticmethod
@@ -544,3 +489,47 @@ class DataPipeline:
         directoryList = np.array(directoryList)
         np.random.shuffle(directoryList)
         return directoryList.tolist()
+
+
+    ###
+    # DEPRECATED API
+    ###
+    def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
+        """DEPRECATED METHOD FOR SAMPLING DATA FROM THE MINERL DATASET.
+
+        This function is now :code:`DataPipeline.sarsd_iter()`
+        """
+        raise DeprecationWarning(
+            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.sarsd_iter()."
+            "\nNOTE: The new method `DataPipeline.sarsd_iter` has a different return signature! "
+            "\n\t  Please see how to use it @ http://www.minerl.io/docs/tutorials/data_sampling.html")
+
+    def sarsd_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
+        """
+        Returns a generator for iterating through (state, action, reward, next_state, is_terminal)
+        tuples in the dataset.
+        Loads num_workers files at once as defined in minerl.data.make() and return up to
+        max_sequence_len consecutive samples wrapped in a dict observation space
+        
+        Args:
+            num_epochs (int, optional): number of epochs to iterate over or -1
+                to loop forever. Defaults to -1
+            max_sequence_len (int, optional): maximum number of consecutive samples - may be less. Defaults to 32
+            seed (int, optional): seed for random directory walk - note, specifying seed as well as a finite num_epochs
+                will cause the ordering of examples to be the same after every call to seq_iter
+            queue_size (int, optional): maximum number of elements to buffer at a time, each worker may hold an
+                additional item while waiting to enqueue. Defaults to 16*self.number_of_workers or 2*
+                self.number_of_workers if max_sequence_len == -1
+            include_metadata (bool, optional): adds an additional member to the tuple containing metadata about the
+                stream the data was loaded from. Defaults to False
+
+        Yields:
+            A tuple of (state, player_action, reward_from_action, next_state, is_next_state_terminal, (metadata)).
+            Each element is in the format of the environment action/state/reward space and contains as many
+            samples are requested.
+        """
+        raise DeprecationWarning(
+            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.batch_iter().")
+
+
+def job(arg): return DataPipeline._load_data_pyfunc(*arg)

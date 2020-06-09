@@ -18,6 +18,7 @@ import logging
 from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
 import tempfile
 import sys
+import coloredlogs
 
 logger = logging.getLogger(__name__)
 
@@ -145,4 +146,5 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
 
 
 if __name__ == '__main__':
+    coloredlogs.install(logging.DEBUG)
     download(experiment=(sys.argv[1] if len(sys.argv) > 1 else None))

@@ -82,14 +82,13 @@ def package_files(directory):
 
 data_files = []
 data_files += package_files('minerl/env/missions')
-data_files += package_files('minerl/herobraine/env_specs/missions')
-data_files += package_files('minerl/herobraine/env_specs/obfuscations')
+data_files += package_files('minerl/herobraine/env_specs')
 data_files += package_files('minerl/data/assets')
 
 
 setuptools.setup(
       name='minerl',
-      version='0.9.10.pfn',
+      version='0.9.11.pfn',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
@@ -105,4 +104,4 @@ setuptools.setup(
     install_requires=requirements,
      data_files=data_files,
      include_package_data=True,
-      )
+)
