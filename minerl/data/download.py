@@ -78,8 +78,8 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
     download_path = os.path.join(directory, 'download') if not disable_cache else tempfile.mkdtemp()
     mirrors = [
         "https://minerl.s3.amazonaws.com/",
-        "https://minerl-asia.s3.amazonaws.com/"] #, "https://router2.sneakywines.me/"]
-
+        "https://minerl-asia.s3.amazonaws.com/",
+        "https://minerl-europe.s3.amazonaws.com/"]  # , "https://router2.sneakywines.me/"]
 
     if experiment is None:
         min_str = '_minimal' if minimal else ''
@@ -99,9 +99,9 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         # TODO: Add hashing
         logger.warning("As of MineRL 0.3.0 hashing has been deprecated.")
         logger.info("Starting download ...")
-        dest_file =  os.path.join(download_path, filename)
+        dest_file = os.path.join(download_path, filename)
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
-        download_with_resume(urls,dest_file)
+        download_with_resume(urls, dest_file)
     except HTTPError as e:
         logger.error("HTTP error encountered when downloading")
         if experiment is not None:

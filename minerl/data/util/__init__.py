@@ -1,4 +1,6 @@
 import os.path
+import urllib
+
 import requests
 import shutil
 import hashlib
@@ -28,11 +30,13 @@ def multimap(f: Callable, *xs: Any) -> Any:
     else:
         return f(*xs)
 
+
 def forever():
     i = 0
     while True:
-        i+=1 
+        i += 1
         yield i
+
 
 def validate_file(file_path, hash):
     """
@@ -46,25 +50,32 @@ def validate_file(file_path, hash):
     m = hashlib.md5()
     with open(file_path, 'rb') as f:
         while True:
-            chunk = f.read(1000 * 1000) # 1MB
+            chunk = f.read(1000 * 1000)  # 1MB
             if not chunk:
                 break
             m.update(chunk)
     return m.hexdigest() == hash
 
-def time_request( url, n=5):
+
+def time_request(url, max_n=2, timeout=0.15):
     times = 0
-    for i in range(n):
+    n = max_n
+    for i in range(max_n):
         try:
-            t0 = time.time()
-            requests.head(url)
-            times += time.time() - t0
-        except requests.exceptions.ConnecitonError:
-            n-=1 
+            req = requests.head(url, timeout=timeout)
+            times += req.elapsed.seconds
+            if req.status_code != 200:
+                n -= 1
+        except requests.Timeout:
+            n -= 1
+        except (requests.exceptions.BaseHTTPError, urllib.error.URLError) as e:
+            logging.log(logging.WARNING, e)
+            n -= 1
     if n == 0:
-        return 1_000_000_000
+        return 1_000_000_000 + times
     else:
-        return times/n
+        return times / n
+
 
 def download_with_resume(urls, file_path, hash=None, timeout=10):
     """
@@ -76,36 +87,46 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
     :param hash: hash value for file validation
     :type hash:  string (MD5 hash value)
     """
-     # don't download if the file exists
+    # don't download if the file exists
     if os.path.exists(file_path):
         logging.info("File already exists.")
         return
-    block_size = 1000 * 1000 # 1MB
+    block_size = 1000 * 1000  # 1MB
     tmp_file_path = file_path + '.part'
     first_byte = os.path.getsize(tmp_file_path) if os.path.exists(tmp_file_path) else 0
     file_mode = 'ab' if first_byte else 'wb'
-    logging.debug('Starting download at %.1fMB' % (first_byte / 1e6))
+    logging.debug(f'Choosing mirror ...')
     file_size = -1
 
-    
-    i = np.argmin([time_request(url) for url in urls])
-    logging.debug(f'Choosing mirror {urls[i]}')
+    # urllib can be verbose
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+    latency = [time_request(url) for url in urls]
+    if min(latency) < 1_000_000_000:
+        i = np.argmin(latency)
+    else:
+        logging.warning(f'Re-checking mirrors, latency above 0.1s')
+        i = np.argmin([time_request(url, timeout=30) for url in urls])
+
+    logging.debug(f'Picked {urls[i]}')
     url = urls[i]
-    
+
     try:
-        head= requests.head(url)
+        logging.debug('Starting download at %.1fMB' % (first_byte / 1e6))
+
+        head = requests.head(url)
         file_size = int(head.headers['Content-length'])
 
         logging.debug('File size is %s' % file_size)
         headers = {"Range": "bytes=%s-" % first_byte}
 
-        disp = tqdm.tqdm(total=file_size /1e6, desc=f'Download: {url}',unit='MB', )
-        disp.update(first_byte /1e6)
+        disp = tqdm.tqdm(total=file_size / 1e6, desc=f'Download: {url}', unit='MB', )
+        disp.update(first_byte / 1e6)
         r = requests.get(url, headers=headers, stream=True, timeout=timeout)
         with open(tmp_file_path, file_mode) as f:
-            for chunk in r.iter_content(chunk_size=block_size): 
+            for chunk in r.iter_content(chunk_size=block_size):
                 disp.update(block_size / 1e6)
-                if chunk: # filter out keep-alive new chunks
+                if chunk:  # filter out keep-alive new chunks
                     f.write(chunk)
     except (IOError, TypeError, KeyError) as e:
         logging.error('Error - %s' % e)
@@ -122,15 +143,13 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
             raise Exception('Error getting Content-Length from server: %s' % url)
 
 
-
-
 class OrderedJobStreamer(threading.Thread):
-    def __init__(self, 
-        job : Callable, 
-        job_args : list,
-        output_queue : queue.Queue, 
-        executor = concurrent.futures.ProcessPoolExecutor, 
-        max_workers :int =None):
+    def __init__(self,
+                 job: Callable,
+                 job_args: list,
+                 output_queue: queue.Queue,
+                 executor=concurrent.futures.ProcessPoolExecutor,
+                 max_workers: int = None):
         """Creates a thread pool to run a ordered list of jobs, enqueueing their results to a target queue.
 
         Args:
@@ -143,7 +162,7 @@ class OrderedJobStreamer(threading.Thread):
         super().__init__(target=self._ordered_job_streamer, daemon=True)
         self.job = job
         self.job_args = job_args
-        self.output_queue = output_queue 
+        self.output_queue = output_queue
         self._should_exit = False
         self.executor = executor
         self.max_workers = max_workers
@@ -222,12 +241,11 @@ def minibatch_gen(traj_iter, batch_size, nsteps):
                 # Truncate trajectory to the nsteps.
                 outtraj = (multimap(lambda x: x[:nsteps], t))
 
-
                 # Shorten the trajectory.
                 trajs[i] = multimap(lambda x: x[nsteps:], t)
 
                 rettraj.append(outtraj)
             # Yield a batch.
-            yield  multimap(stack, *rettraj)
+            yield multimap(stack, *rettraj)
     except StopIteration:
         return
