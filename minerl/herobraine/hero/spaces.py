@@ -254,7 +254,7 @@ class Dict(gym.spaces.Dict, MineRLSpace):
         try:
             return np.concatenate(
                 [v.flat_map(x[k]) if k in x else v.flat_map(v.no_op()) for (k, v) in (self.spaces.items()) if
-                 v.is_flattenable()]
+                (v.is_flattenable())]
             )
         except ValueError:
             # No flattenable handlers found
@@ -273,14 +273,14 @@ class Dict(gym.spaces.Dict, MineRLSpace):
             for k, v in (self.spaces.items()) if not v.is_flattenable()
         })
 
-    def unmap(self, x):
+    def unmap(self, x, skip=False):
         unmapped = collections.OrderedDict()
         cur_index = 0
         for k, v in self.spaces.items():
             if v.is_flattenable():
                 unmapped[k] = v.unmap(x[cur_index:cur_index + v.flattened.shape[0]])
                 cur_index += v.flattened.shape[0]
-            else:
+            elif not skip:
                 raise ValueError('Dict space contains is_flattenable values - unmap with unmap_mixed')
 
         return unmapped
