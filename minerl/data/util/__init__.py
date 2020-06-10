@@ -165,7 +165,6 @@ class OrderedJobStreamer(threading.Thread):
                 while not self._should_exit:
                     try:
                         self.output_queue.put(res, block=True, timeout=1)
-                        print(self.output_queue.qsize())
                         break
                     except queue.Full:
                         pass

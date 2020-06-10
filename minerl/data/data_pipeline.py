@@ -414,13 +414,14 @@ class DataPipeline:
             batch_size (int): The batch size.
             seq_len (int): The size of sequences to produce.
             num_epochs (int, optional): The number of epochs to iterate over the data. Defaults to -1.
-            preload_buffer_size (int, optional): The data iterator uses a queue to prevent blocking, the queue size is the number of trajectories to load into the buffer. Adjust based on memory constraints.. Defaults to 32.
-            seed (int, optional): [description]. Defaults to None.
+            preload_buffer_size (int, optional): Increase to IMPROVE PERFORMANCE. The data iterator uses a queue to prevent blocking, the queue size is the number of trajectories to load into the buffer. Adjust based on memory constraints. Defaults to 32.
+            seed (int, optional): [int]. NOT IMPLEMENTED Defaults to None.
             include_metadata (bool, optional): [description]. Defaults to False.
 
         Returns:
             Generator: A generator that yields (sarsd) batches
         """
+        #Todo: Not implemented/
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
             trajectory_queue = queue.Queue(maxsize=preload_buffer_size)
             def traj_iter():
@@ -532,4 +533,5 @@ class DataPipeline:
             "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
 
+# TODO: Clean this.
 def job(arg): return DataPipeline._load_data_pyfunc(*arg)
