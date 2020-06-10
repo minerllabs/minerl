@@ -24,10 +24,10 @@ class Vectorized(EnvWrapper):
         # Gather all of the handlers for the common_env
         self.common_actions = reduce(union_spaces, [env.actionables for env in self.common_envs])
         self.common_action_space = spaces.Dict(
-            [(hdl.to_string(), hdl.space) for hdl in self.common_actions])
+            {hdl.to_string(): hdl.space for hdl in self.common_actions})
         self.common_observations = reduce(union_spaces, [env.observables for env in self.common_envs])
         self.common_observation_space = spaces.Dict(
-            [(hdl.to_string(), hdl.space) for hdl in self.common_observations])
+            {hdl.to_string(): hdl.space for hdl in self.common_observations})
         self.flat_actions, self.remaining_action_space = flatten_spaces(self.common_actions)
         self.flat_observations, self.remaining_observation_space = flatten_spaces(self.common_observations)
 

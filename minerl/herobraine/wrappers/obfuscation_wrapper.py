@@ -92,11 +92,15 @@ class Obfuscated(EnvWrapper):
         return act
 
     def _unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        obs['vector'] = np.clip(self.obs_dec(obs['vector']), 0, 1)
+        obs['vector'] = np.clip(
+            self.obs_dec(obs['vector']),# decode then CLIP
+        0, 1)
         return obs
 
     def _unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        act['vector'] = np.clip(self.ac_dec(act['vector']), 0, 1)
+        act['vector'] = np.clip(
+            self.ac_dec(act['vector']), #decode then CLIP
+             0, 1)
         return act
 
     def get_docstring(self):

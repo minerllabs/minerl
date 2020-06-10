@@ -152,8 +152,9 @@ class OrderedJobStreamer(threading.Thread):
         with self.executor(self.max_workers) as ex:
             results = queue.Queue()
             # Enqueue jobs
-            for arg in self.job_args:
+            for arg in tqdm.tqdm(self.job_args):
                 results.put(ex.submit(self.job, arg))
+            
 
             # Dequeu jobs and push them to a queue.
             while not results.empty() and not self._should_exit:
@@ -165,7 +166,6 @@ class OrderedJobStreamer(threading.Thread):
                 while not self._should_exit:
                     try:
                         self.output_queue.put(res, block=True, timeout=1)
-                        print(self.output_queue.qsize())
                         break
                     except queue.Full:
                         pass

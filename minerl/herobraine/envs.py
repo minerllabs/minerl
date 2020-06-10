@@ -7,6 +7,7 @@ from minerl.herobraine.env_specs.treechop_specs import Treechop
 from minerl.herobraine.env_specs.navigate_specs import Navigate
 from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, ObtainDiamondDebug
 from minerl.herobraine.wrappers import Obfuscated, Vectorized
+import minerl.data.version
 import os
 
 MINERL_TREECHOP_V0 = Treechop()
@@ -43,7 +44,7 @@ MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0 = ObtainIronPickaxe(dense=True)
 # TODO: Determine naming schemes
 comp_envs = [MINERL_OBTAIN_DIAMOND_V0, MINERL_TREECHOP_V0, MINERL_NAVIGATE_V0, MINERL_OBTAIN_IRON_PICKAXE_V0]
 comp_obfuscator_dir =  os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "env_specs", "obfuscators", "comp")
+    os.path.dirname(os.path.abspath(__file__)), "env_specs", "obfuscators", "comp", f"v{minerl.data.version.DATA_VERSION}")
 
 
 MINERL_TREECHOP_OBF_V0 = Obfuscated(Vectorized(MINERL_TREECHOP_V0, common_envs=comp_envs), comp_obfuscator_dir)
