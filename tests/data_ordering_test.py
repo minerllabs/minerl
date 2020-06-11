@@ -13,6 +13,8 @@ import minerl
 logging.getLogger().setLevel(logging.DEBUG)
 logging.basicConfig()
 
+
+# TODO update these to include 2020 competition environments
 ENVIRONMENTS = ['MineRLNavigate-v0',
                 'MineRLNavigateDense-v0',
                 'MineRLNavigateExtreme-v0',
@@ -69,7 +71,7 @@ def test_data(environment='MineRLObtainDiamond-v0'):
         d = minerl.data.make(environment, num_workers=1)
 
         # Iterate through batches of data
-        for obs, act, rew, nObs, done in d.sarsd_iter(num_epochs=1, max_sequence_len=2):
+        for obs, act, rew, nObs, done in d.batch_iter(num_epochs=1, max_sequence_len=2):
             correct_len = len(rew)
             for key, space in d.observation_space.spaces.items():
                 _check_space(key, space, obs, correct_len)
@@ -87,7 +89,7 @@ def run_once(environment):
     logging.info('Testing {}'.format(environment))
 
     # Iterate through single batch of data
-    for obs, act, rew, nObs, done in d.sarsd_iter(num_epochs=1, max_sequence_len=2):
+    for obs, act, rew, nObs, done in d.batch_iter(num_epochs=1, max_sequence_len=2):
         correct_len = len(rew)
         for key, space in d.observation_space.spaces.items():
             _check_space(key, space, obs, correct_len)
