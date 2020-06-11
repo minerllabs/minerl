@@ -95,7 +95,7 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
     tmp_file_path = file_path + '.part'
     first_byte = os.path.getsize(tmp_file_path) if os.path.exists(tmp_file_path) else 0
     file_mode = 'ab' if first_byte else 'wb'
-    logging.debug(f'Choosing mirror ...')
+    logging.debug('Choosing mirror ...')
     file_size = -1
 
     # urllib can be verbose
@@ -105,10 +105,10 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
     if min(latency) < 1000 * 1000 * 1000:
         i = np.argmin(latency)
     else:
-        logging.warning(f'Re-checking mirrors, latency above 0.1s')
+        logging.warning('Re-checking mirrors, latency above 0.1s')
         i = np.argmin([time_request(url, timeout=30) for url in urls])
 
-    logging.debug(f'Picked {urls[i]}')
+    logging.debug('Picked {}'.format(urls[i]))
     url = urls[i]
 
     try:
@@ -120,7 +120,7 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
         logging.debug('File size is %s' % file_size)
         headers = {"Range": "bytes=%s-" % first_byte}
 
-        disp = tqdm.tqdm(total=file_size / 1e6, desc=f'Download: {url}', unit='MB', )
+        disp = tqdm.tqdm(total=file_size / 1e6, desc='Download: {}'.format(url), unit='MB', )
         disp.update(first_byte / 1e6)
         r = requests.get(url, headers=headers, stream=True, timeout=timeout)
         with open(tmp_file_path, file_mode) as f:
@@ -130,7 +130,7 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
                     f.write(chunk)
     except (IOError, TypeError, KeyError) as e:
         logging.error('Error - %s' % e)
-        logging.error(f'Header from download attempt of {url}: {head.headers}')
+        logging.error('Header from download attempt of {}: {}'.format(url, head.headers))
         raise e
     finally:
         # rename the temp download file to the correct name if fully downloaded

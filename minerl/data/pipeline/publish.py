@@ -269,13 +269,14 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                     for _prefix, hdlrs in [
                         ("observation", info_handlers),
                         ("action", action_handlers)]:
-                        if not _prefix in tick_data:
+                        if _prefix not in tick_data:
                             tick_data[_prefix] = OrderedDict()
 
                         for handler in hdlrs:
                             # Apply the handler from_universal to the universal[tick]
                             val = handler.from_universal(universal[tick])
-                            assert val in handler.space, f"{val} is not in {handler.space} for handler {handler.to_string()}"
+                            assert val in handler.space, "{} is not in {} for handler {}".format(val, handler.space,
+                                                                                                 handler.to_string)
                             tick_data[_prefix][handler.to_string()] = val
 
                         # Perhaps we can wrap here
@@ -300,27 +301,17 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                     if k.startswith("action"):
                         published[k] = published[k][1:]
 
-
-
             except NotImplementedError as err:
                 print('Exception:', repr(err), 'found with environment:', environment.name)
                 raise err
-                for hdl in all_handlers:
-                    try:
-                        hdl.from_universal({})
-                    except NotImplementedError:
-                        print("Missing from universal for command handler: ", hdl)
-                        continue
-                    except KeyError:
-                        pass
-                continue
             except KeyError as err:
                 print("Key error in file - check from_universal for handlers")
+                print(repr(err))
                 continue
             except AssertionError as e:
                 # Warn the user if some of the observatiosn or actions don't fall in the gym.space 
                 # (The space checking assertion error from above was raised)
-                print(f"Warning! {e}")
+                print("Warning!" + repr(e))
                 continue
             except Exception as e:
                 print("caught exception:", repr(e))

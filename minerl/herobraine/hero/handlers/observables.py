@@ -341,10 +341,10 @@ class TypeObservation(AgentHandler):
         return self._default
 
     def to_string(self):
-        return f'equipped_items.{self._hand}.type'
+        return 'equipped_items.{}.type'.format(self._hand)
 
     def from_hero(self, obs_dict):
-        return obs['equipped_item']['mainhand']['type']
+        return obs_dict['equipped_item']['mainhand']['type']
 
     def from_universal(self, obs):
         try:
@@ -413,7 +413,7 @@ class DamageObservation(AgentHandler):
         return self._default
 
     def to_string(self):
-        return f'equipped_items.{self._hand}.damage'
+        return 'equipped_items.{}.damage'.format(self._hand)
 
     def from_universal(self, obs):
         try:
@@ -463,7 +463,7 @@ class MaxDamageObservation(AgentHandler):
         return self._default
 
     def to_string(self):
-        return f'equipped_items.{self._hand}.maxDamage'
+        return 'equipped_items.{    }.maxDamage'.format(self._hand)
 
     def from_universal(self, obs):
         try:

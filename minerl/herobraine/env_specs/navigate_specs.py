@@ -6,12 +6,12 @@ import minerl.herobraine.hero.handlers as handlers
 from minerl.herobraine.env_specs.simple_env_spec import SimpleEnvSpec
 
 
-
 class Navigate(SimpleEnvSpec):
     def __init__(self, dense, extreme):
-        suffix = f"{'Extreme' if extreme else ''}{'Dense' if dense else ''}"
-        name = f"MineRLNavigate{suffix}-v0" 
-        xml = f'navigation{suffix}.xml'
+        suffix = 'Extreme' if extreme else ''
+        suffix += 'Dense' if dense else ''
+        name = 'MineRLNavigate{}-v0'.format(suffix)
+        xml = 'navigation{}.xml'.format(suffix)
         self.dense, self.extreme = dense, extreme
         super().__init__(name, xml, max_episode_steps=6000)
 
@@ -20,7 +20,7 @@ class Navigate(SimpleEnvSpec):
 
     def create_mission_handlers(self) -> List[minerl.herobraine.hero.AgentHandler]:
         mission_handlers = [
-            handlers.EpisodeLength(6000//20),
+            handlers.EpisodeLength(6000 // 20),
             handlers.RewardForTouchingBlock(
                 {"diamond_block", 100.0}
             ),
@@ -38,9 +38,9 @@ class Navigate(SimpleEnvSpec):
         return mission_handlers
 
     def create_observables(self) -> List[minerl.herobraine.hero.AgentHandler]:
-        return super().create_observables() +  [
+        return super().create_observables() + [
             handlers.CompassObservation(),
-            handlers.FlatInventoryObservation(['dirt'])] 
+            handlers.FlatInventoryObservation(['dirt'])]
 
     def create_actionables(self) -> List[minerl.herobraine.hero.AgentHandler]:
         return super().create_actionables() + [handlers.PlaceBlock(['none', 'dirt'])]
@@ -49,7 +49,6 @@ class Navigate(SimpleEnvSpec):
         return make_navigate_text(
             top="normal" if not self.extreme else "extreme",
             dense=self.dense)
-
 
 
 def make_navigate_text(top, dense):
@@ -75,7 +74,7 @@ In this task, the agent must move to a goal location denoted by a diamond block.
 The agent is given a sparse reward (+100 upon reaching the goal, at which point the episode terminates). """
     if dense:
         navigate_text += "**This variant of the environment is dense reward-shaped where the agent is given a reward every tick for how much closer (or negative reward for farther) the agent gets to the target.**\n"
-    else: 
+    else:
         navigate_text += "**This variant of the environment is sparse.**\n"
 
     if top is "normal":
