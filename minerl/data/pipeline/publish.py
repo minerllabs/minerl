@@ -56,7 +56,8 @@ from minerl.herobraine.wrappers.obfuscation_wrapper import Obfuscated
 
 FAILED_COMMANDS = []
 
-def flatten(d, parent_key='', sep='$'): 
+
+def flatten(d, parent_key='', sep='$'):
     items = []
     for k, v in d.items():
         new_key = parent_key + sep + k if parent_key else k
@@ -65,6 +66,11 @@ def flatten(d, parent_key='', sep='$'):
         else:
             items.append((new_key, v))
     return dict(items)
+
+
+def calculate_frame_count(video_path):
+    return 8
+
 
 ##################
 #    PIPELINE    #
@@ -255,15 +261,14 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
                 published = dict(
                     reward=np.array(
-                    [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal],
-                    dtype=np.float32)[1:])
+                        [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal],
+                        dtype=np.float32)[1:])
 
-                
                 for tick in universal:
                     tick_data = {}
                     for _prefix, hdlrs in [
-                        ("observation",info_handlers),
-                        ("action",action_handlers)]:
+                        ("observation", info_handlers),
+                        ("action", action_handlers)]:
                         if not _prefix in tick_data:
                             tick_data[_prefix] = OrderedDict()
 
@@ -282,9 +287,9 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                                 del tick_data[_prefix]['pov']
                             elif _prefix == "action":
                                 tick_data[_prefix] = environment.wrap_action(tick_data[_prefix])
-                        
+
                     tick_data = flatten(tick_data, sep='$')
-                    for k,v in tick_data.items():
+                    for k, v in tick_data.items():
                         try:
                             published[k].append(v)
                         except KeyError:
@@ -328,7 +333,6 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                         continue
                 raise e
 
-
             # published = {'action': action, 'reward': reward, 'info': info}
 
         # TODO: Blacklist streams properly.
@@ -360,6 +364,11 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
         # Render metadata
         try:
+            # Copy video if necessary
+            if not E(recording_dest):
+                shutil.copyfile(src=recording_source, dst=recording_dest)
+            np.savez_compressed(rendered_dest, **published)
+
             with open(metadata_source, 'r') as meta_file:
                 source = json.load(meta_file)
                 metadata_out = {}
@@ -371,13 +380,10 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                 metadata_out['duration_steps'] = len(published['reward'])
                 metadata_out['total_reward'] = sum(published['reward'])
                 metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
+                metadata_out['stream_true_frame_count'] = calculate_frame_count(recording_dest)
                 with open(metadata_dest, 'w') as meta_file_out:
                     json.dump(metadata_out, meta_file_out)
 
-            # Copy video if necessary
-            if not E(recording_dest):
-                shutil.copyfile(src=recording_source, dst=recording_dest)
-            np.savez_compressed(rendered_dest, **published)
             rendered_envs += 1
         except (KeyError, ValueError) as e:
             print(e)

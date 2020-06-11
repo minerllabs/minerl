@@ -282,6 +282,9 @@ class DataPipeline:
                     frame_num += 1
 
             max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
+
+            max_frame_num = meta['num_video_files']
+
             frames = []
             frame_num, stop_idx = 0, 0
 
@@ -408,7 +411,7 @@ class DataPipeline:
         Returns:
             Generator: A generator that yields (sarsd) batches
         """
-        #Todo: Not implemented/
+        # Todo: Not implemented/
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
             trajectory_queue = queue.Queue(maxsize=preload_buffer_size)
 
@@ -482,11 +485,11 @@ class DataPipeline:
     def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
         """DEPRECATED METHOD FOR SAMPLING DATA FROM THE MINERL DATASET.
 
-        This function is now :code:`DataPipeline.sarsd_iter()`
+        This function is now :code:`DataPipeline.batch_iter()`
         """
         raise DeprecationWarning(
-            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.sarsd_iter()."
-            "\nNOTE: The new method `DataPipeline.sarsd_iter` has a different return signature! "
+            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.batch_iter()."
+            "\nNOTE: The new method `DataPipeline.batch_iter` has a different return signature! "
             "\n\t  Please see how to use it @ http://www.minerl.io/docs/tutorials/data_sampling.html")
 
     def sarsd_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
@@ -514,7 +517,7 @@ class DataPipeline:
             samples are requested.
         """
         raise DeprecationWarning(
-            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.batch_iter().")
+            "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
 
 # TODO: Clean this.
