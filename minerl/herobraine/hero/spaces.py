@@ -64,7 +64,7 @@ class Tuple(gym.spaces.Tuple, MineRLSpace):
 
 
 class Box(gym.spaces.Box, MineRLSpace):
-    def __init__(self, *args,  normalizer_scale='linear', **kwargs,):
+    def __init__(self, *args,  normalizer_scale='linear', **kwargs):
         super(Box, self).__init__(*args, **kwargs)
 
         self._flat_low = self.low.flatten().astype(np.float64)
