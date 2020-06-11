@@ -72,7 +72,7 @@ def time_request(url, max_n=2, timeout=0.15):
             logging.log(logging.WARNING, e)
             n -= 1
     if n == 0:
-        return 1_000_000_000 + times
+        return 1000 * 1000 * 1000 + times
     else:
         return times / n
 
@@ -102,7 +102,7 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     latency = [time_request(url) for url in urls]
-    if min(latency) < 1_000_000_000:
+    if min(latency) < 1000 * 1000 * 1000:
         i = np.argmin(latency)
     else:
         logging.warning(f'Re-checking mirrors, latency above 0.1s')
