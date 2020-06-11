@@ -64,7 +64,7 @@ class Tuple(gym.spaces.Tuple, MineRLSpace):
 
 
 class Box(gym.spaces.Box, MineRLSpace):
-    def __init__(self, *args,  normalizer_scale='linear', **kwargs,):
+    def __init__(self, *args,  normalizer_scale='linear', **kwargs):
         super(Box, self).__init__(*args, **kwargs)
 
         self._flat_low = self.low.flatten().astype(np.float64)
@@ -89,10 +89,11 @@ class Box(gym.spaces.Box, MineRLSpace):
             return Box(low=self._flat_low, high=self._flat_high)
 
     def flat_map(self, x):
+        flatx = x.reshape(list(x.shape[:-len(self.shape)]) + [np.prod(self.shape).astype(int)])
         if self.normalizer_scale == 'linear':
-            return (x.flatten().astype(np.float64) - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
+            return (flatx.astype(np.float64) - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
         elif self.normalizer_scale == 'log':
-            return np.log(x.flatten().astype(np.float64) - self._flat_low + 1) / self.max_log - Box.CENTER
+            return np.log(flatx.astype(np.float64) - self._flat_low + 1) / self.max_log - Box.CENTER
 
     def unmap(self, x):
         """
@@ -105,8 +106,8 @@ class Box(gym.spaces.Box, MineRLSpace):
             high = low * (self._flat_high - self._flat_low) + self._flat_low
         elif self.normalizer_scale == 'log':
             high = np.exp(low* self.max_log) -1 + self._flat_low
-        
-        reshaped =  high.reshape(self.shape)
+
+        reshaped =  high.reshape(list(x.shape[:-len(self.shape)]) + list(self.shape))
         if np.issubdtype(self.dtype, np.integer):
             return np.round(reshaped).astype(self.dtype)
         else:
@@ -169,7 +170,8 @@ class Enum(Discrete, MineRLSpace):
             values = (values,)
         self.default = default if default is not None else values[0]
         super().__init__(len(values))
-        self.values = list(sorted(values))
+        self.values = np.array(sorted(values))
+        self.value_map = dict(zip(values, range(len(values))))
 
     def sample(self) -> int:
         """Samples a random index for one of the enum types.
@@ -187,8 +189,7 @@ class Enum(Discrete, MineRLSpace):
         return super().flat_map(self[x])
 
     def unmap(self, x):
-        return self.values[self[super().unmap(x)]]
-
+        return self.values[super().unmap(x)]
 
 
     def no_op(self):
@@ -199,10 +200,19 @@ class Enum(Discrete, MineRLSpace):
 
     def __getitem__(self, action):
         try:
+            single_act = False
             if isinstance(action, str):
-                return self.values.index(action)
-            elif action < self.n:
-                return action
+                single_act = True
+                action = np.array([action])
+
+
+            u,inv = np.unique(action,return_inverse = True)
+            
+            print(action, u, inv)
+            inds = np.array([self.value_map[x] for x in u])[inv].reshape(action.shape)
+
+            return inds if not single_act else inds.tolist()[0]
+
         except ValueError:
             raise ValueError("\"{}\" not valid ENUM value in values {}".format(action, self.values))
 
@@ -220,6 +230,8 @@ class Enum(Discrete, MineRLSpace):
 
     __contains__ = contains
 
+
+# TODO: Vectorize containment?
 class Dict(gym.spaces.Dict, MineRLSpace):
     def no_op(self):
         return OrderedDict([(k, space.no_op()) for k, space in self.spaces.items()])
@@ -254,7 +266,8 @@ class Dict(gym.spaces.Dict, MineRLSpace):
         try:
             return np.concatenate(
                 [v.flat_map(x[k]) if k in x else v.flat_map(v.no_op()) for (k, v) in (self.spaces.items()) if
-                (v.is_flattenable())]
+                (v.is_flattenable())],
+                axis=-1
             )
         except ValueError:
             # No flattenable handlers found
@@ -273,28 +286,28 @@ class Dict(gym.spaces.Dict, MineRLSpace):
             for k, v in (self.spaces.items()) if not v.is_flattenable()
         })
 
-    def unmap(self, x, skip=False):
+    def unmap(self, x : np.ndarray, skip=False) -> OrderedDict:
         unmapped = collections.OrderedDict()
         cur_index = 0
         for k, v in self.spaces.items():
             if v.is_flattenable():
-                unmapped[k] = v.unmap(x[cur_index:cur_index + v.flattened.shape[0]])
+                unmapped[k] = v.unmap(x[..., cur_index:cur_index + v.flattened.shape[0]])
                 cur_index += v.flattened.shape[0]
             elif not skip:
                 raise ValueError('Dict space contains is_flattenable values - unmap with unmap_mixed')
 
         return unmapped
 
-    def unmap_mixed(self, x: Box, aux: OrderedDict):
+    def unmap_mixed(self, x: np.ndarray, aux: OrderedDict):
         # split x
         unmapped = collections.OrderedDict()
         cur_index = 0
         for k, v in self.spaces.items():
             if v.is_flattenable():
                 try:
-                    unmapped[k] = v.unmap_mixed(x[cur_index:cur_index + v.flattened.shape[0]], aux[k])
+                    unmapped[k] = v.unmap_mixed(x[..., cur_index:cur_index + v.flattened.shape[0]], aux[k])
                 except (KeyError, AttributeError):
-                    unmapped[k] = v.unmap(x[cur_index:cur_index + v.flattened.shape[0]])
+                    unmapped[k] = v.unmap(x[..., cur_index:cur_index + v.flattened.shape[0]])
                 cur_index += v.flattened.shape[0]
             else:
                 unmapped[k] = aux[k]
@@ -317,16 +330,16 @@ class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):
 
     def flat_map(self, x):
         return np.concatenate(
-            [self.eyes[i][x[i]] for i in range(len(self.nvec))]
-        )
+            [self.eyes[i][x[..., i]] for i in range(len(self.nvec))],
+        axis=-1)
 
     def unmap(self, x):
         cur_index = 0
         out = []
         for n in self.nvec:
-            out.append(np.argmax(x[cur_index:cur_index + n]).flatten())
+            out.append(np.argmax(x[..., cur_index:cur_index + n], axis=-1)[...,np.newaxis])
             cur_index += n
-        return np.concatenate(out)
+        return np.concatenate(out,axis=-1).astype(self.dtype)
 
 
 class Text(gym.Space):
@@ -407,7 +420,7 @@ class DiscreteRange(Discrete):
         return self.eye[x - self.begin]
 
     def unmap(self, x):
-        return np.array(np.argmax(x).flatten().tolist()[0] + self.begin, dtype=self.dtype)
+        return np.array(np.argmax(x, axis=-1) + self.begin, dtype=self.dtype)
 
     def __repr__(self):
         return "DiscreteRange({}, {})".format(self.begin, self.n + self.begin)

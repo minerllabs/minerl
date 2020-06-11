@@ -266,6 +266,7 @@ def generate_embedding(
         discrete_subset,
         continuous_subset,
         unwrap_function,
+        aux_data_iterator=None,
         use_fast_sampling=False):
     """
     Trains an embedding
@@ -356,16 +357,26 @@ def get_discrete_and_continuous_subsets(vector_env, types='action'):
     return discrete_subset, cts_subset
 
 
+def aux_data_iterator(original_env, vector_env, types='action'):
+    g = (lambda x: x.common_action_space) if types == 'action' else (lambda x: x.common_observation_space)
+    dat = minerl.data.make(original_env.name)  
+    for sarsd in dat.batch_iter(32, 100, -1, 10):
+        if types == 'action':
+            yield g(vector_env).flat_map(sarsd[1])
+        else:
+            yield g(vector_env).flat_map(sarsd[0])
+
 
 import sys
 import functools
 
-
+import minerl
 def main(env_to_generate=MINERL_OBTAIN_DIAMOND_OBF_V0):   
-    
 
     vector_env = env_to_generate.env_to_wrap
     original_env = vector_env.env_to_wrap
+
+
     # Generate the aciton embedding.
     if sys.argv[1] == 'action':
         action_obf_net = generate_embedding(
@@ -377,6 +388,7 @@ def main(env_to_generate=MINERL_OBTAIN_DIAMOND_OBF_V0):
             ),
             *get_discrete_and_continuous_subsets(vector_env, types='action'),
             vector_env.common_action_space.unmap,
+            aux_data_iterator(),
             use_fast_sampling=False)
         action_obf_net.numpy_pickle('action.secret.compat')
     
@@ -390,6 +402,7 @@ def main(env_to_generate=MINERL_OBTAIN_DIAMOND_OBF_V0):
             lambda: vector_env.common_observation_space.flat_map(vector_env.common_observation_space.sample()),
             *get_discrete_and_continuous_subsets(vector_env, types='observation'),
             functools.partial(vector_env.common_observation_space.unmap, skip=True),
+            aux_data_iterator(),
             use_fast_sampling=True)
         # Now pickle the obf net.
         observation_obf_net.numpy_pickle('obs.secret.compat')
