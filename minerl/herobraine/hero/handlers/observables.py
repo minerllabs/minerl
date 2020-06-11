@@ -463,7 +463,7 @@ class MaxDamageObservation(AgentHandler):
         return self._default
 
     def to_string(self):
-        return 'equipped_items.{    }.maxDamage'.format(self._hand)
+        return 'equipped_items.{}.maxDamage'.format(self._hand)
 
     def from_universal(self, obs):
         try:

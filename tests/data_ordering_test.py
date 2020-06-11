@@ -13,7 +13,6 @@ import minerl
 logging.getLogger().setLevel(logging.DEBUG)
 logging.basicConfig()
 
-
 # TODO update these to include 2020 competition environments
 ENVIRONMENTS = ['MineRLNavigate-v0',
                 'MineRLNavigateDense-v0',
@@ -68,28 +67,17 @@ def _check_space(key, space, observation, correct_len):
 
 def test_data(environment='MineRLObtainDiamond-v0'):
     for _ in range(20):
-        d = minerl.data.make(environment, num_workers=1)
-
-        # Iterate through batches of data
-        for obs, act, rew, nObs, done in d.batch_iter(num_epochs=1, max_sequence_len=2):
-            correct_len = len(rew)
-            for key, space in d.observation_space.spaces.items():
-                _check_space(key, space, obs, correct_len)
-
-            for key, space in d.action_space.spaces.items():
-                _check_space(key, space, act, correct_len)
-
-            break
-
+        run_once(environment, verbose=False)
     return True
 
 
-def run_once(environment):
+def run_once(environment, verbose=True):
     d = minerl.data.make(environment, num_workers=1)
-    logging.info('Testing {}'.format(environment))
+    if verbose:
+        logging.info('Testing {}'.format(environment))
 
     # Iterate through single batch of data
-    for obs, act, rew, nObs, done in d.batch_iter(num_epochs=1, max_sequence_len=2):
+    for obs, act, rew, nObs, done in d.batch_iter(num_epochs=1, seq_len=2, batch_size=1):
         correct_len = len(rew)
         for key, space in d.observation_space.spaces.items():
             _check_space(key, space, obs, correct_len)

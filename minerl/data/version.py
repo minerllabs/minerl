@@ -1,9 +1,11 @@
 import os
 import re
 import glob
+
 DATA_VERSION = 3
 FILE_PREFIX = "v{}_".format(DATA_VERSION)
 VERSION_FILE_NAME = "VERSION"
+
 
 def assert_version(data_directory):
     version_file = os.path.join(data_directory, VERSION_FILE_NAME)
@@ -25,10 +27,10 @@ def assert_version(data_directory):
         else:
             for exp in os.listdir(data_directory):
                 if 'MineRL' in exp:
-                    exp_dir =  os.path.join(data_directory, exp)
+                    exp_dir = os.path.join(data_directory, exp)
                     for f in os.listdir(exp_dir):
                         assert_prefix(os.path.join(exp_dir, f))
-                
+
     except AssertionError as e:
         _raise_error(e, data_directory)
 
@@ -67,9 +69,9 @@ def _raise_error(exception, directory=None):
         e.comparison = comparison
         raise e
     elif comparison == "less":
-        e = RuntimeError("YOUR MINERL PACKAGE IS OUT OF DATE! \n\n\tPlease upgrade with `pip3 install --upgrade minerl`")
+        e = RuntimeError(
+            "YOUR MINERL PACKAGE IS OUT OF DATE! \n\n\tPlease upgrade with `pip3 install --upgrade minerl`")
         e.comparison = comparison
         raise e
     else:
         raise exception
-
