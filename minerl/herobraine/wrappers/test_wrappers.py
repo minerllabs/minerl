@@ -148,9 +148,12 @@ def test_published_envs():
         envs.MINERL_NAVIGATE_DENSE_EXTREME_OBF_V0,
         envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0,
         envs.MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0])
-    # test_wrap_unwrap_observation(envs.MINERL_TREECHOP_OBF_V0)
-    # test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_OBF_V0)
-    # test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_DENSE_OBF_V0)
-    # test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_DENSE_EXTREME_OBF_V0)
-    # test_wrap_unwrap_observation(envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0)
-    # test_wrap_unwrap_observation(envs.MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0)
+    test_wrap_unwrap_observation(envs.MINERL_TREECHOP_V0)
+    test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_V0)
+    test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_DENSE_V0)
+    test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_DENSE_EXTREME_V0)
+    test_wrap_unwrap_observation(envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0)
+    test_wrap_unwrap_observation(envs.MINERL_OBTAIN_DIAMOND_DENSE_V0)
+
+if __name__ == '__main__':
+    test_published_envs()

@@ -63,6 +63,7 @@ class Tuple(gym.spaces.Tuple, MineRLSpace):
         raise NotImplementedError()
 
 
+
 class Box(gym.spaces.Box, MineRLSpace):
     def __init__(self, *args,  normalizer_scale='linear', **kwargs):
         super(Box, self).__init__(*args, **kwargs)
@@ -70,6 +71,7 @@ class Box(gym.spaces.Box, MineRLSpace):
         self._flat_low = self.low.flatten().astype(np.float64)
         self._flat_high = self.high.flatten().astype(np.float64)
         
+
         if normalizer_scale == 'log':
             self.max_log = np.log(1 + (self._flat_high - self._flat_low))
         else:
@@ -89,7 +91,12 @@ class Box(gym.spaces.Box, MineRLSpace):
             return Box(low=self._flat_low, high=self._flat_high)
 
     def flat_map(self, x):
-        flatx = x.reshape(list(x.shape[:-len(self.shape)]) + [np.prod(self.shape).astype(int)])
+        if len(self.shape) > 0:
+            flatx = x.reshape(list(x.shape[:-len(self.shape)]) + [np.prod(self.shape).astype(int)])
+        else:
+            # assumes everything is in batch format, a scalar is already flattened and needs to be normalzied
+            flatx = x.reshape(list(x.shape) + [-1])
+
         if self.normalizer_scale == 'linear':
             return (flatx.astype(np.float64) - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
         elif self.normalizer_scale == 'log':
@@ -106,8 +113,8 @@ class Box(gym.spaces.Box, MineRLSpace):
             high = low * (self._flat_high - self._flat_low) + self._flat_low
         elif self.normalizer_scale == 'log':
             high = np.exp(low* self.max_log) -1 + self._flat_low
-
-        reshaped =  high.reshape(list(x.shape[:-len(self.shape)]) + list(self.shape))
+        
+        reshaped =  high.reshape(list(x.shape[:-1]) + list(self.shape))
         if np.issubdtype(self.dtype, np.integer):
             return np.round(reshaped).astype(self.dtype)
         else:
@@ -145,7 +152,7 @@ class Discrete(gym.spaces.Discrete, MineRLSpace):
         return self.eye[x]
 
     def unmap(self, x):
-        return np.array(np.argmax(x).flatten().tolist()[0], dtype=self.dtype)
+        return np.array(np.argmax(x,axis=-1), dtype=self.dtype)
 
 
 class Enum(Discrete, MineRLSpace):
@@ -171,7 +178,7 @@ class Enum(Discrete, MineRLSpace):
         self.default = default if default is not None else values[0]
         super().__init__(len(values))
         self.values = np.array(sorted(values))
-        self.value_map = dict(zip(values, range(len(values))))
+        self.value_map = dict(zip(self.values, range(len(values))))
 
     def sample(self) -> int:
         """Samples a random index for one of the enum types.
@@ -208,7 +215,6 @@ class Enum(Discrete, MineRLSpace):
 
             u,inv = np.unique(action,return_inverse = True)
             
-            print(action, u, inv)
             inds = np.array([self.value_map[x] for x in u])[inv].reshape(action.shape)
 
             return inds if not single_act else inds.tolist()[0]
