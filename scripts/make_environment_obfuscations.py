@@ -304,7 +304,7 @@ def generate_embedding(
             ),
         test_iter=convert_to_torch(get_test_iter(64)),
         lr=2e-5,
-        steps=400_000,
+        steps=1_000_000,
         orig_space=orig_space,
         discrete_subset=discrete_subset,
         continuous_subset=continuous_subset,

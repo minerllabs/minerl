@@ -8,12 +8,15 @@ from minerl.herobraine.hero.spaces import Box, Dict, Discrete, MultiDiscrete, En
 import collections
 import numpy as np
 
-def _test_batch_map(stackable_space, batch_dims = (32,16)):
+def _test_batch_map(stackable_space, batch_dims = (32,16), no_op=False):
     n_in_batch = np.prod(batch_dims).astype(int)
-    batch = np.array([stackable_space.sample() for _ in range(n_in_batch)])
+    if no_op:
+        batch = stackable_space.no_op(batch_dims)
+    else:
+        batch = np.array([stackable_space.sample() for _ in range(n_in_batch)])
 
-    # Reshape into the batch dim
-    batch =batch.reshape(list(batch_dims) + list(batch[0].shape))
+        # Reshape into the batch dim
+        batch =batch.reshape(list(batch_dims) + list(batch[0].shape))
     
     # Now map it through
     unmapped = stackable_space.unmap(stackable_space.flat_map(batch))
@@ -34,6 +37,7 @@ def test_batch_flat_map():
         Discrete(94),
         Enum('asd','sd','asdads','qweqwe')]:
         _test_batch_map(space)
+        _test_batch_map(space, no_op=True)
 
 
 
