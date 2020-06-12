@@ -534,4 +534,5 @@ class DataPipeline:
 
 
 # TODO: Clean this.
-def job(arg): return DataPipeline._load_data_pyfunc(*arg)
+def job(arg):
+    return DataPipeline._load_data_pyfunc(*arg)

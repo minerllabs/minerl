@@ -169,27 +169,34 @@ class OrderedJobStreamer(threading.Thread):
 
     def _ordered_job_streamer(self):
         with self.executor(self.max_workers) as ex:
-            results = queue.Queue()
-            # Enqueue jobs
-            for arg in tqdm.tqdm(self.job_args):
-                results.put(ex.submit(self.job, arg))
+            try:
             
+                results = queue.Queue()
+                # Enqueue jobs
+                for arg in tqdm.tqdm(self.job_args):
+                    results.put(ex.submit(self.job, arg))
+                
 
-            # Dequeu jobs and push them to a queue.
-            while not results.empty() and not self._should_exit:
-                future = results.get()
-                if future.exception():
-                    raise future.exception()
-                res = future.result()
+                # Dequeu jobs and push them to a queue.
+                while not results.empty() and not self._should_exit:
+                    future = results.get()
+                    if future.exception():
+                        raise future.exception()
+                    res = future.result()
 
-                while not self._should_exit:
-                    try:
-                        self.output_queue.put(res, block=True, timeout=1)
-                        break
-                    except queue.Full:
-                        pass
+                    while not self._should_exit:
+                        try:
+                            self.output_queue.put(res, block=True, timeout=1)
+                            break
+                        except queue.Full:
+                            pass
 
-            return
+                return
+            except Exception:
+                # abort workers immediately if anything goes wrong
+                for process in ex._processes.values():
+                    process.kill()
+                raise
 
     def shutdown(self):
         self._should_exit = True
