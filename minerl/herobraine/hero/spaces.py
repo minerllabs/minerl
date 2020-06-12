@@ -29,7 +29,8 @@ class MineRLSpace(abc.ABC, gym.Space):
         return self._flattened
 
     @abc.abstractmethod
-    def no_op(self):
+    def no_op(self, batch_shape=()):
+        # TODO: ADD BATCH_SHAPE TO SAMPLE
         pass
 
     @abc.abstractmethod
@@ -81,8 +82,8 @@ class Box(gym.spaces.Box, MineRLSpace):
 
     CENTER = 0
 
-    def no_op(self):
-        return np.zeros(shape=self.shape).astype(self.dtype)
+    def no_op(self, batch_shape=()):
+        return np.zeros(shape=list(batch_shape) + list(self.shape)).astype(self.dtype)
 
     def create_flattened_space(self):
         if len(self.shape) > 2:
@@ -141,9 +142,13 @@ class Discrete(gym.spaces.Discrete, MineRLSpace):
     def __init__(self, *args, **kwargs):
         super(Discrete, self).__init__(*args, **kwargs)
         self.eye = np.eye(self.n, dtype=np.float32)
+        self.shape = ()
 
-    def no_op(self):
-        return 0
+    def no_op(self, batch_shape=()):
+        if len(batch_shape) == 0:
+            return 0
+        else:
+            return (np.zeros(batch_shape)).astype(self.dtype)
 
     def create_flattened_space(self):
         return Box(low=0, high=1, shape=(self.n,))
@@ -199,11 +204,14 @@ class Enum(Discrete, MineRLSpace):
         return self.values[super().unmap(x)]
 
 
-    def no_op(self):
+    def no_op(self, batch_shape=()):
         if self.default:
-            return self.default
+            if len(batch_shape) == 0:
+                return self.default
+            else:
+                return self.values[super().no_op(batch_shape) + self.value_map[self.default]]
         else:
-            return self.values[super().no_op()]
+            return self.values[super().no_op(batch_shape)]
 
     def __getitem__(self, action):
         try:
@@ -239,8 +247,8 @@ class Enum(Discrete, MineRLSpace):
 
 # TODO: Vectorize containment?
 class Dict(gym.spaces.Dict, MineRLSpace):
-    def no_op(self):
-        return OrderedDict([(k, space.no_op()) for k, space in self.spaces.items()])
+    def no_op(self, batch_shape=()):
+        return OrderedDict([(k, space.no_op(batch_shape=batch_shape)) for k, space in self.spaces.items()])
 
     def create_flattened_space(self):
         shape = sum([s.flattened.shape[0] for s in self.spaces.values()
@@ -269,13 +277,39 @@ class Dict(gym.spaces.Dict, MineRLSpace):
         return self._unflattened
 
     def flat_map(self, x):
+        # This could be refactored and externalized.
+        # TODO: 1. Make all spaces have a shape.
+        # TODO: 2. Make vectorization a first class citizen gym3?
+        
         try:
+            batch_shape = ()
+            
+            for (k, v) in self.spaces.items():
+                if k in x and v.is_flattenable():
+                    # Get batch_shape from x[k]
+                    if not hasattr(x[k], 'shape'):
+                        # If any x[k] is a python prim well then clearly
+                        # we are not vectorized; so there is no batch_size.
+                        break
+                    try:
+                        batch_shape = x[k].shape if  len(v.shape) == 0 else x[k].shape[:-len(v.shape)]
+                        break
+                    except AttributeError:
+                        # Cannot determine batch_size from vector without shape
+                        pass
+
+            stuff_to_cat = []
+            for (k, v) in self.spaces.items():
+                if v.is_flattenable():
+                    stuff_to_cat.append((
+                        v.flat_map(x[k]) 
+                            if k in x else v.flat_map(v.no_op(batch_shape))
+                    ))
             return np.concatenate(
-                [v.flat_map(x[k]) if k in x else v.flat_map(v.no_op()) for (k, v) in (self.spaces.items()) if
-                (v.is_flattenable())],
+                stuff_to_cat,
                 axis=-1
             )
-        except ValueError:
+        except ValueError as e:
             # No flattenable handlers found
             return np.array([])
 
@@ -326,8 +360,8 @@ class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):
         super(MultiDiscrete, self).__init__(*args, **kwargs)
         self.eyes = [np.eye(n, dtype=np.float32) for n in self.nvec]
 
-    def no_op(self):
-        return (np.zeros(self.nvec.shape) * self.nvec).astype(self.dtype)
+    def no_op(self, batch_shape=()):
+        return (np.zeros(list(batch_shape) + list(self.nvec.shape)) * self.nvec).astype(self.dtype)
 
     def create_flattened_space(self):
         return Box(low=0, high=1, shape=[
@@ -416,8 +450,11 @@ class DiscreteRange(Discrete):
         
     __contains__ = contains
 
-    def no_op(self):
-        return self.begin
+    def no_op(self, batch_shape=()):
+        if len(batch_shape) == 0:
+            return self.begin
+        else: 
+            return (np.zeros(batch_shape) + self.begin).astype(self.dtype)
 
     def create_flattened_space(self):
         return Box(low=0, high=1, shape=(self.n,))

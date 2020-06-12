@@ -533,6 +533,5 @@ class DataPipeline:
             "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
 
-def job(arg): 
-    logger.error('still running')
+def job(arg):
     return DataPipeline._load_data_pyfunc(*arg)

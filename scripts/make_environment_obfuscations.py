@@ -8,6 +8,12 @@ import gym
 import json
 from json import JSONEncoder
 from typing import List, Tuple, Callable
+import logging
+
+import sys
+import functools
+
+import minerl
 
 class SubsetSoftmax(th.nn.Module):
     """
@@ -103,34 +109,16 @@ class ObfNet(th.nn.Module):
                     np_lays.append(("relu", None))
                 if isinstance(layer, SubsetSoftmax):
                     np_lays.append(("subset_softmax", layer.discrete_subset))
-
-            def func(x):
-                for t, data in np_lays:
-                    if t == 'linear':
-                        W,b = data
-                        x = x.dot(W.T) + b
-                    elif t == 'relu':
-                        x = x* (x > 0)
-                    elif t == 'subset_softmax':
-                        discrete_subset = data
-                        for (a,b) in discrete_subset:
-                            exp = np.exp(x[...,a:b])
-                            sm = np.sum(exp)
-                            x[...,a:b] = exp/sm
-                    else:
-                        raise NotImplementedError()
-                return x
-
-            return func
+            return np_lays
         
-        with open(out, 'wb') as f:
-            dill.dump(
-                (
-                    convert_layers(self.encoder_layers), 
-                    convert_layers(self.decoder_layers + 
-                        [self.subset_softmax])
-                ),
-                f, 3)
+        np.savez(
+            out,
+            (
+                convert_layers(self.encoder_layers), 
+                convert_layers(self.decoder_layers + 
+                    [self.subset_softmax])
+            )
+        )
         
 
 
@@ -152,7 +140,7 @@ def compute_losses(obf_net : ObfNet, x : th.Tensor, z : th.Tensor, discrete_subs
             th.argmax(x[..., a:b], axis=-1),
         ).mean()
 
-    mult = 100
+    mult = 200
     for a,b in continuous_subset:
         continuous_loss+= th.nn.functional.mse_loss(
             mult*reconstruction_from_x_with_logits[..., a:b],
@@ -287,14 +275,14 @@ def generate_embedding(
 
     def get_test_iter(num_to_test):
         while True:
-            x_samples = np.array([sample_from_vector_space() for _ in range(num_to_test)])
+            x_samples = next(aux_data_iterator)
             z_samples = np.array([latent_space.sample() for _ in range(num_to_test)])
             yield (x_samples, z_samples)
 
 
     def get_train_iter(batch_size):
         while True:
-            yield  (np.random.rand(batch_size, true_dim), #(np.array([sample_from_env() for _ in range(batch_size)]),  
+            yield  (np.concatenate([np.random.rand(batch_size, true_dim)[:32], next(aux_data_iterator)], axis=0), #(np.array([sample_from_env() for _ in range(batch_size)]),  
                 np.random.rand(batch_size, latent_dim)*2 -1)
 
     def convert_to_torch(train_iter):
@@ -306,7 +294,7 @@ def generate_embedding(
 
     print(true_dim)
     # Create an obf net with two layers
-    obf_net = ObfNet(true_dim, latent_dim, discrete_subset, 256).cuda()
+    obf_net = ObfNet(true_dim, latent_dim, discrete_subset, 256 + 128).cuda()
 
     #Trains and obf net.
     train(
@@ -316,7 +304,7 @@ def generate_embedding(
             ),
         test_iter=convert_to_torch(get_test_iter(64)),
         lr=2e-5,
-        steps=300_000,
+        steps=1_000_000,
         orig_space=orig_space,
         discrete_subset=discrete_subset,
         continuous_subset=continuous_subset,
@@ -356,26 +344,24 @@ def get_discrete_and_continuous_subsets(vector_env, types='action'):
     
     return discrete_subset, cts_subset
 
-
+import tqdm
 def aux_data_iterator(original_env, vector_env, types='action'):
     g = (lambda x: x.common_action_space) if types == 'action' else (lambda x: x.common_observation_space)
     dat = minerl.data.make(original_env.name)  
-    for sarsd in dat.batch_iter(32, 100, -1, 10):
+    for sarsd in (dat.batch_iter(16, 2, -1, 16)):
         if types == 'action':
-            yield g(vector_env).flat_map(sarsd[1])
+            yield g(vector_env).flat_map(sarsd[1]).reshape(32, -1)
         else:
-            yield g(vector_env).flat_map(sarsd[0])
+            yield g(vector_env).flat_map(sarsd[0]).reshape(32, -1)
 
 
-import sys
-import functools
 
-import minerl
 def main(env_to_generate=MINERL_OBTAIN_DIAMOND_OBF_V0):   
 
     vector_env = env_to_generate.env_to_wrap
     original_env = vector_env.env_to_wrap
 
+    logging.disable(logging.WARNING)
 
     # Generate the aciton embedding.
     if sys.argv[1] == 'action':
@@ -388,8 +374,8 @@ def main(env_to_generate=MINERL_OBTAIN_DIAMOND_OBF_V0):
             ),
             *get_discrete_and_continuous_subsets(vector_env, types='action'),
             vector_env.common_action_space.unmap,
-            aux_data_iterator(),
-            use_fast_sampling=False)
+            aux_data_iterator(original_env, vector_env, types='action'),
+            use_fast_sampling=True)
         action_obf_net.numpy_pickle('action.secret.compat')
     
     if sys.argv[1] == 'observation':
@@ -402,7 +388,7 @@ def main(env_to_generate=MINERL_OBTAIN_DIAMOND_OBF_V0):
             lambda: vector_env.common_observation_space.flat_map(vector_env.common_observation_space.sample()),
             *get_discrete_and_continuous_subsets(vector_env, types='observation'),
             functools.partial(vector_env.common_observation_space.unmap, skip=True),
-            aux_data_iterator(),
+            aux_data_iterator(original_env, vector_env, types='observation'),
             use_fast_sampling=True)
         # Now pickle the obf net.
         observation_obf_net.numpy_pickle('obs.secret.compat')

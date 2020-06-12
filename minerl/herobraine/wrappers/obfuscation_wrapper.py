@@ -51,6 +51,25 @@ class Obfuscated(EnvWrapper):
         Args:
             obfuscator_dir (Union[str, Path]): The directory containg the pickled obfuscators.
         """
+        def make_func(np_lays):
+            def func(x):
+                for t, data in np_lays:
+                    if t == 'linear':
+                        W,b = data
+                        x = x.dot(W.T) + b
+                    elif t == 'relu':
+                        x = x* (x > 0)
+                    elif t == 'subset_softmax':
+                        discrete_subset = data
+                        for (a,b) in discrete_subset:
+                            exp = np.exp(x[...,a:b])
+                            sm = np.sum(exp)
+                            x[...,a:b] = exp/sm
+                    else:
+                        raise NotImplementedError()
+                return x
+            return func
+
         # TODO: This code should be centralized with the make_obfuscator network.
         assert os.path.exists(obfuscator_dir), f"{obfuscator_dir} not found."
         assert set(os.listdir(obfuscator_dir)) == {OBSERVATION_OBFUSCATOR_FILE_NAME, ACTION_OBFUSCATOR_FILE_NAME,
@@ -62,10 +81,12 @@ class Obfuscated(EnvWrapper):
 
         # Get the directory for the actions
         with open(os.path.join(obfuscator_dir, ACTION_OBFUSCATOR_FILE_NAME), 'rb') as f:
-            ac_enc, ac_dec = dill.load(f)
+            # ac_enc, ac_dec = np.load(f)
+            ac_enc, ac_dec = None, None
 
         with open(os.path.join(obfuscator_dir, OBSERVATION_OBFUSCATOR_FILE_NAME), 'rb') as f:
-            obs_enc, obs_dec = dill.load(f)
+            # obs_enc, obs_dec = dill.load(f)
+            obs_enc, obs_dec = None, None
 
         return obf_vector_len, ac_enc, ac_dec, obs_enc, obs_dec
 
