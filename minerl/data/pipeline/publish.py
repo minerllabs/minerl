@@ -65,8 +65,28 @@ def flatten(d, parent_key='', sep='$'):
     return dict(items)
 
 
+def read_frame(cap):
+    try:
+        ret, frame = cap.read()
+        if ret:
+            cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
+            frame = np.asarray(np.clip(frame, 0, 255), dtype=np.uint8)
+
+        return ret, frame
+    except Exception as err:
+        raise err
+
+
 def calculate_frame_count(video_path):
-    return 8
+    ret, frame_num = True, 0
+    cap = cv2.VideoCapture(video_path)
+    while ret:
+        ret, _ = read_frame(cap)
+        if ret:
+            frame_num += 1
+    # TODO modify recording to have the correct video metadata (for other loading purposes)
+    # cap.set number of frames (frame_number)
+    return frame_num
 
 
 ##################
@@ -96,9 +116,10 @@ def remove_initial_frames(universal):
             # print('\nTouched pressure plate {}'.format(tick))
             touched_pressure_plate = True
             skip_next_n = 5
-        # If we have touched a pressure plate skip until we touch the next non air block
-        elif touched_pressure_plate and len(obs['touched_blocks']) > 0:
-            # print('\nTouched ground at {}'.format(tick))
+        # If we have touched a pressure plate skip until we touch the next non air nor water block
+        elif touched_pressure_plate and len(obs['touched_blocks']) > 0 and \
+                (obs['touched_blocks'][0]['name'] != 'minecraft:water' or len(obs['touched_blocks']) > 1):
+            # print('\nPressure-plate to ground at {}'.format(tick))
             start_tick = tick
             break
         pass
@@ -108,11 +129,13 @@ def remove_initial_frames(universal):
         # If we could not find a pressure_plate we may have started in the air - skip till we are on the ground
         on_ground_for = 0
         for tick, obs in universal.items():
-            if len(obs['touched_blocks']) != 0:
+            # TODO test if we can start once we are not touching water at all
+            if len(obs['touched_blocks']) > 0 and \
+                    (obs['touched_blocks'][0]['name'] != 'minecraft:water' or len(obs['touched_blocks']) > 1):
                 on_ground_for += 1
-                if on_ground_for == 5:
+                if on_ground_for >= 8:
                     start_tick = tick
-                    # print('\nout of the air at {}'.format(tick))
+                    print('\nGround for a while at {} loc {}'.format(tick, obs))
                     break
             else:
                 on_ground_for = 0
@@ -368,7 +391,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                 metadata_out['duration_steps'] = len(published['reward'])
                 metadata_out['total_reward'] = sum(published['reward'])
                 metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
-                metadata_out['stream_true_frame_count'] = calculate_frame_count(recording_dest)
+                metadata_out['true_video_frame_count'] = calculate_frame_count(recording_dest)
                 with open(metadata_dest, 'w') as meta_file_out:
                     json.dump(metadata_out, meta_file_out)
 
