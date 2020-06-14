@@ -703,12 +703,40 @@ class MineRLEnv(gym.Env):
                 num_retries += 1
                 if num_retries > MAX_WAIT:
                     raise socket.timeout()
-                logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
-                time.sleep(1)
-
+                elif self.log_shows_bind_exception():
+                    # Skips error handler to directly to abort.
+                    self.had_to_clean = True
+                    logger.error("Malmo server failed to bind to port, possibly due "
+                                 "to collision with parallel Malmo instance. "
+                                 "Giving up on contacting this Malmo server, and "
+                                 "starting a new one. It's possible that the abandoned Malmo "
+                                 "server cannot be closed automatically, and you will "
+                                 "have to do so manually later.")
+                    raise RuntimeError("Port is unusable")
+                else:
+                    logger.error("Did not get an OK from Malmo; trying again.")
+                    time.sleep(1)
 
     def _get_token(self):
         return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
+
+    def log_shows_bind_exception(self, num_lines=10, verbose=True):
+        error_msg = 'java.net.BindException'
+        for line in self._get_logs(num_lines):
+            if error_msg in line:
+                if verbose:
+                    print(f"Detected BindException (!): {line}")
+                return True
+        return False
+
+    def _get_logs(self, num_lines=5):
+        if not (self.instance and self.instance.minecraft_dir):
+            print('Warning: Cannot print logs, as there is no launched instance')
+            return
+
+        log_file = os.path.join(self.instance.minecraft_dir, 'run', 'logs', 'latest.log')
+        print(log_file)
+        return tail(log_file, lines=num_lines)
 
 
 def make():
@@ -731,3 +759,23 @@ def _bind(instance, func, as_name=None):
     bound_method = func.__get__(instance, instance.__class__)
     setattr(instance, as_name, bound_method)
     return bound_method
+
+
+def tail(filename, lines=1, buffer=4098):
+    """Tail a file and get X lines from the end. h/t: stackoverflow.com/a/13790289/"""
+    with open(filename, "r") as f:
+        lines_found = []
+        block_counter = 1
+        while len(lines_found) < lines:
+            try:
+                f.seek(-block_counter * buffer, os.SEEK_END)
+            except IOError:  # either file is too small, or too many lines requested
+                f.seek(0)
+                lines_found = f.readlines()
+                break
+
+            lines_found = f.readlines()
+            # Exponential search: get twice as many blocks next iteration
+            block_counter *= 2
+
+    return lines_found[-lines:]
