@@ -281,10 +281,10 @@ class DataPipeline:
                 if ret:
                     frame_num += 1
 
-            max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
+            # max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
 
-            max_frame_num = meta['num_video_files']
-
+            max_frame_num = meta['true_video_frame_count']
+            assert max_frame_num == frame_num
             frames = []
             frame_num, stop_idx = 0, 0
 
@@ -361,6 +361,7 @@ class DataPipeline:
 
                 batches = [current_observation_data, action_data, reward_data, next_observation_data,
                            np.array(done_data, dtype=np.bool)]
+
                 if include_metadata:
                     batches += [meta]
 

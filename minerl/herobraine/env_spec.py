@@ -4,7 +4,7 @@ import gym
 import os
 import abc
 
-# TODO: 
+# TODO:
 MISSIONS_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "env_specs", "missions")
 
@@ -27,7 +27,7 @@ class EnvSpec(abc.ABC):
         assert len([a.to_string() for a in self.actionables]) == len(set([a.to_string() for a in self.actionables]))
 
         self.mission_handlers = self.create_mission_handlers()
-        
+
         self._observation_space = self.create_observation_space()
         self._action_space = self.create_action_space()
 
@@ -38,7 +38,6 @@ class EnvSpec(abc.ABC):
     @property
     def action_space(self):
         return self._action_space
-
 
     def to_string(self):
         return self.name
@@ -92,12 +91,9 @@ class EnvSpec(abc.ABC):
 
         gym.register(**reg_spec)
 
-
     def __repr__(self):
         """
         Prints the class, name, observation space, and action space of the handler.
         """
-        return '{}-{}-spaces({},{})'.format(self.__class__.__name__, self.name, self.observation_space, self.action_space)
-
-
-
+        return '{}-{}-spaces({},{})'.format(self.__class__.__name__, self.name, self.observation_space,
+                                            self.action_space)

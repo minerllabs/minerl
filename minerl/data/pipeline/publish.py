@@ -8,17 +8,14 @@ render.py
 # 3) Running the video_rendering scripts
 """
 import logging
-import subprocess
-import traceback
 import functools
 import hashlib
 import multiprocessing
 import os
 import random
 import sys
-import time
 
-import math
+import cv2
 import tqdm
 import shutil
 import numpy as np
@@ -61,7 +58,7 @@ def flatten(d, parent_key='', sep='$'):
     items = []
     for k, v in d.items():
         new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
+        if isinstance(v, collections.abc.MutableMapping):
             items.extend(flatten(v, new_key, sep=sep).items())
         else:
             items.append((new_key, v))
@@ -106,7 +103,7 @@ def remove_initial_frames(universal):
             break
         pass
 
-    # Truncate the beginning of the episode (we align videos and unviersals by the end)
+    # Truncate the beginning of the episode (we align videos and universals by the end)
     if start_tick is None:
         # If we could not find a pressure_plate we may have started in the air - skip till we are on the ground
         on_ground_for = 0
@@ -127,8 +124,8 @@ def remove_initial_frames(universal):
                 break
     # Remove teleportation frames
     if start_tick is None:
-        start_tick = 0
-        print(len(universal.keys()))
+        # We don't have a valid video
+        return 0
     for i in range(int(start_tick)):
         universal.pop(str(i), None)
 

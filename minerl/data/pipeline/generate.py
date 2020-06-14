@@ -42,9 +42,6 @@ from minerl.data.util.constants import (
 )
 
 
-
-
-
 def format_seconds(ticks):
     """
     Given ticks (int) returns a string of format hour:minutes:seconds
@@ -77,6 +74,7 @@ def add_key_frames(inputPath, segments):
         print('COMMAND FAILED:', e)
         print(split_cmd)
         FAILED_COMMANDS.append(split_cmd)
+
 
 def extract_subclip(inputPath, start_tick, stop_tick, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_tick), '-i',
@@ -121,7 +119,6 @@ def parse_metadata(startMarker, stopMarker):
     except Exception as e:
         traceback.print_exc()
         raise e
-
 
 
 ##################
@@ -289,7 +286,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                 break
                         else:
                             break
-                
+
                 def treechop_finished(tick):
                     gui = tick['slots']['gui']
                     num_logs = 0
@@ -302,7 +299,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                 def treechop_adjust(univ, t):
                     return
-                
+
                 def o_iron_finished(tick):
                     try:
                         changes = tick['diff']['changes']
@@ -319,7 +316,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                             'item': 'minecraft:iron_pickaxe', 'variant': 0, 'quantity_change': 1}]
                     except KeyError:
                         pass
-                    
+
                 def o_dia_finished(tick):
                     try:
                         changes = tick['diff']['changes']
@@ -364,7 +361,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
                 for finish_expName in finish_conditions:
                     condition, adjust = finish_conditions[finish_expName]
-                    if expName == finish_expName and 'tick' in meta and 'stopRecording' in meta and meta['stopRecording'] and startTick is not None:
+                    if expName == finish_expName and 'tick' in meta and 'stopRecording' in meta and meta[
+                        'stopRecording'] and startTick is not None:
                         if univ_json is None:
                             univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
@@ -400,12 +398,13 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 continue
 
         if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta:
-            # If we encounter a start marker after a start marker there is an error and we should throw away this segment
+            # If we encounter a start marker after a start marker there is an error and we should throw away this
+            # segment
             startTime = key
             startTick = meta['tick']
             startMarker = marker
 
-        if 'stopRecording' in meta and meta['stopRecording'] and startTime != None:
+        if 'stopRecording' in meta and meta['stopRecording'] and startTime is not None:
             # if not (expName == 'none'):
             segments.append((startMarker, marker, expName, startTick, meta['tick']))
             # segments.append((startTime, key, expName, startTick, meta['tick'], startMarker, marker))
@@ -457,11 +456,13 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
             tqdm.tqdm.write('No segments in ' + inputPath)
         return 0
     try:
-        if  E(J(inputPath, 'keyframes_recording.mp4')):
+        if E(J(inputPath, 'keyframes_recording.mp4')):
             os.remove(J(inputPath, 'keyframes_recording.mp4'))
         add_key_frames(inputPath, segments)
     except subprocess.CalledProcessError as exception:
-        open('errors.txt', 'a+').write("Error splitting {}:\033[0;31;47m {}        \033[0m 0;31;47m".format(recordingName, exception) + inputPath + '\n')
+        open('errors.txt', 'a+').write(
+            "Error splitting {}:\033[0;31;47m {}        \033[0m 0;31;47m".format(recordingName,
+                                                                                 exception) + inputPath + '\n')
         return 0
 
     for pair in segments:
@@ -473,7 +474,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
         stopTick = pair[4]
 
         # BAH introduce versioning
-        experiment_id = 'g{}_{}'.format(GENERATE_VERSION, recordingName[len('player_stream_'):]) + "_" + str(int(startTick)) + '-' + str(int(stopTick))
+        experiment_id = 'g{}_{}'.format(GENERATE_VERSION, recordingName[len('player_stream_'):]) + "_" + str(
+            int(startTick)) + '-' + str(int(stopTick))
         output_name = J(outputPath, experimentName, experiment_id, 'recording.mp4')
         univ_output_name = J(outputPath, experimentName, experiment_id, 'univ.json')
         meta_output_name = J(outputPath, experimentName, experiment_id, 'metadata.json')
@@ -553,10 +555,12 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
             except KeyboardInterrupt:
                 return numNewSegments
             except KeyError:
-                open('errors.txt', 'a+').write("Key Error " + str(idx) + " not found in universal json: " + inputPath + '\n')
+                open('errors.txt', 'a+').write(
+                    "Key Error " + str(idx) + " not found in universal json: " + inputPath + '\n')
                 continue
             except Exception as e:
-                open('errors.txt', 'a+').write("Exception in segment rendering" + str(e) + str(type(e)) + inputPath + '\n')
+                open('errors.txt', 'a+').write(
+                    "Exception in segment rendering" + str(e) + str(type(e)) + inputPath + '\n')
                 continue
     return numNewSegments
 
@@ -598,7 +602,7 @@ def main():
             #     numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
     except Exception as e:
         print('\n' * numW)
-        print("Exception in pool: ", type(e),  e)
+        print("Exception in pool: ", type(e), e)
         print('Rendered {} new segments in total!'.format(sum(numSegments)))
         if E('errors.txt'):
             print('Errors:')
@@ -612,6 +616,7 @@ def main():
     if E('errors.txt'):
         print('Errors:')
         print(open('errors.txt', 'r').read())
+
 
 if __name__ == "__main__":
     main()

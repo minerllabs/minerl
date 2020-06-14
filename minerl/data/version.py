@@ -25,6 +25,7 @@ def assert_version(data_directory):
             assert DATA_VERSION <= txt, "more"
             assert DATA_VERSION >= txt, "less"
         else:
+            assert os.path.exists(data_directory), "MineRL data root: {} not found!".format(data_directory)
             for exp in os.listdir(data_directory):
                 if 'MineRL' in exp:
                     exp_dir = os.path.join(data_directory, exp)
@@ -61,11 +62,12 @@ def _raise_error(exception, directory=None):
         if directory:
             dir_str = "directory={}".format(directory)
         else:
-            dir_str = ""
+            dir_str = os.environ['MINERL_DATA_ROOT']
         e = RuntimeError(
             "YOUR DATASET IS OUT OF DATE! The latest is on version v{} but yours is lower!\n\n"
             "\tRe-download the data using `minerl.data.download({})`".format(
-                DATA_VERSION, dir_str))
+                DATA_VERSION, dir_str) +
+            "\n\n CONFIGURED MINERL_DATA_DIR = {}".format(dir_str))
         e.comparison = comparison
         raise e
     elif comparison == "less":

@@ -23,6 +23,7 @@ TESTS_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file
 def _test_pipeline(copy_test_data_out=True, upload_test_data=''):
     # 0. Download and unzip a sample stream.
     sample_stream = os.path.join(TESTS_DATA, 'sample_stream.zip')
+    # TODO get this from AWS one?
     if not os.path.exists(sample_stream):
         download('https://storage.googleapis.com/wguss-rcall/public/sweet_potato_full.zip',
                  sample_stream)
@@ -32,13 +33,14 @@ def _test_pipeline(copy_test_data_out=True, upload_test_data=''):
         new_output_root = os.path.join(tmpdir, 'output')
         rendered_root = os.path.join(new_output_root, 'rendered')
         data_root = os.path.join(new_output_root, 'data')
+        _ = [os.makedirs(d, exist_ok=True) for d in [new_output_root, rendered_root, data_root]]
 
         # Unzip the sample stream to output/rendered/player_stream_sample_stream
         # use zipfile/
         zipfile.ZipFile(sample_stream).extractall(rendered_root)
-        sample_stream_root = os.path.join(rendered_root, 'player_stream_ccool_sweet_potato_nymph-13')
+        sample_stream_root = os.path.join(rendered_root, 'player_stream_colorless_mung_bean_dragon-19')
 
-        # Tocuh a blacklist
+        # Touch a blacklist
         open(os.path.join(new_output_root, 'blacklist.txt'), 'w').close()
 
         # Set the environment root.
@@ -67,11 +69,12 @@ def _test_pipeline(copy_test_data_out=True, upload_test_data=''):
                 shutil.make_archive(zip_result_dir, 'zip', data_root)
 
                 # Upload the result.
-                subprocess.check_call('gsutil cp {} {}'.format(zip_result_dir,upload_test_data).split(' '))
+                subprocess.check_call('gsutil cp {} {}'.format(zip_result_dir, upload_test_data).split(' '))
 
 
 def test_obfuscated_data():
-    # Neeed to reproducedata.
+    _test_pipeline()
+    # Need to reproduce data.
     sample_data_dir = os.path.join(TESTS_DATA, 'out', 'test_pipeline', 'output', 'data')
     os.environ.update(dict(
         MINERL_DATA_ROOT=sample_data_dir
@@ -183,6 +186,7 @@ def test_ao_on_or_off():
 
 
 if __name__ == '__main__':
-    test_dataloader_regression()
+    test_obfuscated_data()
+    # test_dataloader_regression()
 #     # test_pipeline(copy_test_data_out=True)
 # #     # test_obfuscated_data()
