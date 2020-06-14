@@ -714,7 +714,7 @@ class MineRLEnv(gym.Env):
                                  "have to do so manually later.")
                     raise RuntimeError("Port is unusable")
                 else:
-                    logger.error("Did not get an OK from Malmo; trying again.")
+                    logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
                     time.sleep(1)
 
     def _get_token(self):
@@ -735,7 +735,6 @@ class MineRLEnv(gym.Env):
             return
 
         log_file = os.path.join(self.instance.minecraft_dir, 'run', 'logs', 'latest.log')
-        print(log_file)
         return tail(log_file, lines=num_lines)
 
 
