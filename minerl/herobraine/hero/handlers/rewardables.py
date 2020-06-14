@@ -75,7 +75,7 @@ class RewardForCollectingItems(RewardHandler):
                 if item_name == 'log2':
                     item_name = 'log'
                 if item_name in self.reward_dict and 'quantity_change' in change_json:
-                    if change_json['quantity_change'] > 0:
+                    if change_json['quantity_change'] > 0 or change_json['quantity_change'] == -1:
                         total_reward += change_json['quantity_change'] * self.reward_dict[item_name]
         return total_reward
 
