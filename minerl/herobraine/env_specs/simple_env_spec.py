@@ -1,4 +1,5 @@
 import abc
+from abc import ABC
 
 import minerl
 
@@ -9,7 +10,7 @@ from minerl.herobraine.env_spec import EnvSpec
 from typing import List
 
 
-class SimpleEnvSpec(EnvSpec):
+class SimpleEnvSpec(EnvSpec, ABC):
     """
     A simple base environment from which all othe simple envs inherit.
     """

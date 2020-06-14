@@ -383,10 +383,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
             with open(metadata_source, 'r') as meta_file:
                 source = json.load(meta_file)
                 metadata_out = {}
-                if 'success' in source:
-                    metadata_out['success'] = source['success']
-                else:
-                    metadata_out['success'] = False
+                metadata_out['success'] = str(environment.determine_success_from_rewards(published['reward']))
                 metadata_out['duration_ms'] = len(published['reward']) * 50  # source['end_time'] - source['start_time']
                 metadata_out['duration_steps'] = len(published['reward'])
                 metadata_out['total_reward'] = sum(published['reward'])

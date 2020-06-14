@@ -45,5 +45,8 @@ class Treechop(ses.SimpleEnvSpec):
             )
         ]
 
+    def determine_success_from_rewards(self, rewards: list) -> bool:
+        return sum(rewards) >= self.reward_threshold
+
     def get_docstring(self):
         return TREECHOP_DOC

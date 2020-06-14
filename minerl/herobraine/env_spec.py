@@ -58,6 +58,10 @@ class EnvSpec(abc.ABC):
     def create_actionables(self):
         raise NotImplementedError('subclasses must override create_actionables()!')
 
+    @abstractmethod
+    def determine_success_from_rewards(self, rewards: list) -> bool:
+        raise NotImplementedError('subclasses must override determine_success_from_rewards()')
+
     def create_observation_space(self):
         # Todo: handle nested dict space.
         return spaces.Dict({

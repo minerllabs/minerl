@@ -43,6 +43,13 @@ class Obtain(SimpleEnvSpec):
             reward_handler(self.reward_schedule if self.reward_schedule else {self.target_item: 1})
         ]
 
+    def determine_success_from_rewards(self, rewards: list) -> bool:
+        rewards = set(rewards)
+        allow_missing_ratio = 0.1
+        max_missing = round(len(self.reward_schedule) * allow_missing_ratio)
+        return len(rewards.intersection(self.reward_schedule.values())) \
+            >= len(self.reward_threshold.values()) - max_missing
+
     def create_observables(self) -> List[AgentHandler]:
         # TODO: Parameterize these observations.
         return super().create_observables() + [

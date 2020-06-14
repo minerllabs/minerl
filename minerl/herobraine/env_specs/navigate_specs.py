@@ -37,6 +37,12 @@ class Navigate(SimpleEnvSpec):
             ))
         return mission_handlers
 
+    def determine_success_from_rewards(self, rewards: list) -> bool:
+        reward_threshold = 100.0
+        if self.dense:
+            reward_threshold += 60
+        return sum(rewards) >= reward_threshold
+
     def create_observables(self) -> List[minerl.herobraine.hero.AgentHandler]:
         return super().create_observables() + [
             handlers.CompassObservation(),
