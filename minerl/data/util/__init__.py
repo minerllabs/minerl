@@ -15,6 +15,8 @@ import threading
 from typing import Callable, Any
 from collections import OrderedDict
 
+from minerl.data.util.blacklist import Blacklist
+
 
 def multimap(f: Callable, *xs: Any) -> Any:
     """
@@ -170,12 +172,11 @@ class OrderedJobStreamer(threading.Thread):
     def _ordered_job_streamer(self):
         with self.executor(self.max_workers) as ex:
             try:
-            
+
                 results = queue.Queue()
                 # Enqueue jobs
                 for arg in tqdm.tqdm(self.job_args):
                     results.put(ex.submit(self.job, arg))
-                
 
                 # Dequeu jobs and push them to a queue.
                 while not results.empty() and not self._should_exit:

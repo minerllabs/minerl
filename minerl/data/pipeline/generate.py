@@ -24,6 +24,7 @@ import traceback
 #######################
 ### UTILITIES
 #######################
+from minerl.data.util import Blacklist
 from minerl.data.util.constants import (
     J, E,
     EXP_MIN_LEN_TICKS,
@@ -40,6 +41,8 @@ from minerl.data.util.constants import (
     remove,
     ThreadManager
 )
+
+black_list = Blacklist()
 
 
 def format_seconds(ticks):
@@ -76,9 +79,9 @@ def add_key_frames(inputPath, segments):
         FAILED_COMMANDS.append(split_cmd)
 
 
-def extract_subclip(inputPath, start_tick, stop_tick, output_name):
+def extract_subclip(input_path, start_tick, stop_tick, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_tick), '-i',
-                 J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
+                 J(input_path, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
     # print('Running: ' + ' '.join(split_cmd))
     try:
@@ -89,17 +92,17 @@ def extract_subclip(inputPath, start_tick, stop_tick, output_name):
         FAILED_COMMANDS.append(split_cmd)
 
 
-def parse_metadata(startMarker, stopMarker):
+def parse_metadata(start_marker, stop_marker):
     try:
         metadata = {}
-        startMeta = startMarker['value']['metadata']
-        endMeta = stopMarker['value']['metadata']
-        metadata['start_position'] = startMarker['value']['position']
-        metadata['end_position'] = stopMarker['value']['position']
+        startMeta = start_marker['value']['metadata']
+        endMeta = stop_marker['value']['metadata']
+        metadata['start_position'] = start_marker['value']['position']
+        metadata['end_position'] = stop_marker['value']['position']
         metadata['start_tick'] = startMeta['tick'] if 'tick' in startMeta else None
         metadata['end_tick'] = endMeta['tick'] if 'tick' in endMeta else None
-        metadata['start_time'] = startMarker['realTimestamp']
-        metadata['end_time'] = stopMarker['realTimestamp']
+        metadata['start_time'] = start_marker['realTimestamp']
+        metadata['end_time'] = stop_marker['realTimestamp']
 
         # Recording the string sent to us by Minecraft server including experiment specific data like if we won or not
         metadata['server_info_str'] = endMeta['expMetadata']
@@ -138,12 +141,13 @@ def construct_data_dirs(blacklist):
 
     render_dirs = []
     for filename in tqdm.tqdm(next(os.walk(RENDER_DIR))[1]):
-        render_path = J(RENDER_DIR, filename)
+        if filename not in black_list:
+            render_path = J(RENDER_DIR, filename)
 
-        if not E(render_path):
-            continue
+            if not E(render_path):
+                continue
 
-        render_dirs.append((filename, render_path))
+            render_dirs.append((filename, render_path))
 
     return render_dirs
 
@@ -165,6 +169,7 @@ def get_metadata(renders: list) -> list:
                 good_renders.append((recording_name, render_path))
             else:
                 bad_renders.append((recording_name, render_path))
+                black_list.add(recording_name)
 
     return good_renders, bad_renders
 
@@ -372,6 +377,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         # print(metadata)
                         # print("there it was")
 
+                        # TODO these should be quit handlers that return success True/False
                         for i in range(min(400, meta['tick'] - startTick)):
                             considered_tick = (meta['tick'] - i)
                             try:
@@ -381,8 +387,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                 pass
 
                         cond_satisfied = sorted(cond_satisfied)
-                        # if cond_satisfied and not (cond_satisfied)[0] == meta['tick']:
-                        #     print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
 
                         if cond_satisfied:
                             meta['tick'] = cond_satisfied[0]
@@ -399,13 +403,12 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
         if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta:
             # If we encounter a start marker after a start marker there is an error and we should throw away this
-            # segment
+            # previous start marker and start fresh
             startTime = key
             startTick = meta['tick']
             startMarker = marker
 
         if 'stopRecording' in meta and meta['stopRecording'] and startTime is not None:
-            # if not (expName == 'none'):
             segments.append((startMarker, marker, expName, startTick, meta['tick']))
             # segments.append((startTime, key, expName, startTick, meta['tick'], startMarker, marker))
             startTime = None
@@ -488,54 +491,11 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 if univ_json is None:
                     univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
-                # # Record if this stream is a winner
-                # if 'server_metadata' in metadata \
-                #         and 'winners' in metadata['server_metadata'] \
-                #         and len(metadata['server_metadata']['winners']) > 0:
-                #     winner = metadata['server_metadata']['winners'][0]
-                # else:
-                #     winner = None
-
                 # Remove potentially stale elements
                 if E(output_name): os.remove(output_name)
                 if E(univ_output_name): os.remove(univ_output_name)
                 if E(meta_output_name): os.remove(meta_output_name)
 
-                # Determine if this is a nav exp and we are missing the touch block handler
-                # metadata = parse_metadata(startMarker, stopMarker)
-                # if experimentName in ['navigate', 'navigateextreme'] \
-                #         and 'server_metadata' in metadata \
-                #         and 'found_block' in metadata['server_metadata']:
-                #     duration = metadata['server_metadata']['duration']
-                #     found_block = metadata['server_metadata']['found_block']
-                #     found_tick = math.floor(found_block / duration * (stopTick - startTick))
-                #     found_tick = min(found_tick, stopTick - (stopTick - startTick))  # Don't set this past the end
-                # # BAH removed iron pick and bed as it is crafted and not necessary
-                # elif experimentName in ['o_dia'] \
-                #         and winner is not None:
-                #     duration = metadata['server_metadata']['duration']
-                #     if winner in metadata['server_metadata'] and 'obtained_goal' in metadata['server_metadata'][winner]:
-                #         goal = metadata['server_metadata'][winner]['obtained_goal']
-                #         found_tick = math.floor(goal / duration * (stopTick - startTick))
-                #         found_tick = min(found_tick + startTick, stopTick) - startTick  # Don't set this past the end
-                #         # print(experimentName,'found tick', found_tick, output_dir)
-                #     else:
-                #         # print('NO TICK')
-                #         # print(player in metadata['server_metadata'])
-                #         # if player in metadata['server_metadata']:
-                #         #     print('obtained_goal' in metadata['server_metadata'][player])
-                #         #     print(output_dir)
-                #         #     print(metadata['server_metadata'][player])
-                #         found_tick = -1
-                # else:
-                #     # if experimentName in ['navigate', 'navigateextreme']:
-                #     #     print('oops', metadata)
-                #     #     print('sm', 'server_metadata' in metadata)
-                #     #     if 'server_metadata' in metadata:
-                #     #       print('fb', 'found_block' in metadata['server_metadata'])
-                #     found_tick = -1
-
-                # 
                 json_to_write = {}
                 for idx in range(startTick, stopTick + 1):
                     json_to_write[str(idx - startTick)] = univ_json[str(idx)]
