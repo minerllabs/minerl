@@ -205,7 +205,7 @@ def construct_data_dirs(black_list):
     for exp_folder in tqdm.tqdm(next(os.walk(DATA_DIR))[1], desc='Directories', position=0):
         for experiment_dir in tqdm.tqdm(next(os.walk(J(DATA_DIR, exp_folder)))[1], desc='Experiments', position=1):
             if not exp_folder.startswith('MineRL') \
-                    and experiment_dir not in black_list:
+                    and experiment_dir.split('g1_')[-1] not in black_list:
                 data_dirs.append((experiment_dir, exp_folder))
     return data_dirs
 
@@ -226,7 +226,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
     # All times are in ms and we assume a actions list, a timestamp file, and a dis-synchronous mp4 video
 
     # File-Names
-    segment_str = recording_dir[len('g1_'):]
+    segment_str = recording_dir.split('g1_')[-1]
     if segment_str in black_list:
         return 0
 

@@ -11,5 +11,4 @@ class Blacklist:
         touch(os.path.join(self.file_name, other))
 
     def __contains__(self, item):
-        os.path.exists(os.path.join(self.file_name, item))
-
+        return item in os.listdir(self.file_name)
