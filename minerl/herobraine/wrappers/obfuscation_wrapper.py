@@ -8,13 +8,12 @@ from minerl.herobraine.hero import spaces
 from minerl.herobraine.wrappers.vector_wrapper import Vectorized
 from minerl.herobraine.wrapper import EnvWrapper
 import copy
-import dill
 import os
 
 # TODO: Force obfuscator nets to use these.
 SIZE_FILE_NAME = 'size'
-ACTION_OBFUSCATOR_FILE_NAME = 'action.secret.compat'
-OBSERVATION_OBFUSCATOR_FILE_NAME = 'obs.secret.compat'
+ACTION_OBFUSCATOR_FILE_NAME = 'act.secret.compat.npz'
+OBSERVATION_OBFUSCATOR_FILE_NAME = 'obs.secret.compat.npz'
 
 
 class Obfuscated(EnvWrapper):
@@ -51,7 +50,27 @@ class Obfuscated(EnvWrapper):
         Args:
             obfuscator_dir (Union[str, Path]): The directory containg the pickled obfuscators.
         """
+        def make_func(np_lays):
+            def func(x):
+                for t, data in np_lays:
+                    if t == 'linear':
+                        W,b = data
+                        x = x.dot(W.T) + b
+                    elif t == 'relu':
+                        x = x* (x > 0)
+                    elif t == 'subset_softmax':
+                        discrete_subset = data
+                        for (a,b) in discrete_subset:
+                            exp = np.exp(x[...,a:b])
+                            sm = np.sum(exp)
+                            x[...,a:b] = exp/sm
+                    else:
+                        raise NotImplementedError()
+                return x
+            return func
+
         # TODO: This code should be centralized with the make_obfuscator network.
+
         assert os.path.exists(obfuscator_dir), "{} not found.".format(obfuscator_dir)
         assert set(os.listdir(obfuscator_dir)) == {OBSERVATION_OBFUSCATOR_FILE_NAME, ACTION_OBFUSCATOR_FILE_NAME,
                                                    SIZE_FILE_NAME}
@@ -61,11 +80,13 @@ class Obfuscated(EnvWrapper):
             obf_vector_len = int(f.read())
 
         # Get the directory for the actions
-        with open(os.path.join(obfuscator_dir, ACTION_OBFUSCATOR_FILE_NAME), 'rb') as f:
-            ac_enc, ac_dec = dill.load(f)
+        # ac_enc, ac_dec = np.load(f)
+        ac_enc, ac_dec = np.load(os.path.join(obfuscator_dir, ACTION_OBFUSCATOR_FILE_NAME), allow_pickle=True)['arr_0']
+        ac_enc, ac_dec = make_func(ac_enc), make_func(ac_dec)
 
-        with open(os.path.join(obfuscator_dir, OBSERVATION_OBFUSCATOR_FILE_NAME), 'rb') as f:
-            obs_enc, obs_dec = dill.load(f)
+        # obs_enc, obs_dec = dill.load(f)
+        obs_enc, obs_dec =  np.load(os.path.join(obfuscator_dir, OBSERVATION_OBFUSCATOR_FILE_NAME), allow_pickle=True)['arr_0']
+        obs_enc, obs_dec = make_func(obs_enc), make_func(obs_dec)
 
         return obf_vector_len, ac_enc, ac_dec, obs_enc, obs_dec
 
@@ -75,12 +96,12 @@ class Obfuscated(EnvWrapper):
     def create_observation_space(self):
         obs_space = copy.deepcopy(self.env_to_wrap.observation_space)
         # TODO: Properly compute the maximum
-        obs_space.spaces['vector'] = spaces.Box(low=-1.05, high=1.05, shape=[self.obf_vector_len])
+        obs_space.spaces['vector'] = spaces.Box(low=-1.1, high=1.1, shape=[self.obf_vector_len])
         return obs_space
 
     def create_action_space(self):
         act_space = copy.deepcopy(self.env_to_wrap.action_space)
-        act_space.spaces['vector'] = spaces.Box(low=-1.05, high=1.05, shape=[self.obf_vector_len])
+        act_space.spaces['vector'] = spaces.Box(low=-1.1, high=1.1, shape=[self.obf_vector_len])
         return act_space
 
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:

@@ -8,6 +8,40 @@ from minerl.herobraine.hero.spaces import Box, Dict, Discrete, MultiDiscrete, En
 import collections
 import numpy as np
 
+def _test_batch_map(stackable_space, batch_dims = (32,16), no_op=False):
+    n_in_batch = np.prod(batch_dims).astype(int)
+    if no_op:
+        batch = stackable_space.no_op(batch_dims)
+    else:
+        batch = np.array([stackable_space.sample() for _ in range(n_in_batch)])
+
+        # Reshape into the batch dim
+        batch =batch.reshape(list(batch_dims) + list(batch[0].shape))
+    
+    # Now map it through
+    unmapped = stackable_space.unmap(stackable_space.flat_map(batch))
+    if  unmapped.dtype.type is np.float:
+        assert np.allclose(unmapped, batch)
+    else:
+        assert np.all(unmapped == batch)
+
+
+# Test all of the spaces using _test_batch_map except for dict.
+def test_batch_flat_map():
+    for space in [
+        Box(shape=[3, 2], low=-2, high=2, dtype=np.float32),
+        Box(shape=[3], low=-2, high=2, dtype=np.float32),
+        Box(shape=[], low=-2, high=2, dtype=np.float32),
+        MultiDiscrete([3, 4]),
+        MultiDiscrete([3]),
+        Discrete(94),
+        Enum('asd','sd','asdads','qweqwe')]:
+        _test_batch_map(space)
+        _test_batch_map(space, no_op=True)
+
+
+
+
 def test_unmap_flat_map():
     md = MultiDiscrete([3, 4])
     x = md.sample()

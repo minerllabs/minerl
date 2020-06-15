@@ -97,7 +97,7 @@ navigate_action_space = spaces.Dict({
 navigate_observation_space = spaces.Dict({
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
     'inventory': spaces.Dict(spaces={
-        'dirt': spaces.Box(low=0, high=512, shape=(), dtype=np.int)
+        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int)
     }),
     'compassAngle': spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)
 })
@@ -159,33 +159,30 @@ old_envs.append(dict(
 obtain_observation_space = spaces.Dict({
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
     'inventory': spaces.Dict({
-        'dirt': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'coal': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'torch': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'log': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'planks': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'stick': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'crafting_table': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'wooden_axe': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'wooden_pickaxe': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'stone': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'cobblestone': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'furnace': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'stone_axe': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'stone_pickaxe': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'iron_ore': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'iron_ingot': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'iron_axe': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
-        'iron_pickaxe': spaces.Box(low=0, high=512, shape=(), dtype=np.int),
+        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'coal': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'torch': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'log': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'planks': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'stick': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'crafting_table': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'wooden_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'stone': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'cobblestone': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'furnace': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'stone_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'stone_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'iron_ore': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'iron_ingot': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'iron_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'iron_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
     }),
-    'equipped_items': spaces.Dict({
-        'mainhand': spaces.Dict({
-            'type': spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+    'equipped_items.mainhand.type': spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                 'iron_axe', 'iron_pickaxe', 'other'),
-            'damage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
-            'maxDamage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
-        })
-    })
+    'equipped_items.mainhand.damage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
+    'equipped_items.mainhand.maxDamage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
+
 })
 
 obtain_action_space = spaces.Dict({
@@ -481,7 +478,7 @@ item are given here::
 for e in old_envs:
     if not 'reward_threshold' in e:
         e['reward_threshold'] = None
-    e['kwargs']['spec'] = None
+    e['kwargs']['env_spec'] = None
 
 
 

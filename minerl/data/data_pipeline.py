@@ -521,5 +521,5 @@ class DataPipeline:
             "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
 
-# TODO: Clean this.
-def job(arg): return DataPipeline._load_data_pyfunc(*arg)
+def job(arg):
+    return DataPipeline._load_data_pyfunc(*arg)
