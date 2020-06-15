@@ -215,33 +215,6 @@ class DataPipeline:
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
 
-                # Hotfix for incorrect success metadata from server [TODO: remove]
-                reward_threshold = {
-                    'MineRLTreechop-v0': 64,
-                    'MineRLNavigate-v0': 100,
-                    'MineRLNavigateExtreme-v0': 100,
-                    'MineRLObtainIronPickaxe-v0': 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
-                    'MineRLObtainDiamond-v0': 1024 + 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
-                }
-                reward_list = {
-                    'MineRLNavigateDense-v0': [100],
-                    'MineRLNavigateExtreme-v0': [100],
-                    'MineRLObtainIronPickaxeDense-v0': [256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
-                    'MineRLObtainDiamondDense-v0': [1024, 256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
-                }
-
-                try:
-                    meta['success'] = meta['total_reward'] >= reward_threshold[env_str]
-                except KeyError:
-                    try:
-                        # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
-                        # print(list(state.keys()))
-                        quantized_reward_vec = state['reward'].astype(np.int) // 8
-                        meta['success'] = all(reward // 8 in quantized_reward_vec for reward in reward_list[env_str])
-                    except KeyError:
-
-                        logger.warning("success in metadata may be incorrect")
-
             action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action$')])
             reward_vec = state['reward']
             info_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('observation$')])
@@ -274,17 +247,8 @@ class DataPipeline:
             # We know FOR SURE that the last video frame corresponds to the last state (from Universal.json).
             num_states = len(reward_vec) + 1
 
-            # TEMP - calculate number of frames, fastest when max_seq_len == -1
-            ret, frame_num = True, 0
-            while ret:
-                ret, _ = DataPipeline.read_frame(cap)
-                if ret:
-                    frame_num += 1
-
-            # max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
-
             max_frame_num = meta['true_video_frame_count']
-            assert max_frame_num == frame_num
+
             frames = []
             frame_num, stop_idx = 0, 0
 

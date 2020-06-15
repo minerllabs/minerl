@@ -53,7 +53,6 @@ from collections import OrderedDict
 from minerl.herobraine.wrappers.obfuscation_wrapper import Obfuscated
 
 FAILED_COMMANDS = []
-black_list = Blacklist()
 
 
 def flatten(d, parent_key='', sep='$'):
@@ -211,17 +210,17 @@ def construct_data_dirs():
     return data_dirs
 
 
-def _render_data(output_root, manager, input_tuple):
+def _render_data(output_root, manager, black_list, input_tuple):
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     n = manager.get_index()
     recording_dir, experiment_folder = input_tuple
-    ret = render_data(output_root, recording_dir, experiment_folder, lineNum=n)
+    ret = render_data(output_root, recording_dir, experiment_folder, black_list, lineNum=n)
     manager.free_index(n)
     return ret
 
 
 # 2. render numpy format
-def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
+def render_data(output_root, recording_dir, experiment_folder, black_list, lineNum=None):
     # Script to to pair actions with video recording
     # All times are in ms and we assume a actions list, a timestamp file, and a dis-synchronous mp4 video
 
@@ -241,36 +240,37 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
     filtered_environments = [
         env_spec for env_spec in envs.ENVS if env_spec.is_from_folder(experiment_folder)]
 
-    for environment in filtered_environments:
-        dest_folder = J(output_root, environment.name, 'v{}_{}'.format(PUBLISHER_VERSION, segment_str))
-        recording_dest = J(dest_folder, 'recording.mp4')
-        rendered_dest = J(dest_folder, 'rendered.npz')
-        metadata_dest = J(dest_folder, 'metadata.json')
+    # Process universal json
+    with open(universal_source, 'r') as json_file:
+        universal = json.load(json_file)
 
-        # Don't render if files are missing
-        if not E(source_folder) or not E(recording_source) or not E(universal_source or not E(metadata_source)):
-            black_list.add(segment_str)
-            return 0
+        universal = remove_initial_frames(universal)
 
-        # TODO remove to incrementally render files - during testing re-render each time
-        if E(J(dest_folder, 'rendered.npz')):
-            os.remove(J(dest_folder, 'rendered.npz'))
+        for environment in filtered_environments:
+            dest_folder = J(output_root, environment.name, 'v{}_{}'.format(PUBLISHER_VERSION, segment_str))
+            recording_dest = J(dest_folder, 'recording.mp4')
+            rendered_dest = J(dest_folder, 'rendered.npz')
+            metadata_dest = J(dest_folder, 'metadata.json')
 
-        # Don't render again, ensure source exits
-        if E(rendered_dest):
-            continue
+            # Don't render if files are missing
+            if not E(source_folder) or not E(recording_source) or not E(universal_source or not E(metadata_source)):
+                black_list.add(segment_str)
+                return 0
 
-        # Load relevant handlers
-        info_handlers = [obs for obs in environment.observables if not isinstance(obs, handlers.POVObservation)]
-        reward_handlers = [r for r in environment.mission_handlers if isinstance(r, handlers.RewardHandler)]
-        # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
-        action_handlers = environment.actionables
+            # TODO remove to incrementally render files - during testing re-render each time
+            if E(J(dest_folder, 'rendered.npz')):
+                os.remove(J(dest_folder, 'rendered.npz'))
 
-        # Process universal json
-        with open(universal_source, 'r') as json_file:
-            universal = json.load(json_file)
+            # Don't render again, ensure source exits
+            if E(rendered_dest):
+                continue
 
-            universal = remove_initial_frames(universal)
+            # Load relevant handlers
+            info_handlers = [obs for obs in environment.observables if not isinstance(obs, handlers.POVObservation)]
+            reward_handlers = [r for r in environment.mission_handlers if isinstance(r, handlers.RewardHandler)]
+            # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
+            action_handlers = environment.actionables
+
 
             all_handlers = [hdl for sublist in [info_handlers, reward_handlers, action_handlers] for hdl in sublist]
             for hdl in all_handlers:
@@ -348,51 +348,50 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                         continue
                 raise e
 
-            # published = {'action': action, 'reward': reward, 'info': info}
+            # Don't release ones with 1024 reward (they are bad streams) and other smoke-tests
+            if 'Survival' not in environment.name and not isinstance(environment, Obfuscated):
+                # TODO these could be handlers instead!
+                if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name \
+                        or sum(published['reward']) < 64 and ('Obtain' not in environment.name) \
+                        or sum(published['reward']) == 0.0 \
+                        or sum(published['action$forward']) == 0 \
+                        or sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
+                    black_list.add(segment_str)
+                    print('Hey we should have blacklisted {} tyvm'.format(segment_str))
+                    return 0
 
-        # Don't release ones with 1024 reward (they are bad streams) and other smoke-tests
-        if 'Survival' not in environment.name and not isinstance(environment, Obfuscated):
-            # TODO these could be handlers instead!
-            if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name \
-                    or sum(published['reward']) < 64 and ('Obtain' not in environment.name) \
-                    or sum(published['reward']) == 0.0 \
-                    or sum(published['action$forward']) == 0 \
-                    or sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
-                black_list.add(segment_str)
-                continue
+            # Setup destination root
+            if not E(dest_folder):
+                try:
+                    os.makedirs(dest_folder, exist_ok=True)
+                except OSError as exc:
+                    print('Could not make folder: ', dest_folder)
+                    raise exc
 
-        # Setup destination root
-        if not E(dest_folder):
+            # Render metadata
             try:
-                os.makedirs(dest_folder, exist_ok=True)
-            except OSError as exc:
-                print('Could not make folder: ', dest_folder)
-                raise exc
+                # Copy video if necessary
+                if not E(recording_dest):
+                    shutil.copyfile(src=recording_source, dst=recording_dest)
+                np.savez_compressed(rendered_dest, **published)
 
-        # Render metadata
-        try:
-            # Copy video if necessary
-            if not E(recording_dest):
-                shutil.copyfile(src=recording_source, dst=recording_dest)
-            np.savez_compressed(rendered_dest, **published)
+                with open(metadata_source, 'r') as meta_file:
+                    source = json.load(meta_file)
+                    metadata_out = {}
+                    metadata_out['success'] = str(environment.determine_success_from_rewards(published['reward']))
+                    metadata_out['duration_ms'] = len(published['reward']) * 50  # source['end_time'] - source['start_time']
+                    metadata_out['duration_steps'] = len(published['reward'])
+                    metadata_out['total_reward'] = sum(published['reward'])
+                    metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
+                    metadata_out['true_video_frame_count'] = calculate_frame_count(recording_dest)
+                    with open(metadata_dest, 'w') as meta_file_out:
+                        json.dump(metadata_out, meta_file_out)
 
-            with open(metadata_source, 'r') as meta_file:
-                source = json.load(meta_file)
-                metadata_out = {}
-                metadata_out['success'] = str(environment.determine_success_from_rewards(published['reward']))
-                metadata_out['duration_ms'] = len(published['reward']) * 50  # source['end_time'] - source['start_time']
-                metadata_out['duration_steps'] = len(published['reward'])
-                metadata_out['total_reward'] = sum(published['reward'])
-                metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
-                metadata_out['true_video_frame_count'] = calculate_frame_count(recording_dest)
-                with open(metadata_dest, 'w') as meta_file_out:
-                    json.dump(metadata_out, meta_file_out)
-
-            rendered_envs += 1
-        except (KeyError, ValueError) as e:
-            print(e)
-            shutil.rmtree(dest_folder, ignore_errors=True)
-            continue
+                rendered_envs += 1
+            except (KeyError, ValueError) as e:
+                print(e)
+                shutil.rmtree(dest_folder, ignore_errors=True)
+                continue
 
     return rendered_envs
 
@@ -414,7 +413,8 @@ def publish():
         multiprocessing.freeze_support()
         with multiprocessing.Pool(num_w, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
             manager = ThreadManager(multiprocessing.Manager(), num_w, 1, 1)
-            func = functools.partial(_render_data, DATA_DIR, manager)
+            black_list = Blacklist()
+            func = functools.partial(_render_data, DATA_DIR, manager, black_list)
             num_segments = list(
                 tqdm.tqdm(pool.imap_unordered(func, valid_data), total=len(valid_data), desc='Files', miniters=1,
                           position=0, maxinterval=1))

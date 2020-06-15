@@ -3,9 +3,11 @@ import sys
 import time
 from os.path import join as J
 
+
 def we_are_frozen():
     # All of the modules are built-in to the interpreter, e.g., by py2exe
     return hasattr(sys, "frozen")
+
 
 def module_path():
     encoding = sys.getfilesystemencoding()
@@ -16,17 +18,16 @@ def module_path():
 
 ASSETS_DIR = os.path.abspath(J(os.path.dirname(__file__), '..', 'assets'))
 
-J =  os.path.join
+J = os.path.join
 E = os.path.exists
 
 BASE_DIR = os.environ.get('MINERL_OUTPUT_ROOT', os.path.expanduser(
     J('~', 'minerl.data')
-) )
+))
 
 RENDERERS_DIR = os.path.expanduser(
     J('~', 'renderers'))
-NUM_MINECRAFTS=28
-
+NUM_MINECRAFTS = 28
 
 OUTPUT_DIR = J(BASE_DIR, 'output')
 DOWNLOAD_DIR = J(BASE_DIR, 'downloaded_sync')
@@ -37,13 +38,12 @@ MERGED_DIR = J(OUTPUT_DIR, 'merged')
 BLACKLIST_TXT = J(OUTPUT_DIR, 'blacklist.txt')
 PARSE_COMMAND = [os.path.abspath(J(os.path.dirname((__file__)), '..', 'pipeline', 'merging', 'parse')), '-f']
 Z7_COMMAND = ["7z"]
-TEMP_ROOT='/tmp'
-BLOCK_SIZE = 1024*1024
+TEMP_ROOT = '/tmp'
+BLOCK_SIZE = 1024 * 1024
 ACTION_FILE = 'actions.tmcpr'
 RECORDING_FILE = 'recording.tmcpr'
 TEMP_FILE = 'tmp.tmcpr'
 GLOB_STR_BASE = J(DOWNLOAD_DIR, "*", "*", "*", "*")
-
 
 #### RENDERING
 
@@ -51,12 +51,11 @@ RENDER_DIR = J(OUTPUT_DIR, "rendered")
 MINECRAFT_DIR = [J(RENDERERS_DIR, 'minecraft_{}'.format(i)) for i in range(NUM_MINECRAFTS)]
 RECORDING_PATH = [J(d, 'replay_recordings') for d in MINECRAFT_DIR]
 RENDERED_VIDEO_PATH = [J(d, 'replay_videos') for d in MINECRAFT_DIR]
-RENDERED_LOG_PATH = [J(d,  'replay_logs') for d in MINECRAFT_DIR]
+RENDERED_LOG_PATH = [J(d, 'replay_logs') for d in MINECRAFT_DIR]
 FINISHED_FILE = [J(d, 'finished.txt') for d in MINECRAFT_DIR]
 LOG_FILE = [J(d, 'logs', 'debug.log') for d in MINECRAFT_DIR]
 MC_LAUNCHER = [('bash', J(d, 'launch.sh')) for d in MINECRAFT_DIR]
 RENDER_ONLY_EXPERIMENTS = ['o_dia', 'survivaltreechop', 'navigate', 'navigateextreme', 'o_iron', 'none']
-
 
 # Error directories
 ERROR_PARENT_DIR = J(OUTPUT_DIR, 'error_logs')
@@ -81,14 +80,12 @@ METADATA_FILES = [
     'mods.json',
     'stream_meta_data.json']
 
-
 # generation
 
 DATA_DIR = J(OUTPUT_DIR, 'data')
 EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
 FAILED_COMMANDS = []
 GENERATE_VERSION = '1'
-
 
 
 def touch(path):
@@ -99,7 +96,6 @@ def touch(path):
 def remove(path):
     if E(path):
         os.remove(path)
-
 
 
 class ThreadManager(object):
@@ -115,7 +111,7 @@ class ThreadManager(object):
                 with self.worker_lock:
                     load = min(self.workers)
                     if load < self.max_load:
-                        index = self.workers.index(load) # Error -> None.
+                        index = self.workers.index(load)  # Error -> None.
                         if index is not None:
                             self.workers[index] += 1
                             # print('Load is {} incrementing {}'.format(load, index))
