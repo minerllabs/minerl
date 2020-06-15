@@ -354,7 +354,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                 # TODO these could be handlers instead!
                 if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name \
                         or sum(published['reward']) < 64 and ('Obtain' not in environment.name) \
-                        or sum(published['reward']) >= 0.0 \
+                        or sum(published['reward']) == 0.0 \
                         or sum(published['action$forward']) == 0 \
                         or sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
                     black_list.add(segment_str)

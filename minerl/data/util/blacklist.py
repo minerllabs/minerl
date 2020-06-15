@@ -7,7 +7,7 @@ class Blacklist(set):
 
     def __init__(self):
         self.file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'blacklist.txt'))
-        super().__init__([elem[:-1] for elem in open(self.file_name)])
+        super().__init__(open(self.file_name).read().splitlines())
 
     def add(self, other):
         super().add(other)
