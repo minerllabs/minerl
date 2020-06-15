@@ -1,4 +1,5 @@
 import abc
+import copy
 from collections import OrderedDict
 
 from minerl.herobraine.env_spec import EnvSpec
@@ -9,6 +10,13 @@ class EnvWrapper(EnvSpec):
 
     def __init__(self, env_to_wrap: EnvSpec):
         self.env_to_wrap = env_to_wrap
+        self._wrap_act_fn, self._wrap_obs_fn, self._unwrap_act_fn, self._unwrap_obs_fn = None, None, None, None
+        if isinstance(self.env_to_wrap, EnvWrapper):
+            self._wrap_act_fn = self.env_to_wrap.wrap_action
+            self._wrap_obs_fn = self.env_to_wrap.wrap_observation
+            self._unwrap_act_fn = self.env_to_wrap.unwrap_action
+            self._unwrap_obs_fn = self.env_to_wrap.unwrap_observation
+
         super().__init__(self._update_name(env_to_wrap.name), env_to_wrap.xml, max_episode_steps=None,
                          reward_threshold=None)
 
@@ -24,8 +32,9 @@ class EnvWrapper(EnvSpec):
         # self = obfuscated
         # env_to_wrap = vector
         # obs is just a treechop ob
-        if isinstance(self.env_to_wrap, EnvWrapper):
-            obs = self.env_to_wrap.wrap_observation(obs)
+        obs = copy.deepcopy(obs)
+        if self._wrap_obs_fn is not None:
+            obs = self._wrap_obs_fn(obs)
 
         if minerl.utils.test.SHOULD_ASSERT: assert obs in self.env_to_wrap.observation_space
 
@@ -39,8 +48,9 @@ class EnvWrapper(EnvSpec):
         pass
 
     def wrap_action(self, act: OrderedDict):
-        if isinstance(self.env_to_wrap, EnvWrapper):
-            act = self.env_to_wrap.wrap_action(act)
+        act: OrderedDict = copy.deepcopy(act)
+        if self._wrap_act_fn is not None:
+            act = self._wrap_act_fn(act)
 
         if minerl.utils.test.SHOULD_ASSERT: assert act in self.env_to_wrap.action_space
 
@@ -54,14 +64,14 @@ class EnvWrapper(EnvSpec):
         pass
 
     def unwrap_observation(self, obs: OrderedDict) -> OrderedDict:
-        # self = obf
-        # env_towrap = vect
-        # obs = tofu_obs
+        obs = copy.deepcopy(obs)
         if minerl.utils.test.SHOULD_ASSERT: assert obs in self.observation_space
         obs = self._unwrap_observation(obs)
         if minerl.utils.test.SHOULD_ASSERT: assert obs in self.env_to_wrap.observation_space
-        if isinstance(self.env_to_wrap, EnvWrapper):
-            obs = self.env_to_wrap.unwrap_observation(obs)
+
+        if self._unwrap_obs_fn is not None:
+            obs = self._unwrap_obs_fn(obs)
+
         return obs
 
     @abc.abstractmethod
@@ -69,19 +79,15 @@ class EnvWrapper(EnvSpec):
         pass
 
     def unwrap_action(self, act: OrderedDict) -> OrderedDict:
+        act = copy.deepcopy(act)
         if minerl.utils.test.SHOULD_ASSERT: assert act in self.action_space
         act = self._unwrap_action(act)
         if minerl.utils.test.SHOULD_ASSERT: assert act in self.env_to_wrap.action_space
-        # Todo: remove redundant assertion.
 
-        if isinstance(self.env_to_wrap, EnvWrapper):
-            act = self.env_to_wrap.unwrap_action(act)
+        if self._unwrap_act_fn is not None:
+            act = self._unwrap_act_fn(act)
 
         return act
-
-    # def create_no_op(self):
-    #     if isinstance(self.env_to_wrap, EnvWrapper):
-    #         np
 
     def determine_success_from_rewards(self, rewards: list) -> bool:
         return self.env_to_wrap.determine_success_from_rewards(rewards)
