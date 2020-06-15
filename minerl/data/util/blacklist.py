@@ -6,7 +6,7 @@ class Blacklist:
 
     def __init__(self):
         self.file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'blacklist'))
-
+        os.makedirs(self.file_name, exist_ok=True)
     def add(self, other):
         touch(os.path.join(self.file_name, other))
 
