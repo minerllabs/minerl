@@ -8,17 +8,14 @@ render.py
 # 3) Running the video_rendering scripts
 """
 import logging
-import subprocess
-import traceback
 import functools
 import hashlib
 import multiprocessing
 import os
 import random
 import sys
-import time
 
-import math
+import cv2
 import tqdm
 import shutil
 import numpy as np
@@ -56,15 +53,41 @@ from minerl.herobraine.wrappers.obfuscation_wrapper import Obfuscated
 
 FAILED_COMMANDS = []
 
-def flatten(d, parent_key='', sep='$'): 
+
+def flatten(d, parent_key='', sep='$'):
     items = []
     for k, v in d.items():
         new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
+        if isinstance(v, collections.abc.MutableMapping):
             items.extend(flatten(v, new_key, sep=sep).items())
         else:
             items.append((new_key, v))
     return dict(items)
+
+
+def read_frame(cap):
+    try:
+        ret, frame = cap.read()
+        if ret:
+            cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
+            frame = np.asarray(np.clip(frame, 0, 255), dtype=np.uint8)
+
+        return ret, frame
+    except Exception as err:
+        raise err
+
+
+def calculate_frame_count(video_path):
+    ret, frame_num = True, 0
+    cap = cv2.VideoCapture(video_path)
+    while ret:
+        ret, _ = read_frame(cap)
+        if ret:
+            frame_num += 1
+    # TODO modify recording to have the correct video metadata (for other loading purposes)
+    # cap.set number of frames (frame_number)
+    return frame_num
+
 
 ##################
 #    PIPELINE    #
@@ -93,23 +116,26 @@ def remove_initial_frames(universal):
             # print('\nTouched pressure plate {}'.format(tick))
             touched_pressure_plate = True
             skip_next_n = 5
-        # If we have touched a pressure plate skip until we touch the next non air block
-        elif touched_pressure_plate and len(obs['touched_blocks']) > 0:
-            # print('\nTouched ground at {}'.format(tick))
+        # If we have touched a pressure plate skip until we touch the next non air nor water block
+        elif touched_pressure_plate and len(obs['touched_blocks']) > 0 and \
+                (obs['touched_blocks'][0]['name'] != 'minecraft:water' or len(obs['touched_blocks']) > 1):
+            # print('\nPressure-plate to ground at {}'.format(tick))
             start_tick = tick
             break
         pass
 
-    # Truncate the beginning of the episode (we align videos and unviersals by the end)
+    # Truncate the beginning of the episode (we align videos and universals by the end)
     if start_tick is None:
         # If we could not find a pressure_plate we may have started in the air - skip till we are on the ground
         on_ground_for = 0
         for tick, obs in universal.items():
-            if len(obs['touched_blocks']) != 0:
+            # TODO test if we can start once we are not touching water at all
+            if len(obs['touched_blocks']) > 0 and \
+                    (obs['touched_blocks'][0]['name'] != 'minecraft:water' or len(obs['touched_blocks']) > 1):
                 on_ground_for += 1
-                if on_ground_for == 5:
+                if on_ground_for >= 8:
                     start_tick = tick
-                    # print('\nout of the air at {}'.format(tick))
+                    print('\nGround for a while at {} loc {}'.format(tick, obs))
                     break
             else:
                 on_ground_for = 0
@@ -121,8 +147,8 @@ def remove_initial_frames(universal):
                 break
     # Remove teleportation frames
     if start_tick is None:
-        start_tick = 0
-        print(len(universal.keys()))
+        # We don't have a valid video
+        return 0
     for i in range(int(start_tick)):
         universal.pop(str(i), None)
 
@@ -255,22 +281,22 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
                 published = dict(
                     reward=np.array(
-                    [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal],
-                    dtype=np.float32)[1:])
+                        [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal],
+                        dtype=np.float32)[1:])
 
-                
                 for tick in universal:
                     tick_data = {}
                     for _prefix, hdlrs in [
-                        ("observation",info_handlers),
-                        ("action",action_handlers)]:
-                        if not _prefix in tick_data:
+                        ("observation", info_handlers),
+                        ("action", action_handlers)]:
+                        if _prefix not in tick_data:
                             tick_data[_prefix] = OrderedDict()
 
                         for handler in hdlrs:
                             # Apply the handler from_universal to the universal[tick]
                             val = handler.from_universal(universal[tick])
-                            assert val in handler.space, f"{val} is not in {handler.space} for handler {handler.to_string()}"
+                            assert val in handler.space, "{} is not in {} for handler {}".format(val, handler.space,
+                                                                                                 handler.to_string)
                             tick_data[_prefix][handler.to_string()] = val
 
                         # Perhaps we can wrap here
@@ -282,9 +308,9 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                                 del tick_data[_prefix]['pov']
                             elif _prefix == "action":
                                 tick_data[_prefix] = environment.wrap_action(tick_data[_prefix])
-                        
+
                     tick_data = flatten(tick_data, sep='$')
-                    for k,v in tick_data.items():
+                    for k, v in tick_data.items():
                         try:
                             published[k].append(v)
                         except KeyError:
@@ -295,27 +321,17 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                     if k.startswith("action"):
                         published[k] = published[k][1:]
 
-
-
             except NotImplementedError as err:
                 print('Exception:', repr(err), 'found with environment:', environment.name)
                 raise err
-                for hdl in all_handlers:
-                    try:
-                        hdl.from_universal({})
-                    except NotImplementedError:
-                        print("Missing from universal for command handler: ", hdl)
-                        continue
-                    except KeyError:
-                        pass
-                continue
             except KeyError as err:
                 print("Key error in file - check from_universal for handlers")
+                print(repr(err))
                 continue
             except AssertionError as e:
                 # Warn the user if some of the observatiosn or actions don't fall in the gym.space 
                 # (The space checking assertion error from above was raised)
-                print(f"Warning! {e}")
+                print("Warning!" + repr(e))
                 continue
             except Exception as e:
                 print("caught exception:", repr(e))
@@ -327,7 +343,6 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                         print("Exception <", repr(f), "> for command handler:", hdl)
                         continue
                 raise e
-
 
             # published = {'action': action, 'reward': reward, 'info': info}
 
@@ -360,24 +375,23 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
         # Render metadata
         try:
-            with open(metadata_source, 'r') as meta_file:
-                source = json.load(meta_file)
-                metadata_out = {}
-                if 'success' in source:
-                    metadata_out['success'] = source['success']
-                else:
-                    metadata_out['success'] = False
-                metadata_out['duration_ms'] = len(published['reward']) * 50  # source['end_time'] - source['start_time']
-                metadata_out['duration_steps'] = len(published['reward'])
-                metadata_out['total_reward'] = sum(published['reward'])
-                metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
-                with open(metadata_dest, 'w') as meta_file_out:
-                    json.dump(metadata_out, meta_file_out)
-
             # Copy video if necessary
             if not E(recording_dest):
                 shutil.copyfile(src=recording_source, dst=recording_dest)
             np.savez_compressed(rendered_dest, **published)
+
+            with open(metadata_source, 'r') as meta_file:
+                source = json.load(meta_file)
+                metadata_out = {}
+                metadata_out['success'] = str(environment.determine_success_from_rewards(published['reward']))
+                metadata_out['duration_ms'] = len(published['reward']) * 50  # source['end_time'] - source['start_time']
+                metadata_out['duration_steps'] = len(published['reward'])
+                metadata_out['total_reward'] = sum(published['reward'])
+                metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
+                metadata_out['true_video_frame_count'] = calculate_frame_count(recording_dest)
+                with open(metadata_dest, 'w') as meta_file_out:
+                    json.dump(metadata_out, meta_file_out)
+
             rendered_envs += 1
         except (KeyError, ValueError) as e:
             print(e)

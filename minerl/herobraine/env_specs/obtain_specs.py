@@ -5,45 +5,54 @@ from gym import spaces
 
 none = 'none'
 
+
 def snake_to_camel(word):
-        import re
-        return ''.join(x.capitalize() or '_' for x in word.split('_'))
+    import re
+    return ''.join(x.capitalize() or '_' for x in word.split('_'))
+
 
 class Obtain(SimpleEnvSpec):
-    def __init__(self, 
-        target_item, 
-        dense, 
-        reward_schedule, 
-        max_episode_steps=6000):
+    def __init__(self,
+                 target_item,
+                 dense,
+                 reward_schedule,
+                 max_episode_steps=6000):
         self.target_item = target_item
         self.dense = dense
         suffix = snake_to_camel(self.target_item)
         dense_suffix = "Dense" if self.dense else ""
         self.reward_schedule = reward_schedule
         super().__init__(
-            name=f"MineRLObtain{suffix}{dense_suffix}-v0",
-            xml=f"obtain{suffix}{dense_suffix}.xml",
+            name="MineRLObtain{}{}-v0".format(suffix, dense_suffix),
+            xml="obtain{}{}.xml".format(suffix, dense_suffix),
             max_episode_steps=max_episode_steps,
         )
+
     def is_from_folder(self, folder: str):
-        return folder == f'o_{self.target_item}'
+        return folder == 'o_{}'.format(self.target_item)
 
     def get_docstring(self):
         return ""
 
     def create_mission_handlers(self) -> List[AgentHandler]:
-
         reward_handler = (
-            handlers.RewardForCollectingItems if self.dense 
+            handlers.RewardForCollectingItems if self.dense
             else handlers.RewardForCollectingItemsOnce)
-        
+
         return [
             reward_handler(self.reward_schedule if self.reward_schedule else {self.target_item: 1})
         ]
 
+    def determine_success_from_rewards(self, rewards: list) -> bool:
+        rewards = set(rewards)
+        allow_missing_ratio = 0.1
+        max_missing = round(len(self.reward_schedule) * allow_missing_ratio)
+        return len(rewards.intersection(self.reward_schedule.values())) \
+            >= len(self.reward_threshold.values()) - max_missing
+
     def create_observables(self) -> List[AgentHandler]:
         # TODO: Parameterize these observations.
-        return super().create_observables() +  [
+        return super().create_observables() + [
             handlers.FlatInventoryObservation([
                 'dirt',
                 'coal',
@@ -66,29 +75,29 @@ class Obtain(SimpleEnvSpec):
             ]),
             handlers.DamageObservation('mainhand'),
             handlers.MaxDamageObservation('mainhand'),
-            handlers.TypeObservation('mainhand', [ 'none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                'iron_axe', 'iron_pickaxe', 'other']),
+            handlers.TypeObservation('mainhand',
+                                     ['none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+                                      'iron_axe', 'iron_pickaxe', 'other']),
         ]
 
     def create_actionables(self):
         return super().create_actionables() + [
             handlers.PlaceBlock(['none', 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch']),
-            handlers.EquipItem(['none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe']),
+            handlers.EquipItem(['none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe',
+                                'iron_pickaxe']),
             handlers.CraftItem(['none', 'torch', 'stick', 'planks', 'crafting_table']),
-            handlers.CraftItemNearby(['none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace']),
+            handlers.CraftItemNearby(
+                ['none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe',
+                 'furnace']),
             handlers.SmeltItemNearby(['none', 'iron_ingot', 'coal']),
         ]
-
-
-
-
 
 
 class ObtainDiamond(Obtain):
     def __init__(self, dense):
         super(ObtainDiamond, self).__init__(
-            target_item='diamond', 
-            dense=dense, 
+            target_item='diamond',
+            dense=dense,
             reward_schedule={
                 "log": 1,
                 "planks": 2,
@@ -153,12 +162,11 @@ item are given here::
 \n"""
 
 
-
 class ObtainIronPickaxe(Obtain):
     def __init__(self, dense):
         super(ObtainIronPickaxe, self).__init__(
-            target_item='iron_pickaxe', 
-            dense=dense, 
+            target_item='iron_pickaxe',
+            dense=dense,
             reward_schedule={
                 "log": 1,
                 "planks": 2,
@@ -216,11 +224,12 @@ item is given here::
 
 \n"""
 
+
 class ObtainDiamondSurvival(ObtainDiamond):
     def __init__(self, dense):
         super(ObtainDiamondSurvival, self).__init__(dense)
         self.name = "MineRLObtainDiamondSurvival-v0"
-        
+
     def is_from_folder(self, folder: str):
         return folder == 'none'
 
@@ -228,16 +237,22 @@ class ObtainDiamondSurvival(ObtainDiamond):
 class ObtainDiamondDebug(ObtainDiamond):
     def __init__(self, dense):
         super().__init__(dense=dense)
-        
-        self.name=f"MineRLObtainTest{'' if not dense else 'Dense'}-v0"
-        self.xml=f"obtainDebug{'' if not dense else 'Dense'}.xml"
+
+        self.name = "MineRLObtainTest{}-v0".format('' if not dense else 'Dense')
+        self.xml = "obtainDebug{}.xml".format('' if not dense else 'Dense')
 
     def create_actionables(self):
         return SimpleEnvSpec.create_actionables(self) + [
-            handlers.PlaceBlock(['none', 'dirt', 'log', 'log2', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'diamond_ore']),
-            handlers.EquipItem(['none', 'red_flower', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe']),
+            handlers.PlaceBlock(
+                ['none', 'dirt', 'log', 'log2', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch',
+                 'diamond_ore']),
+            handlers.EquipItem(
+                ['none', 'red_flower', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe',
+                 'iron_pickaxe']),
             handlers.CraftItem(['none', 'torch', 'stick', 'planks', 'crafting_table']),
-            handlers.CraftItemNearby(['none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace']),
+            handlers.CraftItemNearby(
+                ['none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe',
+                 'furnace']),
             handlers.SmeltItemNearby(['none', 'iron_ingot', 'coal']),
         ]
 
@@ -245,4 +260,4 @@ class ObtainDiamondDebug(ObtainDiamond):
         return False
 
     def get_docstring(self):
-        return """This envirnment intended for continuious integration testing only!!"""
+        return """This environment intended for continuous integration testing only!!"""

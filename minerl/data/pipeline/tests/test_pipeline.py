@@ -19,34 +19,36 @@ from collections import OrderedDict
 
 TESTS_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tests_data'))
 
+
 def _test_pipeline(copy_test_data_out=True, upload_test_data=''):
     # 0. Download and unzip a sample stream.
-    sample_stream =  os.path.join(TESTS_DATA, 'sample_stream.zip')
+    sample_stream = os.path.join(TESTS_DATA, 'sample_stream.zip')
+    # TODO get this from AWS one?
     if not os.path.exists(sample_stream):
-        download('https://storage.googleapis.com/wguss-rcall/public/sweet_potato_full.zip', 
-           sample_stream)
+        download('https://storage.googleapis.com/wguss-rcall/public/sweet_potato_full.zip',
+                 sample_stream)
 
     # 1. Make a temporary directory.
     with tempfile.TemporaryDirectory() as tmpdir:
         new_output_root = os.path.join(tmpdir, 'output')
         rendered_root = os.path.join(new_output_root, 'rendered')
         data_root = os.path.join(new_output_root, 'data')
+        _ = [os.makedirs(d, exist_ok=True) for d in [new_output_root, rendered_root, data_root]]
 
         # Unzip the sample stream to output/rendered/player_stream_sample_stream
         # use zipfile/
         zipfile.ZipFile(sample_stream).extractall(rendered_root)
-        sample_stream_root = os.path.join(rendered_root, 'player_stream_ccool_sweet_potato_nymph-13')
+        sample_stream_root = os.path.join(rendered_root, 'player_stream_colorless_mung_bean_dragon-19')
 
-        # Tocuh a blacklist
+        # Touch a blacklist
         open(os.path.join(new_output_root, 'blacklist.txt'), 'w').close()
 
         # Set the environment root.
         os.environ.update(dict(MINERL_OUTPUT_ROOT=tmpdir))
 
-
         # Now we run the generate script.
         subprocess.check_call('python3 -m minerl.data.pipeline.generate'.split(' '))
-        
+
         # Now make the version.
         with open(os.path.join(data_root, minerl.data.VERSION_FILE_NAME), 'w') as f:
             f.write(str(minerl.data.DATA_VERSION))
@@ -63,14 +65,16 @@ def _test_pipeline(copy_test_data_out=True, upload_test_data=''):
         if upload_test_data:
             # Zip it and upload it.
             with tempfile.TemporaryDirectory as zipdir:
-                zip_result_dir = os.path.join(zipdir, f'{test_name}_result.zip')
-                shutil.make_archive(zip_result_dir, 'zip', data_root) 
+                zip_result_dir = os.path.join(zipdir, '{}_result.zip'.format(test_name))
+                shutil.make_archive(zip_result_dir, 'zip', data_root)
 
                 # Upload the result.
-                subprocess.check_call(f'gsutil cp {zip_result_dir} {upload_test_data}'.split(' '))
-            
+                subprocess.check_call('gsutil cp {} {}'.format(zip_result_dir, upload_test_data).split(' '))
+
+
 def test_obfuscated_data():
-    # Neeed to reproducedata.
+    _test_pipeline()
+    # Need to reproduce data.
     sample_data_dir = os.path.join(TESTS_DATA, 'out', 'test_pipeline', 'output', 'data')
     os.environ.update(dict(
         MINERL_DATA_ROOT=sample_data_dir
@@ -78,7 +82,7 @@ def test_obfuscated_data():
     treechop = minerl.data.make('MineRLTreechop-v0')
     treechop_obf = minerl.data.make('MineRLTreechopVectorObf-v0')
 
-    trajname=  'v2_cool_sweet_potato_nymph-13_724-5408'
+    trajname = 'v2_cool_sweet_potato_nymph-13_724-5408'
     assert set(treechop_obf.get_trajectory_names()) == {
         'v2_cool_sweet_potato_nymph-13_724-5408',
         'v2_cool_sweet_potato_nymph-13_5564-6194'  # TODO THIS SHOULDN'T BE HERE
@@ -92,9 +96,9 @@ def test_obfuscated_data():
     data = list(treechop.load_data(trajname))
 
     # Take the data and obfuscate to compare to obf_data
-    for i, (s,a,r,sp1,d) in enumerate(data):
-        (so,ao,ro,sp1o,do) = obf_data[i]
-        
+    for i, (s, a, r, sp1, d) in enumerate(data):
+        (so, ao, ro, sp1o, do) = obf_data[i]
+
         assert_equal_recursive(treechop_obf.spec.wrap_observation(s), so)
         assert_equal_recursive(treechop_obf.spec.wrap_observation(sp1), sp1o)
 
@@ -104,10 +108,6 @@ def test_obfuscated_data():
 
         assert r == ro
         assert d == do
-
-    
-
-
 
 
 def test_dataloader_regression():
@@ -120,8 +120,8 @@ def test_dataloader_regression():
         zipfile.ZipFile(sweet_potato_path).extractall(
             old_data_root
         )
-    
-    trajname=  'v2_cool_sweet_potato_nymph-13_724-5408'
+
+    trajname = 'v2_cool_sweet_potato_nymph-13_724-5408'
     old_trajname = 'v1_cool_sweet_potato_nymph-13_724-5408'
     os.environ.update(dict(
         MINERL_DATA_ROOT=sample_data_dir
@@ -137,14 +137,14 @@ def test_dataloader_regression():
     # Todo make some tests
 
     treechop_old = old_data_pipeline.DataPipeline(old_data_root,
-        'MineRLTreechop-v0', 1, 32,32)
+                                                  'MineRLTreechop-v0', 1, 32, 32)
 
     old_data = list(treechop_old.load_data(old_trajname, include_metadata=True))
 
     assert len(old_data) == len(new_data)
     for i in range(len(old_data)):
-        ns,na,nr,nsp1,nd,nmeta = new_data[i]
-        o_s,oa,o_r,osp1,od,ometa = old_data[i]
+        ns, na, nr, nsp1, nd, nmeta = new_data[i]
+        o_s, oa, o_r, osp1, od, ometa = old_data[i]
 
         # Assert actions are the same
         assert_equal_recursive(na, oa)
@@ -159,7 +159,7 @@ def test_dataloader_regression():
         del nsp1['pov']
         del o_s['pov']
         del osp1['pov']
-        
+
         # assert states are the same WITHOUT POV
         assert_equal_recursive(ns, o_s)
         assert_equal_recursive(nsp1, osp1)
@@ -180,13 +180,13 @@ def test_ao_on_or_off():
     assert False, "AO has not been fixed."
 
 
-
 # import matplotlib
 # from matplotlib import pyplot as plt
 # matplotlib.use('MACOSX')
 
 
 if __name__ == '__main__':
-    test_dataloader_regression()
+    test_obfuscated_data()
+    # test_dataloader_regression()
 #     # test_pipeline(copy_test_data_out=True)
 # #     # test_obfuscated_data()

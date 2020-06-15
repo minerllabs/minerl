@@ -6,12 +6,14 @@ import numpy as np
 
 from minerl.herobraine.hero import AgentHandler
 
+
 def strip_of_prefix(minecraft_name):
     # Names in minecraft start with 'minecraft:', like:
     # 'minecraft:log', or 'minecraft:cobblestone'
     if minecraft_name.startswith('minecraft:'):
         return minecraft_name[len('minecraft:'):]
     return minecraft_name
+
 
 class RewardHandler(AgentHandler, ABC):
     """
@@ -20,6 +22,7 @@ class RewardHandler(AgentHandler, ABC):
     All rewards need inherit from this reward handler
     #Todo: Figure out how this interplays with Hero, as rewards are summed.
     """
+
     def __init__(self):
         super().__init__(gym.spaces.Box(-np.inf, np.inf, [1]))
 
@@ -32,10 +35,12 @@ class RewardHandler(AgentHandler, ABC):
         """
         return obs_dict["reward"]
 
+
 class ConstantReward(RewardHandler):
     """
     A constant reward handler
     """
+
     def __init__(self, constant):
         super().__init__()
         self.constant = constant
@@ -45,6 +50,7 @@ class ConstantReward(RewardHandler):
 
     def from_universal(self, x):
         return self.constant
+
 
 class RewardForCollectingItems(RewardHandler):
     """
@@ -69,9 +75,10 @@ class RewardForCollectingItems(RewardHandler):
                 if item_name == 'log2':
                     item_name = 'log'
                 if item_name in self.reward_dict and 'quantity_change' in change_json:
-                    if change_json['quantity_change'] > 0:
+                    if change_json['quantity_change'] > 0 or change_json['quantity_change'] == -1:
                         total_reward += change_json['quantity_change'] * self.reward_dict[item_name]
         return total_reward
+
 
 class RewardForCollectingItemsOnce(RewardHandler):
     """
@@ -105,6 +112,7 @@ class RewardForCollectingItemsOnce(RewardHandler):
     def reset(self):
         # print(self.seen_dict.keys())
         self.seen_dict = dict()
+
 
 class RewardForCraftingItem(RewardHandler):
     """
@@ -170,6 +178,7 @@ class RewardForCraftingItem(RewardHandler):
         self.skip_next = False
         self.prev_container = None
 
+
 class RewardForTouchingBlock(RewardHandler):
     """
     The standard malmo reward for contacting a specific block.
@@ -222,6 +231,7 @@ class RewardForTouchingBlock(RewardHandler):
     def reset(self):
         self.fired = False
 
+
 class NavigateTargetReward(RewardHandler):
     """
     The standard malmo reward for contacting a specific block.
@@ -240,6 +250,7 @@ class NavigateTargetReward(RewardHandler):
             if 'minecraft:diamond_block' == obs['navigateHelper']:
                 return 100
         return 0
+
 
 class RewardForWalkingTwardsTarget(RewardHandler):
     """
@@ -281,16 +292,16 @@ class RewardForWalkingTwardsTarget(RewardHandler):
         if 'compass' in obs and 'deltaDistance' in obs['compass']:
             try:
                 target = obs['compass']['target']
-                target_pos  = np.array([target["x"], target["y"], target["z"]])
+                target_pos = np.array([target["x"], target["y"], target["z"]])
                 position = obs['compass']['position']
                 cur_pos = np.array([position["x"], position["y"], position["z"]])
-                delta=  np.linalg.norm(target_pos - cur_pos)
+                delta = np.linalg.norm(target_pos - cur_pos)
                 if not self._prev_delta:
                     return 0
                 else:
-                    return  self._prev_delta - delta
+                    return self._prev_delta - delta
             finally:
                 self._prev_delta = delta
-            
+
     def reset(self):
         self._prev_delta = None

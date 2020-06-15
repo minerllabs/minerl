@@ -36,11 +36,12 @@ if os.name != "nt":
 def tree_slice(tree, slc):
     if isinstance(tree, OrderedDict):
         return OrderedDict(
-            [(k,tree_slice(v, slc)) for k,v in tree.items()]
+            [(k, tree_slice(v, slc)) for k, v in tree.items()]
         )
     else:
         return tree[slc]
-        
+
+
 class DataPipeline:
     """
     Creates a data pipeline object used to itterate through the MineRL-v0 dataset
@@ -72,11 +73,10 @@ class DataPipeline:
         self.worker_batch_size = worker_batch_size
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
-        
+
         self._env_spec = gym.envs.registration.spec(self.environment)._kwargs['env_spec']
         self._action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
         self._observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
-
 
     @property
     def spec(self) -> minerl.herobraine.env_spec.EnvSpec:
@@ -89,8 +89,6 @@ class DataPipeline:
         """
         return self._action_space
 
-    
-
     @property
     def observation_space(self):
         """
@@ -99,7 +97,7 @@ class DataPipeline:
         return self._observation_space
 
         # return result
-   
+
     def load_data(self, stream_name: str, skip_interval=0, include_metadata=False):
         """Iterates over an individual trajectory named stream_name.
         
@@ -133,7 +131,7 @@ class DataPipeline:
         x = list(target_space.spaces.items())
         target_space.spaces = collections.OrderedDict(
             sorted(x, key=lambda x:
-            x[0] if x[0] is not 'pov' else 'z' )
+            x[0] if x[0] is not 'pov' else 'z')
         )
 
         # Now we just need to slice the dict.
@@ -143,11 +141,8 @@ class DataPipeline:
             observation_dict = tree_slice(observation_seq, idx)
             next_observation_dict = tree_slice(next_observation_seq, idx)
 
-
-            yield_list = [observation_dict, action_dict, reward_seq[idx], next_observation_dict, done_seq[idx]] 
+            yield_list = [observation_dict, action_dict, reward_seq[idx], next_observation_dict, done_seq[idx]]
             yield yield_list + [meta] if include_metadata else yield_list
-
-    
 
     def get_trajectory_names(self):
         """Gets all the trajectory names
@@ -168,7 +163,7 @@ class DataPipeline:
             if ret:
                 cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
                 frame = np.asarray(np.clip(frame, 0, 255), dtype=np.uint8)
-            
+
             return ret, frame
         except Exception as err:
             logger.error("error reading capture device:", err)
@@ -190,7 +185,8 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, env_str="", skip_interval=0, include_metadata=False):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, env_str="", skip_interval=0,
+                          include_metadata=False):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
@@ -201,7 +197,7 @@ class DataPipeline:
         :return:
         """
         logger.debug("Loading from file {}".format(file_dir))
-        
+
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
         numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
         meta_path = str(os.path.join(file_dir, 'metadata.json'))
@@ -218,7 +214,7 @@ class DataPipeline:
                 meta = json.load(file)
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
-                
+
                 # Hotfix for incorrect success metadata from server [TODO: remove]
                 reward_threshold = {
                     'MineRLTreechop-v0': 64,
@@ -234,7 +230,6 @@ class DataPipeline:
                     'MineRLObtainDiamondDense-v0': [1024, 256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
                 }
 
-
                 try:
                     meta['success'] = meta['total_reward'] >= reward_threshold[env_str]
                 except KeyError:
@@ -242,9 +237,9 @@ class DataPipeline:
                         # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
                         # print(list(state.keys()))
                         quantized_reward_vec = state['reward'].astype(np.int) // 8
-                        meta['success'] = all(reward//8 in quantized_reward_vec for reward in reward_list[env_str])
+                        meta['success'] = all(reward // 8 in quantized_reward_vec for reward in reward_list[env_str])
                     except KeyError:
-                        
+
                         logger.warning("success in metadata may be incorrect")
 
             action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action$')])
@@ -259,24 +254,20 @@ class DataPipeline:
                         dct[key] = OrderedDict(sorted(dct[key].items()))
                 return dct
 
-
             def unflatten(dct, sep='$'):
                 out_dict = OrderedDict({})
-                for k,v in dct.items():
+                for k, v in dct.items():
                     keys = k.split(sep)
-                    cur_dict =out_dict
+                    cur_dict = out_dict
                     for key in keys[:-1]:
                         if key not in cur_dict:
                             cur_dict[key] = OrderedDict({})
                         cur_dict = cur_dict[key]
                     cur_dict[keys[-1]] = v
-                        
+
                 # Sort dict recursively
                 recursive_sort(out_dict)
                 return out_dict
-
-
-
 
             # There is no action or reward for the terminal state of an episode.
             # Hence in Publish.py we shorten the action and reward vector to reflect this.
@@ -287,10 +278,13 @@ class DataPipeline:
             ret, frame_num = True, 0
             while ret:
                 ret, _ = DataPipeline.read_frame(cap)
-                if ret: 
+                if ret:
                     frame_num += 1
-                
-            max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
+
+            # max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
+
+            max_frame_num = meta['true_video_frame_count']
+            assert max_frame_num == frame_num
             frames = []
             frame_num, stop_idx = 0, 0
 
@@ -306,7 +300,6 @@ class DataPipeline:
             # Loop through the video and construct frames
             # of observations to be sent via the multiprocessing queue
             # in chunks of worker_batch_size to the batch_iter loop.
-
 
             while True:
                 ret = True
@@ -346,7 +339,7 @@ class DataPipeline:
                             next_observation_data[key] = np.asanyarray(frames[1:])
                         else:
                             current_observation_data[key] = np.asanyarray(info_dict[key][start_idx:stop_idx])
-                            next_observation_data[key] = np.asanyarray(info_dict[key][start_idx+1:stop_idx+1])
+                            next_observation_data[key] = np.asanyarray(info_dict[key][start_idx + 1:stop_idx + 1])
 
                     # We are getting (S_t, A_t -> R_t),   S_{t+1}, D_{t+1} so there are less actions and rewards
                     for key in action_dict:
@@ -365,9 +358,10 @@ class DataPipeline:
                 current_observation_data = unflatten(current_observation_data)['observation']
                 action_data = unflatten(action_data)['action']
                 next_observation_data = unflatten(next_observation_data)['observation']
-                
 
-                batches = [current_observation_data, action_data, reward_data, next_observation_data, np.array(done_data, dtype=np.bool)]
+                batches = [current_observation_data, action_data, reward_data, next_observation_data,
+                           np.array(done_data, dtype=np.bool)]
+
                 if include_metadata:
                     batches += [meta]
 
@@ -376,35 +370,32 @@ class DataPipeline:
                 else:
                     data_queue.put(batches)
                     logger.debug("Enqueued from file {}".format(file_dir))
-                
 
                 if not ret:
                     break
                 else:
                     frames = [frames[-1]]
 
-
             logger.error("Finished")
             return None
         except WindowsError as e:
             logger.debug("Caught windows error {} - this is expected when closing the data pool".format(e))
             return None
-        except FileNotFoundError as e: 
+        except FileNotFoundError as e:
             print("File not found!")
             raise e
         except Exception as e:
-            logger.error(f"Exception \'{e}\' caught on file \"{file_dir}\" by a worker of the data pipeline.")
+            logger.error("Exception caught on file \"{}\" by a worker of the data pipeline.".format(file_dir))
+            logger.error(repr(e))
             return None
 
-
-
     def batch_iter(self,
-        batch_size : int, 
-        seq_len : int,
-        num_epochs : int = -1,
-        preload_buffer_size : int = 2, 
-        seed : int = None, 
-        include_metadata : bool = False ):
+                   batch_size: int,
+                   seq_len: int,
+                   num_epochs: int = -1,
+                   preload_buffer_size: int = 2,
+                   seed: int = None,
+                   include_metadata: bool = False):
         """Returns batches of sequences length SEQ_LEN of the data of size BATCH_SIZE.
         The iterator produces batches sequentially. If an element of a batch reaches the
         end of its 
@@ -421,12 +412,13 @@ class DataPipeline:
         Returns:
             Generator: A generator that yields (sarsd) batches
         """
-        #Todo: Not implemented/
+        # Todo: Not implemented/
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
             trajectory_queue = queue.Queue(maxsize=preload_buffer_size)
+
             def traj_iter():
                 for _ in jobs:
-                    s,a,r,sp1,d =  trajectory_queue.get()
+                    s, a, r, sp1, d = trajectory_queue.get()
                     yield dict(
                         obs=s,
                         act=a,
@@ -434,8 +426,8 @@ class DataPipeline:
                         next_obs=sp1,
                         done=d
                     )
-                
-            jobs = [(f, -1, None) for f  in self._get_all_valid_recordings(self.data_dir)]
+
+            jobs = [(f, -1, None) for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
             trajectory_loader = minerl.data.util.OrderedJobStreamer(
                 job,
@@ -447,12 +439,9 @@ class DataPipeline:
             trajectory_loader.start()
 
             for seg_batch in minibatch_gen(traj_iter(), batch_size=batch_size, nsteps=seq_len):
-                yield seg_batch['obs'], seg_batch['act'],  seg_batch['reward'], seg_batch['next_obs'],seg_batch['done']
-
+                yield seg_batch['obs'], seg_batch['act'], seg_batch['reward'], seg_batch['next_obs'], seg_batch['done']
 
             trajectory_loader.shutdown()
-
-
 
     @staticmethod
     def _is_blacklisted(path):
@@ -491,18 +480,17 @@ class DataPipeline:
         np.random.shuffle(directoryList)
         return directoryList.tolist()
 
-
     ###
     # DEPRECATED API
     ###
     def seq_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
         """DEPRECATED METHOD FOR SAMPLING DATA FROM THE MINERL DATASET.
 
-        This function is now :code:`DataPipeline.sarsd_iter()`
+        This function is now :code:`DataPipeline.batch_iter()`
         """
         raise DeprecationWarning(
-            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.sarsd_iter()."
-            "\nNOTE: The new method `DataPipeline.sarsd_iter` has a different return signature! "
+            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.batch_iter()."
+            "\nNOTE: The new method `DataPipeline.batch_iter` has a different return signature! "
             "\n\t  Please see how to use it @ http://www.minerl.io/docs/tutorials/data_sampling.html")
 
     def sarsd_iter(self, num_epochs=-1, max_sequence_len=32, queue_size=None, seed=None, include_metadata=False):
@@ -530,7 +518,7 @@ class DataPipeline:
             samples are requested.
         """
         raise DeprecationWarning(
-            "The `DataPipeline.seq_iter` method is deprecated! Please use DataPipeline.batch_iter().")
+            "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
 
 def job(arg):

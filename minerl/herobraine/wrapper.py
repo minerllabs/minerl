@@ -8,7 +8,8 @@ class EnvWrapper(EnvSpec):
 
     def __init__(self, env_to_wrap: EnvSpec):
         self.env_to_wrap = env_to_wrap
-        super().__init__(self._update_name(env_to_wrap.name), env_to_wrap.xml, max_episode_steps=None, reward_threshold=None)
+        super().__init__(self._update_name(env_to_wrap.name), env_to_wrap.xml, max_episode_steps=None,
+                         reward_threshold=None)
 
     @abc.abstractmethod
     def _update_name(self, name: str) -> str:
@@ -43,7 +44,6 @@ class EnvWrapper(EnvSpec):
         assert act in self.env_to_wrap.action_space
 
         wrapped_act = self._wrap_action(act)
-        
 
         assert wrapped_act in self.action_space
         return wrapped_act
@@ -75,13 +75,15 @@ class EnvWrapper(EnvSpec):
 
         if isinstance(self.env_to_wrap, EnvWrapper):
             act = self.env_to_wrap.unwrap_action(act)
-    
+
         return act
 
     # def create_no_op(self):
     #     if isinstance(self.env_to_wrap, EnvWrapper):
     #         np
 
+    def determine_success_from_rewards(self, rewards: list) -> bool:
+        return self.env_to_wrap.determine_success_from_rewards(rewards)
 
     def create_observation_space(self):
         return self.env_to_wrap.observation_space
@@ -91,7 +93,7 @@ class EnvWrapper(EnvSpec):
 
     def get_docstring(self):
         return self.env_to_wrap.get_docstring()
-        
+
     def is_from_folder(self, folder: str) -> bool:
         return self.env_to_wrap.is_from_folder(folder)
 

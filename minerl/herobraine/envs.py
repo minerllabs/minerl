@@ -44,7 +44,10 @@ MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0 = ObtainIronPickaxe(dense=True)
 # TODO: Determine naming schemes
 comp_envs = [MINERL_OBTAIN_DIAMOND_V0, MINERL_TREECHOP_V0, MINERL_NAVIGATE_V0, MINERL_OBTAIN_IRON_PICKAXE_V0]
 comp_obfuscator_dir =  os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "env_specs", "obfuscators", "comp", f"v3")
+
+# TODO FORMAT THIS AUTOMATICALLY USING CIRCULAR IMPORTS
+os.path.dirname(os.path.abspath(__file__)), "env_specs", "obfuscators", "comp", "v3")
+
 
 
 MINERL_TREECHOP_OBF_V0 = Obfuscated(Vectorized(MINERL_TREECHOP_V0, common_envs=comp_envs), comp_obfuscator_dir)

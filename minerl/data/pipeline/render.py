@@ -30,13 +30,10 @@ from shutil import copyfile
 
 from minerl.data.util.constants import (
     OUTPUT_DIR as WORKING_DIR,
-    DOWNLOAD_DIR as DOWNLOADED_DIR, 
+    DOWNLOAD_DIR as DOWNLOADED_DIR,
     NUM_MINECRAFTS as NUM_MINECRAFT_DIR,
     RENDERERS_DIR,
 )
-
-
-
 
 # 3
 # UTILITIES
@@ -60,7 +57,6 @@ from minerl.data.util.constants import (
     RENDER_ONLY_EXPERIMENTS
 )
 
-
 # Error directories
 from minerl.data.util.constants import (
     ERROR_PARENT_DIR,
@@ -72,7 +68,6 @@ from minerl.data.util.constants import (
     OTHER_ERROR_DIR,
     X11_ERROR_DIR
 )
-
 
 from minerl.data.util.constants import (BLACKLIST_TXT as BLACKLIST_PATH)
 
@@ -97,6 +92,7 @@ def get_recording_archive(recording_name):
 
     return zipfile.ZipFile(mcpr_path)
 
+
 ##################
 # PIPELINE
 #################
@@ -111,20 +107,19 @@ def construct_render_dirs(blacklist):
     """
 
     dirs = [RENDER_DIR,
-        ERROR_PARENT_DIR,
-        EOF_EXCEP_DIR,
-        ZEROLEN_DIR,
-        NULL_PTR_EXCEP_DIR,
-        ZIP_ERROR_DIR,
-        MISSING_RENDER_OUTPUT,
-        X11_ERROR_DIR]
+            ERROR_PARENT_DIR,
+            EOF_EXCEP_DIR,
+            ZEROLEN_DIR,
+            NULL_PTR_EXCEP_DIR,
+            ZIP_ERROR_DIR,
+            MISSING_RENDER_OUTPUT,
+            X11_ERROR_DIR]
 
     for dir in dirs:
         if not E(dir):
-            os.makedirs(dir)       
+            os.makedirs(dir)
 
-
-    # We only care about unrendered directories.
+            # We only care about unrendered directories.
     render_dirs = []
 
     for filename in tqdm.tqdm(os.listdir(MERGED_DIR)):
@@ -165,8 +160,9 @@ def render_metadata(renders: list):
                 try:
                     recording = get_recording_archive(recording_name)
 
-                    def extract(fname): return recording.extract(
-                        fname, render_path)
+                    def extract(fname):
+                        return recording.extract(
+                            fname, render_path)
 
                     # If everything is good extract the metadata.
                     for mfile in METADATA_FILES:
@@ -185,7 +181,7 @@ def render_metadata(renders: list):
 
                     try:
                         with open(J(render_path, 'markers.json'), 'r') as f:
-                            markers = json.load(f) 
+                            markers = json.load(f)
                             has_any_exps = False
                             for marker in markers:
                                 exp_metadata = marker['value']['metadata']['expMetadata']
@@ -236,8 +232,9 @@ def render_actions(renders: list):
             try:
                 recording = get_recording_archive(recording_name)
 
-                def extract(fname): return recording.extract(
-                    fname, render_path)
+                def extract(fname):
+                    return recording.extract(
+                        fname, render_path)
 
                 # Extract actions
                 assert str(ACTION_FILE) in [str(x)
@@ -256,7 +253,7 @@ def render_actions(renders: list):
                 good_renders.append((recording_name, render_path))
             except AssertionError as e:
                 _, _, tb = sys.exc_info()
-                traceback.print_tb(tb) # Fixed format
+                traceback.print_tb(tb)  # Fixed format
                 touch(J(render_path, BAD_MARKER_NAME))
                 remove(J(render_path, GOOD_MARKER_NAME))
                 bad_renders.append((recording_name, render_path))
@@ -281,34 +278,32 @@ def killMC(process):
 def launchMC(index):
     # Run the Mine Craft Launcher
     p = subprocess.Popen(
-        MC_LAUNCHER[index], cwd=MINECRAFT_DIR[index])#, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        MC_LAUNCHER[index], cwd=MINECRAFT_DIR[index])  # , stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # print("Launched ", MC_LAUNCHER[index])
 
-    #Give Minecraft time to load
+    # Give Minecraft time to load
     # time.sleep(10)
     return p
 
 
 def logError(errorDIR, recording_name, skip_path, index):
-    print(f"\t\tLogging error for {recording_name} in directory {errorDIR}.")
+    print("\t\tLogging error for {} in directory {}.".format(recording_name, errorDIR))
     try:
-        shutil.move(J(RECORDING_PATH[index], recording_name+'.mcpr'),
-                    J(errorDIR, recording_name+'.mcpr'))
+        shutil.move(J(RECORDING_PATH[index], recording_name + '.mcpr'),
+                    J(errorDIR, recording_name + '.mcpr'))
     except Exception as e:
         print("\t\tERRROR", e)
         pass
 
-    
     logFile = open(LOG_FILE[index], 'r', os.O_NONBLOCK).read()
-    with open(J(errorDIR, recording_name+'.log'), 'w') as f:
+    with open(J(errorDIR, recording_name + '.log'), 'w') as f:
         f.write(logFile)
 
     try:
-        shutil.rmtree(J(RECORDING_PATH[index], recording_name+'.mcpr.tmp'))
+        shutil.rmtree(J(RECORDING_PATH[index], recording_name + '.mcpr.tmp'))
     except Exception as e:
         print("\t\tERRROR s", e)
         pass
-    
 
     with open(skip_path, 'a'):
         try:
@@ -462,18 +457,17 @@ def render_videos(render: tuple, index=0, debug=False):
                         if debug:
                             print("missing lwjgl.")
                         errorDir = OTHER_ERROR_DIR
-                    
+
                     # elif re.search(r"Exception", logLine):
-                        # if debug:
-                        #     print("Unknown exception!!!")
-                        # error_dir = OTHER_ERROR_DIR
-                    
+                    # if debug:
+                    #     print("Unknown exception!!!")
+                    # error_dir = OTHER_ERROR_DIR
+
                     if errorDir:
                         if debug:
                             print("\tline {}: {}".format(lineCounter, logLine))
                         break
                         # p = relaunchMC(p, errorDir, recording_name, skip_path)
-
 
         time.sleep(1)
         logFile.close()
@@ -527,11 +521,11 @@ def render_videos(render: tuple, index=0, debug=False):
         if not video_path is None and not log_path is None and not marker_path is None:
             if debug:
                 print("\tCopying file", video_path, '==>\n\t',
-                  render_path, 'created', os.path.getmtime(video_path))
+                      render_path, 'created', os.path.getmtime(video_path))
             shutil.move(video_path, J(render_path, 'recording.mp4'))
             if debug:
                 print("\tCopying file", log_path, '==>\n\t',
-                  render_path, 'created', os.path.getmtime(log_path))
+                      render_path, 'created', os.path.getmtime(log_path))
             shutil.move(log_path, J(render_path, 'univ.json'))
 
             if debug:
@@ -550,7 +544,7 @@ def render_videos(render: tuple, index=0, debug=False):
             if debug:
                 print("\tMissing one or more file")
                 print("\tSkipping this file in the future")
-                print(f"\t{video_path} {marker_path} {log_path}")
+                print("\t{} {} {}".format(video_path, marker_path, log_path))
             logError(MISSING_RENDER_OUTPUT, recording_name, skip_path, index)
             try:
                 os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
@@ -572,12 +566,11 @@ def render_videos(render: tuple, index=0, debug=False):
             time.sleep(10)
     return 1
 
+
 def clean_render_dirs():
     paths_to_clear = [RENDERED_VIDEO_PATH, RECORDING_PATH, RENDERED_LOG_PATH]
     for p in paths_to_clear:
         map(remove, [glob.glob(J(x, '*')) for x in p])
-
-        
     pass
 
 
@@ -598,17 +591,14 @@ def main():
     # valid_renders, invalid_renders = render_actions(valid_renders)
     print("... found {} valid recordings and {} invalid recordings"
           " out of {} total files".format(
-              len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR)))
-          )
+            len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR))))
 
-
-    unfinished_renders = [ v for v in valid_renders if 
-            not len(glob.glob(J(v[1], '*.mp4')))
-    ]
+    unfinished_renders = [v for v in valid_renders if
+                          not len(glob.glob(J(v[1], '*.mp4')))
+                          ]
 
     print("... found {} unfinished renders out of {} valid renders"
-        .format(len(unfinished_renders), len(valid_renders)))
-
+          .format(len(unfinished_renders), len(valid_renders)))
 
     print("Rendering videos: ")
     clean_render_dirs()
@@ -620,7 +610,8 @@ def main():
         manager = ThreadManager(multiprocessing.Manager(), NUM_MINECRAFT_DIR, 0, 1)
         func = functools.partial(_render_videos, manager)
         num_rendered = list(
-            tqdm.tqdm(pool.imap_unordered(func, unfinished_renders), total=len(unfinished_renders), desc='Files', miniters=1,
+            tqdm.tqdm(pool.imap_unordered(func, unfinished_renders), total=len(unfinished_renders), desc='Files',
+                      miniters=1,
                       position=0, maxinterval=1, smoothing=0))
 
     print('Rendered {} new files!'.format(sum(num_rendered)))
