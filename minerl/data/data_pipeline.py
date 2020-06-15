@@ -274,17 +274,8 @@ class DataPipeline:
             # We know FOR SURE that the last video frame corresponds to the last state (from Universal.json).
             num_states = len(reward_vec) + 1
 
-            # TEMP - calculate number of frames, fastest when max_seq_len == -1
-            ret, frame_num = True, 0
-            while ret:
-                ret, _ = DataPipeline.read_frame(cap)
-                if ret:
-                    frame_num += 1
-
-            # max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
-
             max_frame_num = meta['true_video_frame_count']
-            assert max_frame_num == frame_num
+
             frames = []
             frame_num, stop_idx = 0, 0
 
