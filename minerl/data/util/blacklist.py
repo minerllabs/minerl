@@ -1,26 +1,15 @@
 import os
-import warnings
-from filelock import FileLock
+from minerl.data.util.constants import touch
 
 
-class Blacklist(set):
+class Blacklist:
 
     def __init__(self):
-        self.file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'blacklist.txt'))
-        super().__init__(open(self.file_name).read().splitlines())
+        self.file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'blacklist'))
 
     def add(self, other):
-        super().add(other)
-        self.save()
+        touch(os.path.join(self.file_name, other))
 
-    def save(self):
-        with FileLock(self.file_name):
-            disk = Blacklist()
-            warnings.warn(str(disk))
+    def __contains__(self, item):
+        os.path.exists(os.path.join(self.file_name, item))
 
-            warnings.warn(str(list(disk)))
-            self.union(disk)
-            warnings.warn(str(self))
-
-            out_file = open(self.file_name, 'w')
-            out_file.writelines([elem + '\n' for elem in list(self)])
