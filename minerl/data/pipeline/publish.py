@@ -192,7 +192,7 @@ def remove_initial_frames(universal):
 
 
 # 1. Construct data working dirs.
-def construct_data_dirs():
+def construct_data_dirs(black_list):
     """
     Constructs the render directories omitting
     elements on a blacklist.
@@ -402,7 +402,8 @@ def publish():
     """
     num_w = 96
 
-    valid_data = construct_data_dirs()
+    black_list = Blacklist()
+    valid_data = construct_data_dirs(black_list)
     print(valid_data)
 
     print("Publishing segments: ")
@@ -413,7 +414,7 @@ def publish():
         multiprocessing.freeze_support()
         with multiprocessing.Pool(num_w, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
             manager = ThreadManager(multiprocessing.Manager(), num_w, 1, 1)
-            black_list = Blacklist()
+            
             func = functools.partial(_render_data, DATA_DIR, manager, black_list)
             num_segments = list(
                 tqdm.tqdm(pool.imap_unordered(func, valid_data), total=len(valid_data), desc='Files', miniters=1,
