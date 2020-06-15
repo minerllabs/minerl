@@ -25,6 +25,7 @@ import tarfile
 
 import minerl.herobraine.envs as envs
 import minerl.herobraine.hero.handlers as handlers
+from minerl.data.util import Blacklist
 
 import minerl
 
@@ -52,6 +53,7 @@ from collections import OrderedDict
 from minerl.herobraine.wrappers.obfuscation_wrapper import Obfuscated
 
 FAILED_COMMANDS = []
+black_list = Blacklist()
 
 
 def flatten(d, parent_key='', sep='$'):
@@ -84,7 +86,7 @@ def calculate_frame_count(video_path):
         ret, _ = read_frame(cap)
         if ret:
             frame_num += 1
-    # TODO modify recording to have the correct video metadata (for other loading purposes)
+    # TODO modify recording to have the correct video metadata (for external loading)
     # cap.set number of frames (frame_number)
     return frame_num
 
@@ -201,15 +203,11 @@ def construct_data_dirs():
         os.makedirs(DATA_DIR)
 
     data_dirs = []
-    for experiment_folder in tqdm.tqdm(next(os.walk(DATA_DIR))[1], desc='Directories', position=0):
-        for experiment_dir in tqdm.tqdm(next(os.walk(J(DATA_DIR, experiment_folder)))[1], desc='Experiments',
-                                        position=1):
-            if not experiment_folder.startswith('MineRL') and \
-                    'tempting_capers_shapeshifter-14' not in experiment_folder:
-                # TODO: Add this to the list.
-                data_dirs.append((experiment_dir, experiment_folder))
-            # time.sleep(0.001)
-
+    for exp_folder in tqdm.tqdm(next(os.walk(DATA_DIR))[1], desc='Directories', position=0):
+        for experiment_dir in tqdm.tqdm(next(os.walk(J(DATA_DIR, exp_folder)))[1], desc='Experiments', position=1):
+            if not exp_folder.startswith('MineRL') \
+                    and experiment_dir not in black_list:
+                data_dirs.append((experiment_dir, exp_folder))
     return data_dirs
 
 
@@ -227,6 +225,11 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
     # Script to to pair actions with video recording
     # All times are in ms and we assume a actions list, a timestamp file, and a dis-synchronous mp4 video
 
+    # File-Names
+    segment_str = recording_dir[len('g1_'):]
+    if segment_str in black_list:
+        return 0
+
     # Generate Numpy
     source_folder = J(DATA_DIR, experiment_folder, recording_dir)
     recording_source = J(source_folder, 'recording.mp4')
@@ -239,10 +242,15 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
         env_spec for env_spec in envs.ENVS if env_spec.is_from_folder(experiment_folder)]
 
     for environment in filtered_environments:
-        dest_folder = J(output_root, environment.name, 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):]))
+        dest_folder = J(output_root, environment.name, 'v{}_{}'.format(PUBLISHER_VERSION, segment_str))
         recording_dest = J(dest_folder, 'recording.mp4')
         rendered_dest = J(dest_folder, 'rendered.npz')
         metadata_dest = J(dest_folder, 'metadata.json')
+
+        # Don't render if files are missing
+        if not E(source_folder) or not E(recording_source) or not E(universal_source or not E(metadata_source)):
+            black_list.add(segment_str)
+            return 0
 
         # TODO remove to incrementally render files - during testing re-render each time
         if E(J(dest_folder, 'rendered.npz')):
@@ -250,12 +258,6 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
         # Don't render again, ensure source exits
         if E(rendered_dest):
-            # TODO check universal_source exists
-            continue
-
-        # Don't render if files are missing
-        if not E(source_folder) or not E(recording_source) or not E(universal_source or not E(metadata_source)):
-            tqdm.tqdm.write('Files missing in ' + source_folder)
             continue
 
         # Load relevant handlers
@@ -288,19 +290,19 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                     tick_data = {}
                     for _prefix, hdlrs in [
                         ("observation", info_handlers),
-                        ("action", action_handlers)]:
+                        ("action", action_handlers)
+                    ]:
                         if _prefix not in tick_data:
                             tick_data[_prefix] = OrderedDict()
 
                         for handler in hdlrs:
                             # Apply the handler from_universal to the universal[tick]
                             val = handler.from_universal(universal[tick])
-                            assert val in handler.space, "{} is not in {} for handler {}".format(val, handler.space,
-                                                                                                 handler.to_string)
+                            assert val in handler.space, \
+                                "{} is not in {} for handler {}".format(val, handler.space, handler.to_string)
                             tick_data[_prefix][handler.to_string()] = val
 
                         # Perhaps we can wrap here
-                        # TODO: Apply wrapping.
                         if isinstance(environment, EnvWrapper):
                             if _prefix == "observation":
                                 tick_data[_prefix]['pov'] = environment.observation_space['pov'].no_op()
@@ -316,7 +318,7 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                         except KeyError:
                             published[k] = [v]
 
-                # Adjust the aciton one forward (recall that the action packet is one off.)
+                # Adjust the action one forward (recall that the action packet is one off.)
                 for k in published:
                     if k.startswith("action"):
                         published[k] = published[k][1:]
@@ -346,23 +348,15 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
 
             # published = {'action': action, 'reward': reward, 'info': info}
 
-        # TODO: Blacklist streams properly.
-        # Don't release ones with 1024 reward (they are bad streams)
-        if not 'Survival' in environment.name and not isinstance(environment, Obfuscated):
-            if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name:
-                print('skipping 1024 reward', environment.name)
-                continue
-            elif sum(published['reward']) < 64 and ('Obtain' not in environment.name):
-                print('skipping less than 64 reward', environment.name)
-                continue
-            elif sum(published['reward']) == 0.0:
-                print('skipping 0 reward', environment.name)
-                continue
-            elif sum(published['action$forward']) == 0:
-                print('skipping 0 forward', environment.name)
-                continue
-            elif sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
-                print('skipping 0 attack', environment.name)
+        # Don't release ones with 1024 reward (they are bad streams) and other smoke-tests
+        if 'Survival' not in environment.name and not isinstance(environment, Obfuscated):
+            # TODO these could be handlers instead!
+            if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name \
+                    or sum(published['reward']) < 64 and ('Obtain' not in environment.name) \
+                    or sum(published['reward']) == 0.0 \
+                    or sum(published['action$forward']) == 0 \
+                    or sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
+                black_list.add(segment_str)
                 continue
 
         # Setup destination root
@@ -405,44 +399,40 @@ def publish():
     """
     The main render script.
     """
+    num_w = 36
+
     valid_data = construct_data_dirs()
     print(valid_data)
 
     print("Publishing segments: ")
-    numSegments = []
+    num_segments = []
     if E('errors.txt'):
         os.remove('errors.txt')
     try:
-        numW = 36
-
         multiprocessing.freeze_support()
-        with multiprocessing.Pool(numW, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
-            manager = ThreadManager(multiprocessing.Manager(), numW, 1, 1)
+        with multiprocessing.Pool(num_w, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
+            manager = ThreadManager(multiprocessing.Manager(), num_w, 1, 1)
             func = functools.partial(_render_data, DATA_DIR, manager)
-            numSegments = list(
+            num_segments = list(
                 tqdm.tqdm(pool.imap_unordered(func, valid_data), total=len(valid_data), desc='Files', miniters=1,
                           position=0, maxinterval=1))
 
             # for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
-            #     numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
+            #     num_segments_rendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
     except Exception as e:
         if isinstance(e, KeyboardInterrupt):
             pool.terminate()
             pool.join()
             raise e
-        print('\n' * numW)
+        print('\n' * num_w)
         print("Exception in pool: ", type(e), e)
-        print('Vectorized {} files in total!'.format(sum(numSegments)))
+        print('Vectorized {} files in total!'.format(sum(num_segments)))
         raise e
-        if E('errors.txt'):
-            print('Errors:')
-            print(open('errors.txt', 'r').read())
-        return
 
-    numSegmentsRendered = sum(numSegments)
+    num_segments_rendered = sum(num_segments)
 
-    print('\n' * numW)
-    print('Vectorized {} files in total!'.format(numSegmentsRendered))
+    print('\n' * num_w)
+    print('Vectorized {} files in total!'.format(num_segments_rendered))
     if E('errors.txt'):
         print('Errors:')
         print(open('errors.txt', 'r').read())
