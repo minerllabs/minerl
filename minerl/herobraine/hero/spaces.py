@@ -48,6 +48,10 @@ class MineRLSpace(abc.ABC, gym.Space):
     def is_flattenable(self):
         return True
 
+    @abc.abstractmethod
+    def sample(self, bdim):
+        pass
+
 
 class Tuple(gym.spaces.Tuple, MineRLSpace):
 
@@ -128,6 +132,49 @@ class Box(gym.spaces.Box, MineRLSpace):
         # Clips the vector x between the vectors self.low and self.high.
         return np.clip(x, self.low, self.high)
 
+    def sample(self, bs=None):
+        """
+        Generates a single random sample inside of the Box. 
+
+        In creating a sample of the box, each coordinate is sampled according to
+        the form of the interval:
+        
+        * [a, b] : uniform distribution 
+        * [a, oo) : shifted exponential distribution
+        * (-oo, b] : shifted negative exponential distribution
+        * (-oo, oo) : normal distribution
+        """
+
+        bdim = () if bs is None else (bs,)
+
+        high = self.high if self.dtype.kind == 'f' \
+                else self.high.astype('int64') + 1
+        sample = np.empty(bdim + self.shape)
+
+        # Masking arrays which classify the coordinates according to interval
+        # type
+        unbounded   = ~self.bounded_below & ~self.bounded_above
+        upp_bounded = ~self.bounded_below &  self.bounded_above
+        low_bounded =  self.bounded_below & ~self.bounded_above
+        bounded     =  self.bounded_below &  self.bounded_above
+        
+        
+        # Vectorized sampling by interval type
+        sample[..., unbounded] = self.np_random.normal(
+                size=bdim + unbounded[unbounded].shape)
+
+        sample[..., low_bounded] = self.np_random.exponential(
+            size=bdim + low_bounded[low_bounded].shape) + self.low[low_bounded]
+        
+        sample[..., upp_bounded] = -self.np_random.exponential(
+            size=bdim + upp_bounded[upp_bounded].shape) - self.high[upp_bounded]
+        
+        sample[..., bounded] = self.np_random.uniform(low=self.low[bounded], 
+                                            high=high[bounded],
+                                            size=bdim + bounded[bounded].shape)
+
+        return sample.astype(self.dtype)
+
 
     def __repr__(self):
         # Prints the name of the class and its information
@@ -159,6 +206,10 @@ class Discrete(gym.spaces.Discrete, MineRLSpace):
     def unmap(self, x):
         return np.array(np.argmax(x,axis=-1), dtype=self.dtype)
 
+    def sample(self, bs=None):
+        bdim = () if bs is None else (bs,)
+        return self.np_random.randint(self.n,size=bdim)
+
 
 class Enum(Discrete, MineRLSpace):
     """
@@ -185,7 +236,7 @@ class Enum(Discrete, MineRLSpace):
         self.values = np.array(sorted(values))
         self.value_map = dict(zip(self.values, range(len(values))))
 
-    def sample(self) -> int:
+    def sample(self, bs=None) -> int:
         """Samples a random index for one of the enum types.
 
         ```
@@ -195,7 +246,7 @@ class Enum(Discrete, MineRLSpace):
         Returns:
             int:  A random index for one of the enum types.
         """
-        return self.values[super().sample()]
+        return self.values[super().sample(bs)]
 
     def flat_map(self, x):
         return super().flat_map(self[x])
@@ -266,6 +317,12 @@ class Dict(gym.spaces.Dict, MineRLSpace):
                 else v
             ) for k, v in self.spaces.items() if not v.is_flattenable()
         })
+
+    def sample(self, bs=None):
+        return OrderedDict([
+           ( k, v.sample(bs)) for k, v in self.spaces.items()
+        ])
+    
 
     @property
     def unflattened(self):
@@ -381,6 +438,9 @@ class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):
             cur_index += n
         return np.concatenate(out,axis=-1).astype(self.dtype)
 
+    def sample(self, bs=None):
+        bdim = () if bs is None else (bs,)
+        return (self.np_random.random_sample(bdim + self.nvec.shape)*self.nvec).astype(self.dtype)
 
 class Text(gym.Space):
     """
@@ -441,8 +501,8 @@ class DiscreteRange(Discrete):
         self.end = end
         super().__init__(end - begin)
 
-    def sample(self):
-        return super().sample() + self.begin
+    def sample(self, bs=None):
+        return super().sample(bs) + self.begin
 
     def contains(self, x):
         return super().contains(x - self.begin)

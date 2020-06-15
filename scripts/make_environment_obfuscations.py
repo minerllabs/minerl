@@ -129,10 +129,13 @@ def compute_losses(obf_net : ObfNet, x : th.Tensor, z : th.Tensor, discrete_subs
     reconstruction_from_random_latent_with_logits = obf_net.decoder(z)
     
     reconstruction_from_random_latent = obf_net.subset_softmax(reconstruction_from_random_latent_with_logits)
+    recode_from_random_latent = obf_net.encoder(reconstruction_from_random_latent)
+    orig_recode = obf_net.decoder(recode_from_random_latent)
 
 
     discrete_loss = 0
     continuous_loss = 0
+    recode_continuous_loss =0
     # Construct discrete and continuous losses
     for a,b in discrete_subset:
         discrete_loss += th.nn.functional.cross_entropy(
@@ -140,12 +143,19 @@ def compute_losses(obf_net : ObfNet, x : th.Tensor, z : th.Tensor, discrete_subs
             th.argmax(x[..., a:b], axis=-1),
         ).mean()
 
-    mult = 200
+    mult = 1000
     for a,b in continuous_subset:
         continuous_loss+= th.nn.functional.mse_loss(
             mult*reconstruction_from_x_with_logits[..., a:b],
             mult*x[..., a:b]
         ).mean()
+        recode_continuous_loss+= th.nn.functional.mse_loss(
+            mult*reconstruction_from_random_latent[..., a:b],
+            mult*orig_recode[..., a:b]
+        ).mean()
+
+    mult_recode = 100
+
 
     return dict(
         # Auto regressive loss 
@@ -161,7 +171,15 @@ def compute_losses(obf_net : ObfNet, x : th.Tensor, z : th.Tensor, discrete_subs
         x_of_z_hinge_loss =  (
             th.nn.functional.relu(reconstruction_from_random_latent - 1).mean() # don't be more than 1
             + th.nn.functional.relu(-reconstruction_from_random_latent).mean() # don't be less than 0
-        )
+        ),
+        recode_continuous_loss = recode_continuous_loss,
+
+        # # I wonder how hadding this will improve the loss.
+        # recode_from_random_latent = (
+        #     th.nn.functional.mse_loss(
+        #         mult_recode*recode_from_random_latent, mult_recode*z
+        #     ).mean()
+        # )
     )
 
 
@@ -175,6 +193,8 @@ def train(
     discrete_subset,
     continuous_subset,
     unwrap_function,
+    save_name,
+    save_freq,
     log_every=100):
     # Make an adam optimizer and use it to apply the gradient of the
     # auto-encoder to the data.
@@ -205,7 +225,7 @@ def train(
         # Encodes and decodes an x from train_iter.
         with th.no_grad():
             x,z = next(test_iter)
-            x_to_test = x[0].unsqueeze(0)
+            x_to_test = x[-1].unsqueeze(0)
             z_of_x = obf_net.encoder(x_to_test)
             x_reconstruct = obf_net.subset_softmax(obf_net.decoder(z_of_x))
             
@@ -245,6 +265,11 @@ def train(
             print(tabulate(stats.items(), ["stat", "value"], tablefmt='fancy_grid'))
             run_test_encoding()
 
+        if step % save_freq == 0:
+            print("SAVING SAVING SAVING SAVING")
+            obf_net.numpy_pickle(save_name)
+            
+
 
 def generate_embedding(
         orig_space,
@@ -255,6 +280,7 @@ def generate_embedding(
         continuous_subset,
         unwrap_function,
         aux_data_iterator=None,
+        save_name='secret.compat',
         use_fast_sampling=False):
     """
     Trains an embedding
@@ -275,15 +301,18 @@ def generate_embedding(
 
     def get_test_iter(num_to_test):
         while True:
-            x_samples = next(aux_data_iterator)
-            z_samples = np.array([latent_space.sample() for _ in range(num_to_test)])
+            x_samples = sample_from_vector_space(num_to_test)
+            z_samples = (np.random.rand(num_to_test, latent_dim)*2 -1)
             yield (x_samples, z_samples)
 
 
     def get_train_iter(batch_size):
         while True:
-            yield  (np.concatenate([np.random.rand(batch_size, true_dim)[:32], next(aux_data_iterator)], axis=0), #(np.array([sample_from_env() for _ in range(batch_size)]),  
-                np.random.rand(batch_size, latent_dim)*2 -1)
+            yield  np.concatenate(
+                    [sample_from_vector_space(batch_size//2),
+                    next(aux_data_iterator)], axis=0 
+             ), \
+                (np.random.rand(batch_size, latent_dim)*2 -1)
 
     def convert_to_torch(train_iter):
         """
@@ -309,6 +338,8 @@ def generate_embedding(
         discrete_subset=discrete_subset,
         continuous_subset=continuous_subset,
         unwrap_function=unwrap_function,
+        save_freq=10000,
+        save_name=save_name,
         log_every=500
 
     )
@@ -348,7 +379,7 @@ import tqdm
 def aux_data_iterator(original_env, vector_env, types='action'):
     g = (lambda x: x.common_action_space) if types == 'action' else (lambda x: x.common_observation_space)
     dat = minerl.data.make(original_env.name)  
-    for sarsd in (dat.batch_iter(16, 2, -1, 16)):
+    for sarsd in (dat.batch_iter(16, 2, -1, 32)):
         if types == 'action':
             yield g(vector_env).flat_map(sarsd[1]).reshape(32, -1)
         else:
@@ -370,11 +401,12 @@ def main(env_to_generate=MINERL_OBTAIN_DIAMOND_OBF_V0):
             vector_env.action_space.spaces['vector'], 
             env_to_generate.action_space.spaces['vector'],
             (
-                lambda: vector_env.common_action_space.flat_map(vector_env.common_action_space.sample())
+                lambda b: vector_env.common_action_space.flat_map(vector_env.common_action_space.sample(b))
             ),
             *get_discrete_and_continuous_subsets(vector_env, types='action'),
             vector_env.common_action_space.unmap,
-            aux_data_iterator(original_env, vector_env, types='action'),
+            aux_data_iterator(original_env, vector_env, types='action'), 
+            save_name='act.secret.compat',
             use_fast_sampling=True)
         action_obf_net.numpy_pickle('action.secret.compat')
     
@@ -385,13 +417,13 @@ def main(env_to_generate=MINERL_OBTAIN_DIAMOND_OBF_V0):
             vector_env.observation_space,
             vector_env.observation_space.spaces['vector'], 
             env_to_generate.observation_space.spaces['vector'],
-            lambda: vector_env.common_observation_space.flat_map(vector_env.common_observation_space.sample()),
+            lambda b: vector_env.common_observation_space.flat_map(vector_env.common_observation_space.sample(b)),
             *get_discrete_and_continuous_subsets(vector_env, types='observation'),
             functools.partial(vector_env.common_observation_space.unmap, skip=True),
             aux_data_iterator(original_env, vector_env, types='observation'),
+            save_name='obs.secret.compat',
             use_fast_sampling=True)
         # Now pickle the obf net.
-        observation_obf_net.numpy_pickle('obs.secret.compat')
 
 if __name__ ==  '__main__':
     main()
