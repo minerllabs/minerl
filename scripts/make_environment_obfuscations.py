@@ -171,10 +171,10 @@ def compute_losses(obf_net: ObfNet, x: th.Tensor, z: th.Tensor, discrete_subset,
         # Hinge loss.
         # x_hinge_loss = th.nn.functional.relu(th.abs(reconstruction_from_x) - 1).mean(),
         # latent space is -1,1
-        z_of_x_hinge_loss=th.nn.functional.relu(th.abs(z_of_x) - 1).mean(),
+        z_of_x_hinge_loss=10*th.nn.functional.relu(th.abs(z_of_x) - 1).mean(),
         # original space is 0,1
         # hinge loss only necessary for continuous
-        x_of_z_hinge_loss =  (
+        x_of_z_hinge_loss =  10*(
             th.nn.functional.relu(reconstruction_from_random_latent - 1).mean() # don't be more than 1
             + th.nn.functional.relu(-reconstruction_from_random_latent).mean() # don't be less than 0
         ),
@@ -376,7 +376,7 @@ def get_discrete_and_continuous_subsets(vector_env, types='action'):
             lst_to_add.append((initial_index, initial_index + cur_space.flattened.shape[0]))
 
     get_subsets(orig_space)
-
+    return discrete_subset, cts_subset
 import tqdm
 def aux_data_iterator(original_env, vector_env, types='action'):
     g = (lambda x: x.common_action_space) if types == 'action' else (lambda x: x.common_observation_space)

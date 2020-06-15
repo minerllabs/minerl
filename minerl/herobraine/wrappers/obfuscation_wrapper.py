@@ -72,8 +72,8 @@ class Obfuscated(EnvWrapper):
         # TODO: This code should be centralized with the make_obfuscator network.
 
         assert os.path.exists(obfuscator_dir), "{} not found.".format(obfuscator_dir)
-        assert set(os.listdir(obfuscator_dir)) == {OBSERVATION_OBFUSCATOR_FILE_NAME, ACTION_OBFUSCATOR_FILE_NAME,
-                                                   SIZE_FILE_NAME}
+        assert set(os.listdir(obfuscator_dir)).issuperset( {OBSERVATION_OBFUSCATOR_FILE_NAME, ACTION_OBFUSCATOR_FILE_NAME,
+                                                   SIZE_FILE_NAME})
 
         # TODO: store size within the pdill.
         with open(os.path.join(obfuscator_dir, SIZE_FILE_NAME), 'r') as f:
