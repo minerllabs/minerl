@@ -148,7 +148,7 @@ def compute_losses(obf_net: ObfNet, x: th.Tensor, z: th.Tensor, discrete_subset,
             th.argmax(x[..., a:b], axis=-1),
         ).mean()
 
-    mult = 1000 # for aciton # 500 for observation.
+    mult = 100 # for aciton # 500 for observation.
     for a,b in continuous_subset:
         continuous_loss+= th.nn.functional.mse_loss(
             mult*reconstruction_from_x_with_logits[..., a:b],
@@ -165,7 +165,7 @@ def compute_losses(obf_net: ObfNet, x: th.Tensor, z: th.Tensor, discrete_subset,
 
     return dict(
         # Auto regressive loss 
-        discrete_auto_encoder_loss=discrete_loss, 
+        discrete_auto_encoder_loss=10*discrete_loss, 
         continuous_auto_encoder_loss=continuous_loss,
         # auto_encoder_loss = th.nn.functional.mse_loss(x, reconstruction_from_random_latent_with_logits),
         # Hinge loss.
