@@ -397,6 +397,7 @@ class MineRLEnv(gym.Env):
         action_in['camera'] = [0, np.clip(action_in['camera'][1], -5, 5)]
         print(action_in)
 
+        # TODO: Decide if we want to remove assertions.
         action_str = []
         for act in action_in:
             # Process enums.

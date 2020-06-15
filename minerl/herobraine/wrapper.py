@@ -2,6 +2,7 @@ import abc
 from collections import OrderedDict
 
 from minerl.herobraine.env_spec import EnvSpec
+import minerl
 
 
 class EnvWrapper(EnvSpec):
@@ -26,11 +27,11 @@ class EnvWrapper(EnvSpec):
         if isinstance(self.env_to_wrap, EnvWrapper):
             obs = self.env_to_wrap.wrap_observation(obs)
 
-        assert obs in self.env_to_wrap.observation_space
+        if minerl.utils.test.SHOULD_ASSERT: assert obs in self.env_to_wrap.observation_space
 
         wrapped_obs = self._wrap_observation(obs)
 
-        assert wrapped_obs in self.observation_space
+        if minerl.utils.test.SHOULD_ASSERT: assert wrapped_obs in self.observation_space
         return wrapped_obs
 
     @abc.abstractmethod
@@ -41,11 +42,11 @@ class EnvWrapper(EnvSpec):
         if isinstance(self.env_to_wrap, EnvWrapper):
             act = self.env_to_wrap.wrap_action(act)
 
-        assert act in self.env_to_wrap.action_space
+        if minerl.utils.test.SHOULD_ASSERT: assert act in self.env_to_wrap.action_space
 
         wrapped_act = self._wrap_action(act)
 
-        assert wrapped_act in self.action_space
+        if minerl.utils.test.SHOULD_ASSERT: assert wrapped_act in self.action_space
         return wrapped_act
 
     @abc.abstractmethod
@@ -56,9 +57,9 @@ class EnvWrapper(EnvSpec):
         # self = obf
         # env_towrap = vect
         # obs = tofu_obs
-        assert obs in self.observation_space
+        if minerl.utils.test.SHOULD_ASSERT: assert obs in self.observation_space
         obs = self._unwrap_observation(obs)
-        assert obs in self.env_to_wrap.observation_space
+        if minerl.utils.test.SHOULD_ASSERT: assert obs in self.env_to_wrap.observation_space
         if isinstance(self.env_to_wrap, EnvWrapper):
             obs = self.env_to_wrap.unwrap_observation(obs)
         return obs
@@ -68,9 +69,9 @@ class EnvWrapper(EnvSpec):
         pass
 
     def unwrap_action(self, act: OrderedDict) -> OrderedDict:
-        assert act in self.action_space
+        if minerl.utils.test.SHOULD_ASSERT: assert act in self.action_space
         act = self._unwrap_action(act)
-        assert act in self.env_to_wrap.action_space
+        if minerl.utils.test.SHOULD_ASSERT: assert act in self.env_to_wrap.action_space
         # Todo: remove redundant assertion.
 
         if isinstance(self.env_to_wrap, EnvWrapper):

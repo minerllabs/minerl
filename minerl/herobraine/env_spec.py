@@ -22,7 +22,7 @@ class EnvSpec(abc.ABC):
 
         self.observables = self.create_observables()
         self.actionables = self.create_actionables()
-        # assert that the observables (list) have no duplicate to_strings
+        # check that the observables (list) have no duplicate to_strings
         assert len([o.to_string() for o in self.observables]) == len(set([o.to_string() for o in self.observables]))
         assert len([a.to_string() for a in self.actionables]) == len(set([a.to_string() for a in self.actionables]))
 

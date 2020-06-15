@@ -137,7 +137,7 @@ def remove_initial_frames(universal):
                 on_ground_for += 1
                 if on_ground_for >= 8:
                     start_tick = tick
-                    print('\nGround for a while at {} loc {}'.format(tick, obs))
+                    # print('\nGround for a while at {} loc {}'.format(tick, obs))
                     break
             else:
                 on_ground_for = 0
@@ -324,25 +324,27 @@ def render_data(output_root, recording_dir, experiment_folder, lineNum=None):
                         published[k] = published[k][1:]
 
             except NotImplementedError as err:
-                print('Exception:', repr(err), 'found with environment:', environment.name)
+                print('Exception:', str(err), 'found with environment:', environment.name)
                 raise err
             except KeyError as err:
                 print("Key error in file - check from_universal for handlers")
-                print(repr(err))
+                print((err))
                 continue
             except AssertionError as e:
                 # Warn the user if some of the observatiosn or actions don't fall in the gym.space 
                 # (The space checking assertion error from above was raised)
-                print("Warning!" + repr(e))
+                print("Warning!" + str(e))
+                import traceback
+                traceback.print_exc()
                 continue
             except Exception as e:
-                print("caught exception:", repr(e))
+                print("caught exception:", str(e))
                 for hdl in all_handlers:
                     try:
                         for tick in universal:
                             hdl.from_universal(universal[tick])
                     except Exception as f:
-                        print("Exception <", repr(f), "> for command handler:", hdl)
+                        print("Exception <", str(f), "> for command handler:", hdl)
                         continue
                 raise e
 
@@ -399,7 +401,7 @@ def publish():
     """
     The main render script.
     """
-    num_w = 36
+    num_w = 96
 
     valid_data = construct_data_dirs()
     print(valid_data)
