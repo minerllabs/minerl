@@ -215,33 +215,6 @@ class DataPipeline:
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
 
-                # Hotfix for incorrect success metadata from server [TODO: remove]
-                reward_threshold = {
-                    'MineRLTreechop-v0': 64,
-                    'MineRLNavigate-v0': 100,
-                    'MineRLNavigateExtreme-v0': 100,
-                    'MineRLObtainIronPickaxe-v0': 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
-                    'MineRLObtainDiamond-v0': 1024 + 256 + 128 + 64 + 32 + 32 + 16 + 8 + 4 + 4 + 2 + 1,
-                }
-                reward_list = {
-                    'MineRLNavigateDense-v0': [100],
-                    'MineRLNavigateExtreme-v0': [100],
-                    'MineRLObtainIronPickaxeDense-v0': [256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
-                    'MineRLObtainDiamondDense-v0': [1024, 256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
-                }
-
-                try:
-                    meta['success'] = meta['total_reward'] >= reward_threshold[env_str]
-                except KeyError:
-                    try:
-                        # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
-                        # print(list(state.keys()))
-                        quantized_reward_vec = state['reward'].astype(np.int) // 8
-                        meta['success'] = all(reward // 8 in quantized_reward_vec for reward in reward_list[env_str])
-                    except KeyError:
-
-                        logger.warning("success in metadata may be incorrect")
-
             action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action$')])
             reward_vec = state['reward']
             info_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('observation$')])
