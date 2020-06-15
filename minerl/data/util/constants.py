@@ -91,7 +91,6 @@ GENERATE_VERSION = '1'
 
 
 
-
 def touch(path):
     with open(path, 'w'):
         pass
