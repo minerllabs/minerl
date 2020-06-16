@@ -1,6 +1,6 @@
 import os.path
 import urllib
-
+import atexit
 import requests
 import shutil
 import hashlib
@@ -170,34 +170,53 @@ class OrderedJobStreamer(threading.Thread):
         self.max_workers = max_workers
 
     def _ordered_job_streamer(self):
-        with self.executor(self.max_workers) as ex:
-            try:
 
-                results = queue.Queue()
-                # Enqueue jobs
-                for arg in tqdm.tqdm(self.job_args):
-                    results.put(ex.submit(self.job, arg))
+        
+        ex = self.executor(self.max_workers)
 
-                # Dequeu jobs and push them to a queue.
-                while not results.empty() and not self._should_exit:
-                    future = results.get()
-                    if future.exception():
-                        raise future.exception()
-                    res = future.result()
+        def end_processes():
+            if ex is not None and ex._processes is not None:
+                for process in  ex._processes.values():
+                    try:
+                        process.kill()
+                    except:
+                        print("couldn;t kill process")
+                        pass
+            
+            ex.shutdown(wait=False)
+        atexit.register(end_processes)
 
-                    while not self._should_exit:
-                        try:
-                            self.output_queue.put(res, block=True, timeout=1)
-                            break
-                        except queue.Full:
-                            pass
+        try:
+            results = queue.Queue()
+            # Enqueue jobs
+            for arg in tqdm.tqdm(self.job_args):
+                results.put(ex.submit(self.job, arg))
 
-                return
-            except Exception:
-                # abort workers immediately if anything goes wrong
-                for process in ex._processes.values():
-                    process.kill()
-                raise
+            # Dequeu jobs and push them to a queue.
+            while not results.empty() and not self._should_exit:
+                future = results.get()
+                if future.exception():
+                    raise future.exception()
+                res = future.result()
+
+                while not self._should_exit:
+                    try:
+                        self.output_queue.put(res, block=True, timeout=1)
+                        break
+                    except queue.Full:
+                        pass
+                        
+            return
+        except Exception:
+            # abort workers immediately if anything goes wrong
+            for process in ex._processes.values():
+                process.kill()
+            
+            raise
+        finally:
+            ex.shutdown(wait=False)
+
+
 
     def shutdown(self):
         self._should_exit = True
