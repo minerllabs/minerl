@@ -34,17 +34,18 @@ from typing import Iterable
 import gym
 import gym.envs.registration
 import gym.spaces
-import minerl.env.spaces
 import numpy as np
 from lxml import etree
 from minerl.env import comms
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger_thread
 
+import minerl.herobraine.hero.spaces as spaces
+from minerl.herobraine.wrapper import EnvWrapper
+
 logger = logging.getLogger(__name__)
 
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
-
 
 
 class EnvException(Exception):
@@ -71,7 +72,8 @@ class MissionInitException(Exception):
 
 MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
-MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv' # Default id for a MineRLEnv
+MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv'  # Default id for a MineRLEnv
+
 
 class MineRLEnv(gym.Env):
     """The MineRLEnv class.
@@ -100,7 +102,7 @@ class MineRLEnv(gym.Env):
 
     STEP_OPTIONS = 0
 
-    def __init__(self, xml, observation_space, action_space, port=None, noop_action=None, docstr=None):
+    def __init__(self, xml, observation_space, action_space, env_spec, port=None, noop_action=None, docstr=None):
         self.action_space = None
         self.observation_space = None
         self._default_action = noop_action
@@ -114,7 +116,6 @@ class MineRLEnv(gym.Env):
         self.resets = 0
         self.ns = '{http://ProjectMalmo.microsoft.com}'
         self.client_socket = None
-
 
         self.exp_uid = ""
         self.done = True
@@ -131,10 +132,9 @@ class MineRLEnv(gym.Env):
 
         self._already_closed = False
         self.instance = self._get_new_instance(port)
-
+        self.env_spec = env_spec
 
         self._setup_spaces(observation_space, action_space)
-
 
         self.resets = 0
         self.done = True
@@ -148,22 +148,21 @@ class MineRLEnv(gym.Env):
             instance = InstanceManager.add_existing_instance(port)
         else:
             instance = InstanceManager.get_instance(os.getpid())
-        
+
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
-        
+
         instance.launch()
         return instance
-
 
     def _setup_spaces(self, observation_space, action_space):
         self.action_space = action_space
         self.observation_space = observation_space
 
         def map_space(space):
-            if isinstance(space, gym.spaces.Discrete) or isinstance(space, minerl.env.spaces.Enum):
+            if isinstance(space, spaces.Discrete) or isinstance(space, spaces.Enum):
                 return 0
-            elif isinstance(space, gym.spaces.Box):
+            elif isinstance(space, spaces.Box):
                 return np.zeros(shape=space.shape, dtype=space.dtype)
             else:
                 try:
@@ -171,6 +170,7 @@ class MineRLEnv(gym.Env):
                 except NameError:
                     raise ValueError(
                         'Specify non-None default_action in gym.register or extend all action spaces with default() method')
+
         if self._default_action is None:
             self._default_action = {key: map_space(
                 space) for key, space in action_space.spaces.items()}
@@ -178,9 +178,10 @@ class MineRLEnv(gym.Env):
         def noop_func(a):
             return deepcopy(self._default_action)
 
+        # Todo: Use space noops.
+
         boundmethd = _bind(self.action_space, noop_func)
         self.action_space.noop = boundmethd
-
 
     def init(self):
         """Initializes the MineRL Environment.
@@ -227,7 +228,6 @@ class MineRLEnv(gym.Env):
         else:
             self.exp_uid = exp_uid
 
-        
         # Force single agent
         self.agent_count = 1
         turn_based = self.xml.find(
@@ -275,7 +275,7 @@ class MineRLEnv(gym.Env):
         self.height = int(video_producer.find(self.ns + 'Height').text)
         want_depth = video_producer.attrib["want_depth"]
         self.depth = 4 if want_depth is not None and (
-            want_depth == "true" or want_depth == "1" or want_depth is True) else 3
+                want_depth == "true" or want_depth == "1" or want_depth is True) else 3
         # print(etree.tostring(self.xml))
 
         self.has_init = True
@@ -304,7 +304,7 @@ class MineRLEnv(gym.Env):
                 (self.height, self.width, self.depth), dtype=np.uint8)
         else:
             pov = pov.reshape((self.height, self.width, self.depth))[
-                ::-1, :, :]
+                  ::-1, :, :]
 
         if info:
             info = json.loads(info)
@@ -313,16 +313,29 @@ class MineRLEnv(gym.Env):
 
         # Ensure mainhand observations are valid
         try:
-            if info['equipped_items']['mainhand'] not in self.observation_space.spaces['equipped_items'].spaces['mainhand'].spaces['type']:
-                info['equipped_items']['mainhand']['type'] = self.observation_space.spaces['equipped_items'].spaces['mainhand'].spaces['type'].values[-1]    
+            info['equipped_items.mainhand.type'] = info['equipped_items']['mainhand']['type']
+            info['equipped_items.mainhand.damage'] = np.array(info['equipped_items']['mainhand']['damage'])
+            info['equipped_items.mainhand.maxDamage'] = np.array(info['equipped_items']['mainhand']['maxDamage'])
+        except Exception as e:
+            if 'equipped_items' in info:
+                del info['equipped_items']
+
+        bottom_env_spec = self.env_spec
+        while isinstance(bottom_env_spec, EnvWrapper):
+            bottom_env_spec = bottom_env_spec.env_to_wrap
+
+        try:
+            if info['equipped_items.mainhand.type'] not in bottom_env_spec.observation_space.spaces[
+                    'equipped_items.mainhand.type']:
+                info['equipped_items.mainhand.type'] = "other"  # Todo: use handlers. TODO: USE THEM<
         except Exception as e:
             pass
         # Process Info: (HotFix until updated in Malmo.)
-        if "inventory" in info and "inventory" in self.observation_space.spaces:
-            inventory_spaces = self.observation_space.spaces['inventory'].spaces
+        if "inventory" in info and "inventory" in bottom_env_spec.observation_space.spaces:
+            inventory_spaces = bottom_env_spec.observation_space.spaces['inventory'].spaces
 
             items = inventory_spaces.keys()
-            inventory_dict = {k: 0 for k in inventory_spaces}
+            inventory_dict = {k: np.array(0) for k in inventory_spaces}
             # TODO change to maalmo
             for stack in info['inventory']:
                 if 'type' in stack and 'quantity' in stack:
@@ -338,36 +351,34 @@ class MineRLEnv(gym.Env):
                         # We only care to observe what was specified in the space.
                         continue
             info['inventory'] = inventory_dict
-        elif "inventory" in self.observation_space.spaces and not "inventory" in info:
+        elif "inventory" in bottom_env_spec.observation_space.spaces and not "inventory" in info:
             # logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
             # logger.warning(info)
             pass
 
-
         info['pov'] = pov
 
-        def correction(out):
-            if isinstance(out, dict) or isinstance(out, collections.OrderedDict):
-                for k in out:
-                    out[k] = correction(out)
-            else:
-                return out*0
+        obs_dict = bottom_env_spec.observation_space.no_op()
 
-        def process_dict(space, info_dict):
-            if isinstance(space, gym.spaces.Dict):
-                out_dict = {}
-                for k in space.spaces:
-                    if k in info_dict:
-                        out_dict[k] = process_dict(space.spaces[k], info_dict[k])
+        # A function which updates a nested dictionary.
+        def recursive_update(nested_dict, nested_update):
+            for k, v in nested_update.items():
+                if k in nested_dict:
+                    if isinstance(v, collections.Mapping):
+                        r = recursive_update(nested_dict.get(k, {}), v)
+                        nested_dict[k] = r
                     else:
-                        out_dict[k] = correction(space.spaces[k].sample())
-                return out_dict
-            else:
-                return info_dict
+                        nested_dict[k] = np.array(v)
+            return nested_dict
 
-        obs_dict = process_dict(self.observation_space, info)
+        obs_dict = recursive_update(obs_dict, info)
 
         self._last_pov = obs_dict['pov']
+
+        # Now we wrap
+        if isinstance(self.env_spec, EnvWrapper):
+            obs_dict = self.env_spec.wrap_observation(obs_dict)
+
         return obs_dict
 
     def _process_action(self, action_in) -> str:
@@ -375,19 +386,30 @@ class MineRLEnv(gym.Env):
         Process the actions into a proper command.
         """
         action_in = deepcopy(action_in)
+
+        if isinstance(self.env_spec, EnvWrapper):
+            action_in = self.env_spec.unwrap_action(action_in)
+
+        bottom_env_spec = self.env_spec
+        while isinstance(bottom_env_spec, EnvWrapper):
+            bottom_env_spec = bottom_env_spec.env_to_wrap
+
+
+        # TODO: Decide if we want to remove assertions.
         action_str = []
         for act in action_in:
             # Process enums.
-            if isinstance(self.action_space.spaces[act], minerl.env.spaces.Enum):
-                if isinstance(action_in[act], int):
-                    action_in[act] = self.action_space.spaces[act].values[action_in[act]]
+            if isinstance(bottom_env_spec.action_space.spaces[act], spaces.Enum):
+                if isinstance(action_in[act],   int):
+                    action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
                 else:
                     assert isinstance(
                         action_in[act], str), "Enum action {} must be str or int".format(act)
-                    assert action_in[act] in self.action_space.spaces[act].values, "Invalid value for enum action {}, {}".format(
+                    assert action_in[act] in bottom_env_spec.action_space.spaces[
+                        act].values, "Invalid value for enum action {}, {}".format(
                         act, action_in[act])
 
-            elif isinstance(self.action_space.spaces[act], gym.spaces.Box):
+            elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Box):
                 subact = action_in[act]
                 assert not isinstance(
                     subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
@@ -425,13 +447,11 @@ class MineRLEnv(gym.Env):
             # We don't force the same seed every episode, you gotta send it yourself queen.
             self._seed = None
 
-    @retry
     def _start_up(self):
         self.resets += 1
 
         try:
             if not self.client_socket:
-
                 logger.debug("Creating socket connection!")
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -473,7 +493,7 @@ class MineRLEnv(gym.Env):
             if self.instance:
                 self.instance.kill()
             self.instance = self._get_new_instance()
-                
+
             self.had_to_clean = False
         else:
             self.had_to_clean = True
@@ -533,8 +553,8 @@ class MineRLEnv(gym.Env):
             if not self.done:
 
                 step_message = "<Step" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
-                    malmo_command + \
-                    "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
+                               malmo_command + \
+                               "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
 
                 # Send Actions.
                 comms.send_message(self.client_socket, step_message.encode())
@@ -583,8 +603,8 @@ class MineRLEnv(gym.Env):
                         scale = self.maxwidth / width
                         width = int(scale * width)
                         height = int(scale * height)
-                    self.window = pyglet.window.Window(width=width, height=height, 
-                        display=self.display, vsync=False, resizable=True)            
+                    self.window = pyglet.window.Window(width=width, height=height,
+                                                       display=self.display, vsync=False, resizable=True)
                     self.width = width
                     self.height = height
                     self.isopen = True
@@ -598,13 +618,13 @@ class MineRLEnv(gym.Env):
                     def on_close():
                         self.isopen = False
 
-            self.viewer = ScaledWindowImageViewer(self.width*4, self.height*4)
+            self.viewer = ScaledWindowImageViewer(self.width * 4, self.height * 4)
         self.viewer.imshow(obs)
         return self.viewer.isopen
 
     def render(self, mode='human'):
         if mode == 'human' and (
-            not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
+                not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
             self._renderObs(self._last_pov)
         return self._last_pov
 
@@ -706,7 +726,6 @@ class MineRLEnv(gym.Env):
                 logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
                 time.sleep(1)
 
-
     def _get_token(self):
         return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
 
@@ -731,3 +750,131 @@ def _bind(instance, func, as_name=None):
     bound_method = func.__get__(instance, instance.__class__)
     setattr(instance, as_name, bound_method)
     return bound_method
+
+
+class TraceRecording(object):
+    _id_counter = 0
+
+    def __init__(self, directory=None):
+        """
+        Create a TraceRecording, writing into directory
+        """
+
+        if directory is None:
+            directory = os.path.join('/tmp', 'openai.gym.{}.{}'.format(time.time(), os.getpid()))
+            os.mkdir(directory)
+
+        self.directory = directory
+        self.file_prefix = 'openaigym.trace.{}.{}'.format(self._id_counter, os.getpid())
+        TraceRecording._id_counter += 1
+
+        self.closed = False
+
+        self.actions = []
+        self.observations = []
+        self.rewards = []
+        self.episode_id = 0
+
+        self.buffered_step_count = 0
+        self.buffer_batch_size = 100
+
+        self.episodes_first = 0
+        self.episodes = []
+        self.batches = []
+
+    def add_reset(self, observation):
+        assert not self.closed
+        self.end_episode()
+        self.observations.append(observation)
+
+    def add_step(self, action, observation, reward):
+        assert not self.closed
+        self.actions.append(action)
+        self.observations.append(observation)
+        self.rewards.append(reward)
+        self.buffered_step_count += 1
+
+    def end_episode(self):
+        """
+        if len(observations) == 0, nothing has happened yet.
+        If len(observations) == 1, then len(actions) == 0, and we have only called reset and done a null episode.
+        """
+        if len(self.observations) > 0:
+            if len(self.episodes) == 0:
+                self.episodes_first = self.episode_id
+
+            self.episodes.append({
+                'actions': optimize_list_of_ndarrays(self.actions),
+                'observations': optimize_list_of_ndarrays(self.observations),
+                'rewards': optimize_list_of_ndarrays(self.rewards),
+            })
+            self.actions = []
+            self.observations = []
+            self.rewards = []
+            self.episode_id += 1
+
+            if self.buffered_step_count >= self.buffer_batch_size:
+                self.save_complete()
+
+    def save_complete(self):
+        """
+        Save the latest batch and write a manifest listing all the batches.
+        We save the arrays as raw binary, in a format compatible with np.load.
+        We could possibly use numpy's compressed format, but the large observations we care about (VNC screens)
+        don't compress much, only by 30%, and it's a goal to be able to read the files from C++ or a browser someday.
+        """
+
+        batch_fn = '{}.ep{:09}.json'.format(self.file_prefix, self.episodes_first)
+        bin_fn = '{}.ep{:09}.bin'.format(self.file_prefix, self.episodes_first)
+
+        with atomic_write.atomic_write(os.path.join(self.directory, batch_fn), False) as batch_f:
+            with atomic_write.atomic_write(os.path.join(self.directory, bin_fn), True) as bin_f:
+
+                def json_encode(obj):
+                    if isinstance(obj, np.ndarray):
+                        offset = bin_f.tell()
+                        while offset % 8 != 0:
+                            bin_f.write(b'\x00')
+                            offset += 1
+                        obj.tofile(bin_f)
+                        size = bin_f.tell() - offset
+                        return {'__type': 'ndarray', 'shape': obj.shape, 'order': 'C', 'dtype': str(obj.dtype),
+                                'npyfile': bin_fn, 'npyoff': offset, 'size': size}
+                    return obj
+
+                json.dump({'episodes': self.episodes}, batch_f, default=json_encode)
+
+                bytes_per_step = float(bin_f.tell() + batch_f.tell()) / float(self.buffered_step_count)
+
+        self.batches.append({
+            'first': self.episodes_first,
+            'len': len(self.episodes),
+            'fn': batch_fn})
+
+        manifest = {'batches': self.batches}
+        manifest_fn = os.path.join(self.directory, '{}.manifest.json'.format(self.file_prefix))
+        with atomic_write.atomic_write(os.path.join(self.directory, manifest_fn), False) as f:
+            json.dump(manifest, f)
+
+        # Adjust batch size, aiming for 5 MB per file.
+        # This seems like a reasonable tradeoff between:
+        #   writing speed (not too much overhead creating small files)
+        #   local memory usage (buffering an entire batch before writing)
+        #   random read access (loading the whole file isn't too much work when just grabbing one episode)
+        self.buffer_batch_size = max(1, min(50000, int(5000000 / bytes_per_step + 1)))
+
+        self.episodes = []
+        self.episodes_first = None
+        self.buffered_step_count = 0
+
+    def close(self):
+        """
+        Flush any buffered data to disk and close. It should get called automatically at program exit time, but
+        you can free up memory by calling it explicitly when you're done
+        """
+        if not self.closed:
+            self.end_episode()
+            if len(self.episodes) > 0:
+                self.save_complete()
+            self.closed = True
+            logger.info('Wrote traces to %s', self.directory)
