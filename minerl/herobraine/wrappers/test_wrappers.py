@@ -80,6 +80,7 @@ def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_
     3. Wrap and unwrap those observations.
     4. Assert that the result is the same as the sample
     """
+    np.random.seed(42)
     vec_env = wrappers.Vectorized(base_env, common_envs)
 
     s = base_env.observation_space.sample()
@@ -89,6 +90,8 @@ def test_wrap_unwrap_observation(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_
 
 
 def map_common_space_no_op(common_envs):
+    np.random.seed(42)
+
     for base_env in common_envs:
         s = base_env.observation_space.no_op()
         us = base_env.unwrap_observation(s)
