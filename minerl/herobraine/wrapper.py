@@ -48,7 +48,7 @@ class EnvWrapper(EnvSpec):
         pass
 
     def wrap_action(self, act: OrderedDict):
-        act: OrderedDict = copy.deepcopy(act)
+        act = copy.deepcopy(act)
         if self._wrap_act_fn is not None:
             act = self._wrap_act_fn(act)
 

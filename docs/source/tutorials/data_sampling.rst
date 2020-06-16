@@ -4,24 +4,33 @@ Sampling The Dataset
 
 .. _checkout the environment documentation: http://minerl.io/docs/environments/
 
+.. role:: python(code)
+   :language: python
+
+.. role:: bash(code)
+   :language: bash
+
 Now that your agent can act in the environment, we should 
 show it how to leverage human demonstrations.
 
-To get started, let's ensure the data has been downloaded
+To get started, let's ensure the data has been downloaded.
 
-.. code-block:: python
+.. code-block:: bash
 
-    import minerl
+    # Unix, Linux
+    $MINERL_DATA_ROOT="your/local/path" python3 -m minerl.data.download
+    # Windows
+    $env:MINERL_DATA_ROOT="your/local/path"; python3 -m minerl.data.download
 
-    minerl.data.download('/your/local/path')
 
 Or simply download a single experiment
 
-.. code-block:: python
+.. code-block:: bash
 
-    minerl.data.download('/your/local/path', experiment='MineRLObtainDiamond-v0')
+    python -m minerl.data.download 'MineRLObtainDiamond-v0'
 
-For a complete list of published experiments, `checkout the environment documentation`_.
+For a complete list of published experiments, `checkout the environment documentation`_. You can also download the data
+in your python scripts 
 
 Now we can build the datast for :code:`MineRLObtainDiamond-v0`
 

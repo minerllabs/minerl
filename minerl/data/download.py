@@ -97,7 +97,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         logger.info("Fetching download hash ...")
         # obj.fetch_hash_sums() 
         # TODO: Add hashing
-        logger.warning("As of MineRL 0.3.0 hashing has been deprecated.")
+        logger.warning("As of MineRL 0.3.0 automatic hash checking has been disabled.")
         logger.info("Starting download ...")
         dest_file = os.path.join(download_path, filename)
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
