@@ -4,6 +4,13 @@ import gym
 import numpy as np
 import logging
 import coloredlogs
+from minerl.herobraine.wrappers.vector_wrapper import Vectorized
+from minerl.herobraine.env_specs.obtain_specs import ObtainDiamondDebug
+from minerl.herobraine.hero.test_spaces import assert_equal_recursive
+from minerl.herobraine.wrappers.obfuscation_wrapper import Obfuscated
+import minerl.herobraine.envs as envs
+import minerl.herobraine
+
 coloredlogs.install(level=logging.DEBUG)
 reward_dict = {
     "log": 1,
@@ -109,19 +116,91 @@ def gen_obtain_debug_actions(env):
 
         [act(attack=1) for _ in range(20)]
         [act(forward=1) for _ in range(10)]
-
+    
+    [act() for _ in range(10)]
+    
 
     return actions
+
+
+def test_acitons():
+    wrapper = envs.MINERL_OBTAIN_TEST_DENSE_OBF_V0
+    acts = gen_obtain_debug_actions(wrapper.env_to_wrap.env_to_wrap)
+    for act in acts: 
+        wrapper.wrap_action(act)
+    
+
+def test_wrapped_obf_env():
+    return test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVectorObf-v0')
+
+
+def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVector-v0'):
+
+    env = gym.make(environment)
+    env.seed(1)
+    wenv = gym.make(wrapped_env)
+    wenv.seed(1)
+    # TODO: 
+    for _ in range(2):
+        env.reset()
+        wenv.reset()
+        total_reward = 0
+
+        # Test holding a non-observeable item (red_flower)
+        action = env.action_space.no_op()
+        action['equip'] = 'red_flower'
+        print(action)
+        waction = wenv.env_spec.wrap_action(action)
+        _, _, _, _ = env.step(action)
+        _, _, _, _ = wenv.step(waction)
+        obs, _, _, _ = env.step(env.action_space.no_op())
+        wobs, _, _, _ = wenv.step(wenv.env_spec.wrap_action(env.action_space.no_op()))
+
+        unwobsed = wenv.env_spec.unwrap_observation(wobs)
+        del obs['pov']
+        del unwobsed['pov']
+        assert_equal_recursive(obs, unwobsed)
+
+        for action in gen_obtain_debug_actions(env):
+            for key, value in action.items():
+                if isinstance(value, str) and value in reward_dict and key not in ['equip']:
+                    print('Action of {}:{} if successful gets {}'.format(key, value, reward_dict[value]))
+
+            obs, reward, done, info = env.step(action)
+            wobs, wreward, wdone, winfo = wenv.step(wenv.env_spec.wrap_action(action))
+
+            # Check the wraped env agrees
+            assert reward == wreward
+            assert done == wdone
+
+            unwobsed = wenv.env_spec.unwrap_observation(wobs)
+            del obs['pov']
+            del unwobsed['pov']
+            # TODO: Make sure that items drop in the same direction with the same seed.
+            # TODO: Make new vector
+
+            total_reward += reward
+            if done:
+                assert_equal_recursive(obs, unwobsed)
+                break
+
+        print("MISSION DONE")
+        assert_equal_recursive(obs, unwobsed)
+
 
 def test_dense_env():
     test_env('MineRLObtainTestDense-v0')
 
-def test_env(environment='MineRLObtainTest-v0'):
+
+def test_env(environment='MineRLObtainTest-v0', interactive=False):
+    if not interactive:
+        # Disable tests for now
+        pass#assert False
     env = gym.make(environment)
     done = False
     inventories = []
     rewards = []
-    for _ in range(2):
+    for _ in range(1):
         env.reset()
         total_reward = 0
         print_next_inv = False
@@ -131,20 +210,22 @@ def test_env(environment='MineRLObtainTest-v0'):
         action['equip'] = 'red_flower'
         obs, _, _, _ = env.step(action)
         obs, _, _, _ = env.step(env.action_space.no_op())
-        assert obs['equipped_items']['mainhand']['type'] == 'other', '{} is not of type other'.format(obs['equipped_items']['mainhand']['type'])
+        assert obs['equipped_items.mainhand.type'] == 'other', '{} is not of type other'.format(obs['equipped_items.mainhand.type'])
 
-        for action in gen_obtain_debug_actions(env):
+        for action in gen_obtain_debug_actions(env):    
             for key, value in action.items():
                 if isinstance(value, str) and value in reward_dict and key not in ['equip']:
                     print('Action of {}:{} if successful gets {}'.format(key, value, reward_dict[value]))
 
             obs, reward, done, info = env.step(action)
+            env.render()
 
             if print_next_inv:
                 print(obs['inventory'])
                 print_next_inv = False
 
-            # time.sleep(0.02)
+            if interactive:
+                key = input('')
             if reward != 0:
                 print(obs['inventory'])
                 print(reward)
@@ -153,10 +234,10 @@ def test_env(environment='MineRLObtainTest-v0'):
             if done:
                 break
 
-        while not done:
-            obs, reward, done, info = env.step(env.action_space.no_op())
-            if reward != 0:
-                print(reward)
+        # while not done:
+        #     obs, reward, done, info = env.step(env.action_space.no_op())
+        #     if reward != 0:
+        #         print(reward)
         print("MISSION DONE")
 
         inventories.append(obs['inventory'])
@@ -174,5 +255,3 @@ def test_env(environment='MineRLObtainTest-v0'):
 
 if __name__ == '__main__':
     test_env()
-    test_dense_env()
-

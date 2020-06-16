@@ -249,7 +249,7 @@ class InstanceManager:
                 s.bind((address, port))
                 taken = False
             except socket.error as e:
-                if e.errno in [98, 10048]:
+                if e.errno in [98, 10048, 48]:
                     taken = True
                 else:
                     raise e

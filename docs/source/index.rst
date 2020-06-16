@@ -29,21 +29,12 @@ MineRL: Towards AI in Minecraft
   :alt: 
 .. image:: assets/orion1.mp4.gif
   :scale: 100 %
-  :alt: 
-
-
+  :alt:
 
 .. |biohazard| image:: https://pepy.tech/badge/minerl
 
-
-   
-
-.. |patreon| image:: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fwguss_imushroom&style=for-the-badge
-
-
-
-|biohazard| |patreon| :raw-html:`<br/><br/>`
-Welcome to documentation for the MineRL_ 
+|biohazard| :raw-html:`<br/><br/>`
+Welcome to documentation for the MineRL_
 project and its related repositories and components! 
 
 
@@ -110,7 +101,7 @@ components:
 
 .. toctree::
     :maxdepth: 2
-    :caption: minerl package API Reference
+    :caption: MineRL package API Reference
 
     api/env
     api/data
