@@ -344,7 +344,7 @@ class InstanceManager:
         def on_terminate(proc):
             logger.info("Minecraft process {} terminated with exit code {}".format(proc, proc.returncode))
 
-        procs = process.children() + [process]
+        procs = process.children(recursive=True) + [process]
         
         # send SIGTERM
         for p in procs:
