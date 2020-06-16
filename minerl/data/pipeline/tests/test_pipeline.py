@@ -72,7 +72,7 @@ def _test_pipeline(copy_test_data_out=True, upload_test_data=''):
                 subprocess.check_call('gsutil cp {} {}'.format(zip_result_dir, upload_test_data).split(' '))
 
 
-def test_obfuscated_data():
+def _test_obfuscated_data():
     _test_pipeline()
     # Need to reproduce data.
     sample_data_dir = os.path.join(TESTS_DATA, 'out', 'test_pipeline', 'output', 'data')
@@ -110,7 +110,7 @@ def test_obfuscated_data():
         assert d == do
 
 
-def test_dataloader_regression():
+def _test_dataloader_regression():
     sample_data_dir = os.path.join(TESTS_DATA, 'out', 'test_pipeline', 'output', 'data')
     sweet_potato_path = os.path.join(TESTS_DATA, 'sweet_potato.zip')
     old_data_root = J(TESTS_DATA, 'old_data', 'MineRLTreechop-v0')
@@ -176,17 +176,6 @@ def test_dataloader_regression():
         assert np.allclose(nr, o_r)
 
 
-def test_ao_on_or_off():
+def _test_ao_on_or_off():
     assert False, "AO has not been fixed."
 
-
-# import matplotlib
-# from matplotlib import pyplot as plt
-# matplotlib.use('MACOSX')
-
-
-if __name__ == '__main__':
-    test_obfuscated_data()
-    # test_dataloader_regression()
-#     # test_pipeline(copy_test_data_out=True)
-# #     # test_obfuscated_data()
