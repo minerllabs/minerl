@@ -1,4 +1,3 @@
-
 ### TESTS ###
 
 # A method which asserts equality between an ordered dict of numpy arrays and another
@@ -15,7 +14,8 @@ from minerl.herobraine.wrappers.util import union_spaces
 import numpy as np
 
 
-def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=[ envs.MINERL_NAVIGATE_DENSE_V0, envs.MINERL_OBTAIN_DIAMOND_V0]):
+def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0,
+                     common_envs=[envs.MINERL_NAVIGATE_DENSE_V0, envs.MINERL_OBTAIN_DIAMOND_V0]):
     """
     Tests that wrap_action composed with unwrap action is the identity.
     1. Construct an VecWrapper of an EnvSpec called ObtainDiamond
@@ -23,6 +23,7 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=[ envs.
     3. Wrap and unwrap those actions.
     4. Assert that the result is the same as the sample
     """
+    np.random.seed(42)
     vec_env = envs.MINERL_OBTAIN_DIAMOND_OBF_V0
 
     for _ in range(100):
@@ -34,7 +35,7 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=[ envs.
         # Now we should see that the spaces align for going the other direction.
         s = vec_env.action_space.sample()
         us = vec_env.unwrap_action(s)
-        assert  us in base_env.action_space
+        assert us in base_env.action_space
 
     for _ in range(100):
         s = base_env.observation_space.sample()
@@ -45,7 +46,6 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=[ envs.
         s = vec_env.observation_space.sample()
         us = vec_env.unwrap_observation(s)
         assert us in base_env.observation_space
-
 
 
 def test_wrap_unwrap_action(base_env=envs.MINERL_OBTAIN_DIAMOND_V0, common_envs=None):
@@ -120,11 +120,11 @@ def test_union_spaces():
     act_1 = envs.MINERL_TREECHOP_V0.actionables
     act_2 = envs.MINERL_NAVIGATE_DENSE_V0.actionables
     for space in union_spaces(act_2, act_1):
-        assert(space in act_1 or space in act_2)
+        assert (space in act_1 or space in act_2)
     for space in act_1:
-        assert(space in union_spaces(act_1, act_2))
+        assert (space in union_spaces(act_1, act_2))
     for space in act_2:
-        assert(space in union_spaces(act_2, act_1))
+        assert (space in union_spaces(act_2, act_1))
 
 
 def test_vec_wrapping_with_common_envs():
@@ -141,9 +141,9 @@ def test_vec_wrapping_with_common_envs():
     test_wrap_unwrap_action(base_env, common_env)
 
     common_envs = [
-        envs.MINERL_OBTAIN_DIAMOND_V0, 
-        envs.MINERL_TREECHOP_V0, 
-        envs.MINERL_NAVIGATE_V0, 
+        envs.MINERL_OBTAIN_DIAMOND_V0,
+        envs.MINERL_TREECHOP_V0,
+        envs.MINERL_NAVIGATE_V0,
         envs.MINERL_OBTAIN_IRON_PICKAXE_V0]
 
     for base_env in common_envs:
@@ -165,6 +165,7 @@ def test_published_envs():
     test_wrap_unwrap_observation(envs.MINERL_NAVIGATE_DENSE_EXTREME_V0)
     test_wrap_unwrap_observation(envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0)
     test_wrap_unwrap_observation(envs.MINERL_OBTAIN_DIAMOND_DENSE_V0)
+
 
 if __name__ == '__main__':
     test_published_envs()
