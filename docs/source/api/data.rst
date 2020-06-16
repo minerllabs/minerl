@@ -6,8 +6,8 @@
       :hidden:
 
 
-.. _descriptions and tutorials: http://www.minerl.io/docs/tutorials/first_agent.html
-.. _take a look at our numerous getting started manuals: http://www.minerl.io/docs/tutorials/first_agent.html
+.. _descriptions and tutorials: http://minerl.io/docs/tutorials/first_agent.html
+.. _take a look at our numerous getting started manuals: http://minerl.io/docs/tutorials/first_agent.html
 .. _MineRL-v0 Dataset: http://minerl.io/dataset
 
 

@@ -1,4 +1,4 @@
-# The [MineRL](http://minerl.io) Python Package  
+# The [MineRL](http://minerl.io) Python Package
 
 [![Build Status](https://travis-ci.com/minerllabs/minerl.svg?branch=master)](https://travis-ci.com/minerllabs/minerl)
 [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
@@ -93,4 +93,4 @@ python3 -m minerl.viewer MineRLObtainDiamondDense-v0
 ```
 
 ## MineRL Competition
-If you're here for the MineRL competition. Please check [the main competition website here](https://www.aicrowd.com/challenges/neurips-2019-minerl-competition).
+If you're here for the MineRL competition. Please check [the main competition website here](https://www.aicrowd.com/challenges/neurips-2020-minerl-competition).
