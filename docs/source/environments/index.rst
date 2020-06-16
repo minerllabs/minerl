@@ -129,6 +129,6 @@ environment!
             'MineRLObtainDiamondDenseVectorObf-v0',
             'MineRLObtainIronPickaxeVectorObf-v0',
             'MineRLObtainIronPickaxeDenseVectorObf-v0',]
-    
+
     for i in ids:
         print_actions_for_id(i)
