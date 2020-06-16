@@ -175,15 +175,15 @@ class OrderedJobStreamer(threading.Thread):
         ex = self.executor(self.max_workers)
 
         def end_processes():
-            if ex is not None and ex._processes is not None:
-                for process in  ex._processes.values():
-                    try:
-                        process.kill()
-                    except:
-                        print("couldn;t kill process")
-                        pass
-            
-            ex.shutdown(wait=False)
+            if ex is not None:
+                if ex._processes is not None:
+                    for process in  ex._processes.values():
+                        try:
+                            process.kill()
+                        except:
+                            print("couldn;t kill process")
+                            pass
+                ex.shutdown(wait=False)
         atexit.register(end_processes)
 
         try:
