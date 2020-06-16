@@ -27,12 +27,11 @@ env:
   - MINERL_DATA_ROOT=$HOME/data
 install:
 - pip install .
-- pip install pytest-xdist
 - python -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(minimal=True)"
 services: xvfb
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
-  - xvfb-run -a pytest -n auto 
+  - xvfb-run -a pytest
 
 branches:
   only:
