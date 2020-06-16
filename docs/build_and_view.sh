@@ -1,4 +1,4 @@
 #!/bin/bash
-make html
+make dirhtml
 open build/html/index.html
 

@@ -14,11 +14,11 @@ environment!
 .. caution:: 
     In the MineRL Competition, many environments are provided for training,
     however competition agents will only
-    be evaluated in :code:`MineRLObtainDiamond-v0` which has **sparse** rewards. See `MineRLObtainDiamond-v0`_.
+    be evaluated in :code:`MineRLObtainDiamondVectorObf-v0` which has **sparse** rewards. See `MineRLObtainDiamondVectorObf-v0`_.
 
 .. note::
     All environments offer a default no-op action via :code:`env.action_space.no_op()`
-    and a random action via :code:`env.action_space.sample()`
+    and a random action via :code:`env.action_space.sample()`.
 
 .. include:: handlers.rst
     :end-before: inclusion-marker-do-not-remove
@@ -111,16 +111,24 @@ environment!
         print(usage_str) 
  
 
-    ids = [     
-           'MineRLTreechop-v0',
-           'MineRLNavigateDense-v0',
+    ids = ['MineRLTreechop-v0',
            'MineRLNavigate-v0',
-           'MineRLNavigateExtremeDense-v0',
-           'MineRLNavigateExtreme-v0',
-           'MineRLObtainIronPickaxe-v0',
-           'MineRLObtainIronPickaxeDense-v0',
-           'MineRLObtainDiamond-v0',
-           'MineRLObtainDiamondDense-v0',]
+            'MineRLNavigateExtreme-v0',
+            'MineRLNavigateDense-v0',
+            'MineRLNavigateExtremeDense-v0',
+            'MineRLObtainDiamond-v0',
+            'MineRLObtainDiamondDense-v0',
+            'MineRLObtainIronPickaxe-v0',
+            'MineRLObtainIronPickaxeDense-v0',
+            'MineRLTreechopVectorObf-v0',
+            'MineRLNavigateVectorObf-v0',
+            'MineRLNavigateExtremeVectorObf-v0',
+            'MineRLNavigateDenseVectorObf-v0',
+            'MineRLNavigateExtremeDenseVectorObf-v0',
+            'MineRLObtainDiamondVectorObf-v0',
+            'MineRLObtainDiamondDenseVectorObf-v0',
+            'MineRLObtainIronPickaxeVectorObf-v0',
+            'MineRLObtainIronPickaxeDenseVectorObf-v0',]
     
     for i in ids:
         print_actions_for_id(i)
