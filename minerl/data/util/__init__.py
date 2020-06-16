@@ -108,7 +108,13 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
         i = np.argmin(latency)
     else:
         logging.warning('Re-checking mirrors, latency above 0.1s')
-        i = np.argmin([time_request(url, timeout=30) for url in urls])
+        latency = [time_request(url, timeout=30) for url in urls]
+        i = np.argmin(latency)
+        if min(latency) >= 1000 * 1000 * 1000:
+            logging.error('Unable to find valid mirror! Tried ...')
+            for url in urls:
+                logging.error('{}'.format(url))
+            raise requests.HTTPError
 
     logging.debug('Picked {}'.format(urls[i]))
     url = urls[i]

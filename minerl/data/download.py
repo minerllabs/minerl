@@ -79,7 +79,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
     mirrors = [
         "https://minerl.s3.amazonaws.com/",
         "https://minerl-asia.s3.amazonaws.com/",
-        "https://minerl-europe.s3.amazonaws.com/"]  # , "https://router2.sneakywines.me/"]
+        "https://minerl-europe.s3.amazonaws.com/"]
 
     if experiment is None:
         min_str = '_minimal' if minimal else ''
@@ -91,7 +91,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         if os.path.exists(os.path.join(directory, experiment)):
             logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
             return directory
-        filename = "minerl/v{}/{}.tar".format(DATA_VERSION, experiment)
+        filename = "v{}/{}.tar".format(DATA_VERSION, experiment)
         urls = [mirror + filename for mirror in mirrors]
     try:
         logger.info("Fetching download hash ...")
@@ -102,7 +102,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         dest_file = os.path.join(download_path, filename)
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
         download_with_resume(urls, dest_file)
-    except HTTPError as e:
+        except HTTPError as e:
         logger.error("HTTP error encountered when downloading")
         if experiment is not None:
             logger.error("is {}  a valid minerl environment?".format(experiment))
