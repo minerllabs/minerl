@@ -1,0 +1,6 @@
+* -lf
+*.bash -crlf
+*.txt -crlf
+*.sh -crlf
+*.js -crlf
+*.css -crlf
