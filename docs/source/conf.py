@@ -18,11 +18,11 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'MineRL'
-copyright = '2019, William H. Guss, Brandon Houghton'
+copyright = '2020, William H. Guss, Brandon Houghton'
 author = 'William H. Guss, Brandon Houghton'
 
 # The full version, including alpha/beta/rc tags
-release = '0.2.0_alpha'
+release = '0.3.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -49,6 +49,7 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
+# html_logo = 'assets/MineRL_banner_sq.PNG'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
