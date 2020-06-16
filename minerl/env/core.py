@@ -394,8 +394,6 @@ class MineRLEnv(gym.Env):
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
-        action_in['camera'] = [0, np.clip(action_in['camera'][1], -5, 5)]
-        print(action_in)
 
         # TODO: Decide if we want to remove assertions.
         action_str = []
