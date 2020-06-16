@@ -400,7 +400,7 @@ class MineRLEnv(gym.Env):
         for act in action_in:
             # Process enums.
             if isinstance(bottom_env_spec.action_space.spaces[act], spaces.Enum):
-                if isinstance(action_in[act], int):
+                if isinstance(action_in[act],   int):
                     action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
                 else:
                     assert isinstance(
