@@ -233,3 +233,6 @@ scripts/results
 .DS_STORE
 tests_data/
 minerl_data/pipeline/tests_data/
+
+
+t/
