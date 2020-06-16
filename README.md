@@ -1,4 +1,4 @@
-# The [MineRL](http://minerl.io) Python Package  
+# The [MineRL](http://minerl.io) Python Package
 
 [![Build Status](https://travis-ci.com/minerllabs/minerl.svg?branch=master)](https://travis-ci.com/minerllabs/minerl)
 [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
