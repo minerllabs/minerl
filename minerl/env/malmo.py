@@ -344,7 +344,7 @@ class InstanceManager:
         def on_terminate(proc):
             logger.info("Minecraft process {} terminated with exit code {}".format(proc, proc.returncode))
 
-        procs = process.children() + [process]
+        procs = process.children(recursive=True) + [process]
         
         # send SIGTERM
         for p in procs:
@@ -637,7 +637,7 @@ class InstanceManager:
 
             if replaceable:
                 cmd.append('-replaceable')
-            preexec_fn = os.setsid if 'linux' in str(sys.platform) else None
+            preexec_fn = os.setsid if 'linux' in str(sys.platform) or sys.platform == 'darwin' else None
             # print(preexec_fn)
             minecraft_process = subprocess.Popen(cmd,
                 cwd=InstanceManager.MINECRAFT_DIR,
