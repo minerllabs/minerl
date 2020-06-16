@@ -420,6 +420,8 @@ class MineRLEnv(gym.Env):
                     subact = " ".join(str(x) for x in subact)
 
                 action_in[act] = subact
+            elif isinstance(self.action_space.spaces[act], gym.spaces.Discrete):
+                action_in[act] = int(action_in[act])
 
             action_str.append(
                 "{} {}".format(act, str(action_in[act])))
