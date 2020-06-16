@@ -30,8 +30,8 @@ def _check_shape(num_samples, sample_shape, obs):
         assert (len(obs)) == num_samples
     elif isinstance(obs, np.ndarray):
         assert (obs.shape[0] == num_samples)
-        for i in range(len(obs.shape) - 1):
-            assert (obs.shape[i + 1] == sample_shape[i])
+        for i in range(len(obs.shape) - 2):
+            assert (obs.shape[i + 2] == sample_shape[i])
     else:
         assert False, "unsupported data type"
 
@@ -65,7 +65,7 @@ def _check_space(key, space, observation, correct_len):
         assert False, "Unsupported dict type"
 
 
-def test_data(environment='MineRLObtainDiamond-v0'):
+def _test_data(environment='MineRLObtainDiamond-v0'):
     for _ in range(20):
         run_once(environment, verbose=False)
     return True
@@ -89,22 +89,22 @@ def run_once(environment, verbose=True):
     return True
 
 
-def test_navigate():
+def _test_navigate():
     run_once('MineRLNavigate-v0')
     run_once('MineRLNavigateDense-v0')
 
 
-def test_navigate_extreme():
+def _test_navigate_extreme():
     run_once('MineRLNavigateExtreme-v0')
     run_once('MineRLNavigateExtremeDense-v0')
 
 
-def test_obtain_iron_pickaxe():
+def _test_obtain_iron_pickaxe():
     run_once('MineRLObtainIronPickaxe-v0')
     run_once('MineRLObtainIronPickaxeDense-v0')
 
 
-def test_obtain_diamond():
+def _test_obtain_diamond():
     run_once('MineRLObtainDiamond-v0')
     run_once('MineRLObtainDiamondDense-v0')
 

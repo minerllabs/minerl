@@ -10,11 +10,11 @@ def test_batch_iter():
     dat = minerl.data.make('MineRLTreechopVectorObf-v0')
 
     act_vectors = []
-    for _ in tqdm.tqdm(dat.batch_iter(16, 32, 1, preload_buffer_size=20)):
+    i = 0
+    for _ in tqdm.tqdm(dat.batch_iter(1, 32, 1, preload_buffer_size=2)):
+        i +=1 
+        print(_)
+        if i > 100:
+            # assert False
+            break
         pass
-
-
-if __name__ == '__main__':
-    # coloredlogs.install(logging.DEBUG)
-    os.environ['MINERL_DATA_ROOT'] = os.path.expanduser('~/adsd')
-    test_batch_iter()
