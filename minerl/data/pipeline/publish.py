@@ -460,14 +460,14 @@ def package(out_dir=DATA_DIR):
 
     # Generate tar archives
     os.chdir(DATA_DIR)
-    with tarfile.open(os.path.join(out_dir, 'data_texture_0_low_res.tar.gz'), "w:gz") as archive:
-        logging.info('Generating archive {}'.format('data_texture_0_low_res.tar.gz'))
+    with tarfile.open(os.path.join(out_dir, 'data_texture_0_low_res.tar'), "w") as archive:
+        logging.info('Generating archive {}'.format('data_texture_0_low_res.tar'))
         archive.add('VERSION')
         for folder in exp_folders:
             archive.add(folder)
 
-    with tarfile.open(os.path.join(out_dir, 'data_texture_0_low_res_minimal.tar.gz'), "w:gz") as archive:
-        logging.info('Generating archive {}'.format('data_texture_0_low_res_minimal.tar.gz'))
+    with tarfile.open(os.path.join(out_dir, 'data_texture_0_low_res_minimal.tar'), "w") as archive:
+        logging.info('Generating archive {}'.format('data_texture_0_low_res_minimal.tar'))
         archive.add('VERSION')
         random.seed(minerl.data.DATA_VERSION)
         for folder in exp_folders:
@@ -476,8 +476,8 @@ def package(out_dir=DATA_DIR):
 
     # Generate individual tar files
     for folder in exp_folders:
-        with tarfile.open(J(out_dir, folder + '.tar.gz'), "w:gz") as archive:
-            logging.info('Generating archive {}.tar.gz'.format(folder))
+        with tarfile.open(J(out_dir, folder + '.tar'), "w") as archive:
+            logging.info('Generating archive {}.tar'.format(folder))
             archive.add('VERSION')
             archive.add(folder)
 
@@ -486,7 +486,7 @@ def package(out_dir=DATA_DIR):
     # subprocess.run(['md5sum', '*.tar.gz', '>', J(out_dir, 'MD5SUMS')], cwd=out_dir)
     # subprocess.run(['sha1sum', 'MineRL*.tar.gz', '|', 'SHA1SUMS '])
 
-    archives = [a for a in os.listdir(out_dir) if a.endswith('.tar.gz')]
+    archives = [a for a in os.listdir(out_dir) if a.endswith('.tar')]
 
     with open(J(out_dir, 'MD5SUMS'), 'w') as md5_file, \
             open(J(out_dir, 'SHA1SUMS'), 'w') as sha1_file, \
