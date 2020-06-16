@@ -23,8 +23,6 @@ import coloredlogs
 logger = logging.getLogger(__name__)
 
 
-      
-
 def download(directory=None, resolution='low', texture_pack=0, update_environment_variables=True, disable_cache=False,
              experiment=None, minimal=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
@@ -102,11 +100,10 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         dest_file = os.path.join(download_path, filename)
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
         download_with_resume(urls, dest_file)
-        except HTTPError as e:
-        logger.error("HTTP error encountered when downloading")
+    except HTTPError as e:
+        logger.error("HTTP {} error encountered when downloading files!".format(e.code))
         if experiment is not None:
-            logger.error("is {}  a valid minerl environment?".format(experiment))
-        logger.error(e.errno)
+            logger.error("Is \"{}\" a valid minerl environment?".format(experiment))
         return None
     except URLError as e:
         logger.error("URL error encountered when downloading - please try again")

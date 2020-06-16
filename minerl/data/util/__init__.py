@@ -1,4 +1,5 @@
 import os.path
+import sys
 import urllib
 import atexit
 import requests
@@ -8,6 +9,8 @@ import logging
 import tqdm
 import time
 import numpy as np
+
+from urllib.error import HTTPError
 
 import queue
 import concurrent.futures
@@ -59,24 +62,28 @@ def validate_file(file_path, hash):
     return m.hexdigest() == hash
 
 
-def time_request(url, max_n=2, timeout=0.15):
-    times = 0
-    n = max_n
-    for i in range(max_n):
-        try:
-            req = requests.head(url, timeout=timeout)
-            times += req.elapsed.seconds
-            if req.status_code != 200:
-                n -= 1
-        except requests.Timeout:
-            n -= 1
-        except (requests.exceptions.BaseHTTPError, urllib.error.URLError) as e:
-            logging.log(logging.WARNING, e)
-            n -= 1
-    if n == 0:
-        return 1000 * 1000 * 1000 + times
+def get_mirror(urls) -> requests.Response:
+    # Interactive python downloads dont get fancy as_completed support =(
+    if bool(getattr(sys, 'ps1', sys.flags.interactive)):
+        reqs = [requests.head(url) for url in urls]
+        successes = [req for req in reqs if req.status_code == 200]
+        if len(successes) > 0:
+            return min(successes, key=lambda r: r.elapsed.seconds)
+        else:
+            req = min(reqs, key=lambda r: r.elapsed.seconds)
+            raise HTTPError(req.url, req.status_code, "resource not found", req.headers, None)
     else:
-        return times / n
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as worker_pool:
+            futures = [worker_pool.submit(requests.head, url) for url in urls]
+            first_request = None
+            for future in concurrent.futures.as_completed(futures):
+                request = future.result()
+                first_request = request if first_request is None else first_request
+                if request.status_code == 200:
+                    return request
+                else:
+                    logging.warning('Mirror {} returned status code {}'.format(request.url, request.status_code))
+            raise HTTPError(first_request.url, first_request.status_code, "resource not found", first_request.headers, None)
 
 
 def download_with_resume(urls, file_path, hash=None, timeout=10):
@@ -103,21 +110,10 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
     # urllib can be verbose
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    latency = [time_request(url) for url in urls]
-    if min(latency) < 1000 * 1000 * 1000:
-        i = np.argmin(latency)
-    else:
-        logging.warning('Re-checking mirrors, latency above 0.1s')
-        latency = [time_request(url, timeout=30) for url in urls]
-        i = np.argmin(latency)
-        if min(latency) >= 1000 * 1000 * 1000:
-            logging.error('Unable to find valid mirror! Tried ...')
-            for url in urls:
-                logging.error('{}'.format(url))
-            raise requests.HTTPError
+    mirror = get_mirror(urls)
+    url, ping_ms = mirror.url, mirror.elapsed.microseconds/1000
 
-    logging.debug('Picked {}'.format(urls[i]))
-    url = urls[i]
+    logging.debug('Picked {} ping={}ms'.format(url, ping_ms))
 
     try:
         logging.debug('Starting download at %.1fMB' % (first_byte / 1e6))
@@ -125,7 +121,7 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
         head = requests.head(url)
         file_size = int(head.headers['Content-length'])
 
-        logging.debug('File size is %s' % file_size)
+        logging.debug('File size is %.1fMB' % (file_size / 1e6))
         headers = {"Range": "bytes=%s-" % first_byte}
 
         disp = tqdm.tqdm(total=file_size / 1e6, desc='Download: {}'.format(url), unit='MB', )
