@@ -33,12 +33,10 @@ services: xvfb
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
   - xvfb-run -a pytest -n auto
-
-branches:
-  only:
-  - master
+  
 deploy:
   provider: pypi
+  skip_cleanup: true
   user: minerl-test
   server: https://testpypi.python.org/pypi
   on:
