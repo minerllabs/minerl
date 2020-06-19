@@ -254,4 +254,4 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
     
 
 if __name__ == '__main__':
-    test_env()
+    test_wrapped_env()

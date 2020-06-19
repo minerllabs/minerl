@@ -11,7 +11,6 @@ import minerl.data.version
 import os
 
 
-
 # Must load non-obfuscated envs first!
 # Publish.py depends on this order for black-listing streams
 MINERL_TREECHOP_V0 = Treechop()
@@ -49,10 +48,6 @@ comp_obfuscator_dir = os.path.join(
 # TODO FORMAT THIS AUTOMATICALLY USING CIRCULAR IMPORTS
 os.path.dirname(os.path.abspath(__file__)), "env_specs", "obfuscators", "comp", "v3")
 
-# # Survival envs
-MINERL_OBTAIN_DIAMOND_SURVIVAL_V0 =  Obfuscated(Vectorized(ObtainDiamondSurvival(dense=True), common_envs=comp_envs), comp_obfuscator_dir, 'MineRLObtainDiamondSurvivalVectorObf-v0')
-
-
 
 MINERL_TREECHOP_OBF_V0 = Obfuscated(Vectorized(MINERL_TREECHOP_V0, common_envs=comp_envs), comp_obfuscator_dir)
 
@@ -66,6 +61,9 @@ MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_DIAMOND
 
 MINERL_OBTAIN_IRON_PICKAXE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IRON_PICKAXE_V0, common_envs=comp_envs), comp_obfuscator_dir)
 MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0, common_envs=comp_envs), comp_obfuscator_dir)
+
+# Survival envs
+MINERL_OBTAIN_DIAMOND_SURVIVAL_V0 = Obfuscated(Vectorized(ObtainDiamondSurvival(dense=True), common_envs=comp_envs), comp_obfuscator_dir, 'MineRLObtainDiamondSurvivalVectorObf-v0')
 
 obfuscated_envs = [e for e in locals().values() if isinstance(e, Obfuscated)]
 
