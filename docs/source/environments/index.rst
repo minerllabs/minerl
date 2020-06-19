@@ -1,4 +1,4 @@
-
+.. _MineRL competition environments: http://minerl.io/docs/environments/index.html#competition-environments
 
 General Information
 ================================
@@ -25,6 +25,11 @@ environment!
 
 Basic Environments
 =======================================
+
+.. warning::
+
+    The following basic environments are NOT part of the 2020 MineRL Competition! Feel free to use them for exploration
+    but agents may only be trained on `MineRL competition environments`_!
 
 .. exec::
 
