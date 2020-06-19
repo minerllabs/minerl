@@ -115,4 +115,5 @@ class ExecDirective(Directive):
 
 
 def setup(app):
+    app.add_stylesheet('custom.css')
     app.add_directive('exec', ExecDirective)
