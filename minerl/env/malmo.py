@@ -249,7 +249,7 @@ class InstanceManager:
                 s.bind((address, port))
                 taken = False
             except socket.error as e:
-                if e.errno in [98, 10048]:
+                if e.errno in [98, 10048, 48]:
                     taken = True
                 else:
                     raise e
@@ -278,7 +278,8 @@ class InstanceManager:
     @classmethod
     def _get_valid_port(cls):
         malmo_base_port = cls._malmo_base_port
-        port = (cls.ninstances  % 5000) + malmo_base_port
+        port = (17 * os.getpid()) % 3989 + malmo_base_port
+        port = (cls.ninstances  % 5000) + port
         while cls._is_port_taken(port) or \
               cls._is_display_port_taken(port - malmo_base_port, cls.X11_DIR) or \
               cls._port_in_instance_pool(port):
@@ -344,7 +345,7 @@ class InstanceManager:
         def on_terminate(proc):
             logger.info("Minecraft process {} terminated with exit code {}".format(proc, proc.returncode))
 
-        procs = process.children() + [process]
+        procs = process.children(recursive=True) + [process]
         
         # send SIGTERM
         for p in procs:
@@ -637,7 +638,7 @@ class InstanceManager:
 
             if replaceable:
                 cmd.append('-replaceable')
-            preexec_fn = os.setsid if 'linux' in str(sys.platform) else None
+            preexec_fn = os.setsid if 'linux' in str(sys.platform) or sys.platform == 'darwin' else None
             # print(preexec_fn)
             minecraft_process = subprocess.Popen(cmd,
                 cwd=InstanceManager.MINECRAFT_DIR,

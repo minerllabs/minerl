@@ -10,12 +10,15 @@ import time
 import tqdm
 from threading import Thread
 
+from minerl.data.util import download_with_resume
 
-from minerl.dependencies.pySmartDL import pySmartDL
 
 import logging
 
 from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
+import tempfile
+import sys
+import coloredlogs
 
 logger = logging.getLogger(__name__)
 
@@ -70,40 +73,37 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
             except:
                 pass
 
-    download_path = os.path.join(directory, '') if disable_cache else None
-    mirrors = ["https://router.sneakywines.me/"] #, "https://router2.sneakywines.me/"]
+    download_path = os.path.join(directory, 'download') if not disable_cache else tempfile.mkdtemp()
+    mirrors = [
+        "https://minerl.s3.amazonaws.com/",
+        "https://minerl-asia.s3.amazonaws.com/",
+        "https://minerl-europe.s3.amazonaws.com/"]
 
     if experiment is None:
         min_str = '_minimal' if minimal else ''
-        filename = "minerl-v{}/data_texture_{}_{}_res{}.tar.gz".format(DATA_VERSION, texture_pack, resolution, min_str)
+        filename = "v{}/data_texture_{}_{}_res{}.tar".format(DATA_VERSION, texture_pack, resolution, min_str)
         urls = [mirror + filename for mirror in mirrors]
-
-        obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
+        
     else:
         # Check if experiment is already downloaded
         if os.path.exists(os.path.join(directory, experiment)):
             logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
             return directory
-        filename = "minerl-v{}/{}.tar.gz".format(DATA_VERSION, experiment)
+        filename = "v{}/{}.tar".format(DATA_VERSION, experiment)
         urls = [mirror + filename for mirror in mirrors]
-        obj = pySmartDL.SmartDL(urls, progress_bar=True, logger=logger, dest=download_path, threads=20, timeout=60)
     try:
         logger.info("Fetching download hash ...")
-        obj.fetch_hash_sums()
+        # obj.fetch_hash_sums() 
+        # TODO: Add hashing
+        logger.warning("As of MineRL 0.3.0 automatic hash checking has been disabled.")
         logger.info("Starting download ...")
-        obj.start()
-    except pySmartDL.HashFailedException:
-        logger.error("Hash check failed! Is server under maintenance??")
-        logger.error("URL {}".format(obj.url))
-        return None
-    except pySmartDL.CanceledException:
-        logger.error("Download canceled by user")
-        return None
+        dest_file = os.path.join(download_path, filename)
+        os.makedirs(os.path.dirname(dest_file), exist_ok=True)
+        download_with_resume(urls, dest_file)
     except HTTPError as e:
-        logger.error("HTTP error encountered when downloading")
+        logger.error("HTTP {} error encountered when downloading files!".format(e.code))
         if experiment is not None:
-            logger.error("is {}  a valid minerl environment?".format(experiment))
-        logger.error(e.errno)
+            logger.error("Is \"{}\" a valid minerl environment?".format(experiment))
         return None
     except URLError as e:
         logger.error("URL error encountered when downloading - please try again")
@@ -118,10 +118,10 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         logger.error(e.errno)
         return None
 
-    logging.info('Success - downloaded {}'.format(obj.get_dest()))
+    logging.info('Success - downloaded {}'.format(dest_file))
 
     logging.info('Extracting downloaded files - this may take some time')
-    with tarfile.open(obj.get_dest(), mode="r:*") as tf:
+    with tarfile.open(dest_file, mode="r:*") as tf:
         t = Thread(target=tf.extractall(path=directory))
         t.start()
         while t.isAlive():
@@ -132,7 +132,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
 
     if disable_cache:
         logging.info('Deleting cached tar file')
-        os.remove(obj.get_dest())
+        os.remove(dest_file)
 
     try:
         assert_version(directory)
@@ -140,3 +140,8 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         logger.error(str(r))
 
     return directory
+
+
+if __name__ == '__main__':
+    coloredlogs.install(logging.DEBUG)
+    download(experiment=(sys.argv[1] if len(sys.argv) > 1 else None))

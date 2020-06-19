@@ -54,7 +54,6 @@ Visual Observations - :code:`pov`, :code:`third-persion`
     :type: :code:`np.uint8`
 
 
-
 .. _third-person:
 
 .. function:: third-person : Box(width, height, nchannels)
@@ -65,6 +64,17 @@ Visual Observations - :code:`pov`, :code:`third-persion`
         This observation is not yet supported by any environment.
 
     :type: :code:`np.uint8`
+
+.. _compass-observation:
+
+.. function:: compass-observation : Box(1)
+
+    The current position of the `minecraft:compass` object from 0 (behind agent left) to
+    0.5 in front of agent to 1 (behind agent right)
+    
+    .. note::
+        This observation uses the default Minecraft game logic which includes compass needle momentum. 
+        As such it may change even when the agent has stoped moving!
 
 
 
