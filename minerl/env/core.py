@@ -544,6 +544,9 @@ class MineRLEnv(gym.Env):
         """
         assert isinstance(seed, int), "Seed must be an int!"
         self._seed = seed
+        self.observation_space.seed(_seed)
+        self.action_space.seed(_seed)
+
 
     def step(self, action):
 
