@@ -23,8 +23,6 @@ import coloredlogs
 logger = logging.getLogger(__name__)
 
 
-      
-
 def download(directory=None, resolution='low', texture_pack=0, update_environment_variables=True, disable_cache=False,
              experiment=None, minimal=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
@@ -79,7 +77,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
     mirrors = [
         "https://minerl.s3.amazonaws.com/",
         "https://minerl-asia.s3.amazonaws.com/",
-        "https://minerl-europe.s3.amazonaws.com/"]  # , "https://router2.sneakywines.me/"]
+        "https://minerl-europe.s3.amazonaws.com/"]
 
     if experiment is None:
         min_str = '_minimal' if minimal else ''
@@ -91,7 +89,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         if os.path.exists(os.path.join(directory, experiment)):
             logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
             return directory
-        filename = "minerl/v{}/{}.tar".format(DATA_VERSION, experiment)
+        filename = "v{}/{}.tar".format(DATA_VERSION, experiment)
         urls = [mirror + filename for mirror in mirrors]
     try:
         logger.info("Fetching download hash ...")
@@ -103,10 +101,9 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
         download_with_resume(urls, dest_file)
     except HTTPError as e:
-        logger.error("HTTP error encountered when downloading")
+        logger.error("HTTP {} error encountered when downloading files!".format(e.code))
         if experiment is not None:
-            logger.error("is {}  a valid minerl environment?".format(experiment))
-        logger.error(e.errno)
+            logger.error("Is \"{}\" a valid minerl environment?".format(experiment))
         return None
     except URLError as e:
         logger.error("URL error encountered when downloading - please try again")
