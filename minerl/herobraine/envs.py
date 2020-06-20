@@ -65,6 +65,7 @@ MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IR
 # Survival envs
 MINERL_OBTAIN_DIAMOND_SURVIVAL_V0 = Obfuscated(Vectorized(ObtainDiamondSurvival(dense=True), common_envs=comp_envs), comp_obfuscator_dir, 'MineRLObtainDiamondSurvivalVectorObf-v0')
 
+obfuscated_envs = [e for e in locals().values() if isinstance(e, Obfuscated)]
 
 # ENVS = [MINERL_OBTAIN_IRON_PICKAXE_OBF_V0]
 
