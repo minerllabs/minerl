@@ -140,7 +140,9 @@ class TrajectoryDisplayBase(ScaledImageDisplay):
         e = self.window.dispatch_events()
         
         self.blit_texture(obs["pov"], SZ*14, 0, self.width -SZ*14, self.width -SZ*14)
-        self.process_actions(action)
+        
+        if action is not None:
+            self.process_actions(action)
         self.process_observations(obs)
 
 
