@@ -449,6 +449,7 @@ class MineRLEnv(gym.Env):
             # We don't force the same seed every episode, you gotta send it yourself queen.
             self._seed = None
 
+    @retry
     def _start_up(self):
         self.resets += 1
 
