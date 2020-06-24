@@ -2,9 +2,7 @@ import logging
 import coloredlogs
 import time
 import tqdm 
-import matplotlib
 import numpy as np
-import matplotlib.pyplot as plt
 import pyglet
 
 from minerl.viewer.scaled_image_display import ScaledImageDisplay
@@ -25,8 +23,6 @@ class TrajectoryDisplayBase(ScaledImageDisplay):
     def __init__(self, environment, stream_name="", instructions=None, cum_rewards=None):
         super().__init__(SZ*28, SZ*14)
         
-        matplotlib.use('Agg')   
-        plt.style.use('dark_background')
 
         self.instructions = instructions
         self.f_ox, self.fo_y = SZ, SZ
@@ -77,6 +73,13 @@ class TrajectoryDisplayBase(ScaledImageDisplay):
         # First let us matplot lib plot the cum rewards to an image.
         # Make a random plot...
         # plt.clf()
+
+        import matplotlib
+        import matplotlib.pyplot as plt
+
+
+        matplotlib.use('Agg')   
+        plt.style.use('dark_background')
         fig = plt.figure(figsize=(2,2))
         ax = fig.add_subplot(111)
 
@@ -140,7 +143,9 @@ class TrajectoryDisplayBase(ScaledImageDisplay):
         e = self.window.dispatch_events()
         
         self.blit_texture(obs["pov"], SZ*14, 0, self.width -SZ*14, self.width -SZ*14)
-        self.process_actions(action)
+        
+        if action is not None:
+            self.process_actions(action)
         self.process_observations(obs)
 
 
