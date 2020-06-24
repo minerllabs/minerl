@@ -111,6 +111,6 @@ def _test_obtain_diamond():
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        rate = test_data(sys.argv[1])
+        rate = _test_data(sys.argv[1])
     else:
-        rate = test_data()
+        rate = _test_data()
