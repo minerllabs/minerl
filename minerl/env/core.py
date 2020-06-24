@@ -534,17 +534,24 @@ class MineRLEnv(gym.Env):
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
-    def seed(self, seed=None):
+    def seed(self, seed=42, seed_spaces=True):
         """Seeds the environment!
+
+        This also seeds the aciton_space and observation_space sampling.
 
         Note:
         THIS MUST BE CALLED BEFORE :code:`env.reset()`
         
         Args:
-            seed (long, optional):  Defaults to None.
+            seed (long, optional):  Defaults to 42.
+            seed_spaces (bool, option): If the observation space and action space shoud be seeded. Defaults to True.
         """
         assert isinstance(seed, int), "Seed must be an int!"
         self._seed = seed
+        if seed_spaces:
+            self.observation_space.seed(_seed)
+            self.action_space.seed(_seed)
+
 
     def step(self, action):
 

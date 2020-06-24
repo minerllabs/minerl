@@ -23,10 +23,14 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0,
     3. Wrap and unwrap those actions.
     4. Assert that the result is the same as the sample
     """
-    np.random.seed(42)
     vec_env = envs.MINERL_OBTAIN_DIAMOND_OBF_V0
+    base_env.action_space.seed(1)
+    base_env.observation_space.seed(1)
 
+    vec_env.action_space.seed(1)
+    vec_env.observation_space.seed(1)
     for _ in range(100):
+
         s = base_env.action_space.sample()
         ws = vec_env.wrap_action(s)
         us = vec_env.unwrap_action(ws)
@@ -37,6 +41,7 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0,
         us = vec_env.unwrap_action(s)
         assert us in base_env.action_space
 
+    # 1/0
     for _ in range(100):
         s = base_env.observation_space.sample()
         ws = vec_env.wrap_observation(s)
