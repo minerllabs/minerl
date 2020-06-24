@@ -42,7 +42,6 @@ from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger
 
 import minerl.herobraine.hero.spaces as spaces
 from minerl.herobraine.wrapper import EnvWrapper
-from minerl.viewer.trajectory_display import HumanTrajectoryDisplay, VectorTrajectoryDisplay
 
 logger = logging.getLogger(__name__)
 
@@ -585,6 +584,7 @@ class MineRLEnv(gym.Env):
 
     def _renderObs(self, obs, ac=None):
         if self.viewer is None:
+            from minerl.viewer.trajectory_display import HumanTrajectoryDisplay, VectorTrajectoryDisplay
             vector_display = 'Vector' in self.env_spec.name
             header= self.env_spec.name
             # TODO: env_specs should specify renderers.
