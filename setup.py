@@ -88,7 +88,11 @@ data_files += package_files('minerl/data/assets')
 
 setuptools.setup(
       name='minerl',
+<<<<<<< HEAD
       version='0.3.4',
+=======
+      version='0.3.3',
+>>>>>>> Bumping to version 0.3.3
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
