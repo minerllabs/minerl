@@ -18,6 +18,7 @@
         <AllowPassageOfTime>false</AllowPassageOfTime>
       </Time>
       <AllowSpawning>true</AllowSpawning>
+      <LanEnabled>true</LanEnabled>
     </ServerInitialConditions>
 
     <ServerHandlers>

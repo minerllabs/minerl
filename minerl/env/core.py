@@ -507,6 +507,15 @@ class MineRLEnv(gym.Env):
                     "Something went wrong resetting the environment! "
                     "`done` was true on first frame.")
 
+        # See if there is an integrated port
+        port = self._find_server()
+        if port:
+            self.integratedServerPort = port
+            logger.warn("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
+            # Todo make a launch command.
+            
+
+
         return self._process_observation(obs, info)
 
     def _quit_episode(self):
@@ -671,20 +680,12 @@ class MineRLEnv(gym.Env):
                 sock, ("<Find>" + self._get_token() + "</Find>").encode())
             reply = comms.recv_message(sock)
             port, = struct.unpack('!I', reply)
-            if port == 0:
-                if time.time() - start_time > MAX_WAIT:
-                    if self.client_socket:
-                        self.client_socket.close()
-                        self.client_socket = None
-                    raise MissionInitException(
-                        'too long finding mission to join')
-                time.sleep(1)
         sock.close()
         # print("Found mission integrated server port " + str(port))
-        self.integratedServerPort = port
-        e = self.xml.find(self.ns + 'MinecraftServerConnection')
-        if e is not None:
-            e.attrib['port'] = str(self.integratedServerPort)
+        return  port
+        # e = self.xml.find(self.ns + 'MinecraftServerConnection')
+        # if e is not None:
+        #     e.attrib['port'] = str(self.integratedServerPort)
 
     def _init_mission(self):
         ok = 0
