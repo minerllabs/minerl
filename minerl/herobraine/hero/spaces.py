@@ -10,10 +10,11 @@ from collections import OrderedDict
 from typing import List
 
 import gym
+import logging
 import gym.spaces
 import numpy as np
 import collections
-
+import warnings
 import abc
 
 
@@ -49,8 +50,21 @@ class MineRLSpace(abc.ABC, gym.Space):
         return True
 
     @abc.abstractmethod
-    def sample(self, bdim):
+    def sample(self, bdim=None):
         pass
+
+    def noop(self, batch_shape=()):
+        """Backwards compatibility layer.
+
+        Args:
+            batch_shape (tuple, optional): [description]. Defaults to ().
+
+        Returns:
+            np.ndarray: the No_op action.
+        """
+        warnings.warn("space.noop() is being deprecated for space.no_op() in MineRL 1.0.0. "
+            "Please change your code to reflect this change.", DeprecationWarning)
+        return self.no_op(batch_shape)
 
 
 class Tuple(gym.spaces.Tuple, MineRLSpace):
@@ -68,14 +82,12 @@ class Tuple(gym.spaces.Tuple, MineRLSpace):
         raise NotImplementedError()
 
 
-
 class Box(gym.spaces.Box, MineRLSpace):
-    def __init__(self, *args,  normalizer_scale='linear', **kwargs):
+    def __init__(self, *args, normalizer_scale='linear', **kwargs):
         super(Box, self).__init__(*args, **kwargs)
 
         self._flat_low = self.low.flatten().astype(np.float64)
         self._flat_high = self.high.flatten().astype(np.float64)
-        
 
         if normalizer_scale == 'log':
             self.max_log = np.log(1 + (self._flat_high - self._flat_low))
@@ -113,13 +125,15 @@ class Box(gym.spaces.Box, MineRLSpace):
         Then reshapes it back to the original shape.
         """
         low = x + Box.CENTER
-        
+
         if self.normalizer_scale == 'linear':
             high = low * (self._flat_high - self._flat_low) + self._flat_low
         elif self.normalizer_scale == 'log':
-            high = np.exp(low* self.max_log) -1 + self._flat_low
-        
-        reshaped =  high.reshape(list(x.shape[:-1]) + list(self.shape))
+            high = np.exp(low * self.max_log) - 1 + self._flat_low
+        else:
+            raise NotImplementedError("Normalizer {} not implemented for Box space!".format(self.normalizer_scale))
+
+        reshaped = high.reshape(list(x.shape[:-1]) + list(self.shape))
         if np.issubdtype(self.dtype, np.integer):
             return np.round(reshaped).astype(self.dtype)
         else:
@@ -148,41 +162,37 @@ class Box(gym.spaces.Box, MineRLSpace):
         bdim = () if bs is None else (bs,)
 
         high = self.high if self.dtype.kind == 'f' \
-                else self.high.astype('int64') + 1
+            else self.high.astype('int64') + 1
         sample = np.empty(bdim + self.shape)
 
         # Masking arrays which classify the coordinates according to interval
         # type
-        unbounded   = ~self.bounded_below & ~self.bounded_above
-        upp_bounded = ~self.bounded_below &  self.bounded_above
-        low_bounded =  self.bounded_below & ~self.bounded_above
-        bounded     =  self.bounded_below &  self.bounded_above
-        
-        
+        unbounded = ~self.bounded_below & ~self.bounded_above
+        upp_bounded = ~self.bounded_below & self.bounded_above
+        low_bounded = self.bounded_below & ~self.bounded_above
+        bounded = self.bounded_below & self.bounded_above
+
         # Vectorized sampling by interval type
         sample[..., unbounded] = self.np_random.normal(
-                size=bdim + unbounded[unbounded].shape)
+            size=bdim + unbounded[unbounded].shape)
 
         sample[..., low_bounded] = self.np_random.exponential(
             size=bdim + low_bounded[low_bounded].shape) + self.low[low_bounded]
-        
+
         sample[..., upp_bounded] = -self.np_random.exponential(
             size=bdim + upp_bounded[upp_bounded].shape) - self.high[upp_bounded]
-        
-        sample[..., bounded] = self.np_random.uniform(low=self.low[bounded], 
-                                            high=high[bounded],
-                                            size=bdim + bounded[bounded].shape)
+
+        sample[..., bounded] = self.np_random.uniform(low=self.low[bounded],
+                                                      high=high[bounded],
+                                                      size=bdim + bounded[bounded].shape)
 
         return sample.astype(self.dtype)
-
 
     def __repr__(self):
         # Prints the name of the class and its information
         # Specifically, the shape, the max of self.high, and the min of self.low
         # :return: string representation of the Box
         return "Box(low={0}, high={1}, shape={2})".format(np.min(self.low), np.max(self.high), self.shape)
-
-
 
 
 class Discrete(gym.spaces.Discrete, MineRLSpace):
@@ -204,11 +214,11 @@ class Discrete(gym.spaces.Discrete, MineRLSpace):
         return self.eye[x]
 
     def unmap(self, x):
-        return np.array(np.argmax(x,axis=-1), dtype=self.dtype)
+        return np.array(np.argmax(x, axis=-1), dtype=self.dtype)
 
     def sample(self, bs=None):
         bdim = () if bs is None else (bs,)
-        return self.np_random.randint(self.n,size=bdim)
+        return self.np_random.randint(self.n, size=bdim)
 
 
 class Enum(Discrete, MineRLSpace):
@@ -254,7 +264,6 @@ class Enum(Discrete, MineRLSpace):
     def unmap(self, x):
         return self.values[super().unmap(x)]
 
-
     def no_op(self, batch_shape=()):
         if self.default:
             if len(batch_shape) == 0:
@@ -271,9 +280,8 @@ class Enum(Discrete, MineRLSpace):
                 single_act = True
                 action = np.array([action])
 
+            u, inv = np.unique(action, return_inverse=True)
 
-            u,inv = np.unique(action,return_inverse = True)
-            
             inds = np.array([self.value_map[x] for x in u])[inv].reshape(action.shape)
 
             return inds if not single_act else inds.tolist()[0]
@@ -320,9 +328,8 @@ class Dict(gym.spaces.Dict, MineRLSpace):
 
     def sample(self, bs=None):
         return OrderedDict([
-           ( k, v.sample(bs)) for k, v in self.spaces.items()
+            (k, v.sample(bs)) for k, v in self.spaces.items()
         ])
-    
 
     @property
     def unflattened(self):
@@ -337,10 +344,10 @@ class Dict(gym.spaces.Dict, MineRLSpace):
         # This could be refactored and externalized.
         # TODO: 1. Make all spaces have a shape.
         # TODO: 2. Make vectorization a first class citizen gym3?
-        
+
         try:
             batch_shape = ()
-            
+
             for (k, v) in self.spaces.items():
                 if k in x and v.is_flattenable():
                     # Get batch_shape from x[k]
@@ -349,7 +356,7 @@ class Dict(gym.spaces.Dict, MineRLSpace):
                         # we are not vectorized; so there is no batch_size.
                         break
                     try:
-                        batch_shape = x[k].shape if  len(v.shape) == 0 else x[k].shape[:-len(v.shape)]
+                        batch_shape = x[k].shape if len(v.shape) == 0 else x[k].shape[:-len(v.shape)]
                         break
                     except AttributeError:
                         # Cannot determine batch_size from vector without shape
@@ -359,8 +366,8 @@ class Dict(gym.spaces.Dict, MineRLSpace):
             for (k, v) in self.spaces.items():
                 if v.is_flattenable():
                     stuff_to_cat.append((
-                        v.flat_map(x[k]) 
-                            if k in x else v.flat_map(v.no_op(batch_shape))
+                        v.flat_map(x[k])
+                        if k in x else v.flat_map(v.no_op(batch_shape))
                     ))
             return np.concatenate(
                 stuff_to_cat,
@@ -383,7 +390,7 @@ class Dict(gym.spaces.Dict, MineRLSpace):
             for k, v in (self.spaces.items()) if not v.is_flattenable()
         })
 
-    def unmap(self, x : np.ndarray, skip=False) -> OrderedDict:
+    def unmap(self, x: np.ndarray, skip=False) -> OrderedDict:
         unmapped = collections.OrderedDict()
         cur_index = 0
         for k, v in self.spaces.items():
@@ -428,19 +435,20 @@ class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):
     def flat_map(self, x):
         return np.concatenate(
             [self.eyes[i][x[..., i]] for i in range(len(self.nvec))],
-        axis=-1)
+            axis=-1)
 
     def unmap(self, x):
         cur_index = 0
         out = []
         for n in self.nvec:
-            out.append(np.argmax(x[..., cur_index:cur_index + n], axis=-1)[...,np.newaxis])
+            out.append(np.argmax(x[..., cur_index:cur_index + n], axis=-1)[..., np.newaxis])
             cur_index += n
-        return np.concatenate(out,axis=-1).astype(self.dtype)
+        return np.concatenate(out, axis=-1).astype(self.dtype)
 
     def sample(self, bs=None):
         bdim = () if bs is None else (bs,)
-        return (self.np_random.random_sample(bdim + self.nvec.shape)*self.nvec).astype(self.dtype)
+        return (self.np_random.random_sample(bdim + self.nvec.shape) * self.nvec).astype(self.dtype)
+
 
 class Text(gym.Space):
     """
@@ -507,13 +515,12 @@ class DiscreteRange(Discrete):
     def contains(self, x):
         return super().contains(x - self.begin)
 
-        
     __contains__ = contains
 
     def no_op(self, batch_shape=()):
         if len(batch_shape) == 0:
             return self.begin
-        else: 
+        else:
             return (np.zeros(batch_shape) + self.begin).astype(self.dtype)
 
     def create_flattened_space(self):

@@ -109,6 +109,7 @@ class MineRLEnv(gym.Env):
 
         self.viewer = None
 
+        self._last_ac = None
         self.xml = None
         self.integratedServerPort = 0
         self.role = 0
@@ -134,7 +135,8 @@ class MineRLEnv(gym.Env):
         self.instance = self._get_new_instance(port)
         self.env_spec = env_spec
 
-        self._setup_spaces(observation_space, action_space)
+        self.observation_space = observation_space
+        self.action_space = action_space
 
         self.resets = 0
         self.done = True
@@ -154,34 +156,6 @@ class MineRLEnv(gym.Env):
 
         instance.launch()
         return instance
-
-    def _setup_spaces(self, observation_space, action_space):
-        self.action_space = action_space
-        self.observation_space = observation_space
-
-        def map_space(space):
-            if isinstance(space, spaces.Discrete) or isinstance(space, spaces.Enum):
-                return 0
-            elif isinstance(space, spaces.Box):
-                return np.zeros(shape=space.shape, dtype=space.dtype)
-            else:
-                try:
-                    return space.default()
-                except NameError:
-                    raise ValueError(
-                        'Specify non-None default_action in gym.register or extend all action spaces with default() method')
-
-        if self._default_action is None:
-            self._default_action = {key: map_space(
-                space) for key, space in action_space.spaces.items()}
-
-        def noop_func(a):
-            return deepcopy(self._default_action)
-
-        # Todo: Use space noops.
-
-        boundmethd = _bind(self.action_space, noop_func)
-        self.action_space.noop = boundmethd
 
     def init(self):
         """Initializes the MineRL Environment.
@@ -277,6 +251,8 @@ class MineRLEnv(gym.Env):
         self.depth = 4 if want_depth is not None and (
                 want_depth == "true" or want_depth == "1" or want_depth is True) else 3
         # print(etree.tostring(self.xml))
+        self._last_ac = None
+
 
         self.has_init = True
 
@@ -291,7 +267,7 @@ class MineRLEnv(gym.Env):
         Returns:
             Any: A no-op action in the env's space.
         """
-        return deepcopy(self._default_action)
+        return self.action_space.no_op()
 
     def _process_observation(self, pov, info):
         """
@@ -374,6 +350,8 @@ class MineRLEnv(gym.Env):
         obs_dict = recursive_update(obs_dict, info)
 
         self._last_pov = obs_dict['pov']
+        self._last_obs = obs_dict
+        
 
         # Now we wrap
         if isinstance(self.env_spec, EnvWrapper):
@@ -385,6 +363,7 @@ class MineRLEnv(gym.Env):
         """
         Process the actions into a proper command.
         """
+        self._last_ac = action_in
         action_in = deepcopy(action_in)
 
         if isinstance(self.env_spec, EnvWrapper):
@@ -425,6 +404,7 @@ class MineRLEnv(gym.Env):
 
             action_str.append(
                 "{} {}".format(act, str(action_in[act])))
+            
 
         return "\n".join(action_str)
 
@@ -449,6 +429,7 @@ class MineRLEnv(gym.Env):
             # We don't force the same seed every episode, you gotta send it yourself queen.
             self._seed = None
 
+    @retry
     def _start_up(self):
         self.resets += 1
 
@@ -533,17 +514,24 @@ class MineRLEnv(gym.Env):
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
-    def seed(self, seed=None):
+    def seed(self, seed=42, seed_spaces=True):
         """Seeds the environment!
+
+        This also seeds the aciton_space and observation_space sampling.
 
         Note:
         THIS MUST BE CALLED BEFORE :code:`env.reset()`
         
         Args:
-            seed (long, optional):  Defaults to None.
+            seed (long, optional):  Defaults to 42.
+            seed_spaces (bool, option): If the observation space and action space shoud be seeded. Defaults to True.
         """
         assert isinstance(seed, int), "Seed must be an int!"
         self._seed = seed
+        if seed_spaces:
+            self.observation_space.seed(self._seed)
+            self.action_space.seed(self._seed)
+
 
     def step(self, action):
 
@@ -578,6 +566,7 @@ class MineRLEnv(gym.Env):
                 # Process the observation and done state.
                 out_obs = self._process_observation(obs, info)
                 self.done = (done == 1)
+                
 
                 return out_obs, reward, self.done, {}
             else:
@@ -591,43 +580,35 @@ class MineRLEnv(gym.Env):
                 "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
                 "To account for this failure case in your code check to see if `'error' in info` where info is "
                 "the info dictionary returned by the step function.")
-            return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
+            return self.observationlf._space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
-    def _renderObs(self, obs):
+    def _renderObs(self, obs, ac=None):
         if self.viewer is None:
-            from gym.envs.classic_control import rendering
-            import pyglet
-            class ScaledWindowImageViewer(rendering.SimpleImageViewer):
-                def __init__(self, width, height):
-                    super().__init__(None, 640)
+            from minerl.viewer.trajectory_display import HumanTrajectoryDisplay, VectorTrajectoryDisplay
+            vector_display = 'Vector' in self.env_spec.name
+            header= self.env_spec.name
+            # TODO: env_specs should specify renderers.
+            instructions='{}.render()\n Actions listed below.'.format(header)
+            subtext = 'render'
+            cum_rewards=None
+            if not vector_display:
+                self.viewer= HumanTrajectoryDisplay(
+                    header, subtext, instructions=instructions,
+                    cum_rewards=cum_rewards)
 
-                    if width > self.maxwidth:
-                        scale = self.maxwidth / width
-                        width = int(scale * width)
-                        height = int(scale * height)
-                    self.window = pyglet.window.Window(width=width, height=height,
-                                                       display=self.display, vsync=False, resizable=True)
-                    self.width = width
-                    self.height = height
-                    self.isopen = True
+            else:
+                self.viewer= VectorTrajectoryDisplay(
+                    header, subtext, instructions=instructions,
+                    cum_rewards=cum_rewards)
+        # Todo: support more information to the render
+        self.viewer.render(obs, 0, 0, ac, 0, 1)
 
-                    @self.window.event
-                    def on_resize(width, height):
-                        self.width = width
-                        self.height = height
-
-                    @self.window.event
-                    def on_close():
-                        self.isopen = False
-
-            self.viewer = ScaledWindowImageViewer(self.width * 4, self.height * 4)
-        self.viewer.imshow(obs)
         return self.viewer.isopen
 
     def render(self, mode='human'):
         if mode == 'human' and (
                 not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
-            self._renderObs(self._last_pov)
+            self._renderObs(self._last_obs, self._last_ac)
         return self._last_pov
 
     def is_closed(self):
