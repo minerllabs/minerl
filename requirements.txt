@@ -1,4 +1,4 @@
-gym>=0.12.1
+gym>=0.13.1
 opencv-python>=4.1.0.25
 setuptools>=40.6.2
 tqdm>=4.32.2
