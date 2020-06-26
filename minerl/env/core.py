@@ -580,7 +580,7 @@ class MineRLEnv(gym.Env):
                 "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
                 "To account for this failure case in your code check to see if `'error' in info` where info is "
                 "the info dictionary returned by the step function.")
-            return self.observationlf._space.sample(), 0, self.done, {"error": "Connection timed out!"}
+            return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
     def _renderObs(self, obs, ac=None):
         if self.viewer is None:
