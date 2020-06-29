@@ -12,7 +12,7 @@ from minerl.data import FILE_PREFIX
 _DOC_TRAJ_NAME = "{}absolute_zucchini_basilisk-13_36805-50154".format(FILE_PREFIX)
 
 
-def parse_args():
+def get_parser():
     parser = argparse.ArgumentParser("python3 -m minerl.viewer")
     parser.add_argument("environment", type=str,
                         help='The MineRL environment to visualize. e.g. MineRLObtainDiamondDense-v0')
@@ -22,4 +22,4 @@ def parse_args():
                              "e.g. {}."
                              "".format(_DOC_TRAJ_NAME))
 
-    return parser.parse_args()
+    return parser

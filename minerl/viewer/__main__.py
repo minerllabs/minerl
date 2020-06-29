@@ -10,15 +10,13 @@ import time
 import numpy as np
 
 import minerl
-from minerl.viewer import parse_args
+from minerl.viewer import get_parser
 from minerl.viewer.trajectory_display_controller import TrajectoryDisplayController
 
 coloredlogs.install(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def get_parser():
-    return parse_args()
 
 
 def main(opts):
@@ -50,4 +48,4 @@ def main(opts):
 
 
 if __name__ == '__main__':
-    main(get_parser())
+    main(get_parser().parse_args())

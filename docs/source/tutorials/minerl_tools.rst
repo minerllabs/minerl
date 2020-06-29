@@ -27,7 +27,7 @@ environment's action space), and the reward they received.
     import minerl
     import minerl.viewer
 
-    help_str = minerl.viewer.parser.format_help()
+    help_str = minerl.viewer.get_parser().format_help()
 
     print(".. code-block:: bash\n") 
     for line  in help_str.split("\n"):
@@ -70,7 +70,7 @@ Interactive Mode :code:`minerl.interactor`
 
 
 Once you have started training agents, the next step is getting them to interact with human players.
-To hep achieve this, the :code:`minerl` python package provides a interactive Minecraft client called
+To help achieve this, the :code:`minerl` python package provides a interactive Minecraft client called
 :code:`minerl.interactor`:
 
 .. raw:: html
@@ -86,7 +86,7 @@ to the Minecraft world that your agent(s) is using and interact with the agent i
 .. note::
 
     For observation-only mode hit the :code:`t` key and type :code:`/gamemode sp` to enter
-    spectator mode and become invisible to your agent(s).
+    spectator mode and become invisible to your agen``t(s).
 
 
 .. exec::
