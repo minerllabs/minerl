@@ -20,7 +20,7 @@ def run_episode(thr_num, *args):
    timings = []
    while not done:
       t0 = time.time()
-      _,_,done,_ =   env.step(env.action_space.noop())
+      _,_,done,_ =   env.step(env.action_space.sample())
       env.render()
       timings.append(time.time() - t0)
       if len(timings)  % 1000 == 0 or done:
