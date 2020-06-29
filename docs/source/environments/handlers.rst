@@ -98,6 +98,15 @@ Camera Control - :code:`camera`
     :type: :code:`np.float32`
     :shape: [2]
 
+.. _attack:
+
+.. function:: attack : Discrete(1) [attack]
+
+    This action causes the agent to attack.
+
+    :type: :code:`np.float32`
+    :shape: [1]
+
 
 Tool Control - :code:`camera`
 -------------------------------
