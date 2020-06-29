@@ -14,7 +14,7 @@
                 <StartTime>6000</StartTime>
                 <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-            <LanEnabled>true</LanEnabled>
+            
             <Weather>clear</Weather>
             <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>

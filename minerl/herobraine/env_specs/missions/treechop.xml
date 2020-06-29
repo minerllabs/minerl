@@ -17,7 +17,7 @@
         <!--<StartTime>0</StartTime>-->
         <AllowPassageOfTime>false</AllowPassageOfTime>
       </Time>
-      <LanEnabled>true</LanEnabled>
+            
       <AllowSpawning>true</AllowSpawning>
     </ServerInitialConditions>
 
