@@ -430,7 +430,7 @@ class MineRLEnv(gym.Env):
 
         For example:
 
-        ```python
+        .. code-block:: python
 
             env = gym.make('MineRL...')
             
@@ -443,17 +443,14 @@ class MineRLEnv(gym.Env):
             
             # interact as normal.
             ...
-            
 
-        ```
 
         Then while the agent is running, you can start the interactor with the following command.
 
-        ```bash 
+        .. code-block:: bash
 
             python3 -m minerl.interactor 6666 # replace with the port above.
 
-        ```
 
         The interactor will disconnect when the mission resets, but you can connect again with the same command.
         If an interactor is already started, it won't need to be relaunched when running the commnad a second time.
