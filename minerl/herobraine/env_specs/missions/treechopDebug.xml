@@ -11,15 +11,14 @@
 
 
   <ServerSection>
-
     <ServerInitialConditions>
       <Time>
         <!--<StartTime>0</StartTime>-->
         <AllowPassageOfTime>false</AllowPassageOfTime>
       </Time>
       <AllowSpawning>true</AllowSpawning>
+      
     </ServerInitialConditions>
-
     <ServerHandlers>
         <FileWorldGenerator
         src= "$(MISSIONS_DIR)/forest_survival"
