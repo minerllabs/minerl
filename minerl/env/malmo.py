@@ -213,9 +213,9 @@ class InstanceManager:
         cls.shutdown()
 
     @classmethod
-    def add_existing_instance(cls, port):
+    def add_existing_instance(cls, port,):
         assert cls._is_port_taken(port), "No Malmo mod utilizing the port specified."
-        instance = InstanceManager.Instance(port=port, existing=True, status_dir=status_dir)
+        instance = InstanceManager.Instance(port=port, existing=True, status_dir=None)
         cls._instance_pool.append(instance)
         cls.ninstances += 1
         return instance
@@ -404,7 +404,7 @@ class InstanceManager:
             self._starting = True
             self.minecraft_process = None
             self.watcher_process = None
-            self._port = None
+            self._port = port
             self._host = InstanceManager.DEFAULT_IP
             self.locked = False
             self.uuid = str(uuid.uuid4()).replace("-","")[:6]
@@ -426,7 +426,7 @@ class InstanceManager:
             self._setup_logging()
             self._target_port = port
             
-        def launch(self):
+        def launch(self, daemonize=False):
             port = self._target_port
             self._starting = True
 
@@ -450,8 +450,12 @@ class InstanceManager:
 
                
                 # 2. Create a watcher process to ensure things get cleaned up
-                self.watcher_process, update_port = self._launch_process_watcher(
-                    parent_pid, self.minecraft_process.pid, self.host, port, self.instance_dir)
+                if not daemonize:
+                    self.watcher_process, update_port = self._launch_process_watcher(
+                        parent_pid, self.minecraft_process.pid, self.host, port, self.instance_dir)
+                else:
+                    update_port = lambda x: None
+
                 
                 # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
                 lines = []
@@ -558,7 +562,8 @@ class InstanceManager:
             self._starting = False
 
             # Make a hook to kill
-            atexit.register(lambda: self._destruct())
+            if not daemonize:
+                atexit.register(lambda: self._destruct())
 
         def kill(self):
             """
@@ -734,7 +739,7 @@ class InstanceManager:
             return ("Malmo[{}, proc={}, addr={}:{}, locked={}]".format(
                 self.uuid,
                 self.minecraft_process.pid if not self.existing else "EXISTING",
-                self.ip,
+                self.host,
                 self.port,
                 self.locked
             ))

@@ -7,9 +7,14 @@ import socket
 import struct
 import time
 
+import logging
+import coloredlogs
 
-def request_interactor(sock, ip):
-   
+logger = logging.getLogger(__name__)
+
+
+def request_interactor(instance, ip):
+    sock = get_socket(instance)
     MineRLEnv._hello(sock)
 
     comms.send_message(sock,
@@ -18,33 +23,31 @@ def request_interactor(sock, ip):
     ok, = struct.unpack('!I', reply)
     if not ok:
         raise RuntimeError("Failed to start interactor")
+    sock.close()
 
 def get_socket(instance):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     sock.settimeout(60)
     sock.connect((instance.host, instance.port))
-    MineRLEnv._hello(sock)
 
     return sock
 
-def wait_while_running(sock):
-    while True:
-        time.sleep(1)
-        try:
-            MineRLEnv._hello(sock)
-        except:
-            return
+INTERACTOR_PORT = 31415
 
-def run_interactor(ip, port):
-    instance = InstanceManager.get_instance(os.getpid())
-    instance.launch()
-    sock = get_socket(instance)
+def run_interactor(ip, port, interactor_port=INTERACTOR_PORT):
+    try:
+        InstanceManager.add_existing_instance(interactor_port)
+        instance = InstanceManager.get_instance(-1)
+        print(instance)
+    except AssertionError as e:
+        logger.warning("No existing interactor found on port {}. Starting a new interactor.".format(interactor_port))
+        instance = InstanceManager.Instance(interactor_port)
+        instance.launch(daemonize=True)
+    
     request_interactor(
-        sock, '{}:{}'.format(ip, port)
+        instance, '{}:{}'.format(ip, port)
     )
-    wait_while_running(sock)
-    return
     
 
 
@@ -56,13 +59,18 @@ def parse_args():
     # ip default localhost
     parser.add_argument('-i', '--ip', default='127.0.0.1',
                         help='The ip to connect to.')
-    args = parser.parse_args()
-    return args
+    parser.add_argument('--debug', action='store_true', 
+                        help='If this is set, then debug logging will be enabled.')
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
     # TODO: Enable option of using existing mc instance
     # TODO: Enable spectator mode.
     opts = parse_args()
+    if opts.debug:
+        coloredlogs.install(logging.DEBUG)
     run_interactor(ip=opts.ip, port=opts.port)
+    
+    
 

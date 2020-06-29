@@ -74,7 +74,7 @@ class MissionInitException(Exception):
 MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
 MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv'  # Default id for a MineRLEnv
-
+TICK_LENGTH = 0.05
 
 class MineRLEnv(gym.Env):
     """The MineRLEnv class.
@@ -131,7 +131,9 @@ class MineRLEnv(gym.Env):
         self.has_init = False
         self._seed = None
         self.had_to_clean = False
-
+        self._is_interacting = False
+        self._is_real_time = False
+        self._last_step_time = -1
         self._already_closed = False
         self.instance = self._get_new_instance(port)
         self.env_spec = env_spec
@@ -241,6 +243,17 @@ class MineRLEnv(gym.Env):
                                       'port': str(0)
                                       })
             self.xml.insert(2, e)
+
+        
+        hi = etree.fromstring("""
+            <HumanInteraction>
+                <Port>{}</Port>
+                <MaxPlayers>{}</MaxPlayers>
+            </HumanInteraction>""".format(self.interact_port, self.max_players))
+        # Update the xml
+
+        ss  = self.xml.find(".//" + self.ns + 'ServerSection')
+        ss.insert(0, hi)
 
         video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         assert len(video_producers) == self.agent_count
@@ -408,6 +421,56 @@ class MineRLEnv(gym.Env):
             
 
         return "\n".join(action_str)
+
+    def make_interactive(self, port, max_players=10, realtime=True):
+        """
+        Enables human interaction with the environment.
+
+        To interact with the environment add `make_interactive` to your agent's evaluation code
+        and then run the `minerl.interactor.`
+
+        For example:
+
+        ```python
+
+            env = gym.make('MineRL...')
+            
+            # set the environment to allow interactive connections on port 6666
+            # and slow the tick speed to 6666.
+            env.make_interactive(port=6666, realtime=True) 
+
+            # reset the env
+            env.reset()
+            
+            # interact as normal.
+            ...
+            
+
+        ```
+
+        Then while the agent is running, you can start the interactor with the following command.
+
+        ```bash 
+
+            python3 -m minerl.interactor 6666 # replace with the port above.
+
+        ```
+
+        The interactor will disconnect when the mission resets, but you can connect again with the same command.
+        If an interactor is already started, it won't need to be relaunched when running the commnad a second time.
+        
+
+        Args:
+            port (int):  The interaction port
+            realtime (bool, optional): If we should slow ticking to real time.. Defaults to True.
+            max_players (int): The maximum number of players
+
+        """
+        self._is_interacting = True
+        self._is_real_time = realtime
+        self.interact_port = port
+        self.max_players = max_players
+            
 
     @staticmethod
     def _hello(sock):
@@ -577,6 +640,13 @@ class MineRLEnv(gym.Env):
                 out_obs = self._process_observation(obs, info)
                 self.done = (done == 1)
                 
+                if self._is_real_time:
+                    t0 = time.time()
+                    # Todo: Add catch-up
+                    time.sleep(max(0, TICK_LENGTH - (t0 - self._last_step_time)))
+                    self._last_step_time = time.time()
+
+
 
                 return out_obs, reward, self.done, {}
             else:
