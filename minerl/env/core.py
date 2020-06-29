@@ -243,16 +243,16 @@ class MineRLEnv(gym.Env):
                                       })
             self.xml.insert(2, e)
 
-        
-        hi = etree.fromstring("""
-            <HumanInteraction>
-                <Port>{}</Port>
-                <MaxPlayers>{}</MaxPlayers>
-            </HumanInteraction>""".format(self.interact_port, self.max_players))
-        # Update the xml
+        if self._is_interacting:
+            hi = etree.fromstring("""
+                <HumanInteraction>
+                    <Port>{}</Port>
+                    <MaxPlayers>{}</MaxPlayers>
+                </HumanInteraction>""".format(self.interact_port, self.max_players))
+            # Update the xml
 
-        ss  = self.xml.find(".//" + self.ns + 'ServerSection')
-        ss.insert(0, hi)
+            ss  = self.xml.find(".//" + self.ns + 'ServerSection')
+            ss.insert(0, hi)
 
         video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         assert len(video_producers) == self.agent_count
@@ -567,8 +567,8 @@ class MineRLEnv(gym.Env):
                     "`done` was true on first frame.")
 
         # See if there is an integrated port
-        port = self._find_server()
-        if port:
+        if self._is_interacting:
+            port = self._find_server()
             self.integratedServerPort = port
             logger.warn("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
             # Todo make a launch command.
