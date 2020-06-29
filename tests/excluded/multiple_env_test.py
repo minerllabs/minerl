@@ -51,8 +51,8 @@ class MineRLRunner(threading.Thread):
                     random_act)
                 netr += reward
                 print(reward, netr)
-                env.render()
         env.close()
+        print('Finished!')
 
 
 def main():
