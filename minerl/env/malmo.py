@@ -59,13 +59,17 @@ class SeedType(Enum):
     Values:
         0 - NONE: No seeding whatsoever.
         1 - CONSTANT: All envrionments have the same seed (the one specified 
-            to the instance manager)
+            to the instance manager) (or alist of seeds , separated)
         2 - GENERATED: All environments have different seeds generated from a single 
             random generator with the seed specified to the InstanceManager.
+        3 - SPECIFIED: Each instance is given a list of seeds. Specify this like
+            1,2,3,4;848,432,643;888,888,888
+            Each instance's seed list is separated by ; and each seed is separated by ,
     """
     NONE = 0
     CONSTANT = 1
     GENERATED = 2
+    SPECIFIED = 3
 MAXRAND = 1000000
 
 INSTANCE_MANAGER_PYRO = 'minerl.instance_manager'
@@ -115,10 +119,12 @@ class InstanceManager:
             assert seeds is None, "Seed type set to NONE, therefore seed cannot be set."
         elif seed_type == SeedType.CONSTANT:
             assert seeds is not None, "Seed set to constant seed, so seed must be specified."
-            cls._seed_generator = seeds
+            cls._seed_generator = [int(x) for x in seeds.split(",") if x]
         elif seed_type == SeedType.GENERATED:
             assert seeds is not None, "Seed set to generated seed, so initial seed must be specified."
-            cls._seed_generator = Random(seeds[0])
+            cls._seed_generator = Random(int(seeds))
+        elif seed_type == SeedType.SPECIFIED:
+            cls._seed_generator = ([int(x) for x in s.split(",") if x] for s in seeds.split(";") if s)
         else:
             raise TypeError("Seed type {} not supported".format(seed_type))
         
@@ -138,6 +144,11 @@ class InstanceManager:
             return cls._seed_generator
         elif cls._seed_type == SeedType.GENERATED:
             return [cls._seed_generator.randint(-MAXRAND, MAXRAND)]
+        elif cls._seed_type == SeedType.SPECIFIED:
+            try:
+                return next(cls._seed_generator)
+            except StopIteration:
+                raise TypeError("Seed type {} ran out of seeds.".format(cls._seed_type))
         else:
             raise TypeError("Seed type {} does not support getting next seed".format(cls._seed_type))
 
@@ -824,7 +835,7 @@ def launch_instance_manager():
     # Todo: Use name servers in the docker contexct (set up a docker compose?)
     # pyro4-ns
     parser = argparse.ArgumentParser("python3 launch_instance_manager.py")
-    parser.add_argument("--seeds", nargs='+', default=None, 
+    parser.add_argument("--seeds", type='str', default=None, 
         help="The default seed for the environment.")
     parser.add_argument("--seeding_type", type=str, default=SeedType.CONSTANT, 
         help="The seeding type for the environment. Defaults to 1 (CONSTANT)"
@@ -854,7 +865,7 @@ def launch_instance_manager():
 
         # Initialize seeding.
         if opts.seeds is not None:
-            InstanceManager._init_seeding(seeds=list(opts.seeds), seed_type=opts.seeding_type)
+            InstanceManager._init_seeding(seeds=opts.seeds, seed_type=opts.seeding_type)
         else:
             InstanceManager._init_seeding(seed_type=SeedType.NONE)
 
