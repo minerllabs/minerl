@@ -59,6 +59,7 @@ environment's action space), and the reward they received.
     
     print('\t# Make sure your MINERL_DATA_ROOT is set!')
     print("\texport MINERL_DATA_ROOT='/your/local/path'")
+
     print("\t# Visualizes a specific trajectory. {}...".format(traj_name[:17]))
     print("\tpython3 -m minerl.viewer MineRLTreechop-v0 \\")
     print("\t\t{}".format(traj_name))
