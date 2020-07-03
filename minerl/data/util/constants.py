@@ -36,9 +36,9 @@ BUCKET_NAME = 'pizza-party'
 # MERGING
 MERGED_DIR = J(OUTPUT_DIR, 'merged')
 BLACKLIST_TXT = J(OUTPUT_DIR, 'blacklist.txt')
-PARSE_COMMAND = [os.path.abspath(J(os.path.dirname((__file__)), '..', 'pipeline', 'merging', 'parse')), '-f']
+PARSE_COMMAND = [os.path.abspath(J(os.path.dirname((__file__)), '..', 'pipeline', 'parser', 'parse')), '-f']
 Z7_COMMAND = ["7z"]
-TEMP_ROOT = '/tmp'
+TEMP_ROOT = J(BASE_DIR, 'tmp')
 BLOCK_SIZE = 1024 * 1024
 ACTION_FILE = 'actions.tmcpr'
 RECORDING_FILE = 'recording.tmcpr'
