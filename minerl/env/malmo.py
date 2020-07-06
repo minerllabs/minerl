@@ -26,7 +26,7 @@ import traceback
 import pathlib 
 import Pyro4.core
 import argparse
-from enum import Enum
+from enum import IntEnum
  
 import shutil
 import socket
@@ -53,19 +53,31 @@ logger = logging.getLogger(__name__)
 
 malmo_version = "0.37.0"
 
-class SeedType(Enum):
+class SeedType(IntEnum):
     """The seed type for an instance manager.
     
     Values:
         0 - NONE: No seeding whatsoever.
         1 - CONSTANT: All envrionments have the same seed (the one specified 
-            to the instance manager)
+            to the instance manager) (or alist of seeds , separated)
         2 - GENERATED: All environments have different seeds generated from a single 
             random generator with the seed specified to the InstanceManager.
+        3 - SPECIFIED: Each instance is given a list of seeds. Specify this like
+            1,2,3,4;848,432,643;888,888,888
+            Each instance's seed list is separated by ; and each seed is separated by ,
     """
     NONE = 0
     CONSTANT = 1
     GENERATED = 2
+    SPECIFIED = 3
+
+
+
+    @classmethod
+    def get_index(cls, type):
+        return list(cls).index(type)
+
+        
 MAXRAND = 1000000
 
 INSTANCE_MANAGER_PYRO = 'minerl.instance_manager'
@@ -101,7 +113,7 @@ class InstanceManager:
     _seed_generator = None
 
     @classmethod
-    def _init_seeding(cls, seed_type=SeedType.NONE, seeds=None):
+    def _init_seeding(cls, seed_type=int(SeedType.NONE), seeds=None):
         """Sets the seeding type of the Instance manager object.
         
         Args:
@@ -111,21 +123,25 @@ class InstanceManager:
         Raises:
             TypeError: If the SeedType specified does not fall within the SeedType.
         """
-        if seed_type == SeedType.NONE:
+        seed_type = int(seed_type)
+        
+        if seed_type == (SeedType.NONE):
             assert seeds is None, "Seed type set to NONE, therefore seed cannot be set."
-        elif seed_type == SeedType.CONSTANT:
+        elif seed_type == (SeedType.CONSTANT):
             assert seeds is not None, "Seed set to constant seed, so seed must be specified."
-            cls._seed_generator = seeds
-        elif seed_type == SeedType.GENERATED:
+            cls._seed_generator = [int(x) for x in seeds.split(",") if x]
+        elif seed_type == (SeedType.GENERATED):
             assert seeds is not None, "Seed set to generated seed, so initial seed must be specified."
-            cls._seed_generator = Random(seeds[0])
+            cls._seed_generator = Random(int(seeds))
+        elif seed_type == (SeedType.SPECIFIED):
+            cls._seed_generator = ([[str(x) for x in s.split(",") if x] for s in seeds.split("-") if s])
         else:
             raise TypeError("Seed type {} not supported".format(seed_type))
         
         cls._seed_type  = seed_type
 
     @classmethod
-    def _get_next_seed(cls):
+    def _get_next_seed(cls, i=None):
         """Gets the next seed for an instance.
         
         Raises:
@@ -138,12 +154,20 @@ class InstanceManager:
             return cls._seed_generator
         elif cls._seed_type == SeedType.GENERATED:
             return [cls._seed_generator.randint(-MAXRAND, MAXRAND)]
+        elif cls._seed_type == SeedType.SPECIFIED:
+            try:
+                if i is None: 
+                    i = 0
+                    logger.warning("Trying to use specified seed type without specifying index id.")
+                return (cls._seed_generator[i])
+            except IndexError:
+                raise TypeError("Seed type {} ran out of seeds.".format(cls._seed_type))
         else:
             raise TypeError("Seed type {} does not support getting next seed".format(cls._seed_type))
 
 
     @classmethod
-    def get_instance(cls, pid):
+    def get_instance(cls, pid, instance_id=None):
         """
         Gets an instance from the instance manager. This method is a context manager
         and therefore when the context is entered the method yields a InstanceManager.Instance
@@ -156,20 +180,23 @@ class InstanceManager:
             RuntimeError: No available instances or the maximum number of allocated instances reached.
             RuntimeError: No available instances and automatic allocation of instances is off.
         """
-        # Find an available instance.
-        for inst in cls._instance_pool:
-            if not inst.locked:
-                inst._acquire_lock(pid)
-    
+        if not instance_id:
+            # Find an available instance.
+            for inst in cls._instance_pool:
+                if not inst.locked:
+                    inst._acquire_lock(pid)
+        
 
-                if hasattr(cls, "_pyroDaemon"):
-                    cls._pyroDaemon.register(inst)
-                    
+                    if hasattr(cls, "_pyroDaemon"):
+                        cls._pyroDaemon.register(inst)
+                        
 
-                return inst
+                    return inst
         # Otherwise make a new instance if possible
         if cls.managed:
             if cls.MAXINSTANCES is None or cls.ninstances < cls.MAXINSTANCES:
+                instance_id = cls.ninstances if instance_id is None else instance_id
+
                 cls.ninstances += 1
                 # Make the status directory.
 
@@ -180,7 +207,7 @@ class InstanceManager:
                 else:
                     status_dir = None
 
-                inst = cls.Instance(cls._get_valid_port(), status_dir=status_dir)
+                inst = cls.Instance(cls._get_valid_port(), status_dir=status_dir, instance_id=instance_id)
                 cls._instance_pool.append(inst)
                 inst._acquire_lock(pid)
 
@@ -396,7 +423,7 @@ class InstanceManager:
         """
         MAX_PIPE_LENGTH = 500
 
-        def __init__(self, port=None, existing=False, status_dir=None, seed=None): 
+        def __init__(self, port=None, existing=False, status_dir=None, seed=None, instance_id=None): 
             """
             Launches the subprocess.
             """
@@ -414,10 +441,13 @@ class InstanceManager:
             self._status_dir = status_dir
             self.owner = None
 
+
+            self.instance_id = instance_id
+
             # Try to set the seed for the instance using the instance manager's override.
             try:
-                seed = InstanceManager._get_next_seed()
-            except TypeError:
+                seed = InstanceManager._get_next_seed(instance_id)
+            except TypeError as e:
                 pass
             finally:
                 # Even if the Instance manager does not override
@@ -824,15 +854,18 @@ def launch_instance_manager():
     # Todo: Use name servers in the docker contexct (set up a docker compose?)
     # pyro4-ns
     parser = argparse.ArgumentParser("python3 launch_instance_manager.py")
-    parser.add_argument("--seeds", nargs='+', default=None, 
+    parser.add_argument("--seeds", type=str, default=None, 
         help="The default seed for the environment.")
     parser.add_argument("--seeding_type", type=str, default=SeedType.CONSTANT, 
         help="The seeding type for the environment. Defaults to 1 (CONSTANT)"
              "if a seed specified, otherwise 0 (NONE): \n{}".format(SeedType.__doc__))
+
+    
     parser.add_argument("--max_instances", type=int, default=None,
         help="The maximum number of instances the instance manager is able to spawn,"
               "before an exception is thrown. Defaults to Unlimited.")
     opts = parser.parse_args()
+
     
     if opts.max_instances is not None:
         assert opts.max_instances > 0, "Maximum instances must be more than zero!"
@@ -854,7 +887,7 @@ def launch_instance_manager():
 
         # Initialize seeding.
         if opts.seeds is not None:
-            InstanceManager._init_seeding(seeds=list(opts.seeds), seed_type=opts.seeding_type)
+            InstanceManager._init_seeding(seeds=opts.seeds, seed_type=opts.seeding_type)
         else:
             InstanceManager._init_seeding(seed_type=SeedType.NONE)
 

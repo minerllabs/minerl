@@ -143,7 +143,7 @@ class MineRLEnv(gym.Env):
         self.resets = 0
         self.done = True
 
-    def _get_new_instance(self, port=None):
+    def _get_new_instance(self, port=None, instance_id=None):
         """
         Gets a new instance and sets up a logger if need be. 
         """
@@ -151,7 +151,7 @@ class MineRLEnv(gym.Env):
         if not port is None:
             instance = InstanceManager.add_existing_instance(port)
         else:
-            instance = InstanceManager.get_instance(os.getpid())
+            instance = InstanceManager.get_instance(os.getpid(), instance_id=instance_id)
 
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
@@ -535,7 +535,8 @@ class MineRLEnv(gym.Env):
                 "Connection with Minecraft client cleaned more than once; restarting.")
             if self.instance:
                 self.instance.kill()
-            self.instance = self._get_new_instance()
+            
+            self.instance = self._get_new_instance(instance_id=self.instance.instance_id)
 
             self.had_to_clean = False
         else:
