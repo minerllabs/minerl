@@ -65,6 +65,8 @@ def assert_equal_recursive(npa_dict, dict_to_test, atol=1.e-8):
         if isinstance(value, np.ndarray):
             if key == 'camera':
                 assert np.allclose(value, dict_to_test[key], atol=1.5)
+            elif value.dtype.type is np.string_ or value.dtype.type is np.str_:
+                assert value == dict_to_test[key]
             else:
                 assert np.allclose(value, dict_to_test[key], atol=atol)
             # assert np.array_equal(value, dict_to_test[key])
