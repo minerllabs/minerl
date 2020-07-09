@@ -1,0 +1,17 @@
+steps:
+ - label: build minerl
+   env:
+     MINERL_DATA_ROOT: /tmp/minerl-data
+     JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+   command:
+    - add-apt-repository -y ppa:openjdk-r/ppa
+    - apt-get -y update
+    - apt-get -y install openjdk-8-jdk
+    - export PATH=$$JAVA_HOME/bin:$$PATH
+    - java -version
+    - ./download_minerl_data.sh
+    - ./test_build_deploy.sh
+
+   timeout_in_minutes: 15
+   agents:
+     queue: rl-cpu-v4

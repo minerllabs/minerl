@@ -1,0 +1,10 @@
+recursive-include minerl/env/Malmo/Minecraft/build/libs *.jar
+recursive-include minerl/env/Malmo/Minecraft/run/gradle/caches/minecraft *
+recursive-include minerl/env/Malmo/Minecraft/run/gradle/native *
+recursive-include minerl/env/Malmo/Schemas *
+recursive-include minerl/env/missions *.xml
+include minerl/env/Malmo/Minecraft/launchClient.sh
+include minerl/env/Malmo/Minecraft/options.txt
+include requirements.txt
+include LICENSE
+include minerl/core/mc_constants.json

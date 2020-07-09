@@ -1,0 +1,4899 @@
+commit 52fd99889c5f428aab30b2f26765dc40128b00a1
+Author: Reiichiro Nakano <reiichiro.s.nakano@gmail.com>
+Date:   Fri May 15 12:56:28 2020 -0700
+
+    MarkingDecoratorImplementation (Blueprints) (#59)
+    
+    * initial commit for MarkingDecorator.
+    
+    * MarkingDecoratorImplementation.java fixed to place blocks at origin and place agent at random spot around
+    
+    * fix xml
+    
+    * modify ObservationFromGridImplementation.java and MarkingDecoratorImplementation.java to set marking diamond at spawn point and return grid relative to the spawn point
+    
+    * pass structure observation
+    
+    * default blueprints [5, 5, 5]
+    
+    * prevent teleporting within leaves
+    
+    * don't provide a compass
+    
+    * don't provide a compass
+    
+    * clarifying cmmments
+
+commit 8281de9c6ad810d25403ab309ce21b2106efdbfd
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 4 13:58:36 2020 -0700
+
+    Don't track generated Minecraft files  (#58)
+    
+    * revert tag-along commits
+    
+    * Added achievement monitoring
+    Updated malmo's CraftingHelper to give player XP and achievements
+    
+    * Update git ignore to exclude generated files
+    
+    * Make it clear we removed the windows only fix
+
+commit 9b594b7c9d4700d28c942306cbe4e8f5777e6c18
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Mar 31 11:38:52 2020 -0700
+
+    Update PlaceCommandsImplementation.java
+    
+    Add null-check to mop result
+
+commit af04f1da17a407128ce84780d2e6afeb9d3e164b
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat Mar 28 00:12:16 2020 -0700
+
+    B/achievements (#55)
+    
+    * revert tag-along commits
+    
+    * Added achievement monitoring
+    Updated malmo's CraftingHelper to give player XP and achievements
+    
+    * Update CraftingHelper.java
+    
+    * Revert build.gradle change
+    
+    * Update pipeline.yml
+
+commit 3909d253fb2a2cce793b2ed89c8bda92d19b421f
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Mar 27 23:51:16 2020 -0700
+
+    Update pipeline.yml
+
+commit 7c062f4d3970bd0df5610ab4a6485c9965d5e994
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Thu Mar 26 18:45:02 2020 -0700
+
+    Thread safety (#54)
+
+commit 667bd4fd92e5f8aedae68329b24eacc04d404f0f
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Mar 24 12:16:38 2020 -0700
+
+    Correctly daemonize watcher processes and kill orphaned minecraft instances. (#46)
+    
+    * Implemented a new process watcher and test.
+    
+    * Using a daemoniker watcher process.
+    
+    * Adressing  comments from david on nested for loops
+    
+    * Fixing last changes.
+    
+    * Unlinting files
+    
+    * Making a nicer print message for clarity.
+    
+    * Adds creation of an x server to the build process.
+    
+    * Update launchClient.sh
+
+commit aa1aa4f3cdef9ffae4055a2327b9cf8a27ea3b5b
+Author: pzhokhov <peterz@openai.com>
+Date:   Thu Mar 19 11:27:01 2020 -0500
+
+    do not leave open videocapture objects (#39)
+
+commit db618e05c030695de39968288d54a472d8102d9e
+Merge: ecbfc42 1c699e0
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Mar 13 18:26:00 2020 -0700
+
+    Merge pull request #49 from openai/b/use_command_fix
+    
+    B/use command fix
+
+commit 1c699e0ecb520e18a30a5f83a1f44d4f4bdbf463
+Merge: 9bf0053 ecbfc42
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Mar 13 18:19:23 2020 -0700
+
+    Merge branch 'master' into b/use_command_fix
+
+commit ecbfc42a93ac227bdc8931278fbd58dd42b27d06
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Fri Mar 13 18:16:18 2020 -0700
+
+    Band-aid fix to give a giga inventory to agent (#51)
+    
+    Co-authored-by: Brandon Houghton <bhoughton@cmu.edu>
+
+commit 9bf00535e1061cbdff7501eb5a5dd7fd9462e320
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Mar 13 18:11:28 2020 -0700
+
+    Add more logging because logs make the world a safer place for AGI
+
+commit e8cbe37934bd348f4c126a57e9d23b2191543251
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Mar 13 17:00:22 2020 -0700
+
+    Add logging for deny usage + deny use on BlockWorkbenches
+
+commit 4530145519c7ece5ad01cf62f06661bd57b7cf74
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Mar 13 16:39:50 2020 -0700
+
+    Revert auto-linting changes
+
+commit a7736844aef6337381e527ba0a580f02221217e5
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Mar 13 16:38:39 2020 -0700
+
+    Update doc string
+
+commit fec4955dfd897ffdabbff791c1e175233dbe0289
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Mar 6 14:03:43 2020 -0800
+
+    Add rare MinecartContainer and MinecardCommandBlock entities to prohibited interact list
+
+commit 249d8b9869741c7e800e90fbcaec3aec31659e10
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 21:11:00 2020 -0800
+
+    Fix warning to reduce badness ˚of message
+
+commit 368d2b247054ae042b6e9f26cb77b03d8b9e963d
+Merge: b7b7605 3178d4b
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 21:06:09 2020 -0800
+
+    Merge remote-tracking branch 'origin/b/use_command_fix' into b/use_command_fix
+    
+    # Conflicts:
+    #       minerl/core/mc.py
+
+commit b7b76053403dcfe6d738807f416509a62e1efcc2
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 20:40:09 2020 -0800
+
+    Add logged warning when unknown gui window is opened
+
+commit c9c02a830ed7c258dab15963769fbc2738f3dda7
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 20:31:20 2020 -0800
+
+    re-integrate changes from branch
+
+commit 3ccf285291c3fecedd3000ea0fa9ed1676199609
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 16:37:08 2020 -0800
+
+    Revert mc constants to separate PR
+
+commit e566997518f678e3ce19a5f19ea8d95f2643e4b6
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 16:15:54 2020 -0800
+
+    Revert changes to xml
+
+commit 47c3e53652b1f15d9adbf887e7c3e5a17956168c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 16:10:55 2020 -0800
+
+    Revert debug build.gradle changes for PR
+
+commit 64e0bfbff381d1ee9b71375ff18582465a2bafc4
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 15:59:23 2020 -0800
+
+    Revert non use-bug related changes
+
+commit 3178d4bd311ca5cf5fe6cf0b050c46d4c69a780d
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 20:40:09 2020 -0800
+
+    Add logged warning when unknown gui window is opened
+
+commit 72d65e614d688e084c8a4d60829467a666949e8a
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 20:31:20 2020 -0800
+
+    re-integrate changes from branch
+
+commit 9e7509552751e8c4c2d7ae98663d2820b5e269e1
+Merge: 8cb4690 e37a02e
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 23:23:24 2020 -0500
+
+    Merge branch 'master' into b/use_command_fix
+
+commit e37a02e4b8cdf9f5d9ff30fe33c964d720dd9598
+Merge: 5651d9b d93ac86
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 23:00:37 2020 -0500
+
+    Merge pull request #50 from openai/b/proper_item_list
+    
+    Add Minecraft derived item lists based on crafting, smelting rules
+
+commit d93ac86f62cdf47676117eeed576e4d52aa100c5
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 19:39:42 2020 -0800
+
+    Merge changes from master
+
+commit 1b522d8955a8fab3dfa6b1df13b0701d0fd0d3d1
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 19:35:26 2020 -0800
+
+    Revert other feature changes
+
+commit 5651d9b0d8597f4078c6ff736aaa75f0596a66b2
+Merge: 0feb642 c88b94a
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Mar 4 17:56:23 2020 -0800
+
+    Merge pull request #48 from openai/wguss/compass_fix
+    
+    Fixing the navigate environments.
+
+commit 8cb46900290b71ed27ab1b6264cfd90bf6308009
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 16:37:08 2020 -0800
+
+    Revert mc constants to separate PR
+
+commit b206480ad81d0388fd85c2aed6434da104bceac3
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 16:15:54 2020 -0800
+
+    Revert changes to xml
+
+commit 59fe03c85d8f11fb46a6832d53b03e989e4903a4
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 16:10:55 2020 -0800
+
+    Revert debug build.gradle changes for PR
+
+commit 804423f537ef45cdec2058fb3d54f1b7ff58bffb
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 15:59:23 2020 -0800
+
+    Revert non use-bug related changes
+
+commit 7e16471a48ea536934972d4a8b296380500adebd
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 15:39:16 2020 -0800
+
+    Properly cancel gui spawning interactions
+    such as USE action when looking at a crafting table or
+    USE action when looking at a villager
+
+commit 718e47b96ac002f4d2d14df46f8ba66cd293af71
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Mar 4 12:50:49 2020 -0800
+
+    Fix typo in mc item lists
+
+commit c88b94a376f9a762d23144b2073918b3d5f81081
+Author: MadcowD <carlostnb@gmail.com>
+Date:   Tue Mar 3 18:17:54 2020 -0800
+
+    Fixing the navigate environments.
+
+commit ac3015561f6b3f958d45bfebca14458124c16acb
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Mar 3 11:10:03 2020 -0800
+
+    Handle case where observation is missing
+
+commit 83225c9f5fd54933fa1fc96956236d64b1ac05ac
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Mar 2 20:29:13 2020 -0800
+
+    Add line_of_sight observation to network
+
+commit b8f7cfcc0403701834d167c351068e3c107bf8d0
+Merge: e6fb5c4 7a772e3
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Mar 2 20:16:28 2020 -0800
+
+    Merge remote-tracking branch 'origin/b/chest_commands' into b/chest_commands
+
+commit e6fb5c468516d02d6a4bfcaab2c1388385752820
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 27 15:21:36 2020 -0800
+
+    Add skeleton message handlers for store and take actions on ray incident chests
+
+commit 2c318fd0eca66968bf70a62df71beb84152f1266
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Mar 2 16:36:16 2020 -0800
+
+    Correct missing key
+    Format mc constants correctly
+
+commit ebf6cba3574e7341e225b202a22e1c0e479b4dc5
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Mar 2 15:49:59 2020 -0800
+
+    Rebase giga-inventory off of master
+
+commit 74bd22c03d5e6f17542e25b03fa4a13a0f88f30b
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 25 12:18:53 2020 -0800
+
+    Band-aid fix to give a giga inventory to agent
+
+commit 0feb642cfb4c34b96979d0ecb100925ec95e55ea
+Merge: 6c72e8d 8903ff6
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Mar 2 18:47:22 2020 -0500
+
+    Merge pull request #45 from openai/b/observe_empty_slots
+    
+    Observe empty inventory slots
+
+commit 8903ff6a38656df7c69190b5ff3c2bc4a243ee7a
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 25 14:48:12 2020 -0800
+
+    Observe empty inventory slots
+    Add air observation into inventory observations to
+    allow agents to observe the number of free slots remaining
+
+commit 6c72e8d4645cfc26efc672bc13e3d040a93f2a29
+Merge: 9841855 acdff97
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Feb 28 21:22:09 2020 -0500
+
+    Merge pull request #42 from openai/item-parsing
+    
+    Parse json file
+
+commit acdff971650dee8f4e4e55999a7048ff4e73c593
+Author: dfarhi <dfarhi@openai.com>
+Date:   Fri Feb 28 16:33:29 2020 -0800
+
+    Change order of ALL_ITEMS
+
+commit a5f0ca444d05a4f46d20a41e52df274886c111cd
+Author: dfarhi <dfarhi@openai.com>
+Date:   Fri Feb 28 15:19:44 2020 -0800
+
+    make eating time a constant
+
+commit 9a34279eb1c88d47ad785a2fcac9c631bf7ae978
+Author: dfarhi <dfarhi@openai.com>
+Date:   Fri Feb 28 15:16:39 2020 -0800
+
+    add drinks
+
+commit 088ce6103b614e53e65932b53b804fc6f7488109
+Author: dfarhi <dfarhi@openai.com>
+Date:   Thu Feb 27 19:00:21 2020 -0800
+
+    ??
+
+commit 9dd7a8f90be3aff7b31911c7bbf392546efc3d21
+Author: dfarhi <dfarhi@openai.com>
+Date:   Thu Feb 27 16:10:20 2020 -0800
+
+    Move mc_constants.json
+
+commit 7a772e3b3e0db6a81c835b2ffb68cb4745023c50
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 27 15:21:36 2020 -0800
+
+    Add skeleton message handlers for store and take actions on ray incident chests
+
+commit 161b2e8831e559318bc2c94131a272f6d570b778
+Author: dfarhi <dfarhi@openai.com>
+Date:   Thu Feb 27 14:52:29 2020 -0800
+
+    convert to reading json data
+
+commit 6543b8a83f23c7983066817c466a7b19fa3b7bd7
+Author: dfarhi <dfarhi@openai.com>
+Date:   Thu Feb 27 14:08:05 2020 -0800
+
+    clean up data dump.
+
+commit 0a08801afd8108636f26d5ffc5ba77f57e167316
+Author: dfarhi <dfarhi@openai.com>
+Date:   Thu Feb 27 13:44:08 2020 -0800
+
+    wip
+
+commit 19fc5dd878c15d57a2f3d20c5610d8797de4fcd9
+Author: dfarhi <dfarhi@openai.com>
+Date:   Thu Feb 27 13:19:39 2020 -0800
+
+    Parse json file
+
+commit 9841855c72a80dca168a812275ff182b0bd4f684
+Merge: c97a9e1 7a4e138
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 27 16:44:00 2020 -0500
+
+    Merge pull request #41 from openai/b/generate_item_json
+    
+    Add missing item properties and format recipe list as a json
+
+commit 7a4e1386810ae3aa8470e26667be623b6da68d69
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 27 12:12:26 2020 -0800
+
+    Update mc_constants.json
+
+commit f75f6589da0b0566326ee89ebc58cd34a2efa32f
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 27 12:10:08 2020 -0800
+
+    Flush buffer because language support disallows with() try notation
+
+commit a46e2b8264a79f46e850731567779205ffcfcb36
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 27 10:31:18 2020 -0800
+
+    Add auto-generated json
+    Address pr comments
+
+commit 923158a55675d0b3d6ed67aae317fc104c285b14
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Feb 26 17:09:31 2020 -0800
+
+    Add missing item properties and format recipe list as a json
+
+commit c97a9e17b221d1770c37c26a34b4534f86b560fe
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Tue Feb 25 12:01:16 2020 -0800
+
+    Connect use command (#38)
+
+commit 478fcbd30759a828491d6b1adff51791f74e8092
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Fri Feb 21 13:15:41 2020 -0800
+
+    Fix java -> python arg passing (#37)
+    
+    * no more corrections
+    
+    * Correct java -> python passing
+    
+    * more errors that used to be swallowed.
+    
+    * Test with Unified Env
+
+commit 06ea8910a19320e3ea23bc9152ab9809e2240abd
+Merge: ef78a2a f542439
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Feb 19 17:24:27 2020 -0500
+
+    Merge pull request #35 from openai/b/living_stats_observation
+    
+    B/living stats observation
+
+commit f5424397f05a46da6a37cc56eeb576898ffb10ab
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Feb 19 14:23:29 2020 -0800
+
+    Lower the average number of o's in the word food
+
+commit ef78a2ab029ad76beaab812fccb88106d2902b5d
+Merge: 6e35990 2cf38e3
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Feb 19 17:18:29 2020 -0500
+
+    Merge pull request #36 from openai/difficulty-3
+    
+    difficulty 3
+
+commit 7ca01b48aaaab838326c5d78ccdc304990cd77dc
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 18 17:35:31 2020 -0800
+
+    Cleanup class - add docstring
+
+commit 6e35990b70d281ca7af61216181c7c8d123d6a67
+Merge: d5c8a2d c2ffb8b
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 18 17:20:38 2020 -0800
+
+    Merge pull request #34 from openai/b/remove_crafting_restrictions
+    
+    Remove mission crafting restrictions
+
+commit 8b6b4270cd8949a43b2c7f2c55c6ae82b081537e
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 18 17:19:40 2020 -0800
+
+    Make abstract classes for new observations
+    Increase severity for all action space default errors
+    Add magic numbers to mc.py constants file
+
+commit 2cf38e3d27a5cf60718e67c13e2055c4ac3b2b9b
+Author: dfarhi <dfarhi@openai.com>
+Date:   Tue Feb 18 17:15:30 2020 -0800
+
+    difficulty 3
+
+commit b8d0f5eb719ecc6a8796a0500f613a3794b15485
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 18 16:12:01 2020 -0800
+
+    Rename health to match Minecraft's life convention
+
+commit ce1208ee1b88ae952a7408609227dccbec342f5a
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 18 14:43:51 2020 -0800
+
+    Add observations for health, breath, etc. :
+    'health' 0-20 current hearts
+    'score' 0-inf XP in survival can be overridden in experiments
+    'food_level' 0-20 current food-bar state
+    'food_saturation' 0-5 how many hearts of healing b4 needing to eat
+    'xp' 0-inf current amount of experience (lost on death)
+    'breath' 0-300 amount of breath left before beginning to suffocate
+
+commit c2ffb8b08a0d0a13f419cd4244bafd11db0d137f
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 18 14:38:52 2020 -0800
+
+    Remove mission crafting restrictions
+
+commit d5c8a2d1b76811a4db4bec704a4b8897ba157c17
+Merge: 29c2eb2 9f8ae2a
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 11 19:08:18 2020 -0800
+
+    Merge pull request #31 from openai/b/all_items
+    
+    Import the complete item list
+
+commit 29c2eb2e6f217e59380c9e5f8fd15fef22791a28
+Merge: 0048855 16707cc
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 11 19:07:42 2020 -0800
+
+    Merge pull request #32 from openai/include_options
+    
+    include options.txt into the manifest
+
+commit 0048855bed8dc41367d485f79836c6da2ca07852
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Tue Feb 11 18:52:27 2020 -0800
+
+    Open World xml (#29)
+
+commit 9f8ae2a15874247e1105785db5fe1e4627ef68e3
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 11 18:36:20 2020 -0800
+
+    Undo changes to options.txt in all_items branch
+
+commit c257207c509a7bb98ab92d77a79e5cbcd67a43eb
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Feb 11 18:33:38 2020 -0800
+
+    Finish up changes to all_items branch
+
+commit 16707cca81dc8258aa6fcbc7ffc8a3e9644a68c9
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Feb 11 12:06:22 2020 +0100
+
+    remove extra spaces
+
+commit 0019a1767882a0268dd33acf3d7d2a5ec840751a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Feb 11 12:02:21 2020 +0100
+
+    move options to make them loadable by java
+
+commit da16537a4c314f54184db4380ea1461cd007ca8a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Feb 11 10:14:23 2020 +0100
+
+    include options.txt into the manifest
+
+commit 30c61fad565ca6ad8091eb3bf24774226c7464d3
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Feb 10 23:03:15 2020 -0800
+
+    Finish up changes to all_items branch
+
+commit e00a4f7a4788dbb29822104f272618314778f198
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Feb 10 16:54:19 2020 -0800
+
+    Update jsonnet for scripted behavior
+    Update difficulty in options.txt
+
+commit 6398272461d91fca43190f43a6309c912e26cbb5
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Feb 7 10:58:04 2020 -0800
+
+    Fix logic for splitting items
+
+commit 816ce9b1792c240b2acfa4bff7f35fba3876f0bf
+Merge: 8b6d49b 72cc6bd
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 6 16:47:02 2020 -0800
+
+    Merge remote-tracking branch 'origin/open-world' into b/all_items
+
+commit 8b6d49b52657ba201082e271b7326c8b1d9aa31d
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 6 15:40:36 2020 -0800
+
+    Fix list concatenation issue
+
+commit 978367ccf50f5145a9b748a5dfbe53b8740d0fb0
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Feb 6 15:23:51 2020 -0800
+
+    Import the complete item list
+
+commit 72cc6bdabc1b8e74dc95e263f5882c31f8f00447
+Author: dfarhi <dfarhi@openai.com>
+Date:   Wed Feb 5 16:06:34 2020 -0800
+
+    Open World xml
+
+commit 46516fd72cb77006bb60c0c0ba6fe1cb36ebd27f
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Wed Feb 5 10:08:10 2020 -0800
+
+    Remove unused code. (#28)
+
+commit c176503ff88434b30a2e51d0488cbc5fc4b5ca09
+Merge: 074e088 4bd8172
+Author: pzhokhov <peterz@openai.com>
+Date:   Mon Feb 3 17:30:20 2020 +0100
+
+    Merge pull request #25 from openai/add_java_to_build
+    
+    Add java to build
+
+commit 4bd8172151f19ca3dbd961d3773108e4fa00fcf0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Feb 3 11:14:02 2020 +0100
+
+    add java8 to the path
+
+commit a0d1d2dd28294908254e7672cf8480549f75142a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Feb 3 10:58:54 2020 +0100
+
+    do not ask for confirmation in java installation instructions
+
+commit 9db897fa0f366cb3239fe1ea5fa957ea161c3220
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Feb 3 10:57:40 2020 +0100
+
+    typo
+
+commit 2044c2297ef06fed8568b0205e580def37c07a2c
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Feb 3 10:53:59 2020 +0100
+
+    add java to build pipeline
+
+commit 074e088a529446f62e49c71ca1e544d82c49353d
+Merge: 2b2d59c 0bf0d36
+Author: John Schulman <joschu@openai.com>
+Date:   Thu Jan 30 23:38:05 2020 -0800
+
+    Merge pull request #23 from openai/no-submodules
+    
+    remove gitmodules
+
+commit 0bf0d36976dc6fe174a6ac4161c3946778219fd8
+Author: John Schulman <joschu@openai.com>
+Date:   Wed Jan 29 16:56:50 2020 -0800
+
+    move deps folder back
+
+commit c4a74ac69c7faa672ba9213967fe300e15e12f21
+Author: John Schulman <joschu@openai.com>
+Date:   Wed Jan 29 16:56:30 2020 -0800
+
+    add pysmartdl
+
+commit 4a5828387cb4a08a5571631ab3f2f5f6cf0b1510
+Author: John Schulman <joschu@openai.com>
+Date:   Wed Jan 29 16:50:40 2020 -0800
+
+    remove gitmodules
+
+commit 2b2d59cb58ac3c4884bbd43b5144bc2c7e86dbad
+Merge: 416681a 33a83b6
+Author: pzhokhov <peterz@openai.com>
+Date:   Tue Jan 28 15:53:40 2020 -0800
+
+    Merge pull request #22 from openai/configurable_resolution
+    
+    make resolution configurable…
+
+commit 33a83b6f25ff2b1a90a10b1041a31607a7c6ab8f
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Jan 28 15:39:50 2020 -0800
+
+    both hack versions to really make sure the recalculation of java.library.path happens
+
+commit ee397b03c436641af81ef06d346ef1930f732d87
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Jan 28 15:34:25 2020 -0800
+
+    test 'final' keyword fix
+
+commit 681043564182ecdcf3a7f92cd6827b5b4fc8e653
+Merge: dadf993 416681a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Jan 28 14:42:28 2020 -0800
+
+    Merge branch 'master' of github.com:openai/minerl into configurable_resolution
+
+commit 416681a7ddb8773290e051af2051e7ce40d8c24a
+Merge: fd132dd f6e24c8
+Author: pzhokhov <peterz@openai.com>
+Date:   Tue Jan 28 14:42:16 2020 -0800
+
+    Merge pull request #21 from openai/fix_coal_smelting
+    
+    enable coal smelting from logs
+
+commit f6e24c8fcd7aca02919f300e9abca002a53910f4
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Jan 28 14:30:24 2020 -0800
+
+    read cookingTime from TileEntityFurnace
+
+commit dadf99320b288963aa8ff38dd6756c3eff719f61
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Sun Jan 26 19:46:19 2020 -0800
+
+    force native library path recalculation, make resolution configurable (possibly even different in different episodes)
+
+commit f73d58cc495b46879638ba0e8680bc66426d6e69
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Jan 24 23:33:49 2020 -0800
+
+    restore obtainDiamond.xml
+
+commit acc15eeed16e1d40575362b57d50e51a1e190a04
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Jan 24 23:32:09 2020 -0800
+
+    enable coal smelting from logs
+
+commit fd132dd32162ad8b8b91bc35326f5a61e197e452
+Merge: 1460ee1 23bddde
+Author: pzhokhov <peterz@openai.com>
+Date:   Thu Jan 23 16:05:58 2020 -0800
+
+    Merge pull request #20 from openai/domain_randomization
+    
+    changes to enable domain randomization
+
+commit 23bdddeed3641cfc09ca481aea90172ef4e0c58e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Jan 23 15:44:51 2020 -0800
+
+    add docstr argument to the MineRLEnv constructor
+
+commit 6dd49e62af62564451ec4939210614c281b07727
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Jan 23 11:43:14 2020 -0800
+
+    more comments
+
+commit ea95c975e6ba845f651a0677aea6446d0cd7e116
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Jan 23 11:42:26 2020 -0800
+
+    add docstring, remove truncation of long messages to be able to see the entire mission xml
+
+commit 69c7226b8508f257c1418f5ad15191ae688c8908
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Jan 22 17:17:13 2020 -0800
+
+    changes to enable domain randomization - mission xml can be functionally modified at reset time
+
+commit 1460ee1ad63283573fd49459036a053090500b98
+Merge: 31cddc9 b2d822b
+Author: pzhokhov <peterz@openai.com>
+Date:   Tue Jan 21 11:54:03 2020 -0800
+
+    Merge pull request #18 from openai/frameskip_java
+    
+    frameskip implemented in java
+
+commit b2d822b781fa06019f59ef08f097276f60a71273
+Merge: 7a6ee33 31cddc9
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Jan 21 11:39:53 2020 -0800
+
+    Merge branch 'master' of github.com:openai/minerl into frameskip_java
+
+commit 31cddc92a319792cc89b3f7f295bea88b22e178e
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Tue Jan 21 11:38:49 2020 -0800
+
+    Limit non-table craft action (#19)
+
+commit abb7c99e471c797a03d52c0ef31b5fcc5c7dfb7e
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Tue Jan 21 11:31:19 2020 -0800
+
+    Add air item (#17)
+    
+    * Add air item, fix invalid item handling to not depend on enum order.
+    
+    * Remove spammy logs.
+    
+    * Access "type"
+    
+    * Access "values"
+    
+    * Allow smelting
+    
+    * Long Unified env
+    
+    * Better comments
+
+commit 7a6ee335fdb2456a437cceb40478c8a4809bc71e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Jan 21 10:13:28 2020 -0800
+
+    frameskip changes without formatting
+
+commit ded094d6b064d1808f612bb034c01822c8c140f0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Jan 21 09:57:56 2020 -0800
+
+    revert java changes
+
+commit a035ad138d1d7a9c228037ff6ab4dc87fb3da2de
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Jan 20 20:14:55 2020 -0800
+
+    formatting of Mission.xsd
+
+commit 3c25b0373fc3197396f16583fb19ef354177db0f
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Jan 20 20:00:59 2020 -0800
+
+    frameskip
+
+commit dc805707367554d388cbca303433f5f1c2a33dee
+Merge: 456e0bf 8add2f4
+Author: pzhokhov <peterz@openai.com>
+Date:   Fri Dec 27 16:03:38 2019 +0300
+
+    Merge pull request #16 from openai/catch_type_errors
+    
+    check type errors when talking to java
+
+commit 8add2f49bd194a7d3dba025c6c77602ab7a425a0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Dec 27 03:00:22 2019 +0300
+
+    add error type to the error message in core.py
+
+commit 4e1b4d94ef4ea53b787f8499ffc0dacebf563731
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Dec 26 01:07:21 2019 +0300
+
+    reduce launchClient.sh verbosity
+
+commit 4f5d6741c9743e848820c586201754410f13a253
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Dec 26 00:37:14 2019 +0300
+
+    debugging build
+
+commit 5af98af1b1acf632a14227e8700d868e8e92cf09
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 15:26:33 2019 +0300
+
+    debugging build
+
+commit 602a43f23910a8ede8d4cbadbb7ef9e2a3b5806f
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 14:42:06 2019 +0300
+
+    debugging build
+
+commit 28d490d5c617ca9bb639c4ae45874a5be03708d0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 14:23:15 2019 +0300
+
+    debugging build
+
+commit f207627b157d4301f02d7200c67640c6cfeee969
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 14:06:31 2019 +0300
+
+    debugging build
+
+commit c29e01da0001da7d9163e13533e50bc372710114
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 13:39:00 2019 +0300
+
+    debugging build
+
+commit 9c04ec8439d164b3f55fca1623fea23d09961e36
+Merge: 7ef4672 456e0bf
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 13:28:40 2019 +0300
+
+    Merge branch 'master' of github.com:openai/minerl into catch_type_errors
+
+commit 7ef46723a375d04d98f8becff0ba9a7ee6286a5d
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 13:19:13 2019 +0300
+
+    also, only use xvfb on linux
+
+commit 456e0bf5c70e94a4733586b7d0dd6448fdc63528
+Merge: bc66aa7 d536517
+Author: pzhokhov <peterz@openai.com>
+Date:   Wed Dec 25 12:49:22 2019 +0300
+
+    Merge pull request #15 from openai/xvfb_java
+    
+    Xvfb for java
+
+commit 1cef733c0f24efc1cba9c35c99c7a23cce2b7c7d
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 12:48:44 2019 +0300
+
+    check type errors when talking to java to make sure bad data (NoneType) is also handled
+
+commit d53651796c07af2653a5df609db6c41674b4b409
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 12:30:50 2019 +0300
+
+    restore simple xvfb logic
+
+commit ea7195c8a241a9dca3c8a37904e9f2d5777b5241
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Dec 25 03:40:30 2019 +0300
+
+    add xvfb option to java
+
+commit 279fcf9bdebccc9776ea18b87668462a8a2cb3de
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Dec 24 22:30:04 2019 +0300
+
+    add xvfb to java launch script
+
+commit bc66aa72b20ccc9a38203965774f43a9ce8c5d43
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Thu Dec 5 13:13:32 2019 -0800
+
+    single space for all items. (#14)
+    
+    * single space for all items.
+    
+    * Fix confusing "finally" behavior bug.
+
+commit ffa82243948f856199e1778a747c8f9033a5ba3c
+Merge: 72103f4 fab4dca
+Author: pzhokhov <peterz@openai.com>
+Date:   Tue Nov 26 16:32:40 2019 -0800
+
+    Merge pull request #12 from openai/fat_jar
+    
+    single fat jar, wheels, and heuristic logging
+
+commit fab4dcac80cd79961b2f842f8a578f8f47d371a4
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 14:09:24 2019 -0800
+
+    make watcher process daemonic - it does not outlive the parent anyways, instead it blocks parent termination
+
+commit 10e834cdf217cfd9385362bcc2eba57e8054db98
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 12:07:41 2019 -0800
+
+    remove explicit display variable
+
+commit 735f331ab4b62a13a6dab405ac8fd97083b75c63
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 11:58:25 2019 -0800
+
+    move restartable_java assignment up
+
+commit d5a134dcc293a8d6b939353d29ca839530d8f64e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 11:40:31 2019 -0800
+
+    correct display number
+
+commit 23343cd5b4faa7449611bb01f725ac8e60fbd53e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 11:26:32 2019 -0800
+
+    add restartable_java option to malmo (instead of hardcoding it)
+
+commit 0657a2f54f6b8ed7d34253dd25b44f8849e8d2fb
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 11:21:27 2019 -0800
+
+    build script reorg
+
+commit cee52e2cc0c69acc91d9816b748b1292c1ddf65c
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 11:11:25 2019 -0800
+
+    logging level DEBUG in test_and_deploy_wheel
+
+commit fcdf2837077aad4b1b4fe7401ed3a7ecda963d08
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 11:05:28 2019 -0800
+
+    run test and deploy with xvfb-run
+
+commit 4f97cf5903ca03aa718e492b68038f2e565c2b77
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 10:43:11 2019 -0800
+
+    run test and deploy with xvfb-run
+
+commit d4005dece160ca34f488841f3412af5136987cb1
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 10:19:22 2019 -0800
+
+    remove packaging logic logic from setup.py
+
+commit 6361d7deb0137de3a0cd45843860b191d9acec92
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 26 10:17:46 2019 -0800
+
+    re-enable smoke test of minerl envs
+
+commit 14b90eee093f933645ecba03f998057562d7df4b
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Tue Nov 26 00:58:23 2019 -0800
+
+    include missions xml files
+
+commit 60ff7236f4e2e40821c0fdb8820e43a25389a0c3
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Tue Nov 26 00:43:38 2019 -0800
+
+    fix MANIFEST
+
+commit 2ad29e0c5bf3868390f5af503c472adf79e818ef
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Tue Nov 26 00:35:59 2019 -0800
+
+    include launchClient.sh
+
+commit f6ba839a8a849061fc57ac0cf0f2d3a5a504578f
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Tue Nov 26 00:26:25 2019 -0800
+
+    add back schemas folder
+
+commit 309f64f0288d618a84f4e1ecce0bc10e9ef246b6
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Tue Nov 26 00:12:10 2019 -0800
+
+    fix MANIFEST.in
+
+commit feac746a4155da7ee30cdd189216a166aea37ca6
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Tue Nov 26 00:04:28 2019 -0800
+
+    use setup.py bdist_wheel to debug what is happening
+
+commit dff51f49eea969d3ac036ad2553bfe99a79a702d
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Mon Nov 25 23:50:53 2019 -0800
+
+    .
+
+commit bfbf687ba53c1170ad74375c85f00c2222122a87
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Mon Nov 25 23:49:36 2019 -0800
+
+    .
+
+commit 3629c51a22016af8963d9ce373f6488bda8f6625
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Mon Nov 25 23:13:52 2019 -0800
+
+    .
+
+commit b78cdc83cd1dd0f3ee7ddad651cb9823876e2280
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Mon Nov 25 22:58:47 2019 -0800
+
+    disable wheel testing for now
+
+commit 36d5d9f5117b1e881034bf1d70fd7db9689228cd
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Mon Nov 25 22:00:59 2019 -0800
+
+    good manifest, limited subset of files, testing the wheel
+
+commit 1c55509bdd2df0bcf39471c18a77d962da89c105
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Mon Nov 25 21:52:19 2019 -0800
+
+    try without MANIFEST.in?
+
+commit ba7b82bc898628e7ae6170af8f58abb50bdb4503
+Author: peter <peterzhokhoff@gmail.com>
+Date:   Mon Nov 25 21:46:56 2019 -0800
+
+    try with bad manifest
+
+commit c8f87a52f2aeb0fb682a3197a72c40fe68bbfe87
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:54:51 2019 -0800
+
+    build with all files
+
+commit 50a994e2305a4f4c64ff7e8c0770102dd118597c
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:49:15 2019 -0800
+
+    simplify data_paths logic
+
+commit 8bbc24886555dd17dc508421c7d74a2e3005cea6
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:47:26 2019 -0800
+
+    package data + include_package_data=True seems to be the way to go?
+
+commit 8459c2391e09f18e33de8532a5864cd33c7f894f
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:43:17 2019 -0800
+
+    include_package_data seems to play paramount role in data location?
+
+commit f3a6f962c05fb45c75455392364d2af2248178b7
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:41:45 2019 -0800
+
+    stuff
+
+commit a5f37fe72ace38ff4b747b85d3601d5d4dc54531
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:39:26 2019 -0800
+
+    stuff
+
+commit abc97b635ce0e919048be183e9b20ebf773dce2d
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:29:45 2019 -0800
+
+    .
+
+commit 927fcc2de5b542169d3cb6a8e8ce2de15978bbff
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:28:20 2019 -0800
+
+    .
+
+commit a843ce9d2a3f6177748e7299dec9619715c5fab8
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:25:26 2019 -0800
+
+    .
+
+commit a1dc16a4a7f59149728e17549bac1f614e8ca1ee
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:24:01 2019 -0800
+
+    .
+
+commit 1962cf0e8d03116b5c84cb6283ff8955a3d99129
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 19:02:20 2019 -0800
+
+    include files via MANIFEST.in
+
+commit de6043c3a9198a3e56a87b8922c9c18355f5ba14
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 18:59:13 2019 -0800
+
+    disable test stages for faster packaging debugging
+
+commit d2a9f158879cc0049bfb49ef955868f97d66c686
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 18:41:33 2019 -0800
+
+    .
+
+commit bb7ad1123252963fc3bb613dc475519a51624f43
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 18:31:43 2019 -0800
+
+    .
+
+commit 96c113ee2bf0511bb640623b2805db6382af2af1
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 18:26:27 2019 -0800
+
+    .
+
+commit 9be93ed00fb14056efaed3a6fe4ed0659ab861f7
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 18:14:23 2019 -0800
+
+    debug data files
+
+commit 92d254e132ee3f87b080e9ef3f904adaabad5eef
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 18:05:55 2019 -0800
+
+    debugging packaging
+
+commit 3308fa386fc97cdb2193ae1821ef4919792fa946
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 17:43:27 2019 -0800
+
+    debugging packaging
+
+commit 8e9163900fa0c501c50a07b3aa8147bb1cee2693
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 17:32:08 2019 -0800
+
+    debugging packaging
+
+commit a21215d1001c96011e011cc056851419e5f05018
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 17:20:10 2019 -0800
+
+    debugging packaging
+
+commit b11d87c3ede639e13ca8b6be1fdf160ac4b5e0ad
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 16:44:50 2019 -0800
+
+    flatten files to package
+
+commit ae6c3e7ccfb2bf003d0ca37a2c9deed44d78f6fe
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 16:38:51 2019 -0800
+
+    debugging build pipeline
+
+commit a17db77f63d5d9254781acdcf87c83e97b170ffc
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 16:30:20 2019 -0800
+
+    list all jars
+
+commit c0c7768a50efb80f12b4a892457b6a7f3845861a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 16:13:43 2019 -0800
+
+    .
+
+commit baa43cb6273bcdb141130139cf57b70cfa424ee5
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 16:00:36 2019 -0800
+
+    include package data
+
+commit 4bee13882a823ca9f816fe8efe75e6dfd7fa9b91
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 15:40:41 2019 -0800
+
+    syntax
+
+commit dd9594577d65cba2b3a83c829f71faf7b7c32005
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 13:53:34 2019 -0800
+
+    reenable missions and Malmo as datafiles
+
+commit 643f76ce75e995d9711bf98a40ce68c35ac38855
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 13:46:06 2019 -0800
+
+    .
+
+commit af4d596bb56857568e323bec327cb650bf6b23f0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Mon Nov 25 13:39:32 2019 -0800
+
+    avoiding double inclusion of files in the wheel
+
+commit 72103f4f47e666c563c0ff1a61d25b9f04a12d1b
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Mon Nov 25 10:30:59 2019 -0800
+
+    Finish Unified Observation space (#11)
+    
+    * Observe inventory
+    
+    * Complete observation space of unified env.
+    
+    * Remove debugging logs.
+
+commit b4e271ccc4e95441203a876d312a9fc5a959b7e5
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Sun Nov 24 00:50:22 2019 -0800
+
+    polish setup.py to avoid double data inclusion
+
+commit cefb2c59d5e120cb42bcb821813fd5afd67eff2a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Nov 22 22:43:41 2019 -0800
+
+    do not build wheels for dependencies
+
+commit bf2f79be2858a5b8cba812115477174428c1f64e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Nov 22 22:41:43 2019 -0800
+
+    only deploy wheels
+
+commit 4ba3e1e36b4beac45a0a4fde57ab0296d670f9e9
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Nov 22 22:37:43 2019 -0800
+
+    small cleanups
+
+commit c4b8ddf383c9c97df56b3338bc70e28ca275a98c
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Nov 22 22:33:39 2019 -0800
+
+    parse log level heuristically
+
+commit ce3145880ec877041409771aea8afcc9ecca4181
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Nov 22 22:19:03 2019 -0800
+
+    deploy wheels instead of source dists
+
+commit b7851cfbf8d890fee29a4852e3dc3b55c08df057
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Nov 22 22:04:28 2019 -0800
+
+    add manifest to the jar file
+
+commit 56a8a3c7e2a89012cf79c841355d3b64bda24b9e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Nov 22 21:56:18 2019 -0800
+
+    fat jar stuff - compile all java code + dependencies into a single jar
+
+commit 7acad952552468e9832e61d530636fa296324c8d
+Merge: d71e424 5b437ea
+Author: pzhokhov <peterz@openai.com>
+Date:   Thu Nov 21 20:36:11 2019 -0800
+
+    Merge pull request #10 from openai/bypass_gradle
+    
+    more gradle shenanigans
+
+commit 5b437ea05c4d6732cfdffb497d0065a37216bac5
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 23:02:23 2019 -0800
+
+    run makeStart at the build to get native libraries
+
+commit 7de4245c1f5bda08f35b2161156d35f7687950be
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 22:14:47 2019 -0800
+
+    fix natives path
+
+commit a97bea3c7baba5e87eeb4285cef9ff75ca89e8b9
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 21:54:39 2019 -0800
+
+    replace forgeGradle's makeStart
+
+commit d71e42488ee6e53704781229e6aa6cbe38eda781
+Merge: 84b7468 ea497cc
+Author: pzhokhov <peterz@openai.com>
+Date:   Wed Nov 20 19:19:59 2019 -0800
+
+    Merge pull request #9 from openai/bypass_gradle
+    
+    Bypass gradle at the startup
+
+commit ea497ccf8406a40776dd119d197ec10b2f700c00
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 18:37:49 2019 -0800
+
+    .
+
+commit d2f4b9f57a220f7a3f8689ffc29861ac627975be
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 18:08:13 2019 -0800
+
+    polishing the setup
+
+commit f0190aadb9570aa63662acb3461a4d8ce8edcba5
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 18:03:58 2019 -0800
+
+    fix import in setup.py
+
+commit b61d587ebe35df96729f4e185ab68335411efd1c
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 18:02:34 2019 -0800
+
+    fix import in setup.py
+
+commit f493e560cfd54dd7cf1547180be47d55dff09c2a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 18:01:35 2019 -0800
+
+    polishing the build
+
+commit ab6836cf6ec0e8b7443b42e7858b33e9d473aa8e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 17:59:50 2019 -0800
+
+    sub-build on installation
+
+commit a2935a8dfd9a11f6593a63b739cabaf575a8fec0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 17:46:11 2019 -0800
+
+    .
+
+commit 7abd59bacb707344a00607ad3c51f23998117600
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 17:00:21 2019 -0800
+
+    .
+
+commit 782dcf4fa4ceae1b35cfe97011e2a5833023155f
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 16:58:33 2019 -0800
+
+    .
+
+commit 95c588cca4e267f29c2b787a61c6e6385ac49f98
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 16:52:22 2019 -0800
+
+    .
+
+commit e3aacd805880bd12168271a50c811b93e3a139cc
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 16:46:18 2019 -0800
+
+    .
+
+commit 56b8d32fe7c710d28a557da1b5cad7c413971bf6
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 16:41:46 2019 -0800
+
+    polishing the build
+
+commit 3df9c975dcf0d4f9e75fabf75d9668bbf2d7fb85
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 16:38:29 2019 -0800
+
+    polishing the build
+
+commit 6f97e510cc3b14c21e8ed4201f1b78a6d85a8920
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 16:31:36 2019 -0800
+
+    stuff
+
+commit c401cb12aab41b30f5c3a428a35026f48c919c17
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 16:28:14 2019 -0800
+
+    run client at build
+
+commit c10b0a9be4d4274d5a65bd3bac0c669abdc61fa1
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 16:17:45 2019 -0800
+
+    dynamic search for lwjgl libs, add jar task
+
+commit 5ba9eba821aa7a1c79b639ca44e77850ee637c00
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 15:53:09 2019 -0800
+
+    added comment explaning the classpath.txt and how to regenerate it
+
+commit 7e8da675e88a6cf69c26f978628cba4326d5b99e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 15:24:55 2019 -0800
+
+    slightly more elegant version with classpath being read from a file
+
+commit 518268609b6d577ab04568fc2d9bbd83314a8719
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 20 14:33:16 2019 -0800
+
+    write to the correct config file in the launchClient script
+
+commit 4689be0f84d935f1e6b85c79f1be358246cd79cf
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 19 18:24:08 2019 -0800
+
+    bypass gradle when starting malmo
+
+commit 84b74687bb55736bd515252984447d97464e300e
+Merge: 99c7f66 8252310
+Author: pzhokhov <peterz@openai.com>
+Date:   Thu Nov 14 16:57:29 2019 -0800
+
+    Merge pull request #8 from openai/fix_gradle_home
+    
+    fix gradle home variable for gradle executable download
+
+commit 8252310da7aca1b9e6ad443c3a67d6f586b53f81
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 14 16:50:46 2019 -0800
+
+    only use env variable for gradle_user_home
+
+commit ba1968af667c1c34009c4db44436ffbbc0c1fba8
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 14 16:38:21 2019 -0800
+
+    add fixing the smoke test to the todo
+
+commit e3d58d9e1e48d10505c0d08a8eff9bfdf9e62480
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 14 16:27:05 2019 -0800
+
+    disable env smoke test
+
+commit c4cedc6bcb00f7f7564bbdc655215b4632783a49
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 14 13:57:06 2019 -0800
+
+    overhaul testing pipline, rely only on gce for data, download minimal dataset
+
+commit f3ed4cb27b60446a7e897ab08a0a6dea7f99fa30
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 14 13:07:50 2019 -0800
+
+    minor cleanup
+
+commit c0774f707ce58a753ccb7c6ab9eff4ca45e5fde5
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 14 13:04:51 2019 -0800
+
+    fix gradle home variable for gradle executable download; make gcs deployment path more readable
+
+commit 99c7f66e6d7120d2e10ab648b7a70fc376e179d4
+Author: dfarhi <32961271+dfarhi@users.noreply.github.com>
+Date:   Wed Nov 13 17:30:24 2019 -0800
+
+    Fix import (#7)
+
+commit 2c3ac6d09d64835ea2aa0bde3ce462555bff5c16
+Merge: f7fea58 f6e1ed5
+Author: pzhokhov <peterz@openai.com>
+Date:   Wed Nov 13 15:17:43 2019 -0800
+
+    Merge pull request #5 from openai/experimental
+    
+    Release experimental changes
+
+commit f7fea58d540cccba9275520d5bf37ee233490cc5
+Merge: 1ccce98 98021a2
+Author: pzhokhov <peterz@openai.com>
+Date:   Wed Nov 13 15:17:25 2019 -0800
+
+    Merge pull request #6 from openai/unified-env
+    
+    Add unified env
+
+commit 98021a27d31038e5e45a74c80a8cf4212d8e9f87
+Author: dfarhi <dfarhi@openai.com>
+Date:   Wed Nov 13 15:01:55 2019 -0800
+
+    Add unified env
+
+commit f6e1ed568411f61b71b1b6b361ceb42845bd9489
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 13 14:37:11 2019 -0800
+
+    restored VideoProducer from master
+
+commit 69cd0b4b3e858a3b967cf38b308ae05476c4d0b0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 13 13:57:38 2019 -0800
+
+    syntax
+
+commit 4803ae0c1d230d344f8cdea8755b0271510317c6
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 13 13:47:55 2019 -0800
+
+    speed up rendering
+
+commit 5b8d91c469c183220e210caba6a72cdb61662fb2
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 13 13:27:40 2019 -0800
+
+    roll back autoformatter changes in ClientStateMachine
+
+commit 4f112db936ff9a0c59b71883d937ffe23cd5c29c
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 12 10:40:37 2019 -0800
+
+    make download_data executable
+
+commit 350c7e98793b9a07e43a1259fe6be1a82313ab84
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 12 10:39:55 2019 -0800
+
+    cp -> rsync conversion in data download
+
+commit dbcd67306647dbeffbb929d4b3cbf55360f46a8b
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 12 10:37:01 2019 -0800
+
+    move around and clean up comments
+
+commit 8e9767caa7262e8e948f953817a76f2375e32c7a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 12 10:32:24 2019 -0800
+
+    put download commands into a separate file to avoid variable expansion
+
+commit cdb929157289592469445b51330b1df2226cbb8a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 12 10:26:38 2019 -0800
+
+    .
+
+commit 5a33800628ff4da6bcc1d506daff8007c7743561
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 12 10:25:14 2019 -0800
+
+    fight with buildkite's early variable name resolution
+
+commit 6c390ea8595c84df5f0a5f2b1832c825bc5d7616
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 12 10:17:11 2019 -0800
+
+    re-enable tests
+
+commit 2a577c3baf70614f083fe1efd37b34564eb6600a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 12 10:06:39 2019 -0800
+
+    fix data tests by pre-downloading the data
+
+commit 9fbed51608d4b8873b14c5b7e274689d35427e24
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Sun Nov 10 11:30:08 2019 -0800
+
+    disable data tests - not good, need to fix
+
+commit 1ccce98a61202ee54d5193e3b08821249b4e2e6e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Sat Nov 9 11:53:23 2019 -0800
+
+    udate build queue
+
+commit c8a8bf5479a865e8326cebf1216923d856d58d9b
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Nov 8 17:32:45 2019 -0800
+
+    inject dummy property map into minecraft class (instead of via session - latter does not actually seem to work)
+
+commit e5c4c3007b852bb8812754980f738f8f2368f613
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 7 14:48:50 2019 -0800
+
+    fix packaging issue
+
+commit 248db1cd2c8e07665fae62ada99240e8db4504d5
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 7 13:07:40 2019 -0800
+
+    update queue to v3
+
+commit ce499869379993737f6ea372087a7299fd1e2070
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 7 12:59:53 2019 -0800
+
+    update number of jars
+
+commit 17184c7712b7d5bcf89ca1c38cd3ff161baeb79a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 7 12:50:03 2019 -0800
+
+    validate cache after test as well
+
+commit 7903c11857ab30c7715eca4cc4fe21f6f03385d9
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 7 12:36:55 2019 -0800
+
+    validate cachec before deploying
+
+commit de3ef9b9d97b95d7092ac9526149fe7041b97f3e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 7 12:16:24 2019 -0800
+
+    figuring out missing jars and assets
+
+commit 9be186b293963a61247954daacbf2e040a66c3ed
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Nov 7 09:45:20 2019 -0800
+
+    fix symbolic link to Malmo
+
+commit 325d6fc857af02d615ad356c96338e0cedb1d073
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 6 23:48:55 2019 -0800
+
+    pre-download assets during build
+
+commit e346503f76cd5ffa00a18ac27aed3d451de1474b
+Merge: e52cfff 6b8acdd
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 6 15:30:10 2019 -0800
+
+    pull version 0.2.9
+
+commit e52cfff8285a495e856289680b83a2c088583aac
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Nov 6 15:19:00 2019 -0800
+
+    try removing dummy property access from mod
+
+commit 22f1d6dc780b89bd48210e1d66f3d20c91602d16
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 14:19:33 2019 -0800
+
+    restore MANIFEST.in
+
+commit 9bf7696e14aa064c35f0c41f1cebe418a881950a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 14:18:06 2019 -0800
+
+    fix bad pipeline variable name resolution
+
+commit 2eb1c2d8a1ec5b0d41d96e183efa11f26b1c7e1a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 13:58:14 2019 -0800
+
+    .
+
+commit 3ca2546a0f534bc26fbd97a2b90973e065298326
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 13:47:48 2019 -0800
+
+    include all files in the run/gradle folder into manifest
+
+commit 090dfa19078d8da75226fe6b0304c090d2ff1e56
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 13:31:49 2019 -0800
+
+    update manifest.in
+
+commit 7d698b686249e0a62dca13323737b5fd7c689147
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 13:21:07 2019 -0800
+
+    .gradle -> gradle rename to include in the wheel
+
+commit f08eb2f4952a86bf360528fd424f69bf950c676a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 13:04:26 2019 -0800
+
+    .
+
+commit af102a7e9f2ce8f4134b9c656939ad1706f13622
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 13:02:28 2019 -0800
+
+    massage build instructions
+
+commit 8dadbbd3c0bb523f739992930889f15916df1e9e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 13:00:23 2019 -0800
+
+    put dependency jars in the wheel; use separate cache dirs for each java process
+
+commit 1d6a860de36d5262ee131c1de61ed7f6320f82b3
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 12:03:17 2019 -0800
+
+    disable build cache for gradle
+
+commit 6e3bfdcfa254f29fb05562e43360961e0f33ef69
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Nov 5 11:25:23 2019 -0800
+
+    use temporary minecraft dir - somewhat slower due to separate patch applications, but avoids race conditions
+
+commit a27dc2d5c04b64f117e2610996cc572c968404fc
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 31 14:45:29 2019 -0700
+
+    syntax in requirements.txt
+
+commit a2c26134251e8af4071d6b15f4ed46169d373faa
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 31 14:41:04 2019 -0700
+
+    enable monkey-patching mission xml at the environment creation
+
+commit 16e483c28ad87c0e96b02b9c94ad60837ea10338
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 31 08:48:58 2019 -0700
+
+    add 64x64 map centered on agent to navigationDense
+
+commit b6c9b005abe2057de2f0c74ba0058b24f0b1c668
+Merge: 6bbd3d3 6cb3eb4
+Author: pzhokhov <peterz@openai.com>
+Date:   Wed Oct 30 15:34:09 2019 -0700
+
+    Merge pull request #4 from openai/get_map_a
+    
+    map observation type (grid observation with top-down projection)
+
+commit 6cb3eb43f82b5d56977b2170f2210232bc9992eb
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 30 13:20:08 2019 -0700
+
+    minor formatting
+
+commit 90a1ae054b54499ca143895d901096f8b61b2e47
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 30 12:02:54 2019 -0700
+
+    propagate extra info from the agent into 'agent_info' field of the environment
+
+commit eb49e4ee48f4894ea050d9fe86a5b94a1255a48e
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 30 11:55:49 2019 -0700
+
+    .
+
+commit 6bbd3d3430465b4e15340feb301376d88ce20cfe
+Merge: e0bd3f0 a32a85e
+Author: pzhokhov <peterz@openai.com>
+Date:   Wed Oct 30 11:52:52 2019 -0700
+
+    Merge pull request #3 from openai/subrepo_malmo
+    
+    Subrepo malmo
+
+commit a32a85ec1b6e12f6cf2a722608873e1e2ac0b489
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 30 11:00:31 2019 -0700
+
+    ignore tests in malmo
+
+commit 6d55b09fb1e6455c1729e96982958c19f63d99e8
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 30 10:40:35 2019 -0700
+
+    add symlink to Malmo
+
+commit 9a1f76c202ec51ad553224c3c2e35c998c1ee06a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 30 10:39:57 2019 -0700
+
+    git subrepo clone git@github.com:cmu-rl/Malmo
+    
+    subrepo:
+      subdir:   "Malmo"
+      merged:   "8d81e2b3"
+    upstream:
+      origin:   "git@github.com:cmu-rl/Malmo"
+      branch:   "minerl"
+      commit:   "8d81e2b3"
+    git-subrepo:
+      version:  "0.4.0"
+      origin:   "git@github.com:ingydotnet/git-subrepo.git"
+      commit:   "74339e8"
+
+commit 39d109600bd11089b9fbef90ec01ab920b828958
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 30 10:30:03 2019 -0700
+
+    removed Malmo submodule
+
+commit e0bd3f0ed7eca9a26133aa5c8b7398fbde232819
+Merge: fec689c 13a3e6f
+Author: pzhokhov <peterz@openai.com>
+Date:   Tue Oct 29 11:44:37 2019 -0700
+
+    Merge pull request #2 from openai/instance_cleanup
+    
+    fix shutdown on darwin with env.close(), better clean up of instances
+
+commit 13a3e6fd74b57670d959c5bb029d94111510d4f0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Oct 29 10:22:31 2019 -0700
+
+    restore Malmo submodule
+
+commit f78df14bb444e7f552e44a77067a3f29c964b81d
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Oct 29 10:06:53 2019 -0700
+
+    fix shutdown on darwin with env.close(), better clean up of instances
+
+commit fec689cd339b2e6761a310c6287eecb6ce42559f
+Merge: 83bebf6 ca9b3e1
+Author: pzhokhov <peterz@openai.com>
+Date:   Tue Oct 22 14:46:54 2019 -0700
+
+    Merge pull request #1 from openai/fix_float_actions_issue
+    
+    fix float actions not working issue
+
+commit ca9b3e13351742a318d473eff66e699ec181a9a6
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Tue Oct 22 14:18:53 2019 -0700
+
+    fix float actions not working issue
+
+commit 6b8acdd2c1afe4bb0a2e732ecfc8256d85cd2194
+Merge: 6e7d848 fe7acb9
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Oct 18 15:52:27 2019 -0400
+
+    Merge pull request #277 from minerllabs/029
+    
+    0.2.9 Removes Seed Logging.
+
+commit fe7acb9af80fd06f6a509f4b38ddd091d3c04a56
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Oct 18 15:20:43 2019 -0400
+
+    Upgrading malmo.
+
+commit 6e7d84836b2e56ae599c265e8c1d86fa23fe7fc5
+Merge: dd0e486 40acdf5
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Oct 18 00:52:31 2019 -0400
+
+    Merge pull request #276 from minerllabs/028
+    
+    0.2.8
+
+commit 40acdf5808d6a3e8f00708c5ee80c621c933aecd
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Oct 18 00:51:13 2019 -0400
+
+    Mering master.
+
+commit dd0e4867521eeac01659bea646421a104703249b
+Merge: e1f8d28 28f8ed0
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Oct 18 00:49:25 2019 -0400
+
+    Merge pull request #275 from minerllabs/brandon/xml_hotfix
+    
+    Fixed xml language and rewards for cobblestone
+
+commit 28f8ed005491e55836f824a1c869f3c0bb50f969
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Oct 18 00:02:24 2019 -0400
+
+    Fixed xml language and rewards for cobblestone
+
+commit 83bebf6b7814dd3ca120572466e7d75e634c19f3
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 17 10:19:41 2019 -0700
+
+    use replaceable variable instead of modifying command line directly
+
+commit 448706b772929e805902217db2e3392fab24462c
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 16 15:27:26 2019 -0700
+
+    update local version to 0.2.7
+
+commit 59e161dcebfa4b332ba7e9ece8815619b78946e1
+Merge: 445d936 e1f8d28
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 16 15:23:41 2019 -0700
+
+    merge upstream 0.2.7
+
+commit 445d93614c1d9d129de13a76d2aeabd4ae0ab866
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 16 15:21:00 2019 -0700
+
+    fix deploy.sh
+
+commit 6ae45bb54e8fd630d5e6ea3992e1637b50019d48
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 16 15:18:29 2019 -0700
+
+    fix deploy.sh
+
+commit 7a2a2f2c9b9b52707f31d61fb7b84e3768e8a644
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 16 15:12:52 2019 -0700
+
+    .
+
+commit c41002f1e19a3c5444dbf04eeb292c1344ae53f0
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 16 14:56:36 2019 -0700
+
+    .
+
+commit 9849ef2aaaefabef427d9b87c78fe31a9609e19c
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 16 14:53:18 2019 -0700
+
+    .
+
+commit bfbb1d5ffa78beca5491be298f673506e3d1f11a
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Wed Oct 16 14:51:43 2019 -0700
+
+    deploy wheels with more explicit versioning
+
+commit e1f8d28ee1dab9fcee0f8914db1eb7f03b38054e
+Merge: 5b25c83 6d7d645
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 22:23:52 2019 -0400
+
+    Merge pull request #272 from minerllabs/test_framework
+    
+    Jenkins Test framework
+
+commit 6d7d645f22016d54c1addfbbd7ae60f38e0a23b7
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Oct 15 22:15:28 2019 -0400
+
+    Remove redundent data speed test
+
+commit 89b82a17657fa3a132fe90fc3a791bc646e0daa0
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 22:01:20 2019 -0400
+
+    Make the test slightly longer ...
+
+commit 275f5dfde308ec24590f8ba308cd9bb41a37cc01
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 21:53:38 2019 -0400
+
+    Fix Typo
+
+commit cc0db109fc936e15738aa468511fb5cc4bc64b38
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 21:47:27 2019 -0400
+
+    Take islice of minimal dataset for speed
+
+commit ae9632f8acf36cbf37f81294735a52858f6bc5e8
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 21:38:05 2019 -0400
+
+    Shorten the number of samples for data speed-test
+
+commit 6b19f2b9716d75247a3140a0374079ec0439a244
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 21:14:31 2019 -0400
+
+    Small change to test automatic web-hooks
+
+commit 62ab60968e5e30db30b6a6d9baae57dd8c43e56c
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 20:58:18 2019 -0400
+
+    Fix Typo
+
+commit 096acb8bd1c53b981ef68694aedda5db35b0cb87
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 20:52:54 2019 -0400
+
+    Remove download cache
+
+commit f28aac652cbebdefa3b66735ba26c3a136b7dbbf
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 19:56:11 2019 -0400
+
+    Remove test stage
+
+commit 36fe3b14e6c7dc70d3b5316c06a39ecd7d85aa6a
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 19:39:54 2019 -0400
+
+    Remove debug statements
+
+commit a1ee144d9bfe4fe1ba8dff9fea4f915419a5b2c0
+Merge: 3dccc32 5b25c83
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 19:15:58 2019 -0400
+
+    Merge branch 'master' into test_framework
+
+commit 5b25c83b3e37a2b6fe1b35b76408bdc4e3127906
+Merge: 79108fd 69828ae
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 19:15:48 2019 -0400
+
+    Merge pull request #273 from minerllabs/brandon/Enum_fix
+    
+    Fix observations of out or range enum type
+
+commit 3dccc321ac9119556eec9d5e42b1120ed5dc4ee9
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:48:23 2019 -0400
+
+    Added Jenkinsfile
+
+commit 643bcce86e498dd3a58ff9bf6312e96bf21ed8c6
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:47:38 2019 -0400
+
+    Added Jenkinsfile
+
+commit a5cea69f0492f5df4bf9d47d991d3996e8f92620
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:46:43 2019 -0400
+
+    Install python module from source
+
+commit e2d64a9bf298b8481792cc6025bfd0214d50ef08
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:43:25 2019 -0400
+
+    Update basic test
+
+commit 8cd22215afb1ec375df1c2ecadf28567b2d6563b
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:36:39 2019 -0400
+
+    Update Jenkinsfile
+
+commit 9f65e537815c8bb9de0a84986231abee9719a1f5
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:35:10 2019 -0400
+
+    Added Jenkinsfile
+
+commit 28348e43a665bc801bcb961fed42cf8b07c1127c
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:34:48 2019 -0400
+
+    Update Jenkinsfile
+
+commit 29f5e6174f169bb225e63f53096726f70d6382e6
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:30:58 2019 -0400
+
+    Update Jenkinsfile
+
+commit cb1494995290d25f9fbead8aafdfeec2535f421e
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:30:25 2019 -0400
+
+    Update Jenkinsfile
+
+commit 24e28129ff8eaa408125083c53b8136a17866d11
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:29:25 2019 -0400
+
+    Update Jenkinsfile
+
+commit 3c857428e919eb65d2fbe4f110cf31ef355f8dfd
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:28:03 2019 -0400
+
+    Update Jenkinsfile
+
+commit 3559013288502064497922da02a758b467f17ecf
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:23:39 2019 -0400
+
+    debug
+
+commit 5aaa9126d974a26f977e94608f54f32775a0b2fe
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:07:41 2019 -0400
+
+    debug
+
+commit dc3af0885bcbca48537853a28fef3d17261754e8
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:06:18 2019 -0400
+
+    Use env vars instead of exporting
+
+commit 523753b9e249bee6418e32c1ad6ffc32091161dc
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 18:00:29 2019 -0400
+
+    Add python path configuration to advanced tests
+
+commit 7a4011b860fbdc39d0242004607e2f3d747483f2
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:58:02 2019 -0400
+
+    Added Jenkinsfile
+
+commit f13129da8f6cc6160618a6342c8d2aee2128715e
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:55:19 2019 -0400
+
+    Use glob syntax
+
+commit 85989036dca4fb246258299951f25fd495040662
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:49:10 2019 -0400
+
+    debug
+
+commit 8b7bd4c2ae45c9f11beeaf72c34c959f50c160f4
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:46:48 2019 -0400
+
+    Debug
+
+commit 9adc451aaed8808d6823dfe1e3f5e2fe7433a551
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:41:09 2019 -0400
+
+    Catch errors so build can properly clean-up
+
+commit 7a7dfba15dec80ac771338ca530bc598221c07e1
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:26:03 2019 -0400
+
+    Publish junit xml results
+
+commit 500314304f6ad6f45b7bcc785aa59a35abab8a9d
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:15:09 2019 -0400
+
+    Add workspace
+
+commit 6f9a0e8d841a276d18a6fc7feb5bc3fc0cca3e85
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:14:05 2019 -0400
+
+    Added Jenkinsfile
+
+commit eceff71260870082d0724cf4be37ffaeee8c4112
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:09:53 2019 -0400
+
+    Added Jenkinsfile
+
+commit 73cfaafa8d85d63d653ef69b01d73057302d5fb4
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 17:06:55 2019 -0400
+
+    Ensure advanced tests are excluded
+
+commit b11f6a96ee63d50240c0234b48a9076d1cc4145c
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 16:17:45 2019 -0400
+
+    Split sequential tests from non-gui tests
+
+commit caa388977113b576e7cb26fd0c5cd109e16a203c
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 15:51:44 2019 -0400
+
+    Added Jenkinsfile
+
+commit 39ab555cce869903bf7e6cc5c90f1a11079b6263
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 15:46:56 2019 -0400
+
+    Added Jenkinsfile
+
+commit 1bf658cb29986597e95df10f0a753b71f0e9f10f
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 15:41:46 2019 -0400
+
+    Add junitxml output to pytest
+
+commit 5f30c4ed981520b970fbbda64648ce1146bac44c
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 15:37:08 2019 -0400
+
+    Fix issues with colored logs
+
+commit c45d25a894a3ec6f1db6af6024463a85b3e05a6c
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Oct 15 15:34:33 2019 -0400
+
+    Color logs
+
+commit f82a4142d9efdd13dc05fc89a4d04a7dffb5a2ee
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 20:05:33 2019 -0400
+
+    Added Jenkinsfile
+
+commit 69828aeea14147b8510fc6279a302816f535aac2
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Oct 14 18:41:23 2019 -0400
+
+    Fix observations of out or range enum type
+    Added intregration tests with red_flowers
+
+commit 7d8f76776f7e909ed3b5bd79298c55cc3dd01148
+Merge: 584ce5a daf3662
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 18:28:14 2019 -0400
+
+    Merge branch 'test_framework' of github.com:minerllabs/minerl into test_framework
+
+commit 584ce5a6dc698227d9db72465c5bff21993ed9b7
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 18:27:14 2019 -0400
+
+    Updating
+
+commit daf3662ec6121104f2ad66727353404abf1f8599
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 18:23:31 2019 -0400
+
+    Added Jenkinsfile
+
+commit 75b8abd8114334d1b6452e059371ef1538b5be5c
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 18:19:17 2019 -0400
+
+    Added Jenkinsfile
+
+commit 8c04aebd173ebe8b36614c72ea5bf9b271952a2a
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 18:17:40 2019 -0400
+
+    Added Jenkinsfile
+
+commit 7dfe50555ce1cf3debaa7351fe774ea53814b2fc
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 18:16:43 2019 -0400
+
+    Added Jenkinsfile
+
+commit 82edfed52db614f9508fba26a96702f0167f769b
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 18:14:55 2019 -0400
+
+    Updating
+
+commit 81f592b47e59998d96232d718dd713470f72f777
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 18:07:55 2019 -0400
+
+    Updating
+
+commit 7ef74de1c3d3821c2d0b5aad9f7ac228887634fa
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 18:06:51 2019 -0400
+
+    Updating
+
+commit 1f35cc7a1912512ea8653e7a7d97f5570459b3a9
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 18:04:49 2019 -0400
+
+    Updating
+
+commit b4868600bc460aecd4d214cf3b5acc6917d83389
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 18:03:21 2019 -0400
+
+    Upgrading jenkins file.
+
+commit aea1de39245a95420d8f266f35990997be144f7b
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 17:27:00 2019 -0400
+
+    Updating tests.
+
+commit dcf29bc4c5a7e58daeb8803ec9907be6a5372f51
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 17:04:41 2019 -0400
+
+    Adding fixes anda  new testing framework.
+
+commit 5517cf55a31791a07b93f72511a3650e032ede82
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 16:53:46 2019 -0400
+
+    Added Jenkinsfile
+
+commit e3789e4eedfc6ed1149501110b5cf51f107794e7
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 16:12:23 2019 -0400
+
+    Added Jenkinsfile
+
+commit 50face1d8e66190479cc7bfefb5e6c4577ca318a
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:57:21 2019 -0400
+
+    Added Jenkinsfile
+
+commit 15b5d6e0b971fe3ffef9fff0f7c7c7f4d49f329f
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:50:08 2019 -0400
+
+    Added Jenkinsfile
+
+commit 90a1bdaedc40292c54d84475f8796c0bd18b81c1
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:49:00 2019 -0400
+
+    Added Jenkinsfile
+
+commit 5989bf9e989663e46debf7d752cc409ff572bcfe
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:48:33 2019 -0400
+
+    Added Jenkinsfile
+
+commit 194cc2e588d435c5154a9d035d9d23d4da8d19d0
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:46:29 2019 -0400
+
+    Added Jenkinsfile
+
+commit c3fc982e864969c7bd65f64c3838a8f0f5f5a9c5
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:41:11 2019 -0400
+
+    Added Jenkinsfile
+
+commit 89d67bb9efe33d17c61a6cdf7bd8d9d9363b9db1
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Oct 14 14:39:14 2019 -0400
+
+    Update Jenkinsfile
+
+commit 2d1eb57785d304ae70a74413aa1cbca9aac9e198
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:34:51 2019 -0400
+
+    Added Jenkinsfile
+
+commit 6a95404c1c381637e7a248bce2066ebff8e1f16b
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:29:37 2019 -0400
+
+    Added Jenkinsfile
+
+commit af5c16ebe2faed9a1e6f522312845556a8adee13
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:26:15 2019 -0400
+
+    Added Jenkinsfile
+
+commit 9ae8ebb8c530950af9393eba687eac88efb6e3e7
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:24:10 2019 -0400
+
+    Added Jenkinsfile
+
+commit 71ee4189003e9d24d8d28f21a0cb82eace67d52e
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:21:54 2019 -0400
+
+    Added Jenkinsfile
+
+commit 69b75b10f29e0ea2e65e5cb05f9143abe9db8f4a
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 14:02:53 2019 -0400
+
+    Added Jenkinsfile
+
+commit 343b21921a9c7bfdc6b2db94537ea97c3996e8c1
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Mon Oct 14 13:54:21 2019 -0400
+
+    Added Jenkinsfile
+
+commit 79108fdc6179337a4cead3c90bb828ebbdaa8fde
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Oct 13 22:17:00 2019 -0400
+
+    Making quick changes to fix the typo preventing obtqain Diamond from running _0_2_7 (#270)
+
+commit a2f9f01b5f8133766ef57c6123aab41fd3abf970
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat Oct 12 19:35:42 2019 -0400
+
+    Hotfixing the data pipeline. (#269)
+
+commit b740b6a779ef98d28ba5b1b0060de200f9eaad46
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Oct 11 17:26:17 2019 -0700
+
+    fix access option format
+
+commit 83128aa22050e4fdbad3b4c1fa4f3baf468a9e78
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Oct 11 17:21:01 2019 -0700
+
+    make java instances replaceable; public read of build artifacts
+
+commit f1a46df6c1c40de887214ff9a2ad6c2e0875c62f
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Fri Oct 11 09:52:29 2019 -0700
+
+    deploy source dist on gcs
+
+commit 3469b421eb898f4bd71f5f31ac925b77a090653d
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Oct 11 11:59:51 2019 -0400
+
+    Upgrading the version. (#267)
+
+commit f587b44fd9b9c7ba136fdaa28cf78fd2452b1491
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 10 17:25:25 2019 -0700
+
+    fixes to make minerl work with SubprocVecEnv
+
+commit b42b1a41cd9c1a9ce318e007c027c3555cee22fe
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 10 17:12:23 2019 -0700
+
+    add java home env variable
+
+commit 703cf3f4b28a751d638d018452c03a4a1ee2a7c6
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 10 17:08:12 2019 -0700
+
+    .
+
+commit 64e3c4a58d41a787fe8cbd7c2fb6c9e1fbf4daf3
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 10 17:06:17 2019 -0700
+
+    .
+
+commit 726f927a515f1a66406525609287dffc79c3d9ba
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 10 17:04:39 2019 -0700
+
+    .
+
+commit 69ec7dc092e607189996e4a69c6bf2105a1868d7
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 10 17:01:51 2019 -0700
+
+    pre-download the minerl data
+
+commit 64031918f7faf17e17b07803f42e039a825cb77f
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 10 16:59:44 2019 -0700
+
+    pre-download the minerl data
+
+commit 0ffc918d6cf7928b8b863aba14c00d59f2ad2124
+Author: Peter Zhokhov <peterz@openai.com>
+Date:   Thu Oct 10 16:42:27 2019 -0700
+
+    use rl-cpu-v2 queue
+
+commit 578d699f38204361bb6406216f37f9e88d43f23a
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Thu Oct 10 14:45:58 2019 -0400
+
+    Update handlers to resolve reward inconsistencies (#264)
+    
+    * Update handlers to resolve reward inconsistencies
+    
+    * Update malmo version
+    
+    * Update docs to triger re-build
+
+commit 3780a1b2ba36886cea500d92aa5374a585f96248
+Merge: cf7f947 91992d7
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Thu Oct 3 22:54:13 2019 -0400
+
+    Merge pull request #262 from minerllabs/biome_fix
+    
+    Performance fix, and new biome handlers for random treechop maps!
+
+commit 91992d7aa860f7dbf9726e38240edeaebcf0f136
+Author: William Guss <carlostnb@gmail.com>
+Date:   Thu Oct 3 12:22:09 2019 -0400
+
+    Update simple_env_test.py
+
+commit b5f72b4fccfa18f0c4b73eca200bbef8baa9789e
+Author: William Guss <carlostnb@gmail.com>
+Date:   Thu Oct 3 12:21:44 2019 -0400
+
+    Update simple_env_test.py
+
+commit 067f22f2f47e4e8d425fd45aa97bd0f15a1ecfef
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 22:44:55 2019 -0400
+
+    Closes #249. Closes #220 (Same exact World Gen String!).
+
+commit 81f4f5c6f070a99f218dca827ff85725ba29df9c
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 22:34:17 2019 -0400
+
+    Updating the treechop map to faithfully reconstruct the server.
+
+commit 428331a603a4b804ba60bbdbcac842cb10dc589e
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 18:32:12 2019 -0400
+
+    git push.
+
+commit a020ec2d78e85c3ec8d46bb19642d437f615e1e9
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 18:28:49 2019 -0400
+
+    Adding a new thing!
+
+commit 01ef92521a46074f8976e04e799180e148eff414
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 18:13:43 2019 -0400
+
+    Updating the server handlers
+
+commit 1b6ef93b19951af69bf62369f7ffd2fd5bc962e7
+Merge: debb9f8 1e0fbfd
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 18:12:13 2019 -0400
+
+    Merge branch 'biome_fix' of github.com:minenetproject/minerl into biome_fix
+
+commit debb9f89bb353281fdfd71b81b6b8a7eafcbf4fd
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 18:11:57 2019 -0400
+
+    Fixin treechop.
+
+commit 1e0fbfdd45c403309831e43e6bee34455047a243
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 18:10:33 2019 -0400
+
+    Adding simulator speed test.
+
+commit 9825f14c6274b5342f51a3d2e3bbdbb13e6912ad
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 18:03:23 2019 -0400
+
+    Updating malmo
+
+commit 27185011eb6dda425eaa6a925ab1773c1e3c3efd
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Oct 2 18:02:24 2019 -0400
+
+    Adding new biome fixes.
+
+commit cf7f947bc223562ae5c39b4da1ec262926eb3839
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Oct 1 12:20:26 2019 -0400
+
+    Fix typo in success metadata changes (#254)
+
+commit 9575da741b80ab782211810a235e46250dabc80b
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Sep 13 18:22:47 2019 -0400
+
+    Brandon/reward fixes (#243)
+    
+    * Update reward handlers, improve unit tests
+    Added reward for possesing item to ensure 64 reward
+    is achieved in treechop
+    Added reward for possesing item to MineRLObtainDiamond-v0 to ensure
+    collection of diamonds is rewarded
+    Added mapping of log to log2 and vice versa for reward handling to prevent
+    double reward
+    
+    * Update debugEnv to reflect competition environment
+    
+    * Added dense version of obtain test
+
+commit bbff0c16dd3ab2fe7de29d2a74be426c369da234
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Sep 12 17:48:59 2019 -0400
+
+    Update reward handlers, improve unit tests (#240)
+    
+    Added reward for possesing item to ensure 64 reward
+    is achieved in treechop
+    Added reward for possesing item to MineRLObtainDiamond-v0 to ensure
+    collection of diamonds is rewarded
+    Added mapping of log to log2 and vice versa for reward handling to prevent
+    double reward
+
+commit 5e2c401d8ce4de45ea1a892d1fa2a621b31835de
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Sep 12 12:56:43 2019 -0400
+
+    Brandon/random start teleport handler (#237)
+    
+    * Fix success in metadata issue for most environments
+    
+    * Add randomized start handler to MineRLTreechop-v0
+    
+    * Update submodule
+
+commit 1c207a85d75ac87dedc577120898292baf729e48
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Sep 12 12:20:57 2019 -0400
+
+    Fix success in metadata issue for most environments (#234)
+    
+    * Fix success in metadata issue for most environments
+    
+    * Fixing indentation error.
+    
+    * Closes #152.
+
+commit dcd5e17315e28851c23e07447258b5c8ddc41e12
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Sep 11 14:41:29 2019 -0400
+
+    Fixing done trajectory lengths bug. (#233)
+    
+    * Fixing the done lenth bug. Closes #222. Closes #217.
+    
+    * Making a cursory fix to the data pipeline.
+    
+    * Adding iteration for single file test.
+    
+    * Finished the data ppeline.
+
+commit 170af296ab580419b40e6976305010b4ec32e0f2
+Author: 이중건 Isaac Lee <49523965+ThisIsIsaac@users.noreply.github.com>
+Date:   Wed Aug 14 11:01:59 2019 +0900
+
+    minor typo (#213)
+    
+    fixed typo:
+    
+    > changw
+    
+    to
+    
+    > change
+
+commit 89827a69de6393514cc1989ee2b6fb4eb51866e1
+Author: Tom Silver <tomsilver@users.noreply.github.com>
+Date:   Tue Aug 13 10:38:27 2019 -0400
+
+    Remove MineRLEnv dependency on self.spec.id (#199)
+    
+    * Remove MineRLEnv dependency on self.spec.id
+    
+    * Rename custom env default id and move to global constant
+
+commit 4bd4bbd7b42e4e69fab028371c0b559b36b0cd50
+Author: Tom Silver <tomsilver@users.noreply.github.com>
+Date:   Tue Aug 6 14:08:30 2019 -0400
+
+    Seed corner case bug fix (#201)
+
+commit 2c9dd820064b1677ea6bd582c64f7defac7c0c77
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Aug 4 14:05:38 2019 -0400
+
+    Documentation update gif (#197)
+    
+    * Adding a new gif to the documentaiton
+    
+    * Updating the docs.
+    
+    * Updating the main readme.
+
+commit 22db9acbcc9007d12e875029774661fece468095
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Aug 4 11:50:32 2019 -0400
+
+    Update README.md (#196)
+
+commit 82099bef343a35ab1e3243ead014f1f7f45ca81c
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Wed Jul 31 13:13:00 2019 -0400
+
+    Move data ordering test to be run on travis (#186)
+
+commit 21c4c618aad785446410f1f53b009a695bff7c59
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jul 30 16:29:34 2019 -0400
+
+    MineRL 0.2.3 (#185)
+
+commit 1dd1daba46fe6912345fac36b822128936311d18
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Jul 30 16:02:47 2019 -0400
+
+    Data fixes not included in last pr (#184)
+    
+    * Add data downloading and caching to travis build
+    
+    * Remove extra tab char
+    
+    * Adjust indent
+    
+    * Debug
+    
+    * Cache directories, only one env entry
+    
+    * Ensure cache is not in temp fs
+    
+    * Added treading to tarfile extraction
+    
+    * Test data ordering on all version of python
+    
+    * Add parallel tests
+    
+    * Added debug logger to test script
+    
+    * Added debug logger to test script
+    
+    * Try beta cache
+    
+    * Update download script to support downloading single experiments
+    
+    * Fix travis typo
+    
+    * Don't re-download experiments if folder exists
+    
+    * Don't re-download experiments if folder exists
+    
+    * Use competition environment for testing
+    
+    * Adjust print statements to please travis
+    
+    * Reduce length of data sampling t
+    
+    * Reduce length of data sampling by breaking
+    
+    * Indent - typo
+    
+    * test live cache solution
+    
+    * Test using spaces arg str
+    
+    * Use ordered dict for load_data_pyfunc
+    
+    * Small typos
+    
+    * Install logger to see why 3.5 build is hanging
+    
+    * Move travis-breaking test to excluded
+    Disable download of experiment
+    
+    * Update documentation to include single experiment download feature
+    
+    * Update download script to allow downloading of individual experiments
+    
+    * Add minimal dataset to downloader framework
+    
+    * Add minimal option to downloader framework
+    
+    * Add minimal option to downloader framework
+    
+    * Data pipeline fixes + integration tests (#167)
+    
+    * Add data downloading and caching to travis build
+    
+    * Remove extra tab char
+    
+    * Adjust indent
+    
+    * Debug
+    
+    * Cache directories, only one env entry
+    
+    * Ensure cache is not in temp fs
+    
+    * Added treading to tarfile extraction
+    
+    * Test data ordering on all version of python
+    
+    * Add parallel tests
+    
+    * Added debug logger to test script
+    
+    * Added debug logger to test script
+    
+    * Try beta cache
+    
+    * Update download script to support downloading single experiments
+    
+    * Fix travis typo
+    
+    * Don't re-download experiments if folder exists
+    
+    * Don't re-download experiments if folder exists
+    
+    * Use competition environment for testing
+    
+    * Adjust print statements to please travis
+    
+    * Reduce length of data sampling t
+    
+    * Reduce length of data sampling by breaking
+    
+    * Indent - typo
+    
+    * test live cache solution
+    
+    * Test using spaces arg str
+    
+    * Use ordered dict for load_data_pyfunc
+    
+    * Small typos
+    
+    * Install logger to see why 3.5 build is hanging
+    
+    * Move travis-breaking test to excluded
+    Disable download of experiment
+    
+    * Add data downloading and caching to travis build
+    
+    * Remove extra tab char
+    
+    * Adjust indent
+    
+    * remove always empty dict (#121)
+    
+    * Cache directories, only one env entry
+    
+    * Added treading to tarfile extraction
+    
+    * Try beta cache
+    
+    * Test using spaces arg str
+    
+    * Use ordered dict for load_data_pyfunc
+    
+    * Add testing scripts for minimal dataset
+    
+    * Fixed extra wrapping of navigation compass observation
+    
+    * ignore test from dependencies
+    
+    * Add downloading of minimal dataset
+
+commit 6f272ea5b7034ac89d20ef9ad72bf506d63b0f5a
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jul 30 15:41:54 2019 -0400
+
+    Adding minerl. (#182)
+
+commit 94d8161c8f954cfad857ddb24f931b5f20227299
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Jul 30 15:37:49 2019 -0400
+
+    Add minimal download option and fix issue with navigate compass obseravtion (#183)
+    
+    * Add exception handling to util.py
+    Update some lines with mixed tabs and spaces
+    
+    * Adjust imports
+    
+    * Adjust imports
+    
+    * Typos and template for smart re-tries on servers with limited streams
+    
+    * Update submodules
+    
+    * ignore all tests for dependencies
+
+commit c844feab9f8869ac0be8c984b57032e2f7cc50ae
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jul 30 14:37:54 2019 -0400
+
+    Updating doucm entaion. (#179)
+
+commit 70c373fac62165fcf4ece1bf4689f813c78adff1
+Author: albert ge <lbertge@gmail.com>
+Date:   Mon Jul 29 16:28:26 2019 -0700
+
+    remove always empty dict (#121)
+
+commit 0132dda000d1b0e652646af892707a4cb83e6463
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jul 29 13:38:18 2019 -0400
+
+    Data pipeline fixes + integration tests (#167)
+    
+    * Add data downloading and caching to travis build
+    
+    * Remove extra tab char
+    
+    * Adjust indent
+    
+    * Debug
+    
+    * Cache directories, only one env entry
+    
+    * Ensure cache is not in temp fs
+    
+    * Added treading to tarfile extraction
+    
+    * Test data ordering on all version of python
+    
+    * Add parallel tests
+    
+    * Added debug logger to test script
+    
+    * Added debug logger to test script
+    
+    * Try beta cache
+    
+    * Update download script to support downloading single experiments
+    
+    * Fix travis typo
+    
+    * Don't re-download experiments if folder exists
+    
+    * Don't re-download experiments if folder exists
+    
+    * Use competition environment for testing
+    
+    * Adjust print statements to please travis
+    
+    * Reduce length of data sampling t
+    
+    * Reduce length of data sampling by breaking
+    
+    * Indent - typo
+    
+    * test live cache solution
+    
+    * Test using spaces arg str
+    
+    * Use ordered dict for load_data_pyfunc
+    
+    * Small typos
+    
+    * Install logger to see why 3.5 build is hanging
+    
+    * Move travis-breaking test to excluded
+    Disable download of experiment
+
+commit a10ddea46928095fa8a3508babe454d34c8d7700
+Author: Andre Kramer <37615084+AndKram@users.noreply.github.com>
+Date:   Wed Jul 24 08:11:55 2019 +0100
+
+    allow base port for malmo to be configured (#149)
+
+commit a2277671efc8aedcf9822b5982ca01f99d4d7259
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed Jul 24 03:04:44 2019 -0400
+
+    Adjust duration of MineRLObtainIron-v0 and MineRLObtainIronDense-v0 (#156)
+
+commit 176c85cfc451195e0b17159b6def74cf57690453
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Jul 23 22:38:18 2019 -0400
+
+    Fix broken pipe exception when closing sarsd_iter in Windows (#170)
+
+commit 73987921b1b8fab90300a6ab35a4b0fed2b49377
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jul 23 22:33:36 2019 -0400
+
+    Adding blacklists and reverting the data issues! (#174)
+    
+    * Updating the data pipeline to black lsit the capers stream. Closes #134.
+    
+    * Reverting the matplot lib version fix.
+
+commit 2df7465ecc0ffb00737cb31ddf7899f9938f5dd1
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jul 23 22:14:28 2019 -0400
+
+    Disables the GUI during episode. Closes #160. (#173)
+
+commit 42dc89c17f531d2d87afd09fe7eb74da5cee8852
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jul 23 21:29:52 2019 -0400
+
+    Fixing the navigate target. (#172)
+
+commit 0c128da771f553ba023e5060791dfcd1af0b060d
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Jul 23 21:15:30 2019 -0400
+
+    Disable env.render on AI Crowd (#169)
+    
+    * Disable env.render on AI Crowd
+    
+    * Adding tests!
+
+commit a8c8e24a44223e436c3012cc0370385bdbf064a6
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Jul 23 21:07:15 2019 -0400
+
+    Use same map as server for MineRLTreechop-v0 (#155)
+    
+    Quit after obtaining 64 trees, original map
+    Introduces #154
+    Closes #135
+
+commit e3f47aa694d99446c466296a0a70a4020171fc5d
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jul 23 20:48:07 2019 -0400
+
+    Instance manager max. (#171)
+    
+    * Adding maximum instances.
+    
+    * Adding remote instance test.
+
+commit b12b825fed063ba567cb0b633fd5c0156c82aa19
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Jul 23 20:21:25 2019 -0400
+
+    Add support for multiple matplotlib versions (#153)
+
+commit 7ef3672877cc3d4a5db0bd27294dbf7be7111533
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jul 23 20:10:16 2019 -0400
+
+    Adding seeding and fixing nav issue.  Closes #14. Closes #162. (#168)
+    
+    * Adding seeding and fixing nav issue.  Closes #14. Closes #162.
+    
+    * Rebasing
+    
+    * Updating malmo.
+
+commit 02286416c2bb1499de853fabdeb04a45bcc7ae9c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Jul 23 12:47:07 2019 -0400
+
+    Update README.md (#166)
+
+commit 3fb45c7ae262fe528cbb819c951bc2f2bbc23a77
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jul 22 19:43:06 2019 -0400
+
+    Fixes issues with travis tests in sub-repo pySmartDL (#163)
+    
+    * Add exception handling to util.py
+    Update some lines with mixed tabs and spaces
+    
+    * Python formatting
+    
+    * Adjust imports
+    
+    * Adjust imports
+    
+    * Adjust imports
+    
+    * Update pysmartdl
+    
+    * Update pySmartDL
+
+commit f121fcc7688429e1b54a5e319d92e0b04dfd3fff
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Jul 16 12:10:45 2019 -0400
+
+    Update README.md
+
+commit b2b9838eafdc1553bc303f4a9a4ea5af261fdef4
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Tue Jul 16 12:09:38 2019 -0400
+
+    Move patreon to sponsor button
+
+commit 7783c70cc33bd0bed965f25964bfa34ca496d0ee
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jul 15 23:01:54 2019 -0400
+
+    Updating setup.py. (#147)
+
+commit 504dc145b4ca089ff756c124024550b2f1061983
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jul 15 22:46:13 2019 -0400
+
+    Data assertion closes #145 (#146)
+    
+    * Accounting for missing VERSION file.
+    
+    * Fixing failure with version status.
+    
+    * Making verison checkign cross platform.
+    
+    * Updating!.
+
+commit bc4b7cb4c4568a46f2eeb1224368298ae9d8cb7c
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jul 15 18:22:26 2019 -0400
+
+    Freeze support (#144)
+    
+    * Adding freeze supprot closing #140 closing #138
+    
+    * Adding windows FAQ to the docs (thank you pytorch!)
+    
+    * Updating setup.
+    
+    * Adding seed argument.
+
+commit 8580cbaae3e957c68de606a1d45dff791b2af7ed
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jul 15 16:39:32 2019 -0400
+
+    Remove download continuation feature (#143)
+
+commit b1d4492d2a5a2de3192063f5af3d7da23517cf0c
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jul 12 15:21:14 2019 -0400
+
+    Update README.md (#139)
+
+commit 4f05f0cc6899c9f86bca4e940272a617ae6f82b3
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jul 12 02:11:35 2019 -0600
+
+    MineRL 0.2.0 [rebased] (#136)
+    
+    * Add ability to observe placement of non-agent placeable blocks
+    
+    * Fix loud broken pipe error on data loading framework
+    
+    * Add action_space and observation_space to data pipeline
+    
+    * Made obsevation space a member of data class
+    
+    * Add spaces to package
+    
+    * Add other type to handlers
+    
+    * test handlers
+    
+    * Add debug flags to data pipeline to reduce typical printing
+    
+    * Enable debug flag in pipeline
+    
+    * use logger log levels
+    
+    * Expose logger
+    
+    * Unexpose logger
+    
+    * Add queue size parameter
+    
+    * Add debug statements
+    
+    * debug for days
+    
+    * debug for days
+    
+    * Add ability to observe placement of non-agent placeable blocks
+    
+    * Fix loud broken pipe error on data loading framework
+    
+    * Add action_space and observation_space to data pipeline
+    
+    * Made obsevation space a member of data class
+    
+    * Add other type to handlers
+    
+    * test handlers
+    
+    * Add debug flags to data pipeline to reduce typical printing
+    
+    * use logger log levels
+    
+    * Expose logger
+    
+    * Unexpose logger
+    
+    * Add queue size parameter
+    
+    * Reveering changes.
+    
+    * Addding data versioning.
+    
+    * Updating Malmo for gamma fix.
+    
+    * Update load_data to use current environment
+    
+    * Update load_data function
+    
+    * Align data based on actual number of frames in recording
+    
+    * A workable stream viewer!
+    
+    * Making stream viewer a module in minerl.
+    
+    * Adding a new streamviewier script.
+    
+    * viewier.
+    
+    * Windows requirement.txt
+    
+    * Updating.
+    
+    * Updating one more time.
+    
+    * Importing on windows.
+    
+    * need more color
+    
+    * Updating your cool applicaton.xtxt
+    
+    * yeah dude!
+    
+    * remove debug
+    
+    * Added version support to download script
+    
+    * Updating the head to support the new viewer.
+    
+    * Updating viewer to support reward plots.
+    
+    * Updating the new data viewer.
+    
+    * Add ability to return metadata in seq_iter
+    
+    * Fix metadata
+    
+    * Fix metadata
+    
+    * Pushing. code.
+    
+    * Update load data
+    
+    * Add metadat if not there
+    
+    * Fix
+    
+    * Deprecating seq_iter.
+    
+    * Increase timeout in download script
+    closes #131
+    
+    * Remove teleport observation for final state
+    
+    * Allowing for random streams.
+    
+    * Fix minerl data download version
+    
+    * Fix minerl data download version
+    
+    * Update documentation for data pipeline
+    
+    * Update setup.py
+    
+    * Delete mc_1.log
+    
+    * Update documentation for data itter
+    
+    * Updating the documentation.
+    
+    * Updating Malmo version
+    
+    * Updating the viewer for the new version of python3.5. Why oh why matplotlib :(
+    
+    * Adding a dependency for pySmartDL.
+    
+    * Adding new updates.
+    
+    * Yes.
+
+commit 913dd0266b76139fe538fc971990e72ac067ca3c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Jul 2 18:38:54 2019 -0400
+
+    Test deploy to pypi upon taging (#120)
+    
+    * Test deploying to pypi upon taging
+    
+    * Updating secure password
+
+commit bedbe9ecdf351b7c67fefc4a86f6ba7258a8ef64
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jul 1 18:17:53 2019 -0600
+
+    Publishing minerl 0.1.18. (#118)
+
+commit a18fb4cd39647932192794682ea5d3598c43fdbb
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jul 1 17:24:54 2019 -0600
+
+    Updating the tests and adding support for performance writing. Closes #114 #115 (#116)
+    
+    * Updating the tests and adding support for performance writing.
+    
+    * Updating the version number.
+    
+    * Upgrading the status writer to support keep alive pyro packets and log forwarding. Closes #115.
+    
+    * Closes #87
+    * Closes #69
+    * Fixingcomment by brandon!
+    
+    * Cleaning up malmo.
+    
+    * Moving Malmo back to the MineRL branch.
+    
+    * Adding Python3.7 compatability.
+    
+    * Fixing festering wounds.
+
+commit e1938d9a6f9d2b562fc5fb01dd6308c3ead3bfa4
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat Jun 29 12:58:21 2019 -0400
+
+    Brandon/unequip (#107)
+    
+    * Added ability to un-equip items
+    Added documentation for equip handler
+    Added camera command limits
+    Added demonstration of handlers in handler_test
+    Added profiling of data loader framework in data_speed_test
+    
+    * Added crafting of iron_pickaxe to handler_test
+    Found error where agent spawns in the ground at the start of flat-world
+    
+    * Add ability to observe when agent has nothing equipped
+    
+    * Update documentation to reflect correct item name
+    
+    * Move tests into excluded until headless support is enabled
+
+commit dea4767ebf15c735f845aafdd66a8ad4504fca68
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Jun 28 16:48:27 2019 -0400
+
+    Build master branch to maintain badge status (#112)
+
+commit a2e2d4f99df70f93a4483ad5cd4f8b053e4c26f7
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Jun 28 16:33:43 2019 -0400
+
+    Add simple test, move broken tests to excluded dir (#111)
+    
+    * Add simple test, move broken tests to excluded dir
+    
+    * Set JAVA_HOME explicitly
+    
+    * Add xvbf for testing
+    
+    * Use -a flag to open new displays if needed
+    
+    * Add mesa dependencies
+    
+    * Try additional mesa packages
+    
+    * Update to env-spec to eliminate issue with headless build server
+    
+    * Use pytest naming scheme for tests
+
+commit a4fe74a6ec427162427621cf166a20c1f239d4cd
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 28 13:28:27 2019 -0400
+
+    Update .travis.yml
+
+commit 55b13783f4bf0d1cc2f2fd70812c2a9fb8bd313d
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 28 13:27:42 2019 -0400
+
+    Remove pypy testing
+
+commit 7b37dfde20634098885cc7057da64a4a1aa2bb07
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 28 13:26:16 2019 -0400
+
+    Ignore all Malmo samples, and non-headless tests
+
+commit a10b5d2593acd8ec1dfe1c399846566239ff6341
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 28 12:56:49 2019 -0400
+
+    Fix typo
+
+commit 00a4925d8cffc094185f2bb9f793c8f1136ae365
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 28 12:54:32 2019 -0400
+
+    Don't test env on headless travis vms just yet
+
+commit 72b83bf1a109153ae296ac836e1e244731519432
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 28 12:50:43 2019 -0400
+
+    Use setup.py to install requirements automatically
+
+commit b3d0a8c0b2c6579dd1be9107e680df040e5be1f6
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 28 12:46:01 2019 -0400
+
+    Update .travis.yml
+
+commit 5263b5b2f9f4c8f4e2fd57fb1b347c3bcb797479
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 28 12:41:48 2019 -0400
+
+    Create .travis.yml
+
+commit 23200e58c5ca7758036da1c0251ec8b5d4ccd3c8
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Thu Jun 27 21:17:18 2019 -0400
+
+    Add discord link
+
+commit af7dc0665a0f64705437594a9712a5c8a3da1a5d
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Thu Jun 27 21:07:01 2019 -0400
+
+    Added version and build badges to readme
+
+commit 15cb42b1bd018c9e0029bef64215cac1e323baa7
+Author: albert <lbertge@gmail.com>
+Date:   Thu Jun 27 13:06:26 2019 -0700
+
+    Add seed parameter to seed() method (#106)
+
+commit 6b9aeffdac74657420633fbabda7ac265173ad14
+Author: William Guss <carlostnb@gmail.com>
+Date:   Thu Jun 27 13:45:00 2019 -0600
+
+    Updating to version 0.1.17 for build script error.
+
+commit f712315571375f2973652c586c178a217ae69b35
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Jun 26 16:43:36 2019 -1000
+
+    Updating to 0.1.16
+
+commit 3da8cb9b8b495e57e0e1f0628757b49f6a3c53a6
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Jun 26 15:52:30 2019 -1000
+
+    Update obtainDiamond.xml
+
+commit eb152054c7692365f995ad17ff1aca995c33f7a0
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Jun 26 08:53:40 2019 -1000
+
+    Update README.md
+
+commit af35ffb8e78fac4a97f5ce95b90b503e9382e48c
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Jun 26 08:52:46 2019 -1000
+
+    Update README.md
+
+commit d8615ac08473f51d8643a1e511b9a3b5af45fafc
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jun 25 11:42:56 2019 -1000
+
+    Cleaning up repo and publishing 0.1.15.
+
+commit 8aa06753ce3c452c9c28607bf8e15c88366cabc2
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jun 25 11:13:29 2019 -1000
+
+    Fixing the broke pipe error, and a bunch of other bugs. (#98)
+    
+    * Updating core
+    
+    * Updating malmo env for mac osx. Fixes #96.
+    
+    * Putting malmo at Minerl.
+    
+    * Adding nested dictionary management, and fixing spaces for environments. Closes #95.
+    
+    * Accounting for Log 2 in minerl. Closes #56.
+    
+    * Adding print statement for the Malmo env when the biome parser fails. See #87.
+
+commit 47da7ec2be1984a78f1619f9bc9362f83e7b2ada
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 24 15:32:49 2019 -0400
+
+    Brandon/sync (#94)
+    
+    * Fixed issues with mis-aligned video observations
+    Removed redundant code
+    
+    * Added ability to seed data itteration
+    
+    * Fixed issues with yield statement breaking _load_data_pyfunc
+    
+    * typo
+
+commit 28b2b27436f70f6eab9254df44f11bb9c44d04a6
+Author: keisuke-nakata <keisuke.nakata.919@gmail.com>
+Date:   Mon Jun 24 17:56:37 2019 +0900
+
+    unify action/observation spaces for obtain-like tasks (#91)
+
+commit 1e9857c3b7685f8e1b4f65c23af51b63584e3f99
+Author: keisuke-nakata <keisuke.nakata.919@gmail.com>
+Date:   Mon Jun 24 17:00:57 2019 +0900
+
+    sort action_space key (#88)
+    
+    * sort action_space key
+    
+    * add
+
+commit d6d7812695a1d7608b99e4972fd1b0d2dbdbbe41
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 23 21:59:20 2019 -1000
+
+    Updating the port allocation procedure. (#90)
+
+commit af796dcbff3c11ae1b172ddfb21c431929e6b69a
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 23 16:13:00 2019 -1000
+
+    Removing the new race condition! (#86)
+
+commit 2e9079a79404e88283a2c2a69ed6b5d3b7758a82
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat Jun 22 09:27:22 2019 -1000
+
+    Updating the version number.
+
+commit 75b5416eb97859971e3a8edbda670378fcbad709
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jun 21 17:48:00 2019 -1000
+
+    Instance manager as a service, several fixes. (#84)
+    
+    * Adding temporary directory support. Closes #71
+    
+    * Reducing time out. Closes #70
+    
+    * Adding temporary directories for the isntances.
+    
+    * Updating error handling.
+    
+    * Trying this new update.
+    
+    * Fixing windows error. Closes #77. Closes #72.
+    
+    * Updating.
+    
+    * Update malmo.py
+    
+    * Update malmo.py
+    
+    * Update setup.py
+
+commit 03982a3c245800e77c3b7ceaa22dc899bfaccd22
+Author: TimZF <timziegler99@gmail.com>
+Date:   Tue Jun 18 17:47:28 2019 +0200
+
+    Actually generate new Worlds for Treechop (#61)
+    
+    Change so a new World gets generated instead of reusing the same one
+
+commit ac59d1fe08175ae574c02bd69e3437902ddfb8fc
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 17 06:19:42 2019 +0200
+
+    Latest version!
+
+commit 8e5598c1e2de6c2de48e249e9d1f0b4a6d793cde
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 17 06:02:33 2019 +0200
+
+    Publishing new version of minerl!
+
+commit d5848e52dc85727c2546f2ec81d0aa88c64c35e3
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 17 20:09:02 2019 -0400
+
+    Updated gamma in minerl env, add support for sampling sequences one
+    at a time using data.seq_iter(max_seq_len=-1)
+
+commit 4a3864bdfec120f18640e2c4ca4148f75efc5387
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 17 21:08:41 2019 +0200
+
+    Removing race condition. (#55)
+    
+    * Documenting the step method.
+    
+    * Removing the turn key.
+    
+    * Updating the plugin.
+    
+    * Update malmo.py
+
+commit 343da5f06862ffee26ff07bce921469e2810602d
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 17 04:39:58 2019 +0200
+
+    Updating the malmo version.
+
+commit c6a3ac792ceaaaddca5f85af368f724a9a2ab35f
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 17 00:55:11 2019 -0400
+
+    re-added ability to observe stone and place stone (e.g. granite)
+
+commit f01e7f30d46084665af1d1be87dcb0b957b88a86
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 17 00:13:46 2019 -0400
+
+    fixed observation of stone instead of cobblestone in inventory
+
+commit f7ab53cb6b056a669ea6d021fdef4b5aab7ae8a2
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sun Jun 16 22:51:33 2019 -0400
+
+    fix windows error issue
+
+commit c161c5e63afbbf23c4630f3c4aea489b9257c04f
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sun Jun 16 22:27:32 2019 -0400
+
+    add load_data function to pipeline for debugging
+
+commit 54c0e6f0cdd4b1c252a27efdd2d3965e0fd176fa
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sun Jun 16 20:37:03 2019 -0400
+
+    Fixed inconsistencies in Obtain environment handlers
+    Added gym.spaces.max for item damage and max_damage
+    Added observation of axe types to inventory observation
+    Added ability to craft iron_axe
+    Added ability to equip iron_axe
+    Fixed issue where agents could not craft a crafting_table without one
+    Fixed issue where agents could only place smooth stone (stone) instead
+    of mined stone (cobblestone)
+
+commit 3725afd5a5695988f85665f5f0ac1194c8874ebe
+Author: Cody Wild <cody.marie.wild@gmail.com>
+Date:   Sat Jun 15 07:04:23 2019 -0700
+
+    Spelling fixes (#42)
+
+commit 09db05ae8c31400f8ddd289bd44ec7f0e03033d4
+Author: keisuke-nakata <keisuke.nakata.919@gmail.com>
+Date:   Sat Jun 15 23:03:33 2019 +0900
+
+    avoid error when `close` twice (#46)
+
+commit 6b5083683f540b419a88351afcf0a55aa955c9a3
+Author: keisuke-nakata <keisuke.nakata.919@gmail.com>
+Date:   Sat Jun 15 23:02:44 2019 +0900
+
+    implement `render` (#45)
+    
+    * implement `render`
+    
+    * fix bad linebreak
+
+commit ce20d10309b6205836c16a4391eb3ef8cc9cbd0d
+Author: Oscar Mañas <oscmansan@gmail.com>
+Date:   Fri Jun 14 21:34:38 2019 +0200
+
+    Fix typo in keyword argument (#47)
+
+commit c9ad9b0bef5b6afd8769acd1c557569fe8179fe8
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Jun 12 09:36:45 2019 +0200
+
+    Versioning correctly.
+
+commit 9137b0018b581d3158245ed21276eb15428497af
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Jun 12 09:36:06 2019 +0200
+
+    Upgrading the mienrl env.
+
+commit 58a5877a072dbcdc1aff19e06fed733ca79abd73
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jun 11 18:40:40 2019 +0200
+
+    Fixing decode error on Windows.
+
+commit 3c0efb87840a39e8791880045754798d0115872a
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jun 11 17:20:59 2019 +0200
+
+    Adding offline mode closes #38.
+
+commit a1de4c1a4b7254b53e2a535c503452eb75cea403
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jun 11 13:15:00 2019 +0200
+
+    Upgrading to version 1.6 for the XCB error.
+
+commit a39a2f141f896b8b1b26cca3b38ed67cbe947374
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jun 11 11:23:51 2019 +0200
+
+    Fixing runtime error.
+
+commit c7d011b223911c8ad5228844b28268beeff18e52
+Merge: b661382 b6d374e
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue Jun 11 11:23:24 2019 +0200
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit b6d374eba4ea645a20a99e580def0f9e6e333a00
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 10 15:07:15 2019 -0400
+
+    Close file descriptor when deleting cache
+
+commit f9bea5eb3b946d1f4ec6fa891d2a2f61e02a82cb
+Merge: 99763bb fac2853
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 10 20:41:08 2019 +0200
+
+    Merge pull request #32 from decodyng/docs-fix-java8-installation
+
+commit fac285387a420a9faf66a6f2158af5f10fe03595
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:31:31 2019 -0700
+
+    remove unnecessary whitespace changes
+
+commit 255a41ebd6bf90e260dd6645e352bae6b1f94c58
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:28:53 2019 -0700
+
+    spelling fixes
+
+commit fe24523b780c8372449943fcc9f7d470e2b1c583
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:28:10 2019 -0700
+
+    change install commands to be correct
+
+commit d2107895ae38baa242f4b2a05b62b11e1cdb475e
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:27:37 2019 -0700
+
+    change text to reference adoptopenjdk
+
+commit 7d2345ef1e397338bfc5c51de3db9f473950334a
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:26:50 2019 -0700
+
+    go back to code I know does nested lists right
+
+commit a056eccbac2c4c102ef4440890b4f67b26aca12c
+Merge: 1fdef09 3b68673
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:25:44 2019 -0700
+
+    Merge branch 'docs-fix-java8-installation' of github.com:decodyng/minerl into docs-fix-java8-installation
+
+commit 99763bbffbac5dfc1f1501548c3956ada823802e
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 10 14:25:30 2019 -0400
+
+    Added option to disable cache in download script
+
+commit 1fdef091f500f98cb8b97494a9a116576d53fc28
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:25:27 2019 -0700
+
+    get code block to work again
+
+commit 3b686731315a55dccda4ca1db8b95598fdb63c0c
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:23:35 2019 -0700
+
+    more indentation issues
+
+commit 6dbdd1e7831385bf23187f617d7870fd3e62e663
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:23:03 2019 -0700
+
+    fix dubious indentation issues
+
+commit 370b99a68ab8739a9b2d797f8b21b24dc84dc22d
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:19:04 2019 -0700
+
+    code block modification
+
+commit bd4d8b9d788202ebaa7586525f07ee422ad724cf
+Author: Cody Wild <cody@airbears2-10-142-32-50.airbears2.1918.berkeley.edu>
+Date:   Mon Jun 10 11:17:25 2019 -0700
+
+    java8 installation instruction update
+
+commit 695cf3ea4466a5784b7700f67e4c311251433fe4
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 10 14:02:01 2019 -0400
+
+    Small adjustment to doc language
+
+commit 6a605586b84ba0187ca8b5efb80c081ac0656344
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 10 14:00:47 2019 -0400
+
+    Add data download instructions to installation
+
+commit 43a9b70a6a3ea2f065639c7e4f1bac0bce3a93a3
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 10 12:45:24 2019 -0400
+
+    Fix tutorial example closes #18
+
+commit b661382b3e15db879cf64f3db6157e113d16a265
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 10 13:07:54 2019 +0200
+
+    Updating the logs.
+
+commit 9df857f24337ba0f496f6a84bca32d638d7bb487
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 10 13:05:32 2019 +0200
+
+    Updating the package.
+
+commit 9c45d78e261b84a7d93f86ab6abecd4b58e8275f
+Merge: c080bd9 e59ef38
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 10 09:53:28 2019 +0200
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit e59ef38b35c3d3381a4941f65c42ebd4885ad64b
+Merge: c7dd00c 510c120
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 10 08:16:52 2019 +0200
+
+    Merge pull request #25 from albertwujj/master
+
+commit 510c120a5be6cfaa9a4e2abd8559555a9c02cc60
+Author: Albert Wu <albertwujj@gmail.com>
+Date:   Sun Jun 9 17:23:10 2019 -0700
+
+    fix detecting data_dir bug
+
+commit c7dd00ca19deea44b5a4abd10666acc4c98d31f4
+Merge: 3d1d7f5 3f9d5b1
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 9 23:34:24 2019 +0200
+
+    Merge pull request #23 from abiro/master
+
+commit 3f9d5b172cb75d2b186e59bb5b6f7912b2673e02
+Author: Agost Biro <agostbiro@gmail.com>
+Date:   Sun Jun 9 23:15:18 2019 +0200
+
+    Fix code examples in README
+
+commit c080bd9e2188369cbc09bffd7f74e82a0509f406
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 9 21:20:01 2019 +0200
+
+    Adding useful error messages.
+
+commit 3d1d7f58e6ce4c55a91c242d459a0678d3360674
+Merge: f4c4eb2 94fe2e9
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 9 21:03:53 2019 +0200
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit f4c4eb27d3982b7857f9c273dcd297e6499c3c8c
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 9 21:03:38 2019 +0200
+
+    Updating localhost.
+
+commit 94fe2e9aa59ff83b0a396152baa10214a82268ad
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 9 17:07:33 2019 +0200
+
+    Update README.md
+
+commit b8adb18359a177c6b381b618437a86f0b7b84ef4
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 9 16:26:47 2019 +0200
+
+    Adding a face the repository.
+
+commit b773a0975ba219e08938084647eff2efc39367e6
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun Jun 9 11:45:45 2019 +0200
+
+    Updating version!
+
+commit 135ce5e6fe306fe99c40f2e395ab839c262ff055
+Author: Nico Montali <nico.montali24@gmail.com>
+Date:   Sun Jun 9 08:26:41 2019 +0200
+
+    Fixing README sample code (#15)
+    
+    Fixing README sample with sample() instead of random().
+
+commit 3a436dcd43e58ac7f25828d1cd6810b8ede660c5
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat Jun 8 15:27:59 2019 +0200
+
+    Update README.md
+
+commit 341ce033deb1785b1a1b40a6b6be28c4defc6232
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat Jun 8 15:27:40 2019 +0200
+
+    Update README.md
+
+commit 9f7aabb971c5d4b1904133a4eda8bde75ca57e67
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Sat Jun 8 15:09:24 2019 +0200
+
+    Update README.md
+
+commit 6e2b61baba881b4bac6284aaabc521062ce44ddc
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Sat Jun 8 15:08:58 2019 +0200
+
+    Update README.md
+
+commit 8381fd95d5885b77b3c725994173ca14cc68bce9
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Sat Jun 8 15:07:20 2019 +0200
+
+    Update README.md
+
+commit 95f770f7892ef0f52c550735b6ab80c79cfc9988
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat Jun 8 14:46:19 2019 +0200
+
+    Adding docs.
+
+commit 8f253980bb4e2218dd844bedc8e34daf6604a7de
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat Jun 8 02:18:45 2019 -0400
+
+    Added dict wrapper for observations fixed mangled dict space
+    TODO transpose inventory observations
+    TODO wrap all dict obs space results in list
+
+commit 391a929c2cd041f95aaf0abdc0c87d64083f2674
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat Jun 8 01:01:52 2019 -0400
+
+    Added dict wrapper for observations
+
+commit 94994ada83215dd8b9a2015801ccdea14c793a03
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 7 23:32:53 2019 -0400
+
+    Update README.md
+
+commit ab9b951e8b463ea76fe27dad869f4cee927ef3b7
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Fri Jun 7 23:32:01 2019 -0400
+
+    Update README.md
+
+commit e4505b82d1a60f9f45e3aa806021ae2d260e54a3
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Jun 7 19:08:02 2019 -0400
+
+    Added caution statement and notes to envs
+    Renamed spaces to have minerl name space
+    Added no_op function to all handlers
+
+commit 0748336f2b50811ea01a6a4ad3ecf3b7ff42b2dd
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Jun 7 16:13:14 2019 -0400
+
+    Added dense environments
+
+commit 48187ffec4e7bb39a4750d8d61ce220fcfa78c01
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Jun 7 14:12:48 2019 -0400
+
+    Updated template for wrapping returned spaces
+
+commit b3cd4de7f0f7b07898a6a720139c10e7fb5088bd
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Jun 7 14:02:46 2019 -0400
+
+    Added section for dict wrapping - TODO
+
+commit 0d9c3ed4d7d4f8940295a471dc642631c1358a92
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Jun 7 10:52:09 2019 -0400
+
+    Convert sub-channel ordering of recorded data
+
+commit 08e93876f379ea4d3f86c72037b3bdc0d2096a5b
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jun 7 15:33:26 2019 +0200
+
+    Updating the license for the package!
+
+commit 5f7d116451d9a7e450347585193a29333b64a9d4
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jun 7 13:36:39 2019 +0200
+
+    Updated the first agent documenation.
+
+commit 08c0888ac10b797f6b2d4a74d94271e2e00de50e
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jun 7 12:58:34 2019 +0200
+
+    Updating master with new minerl release.
+
+commit 66f8369819d17c2b7e6f5b42533010f9a2048360
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jun 7 02:54:26 2019 +0200
+
+    Fixing tpyo.
+
+commit bcaa1f07cbe04b8aa9bfa4d1f6a568fb6d36407e
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jun 7 02:53:21 2019 +0200
+
+    Minor focumentation fix.
+
+commit 58b9cd01fcdfb511b839b7c80efe4ed1e85e9cfa
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri Jun 7 02:45:23 2019 +0200
+
+    Docs (#13)
+    
+    * Git push
+    
+    * Added data doc changes
+    
+    * Updating the documentation.
+    
+    * Updating.
+    
+    * merged
+    
+    * Missing formating symbols
+    
+    * change order for sampling from data
+    
+    * Added done handler to data, updated ordering of tuples to match env
+    
+    * Update doc strings
+    
+    * Update doc strings
+    
+    * Updated env resolutions
+    
+    * Updating the MineRL project and finishing the first-agent guide.
+    
+    * Updating the documentation.
+    
+    * Updating settings.
+    
+    * Fix logging in download script -enable md5 hash verification for mirrors
+    
+    * Add future support for mirrors
+    
+    * Updating the encironment documentaiton fixing some missed action spaces.
+    
+    * fix changes to api
+    
+    * Fixing hyper links.
+    
+    * imports
+    
+    * Updating the google analytics.
+    
+    * A quick lean.
+
+commit 7bd6902e131c399fe28b7468d3bd5757baaba577
+Author: William Guss <carlostnb@gmail.com>
+Date:   Thu Jun 6 12:03:07 2019 +0200
+
+    Adding craft once optionality.
+
+commit 9331274830c333e697512f904a8ecdbe17b3a44e
+Author: William Guss <carlostnb@gmail.com>
+Date:   Thu Jun 6 11:30:53 2019 +0200
+
+    Added the optionality to reward once. Fixed correction dictionary.
+
+commit d29113f0b504d2d042491ebf5ff955852b3bdcbb
+Author: William Guss <carlostnb@gmail.com>
+Date:   Thu Jun 6 10:32:45 2019 +0200
+
+    Updating malmo to run quicker.
+
+commit 388a7a747f0a25f8a263d4d784be5c769730f082
+Author: William Guss <carlostnb@gmail.com>
+Date:   Wed Jun 5 11:55:19 2019 +0200
+
+    Adding the observation of item durability.
+
+commit 0a9f6f956e56e7e1af9f64998168baac7a2b9849
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 3 14:05:33 2019 +0200
+
+    Mergin the obtain diamond changes in. Upgraded the version.
+
+commit 3d966b5a475094b4b24f5e5d44d2ac1d16a470c9
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 3 11:31:48 2019 +0200
+
+    Updating DQN tests.
+
+commit f6995811ffed7f779718a8bd0cd1efc429db99f4
+Merge: 78a8002 f7703b2
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 3 10:49:13 2019 +0200
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit 78a8002f50a6b0579e73e06773b608c6ccdd33b6
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon Jun 3 10:44:59 2019 +0200
+
+    Updating version of malmo and core and coms.
+
+commit f7703b2b3263ae8675396cc971162f36bfdbc6d0
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon Jun 3 01:22:44 2019 -0400
+
+    Obtain diamond (#11)
+    
+    * Added default action for all current environments
+    Updated sample script for testing
+    
+    * Added debug env to test handlers
+    
+    * Add attack action for validation
+    
+    * Removed attack
+    
+    * Fixed unicode decoding error in Windows
+    
+    * Fixed CameraCommandsImplementation capturing other commands
+    CameraCommandsImplementation should return true iff the command should
+    should be captured. Modified un-matched case to return false
+    
+    * Improved testing of obtain envs
+    
+    * Make time to completion more consistent
+    
+    * Added equip handler
+    
+    * Added equip handler, fixed nearbyCraft and nearbySmelt handlers
+    Updated quick_start test to demonstrate these features
+    
+    * Added equip handler, fixed nearbyCraft and nearbySmelt handlers
+    Updated quick_start test to demonstrate these features
+    
+    * Added demonstration of tree-chop reward
+    Moved test sample to flat world
+
+commit 3a8dbdf730d826f1ea973d8222de88143390c014
+Merge: 943b003 cc15bb9
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue May 28 12:48:25 2019 +0200
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit 943b003f78f0414e4bfec543ddff18f27c66df81
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue May 28 12:46:39 2019 +0200
+
+    Updating new version.
+
+commit cc15bb91d6705bb261930ffe60e73cc533bf362a
+Author: MineRL Labs <minerl@andrew.cmu.edu>
+Date:   Sun May 26 19:19:22 2019 -0600
+
+    Remove stale debug msg
+
+commit 97b511c588769642001dfa5d7317f8c6e4494935
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sun May 26 18:17:28 2019 -0600
+
+    Added ObtainIronPickaxe and ObtainDiamond environments
+    Added updated sample.py to demonstrate dict action space
+    Added debug statements to enum gym space
+    Added support for string and integer enum values
+    Needs testing:
+    Quit handlers; craft, smeltNearby, craftNearby handlers;
+
+commit 35f1ddbd8ae1fe9294f26df97c0304b7169c44cd
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed May 22 15:49:59 2019 -0600
+
+    Added NavigateExtreme environments and fixed navigationDenseFixedMap
+    Added environment MineRLNavigateExtreme-v0
+    Added environment MineRLNavigateExtremeDense-v0
+    Changed compass randomization to reflect human experiment parameters
+    Added fixed_surface placement type for navigation decorator
+
+commit 96e93c20dc39c00a6c495adbb8de081769232600
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue May 21 21:45:24 2019 -0600
+
+    Change default texture-pack for downloading
+
+commit f364443e841d45685b6014c485cf550680200b33
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue May 21 20:51:35 2019 -0600
+
+    Fix indent error
+
+commit 5a03165ba9ac1e60d6029f7302b2eca908e54c20
+Merge: 16e13e2 2758025
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue May 21 20:37:25 2019 -0600
+
+    Merge pull request #9 from keisuke-nakata/malmo-minecraft-logdir
+    
+    add environment variable check for malmo minecraft output log dir
+
+commit 27580252f54f4030f6f40716b7413e10c5f0ced3
+Author: NAKATA Keisuke <keisuke.nakata.919@gmail.com>
+Date:   Tue May 21 17:04:15 2019 +0900
+
+    typo
+
+commit 18f32f6331c575a65a11a56b109d2d5255a1d265
+Author: NAKATA Keisuke <keisuke.nakata.919@gmail.com>
+Date:   Tue May 21 16:40:33 2019 +0900
+
+    add environment variable check for malmo minecraft output log dir
+
+commit 16e13e2e1b6fd211843217884a6709a3b9d94aa5
+Merge: c7e0441 99bae75
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 20 22:31:00 2019 -0600
+
+    Merge pull request #8 from keisuke-nakata/none-datadir-always-fails
+    
+    data_dir=None always fails
+
+commit c7e0441a9d5fb5a1c3f12aa0d0dd9a6be5ea1afb
+Merge: b2a1fc6 2184658
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 20 22:29:27 2019 -0600
+
+    Merge pull request #7 from keisuke-nakata/indent-error
+    
+    fix indent error
+
+commit b2a1fc689957b826ac2d4e30cdb19d80d6527277
+Merge: 6660246 0945573
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 20 22:28:11 2019 -0600
+
+    Merge pull request #6 from keisuke-nakata/invalid-import-download
+    
+    invalid import
+
+commit 66602468604a8f5ad361db2fb5aa4a35f7873752
+Merge: 2dd6975 d0f5a8c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 20 22:26:45 2019 -0600
+
+    Merge pull request #5 from keisuke-nakata/submodule-url
+    
+    fix submodule url
+
+commit 99bae7513355d8f9ea3009283b6d018086632348
+Author: NAKATA Keisuke <keisuke.nakata.919@gmail.com>
+Date:   Mon May 20 19:05:06 2019 +0900
+
+    data_dir=None always fails.
+
+commit 2184658044fb510f7b3104baa2b44837635a2e87
+Author: NAKATA Keisuke <keisuke.nakata.919@gmail.com>
+Date:   Mon May 20 18:59:36 2019 +0900
+
+    fix indent error
+
+commit 09455732b636df9794baf32929b5d3796cc9f8cb
+Author: NAKATA Keisuke <keisuke.nakata.919@gmail.com>
+Date:   Mon May 20 18:57:20 2019 +0900
+
+    invalid import
+
+commit d0f5a8c80035cd262a05dc96c551d5742976aa72
+Author: NAKATA Keisuke <keisuke.nakata.919@gmail.com>
+Date:   Mon May 20 12:07:43 2019 +0900
+
+    fix submodule url
+
+commit 2dd6975791e38c5f6f935b1a8484b02f80444aa1
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 18 15:44:24 2019 +0200
+
+    Test.
+
+commit be72bdeafc1cecfcf7715cb28da8d43b2692b60d
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 18 15:31:12 2019 +0200
+
+    Updating wrong gitignore.
+
+commit c1ebe286462e9cbd7c0f42de0499302d1f8584be
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue May 14 19:47:16 2019 -0400
+
+    Working data queue with single samples of sequence length 32
+    Currently samples are returned sequentially in chunks of 32
+
+commit 3134f9676c29e8ca3ecc5edbb7b20dd0d361af32
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue May 14 00:12:48 2019 -0400
+
+    Updating this git.
+
+commit ad7d09b1a3f12cb9e8a351c9a65f6ae8cc9b8ed0
+Merge: 4d8e372 a41d97c
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 23:51:17 2019 -0400
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit 4d8e3720ffd047297b881e79874a42d7ba617cf9
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 23:51:06 2019 -0400
+
+    Yes
+
+commit a41d97c69b6f7f99618bfca910487bc5c6a2b69c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 13 23:42:53 2019 -0400
+
+    Changed data framework to 'make' specific envs
+
+commit 98dc2f02ed517e15e396e34effee19a7c8e7fad5
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 22:55:57 2019 -0400
+
+    Updaintg the rei
+
+commit ec91e1084a0f01e8f3dbf74ead5d7ee3f04ae6a5
+Merge: ae745a0 cd7c2c2
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 21:07:57 2019 -0400
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit ae745a0387abe455fa31c7b6a84a7b57077c7259
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 21:07:37 2019 -0400
+
+    Working version of the environment, with no wrappers.
+
+commit cd7c2c2c79e2a1cae35a4ba70650a20103e01203
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 13 20:56:13 2019 -0400
+
+    Added reward space, shape, and range
+
+commit 2dcd46f15256dafbd0ff4b44887fcace22845053
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 19:34:53 2019 -0400
+
+    Updating the environment.
+
+commit 936947dee5a6b5e81bc6b25ac29d2763df3dccb9
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 16:44:48 2019 -0400
+
+    Updating env registration.
+
+commit 19fd6e37a5fe67302f2019e0d715fcc0e6fa6eb3
+Merge: faf7514 a9353fb
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 16:41:59 2019 -0400
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit faf751462c3adfc3ebbff4358a266afca7351af1
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 16:40:12 2019 -0400
+
+    Fixing some bugs.
+
+commit 427fa95fb8e356d78739f56cd7f40327604a8e08
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 13 16:35:09 2019 -0400
+
+    Adding action spaces and removing acommand stuff.
+
+commit a9353fbdd9b27bf65bd89d641fba8119fcd5cbcf
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 13 00:51:21 2019 -0400
+
+    remove non-unicode characters
+
+commit 2328a54c50775e3d487228dd548d2d3f858ed80c
+Merge: bc9dde1 7e27d53
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 13 00:31:44 2019 -0400
+
+    Merge pull request #1 from minenetproject/brandon/wip
+    
+    Brandon/data_pipline_changes
+
+commit 7e27d53fc19b3bc1477f8d65c74fcd0d9ef6cb5d
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 13 00:23:00 2019 -0400
+
+    Fixed data pipeline to load all elements of data
+
+commit e3bd7df2207eb43710b524473d9211a0ccd09b43
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue May 7 19:17:33 2019 -0400
+
+    WIP update task translations
+
+commit 17f29f9425ecef0f76e2d72e2e2b837d7ba6d9d8
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 6 19:51:40 2019 -0400
+
+    WIP
+
+commit 9facff9c5d85ef791779e54d3c427d7501e27d78
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 6 19:03:51 2019 -0400
+
+    Fixing bugs.
+
+commit 4a35c184c1664dd0992e05f7f18361d695e7311e
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu May 9 20:42:55 2019 -0400
+
+    WIP update task translations
+
+commit 8d63e6b20029f843be94238123780e3995880201
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue May 7 19:17:33 2019 -0400
+
+    WIP update task translations
+
+commit e939d378fc8e3cf47c3f139ac31eefae05226cd2
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 6 19:51:40 2019 -0400
+
+    WIP
+
+commit bc9dde16d8608e89d6f0531b51c6eabf56caa6fd
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sun May 12 23:56:40 2019 -0400
+
+    Updated documentation, modified samples
+
+commit f58209cc7ea7ac946c98881b55f7fb65c2366e07
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sun May 12 17:31:34 2019 -0400
+
+    Updated interface for env
+
+commit 47257d386ba68e805121ba13d91dc607f2e1ec2b
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sun May 12 16:34:11 2019 -0400
+
+    sp
+
+commit 242cc1fc63911b759b881d23bf87209dfa6913a7
+Author: phillip <kip.phil@gmail.com>
+Date:   Tue May 7 17:48:15 2019 -0400
+
+    changes to setup script
+
+commit f622ae9a946d5e214e6be1a45d7e86e44c07d0db
+Author: William Guss <carlostnb@gmail.com>
+Date:   Tue May 7 15:46:06 2019 -0400
+
+    Dones.
+
+commit 794e897a043fd1aaca77801c697110950443b815
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 6 19:29:47 2019 -0400
+
+    ASd
+
+commit 2cf048a8396a5b1ce5ceacb3831b9809fcadfbbe
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 6 19:25:44 2019 -0400
+
+    Removing prexec funx.
+
+commit f10436b76f0314dffb40277ff2a09422807a3556
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 6 19:18:32 2019 -0400
+
+    Updating the display port watcher.
+
+commit 0e5aa139fa3d6c55edd5775bd24c49d8347e7b75
+Author: William Guss <carlostnb@gmail.com>
+Date:   Mon May 6 19:03:51 2019 -0400
+
+    Fixing bugs.
+
+commit 3b9b6cbe111c271250423f28de1919862bf3ec0c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Mon May 6 19:35:25 2019 -0400
+
+    Added draft documentation for environment types - subject to change
+
+commit edc283b63570603512953a326d96e6e7e4ef058c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sun May 5 21:54:13 2019 -0400
+
+    Added actions, and reward to data framework
+
+commit 5d115146bf10af1a3649398f9cb14ca468d7114f
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun May 5 15:15:29 2019 -0400
+
+    Adding new malmo.e
+
+commit 33529c15fcb3f765b564e1d70e020a233be7b95b
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun May 5 13:35:57 2019 -0400
+
+    Adding malmo.
+
+commit d8fafd5e40768d6ed3e69a407acd5c35d39baf9d
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sun May 5 13:34:47 2019 -0400
+
+    Updating gitignore.
+
+commit 9fcc226d7ef1503d5e688b1f253f49a48f7a52dc
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 16:30:00 2019 -0400
+
+    Updating everything.
+
+commit 68f36165246c45e0985593b4b0653ccac0db629b
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 16:24:26 2019 -0400
+
+    Updating hte package.
+
+commit 6ab28a0609b11d44c58823f2cd53e8a6a2e27465
+Merge: 94dcc2d 3267986
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 15:48:26 2019 -0400
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit 94dcc2de563b323d101bc3b3bc8c19c877986b58
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 15:48:15 2019 -0400
+
+    Updating this great thing.
+
+commit 32679861f823d0423cd941b72a5b297cf389121a
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 15:24:33 2019 -0400
+
+    Improved sample
+
+commit f93cfcdf27c2ff270933769f39ac49531c501c55
+Merge: 14afaf0 770dd9f
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 14:46:17 2019 -0400
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit 14afaf0d8c1e25f74e702ece0b38aba0c82514e7
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 14:45:46 2019 -0400
+
+    Updating.
+
+commit 770dd9ff82f14c4d474e7cea75843b5c5a2dcb40
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 14:30:24 2019 -0400
+
+    Fixed issue with data pipeline
+
+commit 9fddc291c3f4dc1f1beed2cd42b267b36ef74b57
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 13:56:24 2019 -0400
+
+    Formating setup.py
+
+commit ba1b4ebbec59ad200c30bdec27f7f7b88618fa5c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 13:21:08 2019 -0400
+
+    Update gitignore file
+
+commit e45a281cfdf5567c36bf007b81361c79eb9f6344
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 13:19:53 2019 -0400
+
+    Cleaning changes.
+
+commit d93a88074e06272e8067b3dce8a8d612ef457bb4
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 13:15:56 2019 -0400
+
+    Yah
+
+commit d66d29aac7ccbef84a15bd06332b49bce210220d
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 13:14:53 2019 -0400
+
+    Removing useless.
+
+commit bcdd16c1f79d6215913003641f3348e126ff4a3a
+Merge: 1267be9 779c174
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 13:14:15 2019 -0400
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit 1267be96edab8c0ebc9a5c715fc1e12c05a9b9f0
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 13:13:29 2019 -0400
+
+    Fuxk.
+
+commit 08c31220832d23441dbf0c9feb6af9e51a8061b2
+Author: William Guss <carlostnb@gmail.com>
+Date:   Sat May 4 13:13:12 2019 -0400
+
+    yah
+
+commit 779c174f3139ba1b76e96f9ede69b87c2dfbf056
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 13:09:19 2019 -0400
+
+    removed cache files
+
+commit 5488e106cd3b2946dff5e0cdfc77beb504e72307
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 13:08:51 2019 -0400
+
+    Update gitignore
+
+commit b20f2950a49721bdd1415380e330d00087ef6e91
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 01:32:27 2019 -0400
+
+    Added gitignore, removed bloat files
+
+commit 757113811b455ae3aafe41aeda5cd995cbd2db91
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 01:17:47 2019 -0400
+
+    Fixing download script
+
+commit 943540e8b55a951caf157d5dc9434d30c6d170b6
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Sat May 4 00:31:35 2019 -0400
+
+    Added strict requirements to package installation, incremented version
+
+commit a28bc6b01625fd59caac192a59c7f40924c90b42
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri May 3 14:31:37 2019 -0400
+
+    Create README.md
+
+commit e645c89f0ec28c00f0f6162819bf0ab969ae3bfb
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri May 3 14:24:15 2019 -0400
+
+    Linting and spelling
+    renamed _command_hander to _command_handler
+
+commit 98f63e111cccb7981ad43a27ff316e7a50b53123
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri May 3 13:31:19 2019 -0400
+
+    Linting and spelling
+    renamed _command_hander to _command_handler
+
+commit ea5c35d06c003ca942b68b6228d4870a4fc44619
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri May 3 13:23:43 2019 -0400
+
+    Add environment variables to dataset download script
+
+commit a5956c01859fe5138263d88b30cc7b43921f7bc8
+Merge: d0f9ee7 defb075
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri May 3 13:14:38 2019 -0400
+
+    Merge branch 'master' of github.com:minenetproject/minerl
+
+commit d0f9ee728fe7026f5c986bb07d095f73dd1332ba
+Author: William Guss <carlostnb@gmail.com>
+Date:   Fri May 3 13:13:27 2019 -0400
+
+    Basic minerl environment.
+
+commit defb075089af2cd3bacec1251e4a1ed6140f5dbd
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri May 3 12:13:20 2019 -0400
+
+    Updated quick start sample to reflect new env changes
+
+commit c77edb1e25d18e83dd9c46abccb1e90190f05b2c
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed May 1 22:42:45 2019 -0400
+
+    WIP: fixing too many indicies for array error
+
+commit ff1196237e77dc08922a7cfacbdc580aef27c7b8
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed May 1 22:09:02 2019 -0400
+
+    Add support for numpy dictionaries
+
+commit c39da5f48f5777bcac81ec217a6670584ed098de
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Wed May 1 21:49:28 2019 -0400
+
+    Fixed Multiprossesing bug
+
+commit b3255542d5bf2b2a3c45e226f80c32d98e218142
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Apr 30 20:09:33 2019 -0400
+
+    WIP - Working to remove windows multithreading bugs in video loader
+
+commit 18a1e38cd2a02fd97e2b95d9dac041697daa1f75
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Apr 30 11:44:17 2019 -0400
+
+    scratch
+
+commit cdf258d0f1d93362bfd197eab7dea8e1e71cc4de
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Fri Apr 26 18:46:41 2019 -0400
+
+    Misc work
+
+commit 39e0e4d12ff3e58679c302501d7b726f0e96eace
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Tue Apr 23 18:43:59 2019 -0400
+
+    Adjusted module to pypi package format
+
+commit 56d560051b4f233b68b43a5f3b4860670758eb3d
+Author: Brandon Houghton <bhoughton@cmu.edu>
+Date:   Thu Apr 11 15:12:10 2019 -0700
+
+    Added draft for framework - Readme for competition

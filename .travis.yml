@@ -1,0 +1,45 @@
+dist: xenial
+language: python
+python:
+- '3.5'
+- '3.6'
+- '3.7'
+cache:
+  pip: true
+#  directories:
+#  - $HOME/data
+addons:
+  apt:
+    packages:
+    - openjdk-8-jdk
+    - libglu1-mesa-dev
+    - freeglut3-dev
+    - mesa-common-dev
+    - mesa-utils
+    - xvfb
+    - libgl1-mesa-dri
+    - libglapi-mesa
+    - libosmesa6
+    - libxi-dev
+env:
+  - MINERL_DATA_ROOT=$HOME/data
+install:
+- pip install .
+- pip install pytest-xdist
+- python -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(minimal=True)"
+services: xvfb
+script:
+  - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+  - xvfb-run -a pytest -n auto --ignore=tests/excluded --ignore=tests/local --ignore=minerl
+
+branches:
+  only:
+  - master
+deploy:
+  provider: pypi
+  user: minerl-test
+  server: https://testpypi.python.org/pypi
+  on:
+    tags: true
+  password:
+    secure: BiI8m/2IXJjWUhVVX07VSuNmZf6AayFsJmbHk/CDvJhd8eEBlycxpKrPM/Xtd8W8dz3OE0bsCoQuRemGtlibSNKTAD4L9vlW2+3T11MqhiyYwiQYYWgRfGrcPAdl23f6CGSkr50XuEAjFZdIreSxLzSQPJTbMdlvAIigPWj87IK0KNxBiwUt8VBf6o9wEu+vc9MzEUq9T4tl4tvEvxL6cycpcbHu5pTKZduon53h61boIv2GmFzWhCKPCC73bdUcQJKkDH3/kONjEcatL5KUULlO7hL5Pf5V76honL366Qdd0hc/ZletwIgqF1kYNgtdF6A8mKk56P3CpB2729nzboCH2+nMfziiTXrVFILRUZmghX0qX2SbFeU+j3AFex2t3LLPO2YPhkvCcq/rr2HnCeH4mKXMD0quhhdXbN3x5qdsWQSL9NTf21B1J5hJVaaR9KhBq9Gydc1UVsETYJ0f6ELB5unUOsbUe9ANuQmU/MZh+CkPXi3P7l3v6LDNrHJFPC5PpokgXSA4BK0wnEkUJWDTWBVxZWkUSIO4cbzRZ7SC3enypVG0rLs28bENXTSEHn4T3eGOcZJ9smcJ1j2RNKSRUevtWU8JjiyeZ5Aqu7YxuzLWVPD1N2RDKIDz3q4qFcFN/UrUodBbwbjCqqGG8fyXwiTVFkRIaLCXEIoQ4CE=
