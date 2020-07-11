@@ -1,6 +1,6 @@
 name: Build
 
-on: [push, pull_request]
+on: [push] #, pull_request]
 
 jobs:
   build_wheels:
@@ -13,7 +13,7 @@ jobs:
     env:
       CIBW_SKIP: cp27-* pp27-*
       CIBW_BEFORE_BUILD_LINUX: |
-        yum install -y java-1.8.0-openjdk
+        yum install -y java-1.8.0-openjdk-devel
   
 
       CIBW_ENVIRONMENT_LINUX: |
