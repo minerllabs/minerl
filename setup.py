@@ -61,7 +61,7 @@ def setup(build=True, installdir=malmo_dir):
         # Create the version properties file.
         pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(malmo_version))
         minecraft_dir = os.getcwd()
-        subprocess.check_call('./gradlew -g run/gradle shadowJar'.split(' '))
+        subprocess.check_call('{} -g run/gradle shadowJar'.format(gradlew).split(' '))
     finally:
         os.chdir(cwd)
     return minecraft_dir
