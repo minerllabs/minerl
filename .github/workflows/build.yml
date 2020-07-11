@@ -17,7 +17,7 @@ jobs:
   
 
       CIBW_ENVIRONMENT_LINUX: |
-        JAVA_HOME=$(dirname $(dirname $(readlink $(readlink $(which javac)))))
+        JAVA_HOME=$(dirname $(dirname $(dirname $(readlink $(readlink $(which javac))))))
 
       CIBW_BEFORE_BUILD: pip install .
 
