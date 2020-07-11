@@ -38,8 +38,6 @@ import tempfile
 import threading
 import time
 from contextlib import contextmanager
-# from exceptions import NotImplementedError
-from multiprocessing import process
 
 import uuid
 import psutil
@@ -141,7 +139,7 @@ class InstanceManager:
         cls._seed_type  = seed_type
 
     @classmethod
-    def _get_next_seed(cls, i=None):
+    def _get_next_seed(cls, i=None): # TODO (R): Update this documentation. And clean the param name. 
         """Gets the next seed for an instance.
         
         Raises:
@@ -240,9 +238,9 @@ class InstanceManager:
         cls.shutdown()
 
     @classmethod
-    def add_existing_instance(cls, port,):
+    def add_existing_instance(cls, port):
         assert cls._is_port_taken(port), "No Malmo mod utilizing the port specified."
-        instance = InstanceManager.Instance(port=port, existing=True, status_dir=None)
+        instance = InstanceManager.Instance(port=port, existing=True,  status_dir=None)
         cls._instance_pool.append(instance)
         cls.ninstances += 1
         return instance
@@ -305,100 +303,13 @@ class InstanceManager:
     @classmethod
     def _get_valid_port(cls):
         malmo_base_port = cls._malmo_base_port
-        port = (17 * os.getpid()) % 3989 + malmo_base_port
-        port = (cls.ninstances  % 5000) + port
+        port = (cls.ninstances  % 5000) + malmo_base_port
+        port += (17 * os.getpid())  % 3989
         while cls._is_port_taken(port) or \
               cls._is_display_port_taken(port - malmo_base_port, cls.X11_DIR) or \
               cls._port_in_instance_pool(port):
             port += 1
         return port
-
-
-    @staticmethod
-    def _process_watcher(parent_pid, child_pid, child_host, child_port, minecraft_dir, conn):
-        """
-        On *nix systems (perhaps Windows) this is the central code for killing the child if the parent dies.
-        """
-        port = child_port
-        def port_watcher():
-            nonlocal port 
-            
-            port = conn.recv()[0]
-
-        port_thread = threading.Thread(target=port_watcher)
-        port_thread.start()
-
-        # Wait for processes to be launched
-        time.sleep(1)
-        try:
-            child = psutil.Process(child_pid)
-        except psutil.NoSuchProcess:
-            child = None
-        try:
-            parent = psutil.Process(parent_pid)
-        except psutil.NoSuchProcess:
-            parent = None
-        
-        while True:
-            try:
-                time.sleep(0.1) # Sleep for a short time, and check if subprocesses needed to be killed.
-
-                if not parent.is_running() or parent is None:
-                    if not (child is None):
-                        try:
-                            Instance._kill_minecraft_via_malmoenv(child_host,port)
-                            time.sleep(2)
-                        except:
-                            pass
-    
-                        InstanceManager._reap_process_and_children(child)
-                        try:
-                            shutil.rmtree(minecraft_dir)
-                        except:
-                            logger.warning("Failed to delete temporary minecraft directory. It may have already been removed.")
-                            pass
-                    return
-                # Kill the watcher if the child is no longer running.
-                # If you want to attempt to restart the child on failure, this
-                # would be the location to do so.
-                if not child.is_running():
-                    return
-            except KeyboardInterrupt:
-                pass
-
-    @staticmethod
-    def _reap_process_and_children(process, timeout=5):
-        "Tries hard to terminate and ultimately kill all the children of this process."
-        def on_terminate(proc):
-            logger.info("Minecraft process {} terminated with exit code {}".format(proc, proc.returncode))
-
-        procs = process.children(recursive=True) + [process]
-        
-        # send SIGTERM
-        for p in procs:
-            try:
-                try:
-                    import signal
-                    os.killpg(os.getpgid(p.pid), signal.SIGTERM)
-                except:
-                    pass
-                p.kill()
-            except psutil.NoSuchProcess:
-                pass
-        gone, alive = psutil.wait_procs(procs, timeout=timeout, callback=on_terminate)
-        if alive:
-            # send SIGKILL
-            for p in alive:
-                logger.info("Minecraft process {} survived SIGTERM; trying SIGKILL".format(p.pid))
-                try:
-                    p.kill()
-                except psutil.NoSuchProcess:
-                    pass
-            gone, alive = psutil.wait_procs(alive, timeout=timeout, callback=on_terminate)
-            if alive:
-                # give up
-                for p in alive:
-                    logger.info("Minecraft process {} survived SIGKILL; giving up".format(p.pid))
 
 
     @classmethod
@@ -456,7 +367,7 @@ class InstanceManager:
             self._setup_logging()
             self._target_port = port
             
-        def launch(self, daemonize=False):
+        def launch(self, daemonize=False, replaceable=True):
             port = self._target_port
             self._starting = True
 
@@ -476,15 +387,15 @@ class InstanceManager:
                 self.minecraft_process=  self._launch_minecraft(
                     port, 
                     InstanceManager.headless,
-                    self.minecraft_dir)
+                    self.minecraft_dir,
+                    replaceable=replaceable)
 
                
                 # 2. Create a watcher process to ensure things get cleaned up
                 if not daemonize:
-                    self.watcher_process, update_port = self._launch_process_watcher(
-                        parent_pid, self.minecraft_process.pid, self.host, port, self.instance_dir)
-                else:
-                    update_port = lambda x: None
+                    # 2. Create a watcher process to ensure things get cleaned up
+                    self.watcher_process = minerl.utils.process_watcher.launch(
+                        parent_pid, self.minecraft_process.pid, self.instance_dir)
 
                 
                 # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
@@ -502,7 +413,7 @@ class InstanceManager:
 
                     if not line:
                         # IF THERE WAS AN ERROR STARTING THE MC PROCESS
-                        # Print hte whole logs!
+                        # Print the whole logs!
                         error_str = ""
                         for l in lines:
                             spline = "\n".join(l.split("\n")[:-1])
@@ -512,15 +423,13 @@ class InstanceManager:
                         raise EOFError(error_str + "\n\nMinecraft process finished unexpectedly. There was an error with Malmo.")
                     
                     lines.append(line)
-                    self._logger.debug("\n".join(line.split("\n")[:-1]))
+                    self._log_heuristic("\n".join(line.split("\n")[:-1]))
                     
 
                     MALMOENVPORTSTR =  "***** Start MalmoEnvServer on port " 
                     port_received = MALMOENVPORTSTR in line
                     if port_received:
                         self._port = int(line.split(MALMOENVPORTSTR)[-1].strip())
-                        # Send an update to the watcher process.
-                        update_port(self._port)
                         
                     client_ready =  "CLIENT enter state: DORMANT" in line
                     server_ready =  "SERVER enter state: DORMANT" in line
@@ -529,7 +438,7 @@ class InstanceManager:
                         break
                 
                 if not self.port:
-                    raise RuntimeError("Malmo failed to start the MalmoEnv server! Check the logs from the Minecraft process.");
+                    raise RuntimeError("Malmo failed to start the MalmoEnv server! Check the logs from the Minecraft process.")
                 self._logger.info("Minecraft process ready")
                  
 
@@ -564,14 +473,10 @@ class InstanceManager:
                                 logger.error("UnicodeDecodeError, switching to default encoding")
                                 linestr = line.decode(mine_log_encoding)
                             linestr = "\n".join(linestr.split("\n")[:-1])
-                            if 'STDERR' in linestr or 'ERROR' in linestr:
-                                # Opportune place to suppress harmless MC errors.
-                                if not ('hitResult' in linestr):
-                                    self._logger.error(linestr)
-                            elif 'LOGTOPY' in linestr:
-                                self._logger.info(linestr)
-                            else:
-                                self._logger.debug(linestr)
+                            # some heuristics to figure out which messages
+                            # need to be elevated in logging level
+                            # "   at " elevation is related to logging exception's stacktrace
+                            self._log_heuristic(linestr)
                             mine_log.write(line)
                             mine_log.flush()
                     finally:
@@ -590,7 +495,7 @@ class InstanceManager:
             self.running = True
 
             self._starting = False
-
+    
             # Make a hook to kill
             if not daemonize:
                 atexit.register(lambda: self._destruct())
@@ -642,7 +547,7 @@ class InstanceManager:
         ###########################
         ##### PRIVATE METHODS #####
         ###########################
-        def _launch_minecraft(self, port, headless, minecraft_dir):
+        def _launch_minecraft(self, port, headless, minecraft_dir, replaceable=True):
             """Launch Minecraft listening for malmoenv connections.
             Args:
                 port:  the TCP port to listen on.
@@ -652,8 +557,6 @@ class InstanceManager:
             Asserts:
                 that the port specified is open.
             """
-            replaceable = False
-
             launch_script = 'launchClient.sh'
             if os.name == 'nt':
                 launch_script = 'launchClient.bat'
@@ -676,7 +579,7 @@ class InstanceManager:
             preexec_fn = os.setsid if 'linux' in str(sys.platform) or sys.platform == 'darwin' else None
             # print(preexec_fn)
             minecraft_process = subprocess.Popen(cmd,
-                cwd=InstanceManager.MINECRAFT_DIR,
+                cwd=InstanceManager.MINECRAFT_DIR, # TODO (R): Asses if this works with new wheel.
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 # use process group, see http://stackoverflow.com/a/4791612/18576
@@ -684,26 +587,6 @@ class InstanceManager:
             )
             return minecraft_process
 
-        def _launch_process_watcher(self, parent_pid, child_pid, child_host, child_port, minecraft_dir):
-            """
-            Launches the process watcher for the parent and minecraft process.
-            """
-
-            multiprocessing.freeze_support()
-            parent_conn, child_conn = multiprocessing.Pipe()
-            self._logger.info("Starting process watcher for process {} @ {}:{}".format(child_pid, child_host, child_port))
-            p = multiprocessing.Process(
-                target=InstanceManager._process_watcher, args=(
-                    parent_pid, child_pid, 
-                    child_host, child_port, 
-                    minecraft_dir, child_conn))
-                    
-            def update_port(port):
-                parent_conn.send([port])
-            # p.daemon = True
-
-            p.start()
-            return p, update_port
 
         @staticmethod
         def _kill_minecraft_via_malmoenv(host, port):
@@ -721,7 +604,7 @@ class InstanceManager:
                 sock.close()
                 return ok == 1
             except Exception as e:
-                logger.error("Attempted to send kill command to minecraft process and failed.")
+                logger.error("Attempted to send kill command to minecraft process and failed with exception {}".format(e))
                 return False
 
         def __del__(self):
@@ -752,12 +635,7 @@ class InstanceManager:
                     time.sleep(2)
 
                 # Now lets try and end the process if anything is laying around
-                try:
-                    InstanceManager._reap_process_and_children(psutil.Process(self.minecraft_process.pid))
-                except psutil.NoSuchProcess: 
-                    pass
-
-                self.watcher_process.terminate()
+                minerl.utils.process_watcher.reap_process_and_children(self.minecraft_process)
 
                 if self in InstanceManager._instance_pool:
                     InstanceManager._instance_pool.remove(self)
@@ -781,6 +659,20 @@ class InstanceManager:
         def release_lock(self):
             self.locked = False
             self.owner = None
+
+        def _log_heuristic(self, msg):
+            '''
+            Log the message, heuristically determine logging level based on the
+            message content
+            '''
+            if 'STDERR' in msg or 'ERROR' in msg or 'Exception' in msg or '    at ' in msg or msg.startswith('Error'):
+                self._logger.error(msg)
+            elif 'WARN' in msg:
+                self._logger.warn(msg)
+            elif 'LOGTOPY' in msg:
+                self._logger.info(msg)
+            else:
+                self._logger.debug(msg)
 
 
 def _check_for_launch_errors(line):
@@ -814,7 +706,7 @@ def _check_for_launch_errors(line):
             "\t (If this still isn't working you may have a conflicting NVIDIA driver.)\n"
             "\t (In which case you'll need to run minerl in a docker container)\n"
             "\n\n"
-            "IF YOU THIS IS NOT A HEADLESS MACHINE please install graphics drivers on your system!"
+            "IF THIS IS NOT A HEADLESS MACHINE please install graphics drivers on your system!"
             "\n"
             "\n"
             "If none of these steps work, please complain in discord!\n"
@@ -865,7 +757,6 @@ def launch_instance_manager():
         help="The maximum number of instances the instance manager is able to spawn,"
               "before an exception is thrown. Defaults to Unlimited.")
     opts = parser.parse_args()
-
     
     if opts.max_instances is not None:
         assert opts.max_instances > 0, "Maximum instances must be more than zero!"

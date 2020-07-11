@@ -1,4 +1,5 @@
 import os
+import sys
 from os.path import isdir
 
 import subprocess
@@ -15,11 +16,19 @@ with open("requirements.txt", "r") as fh:
 malmo_branch="minerl"
 malmo_version="0.37.0"
 
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+    class bdist_wheel(_bdist_wheel):
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            self.root_is_pure = False
+except ImportError:
+    bdist_wheel = None
+
 # First download and build Malmo!
 # We need to assert that Malmo is in the script directory. There HAS to be a better way to do this.
 
 malmo_dir = os.path.join(os.path.dirname(__file__), 'minerl', 'env', 'Malmo')
-
 
 def download(branch=malmo_branch, build=False, installdir=malmo_dir):
     """Download Malmo from github and build (by default) the Minecraft Mod.
@@ -52,6 +61,7 @@ def setup(build=True, installdir=malmo_dir):
         # Create the version properties file.
         pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(malmo_version))
         minecraft_dir = os.getcwd()
+        subprocess.check_call('./gradlew -g run/gradle shadowJar'.split(' '))
     finally:
         os.chdir(cwd)
     return minecraft_dir
@@ -85,10 +95,11 @@ data_files += package_files('minerl/env/missions')
 data_files += package_files('minerl/herobraine/env_specs')
 data_files += package_files('minerl/data/assets')
 
+# TODO (R): Include  minerl/core/mc_constants.json
 
 setuptools.setup(
       name='minerl',
-      version='0.3.6',
+      version=os.environ.get('MINERL_BUILD_VERSION','0.3.6'),
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
@@ -102,6 +113,7 @@ setuptools.setup(
                  "Operating System :: OS Independent",
             ],
     install_requires=requirements,
-     data_files=data_files,
-     include_package_data=True,
+    data_files=data_files, # TODO (R): Use Manifest packaging instead of data files.
+    include_package_data=True,
+    cmdclass={'bdist_wheel': bdist_wheel},
 )

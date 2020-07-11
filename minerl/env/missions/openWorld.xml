@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com">
+    <About>
+        <Summary>$(ENV_NAME)</Summary>
+    </About>
+
+    <ModSettings>
+        <MsPerTick>50</MsPerTick>
+    </ModSettings>
+
+    <ServerSection>
+        <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+            </Time>
+            <AllowSpawning>true</AllowSpawning>
+        </ServerInitialConditions>
+        <ServerHandlers>
+            <DefaultWorldGenerator forceReset="true"/>
+            <ServerQuitFromTimeUp timeLimitMs="7200000" description="out_of_time"/>
+            <ServerQuitWhenAnyAgentFinishes/>
+        </ServerHandlers>
+    </ServerSection>
+
+    <AgentSection mode="Survival">
+        <Name>MalmoTutorialBot</Name>
+        <AgentStart/>
+        <AgentHandlers>
+            <!--  Observations     -->
+            <VideoProducer want_depth="false">
+                <Width>64</Width>
+                <Height>64</Height>
+            </VideoProducer>
+            <FileBasedPerformanceProducer/>
+            <ObservationFromFullInventory flat="false"/>
+            <ObservationFromFullStats/>
+            <ObservationFromEquippedItem/>
+            <ObservationFromAchievements/>
+
+            <!--  Commands   -->
+            <HumanLevelCommands>
+                <ModifierList type="deny-list">
+                    <command>moveMouse</command>
+                    <command>inventory</command>
+                </ModifierList>
+            </HumanLevelCommands>
+            <CameraCommands/>
+            <SimpleCraftCommands/>
+            <!--      Provided as demonstration - don't use these for determining action space  ordering    -->
+            <!--        <Item type="minecraft:stick"/>-->
+            <!--        <Item type="minecraft:planks"/>-->
+            <!--        <Item type="minecraft:torch"/>-->
+            <NearbyCraftCommands/>
+            <!--        <Item type="minecraft:wooden_axe"/>-->
+            <!--        <Item type="minecraft:wooden_pickaxe"/>-->
+            <!--        <Item type="minecraft:stone_axe"/>-->
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
+            <NearbySmeltCommands/>
+            <!--        <Item type="minecraft:iron_ingot"/>-->
+            <!--        <Item type="minecraft:coal"/>-->
+            <PlaceCommands/>
+            <!--          <Item type="minecraft:crafting_table"/>-->
+            <!--          <Item type="minecraft:furnace"/>-->
+            <!--          <Item type="minecraft:torch"/>-->
+            <EquipCommands/>
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
+            <PauseCommand/>
+        </AgentHandlers>
+    </AgentSection>
+</Mission>

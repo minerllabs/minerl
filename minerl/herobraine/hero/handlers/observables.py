@@ -311,10 +311,10 @@ class TypeObservation(AgentHandler):
         self._items = sorted(items)
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
-        self._default = 'none' # 'none'
-        self._other = 'other' # 'othe
+        self._default = 'air' # 'none' # TODO (R): Change to 'air'
+        self._other = 'other' # 'othe # TODO (R): Change to 'none'
         assert 'other' in items
-        assert 'none' in items
+        assert 'air' in items
         super().__init__(spaces.Enum(*self._items, default='none'))
 
     @property
@@ -401,7 +401,7 @@ class DamageObservation(AgentHandler):
         """
 
         self._hand = hand
-        self._default = 0  # 'none'
+        self._default = 0  
         super().__init__(spaces.Box(low=-1, high=1562, shape=(), dtype=np.int))
 
     @property
