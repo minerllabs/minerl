@@ -7,6 +7,7 @@ import pathlib
 import setuptools
 from setuptools.command.develop import develop
 from setuptools.command.install import install
+from setuptools.dist import Distribution
 
 with open("README.md", "r") as fh:
     markdown = fh.read()
@@ -22,8 +23,28 @@ try:
         def finalize_options(self):
             _bdist_wheel.finalize_options(self)
             self.root_is_pure = False
+
 except ImportError:
     bdist_wheel = None
+
+
+# https://github.com/chinmayshah99/PyDP/commit/2ddbf849a749adad5d5db10d4d7e3479567087f3
+# Bug here https://github.com/python/cpython/blob/28ab3ce92402d86aa400960d38f0d69f498bb677/Lib/distutils/command/install.py#L335
+# Original fix proposed here: https://github.com/google/or-tools/issues/616
+class BinaryDistribution(Distribution):
+    """This class is needed in order to create OS specific wheels."""
+    def has_ext_modules(self):
+        return True
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+# 
+from setuptools.command.install import install
+class InstallPlatlib(install):
+    def finalize_options(self):
+        install.finalize_options(self)
+        if self.distribution.has_ext_modules():
+            self.install_lib = self.install_platlib
 
 # First download and build Malmo!
 # We need to assert that Malmo is in the script directory. There HAS to be a better way to do this.
@@ -115,5 +136,8 @@ setuptools.setup(
     install_requires=requirements,
     data_files=data_files, # TODO (R): Use Manifest packaging instead of data files.
     include_package_data=True,
-    cmdclass={'bdist_wheel': bdist_wheel},
+    distclass=BinaryDistribution,
+    cmdclass={
+        'bdist_wheel': bdist_wheel,
+        'install': InstallPlatlib},
 )
