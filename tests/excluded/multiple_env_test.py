@@ -50,13 +50,12 @@ class MineRLRunner(threading.Thread):
                 obs, reward, done, info = env.step(
                     random_act)
                 netr += reward
-                print(reward, netr)
         env.close()
-        print('Finished!')
+        print(f'{self.getName()} finished!')
 
 
-def main():
-    threads = [MineRLRunner('MineRLNavigateDense-v0') for _ in range(NUM_ENVS)]
+def test(create_synchronously=True):
+    threads = [MineRLRunner('MineRLNavigateDense-v0', create_synchronously) for _ in range(NUM_ENVS)]
     for t in threads:
         t.start()
     while any([t.is_alive() for t in threads]):
@@ -64,4 +63,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    test()
