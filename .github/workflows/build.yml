@@ -14,17 +14,9 @@ jobs:
       CIBW_SKIP: cp27-* pp27-*
       CIBW_BEFORE_BUILD_LINUX: |
         yum install -y  \
-          java-1.8.0-openjdk-devel \
-          libXrandr-devel \
-          libXi-devel \
-          libXcursor-devel \
-          libXcursor \
-          libXxf86vm 
+          java-1.8.0-openjdk-devel 
         # Why the fuck is there no headless-devel package like on debian!
-        ls /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.252.b09-2.el6_10.x86_64/jre/lib/amd64
-        ls $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64
         ln -s $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64/* /usr/local/lib/
-        ln -s /usr/lib64/libXxf86vm.so.1 /usr/local/lib
         ls /usr/local/lib 
 
       CIBW_REPAIR_WHEEL_COMMAND_LINUX: "echo 'MineRL is currently incompatibile with many linux. We will manually relabel the pip package to be compatible.'"
