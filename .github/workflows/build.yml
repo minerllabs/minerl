@@ -18,7 +18,8 @@ jobs:
           libXrandr-devel \
           libXi-devel \
           libXcursor-devel \
-          libXcursor
+          libXcursor \
+          libXxf86vm 
         # Why the fuck is there no headless-devel package like on debian!
         ls /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.252.b09-2.el6_10.x86_64/jre/lib/amd64
         ls $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64
