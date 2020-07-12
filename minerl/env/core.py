@@ -143,7 +143,7 @@ class MineRLEnv(gym.Env):
         self.resets = 0
         self.done = True
 
-    def _get_new_instance(self, port=None):
+    def _get_new_instance(self, port=None, instance_id=None):
         """
         Gets a new instance and sets up a logger if need be. 
         """
@@ -151,7 +151,7 @@ class MineRLEnv(gym.Env):
         if not port is None:
             instance = InstanceManager.add_existing_instance(port)
         else:
-            instance = InstanceManager.get_instance(os.getpid())
+            instance = InstanceManager.get_instance(os.getpid(), instance_id=instance_id)
 
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
@@ -243,16 +243,16 @@ class MineRLEnv(gym.Env):
                                       })
             self.xml.insert(2, e)
 
-        
-        hi = etree.fromstring("""
-            <HumanInteraction>
-                <Port>{}</Port>
-                <MaxPlayers>{}</MaxPlayers>
-            </HumanInteraction>""".format(self.interact_port, self.max_players))
-        # Update the xml
+        if self._is_interacting:
+            hi = etree.fromstring("""
+                <HumanInteraction>
+                    <Port>{}</Port>
+                    <MaxPlayers>{}</MaxPlayers>
+                </HumanInteraction>""".format(self.interact_port, self.max_players))
+            # Update the xml
 
-        ss  = self.xml.find(".//" + self.ns + 'ServerSection')
-        ss.insert(0, hi)
+            ss  = self.xml.find(".//" + self.ns + 'ServerSection')
+            ss.insert(0, hi)
 
         video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         assert len(video_producers) == self.agent_count
@@ -535,7 +535,8 @@ class MineRLEnv(gym.Env):
                 "Connection with Minecraft client cleaned more than once; restarting.")
             if self.instance:
                 self.instance.kill()
-            self.instance = self._get_new_instance()
+            
+            self.instance = self._get_new_instance(instance_id=self.instance.instance_id)
 
             self.had_to_clean = False
         else:
@@ -567,8 +568,8 @@ class MineRLEnv(gym.Env):
                     "`done` was true on first frame.")
 
         # See if there is an integrated port
-        port = self._find_server()
-        if port:
+        if self._is_interacting:
+            port = self._find_server()
             self.integratedServerPort = port
             logger.warn("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
             # Todo make a launch command.
@@ -656,7 +657,7 @@ class MineRLEnv(gym.Env):
                 "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
                 "To account for this failure case in your code check to see if `'error' in info` where info is "
                 "the info dictionary returned by the step function.")
-            return self.observationlf._space.sample(), 0, self.done, {"error": "Connection timed out!"}
+            return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
     def _renderObs(self, obs, ac=None):
         if self.viewer is None:
