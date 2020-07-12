@@ -19,7 +19,8 @@ jobs:
           libXi-devel \
           libXcursor-devel \
           libX11-devel \
-          xorg-x11-devel 
+          xorg-x11-devel \
+          libXcursor
         # Why the fuck is there no headless-devel package like on debian!
         
       CIBW_BEFORE_BUILD: pip install .
