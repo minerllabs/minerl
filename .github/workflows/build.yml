@@ -25,6 +25,7 @@ jobs:
         ls $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64
         ln -s $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64/* /usr/local/lib/
         ln -s /usr/lib64/libXxf86vm.so.1 /usr/local/lib
+        ls /usr/local/lib
 
       CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair  -w {dest_dir} {wheel}"
       CIBW_BEFORE_BUILD: pip install .
