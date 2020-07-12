@@ -15,7 +15,8 @@ jobs:
       CIBW_BEFORE_BUILD_LINUX: |
         yum install -y  \
           java-1.8.0-openjdk-devel \
-          libXrandr
+          libXrandr \
+          libXi-devel
         # Why the fuck is there no headless-devel package like on debian!
         
       CIBW_BEFORE_BUILD: pip install .
