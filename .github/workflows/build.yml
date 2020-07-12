@@ -24,7 +24,7 @@ jobs:
         ls $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64
 
       CIBW_REPAIR_WHEEL_COMMAND_LINUX: |
-        "LD_LIBRARY_PATH=$(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64:$LD_LIBRARY_PATH auditwheel repair  -w {dest_dir} {wheel}"
+        "export LD_LIBRARY_PATH=$(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64:$LD_LIBRARY_PATH && auditwheel repair  -w {dest_dir} {wheel}"
       CIBW_BEFORE_BUILD: pip install .
 
     steps:
