@@ -20,6 +20,7 @@ jobs:
           libXcursor-devel \
           libXcursor
         # Why the fuck is there no headless-devel package like on debian!
+        echo "$JAVA_HOME"
         
       CIBW_BEFORE_BUILD: pip install .
 
