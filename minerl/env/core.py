@@ -73,7 +73,7 @@ class MissionInitException(Exception):
 MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
 MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv'  # Default id for a MineRLEnv
-
+TICK_LENGTH = 0.05
 
 class MineRLEnv(gym.Env):
     """The MineRLEnv class.
@@ -130,7 +130,9 @@ class MineRLEnv(gym.Env):
         self.has_init = False
         self._seed = None
         self.had_to_clean = False
-
+        self._is_interacting = False
+        self._is_real_time = False
+        self._last_step_time = -1
         self._already_closed = False
         self.instance = self._get_new_instance(port)
         self.env_spec = env_spec
@@ -141,7 +143,7 @@ class MineRLEnv(gym.Env):
         self.resets = 0
         self.done = True
 
-    def _get_new_instance(self, port=None):
+    def _get_new_instance(self, port=None, instance_id=None):
         """
         Gets a new instance and sets up a logger if need be. 
         """
@@ -149,7 +151,7 @@ class MineRLEnv(gym.Env):
         if not port is None:
             instance = InstanceManager.add_existing_instance(port)
         else:
-            instance = InstanceManager.get_instance(os.getpid())
+            instance = InstanceManager.get_instance(os.getpid(), instance_id=instance_id)
 
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
@@ -240,6 +242,17 @@ class MineRLEnv(gym.Env):
                                       'port': str(0)
                                       })
             self.xml.insert(2, e)
+
+        if self._is_interacting:
+            hi = etree.fromstring("""
+                <HumanInteraction>
+                    <Port>{}</Port>
+                    <MaxPlayers>{}</MaxPlayers>
+                </HumanInteraction>""".format(self.interact_port, self.max_players))
+            # Update the xml
+
+            ss  = self.xml.find(".//" + self.ns + 'ServerSection')
+            ss.insert(0, hi)
 
         video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         assert len(video_producers) == self.agent_count
@@ -408,6 +421,53 @@ class MineRLEnv(gym.Env):
 
         return "\n".join(action_str)
 
+    def make_interactive(self, port, max_players=10, realtime=True):
+        """
+        Enables human interaction with the environment.
+
+        To interact with the environment add `make_interactive` to your agent's evaluation code
+        and then run the `minerl.interactor.`
+
+        For example:
+
+        .. code-block:: python
+
+            env = gym.make('MineRL...')
+            
+            # set the environment to allow interactive connections on port 6666
+            # and slow the tick speed to 6666.
+            env.make_interactive(port=6666, realtime=True) 
+
+            # reset the env
+            env.reset()
+            
+            # interact as normal.
+            ...
+
+
+        Then while the agent is running, you can start the interactor with the following command.
+
+        .. code-block:: bash
+
+            python3 -m minerl.interactor 6666 # replace with the port above.
+
+
+        The interactor will disconnect when the mission resets, but you can connect again with the same command.
+        If an interactor is already started, it won't need to be relaunched when running the commnad a second time.
+        
+
+        Args:
+            port (int):  The interaction port
+            realtime (bool, optional): If we should slow ticking to real time.. Defaults to True.
+            max_players (int): The maximum number of players
+
+        """
+        self._is_interacting = True
+        self._is_real_time = realtime
+        self.interact_port = port
+        self.max_players = max_players
+            
+
     @staticmethod
     def _hello(sock):
         comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
@@ -475,7 +535,8 @@ class MineRLEnv(gym.Env):
                 "Connection with Minecraft client cleaned more than once; restarting.")
             if self.instance:
                 self.instance.kill()
-            self.instance = self._get_new_instance()
+            
+            self.instance = self._get_new_instance(instance_id=self.instance.instance_id)
 
             self.had_to_clean = False
         else:
@@ -505,6 +566,15 @@ class MineRLEnv(gym.Env):
                 raise RuntimeError(
                     "Something went wrong resetting the environment! "
                     "`done` was true on first frame.")
+
+        # See if there is an integrated port
+        if self._is_interacting:
+            port = self._find_server()
+            self.integratedServerPort = port
+            logger.warn("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
+            # Todo make a launch command.
+            
+
 
         return self._process_observation(obs, info)
 
@@ -567,6 +637,13 @@ class MineRLEnv(gym.Env):
                 out_obs = self._process_observation(obs, info)
                 self.done = (done == 1)
                 
+                if self._is_real_time:
+                    t0 = time.time()
+                    # Todo: Add catch-up
+                    time.sleep(max(0, TICK_LENGTH - (t0 - self._last_step_time)))
+                    self._last_step_time = time.time()
+
+
 
                 return out_obs, reward, self.done, {}
             else:
@@ -580,7 +657,7 @@ class MineRLEnv(gym.Env):
                 "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
                 "To account for this failure case in your code check to see if `'error' in info` where info is "
                 "the info dictionary returned by the step function.")
-            return self.observationlf._space.sample(), 0, self.done, {"error": "Connection timed out!"}
+            return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
     def _renderObs(self, obs, ac=None):
         if self.viewer is None:
@@ -671,20 +748,12 @@ class MineRLEnv(gym.Env):
                 sock, ("<Find>" + self._get_token() + "</Find>").encode())
             reply = comms.recv_message(sock)
             port, = struct.unpack('!I', reply)
-            if port == 0:
-                if time.time() - start_time > MAX_WAIT:
-                    if self.client_socket:
-                        self.client_socket.close()
-                        self.client_socket = None
-                    raise MissionInitException(
-                        'too long finding mission to join')
-                time.sleep(1)
         sock.close()
         # print("Found mission integrated server port " + str(port))
-        self.integratedServerPort = port
-        e = self.xml.find(self.ns + 'MinecraftServerConnection')
-        if e is not None:
-            e.attrib['port'] = str(self.integratedServerPort)
+        return  port
+        # e = self.xml.find(self.ns + 'MinecraftServerConnection')
+        # if e is not None:
+        #     e.attrib['port'] = str(self.integratedServerPort)
 
     def _init_mission(self):
         ok = 0

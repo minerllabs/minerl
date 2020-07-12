@@ -9,28 +9,14 @@ import coloredlogs
 import time
 import numpy as np
 
+import minerl
+from minerl.viewer import get_parser
 from minerl.viewer.trajectory_display_controller import TrajectoryDisplayController
 
 coloredlogs.install(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-import minerl
-from minerl.data import FILE_PREFIX
 
-_DOC_TRAJ_NAME = "{}absolute_zucchini_basilisk-13_36805-50154".format(FILE_PREFIX)
-
-
-def parse_args():
-    parser = argparse.ArgumentParser("python3 -m minerl.viewer")
-    parser.add_argument("environment", type=str,
-                        help='The MineRL environment to visualize. e.g. MineRLObtainDiamondDense-v0')
-
-    parser.add_argument("stream_name", type=str, nargs='?', default=None,
-                        help="(optional) The name of the trajectory to visualize. "
-                             "e.g. {}."
-                             "".format(_DOC_TRAJ_NAME))
-
-    return parser.parse_args()
 
 
 def main(opts):
@@ -62,4 +48,4 @@ def main(opts):
 
 
 if __name__ == '__main__':
-    main(parse_args())
+    main(get_parser().parse_args())
