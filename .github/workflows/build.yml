@@ -24,6 +24,7 @@ jobs:
         ls /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.252.b09-2.el6_10.x86_64/jre/lib/amd64
         ls $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64
         ln -s $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64/* /usr/local/lib/
+        ln -s /usr/lib64/libXxf86vm.so.1 /usr/local/lib
 
       CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair  -w {dest_dir} {wheel}"
       CIBW_BEFORE_BUILD: pip install .
