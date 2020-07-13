@@ -24,7 +24,7 @@ jobs:
 
         # Add the Java dependencies to the
         echo "$(/opt/python/cp37-cp37m/bin/pip show auditwheel | grep "Location:" | cut -d ':' -f2)/auditwheel/policy/policy.json" | xargs \
-          python -c "import sys; import json; import os; fname = sys.argv[1]; fread = open(fname, 'r'); obj = json.load(fread); fread.close(); print(obj[-1]); [o['lib_whitelist'].extend('libXcursor.so.1, libXfixes.so.3, libXi.so.6, libXrandr.so.2, libXtst.so.6, libXxf86vm.so.1, libawt.so, libawt_xawt.so, libjava.so, libjawt.so, libjvm.so, libncurses.so.5, libtinfo.so.5, libverify.so'.split(', ')); print(obj[-1]['lib_whitelist']) for o in obj]; fwrite = open(fname, 'w'); json.dump(obj, fwrite); fwrite.close(); fread = open(fname, 'r'); print(json.load(fread)[-1])"
+          python -c "import sys; import json; import os; fname = sys.argv[1]; fread = open(fname, 'r'); obj = json.load(fread); fread.close(); print(obj[-1]); [o['lib_whitelist'].extend('libXcursor.so.1, libXfixes.so.3, libXi.so.6, libXrandr.so.2, libXtst.so.6, libXxf86vm.so.1, libawt.so, libawt_xawt.so, libjava.so, libjawt.so, libjvm.so, libncurses.so.5, libtinfo.so.5, libverify.so'.split(', ')) for o in obj]; print(obj[-1]['lib_whitelist']); fwrite = open(fname, 'w'); json.dump(obj, fwrite); fwrite.close(); fread = open(fname, 'r'); print(json.load(fread)[-1])"
 
         
 
