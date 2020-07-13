@@ -41,6 +41,13 @@ jobs:
         with: 
           submodules: 'recursive'
 
+      - name: Declare some variables
+        id: vars
+        shell: bash
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
       - uses: actions/setup-python@v2
         name: Install Python
         with:
@@ -74,4 +81,42 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_MINERL_BUCKET }}
           source_dir: './wheelhouse'
-          destination_dir:  builds/${{ GITHUB_REF }}/${{ GITHUB_SHA }}/
+          destination_dir:  builds/${{ steps.vars.outputs.branch }}/${{ steps.vars.outputs.sha_short }}/
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.7'
+
+      - name: Build sdist
+        run: python setup.py sdist
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
+
+
+  # upload_pypi:
+  #   needs: [build_wheels, build_sdist]
+  #   runs-on: ubuntu-latest
+  #   # upload to PyPI on every tag starting with 'v'
+  #   # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+  #   # alternatively, to publish when a GitHub Release is created, use the following rule:
+  #   if: github.event_name == 'release' && github.event.action == 'published'
+  #   steps:
+  #     - uses: actions/download-artifact@v2
+  #       with:
+  #         name: artifact
+  #         path: dist
+
+  #     - uses: pypa/gh-action-pypi-publish@master
+  #       with:
+  #         user: __token__
+  #         password: ${{ secrets.pypi_password }}
+  #         To test: repository_url: https://test.pypi.org/legacy/
