@@ -1,6 +1,6 @@
 name: Build wheels
 
-on: [push] #, pull_request]
+on: [push, pull_request] #, pull_request]
 
 # todo: Support windows
 # todo: make new docker image which includes java
