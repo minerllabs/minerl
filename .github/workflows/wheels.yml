@@ -1,6 +1,6 @@
 name: Build wheels 2
 
-on: [push, pull_request, workflow_dispatch] #, pull_request]
+on: [push, workflow_dispatch] #, pull_request]
 
 # todo: Support windows
 # todo: make new docker image which includes java
@@ -9,18 +9,17 @@ on: [push, pull_request, workflow_dispatch] #, pull_request]
 
 jobs:
   build_wheels_linux:
-    name:  ${{ matrix.os }} ${{ matrix.pver }} ${{ matrix.platform }}
+    name:  ${{ matrix.os }} ${{ matrix.pver }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-18.04] #, windows-latest, macos-latest]
-        pver: ["cp35", "cp36", "cp37", "cp38"] # Todo add 39.
-        platform: ["x86_64"]
+        pver: ["cp35*x86_64", "cp36*x86_64", "cp37*x86_64", "cp38*x86_64"] # Todo add 39.
     env:
       # build using the manylinux2014 image
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-      CIBW_BUILD: "${{ matrix.pver }}*linux*${{ matrix.platform }}" 
+      CIBW_BUILD: "${{ matrix.pver }}" 
       CIBW_SKIP: cp27-* pp27-*
       CIBW_BEFORE_BUILD_LINUX: |
         yum install -y  \
@@ -82,41 +81,41 @@ jobs:
           source_dir: './wheelhouse'
           destination_dir:  builds/${{ steps.vars.outputs.branch }}/${{ steps.vars.outputs.sha_short }}/
 
-  # build_sdist:
-  #   name: Build source distribution
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         submodules: 'recursive'
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
 
 
-  #     - name: Declare some variables
-  #       id: vars
-  #       shell: bash
-  #       run: |
-  #         echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-  #         echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      - name: Declare some variables
+        id: vars
+        shell: bash
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
-  #     - uses: actions/setup-python@v2
-  #       name: Install Python
-  #       with:
-  #         python-version: '3.7'
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.7'
 
-  #     - name: Build sdist
-  #       run: python setup.py sdist
+      - name: Build sdist
+        run: python setup.py sdist
 
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         path: dist/*.tar.gz
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
 
-  #     - uses: shallwefootball/s3-upload-action@master
-  #       with:
-  #         aws_key_id: ${{ secrets.AWS_KEY_ID }}
-  #         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
-  #         aws_bucket: ${{ secrets.AWS_MINERL_BUCKET }}
-  #         source_dir: './wheelhouse'
-  #         destination_dir:  builds/${{ steps.vars.outputs.branch }}/${{ steps.vars.outputs.sha_short }}/
+      - uses: shallwefootball/s3-upload-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.AWS_MINERL_BUCKET }}
+          source_dir: './wheelhouse'
+          destination_dir:  builds/${{ steps.vars.outputs.branch }}/${{ steps.vars.outputs.sha_short }}/
 
 
 
