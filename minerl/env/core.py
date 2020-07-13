@@ -28,6 +28,7 @@ import socket
 import struct
 import time
 import uuid
+import threading
 from copy import copy, deepcopy
 from typing import Iterable
 
@@ -46,6 +47,8 @@ from minerl.herobraine.wrapper import EnvWrapper
 logger = logging.getLogger(__name__)
 
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
+
+launch_instance_lock = threading.Lock()
 
 
 class EnvException(Exception):
@@ -156,7 +159,8 @@ class MineRLEnv(gym.Env):
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
 
-        instance.launch()
+        with launch_instance_lock:
+            instance.launch()
         return instance
 
     def init(self):
