@@ -18,9 +18,14 @@ jobs:
         # Why the fuck is there no headless-devel package like on debian!
         ln -s $(readlink -f /usr/bin/java | sed "s:/bin/java::")/lib/amd64/* /usr/local/lib/
         ls /usr/local/lib 
+
+        # Add the Java dependencies to the
+        echo "$(/opt/python/cp37-cp37m/bin/pip show auditwheel | grep "Location:" | cut -d ':' -f2)/auditwheel/policy/policy.json" | xargs \
+          python -c "import sys; import json; import os; fname = sys.argv[1]; fread = open(fname, 'r'); obj = json.load(fread); fread.close(); print(obj[-1]); obj[-1]['lib_whitelist'].extend('libXcursor.so.1, libXfixes.so.3, libXi.so.6, libXrandr.so.2, libXtst.so.6, libXxf86vm.so.1, libawt.so, libawt_xawt.so, libjava.so, libjawt.so, libjvm.so, libncurses.so.5, libtinfo.so.5, libverify.so'.split(', ')); print(obj[-1]['lib_whitelist']); fwrite = open(fname, 'w'); json.dump(obj, fwrite); fwrite.close(); fread = open(fname, 'r'); print(json.load(fread)[-1])"
+
         
 
-      CIBW_REPAIR_WHEEL_COMMAND_LINUX: echo "$(which auditwheel)" && echo "$(pip show auditwheel | grep "Location:" | cut -d ':' -f2)/auditwheel/policy/policy.json" | xargs python -c "import sys; import json; import os; fname = sys.argv[1]; fread = open(fname, 'r'); obj = json.load(fread); fread.close(); print(obj[-1]); obj[-1]['lib_whitelist'].extend('libXcursor.so.1, libXfixes.so.3, libXi.so.6, libXrandr.so.2, libXtst.so.6, libXxf86vm.so.1, libawt.so, libawt_xawt.so, libjava.so, libjawt.so, libjvm.so, libncurses.so.5, libtinfo.so.5, libverify.so'.split(', ')); print(obj[-1]['lib_whitelist']); fwrite = open(fname, 'w'); json.dump(obj, fwrite); fwrite.close(); fread = open(fname, 'r'); print(json.load(fread)[-1])" && auditwheel repair -w {dest_dir} {wheel}
+      # CIBW_REPAIR_WHEEL_COMMAND_LINUX: "echo 'MineRL is currently incompatibile with many linux. We will manually relabel the pip package to be compatible.' && mv {wheel} {dest_dir}"
       CIBW_BEFORE_BUILD: pip install .
 
     steps:
