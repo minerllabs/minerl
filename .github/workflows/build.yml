@@ -2,6 +2,11 @@ name: Build wheels
 
 on: [push] #, pull_request]
 
+# todo: Support windows
+# todo: make new docker image which includes java
+# todo: get s3 upload to work.
+# todo: support sdist!
+
 jobs:
   build_wheels_linux:
     name:  ${{ matrix.os }} ${{ matrix.pver }} ${{ matrix.platform }}
@@ -69,4 +74,4 @@ jobs:
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_MINERL_BUCKET }}
           source_dir: './wheelhouse'
-          destination_dir:  builds/$GITHUB_REF/$GITHUB_SHA/
+          destination_dir:  builds/${{ GITHUB_REF }}/${{ GITHUB_SHA }}/
