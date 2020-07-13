@@ -10,7 +10,7 @@ jobs:
       matrix:
         os: [ubuntu-18.04] #, windows-latest, macos-latest]
         pver: ["cp35", "cp36", "cp37", "cp38"] # Todo add 39.
-        platform: ["x86_64", "i686"]
+        platform: ["x86_64"]
     env:
       # build using the manylinux2014 image
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
