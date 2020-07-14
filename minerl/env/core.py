@@ -28,7 +28,6 @@ import socket
 import struct
 import time
 import uuid
-import threading
 from copy import copy, deepcopy
 from typing import Iterable
 
@@ -36,6 +35,7 @@ import gym
 import gym.envs.registration
 import gym.spaces
 import numpy as np
+from filelock import FileLock
 from lxml import etree
 from minerl.env import comms
 from minerl.env.comms import retry
@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
 
-launch_instance_lock = threading.Lock()
+launch_instance_lock = FileLock(os.path.join(os.path.dirname(__file__), 'env.lock'))
 
 
 class EnvException(Exception):
