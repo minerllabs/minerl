@@ -12,7 +12,7 @@ Xvfb :0 -screen 0 1024x768x24 &
 
 # First, we run the tests in the repo
 pip install -e .
-pytest -n auto --ignore=tests/excluded --ignore=tests/local --ignore=minerl --ignore=Malmo
+pytest .
 
 # Then, we build the wheel
 pip wheel --no-deps -w dist .
