@@ -17,7 +17,7 @@ mkdir -p $MINERL_DATA_ROOT
 
 # First, we run the tests in the repo
 pip install -e .
-python -c "import minerl; minerl.data.download(minimal=True)"
+gsutil -m rsync  -r $GS_MINERL_DATA $MINERL_DATA_ROOT
 pytest .
 pip uninstall -y minerl
 
