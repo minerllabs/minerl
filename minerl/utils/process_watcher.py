@@ -27,7 +27,7 @@ def parse_args():
                         help='The PID of the parent process.')
     parser.add_argument('child_pid', type=int,
                         help='The PID of the child process.')
-    parser.add_argument(f'--{CHILD_DIR_ARG}',
+    parser.add_argument('--{}'.format(CHILD_DIR_ARG),
                         type=str, help='Temporary directories which should be deleted '
                                        'were the processes to terminate.',
                         nargs='+')
@@ -50,7 +50,7 @@ def launch(parent_pid, child_pid, *temp_dirs):
     subprocess.check_call([
         'python', '-m', 'minerl.utils.process_watcher',
         str(parent_pid), str(child_pid),
-        f'--{CHILD_DIR_ARG}'] + list(temp_dirs))
+        '--{}'.format(CHILD_DIR_ARG)] + list(temp_dirs))
     logger.info("Process watcher daemonizer launched successfully.")
 
 
@@ -63,17 +63,25 @@ def reap_process_and_children(process, timeout=5):
             proc, returncode))
     
     def get_process_info(proc):
-        return f"{proc.pid}:{proc.name()}:{proc.exe()} i {proc.status()}, owner {proc.ppid()}"
+        return "{}:{}:{} i {}, owner {}".format(
+            proc.pid,
+            proc.name(),
+            proc.exe(),
+            proc.status(),
+            proc.ppid()
+        )
 
     procs = process.children(recursive=True)[::-1] + [process]
-    logger.info(f"About to reap process tree of {get_process_info(process)}, "
+    logger.info("About to reap process tree of {}, ".format(get_process_info(process)) +
                 "printing process tree status in termination order:")
     for p in procs:
-        logger.info(f"\t-{get_process_info(p)}")
+        logger.info("\t-{}".format(get_process_info(p)))
 
     for p in procs:
         try:
-            logger.info(f"Trying to SIGTERM {p.pid}:{p.name()}:{p.exe()} initial status {p.status()}, owner {p.ppid()}")
+            logger.info("Trying to SIGTERM {}".format(
+                get_process_info(p)
+            ))
             p.terminate()
             try:
                 p.wait(timeout=timeout)
@@ -81,7 +89,7 @@ def reap_process_and_children(process, timeout=5):
             except psutil.TimeoutExpired:
 
                 logger.info(
-                    "Process {} survived SIGTERM; trying SIGKILL  (current status) {}, (owner) {}".format(p.pid, p.status(), p.ppid()))
+                    "Process {} survived SIGTERM; trying SIGKILL on {}".format(p.pid, get_process_info(p)))
                 p.kill()
 
                 try:
@@ -92,7 +100,7 @@ def reap_process_and_children(process, timeout=5):
                     logger.info(
                     "Process {} survived SIGKILL; giving up (final status) {}, (owner) {}".format(p.pid, p.status(), p.ppid()))
         except psutil.NoSuchProcess:
-            logger.info(f"Process {p} does not exist. (It may have already been reaped successfully)")
+            logger.info("Process {} does not exist. (It may have already been reaped successfully)".format(p))
 
 
 def main(args):
@@ -105,8 +113,8 @@ def main(args):
 
     # Wait for processes to be launched
     logger.info(
-        f"Process watcher started between parent {args.parent_pid}"
-        f" and child {args.child_pid} ")
+        "Process watcher started between parent {}".format(args.parent_pid) +
+        " and child {} ".format(args.child_pid))
     time.sleep(1)
     try:
         child = psutil.Process(args.child_pid)
