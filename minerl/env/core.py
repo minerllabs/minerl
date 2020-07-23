@@ -403,7 +403,10 @@ class MineRLEnv(gym.Env):
         # TODO (R): Move inflection underscoring to Mindcraft. Eventually we should get rid of this/move it to Malmo
         # Change this key because we find it confusing.
         
-        info["breath"] = info.pop("air")
+        try:
+            info["breath"] = info.pop("air")
+        except KeyError:
+            pass
 
         # TODO: Incorporate chagnes which prevent silent failure.
 
