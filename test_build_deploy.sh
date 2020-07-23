@@ -15,6 +15,7 @@ set -ex
 mkdir -p $MINERL_DATA_ROOT
 
 # First, we run the tests in the repo
+pip install -e .
 python -c "import minerl; minerl.data.download(minimal=True)"
 pytest .
 pip uninstall -y minerl
