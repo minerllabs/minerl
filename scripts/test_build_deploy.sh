@@ -36,7 +36,7 @@ pip list
 cur_dir=$(pwd)
 cd ..
 python -c "import minerl; import gym, logging; logging.basicConfig(level=logging.DEBUG); env=gym.make('minerl:MineRLTreechop-v0', restartable_java=False); env.reset(); env.close()"
-cd cur_dir
+cd $cur_dir
 # Finally, if this is not a cron build, we deploy the wheel
 if [ "$BUILDKITE_SOURCE" != "schedule" ]; then 
     gsutil cp -a public-read dist/* $GS_UPLOAD_LOCATION/$BUILDKITE_BRANCH/${MINERL_VERSION_NUMBER}-${DATE_SHORT}-${BUILDKITE_COMMIT:0:7}/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/
