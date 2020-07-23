@@ -579,7 +579,7 @@ class InstanceManager:
                 cmd.append('-replaceable')
             preexec_fn = os.setsid if 'linux' in str(sys.platform) or sys.platform == 'darwin' else None
             # print(preexec_fn)
-            minecraft_process = subprocess.Popen(cmd,
+            minecraft_process = psutil.Popen(cmd,
                 cwd=InstanceManager.MINECRAFT_DIR, # TODO (R): Asses if this works with new wheel.
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
