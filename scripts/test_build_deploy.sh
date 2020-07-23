@@ -21,7 +21,7 @@ gsutil -m rsync  -r $GS_MINERL_DATA $MINERL_DATA_ROOT
 pytest .
 pip uninstall -y minerl
 
-pip list | grep minerl
+pip list
 
 # Then, we build the wheel
 pip wheel --verbose --no-deps -w dist .
@@ -29,12 +29,13 @@ pip wheel --verbose --no-deps -w dist .
 # Then, we test the wheel
 pip install gym
 
-pip list | grep minerl
+pip list 
 pip install dist/*.whl
+pip list 
 
 cur_dir=$(pwd)
 cd ..
-python -c "import gym, logging; logging.basicConfig(level=logging.DEBUG); env=gym.make('minerl:MineRLTreechop-v0', restartable_java=False); env.reset(); env.close()"
+python -c "import minerl; import gym, logging; logging.basicConfig(level=logging.DEBUG); env=gym.make('minerl:MineRLTreechop-v0', restartable_java=False); env.reset(); env.close()"
 cd cur_dir
 # Finally, if this is not a cron build, we deploy the wheel
 if [ "$BUILDKITE_SOURCE" != "schedule" ]; then 
