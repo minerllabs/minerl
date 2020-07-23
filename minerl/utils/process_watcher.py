@@ -162,7 +162,10 @@ if __name__ == '__main__':
     os.makedirs(MINERL_WATCHERS_DIR, exist_ok=True)
 
     os_cur_dir = os.path.abspath(os.getcwd())
-    watcher_name = f'watcher_{args.parent_pid}-{args.child_pid}'
+    watcher_name = 'watcher_{}-{}'.format(
+        args.parent_pid,
+        args.child_pid
+    )
 
 
     daemonize(os.path.join(os_cur_dir,MINERL_WATCHERS_DIR, watcher_name + '.pid'))   
