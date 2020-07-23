@@ -301,9 +301,10 @@ class TypeObservation(AgentHandler):
     """
     Returns the item list index  of the tool in the given hand
     List must start with 'none' as 0th element and end with 'other' as wildcard element
+    # TODO (R): Update this dcoumentation
     """
 
-    def __init__(self, hand: str, items: list):
+    def __init__(self, hand: str, items: list, _default='none', _other='other'):
         """
         Initializes the space of the handler with a spaces.Dict
         of all of the spaces for each individual command.
@@ -311,11 +312,11 @@ class TypeObservation(AgentHandler):
         self._items = sorted(items)
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
-        self._default = 'air' # 'none' # TODO (R): Change to 'air'
-        self._other = 'other' # 'othe # TODO (R): Change to 'none'
-        assert 'other' in items
-        assert 'air' in items
-        super().__init__(spaces.Enum(*self._items, default='none'))
+        self._default = _default # 'none' # TODO (R): Change to 'air' 
+        self._other = _other # 'othe # TODO (R): Change to 'none'
+        assert self._other in items
+        assert self._default in items
+        super().__init__(spaces.Enum(*self._items, default=self._default))
 
     @property
     def items(self):
@@ -366,9 +367,9 @@ class TypeObservation(AgentHandler):
                 raise NotImplementedError('type not implemented for hand type' + self._hand)
         except KeyError:
             # No item in hotbar slot - return 'none'
-            return 'none'
+            return self._default
         except ValueError:
-            return  'other'
+            return  self._other
 
     def add_to_mission_spec(self, mission_spec):
         raise NotImplementedError('add_to_mission_spec not implemented for TypeObservation')
@@ -440,8 +441,7 @@ class DamageObservation(AgentHandler):
 
 class MaxDamageObservation(AgentHandler):
     """
-    Returns the item list index  of the tool in the given hand
-    List must start with 'none' as 0th element and end with 'other' as wildcard element
+    Returns the current damage of an item.
     """
 
     def __init__(self, hand: str):

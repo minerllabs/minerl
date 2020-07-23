@@ -86,3 +86,20 @@ ENVS = [env for env in locals().values() if isinstance(env, EnvSpec)]
 for env in ENVS:
     if env.name not in gym.envs.registry.env_specs:
         env.register()
+
+
+
+
+# # TODO: Convert to an env_spec environment
+# from minerl.herobraine.hero.unified_spaces import unified_action_space, unified_observation_space
+
+# register(
+#     id='UnifiedMineRL-v0',
+#     entry_point='minerl.env:MineRLEnv',
+#     kwargs={
+#         'observation_space': unified_observation_space,
+#         'action_space':  unified_action_space
+#     },
+#     max_episode_steps=20 * 60 * 60 * 2, # 2 hrs
+# )
+

@@ -141,7 +141,7 @@ class MineRLEnv(gym.Env):
 
         self.width = 0
         self.height = 0
-        self.channels = 0 # TODO (R): depth -> channels
+        self.channels = 0 
 
         self.xml_file = xml
         self.has_init = False
@@ -179,7 +179,7 @@ class MineRLEnv(gym.Env):
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
 
-        instance.launch(replaceable=self.restartable_java) # TODO (R): Update instance manager to accept restartable.
+        instance.launch(replaceable=self.restartable_java) 
         return instance
 
     def init(self):
@@ -297,7 +297,6 @@ class MineRLEnv(gym.Env):
             )
 
         # Moved to init TODO (wguss): clean this up.
-        # TODO: REPLACE WITH JT TEMPLATING. 
         # TODO (R): REPLACE WITH JT TEMPLATING
         # video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
         # assert len(video_producers) == self.agent_count
@@ -343,8 +342,6 @@ class MineRLEnv(gym.Env):
         else:
             info = {}
 
-        # TODO (R): FIGURE OUT WHAT THIS DOES and address it
-        self.agent_info.update(info)
 
         # TODO (R): OpenAI decided to start using 'invalid' instead of other. We can break upstream (perhaps with a v2)
         # I suspect that 
@@ -367,7 +364,6 @@ class MineRLEnv(gym.Env):
             if info['equipped_items.mainhand.type'] not in bottom_env_spec.observation_space.spaces[
                     'equipped_items.mainhand.type']:
                     # TODO (R): Switch this to invalid or find a mappe
-                    # TODO (R): Deal with 
                 info['equipped_items.mainhand.type'] = "other"  # Todo: use handlers. TODO: USE THEM<
         except Exception as e:
             pass
@@ -407,7 +403,9 @@ class MineRLEnv(gym.Env):
         # TODO (R): Move inflection underscoring to Mindcraft. Eventually we should get rid of this/move it to Malmo
         # Change this key because we find it confusing.
         
-        info["breath"] = obs_dict.pop("air")
+        info["breath"] = info.pop("air")
+
+        # TODO: Incorporate chagnes which prevent silent failure.
 
         obs_dict = bottom_env_spec.observation_space.no_op()
 

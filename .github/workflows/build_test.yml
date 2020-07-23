@@ -1,6 +1,6 @@
 name: Build wheels
 
-on: [push] #, pull_request]
+on: [workflow_dispatch] #, pull_request]
 
 # todo: Support windows
 # todo: make new docker image which includes java
@@ -114,7 +114,7 @@ jobs:
           aws_key_id: ${{ secrets.AWS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
           aws_bucket: ${{ secrets.AWS_MINERL_BUCKET }}
-          source_dir: './wheelhouse'
+          source_dir: './dist/'
           destination_dir:  builds/${{ steps.vars.outputs.branch }}/${{ steps.vars.outputs.sha_short }}/
 
 

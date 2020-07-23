@@ -46,6 +46,7 @@ import Pyro4
 
 from random import Random
 from minerl.env import comms
+import minerl.utils.process_watcher
 
 logger = logging.getLogger(__name__)
 
@@ -93,8 +94,8 @@ class InstanceManager:
     Note: In future versions of MineRL the instance manager will become its own daemon process which provides
     instance allocation capability using remote procedure calls.
     """
-    MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Minecraft') 
-    SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), 'Malmo', 'Schemas') 
+    MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), '..', 'Malmo', 'Minecraft') 
+    SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), '..', 'Malmo', 'Schemas') 
     STATUS_DIR = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'performance')
     MAXINSTANCES = None
     KEEP_ALIVE_PYRO_FREQUENCY = 5

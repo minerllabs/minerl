@@ -1,0 +1,15 @@
+language: cpp
+
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      dist: trusty
+      compiler: gcc
+    - os: osx
+      osx_image: xcode7.3
+      compiler: clang
+
+script:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then travis_wait 40 .travis/ci_macosx.sh      ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis_wait 40 .travis/ci_ubuntu14.04.sh ; fi

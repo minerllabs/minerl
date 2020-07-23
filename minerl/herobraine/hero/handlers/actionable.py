@@ -65,7 +65,7 @@ class ItemListCommandAction(CommandAction):
     The action space is determiend by the length of the list plus one
     """
 
-    def __init__(self, command: str, items: list):
+    def __init__(self, command: str, items: list, _default='none'):
         """
         Initializes the space of the handler with a gym.spaces.Dict
         of all of the spaces for each individual command.
@@ -75,8 +75,8 @@ class ItemListCommandAction(CommandAction):
         self._command = command
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
-        assert 'none' in self._items
-        self._default = 'none'
+        assert _default in self._items
+        self._default = _default
         super().__init__(self._command, spaces.Enum(*self._items, default=self._default))
 
     @property
