@@ -67,6 +67,8 @@ minecraft {
     mappings = "snapshot_20161220"
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
+
+
 runClient { 
     if (project.hasProperty("runDir")) {
         minecraft.runDir = project.getProperty("runDir")

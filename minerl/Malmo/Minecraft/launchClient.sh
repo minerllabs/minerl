@@ -3,6 +3,8 @@
 # run from the script directory
 cd "$(dirname "$0")"
 
+echo "$(dirname "$0")"
+
 replaceable=0
 port=0
 scorepolicy=0
@@ -10,7 +12,6 @@ env=0
 seed="NONE"
 performanceDir="NONE"
 runDir="run"
-configDir="config"
 
 while [ $# -gt 0 ]
 do
@@ -44,6 +45,9 @@ if ! [[ $scorepolicy =~ ^-?[0-9]+$ ]]; then
     echo "Score policy should be numeric"
     exit 1
 fi
+
+
+configDir="$runDir/config"
 
 # Now write the configuration file
 if [ ! -d $configDir ]; then
@@ -83,8 +87,9 @@ if [ $env -gt 0 ]; then
 fi
 
 cat $configDir/malmomodCLIENT.cfg
+
+echo "$runDir"
 # Finally we can launch the Mod, which will load the config file
-export GRADLE_USER_HOME=${runDir}/gradle
 # ./gradlew makeStart
 
 #    ./gradlew setupDecompWorkspace
@@ -95,7 +100,10 @@ export GRADLE_USER_HOME=${runDir}/gradle
 if [ ! -e build/libs/MalmoMod-0.37.0-fat.jar ]; then
     cmd="./gradlew runClient --stacktrace -PrunDir=$runDir"
 else
-    cmd="java -Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -jar build/libs/MalmoMod-0.37.0-fat.jar"
+
+    export GRADLE_USER_HOME=${runDir}/gradle
+    cd $runDir
+    cmd="java -Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -jar ../build/libs/MalmoMod-0.37.0-fat.jar"
 fi
 # If build/libs/MalmoMod-0.37.0-fat.jar does not exist change command to 'test'
 

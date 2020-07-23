@@ -9,6 +9,7 @@ import time
 
 import logging
 import coloredlogs
+coloredlogs.install(logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 

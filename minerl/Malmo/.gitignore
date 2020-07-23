@@ -216,7 +216,11 @@ Minecraft/run/config/malmomodCLIENT.cfg
 Minecraft/Minecraft_Client.launch
 
 .vscode/
-Minecraft/run
+Minecraft/run/logs
+Minecraft/run/readme.txt
+Minecraft/run/user*
+Minecraft/run/.mixin.out
+Minecraft/run/config/splash.properties
 Minecraft/.minecraft
 Minecraft/.minecraftserver
 Malmo/samples/Python_examples/.fuse_hidden*

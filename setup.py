@@ -102,7 +102,7 @@ def build_minecraft(source_dir, build_dir):
         ) 
 
     gradlew =  'gradlew.bat' if os.name == 'nt' else './gradlew'
-    sys.exit()
+    
     # TODO: Remove the change directoty.
     # 2. Change to the directory and build it; perhaps it need live inside of MineRL
     cwd = os.getcwd()
