@@ -2,6 +2,7 @@
 # Commands are printed out, and we quit on any error
 set -ex 
 
+export PATH=$JAVA_HOME/bin:$PATH
 # env variables controlling the build version and location in GCS
 export MINERL_VERSION_NUMBER=0.3.7
 export DATE_SHORT=$(date +%Y%m%d-%H%M)
