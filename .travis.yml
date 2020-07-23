@@ -26,7 +26,7 @@ addons:
 env:
   - MINERL_DATA_ROOT=$HOME/data
 install:
-- export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+- export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/ 
 - pip install -e .
 - pip install pytest-xdist
 - python -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(minimal=True)"
