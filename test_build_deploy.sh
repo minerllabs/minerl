@@ -10,9 +10,18 @@ export MINERL_BUILD_VERSION=${MINERL_VERSION_NUMBER}+openai.git.${BUILDKITE_COMM
 # Adding a single head directly to the init.sh to avoid zombificiaiton from xvfb-run.
 Xvfb :0 -screen 0 1024x768x24 &
 
+#!/bin/bash
+set -ex
+mkdir -p $MINERL_DATA_ROOT
+
 # First, we run the tests in the repo
 pip install -e .
+
+python -c "import minerl; minerl.data.download(minimal=True)"
+
 pytest .
+pip uninstall minerl
+
 
 # Then, we build the wheel
 pip wheel --no-deps -w dist .
