@@ -118,17 +118,17 @@ public class JSONWorldDataHelper
 
             StatisticsManagerServer sfw = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayerStatsFile(player);
 
-            json.addProperty("DistanceTravelled",
+            json.addProperty("distance_travelled",
                 sfw.readStat(StatList.WALK_ONE_CM)
                 + sfw.readStat(StatList.SWIM_ONE_CM)
                 + sfw.readStat(StatList.DIVE_ONE_CM)
                 + sfw.readStat(StatList.FALL_ONE_CM)
                 ); // TODO: there are many other ways of moving!
-            json.addProperty("TimeAlive", sfw.readStat(StatList.TIME_SINCE_DEATH));
-            json.addProperty("MobsKilled", sfw.readStat(StatList.MOB_KILLS));
-            json.addProperty("PlayersKilled", sfw.readStat(StatList.PLAYER_KILLS));
-            json.addProperty("DamageTaken", sfw.readStat(StatList.DAMAGE_TAKEN));
-            json.addProperty("DamageDealt", sfw.readStat(StatList.DAMAGE_DEALT));
+            json.addProperty("time_alive", sfw.readStat(StatList.TIME_SINCE_DEATH));
+            json.addProperty("mobs_killed", sfw.readStat(StatList.MOB_KILLS));
+            json.addProperty("players_killed", sfw.readStat(StatList.PLAYER_KILLS));
+            json.addProperty("damage_taken", sfw.readStat(StatList.DAMAGE_TAKEN));
+            json.addProperty("damage_dealt", sfw.readStat(StatList.DAMAGE_DEALT));
         }
 
 
@@ -144,31 +144,31 @@ public class JSONWorldDataHelper
      */
     public static void buildLifeStats(JsonObject json, EntityPlayerSP player)
     {
-        json.addProperty("Life", player.getHealth());
-        json.addProperty("Score", player.getScore());    // Might always be the same as XP?
-        json.addProperty("Food", player.getFoodStats().getFoodLevel());
-        json.addProperty("Saturation", player.getFoodStats().getSaturationLevel());
-        json.addProperty("XP", player.experienceTotal);
-        json.addProperty("IsAlive", !player.isDead);
-        json.addProperty("Air", player.getAir());
-        json.addProperty("Name", player.getName());
+        json.addProperty("life", player.getHealth());
+        json.addProperty("score", player.getScore());    // Might always be the same as XP?
+        json.addProperty("food", player.getFoodStats().getFoodLevel());
+        json.addProperty("saturation", player.getFoodStats().getSaturationLevel());
+        json.addProperty("xp", player.experienceTotal);
+        json.addProperty("is_alive", !player.isDead);
+        json.addProperty("air", player.getAir());
+        json.addProperty("name", player.getName());
     }
     /** Builds the player position data to be used as observation signals by the listener.
      * @param json a JSON object into which the positional information will be added.
      */
     public static void buildPositionStats(JsonObject json, EntityPlayerSP player)
     {
-        json.addProperty("XPos",  player.posX);
-        json.addProperty("YPos",  player.posY);
-        json.addProperty("ZPos", player.posZ);
-        json.addProperty("Pitch",  player.rotationPitch);
-        json.addProperty("Yaw", player.rotationYaw);
+        json.addProperty("xpos",  player.posX);
+        json.addProperty("ypos",  player.posY);
+        json.addProperty("zpos", player.posZ);
+        json.addProperty("pitch",  player.rotationPitch);
+        json.addProperty("yaw", player.rotationYaw);
     }
 
     public static void buildEnvironmentStats(JsonObject json, EntityPlayerSP player)
     {
-        json.addProperty("WorldTime", player.world.getWorldTime());  // Current time in ticks
-        json.addProperty("TotalTime", player.world.getTotalWorldTime());  // Total time world has been running
+        json.addProperty("world_time", player.world.getWorldTime());  // Current time in ticks
+        json.addProperty("total_time", player.world.getTotalWorldTime());  // Total time world has been running
     }
     /**
      * Build a signal for the cubic block grid centred on the player.<br>

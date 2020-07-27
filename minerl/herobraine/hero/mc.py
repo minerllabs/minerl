@@ -474,7 +474,14 @@ KEYMAP = {
     '45': 'loadToolbarActivator',
     '38': 'advancements',
 }
+
+# TODO: Decide if we want to add these?
 KEYMAP.update({str(x + 1): str(x) for x in range(1, 10)})
+
+# TODO: add all other keys.
+INVERSE_KEYMAP = {
+    KEYMAP[key]: key for key in KEYMAP
+}
 
 MAX_LIFE = 20  # Actual max life can be greater (e.g. after eating a golden apple)
 MAX_XP = 1395  # Represents level 30 in game - bounded by signed 32 bit int max
@@ -482,16 +489,6 @@ MAX_BREATH = 300  # Should be max encountered - subject to change by mods
 MAX_FOOD = 20  # Default max food
 MAX_FOOD_SATURATION = 20.0  # Current max saturation limit as of 1.11.2
 MAX_SCORE = 0x7FFFFF  # Implemented as XP in survival but can change e.g. mini-games
-
-KEYMAP.update({
-    str(x + 1): str(x) for x in range(1, 10)
-})
-
-# TODO: add all other keys.
-
-INVERSE_KEYMAP = {
-    KEYMAP[key]: key for key in KEYMAP
-}
 
 
 def get_item_id(item: str) -> int:
@@ -521,10 +518,11 @@ mc_constants_file = os.path.join(
 )
 all_data = json.load(open(mc_constants_file))
 
-ALL_ITEMS = [
-    "none",  # empty inventory slot (for obs); take no action (for actions).
-    "invalid",  # item not in the list
-] + [item["type"] for item in all_data["items"]]
+ALL_ITEMS = [item["type"] for item in all_data["items"]]
+
+# We choose these not to be included by default; they are not items.
+NONE = "none"
+INVALID = "invalid"
 
 ITEMS_BY_CATEGORY = {
         # Items which take 2 seconds to USE
@@ -627,3 +625,4 @@ ALL_SMELTING_ITEMS = [
     if item["type"] in SMELTING_RECIPES_BY_OUTPUT.keys()
     and len(SMELTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
 ]
+

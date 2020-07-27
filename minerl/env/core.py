@@ -296,18 +296,7 @@ class MineRLEnv(gym.Env):
                 attrib={"flat": "false"},
             )
 
-        # Moved to init TODO (wguss): clean this up.
         # TODO (R): REPLACE WITH JT TEMPLATING
-        # video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
-        # assert len(video_producers) == self.agent_count
-        # video_producer = video_producers[self.role]
-        # # Todo: Deprecate width, height, and POV forcing.
-        # self.width = int(video_producer.find(self.ns + 'Width').text)
-        # self.height = int(video_producer.find(self.ns + 'Height').text)
-        # want_depth = video_producer.attrib["want_depth"]
-        # self.depth = 4 if want_depth is not None and (
-        #         want_depth == "true" or want_depth == "1" or want_depth is True) else 3
-        # print(etree.tostring(self.xml))
         self._last_ac = None
 
 
@@ -343,8 +332,6 @@ class MineRLEnv(gym.Env):
             info = {}
 
 
-        # TODO (R): OpenAI decided to start using 'invalid' instead of other. We can break upstream (perhaps with a v2)
-        # I suspect that 
 
         # Ensure mainhand observations are valid    
         try:
@@ -379,7 +366,8 @@ class MineRLEnv(gym.Env):
                     type_name = stack['type']
                     if type_name == 'log2':
                         type_name = 'log'
-
+                    
+                    # This sets the nubmer of air to correspond to the number of empty slots :)
                     try:
                         if type_name == "air":
                             inventory_dict[type_name] += 1
@@ -397,14 +385,9 @@ class MineRLEnv(gym.Env):
 
         info['pov'] = pov
 
-        #camel info
-        # Change java keys (camelCase or CapsCase) to python (snake_case)
-        # info = {inflection.underscore(k): v for k, v in info.items()}
-        # TODO (R): Move inflection underscoring to Mindcraft. Eventually we should get rid of this/move it to Malmo
-        # Change this key because we find it confusing.
-        
+
         try:
-            info["breath"] = info.pop("air")
+            info["breath"] = info.pop("Air")
         except KeyError:
             pass
 

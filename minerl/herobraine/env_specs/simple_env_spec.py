@@ -25,8 +25,8 @@ class SimpleEnvSpec(EnvSpec, ABC):
         "attack"
     ]
 
-    def __init__(self, name, xml, *args, **kwargs):
-        self.resolution = tuple((64, 64))
+    def __init__(self, name, xml, *args, resolution=(64,64),  **kwargs):
+        self.resolution = resolution
         super().__init__(name, xml, *args, **kwargs)
 
     def create_observables(self) -> List[minerl.herobraine.hero.AgentHandler]:

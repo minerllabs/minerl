@@ -190,7 +190,7 @@ class FlatInventoryObservation(AgentHandler):
 
     logger = logging.getLogger(__name__ + ".FlatInventoryObservation")
 
-    def __init__(self, item_list):
+    def __init__(self, item_list, _other='other'):
         item_list = sorted(item_list)
         super().__init__(spaces.Dict(spaces={
             k: spaces.Box(low=0, high=2304, shape=(), dtype=np.int32, normalizer_scale='log')
@@ -220,6 +220,8 @@ class FlatInventoryObservation(AgentHandler):
                         item_dict[stack['type']] += stack['quantity']
                     except ValueError:
                         continue
+
+            #TODO: SUPPORT OTHER
         else:
             self.logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
             self.logger.warning(obs)
@@ -312,8 +314,8 @@ class TypeObservation(AgentHandler):
         self._items = sorted(items)
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
-        self._default = _default # 'none' # TODO (R): Change to 'air' 
-        self._other = _other # 'othe # TODO (R): Change to 'none'
+        self._default = _default 
+        self._other = _other 
         assert self._other in items
         assert self._default in items
         super().__init__(spaces.Enum(*self._items, default=self._default))
@@ -588,8 +590,106 @@ class ChatObservation(AgentHandler):
 
     def from_hero(self, x):
         # Todo: From Hero
-        pass
+        raise NotImplementedError()
 
+
+
+
+class LifeObservation(AgentHandler):
+    """ Handles life observations """
+
+    def to_string(self):
+        return 'life'
+
+    def __init__(self):
+        super().__init__(spaces.Box(low=0,high=20,  shape=(), dtype=np.float))
+
+    def from_hero(self, x):
+        raise NotImplementedError()
+
+    def from_universal(self, x):
+        raise  NotImplementedError()
+
+class ScoreObservation(AgentHandler):
+    """
+    Handles score observations.
+    """
+    def to_string(self):
+        return 'score'
+
+    def __init__(self):
+        super().__init__(spaces.Box(low=0,high=1395,  shape=(), dtype=np.int))
+    
+    def from_hero(self, hero):
+        raise NotImplementedError()
+
+    def from_universal(self, obs):
+        raise  NotImplementedError()
+
+class FoodObservation(AgentHandler):
+    """
+    Handles food observations.
+    """
+    def to_string(self):
+        return 'food'
+
+    def __init__(self):
+        super().__init__(spaces.Box(low=0,high=20,  shape=(), dtype=np.float))
+    
+    def from_hero(self, hero):
+        raise NotImplementedError()
+
+    def from_universal(self, obs):
+        raise  NotImplementedError()
+
+
+class SaturationObservation(AgentHandler):
+    """
+    Handles hero saturation observations.
+    """
+    def to_string(self):
+        return 'saturation'
+
+    def __init__(self):
+        super().__init__(spaces.Box(low=0,high=5,  shape=(), dtype=np.float))
+
+    def from_hero(self, hero):
+        raise NotImplementedError()
+
+    def from_universal(self, obs):
+        raise  NotImplementedError()
+
+class XPObservation(AgentHandler):
+    """
+    Handles XP observations.
+    """
+    def to_string(self):
+        return 'xp'
+
+    def __init__(self):
+        super().__init__(spaces.Box(low=0,high=1395,  shape=(), dtype=np.int))
+    
+    def from_hero(self, hero):
+        raise NotImplementedError()
+
+    def from_universal(self, obs):
+        raise  NotImplementedError()
+
+class BreathObservation(AgentHandler):
+    """
+    Handles breath observations.
+    """
+    def to_string(self):
+        return 'breath'
+    
+    def __init__(self):
+        super().__init__(spaces.Box(low=0,high=300,  shape=(), dtype=np.float))
+    
+    def from_hero(self, hero):
+        raise NotImplementedError()
+
+    def from_universal(self, obs):
+        raise  NotImplementedError()
 
 class RecentCommandsObservation(AgentHandler):
     """

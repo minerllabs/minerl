@@ -125,6 +125,8 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
                     getInventoryJSON(arr, foreignInv);
                 json.add("inventory", arr);
             }
+
+            // We should nest this a bit a deepter actually.
             // Also add an entry for each type of inventory available.
             JsonArray arrInvs = new JsonArray();
             JsonObject jobjPlayer = new JsonObject();
@@ -138,9 +140,9 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
                 jobjTell.addProperty("size", foreignInv.getSizeInventory());
                 arrInvs.add(jobjTell);
             }
-            json.add("inventoriesAvailable", arrInvs);
+            json.add("inventories_available", arrInvs);
             // Also add a field to show which slot in the hotbar is currently selected.
-            json.addProperty("currentItemIndex", player.inventory.currentItem);
+            json.addProperty("current_item_index", player.inventory.currentItem);
         }
 
         @Override
