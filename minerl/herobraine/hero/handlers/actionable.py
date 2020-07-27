@@ -65,7 +65,7 @@ class ItemListCommandAction(CommandAction):
     The action space is determiend by the length of the list plus one
     """
 
-    def __init__(self, command: str, items: list, _default='none'):
+    def __init__(self, command: str, items: list, _default='none', _other='other'):
         """
         Initializes the space of the handler with a gym.spaces.Dict
         of all of the spaces for each individual command.
@@ -76,7 +76,9 @@ class ItemListCommandAction(CommandAction):
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
         assert _default in self._items
+        assert _other in self._items
         self._default = _default
+        self._other = _other
         super().__init__(self._command, spaces.Enum(*self._items, default=self._default))
 
     @property
@@ -281,17 +283,16 @@ class EquipItem(ItemListCommandAction):
     def to_string(self):
         return 'equip'
 
-    def __init__(self, items: list):
+    def __init__(self, items: list, _default='none', _other='other'):
         """
         Initializes the space of the handler to be one for each item in the list plus one for the
         default no-craft action
         """
         self._items = items
         self._command = 'equip'
-        super().__init__(self._command, self._items)
+        super().__init__(self._command, self._items, _default=_default, _other=_other),
         self.previous = self._default
-        # print(self._items)
-        # print(self._univ_items)
+
 
     def from_universal(self, obs):
         try:
@@ -304,7 +305,7 @@ class EquipItem(ItemListCommandAction):
         except KeyError:
             return self._default
         except ValueError:
-            return self._default
+            return self._other
             # return self._items.index('other')
         return self._default
 

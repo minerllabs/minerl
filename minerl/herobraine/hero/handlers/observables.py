@@ -5,9 +5,10 @@ import gym
 import numpy as np
 
 from minerl.herobraine.hero import AgentHandler, mc, spaces
+import abc
 
 
-def strip_of_prefix(minecraft_name):
+def strip_item_prefix(minecraft_name):
     # Names in minecraft start with 'minecraft:', like:
     # 'minecraft:log', or 'minecraft:cobblestone'
     if minecraft_name.startswith('minecraft:'):
@@ -251,7 +252,7 @@ class FlatInventoryObservation(AgentHandler):
             # Add from all slots
             for stack in slots:
                 try:
-                    name = strip_of_prefix(stack['name'])
+                    name = strip_item_prefix(stack['name'])
                     name = 'log' if name == 'log2' else name
                     item_dict[name] += stack['count']
                 except (KeyError, ValueError):
@@ -593,119 +594,119 @@ class ChatObservation(AgentHandler):
         raise NotImplementedError()
 
 
+class SimpleObservationHander(AgentHandler, abc.ABC):
+    def __init__(self, hero_keys:list, univ_keys: list, space: gym.spaces.space, default_if_missing=None):
+        """
+        Wrapper for simple observations which just translate keys.
+        :param keys: list of nested dictionary keys from the root of the observation dict
+        :param space: gym space corresponding to the shape of the returned value
+        :param default_if_missing: value for handler to take if missing in the observation dict
+        """
+        super().__init__(space)
+        self.hero_keys = hero_keys
+        self.univ_keys = univ_keys
+        self.default_if_missing = default_if_missing
+        self.logger = logging.getLogger(f'{__name__}.{self.to_string()}')
 
+    def walk_dict(self, d, keys):
+        for key in keys:
+            if key in d:
+                d = d[key]
+            else:
+                if self.default_if_missing is not None:
+                    self.logger.error(f"No {keys[-1]} observation! Yielding default value "
+                                      f"{self.default_if_missing} for {'/'.join(keys)}")
+                    return np.array(self.default_if_missing)
+                else:
+                    raise ValueError
+        return np.array(d)
 
-class LifeObservation(AgentHandler):
-    """ Handles life observations """
-
-    def to_string(self):
-        return 'life'
-
-    def __init__(self):
-        super().__init__(spaces.Box(low=0,high=20,  shape=(), dtype=np.float))
-
-    def from_hero(self, x):
+    def to_hero(self, x) -> str:
         raise NotImplementedError()
 
-    def from_universal(self, x):
-        raise  NotImplementedError()
+    def from_hero(self, hero_dict):
+        return self.walk_dict(hero_dict, self.hero_keys)
 
-class ScoreObservation(AgentHandler):
-    """
-    Handles score observations.
-    """
-    def to_string(self):
-        return 'score'
-
-    def __init__(self):
-        super().__init__(spaces.Box(low=0,high=1395,  shape=(), dtype=np.int))
+    def from_universal(self, univ_dict):
+        return self.walk_dict(univ_dict, self.univ_keys)
     
-    def from_hero(self, hero):
-        raise NotImplementedError()
+    def to_string(self) -> str:
+        return ".".join(self.hero_keys)
 
-    def from_universal(self, obs):
-        raise  NotImplementedError()
+# TODO (R): REFACTOR LIFESTATS. These can be merged.
+# TODO (R): Rename simple observation handler.
+class LifeStatsObservation(SimpleObservationHander):
 
-class FoodObservation(AgentHandler):
+    def to_string(self) -> str:
+        return self.hero_keys[-1]
+
+    def __init__(self, hero_keys, univ_keys, space, default_if_missing=None):
+        self.hero_keys = hero_keys
+        self.univ_keys = univ_keys
+        super().__init__(hero_keys=hero_keys, univ_keys=['life_stats'] + univ_keys, space=space, default_if_missing=default_if_missing)
+
+class LifeObservation(LifeStatsObservation):
     """
-    Handles food observations.
+    Handles life observation / health observation. Its initial value on world creation is 20 (full bar)
     """
-    def to_string(self):
-        return 'food'
+    def __init__(self):
+        keys = ['life']
+        super().__init__(hero_keys=keys, univ_keys=keys, space=spaces.Box(low=0, high=mc.MAX_LIFE, shape=(), dtype=np.float),
+                         default_if_missing=mc.MAX_LIFE)
+
+
+class ScoreObservation(LifeStatsObservation):
+    """
+    Handles score observation
+    """
 
     def __init__(self):
-        super().__init__(spaces.Box(low=0,high=20,  shape=(), dtype=np.float))
-    
-    def from_hero(self, hero):
-        raise NotImplementedError()
-
-    def from_universal(self, obs):
-        raise  NotImplementedError()
+        keys = ['score']
+        super().__init__(univ_keys=keys, hero_keys=keys, space=spaces.Box(low=0, high=mc.MAX_SCORE, shape=(), dtype=np.int),
+                         default_if_missing=0)
 
 
-class SaturationObservation(AgentHandler):
+class FoodObservation(LifeStatsObservation):
     """
-    Handles hero saturation observations.
+    Handles food_level observation representing the player's current hunger level, shown on the hunger bar. Its initial
+    value on world creation is 20 (full bar) - https://minecraft.gamepedia.com/Hunger#Mechanics
     """
-    def to_string(self):
-        return 'saturation'
 
     def __init__(self):
-        super().__init__(spaces.Box(low=0,high=5,  shape=(), dtype=np.float))
+        super().__init__(hero_keys=['food'], univ_keys=['food'], space=spaces.Box(low=0, high=mc.MAX_FOOD, shape=(), dtype=np.int),
+                         default_if_missing=mc.MAX_FOOD)
 
-    def from_hero(self, hero):
-        raise NotImplementedError()
 
-    def from_universal(self, obs):
-        raise  NotImplementedError()
-
-class XPObservation(AgentHandler):
+class SaturationObservation(LifeStatsObservation):
     """
-    Handles XP observations.
+    Returns the food saturation observation which determines how fast the hunger level depletes and is controlled by the
+     kinds of food the player has eaten. Its maximum value always equals foodLevel's value and decreases with the hunger
+     level. Its initial value on world creation is 5. - https://minecraft.gamepedia.com/Hunger#Mechanics
     """
-    def to_string(self):
-        return 'xp'
 
     def __init__(self):
-        super().__init__(spaces.Box(low=0,high=1395,  shape=(), dtype=np.int))
-    
-    def from_hero(self, hero):
-        raise NotImplementedError()
+        super().__init__(hero_keys=['saturation'], univ_keys=['saturation'],
+                         space=spaces.Box(low=0, high=mc.MAX_FOOD_SATURATION, shape=(),
+                         dtype=np.float), default_if_missing=5.0)
 
-    def from_universal(self, obs):
-        raise  NotImplementedError()
 
-class BreathObservation(AgentHandler):
+class XPObservation(LifeStatsObservation):
     """
-    Handles breath observations.
+    Handles observation of experience points 1395 experience corresponds with level 30
+    - see https://minecraft.gamepedia.com/Experience for more details
     """
-    def to_string(self):
-        return 'breath'
-    
-    def __init__(self):
-        super().__init__(spaces.Box(low=0,high=300,  shape=(), dtype=np.float))
-    
-    def from_hero(self, hero):
-        raise NotImplementedError()
-
-    def from_universal(self, obs):
-        raise  NotImplementedError()
-
-class RecentCommandsObservation(AgentHandler):
-    """
-    Handles recent command observations
-    """
-
-    def to_string(self):
-        return 'recent_commands'
 
     def __init__(self):
-        super().__init__(spaces.Text([1]))
+        keys = ['xp']
+        super().__init__(hero_keys=keys, univ_keys=keys, space=spaces.Box(low=0, high=mc.MAX_XP, shape=(), dtype=np.int),
+                         default_if_missing=0)
 
-    def add_to_mission_spec(self, mission_spec):
-        mission_spec.observeRecentCommands()
 
-    def from_hero(self, x):
-        # Todo: From Heri
+class BreathObservation(LifeStatsObservation):
+    """
+        Handles observation of breath which tracks the amount of air remaining before beginning to suffocate
+    """
 
-        pass
+    def __init__(self):
+        super().__init__(hero_keys=['breath'], univ_keys=['air'], space=spaces.Box(low=0, high=mc.MAX_BREATH, shape=(),
+                         dtype=np.int), default_if_missing=300)

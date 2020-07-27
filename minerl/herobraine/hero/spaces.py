@@ -450,14 +450,26 @@ class MultiDiscrete(gym.spaces.MultiDiscrete, MineRLSpace):
         return (self.np_random.random_sample(bdim + self.nvec.shape) * self.nvec).astype(self.dtype)
 
 
-class Text(gym.Space):
+class Text(MineRLSpace):
     """
     # TODO:
     [['a text string', ..., 'last_text_string']]
-
     Example usage:
     self.observation_space = spaces.Text(1)
     """
+
+    def no_op(self):
+        return ""
+
+    def create_flattened_space(self):
+        raise NotImplementedError
+
+    def flat_map(self, x):
+        raise NotImplementedError
+
+    def unmap(self, x):
+        raise NotImplementedError
+
     MAX_STR_LEN = 100
 
     def __init__(self, shape):
@@ -466,14 +478,13 @@ class Text(gym.Space):
     def sample(self):
         total_strings = np.prod(self.shape)
         strings = [
-            "".join([random.choice(string.ascii_uppercase) for _ in range(random.randint(0, Text.MAX_STR_LEN))])
+            "".join([random.choice(string.ascii_lowercase) for _ in range(random.randint(0, Text.MAX_STR_LEN))])
             for _ in range(total_strings)
         ]
         return np.array(np.reshape(strings, self.shape), np.dtype)
 
     def contains(self, x):
-        contained = False
-        contained = contained or isinstance(x, np.ndarray) and x.shape == self.shape and x.dtype in [np.string,
+        contained = contained or isinstance(x, np.ndarray) and x.shape == self.shape and x.dtype.type in [np.string_,
                                                                                                      np.unicode]
         contained = contained or self.shape in [None, 1] and isinstance(x, str)
         return contained
