@@ -338,15 +338,17 @@ class MineRLEnv(gym.Env):
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
         
-        # TODO (R): Use handlers
+        # Process all of the observations using handlers.
         for h in bottom_env_spec.observables:
             obs_dict[h.to_string()] = h.from_hero(info)
 
-        # TODO (R): Add achievment handlers.
+        # TODO (R): Use reward handlers
+        # TODO (R): Add achievment handlers. 
         # Add Achievements to observation
         if "achievements" in info:
             obs_dict["achievements"] = info["achievements"]
             
+        # TODO (REI): CONVERT TO OBSERVATION HANDLER!
         # Add structure grid to observation
         if "structure" in info:
             obs_dict["structure"] = info["structure"]
@@ -366,6 +368,8 @@ class MineRLEnv(gym.Env):
         self._last_ac = action_in
         action_in = deepcopy(action_in)
 
+        # TODO(wguss): Clean up the envSpec wrapper paradigm,
+        # the env shouldn't be doing this IMO.
         if isinstance(self.env_spec, EnvWrapper):
             action_in = self.env_spec.unwrap_action(action_in)
 
@@ -373,38 +377,11 @@ class MineRLEnv(gym.Env):
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
+        assert action_in in bottom_env_spec.action_space
 
-        # TODO: Decide if we want to remove assertions.
         action_str = []
-        for act in action_in:
-            # Process enums.
-            if isinstance(bottom_env_spec.action_space.spaces[act], spaces.Enum):
-                if isinstance(action_in[act],   int):
-                    action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
-                else:
-                    assert isinstance(
-                        action_in[act], str), "Enum action {} must be str or int".format(act)
-                    assert action_in[act] in bottom_env_spec.action_space.spaces[
-                        act].values, "Invalid value for enum action {}, {}".format(
-                        act, action_in[act])
-
-            elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Box):
-                subact = action_in[act]
-                assert not isinstance(
-                    subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
-                if isinstance(subact, np.ndarray):
-                    subact = subact.flatten()
-
-                if isinstance(subact, Iterable):
-                    subact = " ".join(str(x) for x in subact)
-
-                action_in[act] = subact
-            elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Discrete):
-                action_in[act] = int(action_in[act])
-
-            action_str.append(
-                "{} {}".format(act, str(action_in[act])))
-            
+        for h in bottom_env_spec.actionables:
+            action_str.append(h.to_hero(action_in[h.to_string()]))
 
         return "\n".join(action_str)
 

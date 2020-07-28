@@ -43,7 +43,7 @@ class CommandAction(AgentHandler):
             flat = x.flatten().tolist()
             flat = [str(y) for y in flat]
             adjective = " ".join(flat)
-        elif isinstance(x, list):
+        elif isinstance(x, Iterable):
             adjective = " ".join([str(y) for y in x])
         else:
             adjective = str(x)
@@ -92,29 +92,6 @@ class ItemListCommandAction(CommandAction):
     @property
     def default(self):
         return self._default
-
-    def to_hero(self, x):
-        """
-        Returns a command string for the multi command action.
-        :param x:
-        :return:
-        """
-        cmd = ""
-        verb = self._command
-
-        if isinstance(x, np.ndarray):
-            raise NotImplementedError
-        elif isinstance(x, list):
-            raise NotImplementedError
-        elif 0 < x < len(self._items):
-            adjective = self._items[x]
-            cmd += "{} {}".format(
-                verb, adjective)
-        else:
-            cmd += "{} NONE".format(
-                verb)
-
-        return cmd
 
     def from_universal(self, x):
         raise NotImplementedError()
@@ -295,7 +272,7 @@ class EquipItem(ItemListCommandAction):
 
 
     def from_universal(self, obs):
-        try:
+        try:    
             if obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerPlayer':
                 hotbar_index = int(obs['hotbar'])
                 item = self._univ_items.index(obs['slots']['gui']['slots'][-10 + hotbar_index]['name'])
@@ -306,7 +283,6 @@ class EquipItem(ItemListCommandAction):
             return self._default
         except ValueError:
             return self._other
-            # return self._items.index('other')
         return self._default
 
     def reset(self):
@@ -385,9 +361,6 @@ class KeyboardAction(ContinuousMovementAction):
                 else:
                     return i + 1 + offset
 
-        # if "BUTTON1" in actions_mapped:
-        #     print("BUTTON1")
-        # If no key waspressed.
         return default
 
 
