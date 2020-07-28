@@ -626,3 +626,14 @@ ALL_SMELTING_ITEMS = [
     and len(SMELTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
 ]
 
+
+
+
+
+def strip_item_prefix(minecraft_name):
+    # Names in minecraft start with 'minecraft:', like:
+    # 'minecraft:log', or 'minecraft:cobblestone'
+    if minecraft_name.startswith('minecraft:'):
+        return minecraft_name[len('minecraft:'):]
+
+    return minecraft_name

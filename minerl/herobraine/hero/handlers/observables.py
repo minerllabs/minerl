@@ -8,38 +8,6 @@ from minerl.herobraine.hero import AgentHandler, mc, spaces
 import abc
 
 
-def strip_item_prefix(minecraft_name):
-    # Names in minecraft start with 'minecraft:', like:
-    # 'minecraft:log', or 'minecraft:cobblestone'
-    if minecraft_name.startswith('minecraft:'):
-        return minecraft_name[len('minecraft:'):]
-
-    return minecraft_name
-
-
-class ObservationFromFullStats(AgentHandler):
-    logger = logging.getLogger(__name__ + ".ObservationFromFullStats")
-
-    def to_string(self):
-        return 'observation_from_full_stats'
-
-    @staticmethod
-    def command_list():
-        return ['XPos', 'ZPos', ]
-
-    def __init__(self):
-        space = spaces.Box(0, 1, [6], dtype=np.float32)
-        super().__init__(space)
-
-    def flaten_handler(self):
-        return []
-
-    def from_universal(self, x):
-        try:
-            return self.space.sample()
-        except NotImplementedError:
-            raise NotImplementedError('Observation from full state not implementing from_universal')
-
 class POVObservation(AgentHandler):
     """
     Handles POV observations.
@@ -72,12 +40,8 @@ class POVObservation(AgentHandler):
             mission_spec.requestVideo(*self.video_resolution)
 
     def from_universal(self, obs):
-        if "pov" in obs:
-            assert not np.isnan(np.sum(obs["pov"])), "NAN in observation!"
-            return obs["pov"]
-        else:
-            self.logger.warning("No video found in universal observation! Yielding 0 image.")
-            return self.space.sample() * 0
+        assert not np.isnan(np.sum(obs["pov"])), "NAN in observation!"
+        return obs["pov"]
 
     def from_hero(self, obs):
         # process the video frame
@@ -100,6 +64,7 @@ class POVObservation(AgentHandler):
 
     # def __eq__(self, other):
 
+# TODO: Finish implementing GUIContainerObservation
 class GUIContainerObservation(AgentHandler):
     """
     Handles GUI Container Observations.
@@ -204,7 +169,7 @@ class FlatInventoryObservation(AgentHandler):
         pass
         # Flat obs not supported by API for some reason - should be mission_spec.observeFullInventory(flat=True)
 
-    def from_hero(self, obs):
+    def from_hero(self, info):
         """
         Converts the Hero observation into a one-hot of the inventory items
         for a given inventory container. Ignores variant / color
@@ -212,26 +177,27 @@ class FlatInventoryObservation(AgentHandler):
         :return:
         """
         item_dict = self.space.no_op()
-        if 'inventory' in obs:
-            # TODO change to map
-            for stack in obs['inventory']:
-                if 'type' in stack and 'quantity' in stack:
-                    try:
-                        i = self.items.index(stack['type'])
-                        item_dict[stack['type']] += stack['quantity']
-                    except ValueError:
-                        continue
+        # TODO: RE-ADDRESS THIS DUCK TYPED INVENTORY DATA FORMAT WHEN MOVING TO STRONG TYPING
+        for stack in info['inventory']:
+            if 'type' in stack and 'quantity' in stack:
+                type_name = stack['type']
+                if type_name == 'log2':
+                    type_name = 'log'
+                
+                # This sets the nubmer of air to correspond to the number of empty slots :)
+                try:
+                    if type_name == "air":
+                        item_dict[type_name] += 1
+                    else:
+                        item_dict[type_name] += stack["quantity"]
+                except KeyError:
+                    # We only care to observe what was specified in the space.
+                    continue
 
-            #TODO: SUPPORT OTHER
-        else:
-            self.logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
-            self.logger.warning(obs)
-
-        # TODO: ADD LOGG
         return item_dict
 
+
     def from_universal(self, obs):
-        
         item_dict = self.space.no_op()
 
         try:
@@ -252,9 +218,12 @@ class FlatInventoryObservation(AgentHandler):
             # Add from all slots
             for stack in slots:
                 try:
-                    name = strip_item_prefix(stack['name'])
+                    name = mc.strip_item_prefix(stack['name'])
                     name = 'log' if name == 'log2' else name
-                    item_dict[name] += stack['count']
+                    if type_name == "air":
+                            item_dict[type_name] += 1
+                    else:
+                        item_dict[name] += stack['count']
                 except (KeyError, ValueError):
                     continue
 
@@ -300,6 +269,8 @@ class HotbarObservation(GUIContainerObservation):
     def add_to_mission_spec(self, mission_spec):
         mission_spec.observeHotBar()
 
+
+# TODO: Consolidate equipped_item observations!
 class TypeObservation(AgentHandler):
     """
     Returns the item list index  of the tool in the given hand
@@ -348,7 +319,11 @@ class TypeObservation(AgentHandler):
         return 'equipped_items.{}.type'.format(self._hand)
 
     def from_hero(self, obs_dict):
-        return obs_dict['equipped_item']['mainhand']['type']
+        try:
+            item = obs_dict['equipped_item']['mainhand']['type']
+            return (self._other if item not in self._items else item)
+        except KeyError:
+            return self._default
 
     def from_universal(self, obs):
         try:
@@ -419,6 +394,12 @@ class DamageObservation(AgentHandler):
     def to_string(self):
         return 'equipped_items.{}.damage'.format(self._hand)
 
+    def from_hero(self, obs):
+        try:
+            return np.array(info['equipped_items']['mainhand']['currentDamage'])
+        except KeyError:
+            return np.array(self._default, dtype=self.space.dtype)
+
     def from_universal(self, obs):
         try:
             if self._hand == 'mainhand':
@@ -454,7 +435,7 @@ class MaxDamageObservation(AgentHandler):
         """
 
         self._hand = hand
-        self._default = 0  # 'none'
+        self._default = 0 
         super().__init__(spaces.Box(low=-1, high=1562, shape=(), dtype=np.int))
 
     @property
@@ -467,6 +448,12 @@ class MaxDamageObservation(AgentHandler):
 
     def to_string(self):
         return 'equipped_items.{}.maxDamage'.format(self._hand)
+
+    def from_hero(self):
+        try:
+            return np.array(info['equipped_items']['mainhand']['maxDamage'])
+        except KeyError:
+            return np.array(self._default, dtype=self.space.dtype)
 
     def from_universal(self, obs):
         try:
@@ -488,24 +475,6 @@ class MaxDamageObservation(AgentHandler):
         return isinstance(other, self.__class__) and self._hand == other._hand
 
 
-class PlayerInventoryObservation(GUIContainerObservation):
-    """
-    Handles player inventory observations.
-    """
-
-    def to_string(self):
-        return 'normal_inventory'
-
-    def __init__(self):
-        super().__init__("InventorySlot", 41)
-
-    def add_to_mission_spec(self, mission_spec):
-        mission_spec.observeFullInventory()
-
-    def from_universal(self, x):
-        # Todo: Universal
-        pass
-
 
 class CompassObservation(AgentHandler):
     """
@@ -524,22 +493,11 @@ class CompassObservation(AgentHandler):
         mission_spec.observeCompass()
 
     def from_universal(self, obs):
-        if "compass" in obs and "angle" in obs["compass"]:
-            y = np.array(((obs["compass"]["angle"] * 360.0 + 180) % 360.0) - 180)
-            return y
-        else:
-            self.logger.warning("No compass angle found in universal observation! Yielding random angle.")
-            return self.space.sample()
+        y = np.array(((obs["compass"]["angle"] * 360.0 + 180) % 360.0) - 180)
+        return y
 
     def from_hero(self, obs):
-        # TODO np datatype parameter support for compressed replay buffers
-        # process the compass handler
-        if "angle" in obs:
-            t = np.array((obs['angle'] + 0.5) % 1.0);
-            return t
-        else:
-            self.logger.warning("No compass found in observation! Yielding random angle.")
-            return self.space.sample()
+        return np.array((obs['angle'] + 0.5) % 1.0)
 
 
 class CompassDistanceObservation(AgentHandler):
@@ -559,22 +517,14 @@ class CompassDistanceObservation(AgentHandler):
         mission_spec.observeCompass()
 
     def from_universal(self, obs):
-        if "compass" in obs and "distance" in obs["compass"]:
-            return [obs['compass']['distance']]
-        else:
-            self.logger.warning("No compass angle found in universal observation! Yielding random distance.")
-            return self.space.sample()
+        return np.array([obs['compass']['distance']])
 
     def from_hero(self, obs):
-        # process the compass handler
-        if "distance" in obs:
-            return np.array([obs['distance']])
-        else:
-            print(obs)
-            self.logger.warning("No compass found in observation! Yielding random distance.")
-            return self.space.sample()
+        return np.array([obs['distance']])
+       
 
 
+# TODO: UPDATE CHAT OBSERVATION
 class ChatObservation(AgentHandler):
     """
     Handles chat observations.

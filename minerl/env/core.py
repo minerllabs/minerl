@@ -331,82 +331,16 @@ class MineRLEnv(gym.Env):
         else:
             info = {}
 
-
-
-        # Ensure mainhand observations are valid    
-        try:
-            info['equipped_items.mainhand.type'] = info['equipped_items']['mainhand']['type']
-            info['equipped_items.mainhand.damage'] = np.array(info['equipped_items']['mainhand']['currentDamage'])
-            info['equipped_items.mainhand.maxDamage'] = np.array(info['equipped_items']['mainhand']['maxDamage'])
-        except Exception as e:
-            if 'equipped_items' in info:
-                del info['equipped_items']
-
+        
+        info['pov'] = pov
+        
         bottom_env_spec = self.env_spec
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
-
+        
         # TODO (R): Use handlers
-        try:
-            if info['equipped_items.mainhand.type'] not in bottom_env_spec.observation_space.spaces[
-                    'equipped_items.mainhand.type']:
-                    # TODO (R): Switch this to invalid or find a mappe
-                info['equipped_items.mainhand.type'] = "other"  # Todo: use handlers. TODO: USE THEM<
-        except Exception as e:
-            pass
-        # Process Info: (HotFix until updated in Malmo.)
-        if "inventory" in info and "inventory" in bottom_env_spec.observation_space.spaces:
-            inventory_spaces = bottom_env_spec.observation_space.spaces['inventory'].spaces
-
-            items = inventory_spaces.keys()
-            inventory_dict = {k: np.array(0) for k in inventory_spaces}
-            # TODO change to maalmo
-            for stack in info['inventory']:
-                if 'type' in stack and 'quantity' in stack:
-                    type_name = stack['type']
-                    if type_name == 'log2':
-                        type_name = 'log'
-                    
-                    # This sets the nubmer of air to correspond to the number of empty slots :)
-                    try:
-                        if type_name == "air":
-                            inventory_dict[type_name] += 1
-                        else:
-                            inventory_dict[type_name] += stack["quantity"]
-                    except KeyError:
-                        # We only care to observe what was specified in the space.
-                        continue
-                
-            info['inventory'] = inventory_dict
-        elif "inventory" in bottom_env_spec.observation_space.spaces and not "inventory" in info:
-            # logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
-            # logger.warning(info)
-            pass
-
-        info['pov'] = pov
-
-
-        try:
-            info["breath"] = info.pop("Air")
-        except KeyError:
-            pass
-
-        # TODO: Incorporate chagnes which prevent silent failure.
-
-        obs_dict = bottom_env_spec.observation_space.no_op()
-
-        # A function which updates a nested dictionary.
-        def recursive_update(nested_dict, nested_update):
-            for k, v in nested_update.items():
-                if k in nested_dict:
-                    if isinstance(v, collections.Mapping):
-                        r = recursive_update(nested_dict.get(k, {}), v)
-                        nested_dict[k] = r
-                    else:
-                        nested_dict[k] = np.array(v)
-            return nested_dict
-
-        obs_dict = recursive_update(obs_dict, info)
+        for h in bottom_env_spec.observables:
+            obs_dict[h.to_string()] = h.from_hero(info)
 
         # TODO (R): Add achievment handlers.
         # Add Achievements to observation
