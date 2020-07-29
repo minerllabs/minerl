@@ -378,7 +378,11 @@ class DataPipeline:
         """
         # Todo: Not implemented/
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
-            trajectory_queue = queue.Queue(maxsize=preload_buffer_size)
+            # We can't use multiprocessing.Queue as it can't be passed through pipes
+            # and we wish to use concurrent.futures.ProcessPoolExecutor, so we use
+            # multiprocessing.Manager that can create queues that can be passed through pipes.
+            manager = multiprocessing.Manager()
+            trajectory_queue = manager.Queue(maxsize=preload_buffer_size)
 
             def traj_iter():
                 for _ in jobs:
@@ -391,7 +395,7 @@ class DataPipeline:
                         done=d
                     )
 
-            jobs = [(f, -1, None) for f in self._get_all_valid_recordings(self.data_dir)]
+            jobs = [(f, -1, trajectory_queue) for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
             trajectory_loader = minerl.data.util.OrderedJobStreamer(
                 job,
@@ -406,6 +410,7 @@ class DataPipeline:
                 yield seg_batch['obs'], seg_batch['act'], seg_batch['reward'], seg_batch['next_obs'], seg_batch['done']
 
             trajectory_loader.shutdown()
+            del manager
 
     @staticmethod
     def _is_blacklisted(path):
