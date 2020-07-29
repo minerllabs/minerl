@@ -378,9 +378,10 @@ class DataPipeline:
         """
         # Todo: Not implemented/
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
-            # We can't use multiprocessing.Queue as it can't be passed through pipes
-            # and we wish to use concurrent.futures.ProcessPoolExecutor, so we use
-            # multiprocessing.Manager that can create queues that can be passed through pipes.
+            # We can't use multiprocessing.Queue as it can't be passed through
+            # pipes and we wish to use concurrent.futures.ProcessPoolExecutor,
+            # so we use multiprocessing.Manager that can create queues that
+            # can be passed through pipes.
             manager = multiprocessing.Manager()
             trajectory_queue = manager.Queue(maxsize=preload_buffer_size)
 
@@ -395,7 +396,8 @@ class DataPipeline:
                         done=d
                     )
 
-            jobs = [(f, -1, trajectory_queue) for f in self._get_all_valid_recordings(self.data_dir)]
+            jobs = [(f, -1, trajectory_queue)
+                     for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
             trajectory_loader = minerl.data.util.OrderedJobStreamer(
                 job,
