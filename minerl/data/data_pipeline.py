@@ -397,7 +397,7 @@ class DataPipeline:
                     )
 
             jobs = [(f, -1, trajectory_queue)
-                     for f in self._get_all_valid_recordings(self.data_dir)]
+                    for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
             trajectory_loader = minerl.data.util.OrderedJobStreamer(
                 job,
