@@ -344,14 +344,14 @@ class DataPipeline:
             return None
         except WindowsError as e:
             logger.debug("Caught windows error {} - this is expected when closing the data pool".format(e))
-            return None
+            return False
         except FileNotFoundError as e:
             print("File not found!")
             raise e
         except Exception as e:
             logger.error("Exception caught on file \"{}\" by a worker of the data pipeline.".format(file_dir))
             logger.error(repr(e))
-            return None
+            return False
 
     def batch_iter(self,
                    batch_size: int,
@@ -387,14 +387,16 @@ class DataPipeline:
 
             def traj_iter():
                 for _ in jobs:
-                    s, a, r, sp1, d = trajectory_queue.get()
-                    yield dict(
-                        obs=s,
-                        act=a,
-                        reward=r,
-                        next_obs=sp1,
-                        done=d
-                    )
+                    value = trajectory_queue.get()
+                    if value:
+                        s, a, r, sp1, d = value
+                        yield dict(
+                            obs=s,
+                            act=a,
+                            reward=r,
+                            next_obs=sp1,
+                            done=d
+                        )
 
             jobs = [(f, -1, trajectory_queue)
                     for f in self._get_all_valid_recordings(self.data_dir)]
