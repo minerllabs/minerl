@@ -26,6 +26,7 @@ class EnvSpec(abc.ABC):
         self.actionables = self.create_actionables()
         self.rewardables = self.create_rewardables() 
         self.agent_handlers = self.create_agent_handlers()
+        self.agent_start = self.create_agent_start()
 
 
         self.server_initial_conditions = sefl.create_server_initial_conditions()
@@ -49,7 +50,7 @@ class EnvSpec(abc.ABC):
     
     # observables
     @abstractmethod
-    def create_observables(self) -> List[AgentHandler]:
+    def create_observables(self) -> List[Handler]:
         """Specifies all of the observation handlers for the env specification.
         These are used to comprise the observation space.
         """
@@ -57,7 +58,7 @@ class EnvSpec(abc.ABC):
 
     # actionables
     @abstractmethod
-    def create_actionables(self) -> List[AgentHandler]:
+    def create_actionables(self) -> List[Handler]:
         """Specifies all of the action handlers for the env specification.
         These are used to comprise the action space.
         """
@@ -65,15 +66,22 @@ class EnvSpec(abc.ABC):
 
     # rewardables
     @abstractmethod
-    def create_rewardables(self) -> List[AgentHandler]:
+    def create_rewardables(self) -> List[Handler]:
         """Specifies all of the reward handlers for the env specification.
         These are used to comprise the reward and are summed in the gym environment.
         """
         raise NotImplementedError('subclasses must override create_rewardables()!')
 
+    def create_agent_start(self) -> List[Handler]:
+        """Specifies all fo the handlers which constitute the agents initial inventory etc
+        at the beginning of a mission. This can be used for domain randomization
+        as these handlers are reinstantiated on every reset!
+        """
+        raise  NotImplementedError('subclasses must override create_agent_start()!')
+
     
     @abstractmethod
-    def create_agent_handlers(self) -> List[AgentHandler]:
+    def create_agent_handlers(self) -> List[Handler]:
         """Creates all of the agent handlers for an env specificaiton. 
         These generally are used to specify agent specific behaviours that don't
         directly correspond to rewards/actions/observaitons.
@@ -103,12 +111,12 @@ class EnvSpec(abc.ABC):
     
 
     @abstractmethod
-    def create_server_handlers(self) -> List[AgentHandler]:
+    def create_server_handlers(self) -> List[Handler]:
          raise NotImplementedError('subclasses must override create_server_handlers()!')
 
 
     @abstractmethod
-    def create_server_initial_conditions(self) -> List[AgentHandler]:
+    def create_server_initial_conditions(self) -> List[Handler]:
         raise  NotImplementedError('subclasses must override create_server_initial_conditions()!')
 
 

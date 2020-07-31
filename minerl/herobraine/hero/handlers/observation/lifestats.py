@@ -1,10 +1,19 @@
+import jinja2
+from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler, TranslationHandlerGroup
+import minerl.herobraine.hero.mc as mc
+import minerl.herobraine.hero.spaces as spaces
+import numpy as np
 
-# TODO (R): Rename simple observation handler.
 class LifeStatsObservation(KeymapTranslationHandler):
     def __init__(self, hero_keys, univ_keys, space, default_if_missing=None):
         self.hero_keys = hero_keys
         self.univ_keys = univ_keys
         super().__init__(hero_keys=hero_keys, univ_keys=['life_stats'] + univ_keys, space=space, default_if_missing=default_if_missing)
+
+
+    def xml_template(self) -> jinja2.Template:
+        return jinja2.Template("""<ObservationFromFullStats/>""")
+
 
 class _LifeObservation(LifeStatsObservation):
     """
@@ -74,7 +83,7 @@ class _BreathObservation(LifeStatsObservation):
 
 
 
-class ObservationFromFullStats(TranslationHandlerGroup, SimpleXMLElementMixin):
+class ObservationFromFullStats(TranslationHandlerGroup):
     """Groups all of thhe lifestats observations together to correspond to one XML element.."""
     def __init__(self):
         super(ObservationFromFullStats, self).__init__(
@@ -88,9 +97,8 @@ class ObservationFromFullStats(TranslationHandlerGroup, SimpleXMLElementMixin):
             ]
         )
 
-    @property
-    def xml_element(self):
-        return "ObservationFromFullStats"
+    def xml_template(self) -> jinja2.Template:
+        return jinja2.Template("""<ObservationFromFullStats/>""")
 
 
 

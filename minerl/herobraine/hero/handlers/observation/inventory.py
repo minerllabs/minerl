@@ -1,4 +1,6 @@
 import logging
+
+import jinja2
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 import numpy as np
 from minerl.herobraine.hero import spaces
@@ -13,8 +15,11 @@ class FlatInventoryObservation(TranslationHandler):
     def to_string(self):
         return 'inventory'
 
-    def to_hero(self, x) -> str:
-        raise NotImplementedError('FlatInventoryObservation must implement to_hero')
+    
+    def xml_template(self) -> jinja2.Template:
+        return jinja2.Template(
+            """<ObservationFromFullInventory flat="false"/>""")
+
 
     logger = logging.getLogger(__name__ + ".FlatInventoryObservation")
 

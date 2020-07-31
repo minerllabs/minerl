@@ -27,9 +27,14 @@
         <Name>MalmoTutorialBot</Name>
 
          {#  TODO (R): Enable multiagent starts.. #} 
-        <AgentStart/>
+        <AgentStart>
+            {{% for a in agent_start %}}
+                {{ a.xml() }}
+            {{% endfor %}}
+        </AgentStart>
         <AgentHandlers>
             <FileBasedPerformanceProducer/>
+            <PauseCommand/>
 
             <!--  Observations     -->
             {{% for o in observables %}}
