@@ -462,20 +462,19 @@ KEYMAP = {
     '29': 'sprint',
     '-100': 'attack',  # BUTTON0 Left Click
     '-99': 'use',  # BUTTON1 Right Click
-    '-98': 'pick',  # BUTTON2 Middle Click
-    '20': 'chat',  # This and following not currently in use
-    '33': 'swapHands',
-    '15': 'playerlist',  # Show player list gui
-    '53': 'command',  # Start typing server cmd
-    '60': 'screenshot',
-    '63': 'togglePerspective',
-    '87': 'fullscreen',
-    '46': 'saveToolbarActivator',
-    '45': 'loadToolbarActivator',
-    '38': 'advancements',
+    '-98': 'pickItem',  # BUTTON2 Middle Click
+    # '20': 'chat',  # This and following not currently in use
+    # '33': 'swapHands',
+    # '15': 'playerlist',  # Show player list gui
+    # '53': 'command',  # Start typing server cmd
+    # '60': 'screenshot',
+    # '63': 'togglePerspective',
+    # '87': 'fullscreen',
+    # '46': 'saveToolbarActivator',
+    # '45': 'loadToolbarActivator',
+    # '38': 'advancements',
 }
 
-# TODO: Decide if we want to add these?
 KEYMAP.update({str(x + 1): str(x) for x in range(1, 10)})
 
 # TODO: add all other keys.

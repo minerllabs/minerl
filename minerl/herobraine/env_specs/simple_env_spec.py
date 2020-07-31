@@ -1,5 +1,6 @@
 import abc
 from abc import ABC
+from minerl.herobraine.hero.handler import Handler
 
 import minerl
 
@@ -25,7 +26,7 @@ class SimpleEnvSpec(EnvSpec, ABC):
         "attack"
     ]
 
-    def __init__(self, name, xml, *args, resolution=(64,64),  **kwargs):
+    def __init__(self, name, xml, *args, resolution=(64,64), **kwargs):
         self.resolution = resolution
         super().__init__(name, xml, *args, **kwargs)
 
@@ -33,7 +34,7 @@ class SimpleEnvSpec(EnvSpec, ABC):
         return [
             handlers.POVObservation(self.resolution)
         ]
-
+    
     def create_actionables(self) -> List[minerl.herobraine.hero.AgentHandler]:
         """
         Simple envs have some basic keyboard control functionality, but
