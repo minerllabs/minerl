@@ -666,7 +666,7 @@ class InstanceManager:
             if self.status_dir:
                 cmd += ['-performanceDir', self.status_dir]
             if self._seed:
-                cmd += ['-seed', ",".join(self._seed)]
+                cmd += ['-seed', ",".join([str(x) for x in self._seed])]
 
             cmd_to_print = cmd[:] if not self._seed else cmd[:-2]
             self._logger.info("Starting Minecraft process: " + str(cmd_to_print))
