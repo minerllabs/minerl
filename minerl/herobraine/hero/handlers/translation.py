@@ -47,7 +47,8 @@ class KeymapTranslationHandler(TranslationHandler):
     def __init__(self, 
         hero_keys: typing.List[str], 
         univ_keys: typing.List[str], 
-        space: MineRLSpace, default_if_missing=None):
+        space: MineRLSpace, default_if_missing=None,
+        to_string : str = None):
         """
         Wrapper for simple observations which just remaps keys.
         :param keys: list of nested dictionary keys from the root of the observation dict
@@ -59,6 +60,7 @@ class KeymapTranslationHandler(TranslationHandler):
         self.univ_keys = univ_keys
         self.default_if_missing = default_if_missing
         self.logger = logging.getLogger(f'{__name__}.{self.to_string()}')
+        self._to_string = to_string if to_string else hero_keys[-1]
 
     def walk_dict(self, d, keys):
         for key in keys:
@@ -87,13 +89,8 @@ class KeymapTranslationHandler(TranslationHandler):
         return self.walk_dict(univ_dict, self.univ_keys)
     
     def to_string(self) -> str:
-        return self.hero_keys[-1]
+        return self._to_string
     
-
-
-
-
-# TODO: This likely will be deprecated.
 class TranslationHandlerGroup(TranslationHandler):
     """Combines several space handlers into a single handler group.
     """
@@ -129,6 +126,27 @@ class TranslationHandlerGroup(TranslationHandler):
             s : self.handler_dict[s].from_universal(x)
             for s in self.handler_dict
         }
+
+    def __eq__(self, other):
+        return (
+            super().__eq__(other) 
+            and isinstance(other, TranslationHandlerGroup)
+            and self.handler_dict == other.handler_dict
+        )
+
+    def __or__(self, other):
+        
+        """Overloads | (binary or) operator. 
+        Joins the two handler groups by matching all keys 
+        and combining their translation dictionaries."""
+        
+        assert self.to_string() == other.to_string()
+        assert set(self.handler_dict.keys()) == set(other.handler_dict.keys())
+        return TranslationHandlerGroup(
+            [self.handler_dict[k] | other.handler_dict[k] 
+                for k in self.handler_dict.keys()]
+        )
+
 
 
 

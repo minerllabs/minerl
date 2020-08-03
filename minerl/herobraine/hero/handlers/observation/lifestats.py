@@ -4,6 +4,30 @@ import minerl.herobraine.hero.mc as mc
 import minerl.herobraine.hero.spaces as spaces
 import numpy as np
 
+
+__all__ = ['ObservationFromFullStats']
+
+
+class ObservationFromFullStats(TranslationHandlerGroup):
+    """Groups all of thhe lifestats observations together to correspond to one XML element.."""
+    def __init__(self):
+        super(ObservationFromFullStats, self).__init__(
+            handlers=[
+                _LifeObservation(),
+                _ScoreObservation(),
+                _FoodObservation(),
+                _SaturationObservation(),
+                _XPObservation(),
+                _BreathObservation(),
+            ]
+        )
+
+    def xml_template(self) -> jinja2.Template:
+        return jinja2.Template("""<ObservationFromFullStats/>""")
+
+
+
+
 class LifeStatsObservation(KeymapTranslationHandler):
     def __init__(self, hero_keys, univ_keys, space, default_if_missing=None):
         self.hero_keys = hero_keys
@@ -80,25 +104,6 @@ class _BreathObservation(LifeStatsObservation):
     def __init__(self):
         super().__init__(hero_keys=['breath'], univ_keys=['air'], space=spaces.Box(low=0, high=mc.MAX_BREATH, shape=(),
                          dtype=np.int), default_if_missing=300)
-
-
-
-class ObservationFromFullStats(TranslationHandlerGroup):
-    """Groups all of thhe lifestats observations together to correspond to one XML element.."""
-    def __init__(self):
-        super(ObservationFromFullStats, self).__init__(
-            handlers=[
-                _LifeObservation(),
-                _ScoreObservation(),
-                _FoodObservation(),
-                _SaturationObservation(),
-                _XPObservation(),
-                _BreathObservation(),
-            ]
-        )
-
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("""<ObservationFromFullStats/>""")
 
 
 
