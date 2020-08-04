@@ -378,14 +378,6 @@ class DataPipeline:
             Generator: A generator that yields (sarsd) batches
         """
         # Todo: Not implemented/
-        def loader_func(input_queue, output_queue):
-            while True:
-                arg = input_queue.get()
-                if arg[0] == "SHUTDOWN":
-                    break
-                output = DataPipeline._load_data_pyfunc(*arg)
-                output_queue.put(output)
-
         input_queue = multiprocessing.Queue()
         trajectory_queue = multiprocessing.Queue(maxsize=preload_buffer_size)
 
@@ -501,5 +493,10 @@ class DataPipeline:
             "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
 
-def job(arg):
-    return DataPipeline._load_data_pyfunc(*arg)
+def loader_func(input_queue, output_queue):
+    while True:
+        arg = input_queue.get()
+        if arg[0] == "SHUTDOWN":
+            break
+        output = DataPipeline._load_data_pyfunc(*arg)
+        output_queue.put(output)
