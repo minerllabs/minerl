@@ -201,13 +201,12 @@ class OrderedJobStreamer(threading.Thread):
                     raise future.exception()
                 res = future.result()
 
-                if res is not None:
-                    while not self._should_exit:
-                        try:
-                            self.output_queue.put(res, block=True, timeout=1)
-                            break
-                        except queue.Full:
-                            pass
+                while not self._should_exit:
+                    try:
+                        self.output_queue.put(res, block=True, timeout=1)
+                        break
+                    except queue.Full:
+                        pass
                         
             return
         except Exception:

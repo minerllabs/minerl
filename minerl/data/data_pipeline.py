@@ -3,6 +3,7 @@ import functools
 import json
 import logging
 import multiprocessing
+from multiprocessing import Process
 import os
 import time
 from collections import OrderedDict
@@ -344,14 +345,14 @@ class DataPipeline:
             return None
         except WindowsError as e:
             logger.debug("Caught windows error {} - this is expected when closing the data pool".format(e))
-            return False
+            return None
         except FileNotFoundError as e:
             print("File not found!")
             raise e
         except Exception as e:
             logger.error("Exception caught on file \"{}\" by a worker of the data pipeline.".format(file_dir))
             logger.error(repr(e))
-            return False
+            return None
 
     def batch_iter(self,
                    batch_size: int,
@@ -377,44 +378,50 @@ class DataPipeline:
             Generator: A generator that yields (sarsd) batches
         """
         # Todo: Not implemented/
+        def loader_func(input_queue, output_queue):
+            while True:
+                arg = input_queue.get()
+                if arg[0] == "SHUTDOWN":
+                    break
+                output = DataPipeline._load_data_pyfunc(*arg)
+                output_queue.put(output)
+
+        input_queue = multiprocessing.Queue()
+        trajectory_queue = multiprocessing.Queue(maxsize=preload_buffer_size)
+
+        workers = []
+        args = (input_queue, trajectory_queue)
+        for _ in range(self.number_of_workers):
+            workers.append(Process(target=loader_func, args=args))
+            workers[-1].start()
+
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
-            # We can't use multiprocessing.Queue as it can't be passed through
-            # pipes and we wish to use concurrent.futures.ProcessPoolExecutor,
-            # so we use multiprocessing.Manager that can create queues that
-            # can be passed through pipes.
-            manager = multiprocessing.Manager()
-            trajectory_queue = manager.Queue(maxsize=preload_buffer_size)
 
             def traj_iter():
                 for _ in jobs:
-                    value = trajectory_queue.get()
-                    if value:
-                        s, a, r, sp1, d = value
-                        yield dict(
-                            obs=s,
-                            act=a,
-                            reward=r,
-                            next_obs=sp1,
-                            done=d
-                        )
+                    s, a, r, sp1, d = trajectory_queue.get()
+                    yield dict(
+                        obs=s,
+                        act=a,
+                        reward=r,
+                        next_obs=sp1,
+                        done=d
+                    )
 
-            jobs = [(f, -1, trajectory_queue)
+            jobs = [(f, -1, None)
                     for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
-            trajectory_loader = minerl.data.util.OrderedJobStreamer(
-                job,
-                jobs,
-                trajectory_queue,
-                # executor=concurrent.futures.ThreadPoolExecutor,
-                max_workers=preload_buffer_size
-            )
-            trajectory_loader.start()
+            for job in jobs:
+                input_queue.put(job)
 
             for seg_batch in minibatch_gen(traj_iter(), batch_size=batch_size, nsteps=seq_len):
                 yield seg_batch['obs'], seg_batch['act'], seg_batch['reward'], seg_batch['next_obs'], seg_batch['done']
 
-            trajectory_loader.shutdown()
-            del manager
+        for _ in range(self.number_of_workers):
+            input_queue.put(("SHUTDOWN",))
+
+        for w in workers:
+            w.join()
 
     @staticmethod
     def _is_blacklisted(path):
