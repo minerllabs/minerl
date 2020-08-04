@@ -25,7 +25,9 @@ class Handler(ABC):
         """
         raise NotImplementedError()
 
-    @abstractmethod
+    # @abstractmethod #TODO: This should be abstract per convention
+    # but this strict handler -> xml enforcement will happen
+    # with a pyxb update.
     def xml_template(self) -> jinja2.Template:
         """Generates an XML representation of the handler.
 
@@ -54,9 +56,9 @@ class Handler(ABC):
         Checks to see if self and other have the same to_string
         and if so returns self, otherwise raises an exception.
         """
-        if self.to_string() == other.to_string():
-            return self
-        raise Exception("Incompatible handlers!")
+        assert self.to_string() == other.to_string(), (
+            "Incompatible handlers: {self} and {other}".format(**locals()))
+        return self
 
 
     def __eq__(self, other):

@@ -1,8 +1,8 @@
 from abc import abstractmethod
+from minerl.herobraine.hero.handler import Handler
 from typing import List
 
 import jinja2
-from minerl.herobraine.hero.agent_handler import AgentHandler
 from minerl.env.spaces import Dict
 # import minerl.env.spaces as spaces
 import gym
@@ -28,8 +28,8 @@ class EnvSpec(abc.ABC):
         self.agent_handlers = self.create_agent_handlers()
         self.agent_start = self.create_agent_start()
 
-
-        self.server_initial_conditions = sefl.create_server_initial_conditions()
+       
+        self.server_initial_conditions = self.create_server_initial_conditions()
         self.server_handlers = self.create_server_handlers()
 
         # self.monitors = []
