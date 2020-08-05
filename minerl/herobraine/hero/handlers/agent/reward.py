@@ -1,7 +1,50 @@
 
+from minerl.herobraine.hero.spaces import Box
+from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
 import jinja2
 from typing import List,Dict,Union
+import numpy as np
+
+
+class RewardHandler(TranslationHandler):
+    """
+    Specifies a reward handler for a task.
+    These need to be attached to tasks with reinforcement learning objectives.
+    All rewards need inherit from this reward handler
+    #Todo: Figure out how this interplays with Hero, as rewards are summed.
+    """
+
+    def __init__(self):
+        super().__init__(Box(-np.inf, np.inf, shape=()))
+
+    def from_hero(self, obs_dict):
+        """
+        By default hero will include the reward in the observation.
+        This is just a pass through for convenience.
+        :param obs_dict:
+        :return: The reward
+        """
+        return obs_dict["reward"]
+
+
+
+class ConstantReward(RewardHandler):
+    """
+    A constant reward handler
+    """
+
+    def __init__(self, constant):
+        super().__init__()
+        self.constant = constant
+
+    def from_hero(self, obs_dict):
+        return self.constant
+
+    def from_universal(self, x):
+        return self.constant
+
+
 
 # <RewardForPossessingItem sparse="true">
     # <Item amount="1" reward="1" type="log" />
@@ -95,3 +138,70 @@ class RewardForDistanceTraveledToCompassTarget(Handler):
         """Creates a reward which is awarded when the player reaches a certain distance from a target."""
         self.reward_per_block = reward_per_block
         self.density = density
+
+
+# Reward for crafting item.
+
+class RewardForCraftingItem(RewardHandler):
+    """
+    Reward a player for crafting an item - currently crafting is tracked via slot clicks
+    """
+    item_dict = {}
+
+    def __init__(self, item_dict):
+        """
+        Adds a reward for collecting a certain set of items.
+        :param item_name: The name
+        :param reward: The reward
+        :param args: So on and so forth.
+        """
+        super().__init__()
+
+        self.reward_dict = item_dict
+        self.prev_container = None
+        self.skip_next = False
+
+    def add_to_mission_xml(self, etree: Element, namespace: str):
+        """
+        Adds the following to the mission xml
+           <RewardForCollectingItem>
+            <Item  reward="1" type="log" />
+          </RewardForCollectingItem>
+        :param etree:
+        :param namespace:
+        :return:
+        """
+        child = Element("RewardForCraftingItem")
+        for item, reward in self.reward_dict.items():
+            item_eml = Element("Item")
+            item_eml.set("reward", str(reward))
+            item_eml.set("type", item)
+            child.append(item_eml)
+
+        for agenthandlers in etree.iter('{{{}}}AgentHandlers'.format(namespace)):
+            agenthandlers.append(child)
+        super().add_to_mission_xml(etree, namespace)
+
+    def from_universal(self, obs):
+        try:
+            if self.prev_container is not None and obs['slots']['gui']['type'] != self.prev_container:
+                self.skip_next = True
+                return 0
+            elif self.skip_next:
+                self.skip_next = False
+                return 0
+            elif 'diff' in obs and 'crafted' in obs['diff']:
+                for crafted in obs['diff']['crafted']:
+                    item_name = strip_of_prefix(crafted['name'])
+                    if item_name in self.item_dict:
+                        return self.item_dict[item_name]
+            return 0
+        finally:
+            try:
+                self.prev_container = obs['slots']['gui']['type']
+            except KeyError:
+                self.prev_container = None
+
+    def reset(self):
+        self.skip_next = False
+        self.prev_container = None

@@ -5,6 +5,7 @@ import jinja2
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler
 from minerl.herobraine.hero import spaces
 from typing import Tuple
+import numpy as np
 
 
 class POVObservation(KeymapTranslationHandler):

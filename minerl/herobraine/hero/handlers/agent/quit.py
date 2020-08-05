@@ -1,43 +1,6 @@
-
-#  <RewardForTouchingBlockType>
-#     <Block reward="100.0" type="diamond_block" behaviour="onceOnly"/>
-#     <Block reward="189.0" type="diamond_block" behaviour="onceOnly"/>
-# </RewardForTouchingBlockType>
-class RewardForTouchingBlockType(Handler):
-    def to_string(self) -> str:
-        return "reward_for_touching_block_type"
-
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
-            """<RewardForTouchingBlockType>
-                    {% for block in blocks %}
-                    <Block reward="{{ block.reward }}" type="{{ block.type }}" behaviour="{{ block.behaviour }}" />
-                    {% endfor %}
-                </RewardForTouchingBlockType>"""
-        )
-
-    def __init__(self, blocks : List[Dict[str, Union[str, int]]]):
-        """Creates a reward which is awarded when the player touches a block."""
-        self.blocks = blocks
-        # Assert all blocks have the appropriate fields for the XML template.
-        for block in self.blocks:
-            assert set(block.keys()) == {"reward", "type", "behaviour"}
-
-
-# <RewardForDistanceTraveledToCompassTarget rewardPerBlock="1" density="PER_TICK"/>
-class RewardForDistanceTraveledToCompassTarget(Handler):
-    def to_string(self) -> str:
-        return "reward_for_distance_traveled_to_compass_target"
-
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
-            """<RewardForDistanceTraveledToCompassTarget rewardPerBlock="{{ rewardPerBlock }}" density="{{ density }}"/>"""
-        )
-
-    def __init__(self, reward_per_block : int, density : str):
-        """Creates a reward which is awarded when the player reaches a certain distance from a target."""
-        self.reward_per_block = reward_per_block
-        self.density = density
+from minerl.herobraine.hero.handler import Handler
+import jinja2
+from typing import List, Dict, Union
 
 
 #  <AgentQuitFromTouchingBlockType>
