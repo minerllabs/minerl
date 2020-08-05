@@ -353,6 +353,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
             if 'Survival' not in environment.name and not isinstance(environment, Obfuscated):
                 # TODO these could be handlers instead!
                 if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name \
+                        and ('SimonSays' not in environment.name) \
                         or sum(published['reward']) < 64 and ('Obtain' not in environment.name) \
                         or sum(published['reward']) == 0.0 \
                         or sum(published['action$forward']) == 0 \

@@ -163,7 +163,6 @@ class DataPipeline:
             if ret:
                 cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
                 frame = np.asarray(np.clip(frame, 0, 255), dtype=np.uint8)
-
             return ret, frame
         except Exception as err:
             logger.error("error reading capture device:", err)
@@ -197,7 +196,6 @@ class DataPipeline:
         :return:
         """
         logger.debug("Loading from file {}".format(file_dir))
-
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
         numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
         meta_path = str(os.path.join(file_dir, 'metadata.json'))

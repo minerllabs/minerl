@@ -4,7 +4,6 @@ import os
 import gym
 import minerl
 
-
 def main(): 
     """
     Tests importing of gym envs

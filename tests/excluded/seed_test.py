@@ -1,4 +1,3 @@
-# Simple env test.
 import json
 import select
 import time

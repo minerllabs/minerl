@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com">
+    <About>
+        <Summary>{{name}}</Summary>
+    </About>
+
+    <ModSettings>
+        <MsPerTick>50</MsPerTick>
+    </ModSettings>
+
+    <ServerSection>
+        <ServerInitialConditions>
+            <!-- Initial Conditions -->
+            {{% for cond in server_initial_conditions %}}
+                {{cond.xml()}}
+            {{% endfor %}}
+            
+        </ServerInitialConditions>
+        <ServerHandlers>
+            {{% for handler in server_handlers %}}
+                {{handler.xml()}}
+            {{% endfor %}}
+        </ServerHandlers>
+    </ServerSection>
+
+
+    {#  TODO (R): Convert for multiagent. #} 
+    <AgentSection mode="Survival">
+        <Name>MineRL Agent</Name>
+
+         {#  TODO (R): Enable multiagent starts.. #} 
+        <AgentStart>
+            {{% for a in agent_start %}}
+                {{ a.xml() }}
+            {{% endfor %}}
+        </AgentStart>
+        <AgentHandlers>
+            <!-- These area  bit of boilerplate that
+             we always expect to be included ... -->
+            <FileBasedPerformanceProducer/>
+            <PauseCommand/>
+
+            <!--  Observations     -->
+            {{% for o in observables %}}
+               {{ o.xml() }}
+            {{% endfor %}}
+
+            <!--  Actions   -->
+            {{% for a in actionables %}}
+                {{ a.xml() }}
+            {{% endfor %}}
+
+            <!--  Rewards   -->
+            {{% for r in rewardables %}}
+                {{r.xml() }}
+            {{% endfor %}}
+
+            <!-- Additional Agent Handlers like quitting -->
+            {{% for m in agent_handlers %}}
+                {{ m.xml() }}
+            {{% endfor %}}
+
+            <!-- Env Monitors? -->
+            {# {{% for m in monitors %}} }
+                {{ m.xml() }}
+            {{% endfor %}} #}
+        </AgentHandlers>
+    </AgentSection>
+</Mission>

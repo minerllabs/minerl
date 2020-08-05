@@ -1,3 +1,0 @@
-[submodule "minerl/env/Malmo"]
-	path = minerl/env/Malmo
-	url = https://github.com/cmu-rl/Malmo.git

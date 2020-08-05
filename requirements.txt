@@ -1,6 +1,6 @@
 gym>=0.13.1
 opencv-python>=4.1.0.25
-setuptools>=40.6.2
+setuptools>=49.2.0
 tqdm>=4.32.2
 numpy>=1.16.2
 requests>=2.20.0
@@ -13,3 +13,7 @@ getch>=1.0; sys_platform != 'win32' and sys_platform != 'cygwin'
 coloredlogs>=10.0
 matplotlib==3.0.3
 dill>=0.3.1.1
+daemoniker>=0.2.3
+xmltodict==0.12.0
+inflection>=0.3.1
+jinja2>=2.11.2

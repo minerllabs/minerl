@@ -1,4 +1,5 @@
 import os
+import sys
 from os.path import isdir
 
 import subprocess
@@ -6,89 +7,128 @@ import pathlib
 import setuptools
 from setuptools.command.develop import develop
 from setuptools.command.install import install
+from setuptools.command.install_lib import install_lib
+from distutils.command.build import build
+
+from setuptools.dist import Distribution
+import shutil
 
 with open("README.md", "r") as fh:
     markdown = fh.read()
 with open("requirements.txt", "r") as fh:
     requirements = fh.read()
 
-malmo_branch="minerl"
-malmo_version="0.37.0"
+MALMO_BRANCH="minerl"
+MALMO_VERSION="0.37.0"
+MALMO_DIR = os.path.join(os.path.dirname(__file__), 'minerl', 'Malmo')
+BINARIES_IGNORE = shutil.ignore_patterns(
+    'build', 
+    'bin', 
+    'dists', 
+    'caches', 
+    'native',
+    '.git', 
+    'doc', 
+    '*.lock',
+    '.gradle',
+    '.minecraftserver',
+    '.minecraft')
+# TODO: THIS IS NOT ACTUALLY IGNORING THE GRADLE.
 
-# First download and build Malmo!
-# We need to assert that Malmo is in the script directory. There HAS to be a better way to do this.
-
-malmo_dir = os.path.join(os.path.dirname(__file__), 'minerl', 'env', 'Malmo')
+# TODO: Potentially add locks to the binary ignores.
 
 
-def download(branch=malmo_branch, build=False, installdir=malmo_dir):
-    """Download Malmo from github and build (by default) the Minecraft Mod.
-    Args:
-        branch: optional branch to clone. TODO Default is release version.
-        build: build the Mod unless build arg is given as False.
-        installdir: the install dir name. Defaults to MalmoPlatform.
-    Returns:
-        The path for the Malmo Minecraft mod.
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+    # @minecraft_build
+    class bdist_wheel(_bdist_wheel):
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            self.root_is_pure = False
+
+except ImportError:
+    bdist_wheel = None
+
+
+# https://github.com/chinmayshah99/PyDP/commit/2ddbf849a749adad5d5db10d4d7e3479567087f3
+# Bug here https://github.com/python/cpython/blob/28ab3ce92402d86aa400960d38f0d69f498bb677/Lib/distutils/command/install.py#L335
+# Original fix proposed here: https://github.com/google/or-tools/issues/616
+class BinaryDistribution(Distribution):
+    """This class is needed in order to create OS specific wheels."""
+    def has_ext_modules(self):
+        return True
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+class InstallPlatlib(install):
+    def finalize_options(self):
+        install.finalize_options(self)
+        # Hmm so this is  wierd. When is has_ext_modules tru?
+        if self.distribution.has_ext_modules():
+            self.install_lib = self.install_platlib
+
+
+class InstallWithMinecraftLib(install_lib):
+    """Overrides the build command in install lib to build the minecraft library
+    and place it in the build directory.
     """
-    if branch is None:
-        branch = malmo_branch
+    def build(self):
+        super().build()
+        # Install Minecraft to the build directory. Let's first print it.
+        build_minecraft(MALMO_DIR, os.path.join(
+            self.build_dir, 'minerl', 'Malmo'
+        ))
+        # TODO (R): Build the parser [not necessary at the moment]
 
-    # Check to see if the minerlENV is set up yet.
-    assert os.path.exists(os.path.join(malmo_dir, 'Minecraft')), "Did you initialize the submodules."
-    build = build or not os.path.exists(os.path.join(malmo_dir, 'Minecraft', 'build'))
-    return setup(build=build, installdir=installdir)
+class CustomBuild(build):
+    def run(self):
+        super().run()
+        build_minecraft(MALMO_DIR, os.path.join(
+            self.build_lib, 'minerl', 'Malmo'
+        ))
+        
 
-def setup(build=True, installdir=malmo_dir):
+def build_minecraft(source_dir, build_dir):
     """Set up Minecraft for use with the MalmoEnv gym environment"""
+    print("building Minecraft from  %s, build dir: %s" % (source_dir, build_dir))
 
-    gradlew = './gradlew'
-    if os.name == 'nt':
-        gradlew = 'gradlew.bat'
+    # 1. Copy the source dir to the build directory if they are not equivalent
+    if source_dir != build_dir:
+        print("copying source dir")
+        if os.path.exists(build_dir):
+            shutil.rmtree(build_dir)
+        shutil.copytree(source_dir, build_dir, 
+            ignore=BINARIES_IGNORE
+        ) 
 
+    gradlew =  'gradlew.bat' if os.name == 'nt' else './gradlew'
+    
+    # TODO: Remove the change directoty.
+    # 2. Change to the directory and build it; perhaps it need live inside of MineRL
     cwd = os.getcwd()
-    os.chdir(installdir)
-    os.chdir("Minecraft")
+    # change to join of build dir and 'Minecraft'
+    os.chdir(os.path.join(build_dir, 'Minecraft'))
     try:
         # Create the version properties file.
-        pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(malmo_version))
+        pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(MALMO_VERSION))
         minecraft_dir = os.getcwd()
+        print("CALLING SETUP.")
+        os.environ['GRADLE_USER_HOME'] = os.path.join(minecraft_dir, 'run')
+        subprocess.check_call('{} -g run/gradle shadowJar'.format(gradlew).split(' '))
+
+        # Now delete all the *.lock files recursively  in the Minecraft_dir. Should be platform agnostic.
+        for root, dirs, files in os.walk(minecraft_dir):
+            for lockfile in files:
+                if lockfile.endswith('.lock'):
+                    print("Deleting %s" % (lockfile))
+                    os.remove(os.path.join(root, lockfile))
     finally:
         os.chdir(cwd)
-    return minecraft_dir
-
-
-download()
-
-def package_files(directory):
-    paths = []
-    for (path, directories, filenames) in os.walk(directory):
-
-        # if not ("Malmo/Malmo" in path): print(path)
-        if (
-            not ".git" in path 
-            and not "Malmo/Malmo" in path
-            and not ".minecraft" in path
-            and not ".minecraftserver" in path
-            and not "Malmo/doc" in path
-            and not "Malmo/test" in path
-            and not "Malmo/MalmoEnv" in path
-            and not "Malmo/ALE_ROMS" in path
-            and not "Malmo/scripts" in path):
-            
-            paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
-
-    return paths
-
-
-data_files = []
-data_files += package_files('minerl/env/missions')
-data_files += package_files('minerl/herobraine/env_specs')
-data_files += package_files('minerl/data/assets')
-
+    return build_dir
 
 setuptools.setup(
       name='minerl',
-      version='0.3.6',
+      version=os.environ.get('MINERL_BUILD_VERSION','0.3.7'),
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
@@ -102,6 +142,16 @@ setuptools.setup(
                  "Operating System :: OS Independent",
             ],
     install_requires=requirements,
-     data_files=data_files,
-     include_package_data=True,
+    distclass=BinaryDistribution,
+    include_package_data=True,
+    cmdclass={
+        'bdist_wheel': bdist_wheel,
+        'install': InstallPlatlib,
+        'install_lib': InstallWithMinecraftLib,
+        'build_malmo': CustomBuild},
 )
+
+# global-exclude .git/*
+# global-exclude  build/ bin/ dists/ caches/  native/ doc/ *.lock 
+# global-exclude  *.gradle/* *.minecraft/ *.minecraftserver/
+# global-exclude  *.fuse_hidden*

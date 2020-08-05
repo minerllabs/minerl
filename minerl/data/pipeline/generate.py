@@ -24,8 +24,7 @@ import traceback
 #######################
 ### UTILITIES
 #######################
-from minerl.data.util import Blacklist
-from minerl.data.util.constants import (
+from minerl_data.util.constants import (
     J, E,
     EXP_MIN_LEN_TICKS,
     OUTPUT_DIR as WORKING_DIR,
@@ -41,8 +40,6 @@ from minerl.data.util.constants import (
     remove,
     ThreadManager
 )
-
-black_list = Blacklist()
 
 
 def format_seconds(ticks):
@@ -79,9 +76,9 @@ def add_key_frames(inputPath, segments):
         FAILED_COMMANDS.append(split_cmd)
 
 
-def extract_subclip(input_path, start_tick, stop_tick, output_name):
+def extract_subclip(inputPath, start_tick, stop_tick, output_name):
     split_cmd = ['ffmpeg', '-ss', format_seconds(start_tick), '-i',
-                 J(input_path, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
+                 J(inputPath, 'keyframes_recording.mp4'), '-t', format_seconds(stop_tick - start_tick),
                  '-vcodec', 'copy', '-acodec', 'copy', '-y', output_name]
     # print('Running: ' + ' '.join(split_cmd))
     try:
@@ -92,17 +89,17 @@ def extract_subclip(input_path, start_tick, stop_tick, output_name):
         FAILED_COMMANDS.append(split_cmd)
 
 
-def parse_metadata(start_marker, stop_marker):
+def parse_metadata(startMarker, stopMarker):
     try:
         metadata = {}
-        startMeta = start_marker['value']['metadata']
-        endMeta = stop_marker['value']['metadata']
-        metadata['start_position'] = start_marker['value']['position']
-        metadata['end_position'] = stop_marker['value']['position']
+        startMeta = startMarker['value']['metadata']
+        endMeta = stopMarker['value']['metadata']
+        metadata['start_position'] = startMarker['value']['position']
+        metadata['end_position'] = stopMarker['value']['position']
         metadata['start_tick'] = startMeta['tick'] if 'tick' in startMeta else None
         metadata['end_tick'] = endMeta['tick'] if 'tick' in endMeta else None
-        metadata['start_time'] = start_marker['realTimestamp']
-        metadata['end_time'] = stop_marker['realTimestamp']
+        metadata['start_time'] = startMarker['realTimestamp']
+        metadata['end_time'] = stopMarker['realTimestamp']
 
         # Recording the string sent to us by Minecraft server including experiment specific data like if we won or not
         metadata['server_info_str'] = endMeta['expMetadata']
@@ -141,13 +138,12 @@ def construct_data_dirs(blacklist):
 
     render_dirs = []
     for filename in tqdm.tqdm(next(os.walk(RENDER_DIR))[1]):
-        if filename not in black_list:
-            render_path = J(RENDER_DIR, filename)
+        render_path = J(RENDER_DIR, filename)
 
-            if not E(render_path):
-                continue
+        if not E(render_path):
+            continue
 
-            render_dirs.append((filename, render_path))
+        render_dirs.append((filename, render_path))
 
     return render_dirs
 
@@ -169,7 +165,6 @@ def get_metadata(renders: list) -> list:
                 good_renders.append((recording_name, render_path))
             else:
                 bad_renders.append((recording_name, render_path))
-                black_list.add(recording_name)
 
     return good_renders, bad_renders
 
@@ -232,6 +227,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
     for key, marker in sorted(markers.items()):
         expName = ""
+        missing_metatata = False
         # Get experiment name (its a malformed json so we have to look it up by hand)
         if 'value' in marker and 'metadata' in marker['value'] and 'expMetadata' in marker['value']['metadata']:
             meta = marker['value']['metadata']
@@ -356,12 +352,23 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                     except KeyError:
                         pass
 
+                def simon_finished(tick):
+                    try:
+                        return 'success' in tick['simon_says']
+                    except KeyError:
+                        pass
+                    return False
+
+                def simon_adjust(univ, t):
+                    pass
+
                 finish_conditions = {
                     'survivaltreechop': (treechop_finished, treechop_adjust),
                     'o_iron': (o_iron_finished, o_iron_adjust),
                     'o_dia': (o_dia_finished, o_dia_adjust),
                     'navigate': (nav_finished, nav_adjust),
-                    'navigateextreme': (nav_finished, nav_adjust)
+                    'navigateextreme': (nav_finished, nav_adjust),
+                    'simonsays': (simon_finished, simon_adjust)
                 }
 
                 for finish_expName in finish_conditions:
@@ -377,7 +384,6 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         # print(metadata)
                         # print("there it was")
 
-                        # TODO these should be quit handlers that return success True/False
                         for i in range(min(400, meta['tick'] - startTick)):
                             considered_tick = (meta['tick'] - i)
                             try:
@@ -387,30 +393,37 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                                 pass
 
                         cond_satisfied = sorted(cond_satisfied)
+                        # if cond_satisfied and not (cond_satisfied)[0] == meta['tick']:
+                        #     print("Adjusted {} to {} from {}".format(expName, cond_satisfied[0], meta['tick']))
 
                         if cond_satisfied:
                             meta['tick'] = cond_satisfied[0]
                         else:
                             # Add change if winner
                             try:
-                                if len(metadata['server_metadata']['winners']) > 0:
+                                if 'winners' in metadata['server_metadata'] \
+                                        and len(metadata['server_metadata']['winners']) > 0:
                                     adjust(univ_json, str(meta['tick']))
                             except (KeyError, TypeError) as e:
                                 traceback.print_exc()
 
             else:
-                continue
+                missing_metatata = True
 
-        if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta:
-            # If we encounter a start marker after a start marker there is an error and we should throw away this
-            # previous start marker and start fresh
+        if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta and not missing_metatata:
+            # If we encounter a start marker after a start marker there is an error and we should throw away this segment
             startTime = key
             startTick = meta['tick']
             startMarker = marker
+            startExpName = expName
+            tqdm.tqdm.write('Start {} ({})'.format(meta['tick'], marker['realTimestamp']))
 
-        if 'stopRecording' in meta and meta['stopRecording'] and startTime is not None:
+        if 'stopRecording' in meta and meta['stopRecording'] and startTick is not None:
+            if expName == "":
+                expName = startExpName
             segments.append((startMarker, marker, expName, startTick, meta['tick']))
-            # segments.append((startTime, key, expName, startTick, meta['tick'], startMarker, marker))
+            tqdm.tqdm.write('Stop {} ({})'.format(meta['tick'], marker['realTimestamp']))
+            tqdm.tqdm.write('... + {} ticks'.format(meta['tick'] - startTick))
             startTime = None
             startTick = None
 
@@ -450,7 +463,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                  segment[3] - videoOffset_ticks,
                  segment[4] - videoOffset_ticks)
                 for segment in segments]
-    segments = [segment for segment in segments if segment[4] - segment[3] > EXP_MIN_LEN_TICKS and segment[3] > 0]
+    segments = [segment for segment in segments if (segment[4] - segment[3]) > EXP_MIN_LEN_TICKS and segment[3] > 0]
 
     pbar = tqdm.tqdm(total=len(segments), desc='Segments', leave=False, position=lineNum)
 
@@ -491,11 +504,19 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                 if univ_json is None:
                     univ_json = json.loads(open(J(inputPath, 'univ.json')).read())
 
+                # # Record if this stream is a winner
+                # if 'server_metadata' in metadata \
+                #         and 'winners' in metadata['server_metadata'] \
+                #         and len(metadata['server_metadata']['winners']) > 0:
+                #     winner = metadata['server_metadata']['winners'][0]
+                # else:
+                #     winner = None
+
                 # Remove potentially stale elements
                 if E(output_name): os.remove(output_name)
                 if E(univ_output_name): os.remove(univ_output_name)
                 if E(meta_output_name): os.remove(meta_output_name)
-
+                #
                 json_to_write = {}
                 for idx in range(startTick, stopTick + 1):
                     json_to_write[str(idx - startTick)] = univ_json[str(idx)]

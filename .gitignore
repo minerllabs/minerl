@@ -1,3 +1,4 @@
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -181,7 +182,6 @@ celerybeat-schedule
 # Environments
 .env
 .venv
-env/
 venv/
 ENV/
 env.bak/
@@ -236,3 +236,54 @@ minerl_data/pipeline/tests_data/
 
 
 t/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+venv/*
+*logs*
+
+# Distribution / packaging
+.Python
+build/
+_build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+build/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE files
+.idea/
+.vscode
+
+*.DS_store
+*.iml
+*Minecraft.ipr
+*Minecraft.iws
+
+*/logs/
+
+tests/logs/
+.vscode/settings.json
+*/performance
+
+
+# Jenkins
+jenkins_home/
+
+#eclipse
+Malmo/Minecraft/*.launch
+*minerl_watchers/

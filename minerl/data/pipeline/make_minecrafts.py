@@ -158,7 +158,6 @@ if __name__ == "__main__":
 
 
   for i, mc in enumerate(range(NUM_MINECRAFTS)):
-    print("hi")
     target_mc_name = os.path.abspath(J(BASE_DIR, 'minecraft_{}'.format(mc)))
     if os.path.exists(target_mc_name):
       shutil.rmtree(target_mc_name)

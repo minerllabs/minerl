@@ -89,7 +89,6 @@ from docutils import nodes, statemachine
 
 from docutils.parsers.rst import Directive
 
-
 class ExecDirective(Directive):
     """Execute the specified python code and insert the output into the document"""
     has_content = True

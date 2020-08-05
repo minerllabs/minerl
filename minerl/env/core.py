@@ -34,8 +34,12 @@ from typing import Iterable
 import gym
 import gym.envs.registration
 import gym.spaces
+
+# TODO: Drop inflection dependencies.
+import inflection as inflection
 import numpy as np
 from lxml import etree
+import xmltodict
 from minerl.env import comms
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger_thread
@@ -86,10 +90,13 @@ class MineRLEnv(gym.Env):
                 import gym
 
                 env = gym.make('MineRLTreechop-v0') # Makes a minerl environment.
+                # env = gym.make('UnifiedMineRL-v0', xml='treechop.xml') # Makes a treechop minerl environment with unified action and observation spaces
 
                 # Use env like any other OpenAI gym environment.
                 # ...
 
+                # Alternatively:
+                env = gym.make('MineRLTreechop-v0') # makes a default treechop environment (with treechop-specific action and observation spaces)
 
         Args:
             xml (str): The path to the MissionXML file for this environment.
@@ -97,15 +104,25 @@ class MineRLEnv(gym.Env):
             action_space (gym.Space): The action space for the environment.
             port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
             noop_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
+            restartable_java (bool, optional): whether java process should restart on failure. Defaults to True
+            reset_mission_xml_fn (callable, optional): A function that can modifiy mission xml before passing it to Malmo. Will be called on every mission reset,
+                                                       can be stochastic (for instance, for domain randomization). Defaults to None (no modification).
         """
     metadata = {'render.modes': ['rgb_array', 'human']}
 
     STEP_OPTIONS = 0
 
-    def __init__(self, xml, observation_space, action_space, env_spec, port=None, noop_action=None, docstr=None):
+    def __init__(self, 
+        xml, 
+        observation_space, 
+        action_space, 
+        env_spec, 
+        port=None, 
+        docstr=None,
+        restartable_java=True,
+        reset_mission_xml_fn=None):
         self.action_space = None
         self.observation_space = None
-        self._default_action = noop_action
 
         self.viewer = None
 
@@ -115,7 +132,7 @@ class MineRLEnv(gym.Env):
         self.role = 0
         self.agent_count = 0
         self.resets = 0
-        self.ns = '{http://ProjectMalmo.microsoft.com}'
+        self.ns = "{http://ProjectMalmo.microsoft.com}"
         self.client_socket = None
 
         self.exp_uid = ""
@@ -124,17 +141,19 @@ class MineRLEnv(gym.Env):
 
         self.width = 0
         self.height = 0
-        self.depth = 0
+        self.channels = 0 
 
         self.xml_file = xml
         self.has_init = False
         self._seed = None
         self.had_to_clean = False
+        
+        self._already_closed = False
+        self.restartable_java = restartable_java
         self._is_interacting = False
         self._is_real_time = False
         self._last_step_time = -1
         self._already_closed = False
-        self.instance = self._get_new_instance(port)
         self.env_spec = env_spec
 
         self.observation_space = observation_space
@@ -142,6 +161,10 @@ class MineRLEnv(gym.Env):
 
         self.resets = 0
         self.done = True
+        self.agent_info = {}
+        self.reset_mission_xml_fn = reset_mission_xml_fn or (lambda x: x)
+        
+        self.instance = self._get_new_instance(port)
 
     def _get_new_instance(self, port=None, instance_id=None):
         """
@@ -156,7 +179,7 @@ class MineRLEnv(gym.Env):
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
 
-        instance.launch()
+        instance.launch(replaceable=self.restartable_java) 
         return instance
 
     def init(self):
@@ -178,20 +201,20 @@ class MineRLEnv(gym.Env):
         exp_uid = None
 
         # Parse XML file
-        with open(self.xml_file, 'r') as f:
+        with open(self.xml_file, "r") as f:
             xml = f.read()
         # Todo: This will fail when using a remote instance manager.
-        xml = xml.replace('$(MISSIONS_DIR)', missions_dir)
+        xml = xml.replace("$(MISSIONS_DIR)", missions_dir)
 
         if self.spec is not None:
-            xml = xml.replace('$(ENV_NAME)', self.spec.id)
+            xml = xml.replace("$(ENV_NAME)", self.spec.id)
         else:
-            xml = xml.replace('$(ENV_NAME)', MINERL_CUSTOM_ENV_ID)
+            xml = xml.replace("$(ENV_NAME)", MINERL_CUSTOM_ENV_ID)
 
         # Bootstrap the environment if it hasn't been.
         role = 0
 
-        if not xml.startswith('<Mission'):
+        if not xml.startswith("<Mission"):
             i = xml.index("<Mission")
             if i == -1:
                 raise EnvException("Mission xml must contain <Mission> tag.")
@@ -206,16 +229,20 @@ class MineRLEnv(gym.Env):
 
         # Force single agent
         self.agent_count = 1
-        turn_based = self.xml.find(
-            './/' + self.ns + 'TurnBasedCommands') is not None
+        turn_based = self.xml.find(".//" + self.ns + "TurnBasedCommands") is not None
         if turn_based:
             raise NotImplementedError(
-                "Turn based or multi-agent environments not supported.")
+                "Turn based or multi-agent environments not supported."
+            )
 
-        e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com"
+        e = etree.fromstring(
+            """<MissionInit xmlns="http://ProjectMalmo.microsoft.com"
                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                                SchemaVersion="" PlatformVersion=""" + '\"' + malmo_version + '\"' +
-                             """>
+                                SchemaVersion="" PlatformVersion="""
+            + '"'
+            + malmo_version
+            + '"'
+            + """>
                                 <ExperimentUID></ExperimentUID>
                                 <ClientRole>0</ClientRole>
                                 <ClientAgentConnection>
@@ -231,7 +258,7 @@ class MineRLEnv(gym.Env):
                                     <AgentRewardsPort>0</AgentRewardsPort>
                                     <AgentColourMapPort>0</AgentColourMapPort>
                                     </ClientAgentConnection>
-                                </MissionInit>""")
+                                    </MissionInit>""")
         e.insert(0, self.xml)
         self.xml = e
         self.xml.find(self.ns + 'ClientRole').text = str(self.role)
@@ -253,17 +280,23 @@ class MineRLEnv(gym.Env):
 
             ss  = self.xml.find(".//" + self.ns + 'ServerSection')
             ss.insert(0, hi)
+        
+        # pass the xml through the modifier function before extracting agent handler
+        # and video_producer to make sure those have not been set to some invalid values
 
-        video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
-        assert len(video_producers) == self.agent_count
-        video_producer = video_producers[self.role]
-        # Todo: Deprecate width, height, and POV forcing.
-        self.width = int(video_producer.find(self.ns + 'Width').text)
-        self.height = int(video_producer.find(self.ns + 'Height').text)
-        want_depth = video_producer.attrib["want_depth"]
-        self.depth = 4 if want_depth is not None and (
-                want_depth == "true" or want_depth == "1" or want_depth is True) else 3
-        # print(etree.tostring(self.xml))
+        # Ensure all observations are present for unified env.
+        agent_handler = self.xml.find(".//" + self.ns + "AgentHandlers")
+        if agent_handler.find("./" + self.ns + "ObservationFromEquippedItem") is None:
+            etree.SubElement(agent_handler, self.ns + "ObservationFromEquippedItem")
+
+        if agent_handler.find("./" + self.ns + "ObservationFromFullInventory") is None:
+            etree.SubElement(
+                agent_handler,
+                self.ns + "ObservationFromFullInventory",
+                attrib={"flat": "false"},
+            )
+
+        # TODO (R): REPLACE WITH JT TEMPLATING
         self._last_ac = None
 
 
@@ -289,87 +322,43 @@ class MineRLEnv(gym.Env):
         pov = np.frombuffer(pov, dtype=np.uint8)
 
         if pov is None or len(pov) == 0:
-            pov = np.zeros(
-                (self.height, self.width, self.depth), dtype=np.uint8)
+            pov = np.zeros((self.height, self.width, self.channels), dtype=np.uint8)
         else:
-            pov = pov.reshape((self.height, self.width, self.depth))[
-                  ::-1, :, :]
+            pov = pov.reshape((self.height, self.width, self.channels))[::-1, :, :]
 
         if info:
             info = json.loads(info)
         else:
             info = {}
 
-        # Ensure mainhand observations are valid
-        try:
-            info['equipped_items.mainhand.type'] = info['equipped_items']['mainhand']['type']
-            info['equipped_items.mainhand.damage'] = np.array(info['equipped_items']['mainhand']['damage'])
-            info['equipped_items.mainhand.maxDamage'] = np.array(info['equipped_items']['mainhand']['maxDamage'])
-        except Exception as e:
-            if 'equipped_items' in info:
-                del info['equipped_items']
-
+        
+        info['pov'] = pov
+        
         bottom_env_spec = self.env_spec
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
+        
+        # Process all of the observations using handlers.
+        for h in bottom_env_spec.observables:
+            obs_dict[h.to_string()] = h.from_hero(info)
 
-        try:
-            if info['equipped_items.mainhand.type'] not in bottom_env_spec.observation_space.spaces[
-                    'equipped_items.mainhand.type']:
-                info['equipped_items.mainhand.type'] = "other"  # Todo: use handlers. TODO: USE THEM<
-        except Exception as e:
-            pass
-        # Process Info: (HotFix until updated in Malmo.)
-        if "inventory" in info and "inventory" in bottom_env_spec.observation_space.spaces:
-            inventory_spaces = bottom_env_spec.observation_space.spaces['inventory'].spaces
-
-            items = inventory_spaces.keys()
-            inventory_dict = {k: np.array(0) for k in inventory_spaces}
-            # TODO change to maalmo
-            for stack in info['inventory']:
-                if 'type' in stack and 'quantity' in stack:
-                    type_name = stack['type']
-                    if type_name == 'log2':
-                        type_name = 'log'
-
-                    try:
-                        inventory_dict[type_name] += stack['quantity']
-                    except ValueError:
-                        continue
-                    except KeyError:
-                        # We only care to observe what was specified in the space.
-                        continue
-            info['inventory'] = inventory_dict
-        elif "inventory" in bottom_env_spec.observation_space.spaces and not "inventory" in info:
-            # logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
-            # logger.warning(info)
-            pass
-
-        info['pov'] = pov
-
-        obs_dict = bottom_env_spec.observation_space.no_op()
-
-        # A function which updates a nested dictionary.
-        def recursive_update(nested_dict, nested_update):
-            for k, v in nested_update.items():
-                if k in nested_dict:
-                    if isinstance(v, collections.Mapping):
-                        r = recursive_update(nested_dict.get(k, {}), v)
-                        nested_dict[k] = r
-                    else:
-                        nested_dict[k] = np.array(v)
-            return nested_dict
-
-        obs_dict = recursive_update(obs_dict, info)
+        # TODO (R): Use reward handlers
+        # TODO (R): Add achievment handlers. 
+        # Add Achievements to observation
+        if "achievements" in info:
+            obs_dict["achievements"] = info["achievements"]
+            
+        # TODO (REI): CONVERT TO OBSERVATION HANDLER!
+        # Add structure grid to observation
+        if "structure" in info:
+            obs_dict["structure"] = info["structure"]
 
         self._last_pov = obs_dict['pov']
         self._last_obs = obs_dict
         
-
         # Now we wrap
         if isinstance(self.env_spec, EnvWrapper):
             obs_dict = self.env_spec.wrap_observation(obs_dict)
-
         return obs_dict
 
     def _process_action(self, action_in) -> str:
@@ -379,6 +368,8 @@ class MineRLEnv(gym.Env):
         self._last_ac = action_in
         action_in = deepcopy(action_in)
 
+        # TODO(wguss): Clean up the envSpec wrapper paradigm,
+        # the env shouldn't be doing this IMO.
         if isinstance(self.env_spec, EnvWrapper):
             action_in = self.env_spec.unwrap_action(action_in)
 
@@ -386,38 +377,11 @@ class MineRLEnv(gym.Env):
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
+        assert action_in in bottom_env_spec.action_space
 
-        # TODO: Decide if we want to remove assertions.
         action_str = []
-        for act in action_in:
-            # Process enums.
-            if isinstance(bottom_env_spec.action_space.spaces[act], spaces.Enum):
-                if isinstance(action_in[act],   int):
-                    action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
-                else:
-                    assert isinstance(
-                        action_in[act], str), "Enum action {} must be str or int".format(act)
-                    assert action_in[act] in bottom_env_spec.action_space.spaces[
-                        act].values, "Invalid value for enum action {}, {}".format(
-                        act, action_in[act])
-
-            elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Box):
-                subact = action_in[act]
-                assert not isinstance(
-                    subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
-                if isinstance(subact, np.ndarray):
-                    subact = subact.flatten()
-
-                if isinstance(subact, Iterable):
-                    subact = " ".join(str(x) for x in subact)
-
-                action_in[act] = subact
-            elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Discrete):
-                action_in[act] = int(action_in[act])
-
-            action_str.append(
-                "{} {}".format(act, str(action_in[act])))
-            
+        for h in bottom_env_spec.actionables:
+            action_str.append(h.to_hero(action_in[h.to_string()]))
 
         return "\n".join(action_str)
 
@@ -649,7 +613,7 @@ class MineRLEnv(gym.Env):
             else:
                 raise RuntimeError(
                     "Attempted to step an environment with done=True")
-        except (socket.timeout, socket.error) as e:
+        except (socket.timeout, socket.error, TypeError) as e:
             # If the socket times out some how! We need to catch this and reset the environment.
             self._clean_connection()
             self.done = True
@@ -715,11 +679,10 @@ class MineRLEnv(gym.Env):
         sock.connect((self.instance.host, self.instance.port))
         self._hello(sock)
 
-        comms.send_message(
-            sock, ("<Init>" + self._get_token() + "</Init>").encode())
+        comms.send_message(sock, ("<Init>" + self._get_token() + "</Init>").encode())
         reply = comms.recv_message(sock)
         sock.close()
-        ok, = struct.unpack('!I', reply)
+        (ok,) = struct.unpack("!I", reply)
         return ok != 0
 
     def status(self):
@@ -761,8 +724,32 @@ class MineRLEnv(gym.Env):
         logger.debug("Sending mission init!")
         while ok != 1:
             xml = etree.tostring(self.xml)
-            token = (self._get_token() + ":" + str(self.agent_count) +
-                     ":" + str(self.synchronous).lower())
+            # inject mission dict into the xml
+            xml_dict = self.reset_mission_xml_fn(xmltodict.parse(xml))
+            # set up video properties in the unlikely event of their change
+            video_producers = _deepdict_find(xml_dict, "VideoProducer")
+            assert len(video_producers) == self.agent_count
+            video_producer = video_producers[self.role]
+            # Todo: Deprecate width, height, and POV forcing.
+            self.width = int(video_producer["Width"])
+            self.height = int(video_producer["Height"])
+            want_depth = video_producer.get("@want_depth")
+            self.channels = (
+                4
+                if want_depth is not None
+                and (want_depth == "true" or want_depth == "1" or want_depth is True)
+                else 3
+            )
+            # roundtrip through etree to escape symbols correctly
+            # and make printing pretty
+            xml = etree.tostring(etree.fromstring(xmltodict.unparse(xml_dict).encode()))
+            token = (
+                self._get_token()
+                + ":"
+                + str(self.agent_count)
+                + ":"
+                + str(self.synchronous).lower()
+            )
             if self._seed is not None:
                 token += ":{}".format(self._seed)
             token = token.encode()
@@ -770,7 +757,7 @@ class MineRLEnv(gym.Env):
             comms.send_message(self.client_socket, token)
 
             reply = comms.recv_message(self.client_socket)
-            ok, = struct.unpack('!I', reply)
+            (ok,) = struct.unpack("!I", reply)
             if ok != 1:
                 num_retries += 1
                 if num_retries > MAX_WAIT:
@@ -805,6 +792,7 @@ def _bind(instance, func, as_name=None):
 
 
 class TraceRecording(object):
+    # Todo (R): Fix trace recorder.
     _id_counter = 0
 
     def __init__(self, directory=None):
@@ -930,3 +918,13 @@ class TraceRecording(object):
                 self.save_complete()
             self.closed = True
             logger.info('Wrote traces to %s', self.directory)
+
+
+def _deepdict_find(d, key):
+    retval = []
+    for k, v in d.items():
+        if k == key:
+            retval.append(v)
+        elif isinstance(v, dict):
+            retval += _deepdict_find(v, key)
+    return retval

@@ -23,7 +23,7 @@ def make(environment=None , data_dir=None, num_workers=4, worker_batch_size=32, 
     # Ensure path is setup
     if data_dir is None and 'MINERL_DATA_ROOT' in os.environ:
         data_dir = os.environ['MINERL_DATA_ROOT']
-    elif data_dir is not None and not os.path.exists(data_dir):
+    if data_dir is not None and not os.path.exists(data_dir):
         if force_download:
             print("Provided data directory does not exist: ", data_dir)
             data_dir = download(data_dir)
@@ -38,7 +38,7 @@ def make(environment=None , data_dir=None, num_workers=4, worker_batch_size=32, 
             raise ValueError("No data_dir provided and $MINERL_DATA_ROOT undefined."
                              "Specify force_download=True to download default dataset")
 
-
+    assert data_dir is not None, "data_dir is not provided, and download has failed"
     minerl.data.version.assert_version(data_dir)
 
     d = DataPipeline(

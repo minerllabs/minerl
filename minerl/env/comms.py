@@ -40,7 +40,7 @@ def retry(func):
             except Pyro4.errors.PyroError as e: 
                 logger.error("An error occurred contacting the instance manager. Is it started!?")
                 raise e
-            except Exception as e:
+            except (socket.timeout, socket.error, RuntimeError) as e:
                 if retry_exc is None:
                     retry_exc = e
                 if i < retry_count - 1:
