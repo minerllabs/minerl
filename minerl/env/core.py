@@ -361,14 +361,15 @@ class MineRLEnv(gym.Env):
             return nested_dict
 
         obs_dict = recursive_update(obs_dict, info)
-
-        self._last_pov = obs_dict['pov']
-        self._last_obs = obs_dict
         
 
         # Now we wrap
         if isinstance(self.env_spec, EnvWrapper):
             obs_dict = self.env_spec.wrap_observation(obs_dict)
+            
+         
+        self._last_pov = obs_dict['pov']
+        self._last_obs = obs_dict
 
         return obs_dict
 
