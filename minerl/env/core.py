@@ -90,12 +90,11 @@ class MineRLEnv(gym.Env):
                 # Use env like any other OpenAI gym environment.
                 # ...
 
-
         Args:
             xml (str): The path to the MissionXML file for this environment.
             observation_space (gym.Space): The observation for the environment.
             action_space (gym.Space): The action space for the environment.
-            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
+            port (int, optional): The port of an exisitng Malmo environment. Defaults to None which launches new.
             noop_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
         """
     metadata = {'render.modes': ['rgb_array', 'human']}
@@ -103,20 +102,18 @@ class MineRLEnv(gym.Env):
     STEP_OPTIONS = 0
 
     def __init__(self, xml, observation_space, action_space, env_spec, port=None, noop_action=None, docstr=None):
-        self.action_space = None
-        self.observation_space = None
         self._default_action = noop_action
 
         self.viewer = None
+        self.viewer_agent = 0
 
-        self._last_ac = None
-        self.xml = None
-        self.integratedServerPort = 0
-        self.role = 0
+        self._last_ac = {}
+        self._last_obs = {}
+        self._last_pov = {}
         self.agent_count = 0
+        self.actor_names = []
         self.resets = 0
         self.ns = '{http://ProjectMalmo.microsoft.com}'
-        self.client_socket = None
 
         self.exp_uid = ""
         self.done = True
@@ -134,8 +131,10 @@ class MineRLEnv(gym.Env):
         self._is_real_time = False
         self._last_step_time = -1
         self._already_closed = False
-        self.instance = self._get_new_instance(port)
+        self.instances = []
         self.env_spec = env_spec
+        self.port = port
+        self.integratedServerPort = 0
 
         self.observation_space = observation_space
         self.action_space = action_space
@@ -148,7 +147,7 @@ class MineRLEnv(gym.Env):
         Gets a new instance and sets up a logger if need be. 
         """
 
-        if not port is None:
+        if port is not None:
             instance = InstanceManager.add_existing_instance(port)
         else:
             instance = InstanceManager.get_instance(os.getpid(), instance_id=instance_id)
@@ -159,16 +158,16 @@ class MineRLEnv(gym.Env):
         instance.launch()
         return instance
 
+    def _controller_instance(self):
+        if len(self.instances) > 0:
+            return self.instances[0]
+        return None
+
     def init(self):
         """Initializes the MineRL Environment.
 
         Note:
             This is called automatically when the environment is made.
-
-        Args:
-            observation_space (gym.Space): The observation for the environment.
-            action_space (gym.Space): The action space for the environment.
-            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
 
         Raises:
             EnvException: If the Mission XML is malformed this is thrown.
@@ -178,94 +177,99 @@ class MineRLEnv(gym.Env):
         exp_uid = None
 
         # Parse XML file
-        with open(self.xml_file, 'r') as f:
+        with open(self.xml_file, "r") as f:
             xml = f.read()
         # Todo: This will fail when using a remote instance manager.
-        xml = xml.replace('$(MISSIONS_DIR)', missions_dir)
+        xml = xml.replace("$(MISSIONS_DIR)", missions_dir)
 
         if self.spec is not None:
-            xml = xml.replace('$(ENV_NAME)', self.spec.id)
+            xml = xml.replace("$(ENV_NAME)", self.spec.id)
         else:
-            xml = xml.replace('$(ENV_NAME)', MINERL_CUSTOM_ENV_ID)
+            xml = xml.replace("$(ENV_NAME)", MINERL_CUSTOM_ENV_ID)
 
-        # Bootstrap the environment if it hasn't been.
-        role = 0
-
-        if not xml.startswith('<Mission'):
+        if not xml.startswith("<Mission"):
             i = xml.index("<Mission")
             if i == -1:
                 raise EnvException("Mission xml must contain <Mission> tag.")
             xml = xml[i:]
 
-        self.xml = etree.fromstring(xml)
-        self.role = role
+        base_xml = etree.fromstring(xml)
         if exp_uid is None:
             self.exp_uid = str(uuid.uuid4())
         else:
             self.exp_uid = exp_uid
 
-        # Force single agent
-        self.agent_count = 1
-        turn_based = self.xml.find(
-            './/' + self.ns + 'TurnBasedCommands') is not None
-        if turn_based:
-            raise NotImplementedError(
-                "Turn based or multi-agent environments not supported.")
+        # calculate agent count
+        self.agent_count = len(base_xml.findall('{http://ProjectMalmo.microsoft.com}AgentSection'))
+        self.actor_names = [f"actor{role}" for role in range(self.agent_count)]
 
-        e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com"
-                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                                SchemaVersion="" PlatformVersion=""" + '\"' + malmo_version + '\"' +
-                             """>
-                                <ExperimentUID></ExperimentUID>
-                                <ClientRole>0</ClientRole>
-                                <ClientAgentConnection>
-                                    <ClientIPAddress>127.0.0.1</ClientIPAddress>
-                                    <ClientMissionControlPort>0</ClientMissionControlPort>
-                                    <ClientCommandsPort>0</ClientCommandsPort>
-                                    <AgentIPAddress>127.0.0.1</AgentIPAddress>
-                                    <AgentMissionControlPort>0</AgentMissionControlPort>
-                                    <AgentVideoPort>0</AgentVideoPort>
-                                    <AgentDepthPort>0</AgentDepthPort>
-                                    <AgentLuminancePort>0</AgentLuminancePort>
-                                    <AgentObservationsPort>0</AgentObservationsPort>
-                                    <AgentRewardsPort>0</AgentRewardsPort>
-                                    <AgentColourMapPort>0</AgentColourMapPort>
-                                    </ClientAgentConnection>
-                                </MissionInit>""")
-        e.insert(0, self.xml)
-        self.xml = e
-        self.xml.find(self.ns + 'ClientRole').text = str(self.role)
-        self.xml.find(self.ns + 'ExperimentUID').text = self.exp_uid
-        if self.role != 0 and self.agent_count > 1:
-            e = etree.Element(self.ns + 'MinecraftServerConnection',
-                              attrib={'address': self.instance.host,
-                                      'port': str(0)
-                                      })
-            self.xml.insert(2, e)
+        for role in range(self.agent_count):
+            xml = deepcopy(base_xml)
+            e = etree.fromstring("""<MissionInit xmlns="http://ProjectMalmo.microsoft.com"
+                                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                    SchemaVersion="" PlatformVersion=""" + '\"' + malmo_version + '\"' +
+                                 f""">
+                                    <ExperimentUID>{self.exp_uid}</ExperimentUID>
+                                    <ClientRole>{role}</ClientRole>
+                                    <ClientAgentConnection>
+                                        <ClientIPAddress>127.0.0.1</ClientIPAddress>
+                                        <ClientMissionControlPort>0</ClientMissionControlPort>
+                                        <ClientCommandsPort>0</ClientCommandsPort>
+                                        <AgentIPAddress>127.0.0.1</AgentIPAddress>
+                                        <AgentMissionControlPort>0</AgentMissionControlPort>
+                                        <AgentVideoPort>0</AgentVideoPort>
+                                        <AgentDepthPort>0</AgentDepthPort>
+                                        <AgentLuminancePort>0</AgentLuminancePort>
+                                        <AgentObservationsPort>0</AgentObservationsPort>
+                                        <AgentRewardsPort>0</AgentRewardsPort>
+                                        <AgentColourMapPort>0</AgentColourMapPort>
+                                        </ClientAgentConnection>
+                                    </MissionInit>"""
+            )
+            e.insert(0, xml)
+            xml = e
 
-        if self._is_interacting:
-            hi = etree.fromstring("""
-                <HumanInteraction>
-                    <Port>{}</Port>
-                    <MaxPlayers>{}</MaxPlayers>
-                </HumanInteraction>""".format(self.interact_port, self.max_players))
-            # Update the xml
+            port = self.port
+            if port is not None:
+                port = port + role
+            instance = self._get_new_instance(port=port)
+            self.instances.append(instance)
 
-            ss  = self.xml.find(".//" + self.ns + 'ServerSection')
-            ss.insert(0, hi)
+            # prepare non-master clients to connect to the master server
+            if role != 0 and self.agent_count > 1:
+                # note that this server port is different than above client port, and will be set later
+                e = etree.Element(
+                    self.ns + "MinecraftServerConnection",
+                    attrib={"address": instance.host, "port": str(0)},
+                )
+                xml.insert(2, e)
 
-        video_producers = self.xml.findall('.//' + self.ns + 'VideoProducer')
-        assert len(video_producers) == self.agent_count
-        video_producer = video_producers[self.role]
-        # Todo: Deprecate width, height, and POV forcing.
-        self.width = int(video_producer.find(self.ns + 'Width').text)
-        self.height = int(video_producer.find(self.ns + 'Height').text)
-        want_depth = video_producer.attrib["want_depth"]
-        self.depth = 4 if want_depth is not None and (
-                want_depth == "true" or want_depth == "1" or want_depth is True) else 3
-        # print(etree.tostring(self.xml))
-        self._last_ac = None
+            if self._is_interacting:
+                hi = etree.fromstring("""
+                    <HumanInteraction>
+                        <Port>{}</Port>
+                        <MaxPlayers>{}</MaxPlayers>
+                    </HumanInteraction>""".format(self.interact_port, self.max_players))
+                # Update the xml
+                ss = xml.find(".//" + self.ns + 'ServerSection')
+                ss.insert(0, hi)
 
+            video_producers = xml.findall('.//' + self.ns + 'VideoProducer')
+            assert len(video_producers) == self.agent_count
+            video_producer = video_producers[role]
+            # Todo: Deprecate width, height, and POV forcing.
+            self.width = int(video_producer.find(self.ns + 'Width').text)
+            self.height = int(video_producer.find(self.ns + 'Height').text)
+            want_depth = video_producer.attrib["want_depth"]
+            self.depth = 4 if want_depth is not None and (
+                    want_depth == "true" or want_depth == "1" or want_depth is True) else 3
+
+            instance.role = role
+            instance.xml = xml
+
+        self._last_ac = {}
+        self._last_obs = {}
+        self._last_pov = {}
 
         self.has_init = True
 
@@ -282,7 +286,28 @@ class MineRLEnv(gym.Env):
         """
         return self.action_space.no_op()
 
-    def _process_observation(self, pov, info):
+    # TODO - make a custom Logger with this integrated (See LogHelper.java)
+    def _logger_warning(self, message, *args, once=False, **kwargs):
+        if once:
+            # make sure we have our silenced logs table
+            if not hasattr(self, "silenced_logs"):
+                self.silenced_logs = set()
+
+            # hash the stack trace
+            import hashlib
+            import traceback
+            stack = traceback.extract_stack()
+            locator = f"{stack[-2].filename}:{stack[-2].lineno}"
+            key = hashlib.md5(locator.encode('utf-8')).hexdigest()
+
+            # check if stack trace is silenced
+            if key in self.silenced_logs:
+                return
+            self.silenced_logs.add(key)
+
+        logger.warning(message, *args, **kwargs)
+
+    def _process_observation(self, actor_name, pov, info):
         """
         Process observation into the proper dict space.
         """
@@ -292,8 +317,11 @@ class MineRLEnv(gym.Env):
             pov = np.zeros(
                 (self.height, self.width, self.depth), dtype=np.uint8)
         else:
-            pov = pov.reshape((self.height, self.width, self.depth))[
-                  ::-1, :, :]
+            try:
+                pov = pov.reshape((self.height, self.width, self.depth))[
+                      ::-1, :, :]
+            except Exception as e:
+                self._logger_warning(f"Failed to reshape observations: {e}", once=True)
 
         if info:
             info = json.loads(info)
@@ -306,6 +334,7 @@ class MineRLEnv(gym.Env):
             info['equipped_items.mainhand.damage'] = np.array(info['equipped_items']['mainhand']['damage'])
             info['equipped_items.mainhand.maxDamage'] = np.array(info['equipped_items']['mainhand']['maxDamage'])
         except Exception as e:
+            self._logger_warning(f"Failed to set equipment observations: {e}", once=True)
             if 'equipped_items' in info:
                 del info['equipped_items']
 
@@ -318,7 +347,9 @@ class MineRLEnv(gym.Env):
                     'equipped_items.mainhand.type']:
                 info['equipped_items.mainhand.type'] = "other"  # Todo: use handlers. TODO: USE THEM<
         except Exception as e:
+            self._logger_warning(f"Failed to set mainhand observations: {e}", once=True)
             pass
+
         # Process Info: (HotFix until updated in Malmo.)
         if "inventory" in info and "inventory" in bottom_env_spec.observation_space.spaces:
             inventory_spaces = bottom_env_spec.observation_space.spaces['inventory'].spaces
@@ -341,8 +372,8 @@ class MineRLEnv(gym.Env):
                         continue
             info['inventory'] = inventory_dict
         elif "inventory" in bottom_env_spec.observation_space.spaces and not "inventory" in info:
-            # logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
-            # logger.warning(info)
+            self._logger_warning("No inventory found in malmo observation! Yielding empty inventory.", once=True)
+            self._logger_warning(info, once=True)
             pass
 
         info['pov'] = pov
@@ -361,23 +392,21 @@ class MineRLEnv(gym.Env):
             return nested_dict
 
         obs_dict = recursive_update(obs_dict, info)
-        
 
         # Now we wrap
         if isinstance(self.env_spec, EnvWrapper):
             obs_dict = self.env_spec.wrap_observation(obs_dict)
-            
-         
-        self._last_pov = obs_dict['pov']
-        self._last_obs = obs_dict
 
-        return obs_dict
+        self._last_pov[actor_name] = obs_dict['pov']
+        self._last_obs[actor_name] = obs_dict
 
-    def _process_action(self, action_in) -> str:
+        return obs_dict, info
+
+    def _process_action(self, actor_name, action_in) -> str:
         """
         Process the actions into a proper command.
         """
-        self._last_ac = action_in
+        self._last_ac[actor_name] = action_in
         action_in = deepcopy(action_in)
 
         if isinstance(self.env_spec, EnvWrapper):
@@ -387,13 +416,12 @@ class MineRLEnv(gym.Env):
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
-
         # TODO: Decide if we want to remove assertions.
         action_str = []
         for act in action_in:
             # Process enums.
             if isinstance(bottom_env_spec.action_space.spaces[act], spaces.Enum):
-                if isinstance(action_in[act],   int):
+                if isinstance(action_in[act], int):
                     action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
                 else:
                     assert isinstance(
@@ -416,9 +444,7 @@ class MineRLEnv(gym.Env):
             elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Discrete):
                 action_in[act] = int(action_in[act])
 
-            action_str.append(
-                "{} {}".format(act, str(action_in[act])))
-            
+            action_str.append("{} {}".format(act, str(action_in[act])))
 
         return "\n".join(action_str)
 
@@ -434,14 +460,14 @@ class MineRLEnv(gym.Env):
         .. code-block:: python
 
             env = gym.make('MineRL...')
-            
+
             # set the environment to allow interactive connections on port 6666
             # and slow the tick speed to 6666.
-            env.make_interactive(port=6666, realtime=True) 
+            env.make_interactive(port=6666, realtime=True)
 
             # reset the env
             env.reset()
-            
+
             # interact as normal.
             ...
 
@@ -455,7 +481,7 @@ class MineRLEnv(gym.Env):
 
         The interactor will disconnect when the mission resets, but you can connect again with the same command.
         If an interactor is already started, it won't need to be relaunched when running the commnad a second time.
-        
+
 
         Args:
             port (int):  The interaction port
@@ -467,7 +493,7 @@ class MineRLEnv(gym.Env):
         self._is_real_time = realtime
         self.interact_port = port
         self.max_players = max_players
-            
+
 
     @staticmethod
     def _hello(sock):
@@ -494,96 +520,103 @@ class MineRLEnv(gym.Env):
     def _start_up(self):
         self.resets += 1
 
-        try:
-            if not self.client_socket:
-                logger.debug("Creating socket connection!")
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-                sock.settimeout(SOCKTIME)
-                sock.connect((self.instance.host, self.instance.port))
-                self._hello(sock)
+        for instance in self.instances:
+            try:
+                # only fetch server info once after master agent has connected
+                if instance.role == 1:
+                    self._find_server(instance)
+                if not instance.client_socket:
+                    logger.debug(f"Creating socket connection {instance}")
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+                    sock.settimeout(SOCKTIME)
+                    sock.connect((instance.host, instance.port))
+                    logger.debug(f"Saying hello for client: {instance}")
+                    self._hello(sock)
 
-                # Now retries will use connected socket.
-                self.client_socket = sock
-            self._init_mission()
+                    # Now retries will use connected socket.
+                    instance.client_socket = sock
+            except (socket.timeout, socket.error) as e:
+                logger.error("Failed to reset (socket error), trying again!")
+                self._clean_connection()
+                raise e
+            except RuntimeError as e:
+                # Reset the instance if there was an error timeout waiting for episode pause.
+                self.had_to_clean = True
+                self._clean_connection()
+                raise e
 
-            self.done = False
-            return self._peek_obs()
-        except (socket.timeout, socket.error) as e:
-            logger.error("Failed to reset (socket error), trying again!")
-            self._clean_connection()
-            raise e
-        except RuntimeError as e:
-            # Reset the instance if there was an error timeout waiting for episode pause.
-            self.had_to_clean = True
-            self._clean_connection()
-            raise e
+            self._init_mission(instance)
+
+        self.done = False
+        return self._peek_obs()
 
     def _clean_connection(self):
         logger.error("Cleaning connection! Something must have gone wrong.")
-        try:
-            if self.client_socket:
-                self.client_socket.shutdown(socket.SHUT_RDWR)
-                self.client_socket.close()
-        except (BrokenPipeError, OSError, socket.error):
-            # There is no connection left!
-            pass
+        for instance in self.instances:
+            try:
+                if instance.client_socket:
+                    instance.client_socket.shutdown(socket.SHUT_RDWR)
+                    instance.client_socket.close()
+            except (BrokenPipeError, OSError, socket.error):
+                # There is no connection left!
+                pass
 
-        self.client_socket = None
+            instance.client_socket = None
+
         if self.had_to_clean:
             # Connect to a new instance!!
             logger.error(
                 "Connection with Minecraft client cleaned more than once; restarting.")
-            if self.instance:
-                self.instance.kill()
-            
-            self.instance = self._get_new_instance(instance_id=self.instance.instance_id)
+            for role in range(len(self.instances)):
+                self.instances[role].kill()
+                self.instances[role] = self._get_new_instance(instance_id=self.instances[role].instance_id)
 
             self.had_to_clean = False
         else:
             self.had_to_clean = True
 
     def _peek_obs(self):
-        obs = None
-        start_time = time.time()
+        multi_obs = {}
         if not self.done:
-            logger.debug("Peeking the client.")
+            logger.debug("Peeking the clients.")
             peek_message = "<Peek/>"
-            comms.send_message(self.client_socket, peek_message.encode())
-            obs = comms.recv_message(self.client_socket)
-            info = comms.recv_message(self.client_socket).decode('utf-8')
+            multi_done = True
+            for instance in self.instances:
+                start_time = time.time()
+                comms.send_message(instance.client_socket, peek_message.encode())
+                obs = comms.recv_message(instance.client_socket)
+                info = comms.recv_message(instance.client_socket).decode('utf-8')
 
-            reply = comms.recv_message(self.client_socket)
-            done, = struct.unpack('!b', reply)
-            self.done = done == 1
-            if obs is None or len(obs) == 0:
-                if time.time() - start_time > MAX_WAIT:
-                    self.client_socket.close()
-                    self.client_socket = None
-                    raise MissionInitException(
-                        'too long waiting for first observation')
-                time.sleep(0.1)
+                reply = comms.recv_message(instance.client_socket)
+                done, = struct.unpack('!b', reply)
+                multi_done = multi_done and done == 1
+                if obs is None or len(obs) == 0:
+                    if time.time() - start_time > MAX_WAIT:
+                        instance.client_socket.close()
+                        instance.client_socket = None
+                        raise MissionInitException(
+                            'too long waiting for first observation')
+                    time.sleep(0.1)
+                    # FIXME - shouldn't we error or retry here?
+
+                actor_name = instance.actor_name
+                multi_obs[actor_name], _ = self._process_observation(actor_name, obs, info)
+            self.done = multi_done
             if self.done:
                 raise RuntimeError(
                     "Something went wrong resetting the environment! "
                     "`done` was true on first frame.")
-
-        # See if there is an integrated port
-        if self._is_interacting:
-            port = self._find_server()
-            self.integratedServerPort = port
-            logger.warn("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
-            # Todo make a launch command.
-            
-
-
-        return self._process_observation(obs, info)
+        return multi_obs
 
     def _quit_episode(self):
-        comms.send_message(self.client_socket, "<Quit/>".encode())
-        reply = comms.recv_message(self.client_socket)
-        ok, = struct.unpack('!I', reply)
-        return ok != 0
+        for instance in self.instances:
+            comms.send_message(instance.client_socket, "<Quit/>".encode())
+            reply = comms.recv_message(instance.client_socket)
+            ok, = struct.unpack('!I', reply)
+            if ok == 0:
+                return False
+        return True
 
     def seed(self, seed=42, seed_spaces=True):
         """Seeds the environment!
@@ -603,62 +636,101 @@ class MineRLEnv(gym.Env):
             self.observation_space.seed(self._seed)
             self.action_space.seed(self._seed)
 
+    def step(self, actions):
+        if not self.done:
+            withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
 
-    def step(self, action):
+            multi_obs = {}
+            multi_reward = {}
+            multi_done = True
+            multi_info = {}
 
-        withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
+            # Process multi-agent actions, apply and process multi-agent observations
+            for instance in self.instances:
+                try:  # TODO - we could wrap entire function in try, if sockets don't need to individually clean
+                    actor_name = instance.actor_name
+                    malmo_command = self._process_action(actor_name, actions[actor_name])
+                    step_message = "<StepClient" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
+                                    malmo_command + \
+                                    "</StepClient" + str(MineRLEnv.STEP_OPTIONS) + " >"
 
-        # Process the actions.
-        malmo_command = self._process_action(action)
-        try:
-            if not self.done:
+                    # Send Actions.
+                    comms.send_message(instance.client_socket, step_message.encode())
 
-                step_message = "<Step" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
-                               malmo_command + \
-                               "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
+                    # Receive the observation.
+                    obs = comms.recv_message(instance.client_socket)
+
+                    # Receive reward done and sent.
+                    reply = comms.recv_message(instance.client_socket)
+                    reward, done, sent = struct.unpack("!dbb", reply)
+
+                    # Receive info from the environment.
+                    if withinfo:
+                        info = comms.recv_message(instance.client_socket).decode("utf-8")
+                    else:
+                        info = {}
+
+                    # Process the observation and done state.
+                    out_obs, info = self._process_observation(actor_name, obs, info)
+                    done = (done == 1)
+
+                    # concatenate multi-agent obs, rew, done
+                    multi_obs[actor_name] = out_obs
+                    multi_reward[actor_name] = reward
+                    multi_done = multi_done and done
+
+                    # merge multi-agent info
+                    if instance.role == 0:
+                        multi_info.update(info)
+                    if 'actor_info' not in multi_info:
+                        multi_info['actor_info'] = {}
+                    multi_info['actor_info'][actor_name] = info
+                except (socket.timeout, socket.error, TypeError) as e:
+                    # If the socket times out some how! We need to catch this and reset the environment.
+                    self._clean_connection()
+                    self.done = True
+                    logger.error(
+                        f"Failed to take a step (error {e}). Terminating episode and sending random observation, be aware. "
+                        "To account for this failure case in your code check to see if `'error' in info` where info is "
+                        "the info dictionary returned by the step function."
+                    )
+                    return (
+                        self.observation_space.sample(),
+                        0,
+                        self.done,
+                        {"error": "Connection timed out!"},
+                    )
+
+            # this will currently only consider the env done when all agents report done individually
+            self.done = multi_done
+
+            instance = self._controller_instance()
+            try:
+                step_message = "<StepServer></StepServer>"
 
                 # Send Actions.
-                comms.send_message(self.client_socket, step_message.encode())
+                comms.send_message(instance.client_socket, step_message.encode())
 
-                # Receive the observation.
-                obs = comms.recv_message(self.client_socket)
+            except (socket.timeout, socket.error, TypeError) as e:
+                # If the socket times out some how! We need to catch this and reset the environment.
+                self._clean_connection()
+                self.done = True
+                logger.error(
+                    "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
+                    "To account for this failure case in your code check to see if `'error' in info` where info is "
+                    "the info dictionary returned by the step function.")
+                # return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
-                # Receive reward done and sent.
-                reply = comms.recv_message(self.client_socket)
-                reward, done, sent = struct.unpack('!dbb', reply)
+            # synchronize with real time
+            if self._is_real_time:
+                t0 = time.time()
+                # Todo: Add catch-up
+                time.sleep(max(0, TICK_LENGTH - (t0 - self._last_step_time)))
+                self._last_step_time = time.time()
+        else:
+            raise RuntimeError("Attempted to step an environment server with done=True")
 
-                # Receive info from the environment.
-                if withinfo:
-                    info = comms.recv_message(
-                        self.client_socket).decode('utf-8')
-                else:
-                    info = {}
-
-                # Process the observation and done state.
-                out_obs = self._process_observation(obs, info)
-                self.done = (done == 1)
-                
-                if self._is_real_time:
-                    t0 = time.time()
-                    # Todo: Add catch-up
-                    time.sleep(max(0, TICK_LENGTH - (t0 - self._last_step_time)))
-                    self._last_step_time = time.time()
-
-
-
-                return out_obs, reward, self.done, {}
-            else:
-                raise RuntimeError(
-                    "Attempted to step an environment with done=True")
-        except (socket.timeout, socket.error) as e:
-            # If the socket times out some how! We need to catch this and reset the environment.
-            self._clean_connection()
-            self.done = True
-            logger.error(
-                "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
-                "To account for this failure case in your code check to see if `'error' in info` where info is "
-                "the info dictionary returned by the step function.")
-            return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
+        return multi_obs, multi_reward, multi_done, multi_info
 
     def _renderObs(self, obs, ac=None):
         if self.viewer is None:
@@ -684,16 +756,23 @@ class MineRLEnv(gym.Env):
         return self.viewer.isopen
 
     def render(self, mode='human'):
+        viewer_actor_name = self.actor_names[self.viewer_agent]
+        current_obs = self._last_obs.get(viewer_actor_name, None)
+        current_ac = self._last_ac.get(viewer_actor_name, None)
+        current_pov = self._last_pov.get(viewer_actor_name, None)
+
         if mode == 'human' and (
                 not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
-            self._renderObs(self._last_obs, self._last_ac)
-        return self._last_pov
+            self._renderObs(current_obs, current_ac)
+        return current_pov
 
     def is_closed(self):
         return self._already_closed
 
     def close(self):
         """gym api close"""
+        logger.debug("Closing MineRL env...")
+
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
@@ -701,34 +780,42 @@ class MineRLEnv(gym.Env):
         if self._already_closed:
             return
 
-        if self.client_socket:
-            self.client_socket.close()
-            self.client_socket = None
+        for instance in self.instances:
+            if instance.client_socket:
+                instance.client_socket.close()
+                instance.client_socket = None
 
-        if self.instance and self.instance.running:
-            self.instance.kill()
+            if instance.running:
+                instance.kill()
 
         self._already_closed = True
 
     def reinit(self):
+        raise Exception("FIXME HACK Where is 'reinit()' used?")
+
         """Use carefully to reset the episode count to 0."""
+        # TODO - only need controller instance here?
+        instance = self._controller_instance()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.instance.host, self.instance.port))
+        sock.connect((instance.host, instance.port))
         self._hello(sock)
 
-        comms.send_message(
-            sock, ("<Init>" + self._get_token() + "</Init>").encode())
+        comms.send_message(sock, ("<Init>" + self._get_token(instance) + "</Init>").encode())
         reply = comms.recv_message(sock)
         sock.close()
         ok, = struct.unpack('!I', reply)
         return ok != 0
 
     def status(self):
+        raise Exception("FIXME HACK Where is 'status()'' used?")
+
         """Get status from server.
         head - Ping the the head node if True.
         """
+        # TODO - only need controller instance here?
+        instance = self._controller_instance()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.instance.host, self.instance.port))
+        sock.connect((instance.host, instance.port))
 
         self._hello(sock)
 
@@ -737,40 +824,48 @@ class MineRLEnv(gym.Env):
         sock.close()
         return status
 
-    def _find_server(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.instance.host, self.instance.port))
-        self._hello(sock)
+    def _find_server(self, instance):
+        # calling Find on the master client to get the server port
+        controller_instance = self._controller_instance()
+        sock = controller_instance.client_socket
 
-        start_time = time.time()
+        # try until you get something valid
         port = 0
-        while port == 0:
+        tries = 0
+        while port == 0 and tries < 1000:
             comms.send_message(
-                sock, ("<Find>" + self._get_token() + "</Find>").encode())
+                sock, ("<Find>" + self._get_token(instance) + "</Find>").encode()
+            )
             reply = comms.recv_message(sock)
             port, = struct.unpack('!I', reply)
-        sock.close()
-        # print("Found mission integrated server port " + str(port))
-        return  port
-        # e = self.xml.find(self.ns + 'MinecraftServerConnection')
-        # if e is not None:
-        #     e.attrib['port'] = str(self.integratedServerPort)
+            tries += 1
+        if port == 0:
+            raise Exception("Failed to find master server port!")
+        self.integratedServerPort = port  # should/can this even be cached?
+        logger.warning("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
 
-    def _init_mission(self):
+        # go ahead and set port for all non-controller clients
+        for instance in self.instances[1:]:
+            e = instance.xml.find(self.ns + 'MinecraftServerConnection')
+            if e is not None:
+                e.attrib['port'] = str(port)
+
+    def _init_mission(self, instance):
+        # init all instance missions
         ok = 0
         num_retries = 0
-        logger.debug("Sending mission init!")
+        logger.debug(f"Sending mission init: {instance}")
         while ok != 1:
-            xml = etree.tostring(self.xml)
-            token = (self._get_token() + ":" + str(self.agent_count) +
+            xml = etree.tostring(instance.xml)
+            token = (self._get_token(instance) + ":" + str(self.agent_count) +
                      ":" + str(self.synchronous).lower())
             if self._seed is not None:
                 token += ":{}".format(self._seed)
             token = token.encode()
-            comms.send_message(self.client_socket, xml)
-            comms.send_message(self.client_socket, token)
+            comms.send_message(instance.client_socket, xml)
+            comms.send_message(instance.client_socket, token)
 
-            reply = comms.recv_message(self.client_socket)
+            reply = comms.recv_message(instance.client_socket)
             ok, = struct.unpack('!I', reply)
             if ok != 1:
                 num_retries += 1
@@ -779,8 +874,8 @@ class MineRLEnv(gym.Env):
                 logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
                 time.sleep(1)
 
-    def _get_token(self):
-        return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
+    def _get_token(self, instance):
+        return self.exp_uid + ":" + str(instance.role) + ":" + str(self.resets)
 
 
 def make():

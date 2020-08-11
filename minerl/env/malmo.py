@@ -431,6 +431,9 @@ class InstanceManager:
             self._starting = True
             self.minecraft_process = None
             self.watcher_process = None
+            self.xml = None
+            self.role = None
+            self.client_socket = None
             self._port = port
             self._host = InstanceManager.DEFAULT_IP
             self.locked = False
@@ -440,7 +443,6 @@ class InstanceManager:
             self.instance_dir = None
             self._status_dir = status_dir
             self.owner = None
-
 
             self.instance_id = instance_id
 
@@ -455,7 +457,11 @@ class InstanceManager:
 
             self._setup_logging()
             self._target_port = port
-            
+
+        @property
+        def actor_name(self):
+            return f"actor{self.role}"
+
         def launch(self, daemonize=False):
             port = self._target_port
             self._starting = True
@@ -767,7 +773,8 @@ class InstanceManager:
 
         
         def __repr__(self):
-            return ("Malmo[{}, proc={}, addr={}:{}, locked={}]".format(
+            return ("Malmo[{}:{}, proc={}, addr={}:{}, locked={}]".format(
+                self.role,
                 self.uuid,
                 self.minecraft_process.pid if not self.existing else "EXISTING",
                 self.host,
