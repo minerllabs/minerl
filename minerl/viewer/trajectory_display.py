@@ -211,6 +211,8 @@ class HumanTrajectoryDisplay(TrajectoryDisplayBase):
 
         self.key_labels = self.make_key_labels()
 
+        self.current_agent = 0
+
 
     def make_key_labels(self):
         keys = {}
@@ -258,6 +260,10 @@ class HumanTrajectoryDisplay(TrajectoryDisplayBase):
         for k in self.key_labels:
             self.key_labels[k].set_style('color', (128,128,128,255))
 
+        # only will show current agent
+        multiagent = not isinstance(action[0], str)
+        if multiagent:
+            action = action[self.current_agent]
         
         for x in action:
             try:
