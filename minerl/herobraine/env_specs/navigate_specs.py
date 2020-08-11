@@ -24,8 +24,8 @@ class Navigate(SimpleEnvSpec):
             handlers.RewardForTouchingBlock(
                 {"diamond_block", 100.0}
             ),
-            handlers.NavigateTargetReward(),
-            handlers.NavigationDecorator(
+            handlers.NavigateTargetReward(), # This if for the data but not 
+            handlers.NavigationDecorator( 
                 min_radius=64,
                 max_radius=64,
                 randomize_compass_target=True

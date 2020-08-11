@@ -342,13 +342,19 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         for block in tick['touched_blocks']:
                             if 'minecraft:diamond_block' in block['name']:
                                 return True
+                        return 'minecraft:diamond_block' == tick['navigateHelper']
+                            
                     except KeyError:
                         pass
                     return False
 
                 def nav_adjust(univ, t):
                     try:
-                        univ[t]['navigateHelper'] = 'minecraft:diamond_block'
+                        if 'touched_blocks' in univ[t]:
+                            univ[t]['touched_blocks'] = []
+                        univ[t]['touched_blocks'].append(
+                            'minecraft:diamond_block'
+                        )
                     except KeyError:
                         pass
 

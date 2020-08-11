@@ -1,8 +1,19 @@
 
 
 
+import numpy as np
+from minerl.herobraine.hero import spaces
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 
+from collections import Iterable
+
+
+from .camera import *
+from .craft import *
+from .equip import *
+from .keyboard import *
+from .place import *
+from .smelt import *
 
 class Action(TranslationHandler):
     """
@@ -10,7 +21,7 @@ class Action(TranslationHandler):
     # Todo: support blacklisting commands. (note this has to work with mergeing somehow)
     """
 
-    def __init__(self, command: str, space: gym.Space):
+    def __init__(self, command: str, space: spaces.MineRLSpace):
         """
         Initializes the space of the handler with a gym.spaces.Dict
         of all of the spaces for each individual command.
@@ -113,7 +124,7 @@ class ItemListAction(Action):
         """
         Asserts equality betwen item list command actions.
         """
-        if not isinstance(other, ItemListCommandAction):
+        if not isinstance(other, ItemListAction):
             return False
         if self._command != other._command:
             return False

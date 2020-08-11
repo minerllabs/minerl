@@ -29,7 +29,7 @@ class TranslationHandler(Handler):
 
     def to_hero(self, x) -> str:
         """
-        Takes an instance of the handler, x \in self.space, and maps it to
+        Takes an instance of the handler, x in self.space, and maps it to
         the "hero" representation thereof.
         """
         raise NotImplementedError()

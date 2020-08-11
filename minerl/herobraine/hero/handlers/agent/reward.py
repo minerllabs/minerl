@@ -1,4 +1,6 @@
 
+import abc
+from minerl.herobraine.hero.mc import strip_item_prefix
 from minerl.herobraine.hero.spaces import Box
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
@@ -50,8 +52,7 @@ class ConstantReward(RewardHandler):
     # <Item amount="1" reward="1" type="log" />
     # <Item amount="1" reward="2" type="planks" />
 # <RewardForPossessingItem sparse="true">
-
-class RewardForPosessingItem(Handler):
+class _RewardForPosessingItemBase(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_posessing_item"
 
@@ -71,6 +72,7 @@ class RewardForPosessingItem(Handler):
 
         See Malmo for documentation.
         """
+        super().__init__()
         self.sparse = sparse
         self.exclude_loops = exclude_loops
         self.items = item_rewards
@@ -78,11 +80,73 @@ class RewardForPosessingItem(Handler):
         for item in self.items:
             assert set(item.keys()) == {"amount", "reward", "type"}
 
+    @abc.abstractmethod
+    def from_universal(self, obs):
+        raise NotImplementedError()
+
+class RewardForCollectingItems(_RewardForPosessingItemBase):
+    def __init__(self, item_rewards : List[Dict[str, Union[str,int]]]):
+        """
+        The standard malmo reward for collecting item.
+        """
+        super().__init__(sparse=False, exclude_loops=False, item_rewards=item_rewards )
+
+    def from_universal(self, x):
+        total_reward = 0
+        if 'diff' in x and 'changes' in x['diff']:
+            for change_json in x['diff']['changes']:
+                item_name = strip_item_prefix(change_json['item'])
+                if item_name == 'log2':
+                    item_name = 'log'
+                if item_name in self.reward_dict and 'quantity_change' in change_json:
+                    if change_json['quantity_change'] > 0:
+                        total_reward += change_json['quantity_change'] * self.reward_dict[item_name]
+        return total_reward
+
+
+
+class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
+    """
+    The standard malmo reward for collecting item.
+    """
+    def __init__(self, item_rewards : List[Dict[str, Union[str,int]]]):
+        super().__init__(sparse=True, exclude_loops=False, item_rewards=item_rewards)
+        self.seen_dict = dict()
+
+    
+    def __init__(self, item_dict):
+        """
+        Adds a reward for collecting a certain set of items.
+        :param item_name: The name
+        :param reward: The reward
+        :param args: So on and so forth.
+        """
+        super().__init__()
+        self.seen_dict = dict()
+        self.reward_dict = item_dict
+
+    def from_universal(self, x):
+        total_reward = 0
+        if 'diff' in x and 'changes' in x['diff']:
+            for change_json in x['diff']['changes']:
+                item_name = strip_item_prefix(change_json['item'])
+                if item_name == 'log2':
+                    item_name = 'log'
+                if item_name in self.reward_dict and 'quantity_change' in change_json and item_name not in self.seen_dict:
+                    if change_json['quantity_change'] > 0:
+                        total_reward += self.reward_dict[item_name]
+                        self.seen_dict[item_name] = True
+        return total_reward
+
+    def reset(self): # TODO (R): Convert away from using reset and just reinitialziing the handler.
+        # print(self.seen_dict.keys())
+        self.seen_dict = dict()
+
 
 # <RewardForMissionEnd>
 #     <Reward description="out_of_time" reward="0" />
 # </RewardForMissionEnd>
-class RewardForMissionEnd(Handler):
+class RewardForMissionEnd(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_mission_end"
 
@@ -95,15 +159,23 @@ class RewardForMissionEnd(Handler):
     
     def __init__(self, reward : int, description :str = "out_of_time"):
         """Creates a reward which is awarded when a mission ends."""
+        super().__init__()
         self.reward = reward
         self.description = description
+
+    def from_universal(self, obs):
+        # TODO: IMPLEMENT THE FROM UNVIERSAL HERE. 
+        # Idea: just add an "episode terminated obs in the universal"
+        # during generate.
+        return 0
+
 
 
 #  <RewardForTouchingBlockType>
 #     <Block reward="100.0" type="diamond_block" behaviour="onceOnly"/>
 #     <Block reward="189.0" type="diamond_block" behaviour="onceOnly"/>
 # </RewardForTouchingBlockType>
-class RewardForTouchingBlockType(Handler):
+class RewardForTouchingBlockType(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_touching_block_type"
 
@@ -118,14 +190,32 @@ class RewardForTouchingBlockType(Handler):
 
     def __init__(self, blocks : List[Dict[str, Union[str, int]]]):
         """Creates a reward which is awarded when the player touches a block."""
+        super().__init__()
         self.blocks = blocks
+        self.fired = {bl['type']: False for bl in self.blocks}
         # Assert all blocks have the appropriate fields for the XML template.
         for block in self.blocks:
             assert set(block.keys()) == {"reward", "type", "behaviour"}
 
+    def from_universal(self, obs):
+        reward = 0
+        if 'touched_blocks' in obs:
+            for block in obs['touched_blocks']:
+                for bl in self.blocks:
+                    if bl['type'] in block['name'] and (
+                        not self.fired[bl['type']] or bl['behaviour'] is not "onlyOnce"):
+                        reward += bl['reward']
+                        self.fired[bl['type']] = True
+
+        return reward
+
+    def reset(self):
+        self.fired = {bl['type']: False for bl in self.blocks}
+
+
 
 # <RewardForDistanceTraveledToCompassTarget rewardPerBlock="1" density="PER_TICK"/>
-class RewardForDistanceTraveledToCompassTarget(Handler):
+class RewardForDistanceTraveledToCompassTarget(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_distance_traveled_to_compass_target"
 
@@ -134,74 +224,28 @@ class RewardForDistanceTraveledToCompassTarget(Handler):
             """<RewardForDistanceTraveledToCompassTarget rewardPerBlock="{{ rewardPerBlock }}" density="{{ density }}"/>"""
         )
 
-    def __init__(self, reward_per_block : int, density : str):
+    def __init__(self, reward_per_block : int, density : str = 'PER_TICK'):
         """Creates a reward which is awarded when the player reaches a certain distance from a target."""
         self.reward_per_block = reward_per_block
         self.density = density
-
-
-# Reward for crafting item.
-
-class RewardForCraftingItem(RewardHandler):
-    """
-    Reward a player for crafting an item - currently crafting is tracked via slot clicks
-    """
-    item_dict = {}
-
-    def __init__(self, item_dict):
-        """
-        Adds a reward for collecting a certain set of items.
-        :param item_name: The name
-        :param reward: The reward
-        :param args: So on and so forth.
-        """
-        super().__init__()
-
-        self.reward_dict = item_dict
-        self.prev_container = None
-        self.skip_next = False
-
-    def add_to_mission_xml(self, etree: Element, namespace: str):
-        """
-        Adds the following to the mission xml
-           <RewardForCollectingItem>
-            <Item  reward="1" type="log" />
-          </RewardForCollectingItem>
-        :param etree:
-        :param namespace:
-        :return:
-        """
-        child = Element("RewardForCraftingItem")
-        for item, reward in self.reward_dict.items():
-            item_eml = Element("Item")
-            item_eml.set("reward", str(reward))
-            item_eml.set("type", item)
-            child.append(item_eml)
-
-        for agenthandlers in etree.iter('{{{}}}AgentHandlers'.format(namespace)):
-            agenthandlers.append(child)
-        super().add_to_mission_xml(etree, namespace)
+        self._prev_delta = None
 
     def from_universal(self, obs):
-        try:
-            if self.prev_container is not None and obs['slots']['gui']['type'] != self.prev_container:
-                self.skip_next = True
-                return 0
-            elif self.skip_next:
-                self.skip_next = False
-                return 0
-            elif 'diff' in obs and 'crafted' in obs['diff']:
-                for crafted in obs['diff']['crafted']:
-                    item_name = strip_of_prefix(crafted['name'])
-                    if item_name in self.item_dict:
-                        return self.item_dict[item_name]
-            return 0
-        finally:
+        if 'compass' in obs and 'deltaDistance' in obs['compass']:
             try:
-                self.prev_container = obs['slots']['gui']['type']
-            except KeyError:
-                self.prev_container = None
+                target = obs['compass']['target']
+                target_pos = np.array([target["x"], target["y"], target["z"]])
+                position = obs['compass']['position']
+                cur_pos = np.array([position["x"], position["y"], position["z"]])
+                delta = np.linalg.norm(target_pos - cur_pos)
+                if not self._prev_delta:
+                    return 0
+                else:
+                    return self._prev_delta - delta
+            finally:
+                self._prev_delta = delta
 
     def reset(self):
-        self.skip_next = False
-        self.prev_container = None
+        self._prev_delta = None
+
+    

@@ -572,7 +572,7 @@ class MineRLEnv(gym.Env):
         withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
 
         # Process the actions.
-        malmo_command = self._process_action(action)
+        malmo_command = self._process_action(action) # : str
         try:
             if not self.done:
 
