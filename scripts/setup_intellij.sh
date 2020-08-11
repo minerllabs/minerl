@@ -10,5 +10,9 @@ cd $DIR
 ./gradlew genIntellijRuns
 ./gradlew build
 echo "Openining IntelliJ - Please select import gradle project on the bottom right"
+echo "Then import the ../Malmo module:"
+echo "1) file -> project structure -> modules"
+echo "2) + -> Module name: Malmo, Module dir: ../Malmo"
+sleep 1
 ./gradlew openIdea
 
