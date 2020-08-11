@@ -631,7 +631,6 @@ class MineRLEnv(gym.Env):
                                     "</StepClient" + str(MineRLEnv.STEP_OPTIONS) + " >"
 
                     # Send Actions.
-                    print("SENDING StepClient message...")
                     comms.send_message(instance.client_socket, step_message.encode())
                 else:
                     raise RuntimeError("Attempted to step an environment client with done=True")
@@ -695,32 +694,6 @@ class MineRLEnv(gym.Env):
                 "To account for this failure case in your code check to see if `'error' in info` where info is "
                 "the info dictionary returned by the step function.")
             return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
-        for instance in self.instances:
-            try:
-                if not self.done:
-                    step_message = (
-                        "<Render></Render>"
-                    )
-
-                    # Send Render
-                    comms.send_message(instance.client_socket, step_message.encode())
-                else:
-                    raise RuntimeError("Attempted to render an environment")
-            except (socket.timeout, socket.error, TypeError) as e:
-                # If the socket times out some how! We need to catch this and reset the environment.
-                self._clean_connection()
-                self.done = True
-                logger.error(
-                    f"Failed to take a step (error {e}). Terminating episode and sending random observation, be aware. "
-                    "To account for this failure case in your code check to see if `'error' in info` where info is "
-                    "the info dictionary returned by the step function."
-                )
-                return (
-                    self.observation_space.sample(),
-                    0,
-                    self.done,
-                    {"error": "Connection timed out!"},
-                )
 
         return out_obs, reward, self.done, {}
 
