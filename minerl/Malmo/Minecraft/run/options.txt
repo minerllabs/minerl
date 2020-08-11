@@ -1,4 +1,4 @@
-version:1343
+version:922
 invertYMouse:false
 mouseSensitivity:0.5
 fov:1.5
@@ -30,7 +30,7 @@ enableVsync:false
 useVbo:true
 hideServerAddress:false
 advancedItemTooltips:false
-pauseOnLostFocus:true
+pauseOnLostFocus:false
 touchscreen:false
 overrideWidth:0
 overrideHeight:0
@@ -39,6 +39,7 @@ chatHeightFocused:1.0
 chatHeightUnfocused:0.44366196
 chatScale:1.0
 chatWidth:1.0
+showInventoryAchievementHint:true
 mipmapLevels:4
 forceUnicodeFont:false
 reducedDebugInfo:false
@@ -50,8 +51,6 @@ showSubtitles:false
 realmsNotifications:true
 enableWeakAttacks:false
 autoJump:false
-narrator:0
-tutorialStep:movement
 key_key.attack:-100
 key_key.use:-99
 key_key.forward:17
@@ -73,9 +72,6 @@ key_key.smoothCamera:0
 key_key.fullscreen:87
 key_key.spectatorOutlines:0
 key_key.swapHands:33
-key_key.saveToolbarActivator:46
-key_key.loadToolbarActivator:45
-key_key.advancements:38
 key_key.hotbar.1:2
 key_key.hotbar.2:3
 key_key.hotbar.3:4
@@ -85,19 +81,8 @@ key_key.hotbar.6:7
 key_key.hotbar.7:8
 key_key.hotbar.8:9
 key_key.hotbar.9:10
-key_replaymod.input.marker:50
-key_replaymod.input.thumbnail:49
-key_replaymod.input.playpause:25
-key_replaymod.input.rollclockwise:38
-key_replaymod.input.rollcounterclockwise:36
-key_replaymod.input.resettilt:37
-key_replaymod.input.pathpreview:35
-key_replaymod.input.keyframerepository:45
-key_replaymod.input.clearkeyframes:46
-key_replaymod.input.synctimeline:47
-key_replaymod.input.settings:0
-key_replaymod.input.playeroverview:48
-key_replaymod.input.lighting:44
+key_key.toggleMalmo:28
+key_key.handyTestHook:22
 soundCategory_master:1.0
 soundCategory_music:0.0
 soundCategory_record:0.0
