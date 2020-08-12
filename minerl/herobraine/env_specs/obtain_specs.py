@@ -94,8 +94,24 @@ class Obtain(SimpleEmbodimentEnvSpec):
             handlers.SmeltItemNearby(['none', 'iron_ingot', 'coal']),
         ]
 
+    def create_rewardables(self) -> List[Handler]:
+        pass
+
+    def create_agent_start(self) -> List[Handler]:
+        pass
+
+    def create_agent_handlers(self) -> List[Handler]:
+        pass
+
+    def create_server_handlers(self) -> List[Handler]:
+        pass
+
+    def create_server_initial_conditions(self) -> List[Handler]:
+        pass
+
 
 class ObtainDiamond(Obtain):
+
     def __init__(self, dense):
         super(ObtainDiamond, self).__init__(
             target_item='diamond',

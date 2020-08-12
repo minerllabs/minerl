@@ -6,7 +6,9 @@ from typing import List
 import minerl.herobraine
 import minerl.herobraine.hero.handlers as handlers
 
+
 class Navigate(SimpleEmbodimentEnvSpec):
+
     def __init__(self, dense, extreme):
         suffix = 'Extreme' if extreme else ''
         suffix += 'Dense' if dense else ''
@@ -24,8 +26,8 @@ class Navigate(SimpleEmbodimentEnvSpec):
             handlers.RewardForTouchingBlock(
                 {"diamond_block", 100.0}
             ),
-            handlers.NavigateTargetReward(), # This if for the data but not 
-            handlers.NavigationDecorator( 
+            handlers.NavigateTargetReward(),  # This if for the data but not
+            handlers.NavigationDecorator(
                 min_radius=64,
                 max_radius=64,
                 randomize_compass_target=True
@@ -50,6 +52,21 @@ class Navigate(SimpleEmbodimentEnvSpec):
 
     def create_actionables(self) -> List[Handler]:
         return super().create_actionables() + [handlers.PlaceBlock(['none', 'dirt'])]
+
+    def create_rewardables(self) -> List[Handler]:
+        pass
+
+    def create_agent_start(self) -> List[Handler]:
+        pass
+
+    def create_agent_handlers(self) -> List[Handler]:
+        pass
+
+    def create_server_handlers(self) -> List[Handler]:
+        pass
+
+    def create_server_initial_conditions(self) -> List[Handler]:
+        pass
 
     def get_docstring(self):
         return make_navigate_text(
