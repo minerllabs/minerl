@@ -143,7 +143,7 @@ class MineRLEnv(gym.Env):
         self.height = 0
         self.channels = 0 
 
-        self.xml_file = xml
+        self.xml_in = xml
         self.has_init = False
         self._seed = None
         self.had_to_clean = False
@@ -201,9 +201,7 @@ class MineRLEnv(gym.Env):
         exp_uid = None
 
         # Parse XML file
-        with open(self.xml_file, "r") as f:
-            xml = f.read()
-        # Todo: This will fail when using a remote instance manager.
+        xml = self.xml_in
         xml = xml.replace("$(MISSIONS_DIR)", missions_dir)
 
         if self.spec is not None:

@@ -33,7 +33,7 @@ class EnvSpec(abc.ABC):
        
         self.server_initial_conditions = self.create_server_initial_conditions()
         self.server_handlers = self.create_server_handlers()
-
+        self.server_decorators = self.create_server_decorators()
         # self.monitors = []
 
         # check that the observables (list) have no duplicate to_strings
