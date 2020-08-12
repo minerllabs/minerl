@@ -19,7 +19,7 @@
             <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
-            <BiomeGenerator forceReset="true" biome="3"/>
+            <DefaultWorldGenerator forceReset="true"/>
             <NavigationDecorator>
                 <randomPlacementProperties>
                     <maxRandomizedRadius>64</maxRandomizedRadius>

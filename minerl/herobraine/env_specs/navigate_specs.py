@@ -21,29 +21,10 @@ class Navigate(SimpleEmbodimentEnvSpec):
     def is_from_folder(self, folder: str) -> bool:
         return folder == 'navigateextreme' if self.extreme else folder == 'navigate'
 
-    # def create_mission_handlers(self) -> List[Handler]:
-    #     mission_handlers = [
-    #         handlers.EpisodeLength(6000 // 20),
-    #         handlers.RewardForTouchingBlock(
-    #             {"diamond_block", 100.0}
-    #         ),
-    #         handlers.NavigateTargetReward(),  # This if for the data but not
-    #         handlers.NavigationDecorator(
-    #             min_radius=64,
-    #             max_radius=64,
-    #             randomize_compass_target=True
-    #         )
-    #     ]
-    #     if self.dense:
-    #         mission_handlers.append(handlers.RewardForWalkingTwardsTarget(
-    #             reward_per_block=1, reward_schedule="PER_TICK"
-    #         ))
-    #     return mission_handlers
-
 
     def create_observables(self) -> List[Handler]:
         return super().create_observables() + [
-            handlers.CompassObservation(),
+            handlers.CompassObservation(angle=True, distance=False),
             handlers.FlatInventoryObservation(['dirt'])]
 
     def create_actionables(self) -> List[Handler]:
@@ -56,7 +37,9 @@ class Navigate(SimpleEmbodimentEnvSpec):
             handlers.RewardForTouchingBlockType([
                 {'type':'diamond_block', 'behaviour':'onceOnly', 'reward': 100.0},
             ])
-        ]
+        ] + ([handlers.RewardForDistanceTraveledToCompassTarget(
+                reward_per_block=1.0
+            )] if self.dense else [])
 
     def create_agent_start(self) -> List[Handler]:
         return [
@@ -73,12 +56,7 @@ class Navigate(SimpleEmbodimentEnvSpec):
         ]
 
     def create_server_handlers(self) -> List[Handler]:
-        return [
-            handlers.BiomeGenerator(
-                biome_id=3,
-                force_reset=True
-            ),
-            handlers.NavigationDecorator(
+        hdls = [handlers.NavigationDecorator(
                 max_randomized_radius=64,
                 min_randomized_radius=64,
                 block='diamond_block',
@@ -92,6 +70,21 @@ class Navigate(SimpleEmbodimentEnvSpec):
             handlers.ServerQuitFromTimeUp(NAVIGATE_STEPS // STEPS_PER_MS),
             handlers.ServerQuitWhenAnyAgentFinishes()
         ]
+        if self.extreme: 
+            hdls.append(
+                handlers.BiomeGenerator(
+                    biome_id=3,
+                    force_reset=True
+                )
+            )
+        else:
+            hdls.append(
+                handlers.DefaultWorldGenerator(
+                    force_reset=True
+                )
+            )
+        return hdls
+            
 
     def create_server_initial_conditions(self) -> List[Handler]:
         return [
