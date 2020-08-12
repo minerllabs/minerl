@@ -91,14 +91,15 @@ class Obtain(SimpleEmbodimentEnvSpec):
                 dict(type='diamond', amount=1)
             ])
         ]
-
-    def create_server_handlers(self) -> List[Handler]:
-        return [
-            handlers.DefaultWorldGenerator(force_reset=True),
-            handlers.ServerQuitFromTimeUp(time_limit_ms=
+        
+    def create_server_world_generators(self) -> List[Handler]:     
+        return [ handlers.DefaultWorldGenerator(force_reset=True) ]     
+    
+    def create_server_quit_producers(self) -> List[Handler]:     
+        return [           
+             handlers.ServerQuitFromTimeUp(time_limit_ms=
                 self.max_episode_steps // STEPS_PER_MS),
-            handlers.ServerQuitWhenAnyAgentFinishes()
-        ]
+            handlers.ServerQuitWhenAnyAgentFinishes()]  
 
     def create_server_decorators(self) -> List[Handler]:
         return []

@@ -19,11 +19,15 @@
         </ServerInitialConditions>
         <ServerHandlers>
 
-            {% for x in get_consolidated_xml((server_handlers)) %}
+            {% for x in get_consolidated_xml((server_world_generators)) %}
                 {{ x }}
             {% endfor %}
 
             {% for x in get_consolidated_xml((server_decorators)) %}
+                {{ x }}
+            {% endfor %}
+            
+            {% for x in get_consolidated_xml((server_quit_producers)) %}
                 {{ x }}
             {% endfor %}
             

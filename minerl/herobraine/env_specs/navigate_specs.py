@@ -54,26 +54,27 @@ class Navigate(SimpleEmbodimentEnvSpec):
                 ["diamond_block"]
             )
         ]
-
-    def create_server_handlers(self) -> List[Handler]:
-        hdls = [
-            handlers.ServerQuitFromTimeUp(NAVIGATE_STEPS // STEPS_PER_MS),
-            handlers.ServerQuitWhenAnyAgentFinishes()
-        ]
+ 
+    def create_server_world_generators(self) -> List[Handler]:     
         if self.extreme: 
-            hdls.append(
+            return [
                 handlers.BiomeGenerator(
                     biome_id=3,
                     force_reset=True
                 )
-            )
+            ]
         else:
-            hdls.append(
+            return [
                 handlers.DefaultWorldGenerator(
                     force_reset=True
                 )
-            )
-        return hdls
+            ]
+      
+    def create_server_quit_producers(self) -> List[Handler]:     
+        return [
+            handlers.ServerQuitFromTimeUp(NAVIGATE_STEPS // STEPS_PER_MS),
+            handlers.ServerQuitWhenAnyAgentFinishes() 
+        ]  
 
     def create_server_decorators(self) -> List[Handler]:
         return [handlers.NavigationDecorator(

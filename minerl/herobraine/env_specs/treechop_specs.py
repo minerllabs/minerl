@@ -60,15 +60,21 @@ class Treechop(SimpleEmbodimentEnvSpec):
             )
         ]
 
-    def create_server_handlers(self) -> List[Handler]:
+
+    def create_server_world_generators(self) -> List[Handler]:   
         return [
             handlers.DefaultWorldGenerator(force_reset="true",
                 generator_options=TREECHOP_WORLD_GENERATOR_OPTIONS
-            ),
+            )
+        ]       
+      
+    def create_server_quit_producers(self) -> List[Handler]:     
+        return [
             handlers.ServerQuitFromTimeUp(
                 TREECHOP_LENGTH // STEPS_PER_MS),
             handlers.ServerQuitWhenAnyAgentFinishes()
-        ]
+        ]     
+
 
     def create_server_decorators(self) -> List[Handler]:
         return []

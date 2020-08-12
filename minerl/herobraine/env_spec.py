@@ -32,8 +32,9 @@ class EnvSpec(abc.ABC):
 
        
         self.server_initial_conditions = self.create_server_initial_conditions()
-        self.server_handlers = self.create_server_handlers()
+        self.server_world_generators = self.create_server_world_generators()
         self.server_decorators = self.create_server_decorators()
+        self.server_quit_producers = self.create_server_quit_producers()
         # self.monitors = []
 
         # check that the observables (list) have no duplicate to_strings
@@ -111,12 +112,6 @@ class EnvSpec(abc.ABC):
 
 
     ##################### SERVER #########################
-    
-
-    @abstractmethod
-    def create_server_handlers(self) -> List[Handler]:
-         raise NotImplementedError('subclasses must override create_server_handlers()!')
-
 
     @abstractmethod
     def create_server_initial_conditions(self) -> List[Handler]:
@@ -125,8 +120,15 @@ class EnvSpec(abc.ABC):
     @abstractmethod
     def create_server_decorators(self) -> List[Handler]:     
         raise NotImplementedError('subclasses must override create_server_decorators()!')   
-      
-
+    
+    @abstractmethod     
+    def create_server_world_generators(self) -> List[Handler]:     
+        raise NotImplementedError('subclasses must override create_server_world_generators()!')       
+    
+    @abstractmethod     
+    def create_server_quit_producers(self) -> List[Handler]:     
+        raise NotImplementedError('subclasses must override create_server_quit_producers()!')       
+    
 
     ################## PROPERTIES & HELPERS #################
     @property
