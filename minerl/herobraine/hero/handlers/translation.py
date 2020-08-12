@@ -1,4 +1,5 @@
 
+from collections import OrderedDict
 import logging
 
 import numpy as np
@@ -56,11 +57,13 @@ class KeymapTranslationHandler(TranslationHandler):
         :param default_if_missing: value for handler to take if missing in the observation dict
         """
         super().__init__(space)
+        self._to_string = to_string if to_string else hero_keys[-1]
         self.hero_keys = hero_keys
         self.univ_keys = univ_keys
         self.default_if_missing = default_if_missing
+        # TODO (R): UNIFY THE LOGGING FRAMEWORK FOR MINERL
         self.logger = logging.getLogger(f'{__name__}.{self.to_string()}')
-        self._to_string = to_string if to_string else hero_keys[-1]
+
 
     def walk_dict(self, d, keys):
         for key in keys:
@@ -95,9 +98,10 @@ class TranslationHandlerGroup(TranslationHandler):
     """Combines several space handlers into a single handler group.
     """
     def __init__(self, handlers : List[TranslationHandler]):
-        self.handler_dict = {h.to_string() : h for h in handlers}
+        # TODO (R): SEE IF THIS SHOULD BE SORTED.
+        self.handlers = sorted(handlers, key=lambda x: x.to_string())
         super(TranslationHandlerGroup, self).__init__(
-            spaces.Dict(self.handler_dict)
+            spaces.Dict([(h.to_string(), h.space) for h in self.handlers])
         )
 
     def to_hero(self, x : typing.Dict[str, Any]) -> str:
@@ -109,23 +113,24 @@ class TranslationHandlerGroup(TranslationHandler):
         return  "\n".join(
             [self.handler_dict[s].to_hero(x[s]) for s in self.handler_dict])
 
-    def from_hero(self, x : typing.Dict[str, Any]) -> typing.Dict[str, Any]:
+    def from_hero(self, x : typing.Dict[str, Any]) -> typing.OrderedDict[str, Any]:
         """Applies the constituent from_hero methods on the object X 
            and builds a dictionary with keys corresponding to the constituent 
            handlers applied."""
 
-        return  {
-            s : self.handler_dict[s].from_hero(x)
-            for s in self.handler_dict
-        }
+        return  OrderedDict([
+            (h.to_string() , h.from_hero(x))
+            for h in self.handlers
+        ])
 
-    def from_universal(self, x: typing.Dict[str, Any]) -> typing.Dict[str, Any]:
+    def from_universal(self, x: typing.Dict[str, Any]) -> typing.OrderedDict[str, Any]:
         """Performs the same operation as from_hero except with from_universal.
         """
-        return  {
-            s : self.handler_dict[s].from_universal(x)
-            for s in self.handler_dict
-        }
+        return OrderedDict([
+            (h.to_string(), h.from_universal(x))
+            for h in self.handlers
+        ])
+
 
     def __eq__(self, other):
         return (
@@ -146,10 +151,4 @@ class TranslationHandlerGroup(TranslationHandler):
             [self.handler_dict[k] | other.handler_dict[k] 
                 for k in self.handler_dict.keys()]
         )
-
-
-
-
-
-
 

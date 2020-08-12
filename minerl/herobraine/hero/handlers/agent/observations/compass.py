@@ -52,7 +52,7 @@ class _CompassAngleObservation(KeymapTranslationHandler):
     def __init__(self):
         super().__init__(
             hero_keys=["angle"],
-            univ_keys=['compass']["angle"],
+            univ_keys=['compass',"angle"],
             space=spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)
         )
 

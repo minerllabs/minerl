@@ -13,9 +13,8 @@ class Navigate(SimpleEmbodimentEnvSpec):
         suffix = 'Extreme' if extreme else ''
         suffix += 'Dense' if dense else ''
         name = 'MineRLNavigate{}-v0'.format(suffix)
-        xml = 'navigation{}.xml'.format(suffix)
         self.dense, self.extreme = dense, extreme
-        super().__init__(name, xml, max_episode_steps=6000)
+        super().__init__(name, max_episode_steps=6000)
 
     def is_from_folder(self, folder: str) -> bool:
         return folder == 'navigateextreme' if self.extreme else folder == 'navigate'
@@ -39,11 +38,6 @@ class Navigate(SimpleEmbodimentEnvSpec):
             ))
         return mission_handlers
 
-    def determine_success_from_rewards(self, rewards: list) -> bool:
-        reward_threshold = 100.0
-        if self.dense:
-            reward_threshold += 60
-        return sum(rewards) >= reward_threshold
 
     def create_observables(self) -> List[Handler]:
         return super().create_observables() + [
@@ -51,7 +45,8 @@ class Navigate(SimpleEmbodimentEnvSpec):
             handlers.FlatInventoryObservation(['dirt'])]
 
     def create_actionables(self) -> List[Handler]:
-        return super().create_actionables() + [handlers.PlaceBlock(['none', 'dirt'])]
+        return super().create_actionables() + [
+            handlers.PlaceBlock(['none', 'dirt'])]
 
     def create_rewardables(self) -> List[Handler]:
         pass
@@ -72,6 +67,12 @@ class Navigate(SimpleEmbodimentEnvSpec):
         return make_navigate_text(
             top="normal" if not self.extreme else "extreme",
             dense=self.dense)
+
+    def determine_success_from_rewards(self, rewards: list) -> bool:
+        reward_threshold = 100.0
+        if self.dense:
+            reward_threshold += 60
+        return sum(rewards) >= reward_threshold
 
 
 def make_navigate_text(top, dense):
