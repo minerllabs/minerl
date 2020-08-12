@@ -12,8 +12,8 @@ class DefaultWorldGenerator(Handler):
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template(
             """<DefaultWorldGenerator 
-                forceReset="{{str(force_reset).lower()}}"
-                generatorOptions='{{generator_options}}'/>
+                forceReset="{{force_reset | string | lower}}"
+                generatorOptions="{{generator_options}}"/>
             """
         )
 
@@ -36,7 +36,7 @@ class FileWorldGenerator(Handler):
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template(
             """<FileWorldGenerator 
-                destroyAfterUse = "{{str(destroy_after_use).lower()}}"
+                destroyAfterUse = "{{destroy_after_use | string | lower}}"
                 src = "{{filename}}" />
             """
         )
@@ -56,7 +56,7 @@ class FlatWorldGenerator(Handler):
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template(
             """<FlatWorldGenerator 
-                forceReset="{{str(force_reset).lower()}}" />
+                forceReset="{{force_reset | string | lower}}" />
             """
         )
     
@@ -71,7 +71,7 @@ class BiomeGenerator(Handler):
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template(
             """<BiomeGenerator 
-                forceReset="{{str(force_reset).lower()}}"
+                forceReset="{{force_reset | string | lower}}"
                 biome="{{biome_id}}" />
             """
         )

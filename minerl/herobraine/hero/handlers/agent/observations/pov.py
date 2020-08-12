@@ -19,7 +19,7 @@ class POVObservation(KeymapTranslationHandler):
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template("""
             <VideoProducer 
-                want_depth="{{ str(self.include_depth).lower() }}">
+                want_depth="{{ self.include_depth | string | lower }}">
                 <Width>{{ video_width }} </Width>
                 <Height>{{ video_height }}</Height>
             </VideoProducer>""")

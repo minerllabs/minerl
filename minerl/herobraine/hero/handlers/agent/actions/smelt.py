@@ -1,5 +1,5 @@
-from minerl.herobraine.hero.handlers.action.craft import CraftAction
-from minerl.herobraine.hero.handlers.action import Action, ItemListAction
+from minerl.herobraine.hero.handlers.agent.actions.craft import CraftAction
+from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
 import jinja2
 import minerl.herobraine.hero.spaces as spaces
 

@@ -1,5 +1,6 @@
 from .action import *
-from .observation import *
+from .actions import *
+from .observations import *
 
 from .misc import *
 from .quit import *

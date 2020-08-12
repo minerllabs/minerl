@@ -1,5 +1,6 @@
-from minerl.herobraine.env_specs.simple_env_spec import SimpleEnvSpec
-from minerl.herobraine.hero import handlers, AgentHandler
+from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
+from minerl.herobraine.hero.handler import Handler
+from minerl.herobraine.hero import handlers
 from typing import List
 from gym import spaces
 
@@ -11,7 +12,7 @@ def snake_to_camel(word):
     return ''.join(x.capitalize() or '_' for x in word.split('_'))
 
 
-class Obtain(SimpleEnvSpec):
+class Obtain(SimpleEmbodimentEnvSpec):
     def __init__(self,
                  target_item,
                  dense,
@@ -34,7 +35,7 @@ class Obtain(SimpleEnvSpec):
     def get_docstring(self):
         return ""
 
-    def create_mission_handlers(self) -> List[AgentHandler]:
+    def create_mission_handlers(self) -> List[Handler]:
         reward_handler = (
             handlers.RewardForCollectingItems if self.dense
             else handlers.RewardForCollectingItemsOnce)
@@ -51,7 +52,7 @@ class Obtain(SimpleEnvSpec):
         return len(rewards.intersection(self.reward_schedule.values())) \
             >= len(self.reward_schedule.values()) - max_missing
 
-    def create_observables(self) -> List[AgentHandler]:
+    def create_observables(self) -> List[Handler]:
         # TODO: Parameterize these observations.
         return super().create_observables() + [
             handlers.FlatInventoryObservation([

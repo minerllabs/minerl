@@ -1,11 +1,11 @@
 from abc import abstractmethod
+from minerl.herobraine.hero.spaces import Dict
 from minerl.herobraine.hero.handler import Handler
 from typing import List
 
 import jinja2
-from minerl.env.spaces import Dict
-# import minerl.env.spaces as spaces
 import gym
+from lxml import etree
 import os
 import abc
 
@@ -21,6 +21,8 @@ class EnvSpec(abc.ABC):
         self.name = name
         self.max_episode_steps = max_episode_steps
         self.reward_threshold = reward_threshold
+
+        # TODO: Consider movign this to init.
 
         self.observables = self.create_observables()
         self.actionables = self.create_actionables()
@@ -164,7 +166,7 @@ class EnvSpec(abc.ABC):
                 'observation_space': self.observation_space,
                 'action_space': self.action_space,
                 'docstr': self.get_docstring(),
-                'xml': os.path.join(MISSIONS_DIR, self.xml),
+                'xml': self.to_xml(),
                 'env_spec': self,
             },
             max_episode_steps=self.max_episode_steps,
@@ -180,13 +182,52 @@ class EnvSpec(abc.ABC):
         """
         return '{}-{}-spaces({},{})'.format(self.__class__.__name__, self.name, self.observation_space,
                                             self.action_space)
-    @property
+
     def to_xml(self) -> str:
         """Gets the XML by templating mission.xml.j2 using Jinja
         """
         with open(MISSION_TEMPLATE, "rt") as fh:
             template = jinja2.Template(fh.read())
-            xml = template.render((self).__dict__)
+            # TODO: Pull this out into a method.
+            var_dict = {}
+            for attr_name in dir(self):
+                if 'to_xml' not in attr_name:
+                    var_dict[attr_name] = getattr(self, attr_name)
+
+            xml = template.render(var_dict)
+
+        # Now do one more pretty printing
+        xml = etree.tostring(etree.fromstring(xml.encode('utf-8')), pretty_print=True).decode('utf-8')
+        print(xml); 1/0
         return xml
             
+    def get_consolidated_xml(self, handlers : List[Handler]) -> List[str]:
+        """Consolidates duplicate XML representations from the handlers.
+
+        Deduplication happens by first getting all of the handler.xml() strings
+        of the handlers, and then converting them into etrees. After that we check 
+        if the there are any top level elements that are duplicated and pick the first of them
+        to retain. We then convert the remaining etrees back into strings and join them with new lines.
+
+        Args:
+            handlers (List[Handler]): A list of handlers to consolidate.
+
+        Returns:
+            str: The XML
+        """
+        handler_xml_strs = [handler.xml() for handler in handlers]
+
         
+        if not handler_xml_strs:
+            return ''
+
+        # TODO: RAISE VALID XML ERROR. FOR EASE OF USE
+        trees = [etree.fromstring(xml) for xml in handler_xml_strs]
+        consolidated_trees = {tree.tag: tree for tree in trees}.values()
+        
+        
+
+        return [etree.tostring(t, pretty_print=True).decode('utf-8')  
+            for t in consolidated_trees]
+
+

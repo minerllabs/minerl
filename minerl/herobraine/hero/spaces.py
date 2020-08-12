@@ -484,6 +484,7 @@ class Text(MineRLSpace):
         return np.array(np.reshape(strings, self.shape), np.dtype)
 
     def contains(self, x):
+        contained = False #? TODO (R): Look back in git.
         contained = contained or isinstance(x, np.ndarray) and x.shape == self.shape and x.dtype.type in [np.string_,
                                                                                                      np.unicode]
         contained = contained or self.shape in [None, 1] and isinstance(x, str)

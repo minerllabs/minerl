@@ -7,7 +7,6 @@ from xml.etree.ElementTree import Element
 import gym
 import jinja2
 
-from minerl.herobraine.hero.spaces import MineRLSpace, spaces
 
 
 class Handler(ABC):
@@ -48,7 +47,17 @@ class Handler(ABC):
         Returns:
             str: the XML representation of the handler.
         """
-        return self.xml_template().render(self.__dict__)
+        var_dict = {}
+        for attr_name in dir(self):
+            if 'xml' not in attr_name:
+                var_dict[attr_name] = getattr(self, attr_name)
+        try:
+            return self.xml_template().render(var_dict)
+        except jinja2.UndefinedError as e:
+            # print the exception with traceback
+            message = e.message + "\nOccurred in {}".format(self)
+            raise jinja2.UndefinedError(message=message)
+            pass
 
     
     def __or__(self, other):
@@ -68,4 +77,6 @@ class Handler(ABC):
         """
         return self.to_string() == other.to_string()
 
+    def __repr__(self):
+        return self.to_string()
 

@@ -626,7 +626,8 @@ ALL_SMELTING_ITEMS = [
 ]
 
 
-
+MS_PER_STEP = 50
+STEPS_PER_MS = 1000 // MS_PER_STEP
 
 
 def strip_item_prefix(minecraft_name):

@@ -1,8 +1,8 @@
-from minerl.herobraine.hero.handlers.action import Action, ItemListAction
+from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
 import jinja2
 import minerl.herobraine.hero.spaces as spaces
 
-class PlaceBlock(ItemListCommandAction, SimpleXMLElementMixin):
+class PlaceBlock(ItemListAction):
     """
     An action handler for placing a specific block
     """

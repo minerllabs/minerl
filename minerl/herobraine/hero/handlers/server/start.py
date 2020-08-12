@@ -16,10 +16,10 @@ class TimeInitialCondition(Handler):
     def xml_template(self) -> jinja2.Template:
          return jinja2.Template(
              """<Time>
-                    {{% if state_time is not None %}}
-                    <StartTime>{{str(start_time)}}</StartTime>
-                    {{$ endif %}}
-                    <AllowPassageOfTime>{{str(allow_passage_of_time).lower()}}</AllowPassageOfTime>
+                    {% if start_time is not none %}
+                    <StartTime>{{start_time | string}}</StartTime>
+                    {% endif %}
+                    <AllowPassageOfTime>{{allow_passage_of_time | string | lower}}</AllowPassageOfTime>
                  </Time>"""
          )
         
@@ -35,7 +35,7 @@ class WeatherInitialCondition(Handler):
     
     def xml_template(self) -> jinja2.Template:
          return jinja2.Template(
-             """<Weather>{{str(weather)}}</Weather>"""
+             """<Weather>{{weather | string }}</Weather>"""
          )
         
     def __init__(self, weather: str):
@@ -48,7 +48,7 @@ class SpawningInitialCondition(Handler):
     
      def xml_template(self) -> jinja2.Template:
          return jinja2.Template(
-             """<AllowSpawning>{{str(allow_spawning).lower()}}</AllowSpawning>"""
+             """<AllowSpawning>{{allow_spawning | string | lower}}</AllowSpawning>"""
          )
         
      def __init__(self, allow_spawning: bool):

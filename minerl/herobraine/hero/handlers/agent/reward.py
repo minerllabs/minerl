@@ -58,7 +58,7 @@ class _RewardForPosessingItemBase(RewardHandler):
 
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template(
-            """<RewardForPossessingItem sparse="{{ str(sparse).lower() }}" excludeLoops="{{ str(exclude_loops).lower()}}">
+            """<RewardForPossessingItem sparse="{{ sparse | lower }}" excludeLoops="{{ exclude_loops | string | lower}}">
                     {% for item in items %}
                     <Item amount="{{ item.amount }}" reward="{{ item.reward }}" type="{{ item.type }}" />
                     {% endfor %}
@@ -88,6 +88,10 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
     def __init__(self, item_rewards : List[Dict[str, Union[str,int]]]):
         """
         The standard malmo reward for collecting item.
+
+        rc = handlers.RewardForCollectingItems([
+                dict(type="log", amount=1, reward=1.0),
+            ])
         """
         super().__init__(sparse=False, exclude_loops=False, item_rewards=item_rewards )
 
@@ -107,7 +111,11 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
 
 class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
     """
-    The standard malmo reward for collecting item.
+    The standard malmo reward for collecting item once.
+
+        rc = handlers.RewardForCollectingItemsOnce([
+            dict(type="log", amount=1, reward=1.0),
+        ])
     """
     def __init__(self, item_rewards : List[Dict[str, Union[str,int]]]):
         super().__init__(sparse=True, exclude_loops=False, item_rewards=item_rewards)

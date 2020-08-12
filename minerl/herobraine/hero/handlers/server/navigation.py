@@ -26,7 +26,7 @@ class NavigationDecorator(Handler):
                 </randomPlacementProperties>
                 <minRandomizedDistance>{{min_randomized_distance}}</minRandomizedDistance>
                 <maxRandomizedDistance>{{max_randomized_distance}}</maxRandomizedDistance>
-                <randomizeCompassLocation>{{str(randomize_compass_location).lower()}}</randomizeCompassLocation>
+                <randomizeCompassLocation>{{randomize_compass_location | string | lower}}</randomizeCompassLocation>
             </NavigationDecorator>
             """
         )

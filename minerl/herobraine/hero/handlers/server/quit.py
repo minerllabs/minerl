@@ -17,12 +17,12 @@ class ServerQuitFromTimeUp(Handler):
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template(
             """<ServerQuitFromTimeUp 
-                    timeLimitMs="{{str(time_limit_ms)}}"
+                    timeLimitMs="{{ time_limit_ms | string }}"
                     description="{{description}}"/>
             """
         )
 
-    def __init__(self, time_limit_ms, description="out_of_time"):
+    def __init__(self, time_limit_ms : int, description="out_of_time"):
         self.time_limit_ms = time_limit_ms
         self.description = description
 

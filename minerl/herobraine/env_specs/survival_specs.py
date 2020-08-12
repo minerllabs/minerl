@@ -1,3 +1,4 @@
+from minerl.herobraine.hero.handler import Handler
 from typing import List
 
 import gym
@@ -22,13 +23,13 @@ class SurvivalLimited(EnvSpec):
     def is_from_folder(folder: str) -> bool:
         return folder == 'none'
 
-    def create_mission_handlers(self) -> List[minerl.herobraine.hero.AgentHandler]:
+    def create_mission_handlers(self) -> List[Handler]:
         return [handlers.RewardForCollectingItems({
                 k: 1 for k in ALL_ITEMS_WITHOUT_AIR
             })
         ]
 
-    def create_observables(self) -> List[minerl.herobraine.hero.AgentHandler]:
+    def create_observables(self) -> List[Handler]:
         return [
             handlers.POVObservation(self.resolution),
             handlers.FlatInventoryObservation(ALL_ITEMS),
@@ -37,7 +38,7 @@ class SurvivalLimited(EnvSpec):
             handlers.MaxDamageObservation('mainhand')
         ]
 
-    def create_actionables(self) -> List[minerl.herobraine.hero.AgentHandler]:
+    def create_actionables(self) -> List[Handler]:
         actionables = [
             handlers.KeyboardAction(k, v) for k,v in INVERSE_KEYMAP.items()
         ]

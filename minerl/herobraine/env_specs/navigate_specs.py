@@ -1,12 +1,12 @@
+from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
+from minerl.herobraine.hero.handler import Handler
 import sys
 from typing import List
 
 import minerl.herobraine
 import minerl.herobraine.hero.handlers as handlers
-from minerl.herobraine.env_specs.simple_env_spec import SimpleEnvSpec
 
-
-class Navigate(SimpleEnvSpec):
+class Navigate(SimpleEmbodimentEnvSpec):
     def __init__(self, dense, extreme):
         suffix = 'Extreme' if extreme else ''
         suffix += 'Dense' if dense else ''
@@ -18,7 +18,7 @@ class Navigate(SimpleEnvSpec):
     def is_from_folder(self, folder: str) -> bool:
         return folder == 'navigateextreme' if self.extreme else folder == 'navigate'
 
-    def create_mission_handlers(self) -> List[minerl.herobraine.hero.AgentHandler]:
+    def create_mission_handlers(self) -> List[Handler]:
         mission_handlers = [
             handlers.EpisodeLength(6000 // 20),
             handlers.RewardForTouchingBlock(
@@ -43,12 +43,12 @@ class Navigate(SimpleEnvSpec):
             reward_threshold += 60
         return sum(rewards) >= reward_threshold
 
-    def create_observables(self) -> List[minerl.herobraine.hero.AgentHandler]:
+    def create_observables(self) -> List[Handler]:
         return super().create_observables() + [
             handlers.CompassObservation(),
             handlers.FlatInventoryObservation(['dirt'])]
 
-    def create_actionables(self) -> List[minerl.herobraine.hero.AgentHandler]:
+    def create_actionables(self) -> List[Handler]:
         return super().create_actionables() + [handlers.PlaceBlock(['none', 'dirt'])]
 
     def get_docstring(self):

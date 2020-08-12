@@ -1,6 +1,6 @@
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 import typing
-from minerl.herobraine.hero.handlers.action import Action, ItemListAction
+from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
 import jinja2
 import minerl.herobraine.hero.spaces as spaces
 
@@ -87,9 +87,9 @@ class KeybasedCommandAction(Action):
 #         return jinja2.Template("""
 #             <HumanLevelCommands>
 #                 <ModifierList type="allow-list">
-#                     {{% for command in commands %}}
+#                     {% for command in commands %}
 #                         <command>{{ command }}</command>
-#                     {{% endfor %}}
+#                     {% endfor %}
 #                 </ModifierList>
 #             </HumanLevelCommands>
 #             """)

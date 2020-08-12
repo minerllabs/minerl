@@ -77,3 +77,35 @@ class  AgentQuitFromCraftingItem(Handler):
         for item in self.items:
             assert "type" in item, "{} does not contain `type`".format(item)
             
+
+#  <AgentQuitFromPossessingItem>
+#     <Item type="log" amount="64"/>
+# </AgentQuitFromPossessingItem>
+class AgentQuitFromPossessingItem(Handler):
+    def to_string(self) -> str:
+        return "agent_quit_from_possessing_item"
+    
+    def xml_template(self) -> jinja2.Template:
+        return jinja2.Template(
+             """<AgentQuitFromPossessingItem>
+                    {% for item in items %}
+                    <Item type="{{ item.type }}" amount="{{ item.amount }}"/>
+                    {% endfor %}
+                </AgentQuitFromPossessingItem>"""
+        )
+
+    def __init__(self, items : List[Dict[str, Union[str, int]]]):
+        """Creates a reward which will cause the player to quit when they obtain something.
+        
+        aqfpi = AgentQuitFromPossessingItem([
+            dict(type="log", amount=64)
+        ])
+        """
+        assert isinstance(items, list)
+        self.items = items
+        # Assert that all the items have the correct fields for the XML.
+        for item in self.items:
+            print(item)
+            assert "type" in item, "{} does contain `type`".format(item)
+            assert "amount" in item, "{} does not contain `amount`".format(item)
+

@@ -25,9 +25,9 @@ class InventoryAgentStart(Handler):
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template(
             """<Inventory>
-            {{% for  slot in inventory %}}
+            {% for  slot in inventory %}
                 <InventoryObject slot="{{ slot }}" type="{{ inventory[slot]['type'] }}" quantity="{{ inventory[slot]['quantity'] }}"/>
-            {{% endfor %}}
+            {% endfor %}
             </Inventory>
             """
         )

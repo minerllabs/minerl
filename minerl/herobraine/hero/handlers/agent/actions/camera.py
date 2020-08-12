@@ -1,7 +1,7 @@
-from minerl.herobraine.hero.handlers.action import Action
+from minerl.herobraine.hero.handlers.agent.action import Action
 import jinja2
 import minerl.herobraine.hero.spaces as spaces
-
+import numpy as np
 
 class CameraAction(Action):
     """
