@@ -14,7 +14,7 @@ class PlaceBlock(ItemListAction):
     def xml_template(self) -> jinja2.Template:
         return jinja2.Template("<PlaceCommands/>")
 
-    def __init__(self, blocks: list):
+    def __init__(self, blocks: list, **item_list_kwargs):
         """
         Initializes the space of the handler to be one for each item in the list
         Requires 0th item to be 'none' and last item to be 'other' coresponding to
@@ -22,7 +22,7 @@ class PlaceBlock(ItemListAction):
         """
         self._items = blocks
         self._command = 'place'
-        super().__init__(self._command, self._items)
+        super().__init__(self._command, self._items, **item_list_kwargs)
         self._prev_inv = None
 
     def from_universal(self, obs):

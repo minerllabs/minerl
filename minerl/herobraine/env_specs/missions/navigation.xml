@@ -51,7 +51,6 @@
             </VideoProducer>
             <FileBasedPerformanceProducer/>
             <ObservationFromFullInventory flat="false"/>
-            <ObservationFromFullStats/>
             <HumanLevelCommands>
                 <ModifierList type="deny-list"> 
                 <command>moveMouse</command> 
@@ -61,9 +60,6 @@
             <CameraCommands/>
             <ObservationFromCompass/>
 
-            <RewardForMissionEnd>
-                <Reward description="out_of_time" reward="0" />
-            </RewardForMissionEnd>
             <AgentQuitFromTouchingBlockType>
                 <Block type="diamond_block"/>
             </AgentQuitFromTouchingBlockType>

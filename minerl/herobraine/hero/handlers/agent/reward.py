@@ -197,7 +197,13 @@ class RewardForTouchingBlockType(RewardHandler):
         )
 
     def __init__(self, blocks : List[Dict[str, Union[str, int]]]):
-        """Creates a reward which is awarded when the player touches a block."""
+        """Creates a reward which is awarded when the player touches a block.
+        An example of instantiating the class:
+
+        reward = RewardForTouchingBlockType([
+            {'type':'diamond_block', 'behaviour':'onceOnly', 'reward':'10'},
+        ])
+        """
         super().__init__()
         self.blocks = blocks
         self.fired = {bl['type']: False for bl in self.blocks}
