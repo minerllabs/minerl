@@ -56,17 +56,7 @@ class Navigate(SimpleEmbodimentEnvSpec):
         ]
 
     def create_server_handlers(self) -> List[Handler]:
-        hdls = [handlers.NavigationDecorator(
-                max_randomized_radius=64,
-                min_randomized_radius=64,
-                block='diamond_block',
-                placement='surface',
-                max_radius=8,
-                min_radius=0,
-                max_randomized_distance=8,
-                min_randomized_distance=0,
-                randomize_compass_location=True
-            ),
+        hdls = [
             handlers.ServerQuitFromTimeUp(NAVIGATE_STEPS // STEPS_PER_MS),
             handlers.ServerQuitWhenAnyAgentFinishes()
         ]
@@ -84,6 +74,19 @@ class Navigate(SimpleEmbodimentEnvSpec):
                 )
             )
         return hdls
+
+    def create_server_decorators(self) -> List[Handler]:
+        return [handlers.NavigationDecorator(
+                max_randomized_radius=64,
+                min_randomized_radius=64,
+                block='diamond_block',
+                placement='surface',
+                max_radius=8,
+                min_radius=0,
+                max_randomized_distance=8,
+                min_randomized_distance=0,
+                randomize_compass_location=True
+            )]
             
 
     def create_server_initial_conditions(self) -> List[Handler]:
