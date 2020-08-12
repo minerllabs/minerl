@@ -22,6 +22,10 @@
             {% for x in get_consolidated_xml((server_handlers)) %}
                 {{ x }}
             {% endfor %}
+
+            {% for x in get_consolidated_xml((server_decorators)) %}
+                {{ x }}
+            {% endfor %}
             
 
         </ServerHandlers>

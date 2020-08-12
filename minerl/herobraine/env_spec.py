@@ -121,6 +121,10 @@ class EnvSpec(abc.ABC):
     def create_server_initial_conditions(self) -> List[Handler]:
         raise  NotImplementedError('subclasses must override create_server_initial_conditions()!')
 
+    @abstractmethod
+    def create_server_decorators(self) -> List[Handler]:     
+        raise NotImplementedError('subclasses must override create_server_decorators()!')     
+
 
     ################## PROPERTIES & HELPERS #################
     @property
