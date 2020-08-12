@@ -85,7 +85,7 @@ class EnvSpec(abc.ABC):
     
     @abstractmethod
     def create_agent_handlers(self) -> List[Handler]:
-        """Creates all of the agent handlers for an env specificaiton. 
+        """Creates all of the agent handlers for an env specificaiton.
         These generally are used to specify agent specific behaviours that don't
         directly correspond to rewards/actions/observaitons.
 

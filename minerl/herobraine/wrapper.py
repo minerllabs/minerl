@@ -124,6 +124,9 @@ class EnvWrapper(EnvSpec):
     def create_server_handlers(self):
         return self.env_to_wrap.create_server_handlers()
 
+    def create_server_decorators(self):
+        return self.env_to_wrap.create_server_decorators()
+
     def create_server_initial_conditions(self):
         return self.env_to_wrap.create_server_handlers()
     

@@ -70,6 +70,9 @@ class Treechop(SimpleEmbodimentEnvSpec):
             handlers.ServerQuitWhenAnyAgentFinishes()
         ]
 
+    def create_server_decorators(self) -> List[Handler]:
+        return []
+
     def create_server_initial_conditions(self) -> List[Handler]:
         return [
             handlers.TimeInitialCondition(
