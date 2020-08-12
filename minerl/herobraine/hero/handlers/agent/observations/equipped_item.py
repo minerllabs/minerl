@@ -36,13 +36,31 @@ class EquippedItemObservation(TranslationHandlerGroup):
         assert mainhand or offhand, "Must select at least one hand to observer."
         assert not offhand, "Offhand equipped items is not implemented yet."
         self._hand = 'mainhand' # TODO: Implement offhand.
+        self._items = items
+        self._other = _other
+        self._default = _default
 
         super().__init__(handlers= [
             _HandObservation(self._hand, items, _default= _default, _other= _other) #,
             # Eventually this can include offhand.
-            ]
+            ], 
+        )
+
+    def __eq__(self, other):
+        return (
+            super().__eq__(other)
+            and other.hand == self.hand
         )
     
+    def __or__(self, other):
+        return EquippedItemObservation(
+            items = list(set(self._items) | set(other._items)),
+            mainhand = (self._hand == 'mainhand'),
+            offhand = False,
+            _other= self._other,
+            _default=self._default
+        )
+
         
             
 # This handler grouping doesn't really correspond nicely to the stubbed version of
@@ -132,12 +150,13 @@ class _TypeObservation(TranslationHandler):
         taking the union of self.items and other.items
         """
         if isinstance(other, _TypeObservation):
-            return _TypeObservation(self.hand, list(set(self.items + other.items)))
+            return _TypeObservation(self._hand, list(set(self._items + other._items)),
+                _other= self._other, _default= self._default)
         else:
             raise TypeError('Operands have to be of type TypeObservation')
 
     def __eq__(self, other):
-        return self.hand == other.hand and self.items == other.items
+        return self._hand == other._hand and self._items == other._items
 
 
 class _DamageObservation(TranslationHandler):

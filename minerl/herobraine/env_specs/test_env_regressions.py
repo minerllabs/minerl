@@ -1,11 +1,10 @@
 
 from minerl.herobraine.hero import spaces
-from minerl.herobraine.env_spec import MISSIONS_DIR
 import os
 import numpy as np
 import gym
 
-missions_dir = MISSIONS_DIR
+missions_dir = '.' #TODO FOR REGRESSION
 old_envs = []
 
 old_envs.append(dict(

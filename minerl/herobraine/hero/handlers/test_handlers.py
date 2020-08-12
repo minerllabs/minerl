@@ -1,10 +1,15 @@
 # Tests merging two item list commands
-from minerl.herobraine.hero.handlers.actionable import ItemListCommandAction
-from minerl.herobraine.hero.handlers.observables import CompassObservation, FlatInventoryObservation, TypeObservation
+
+
+
+from minerl.herobraine.hero.handlers.agent.observations.compass import CompassObservation
+from minerl.herobraine.hero.handlers.agent.observations.inventory import FlatInventoryObservation
+from minerl.herobraine.hero.handlers.agent.observations.equipped_item import _TypeObservation
+from minerl.herobraine.hero.handlers.agent.action import ItemListAction
 
 
 def test_merge_item_list_command_actions():
-    class TestItemListCommandAction(ItemListCommandAction):
+    class TestItemListCommandAction(ItemListAction):
         def __init__(self, items : list):
             super().__init__("test", items)
         def to_string(self):
@@ -17,9 +22,9 @@ def test_merge_item_list_command_actions():
 
 
 def test_merge_type_observation():
-    type_obs_a = TypeObservation('test', ['none', 'A', 'B', 'C', 'D', 'other'])
-    type_obs_b = TypeObservation('test', ['none', 'E', 'F', 'other'])
-    type_obs_result = TypeObservation('test', ['none', 'A', 'B', 'C', 'D', 'E', 'F', 'other'])
+    type_obs_a = _TypeObservation('test', ['none', 'A', 'B', 'C', 'D', 'other'])
+    type_obs_b = _TypeObservation('test', ['none', 'E', 'F', 'other'])
+    type_obs_result = _TypeObservation('test', ['none', 'A', 'B', 'C', 'D', 'E', 'F', 'other'])
     assert(type_obs_a | type_obs_b == type_obs_result)
 
 

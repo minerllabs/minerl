@@ -198,7 +198,7 @@ class EnvSpec(abc.ABC):
 
         # Now do one more pretty printing
         xml = etree.tostring(etree.fromstring(xml.encode('utf-8')), pretty_print=True).decode('utf-8')
-        print(xml); 1/0
+        # TODO: Perhaps some logging is necessary
         return xml
             
     def get_consolidated_xml(self, handlers : List[Handler]) -> List[str]:

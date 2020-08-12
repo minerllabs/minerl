@@ -98,7 +98,7 @@ class TranslationHandlerGroup(TranslationHandler):
     """Combines several space handlers into a single handler group.
     """
     def __init__(self, handlers : List[TranslationHandler]):
-        # TODO (R): SEE IF THIS SHOULD BE SORTED.
+
         self.handlers = sorted(handlers, key=lambda x: x.to_string())
         super(TranslationHandlerGroup, self).__init__(
             spaces.Dict([(h.to_string(), h.space) for h in self.handlers])
@@ -131,28 +131,9 @@ class TranslationHandlerGroup(TranslationHandler):
             for h in self.handlers
         ])
 
-
-    def __eq__(self, other):
-        return (
-            super().__eq__(other) 
-            and isinstance(other, TranslationHandlerGroup)
-            and  self.handlers == other.handlers
-        )
-
-    def __or__(self, other):
-        
-        """Overloads | (binary or) operator. 
-        Joins the two handler groups by matching all keys 
-        and combining their translation dictionaries."""
-        
-        assert self.to_string() == other.to_string()
-        assert (
-            [h.to_string() for h in self.handlers] 
-            == [h.to_string() for h in other.handlers]
-        )
-
-        return TranslationHandlerGroup(
-            [self.handler_dict[k] | other.handler_dict[k] 
-                for k in self.handler_dict.keys()]
-        )
+    @property
+    def handler_dict(self) -> typing.Dict[str, Handler]:
+        return {
+            h.to_string(): h for h in self.handlers
+        }
 

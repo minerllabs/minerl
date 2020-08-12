@@ -17,7 +17,7 @@ class EnvWrapper(EnvSpec):
             self._unwrap_act_fn = self.env_to_wrap.unwrap_action
             self._unwrap_obs_fn = self.env_to_wrap.unwrap_observation
 
-        super().__init__(self._update_name(env_to_wrap.name), env_to_wrap.xml,
+        super().__init__(self._update_name(env_to_wrap.name),
                          max_episode_steps=env_to_wrap.max_episode_steps,
                          reward_threshold=env_to_wrap.reward_threshold)
 
