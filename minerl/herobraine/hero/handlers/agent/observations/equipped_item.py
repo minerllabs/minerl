@@ -87,6 +87,9 @@ class _TypeObservation(TranslationHandler):
         self._other = _other 
         assert self._other in items
         assert self._default in items
+        super().__init__(
+            spaces.Enum(*self._items, default=self._default)
+        )
 
     def to_string(self):
         return 'type'

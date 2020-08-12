@@ -121,18 +121,6 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
         super().__init__(sparse=True, exclude_loops=False, item_rewards=item_rewards)
         self.seen_dict = dict()
 
-    
-    def __init__(self, item_dict):
-        """
-        Adds a reward for collecting a certain set of items.
-        :param item_name: The name
-        :param reward: The reward
-        :param args: So on and so forth.
-        """
-        super().__init__()
-        self.seen_dict = dict()
-        self.reward_dict = item_dict
-
     def from_universal(self, x):
         total_reward = 0
         if 'diff' in x and 'changes' in x['diff']:
