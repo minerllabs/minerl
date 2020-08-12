@@ -38,8 +38,6 @@
       </Inventory>
     </AgentStart>
     <AgentHandlers>
-      <ObservationFromFullInventory flat="false"/>
-      <ObservationFromFullStats/>
       <HumanLevelCommands>
         <ModifierList type="deny-list"> 
           <command>moveMouse</command> 
