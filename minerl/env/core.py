@@ -110,7 +110,6 @@ class MineRLEnv(gym.Env):
         self.viewer = None
 
         self._last_ac = None
-        self.integratedServerPort = 0
         self.agent_count = 0
         self.resets = 0
         self.ns = '{http://ProjectMalmo.microsoft.com}'
@@ -133,6 +132,7 @@ class MineRLEnv(gym.Env):
         self._already_closed = False
         self.instances = []
         self.env_spec = env_spec
+        self.integratedServerPort = 0
 
         self.observation_space = observation_space
         self.action_space = action_space
@@ -497,15 +497,18 @@ class MineRLEnv(gym.Env):
     def _start_up(self):
         self.resets += 1
 
-        # FIXME - does this have to be here, rather than init()?
         for instance in self.instances:
             try:
+                # only fetch server info once after master agent has connected
+                if instance.role == 1:
+                    self._find_server(instance)
                 if not instance.client_socket:
                     logger.debug(f"Creating socket connection {instance}")
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                     sock.settimeout(SOCKTIME)
                     sock.connect((instance.host, instance.port))
+                    logger.debug(f"Saying hello for client: {instance}")
                     self._hello(sock)
 
                     # Now retries will use connected socket.
@@ -520,7 +523,7 @@ class MineRLEnv(gym.Env):
                 self._clean_connection()
                 raise e
 
-        self._init_mission()
+            self._init_mission(instance)
 
         self.done = False
         return self._peek_obs()
@@ -576,15 +579,6 @@ class MineRLEnv(gym.Env):
                 raise RuntimeError(
                     "Something went wrong resetting the environment! "
                     "`done` was true on first frame.")
-
-        # See if there is an integrated port
-        if self._is_interacting:
-            port = self._find_server()
-            self.integratedServerPort = port
-            logger.warn("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
-            # Todo make a launch command.
-            
-
 
         return self._process_observation(obs, info)
 
@@ -778,52 +772,57 @@ class MineRLEnv(gym.Env):
         sock.close()
         return status
 
-    def _find_server(self):
-        # TODO - only need controller instance here?
-        instance = self._controller_instance()
+    def _find_server(self, instance):
+        # calling find on the controller client
+        controller_instance = self._controller_instance()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((instance.host, instance.port))
+        sock.connect((controller_instance.host, controller_instance.port))
         self._hello(sock)
 
-        start_time = time.time()
         port = 0
-        while port == 0:
+        tries = 0
+        while port == 0 and tries < 1000:
             comms.send_message(
                 sock, ("<Find>" + self._get_token(instance) + "</Find>").encode()
             )
             reply = comms.recv_message(sock)
             port, = struct.unpack('!I', reply)
+            tries += 1
         sock.close()
-        # print("Found mission integrated server port " + str(port))
-        return  port
-        # e = self.xml.find(self.ns + 'MinecraftServerConnection')
-        # if e is not None:
-        #     e.attrib['port'] = str(self.integratedServerPort)
+        if port == 0:
+            raise Exception("Failed to find master server in time!")
+        self.integratedServerPort = port  # should/can this even be cached?
+        logger.warning("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
 
-    def _init_mission(self):
+        # go ahead and set port for all non-controller clients
+        for instance in self.instances[1:]:
+            e = instance.xml.find(self.ns + 'MinecraftServerConnection')
+            if e is not None:
+                e.attrib['port'] = str(port)
+
+    def _init_mission(self, instance):
         # init all instance missions
-        for instance in self.instances:
-            ok = 0
-            num_retries = 0
-            logger.debug(f"Sending mission init: {instance}")
-            while ok != 1:
-                xml = etree.tostring(instance.xml)
-                token = (self._get_token(instance) + ":" + str(self.agent_count) +
-                         ":" + str(self.synchronous).lower())
-                if self._seed is not None:
-                    token += ":{}".format(self._seed)
-                token = token.encode()
-                comms.send_message(instance.client_socket, xml)
-                comms.send_message(instance.client_socket, token)
+        ok = 0
+        num_retries = 0
+        logger.debug(f"Sending mission init: {instance}")
+        while ok != 1:
+            xml = etree.tostring(instance.xml)
+            token = (self._get_token(instance) + ":" + str(self.agent_count) +
+                     ":" + str(self.synchronous).lower())
+            if self._seed is not None:
+                token += ":{}".format(self._seed)
+            token = token.encode()
+            comms.send_message(instance.client_socket, xml)
+            comms.send_message(instance.client_socket, token)
 
-                reply = comms.recv_message(instance.client_socket)
-                ok, = struct.unpack('!I', reply)
-                if ok != 1:
-                    num_retries += 1
-                    if num_retries > MAX_WAIT:
-                        raise socket.timeout()
-                    logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
-                    time.sleep(1)
+            reply = comms.recv_message(instance.client_socket)
+            ok, = struct.unpack('!I', reply)
+            if ok != 1:
+                num_retries += 1
+                if num_retries > MAX_WAIT:
+                    raise socket.timeout()
+                logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
+                time.sleep(1)
 
     def _get_token(self, instance):
         return self.exp_uid + ":" + str(instance.role) + ":" + str(self.resets)

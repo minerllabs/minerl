@@ -444,7 +444,6 @@ class InstanceManager:
             self._status_dir = status_dir
             self.owner = None
 
-
             self.instance_id = instance_id
 
             # Try to set the seed for the instance using the instance manager's override.
