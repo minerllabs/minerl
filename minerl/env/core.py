@@ -90,12 +90,11 @@ class MineRLEnv(gym.Env):
                 # Use env like any other OpenAI gym environment.
                 # ...
 
-
         Args:
             xml (str): The path to the MissionXML file for this environment.
             observation_space (gym.Space): The observation for the environment.
             action_space (gym.Space): The action space for the environment.
-            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
+            port (int, optional): The port of an exisitng Malmo environment. Defaults to None which launches new.
             noop_action (Any, optional): The no-op action for the environment. This must be in the action_space. Defaults to None.
         """
     metadata = {'render.modes': ['rgb_array', 'human']}
@@ -132,6 +131,7 @@ class MineRLEnv(gym.Env):
         self._already_closed = False
         self.instances = []
         self.env_spec = env_spec
+        self.port = port
         self.integratedServerPort = 0
 
         self.observation_space = observation_space
@@ -166,11 +166,6 @@ class MineRLEnv(gym.Env):
 
         Note:
             This is called automatically when the environment is made.
-
-        Args:
-            observation_space (gym.Space): The observation for the environment.
-            action_space (gym.Space): The action space for the environment.
-            port (int, optional): The port of an exisitng Malmo environment. Defaults to None.
 
         Raises:
             EnvException: If the Mission XML is malformed this is thrown.
@@ -233,13 +228,18 @@ class MineRLEnv(gym.Env):
             # xml.find(self.ns + "ClientRole").text = str(role)
             # xml.find(self.ns + "ExperimentUID").text = self.exp_uid
 
-            instance = self._get_new_instance(port=None)  # FIXME - offset from a base_port?
+            port = self.port
+            if port is not None:
+                port = port + role
+            instance = self._get_new_instance(port=port)
             self.instances.append(instance)
 
+            # prepare non-master clients to connect to the master server
             if role != 0 and self.agent_count > 1:
+                # note that this server port is different than above client port, and will be set later
                 e = etree.Element(
                     self.ns + "MinecraftServerConnection",
-                    attrib={"address": instance.host, "port": str(0)},  # FIXME - why is this not instance.port?
+                    attrib={"address": instance.host, "port": str(0)},
                 )
                 xml.insert(2, e)
 
@@ -284,6 +284,29 @@ class MineRLEnv(gym.Env):
         """
         return self.action_space.no_op()
 
+    # TODO - make a custom Logger with this integrated (See LogHelper.java)
+    def _logger_warning(self, message, *args, once=False, **kwargs):
+        if once:
+            # make sure we have our silenced logs table
+            if not hasattr(self, "silenced_logs"):
+                self.silenced_logs = set()
+
+            # hash the stack trace
+            import hashlib
+            import traceback
+            stack = traceback.extract_stack()
+            locator = ""
+            for frame in stack:
+                locator += f"{frame.filename}:{frame.lineno}|"
+            key = hashlib.md5(locator.encode('utf-8'))
+
+            # check if stack trace is silenced
+            if key in self.silenced_logs:
+                return
+            self.silenced_logs.add(key)
+
+        logger.warning(message, *args, **kwargs)
+
     def _process_observation(self, pov, info):
         """
         Process observation into the proper dict space.
@@ -294,8 +317,11 @@ class MineRLEnv(gym.Env):
             pov = np.zeros(
                 (self.height, self.width, self.depth), dtype=np.uint8)
         else:
-            pov = pov.reshape((self.height, self.width, self.depth))[
-                  ::-1, :, :]
+            try:
+                pov = pov.reshape((self.height, self.width, self.depth))[
+                      ::-1, :, :]
+            except Exception as e:
+                self._logger_warning(f"Failed to reshape observations: {e}", once=True)
 
         if info:
             info = json.loads(info)
@@ -308,6 +334,7 @@ class MineRLEnv(gym.Env):
             info['equipped_items.mainhand.damage'] = np.array(info['equipped_items']['mainhand']['damage'])
             info['equipped_items.mainhand.maxDamage'] = np.array(info['equipped_items']['mainhand']['maxDamage'])
         except Exception as e:
+            self._logger_warning(f"Failed to set equipment observations: {e}", once=True)
             if 'equipped_items' in info:
                 del info['equipped_items']
 
@@ -320,7 +347,9 @@ class MineRLEnv(gym.Env):
                     'equipped_items.mainhand.type']:
                 info['equipped_items.mainhand.type'] = "other"  # Todo: use handlers. TODO: USE THEM<
         except Exception as e:
+            self._logger_warning(f"Failed to set mainhand observations: {e}", once=True)
             pass
+
         # Process Info: (HotFix until updated in Malmo.)
         if "inventory" in info and "inventory" in bottom_env_spec.observation_space.spaces:
             inventory_spaces = bottom_env_spec.observation_space.spaces['inventory'].spaces
@@ -343,8 +372,8 @@ class MineRLEnv(gym.Env):
                         continue
             info['inventory'] = inventory_dict
         elif "inventory" in bottom_env_spec.observation_space.spaces and not "inventory" in info:
-            # logger.warning("No inventory found in malmo observation! Yielding empty inventory.")
-            # logger.warning(info)
+            self._logger_warning("No inventory found in malmo observation! Yielding empty inventory.", once=True)
+            self._logger_warning(info, once=True)
             pass
 
         info['pov'] = pov
@@ -375,7 +404,7 @@ class MineRLEnv(gym.Env):
 
         return obs_dict
 
-    def _process_action(self, actions_in) -> str:
+    def _process_actions(self, actions_in) -> str:
         """
         Process the actions into a proper command.
         """
@@ -608,17 +637,19 @@ class MineRLEnv(gym.Env):
             self.observation_space.seed(self._seed)
             self.action_space.seed(self._seed)
 
-
     def step(self, actions):
+        if not self.done:
+            withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
 
-        withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
+            # Process the multi-agent actions.
+            malmo_commands = self._process_actions(actions)
+            multi_obs = []
+            multi_reward = []
+            multi_done = []
+            multi_info = []
 
-        # Process the actions.
-        malmo_commands = self._process_action(actions)
-
-        for instance in self.instances:
-            try:  # TODO - we could wrap entire function in try, if sockets don't need to individually clean
-                if not self.done:
+            for instance in self.instances:
+                try:  # TODO - we could wrap entire function in try, if sockets don't need to individually clean
                     malmo_command = malmo_commands[instance.role]
                     step_message = "<StepClient" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
                                     malmo_command + \
@@ -626,70 +657,76 @@ class MineRLEnv(gym.Env):
 
                     # Send Actions.
                     comms.send_message(instance.client_socket, step_message.encode())
-                else:
-                    raise RuntimeError("Attempted to step an environment client with done=True")
-            except (socket.timeout, socket.error, TypeError) as e:
-                # If the socket times out some how! We need to catch this and reset the environment.
-                self._clean_connection()
-                self.done = True
-                logger.error(
-                    f"Failed to take a step (error {e}). Terminating episode and sending random observation, be aware. "
-                    "To account for this failure case in your code check to see if `'error' in info` where info is "
-                    "the info dictionary returned by the step function."
-                )
-                return (
-                    self.observation_space.sample(),
-                    0,
-                    self.done,
-                    {"error": "Connection timed out!"},
-                )
 
-        instance = self._controller_instance()
-        try:
-            if not self.done:
+                    # Receive the observation.
+                    obs = comms.recv_message(instance.client_socket)
+
+                    # Receive reward done and sent.
+                    reply = comms.recv_message(instance.client_socket)
+                    reward, done, sent = struct.unpack("!dbb", reply)
+
+                    # Receive info from the environment.
+                    if withinfo:
+                        info = comms.recv_message(instance.client_socket).decode("utf-8")
+                    else:
+                        info = {}
+
+                    # Process the observation and done state.
+                    out_obs = self._process_observation(obs, info)
+                    done = (done == 1)
+
+                    # concatenate multi-agent obs
+                    multi_obs.append(out_obs)
+                    multi_reward.append(reward)
+                    multi_done.append(done)
+                    multi_info.append(info)
+                except (socket.timeout, socket.error, TypeError) as e:
+                    # If the socket times out some how! We need to catch this and reset the environment.
+                    self._clean_connection()
+                    self.done = True
+                    logger.error(
+                        f"Failed to take a step (error {e}). Terminating episode and sending random observation, be aware. "
+                        "To account for this failure case in your code check to see if `'error' in info` where info is "
+                        "the info dictionary returned by the step function."
+                    )
+                    return (
+                        self.observation_space.sample(),
+                        0,
+                        self.done,
+                        {"error": "Connection timed out!"},
+                    )
+
+            # this will currently only consider the env done when all agents report done individually
+            self.done = np.all(multi_done)
+
+            instance = self._controller_instance()
+            try:
                 step_message = "<StepServer" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
                                "</StepServer" + str(MineRLEnv.STEP_OPTIONS) + " >"
 
                 # Send Actions.
                 comms.send_message(instance.client_socket, step_message.encode())
 
-                # Receive the observation.
-                obs = comms.recv_message(instance.client_socket)
+            except (socket.timeout, socket.error, TypeError) as e:
+                # If the socket times out some how! We need to catch this and reset the environment.
+                self._clean_connection()
+                self.done = True
+                logger.error(
+                    "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
+                    "To account for this failure case in your code check to see if `'error' in info` where info is "
+                    "the info dictionary returned by the step function.")
+                return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
-                # Receive reward done and sent.
-                reply = comms.recv_message(instance.client_socket)
-                reward, done, sent = struct.unpack("!dbb", reply)
+            # synchronize with real time
+            if self._is_real_time:
+                t0 = time.time()
+                # Todo: Add catch-up
+                time.sleep(max(0, TICK_LENGTH - (t0 - self._last_step_time)))
+                self._last_step_time = time.time()
+        else:
+            raise RuntimeError("Attempted to step an environment server with done=True")
 
-                # Receive info from the environment.
-                if withinfo:
-                    info = comms.recv_message(instance.client_socket).decode("utf-8")
-                else:
-                    info = {}
-
-                # Process the observation and done state.
-                out_obs = self._process_observation(obs, info)
-                self.done = (done == 1)
-                
-                if self._is_real_time:
-                    t0 = time.time()
-                    # Todo: Add catch-up
-                    time.sleep(max(0, TICK_LENGTH - (t0 - self._last_step_time)))
-                    self._last_step_time = time.time()
-
-
-            else:
-                raise RuntimeError("Attempted to step an environment server with done=True")
-        except (socket.timeout, socket.error, TypeError) as e:
-            # If the socket times out some how! We need to catch this and reset the environment.
-            self._clean_connection()
-            self.done = True
-            logger.error(
-                "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
-                "To account for this failure case in your code check to see if `'error' in info` where info is "
-                "the info dictionary returned by the step function.")
-            return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
-
-        return out_obs, reward, self.done, {}
+        return multi_obs, multi_reward, multi_done, multi_info
 
     def _renderObs(self, obs, ac=None):
         if self.viewer is None:
@@ -773,12 +810,13 @@ class MineRLEnv(gym.Env):
         return status
 
     def _find_server(self, instance):
-        # calling find on the controller client
+        # calling find on the master client to get the server port
         controller_instance = self._controller_instance()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((controller_instance.host, controller_instance.port))
         self._hello(sock)
 
+        # try until you get something valid
         port = 0
         tries = 0
         while port == 0 and tries < 1000:
@@ -790,7 +828,7 @@ class MineRLEnv(gym.Env):
             tries += 1
         sock.close()
         if port == 0:
-            raise Exception("Failed to find master server in time!")
+            raise Exception("Failed to find master server port!")
         self.integratedServerPort = port  # should/can this even be cached?
         logger.warning("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
 
