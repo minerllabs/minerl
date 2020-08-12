@@ -136,7 +136,7 @@ class TranslationHandlerGroup(TranslationHandler):
         return (
             super().__eq__(other) 
             and isinstance(other, TranslationHandlerGroup)
-            and self.handler_dict == other.handler_dict
+            and  self.handlers == other.handlers
         )
 
     def __or__(self, other):
@@ -146,7 +146,11 @@ class TranslationHandlerGroup(TranslationHandler):
         and combining their translation dictionaries."""
         
         assert self.to_string() == other.to_string()
-        assert set(self.handler_dict.keys()) == set(other.handler_dict.keys())
+        assert (
+            [h.to_string() for h in self.handlers] 
+            == [h.to_string() for h in other.handlers]
+        )
+
         return TranslationHandlerGroup(
             [self.handler_dict[k] | other.handler_dict[k] 
                 for k in self.handler_dict.keys()]

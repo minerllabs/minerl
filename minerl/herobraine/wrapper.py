@@ -105,11 +105,25 @@ class EnvWrapper(EnvSpec):
     def is_from_folder(self, folder: str) -> bool:
         return self.env_to_wrap.is_from_folder(folder)
 
-    def create_mission_handlers(self):
-        return self.env_to_wrap.create_mission_handlers()
-
+    # TODO: SEE IF THIS SHOULD BE CALLED OR NOT.
     def create_actionables(self):
         return self.env_to_wrap.create_actionables()
 
     def create_observables(self):
         return self.env_to_wrap.create_observables()
+
+    def create_rewardables(self):
+        return self.env_to_wrap.create_rewardables()
+
+    def create_agent_start(self):
+        return self.env_to_wrap.create_agent_start()
+
+    def create_agent_handlers(self):
+        return self.env_to_wrap.create_agent_handlers()
+
+    def create_server_handlers(self):
+        return self.env_to_wrap.create_server_handlers()
+
+    def create_server_initial_conditions(self):
+        return self.env_to_wrap.create_server_handlers()
+    

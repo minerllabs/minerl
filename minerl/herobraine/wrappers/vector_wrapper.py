@@ -36,12 +36,6 @@ class Vectorized(EnvWrapper):
 
         super().__init__(env_to_wrap)
 
-    def create_observables(self):
-        return self.env_to_wrap.observables
-
-    def create_actionables(self):
-        return self.env_to_wrap.actionables
-
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
         flat_obs_part = self.common_observation_space.flat_map(obs)
         wrapped_obs = self.common_observation_space.unflattenable_map(obs)
