@@ -74,6 +74,7 @@ class EnvSpec(abc.ABC):
         """
         raise NotImplementedError('subclasses must override create_rewardables()!')
 
+    @abstractmethod
     def create_agent_start(self) -> List[Handler]:
         """Specifies all fo the handlers which constitute the agents initial inventory etc
         at the beginning of a mission. This can be used for domain randomization
@@ -123,7 +124,8 @@ class EnvSpec(abc.ABC):
 
     @abstractmethod
     def create_server_decorators(self) -> List[Handler]:     
-        raise NotImplementedError('subclasses must override create_server_decorators()!')     
+        raise NotImplementedError('subclasses must override create_server_decorators()!')   
+      
 
 
     ################## PROPERTIES & HELPERS #################
