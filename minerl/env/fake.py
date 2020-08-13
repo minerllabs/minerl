@@ -138,7 +138,7 @@ class FakeMineRLEnv(gym.Env):
 
         # Load fake info
         self._info = np.load(
-            os.path.join(os.path.dirname(__file__), 'info.npz'), 
+            os.path.join(os.path.abspath(os.path.dirname(__file__)), 'info.npz'), 
         allow_pickle=True)['arr_0'].tolist()
         
         # Parse XML file
