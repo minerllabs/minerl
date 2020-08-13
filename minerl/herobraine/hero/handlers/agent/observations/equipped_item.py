@@ -75,7 +75,7 @@ class _HandObservation(TranslationHandlerGroup):
 
     def __init__(self,
         hand : str,
-        items :  List[str],
+        items :  typing.List[str],
         _default,
         _other):
 
