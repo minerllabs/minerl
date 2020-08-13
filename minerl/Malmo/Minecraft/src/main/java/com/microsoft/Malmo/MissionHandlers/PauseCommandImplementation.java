@@ -34,7 +34,9 @@ public class PauseCommandImplementation extends CommandBase {
             } else if(parameter.equals("0")){
                 TimeHelper.unpause();
             }
+
+            return true;
         }
-        return true;
+        return false; 
     }
 }
