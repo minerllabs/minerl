@@ -295,7 +295,7 @@ class MineRLEnv(gym.Env):
             import hashlib
             import traceback
             stack = traceback.extract_stack()
-            locator = f"{stack[-2].filename}:{stack[-2].lineno}|"
+            locator = f"{stack[-2].filename}:{stack[-2].lineno}"
             key = hashlib.md5(locator.encode('utf-8')).hexdigest()
 
             # check if stack trace is silenced
@@ -609,12 +609,13 @@ class MineRLEnv(gym.Env):
         return self._process_observation(obs, info)
 
     def _quit_episode(self):
-        # TODO - only need controller instance here?
-        instance = self._controller_instance()
+        for instance in self.instances:
         comms.send_message(instance.client_socket, "<Quit/>".encode())
         reply = comms.recv_message(instance.client_socket)
         ok, = struct.unpack('!I', reply)
-        return ok != 0
+            if ok == 0:
+                return False
+        return True
 
     def seed(self, seed=42, seed_spaces=True):
         """Seeds the environment!

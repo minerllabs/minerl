@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 import time
 from lxml import etree
+import numpy as np
 
 
 if __name__ == '__main__':
@@ -41,17 +42,21 @@ if __name__ == '__main__':
         done = False
         while not done:
             steps += 1
+            logging.debug("env.render")
             env.render()
 
             actions = [env.action_space.sample() for _ in range(number_of_agents)]
             # print(str(steps) + " actions: " + str(actions))
 
             obs, reward, done, info = env.step(actions)
+
+            done = np.all(done)
             # log("reward: " + str(reward))
             # log("done: " + str(done))
             # log("info: " + str(info))
             # log(" obs: " + str(obs))
 
             time.sleep(.05)
+        logging.debug(f"Episode {r + 1}/{args.episodes} Done: {steps} steps")
 
     env.close()
