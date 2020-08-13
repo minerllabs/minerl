@@ -41,7 +41,7 @@ class Action(TranslationHandler):
             flat = x.flatten().tolist()
             flat = [str(y) for y in flat]
             adjective = " ".join(flat)
-        elif isinstance(x, Iterable):
+        elif isinstance(x, Iterable) and not isinstance(x, str):
             adjective = " ".join([str(y) for y in x])
         else:
             adjective = str(x)

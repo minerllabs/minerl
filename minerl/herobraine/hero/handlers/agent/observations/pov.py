@@ -52,7 +52,7 @@ class POVObservation(KeymapTranslationHandler):
         if pov is None or len(pov) == 0:
             pov = np.zeros((self.video_height, self.video_width, self.video_depth), dtype=np.uint8)
         else:
-            pov = pov.reshape((self.video_height, self.video_width, self.video_depth))[::-1, :, :]
+            pov = pov.reshape((self.video_height, self.video_width, self.video_depth))
 
         return pov
         

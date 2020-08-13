@@ -1,27 +1,13 @@
-# ------------------------------------------------------------------------------------------------
-# Copyright (c) 2018 Microsoft Corporation
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-# associated documentation files (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge, publish, distribute,
-# sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies or
-# substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
-# NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-# ------------------------------------------------------------------------------------------------
+"""TODO: REFACTOR TO BE A SUBCLASS!
+
+"""
 
 import collections
 
 import copy
 import json
 import logging
+from minerl.env.core import EnvException, MINERL_CUSTOM_ENV_ID, MineRLEnv, TICK_LENGTH, _deepdict_find, logger, missions_dir
 import os
 import random
 import socket
@@ -47,39 +33,7 @@ from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger
 import minerl.herobraine.hero.spaces as spaces
 from minerl.herobraine.wrapper import EnvWrapper
 
-logger = logging.getLogger(__name__)
-
-missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
-
-
-class EnvException(Exception):
-    """A special exception thrown in the creation of an environment's Malmo mission XML.
-
-    Args:
-        message (str): The exception message.
-    """
-
-    def __init__(self, message):
-        super(EnvException, self).__init__(message)
-
-
-class MissionInitException(Exception):
-    """An exception thrown when a mission fails to initialize
-
-    Args:
-        message (str): The exception message.
-    """
-
-    def __init__(self, message):
-        super(MissionInitException, self).__init__(message)
-
-
-MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
-SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
-MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv'  # Default id for a MineRLEnv
-TICK_LENGTH = 0.05
-
-class MineRLEnv(gym.Env):
+class FakeMineRLEnv(gym.Env):
     """The MineRLEnv class.
 
         Example:
@@ -123,7 +77,7 @@ class MineRLEnv(gym.Env):
         reset_mission_xml_fn=None):
         self.action_space = None
         self.observation_space = None
-
+        
         self.viewer = None
 
         self._last_ac = None
@@ -136,7 +90,7 @@ class MineRLEnv(gym.Env):
         self.client_socket = None
 
         self.exp_uid = ""
-        self.done = True
+        self.done = False
         self.synchronous = True
 
         self.width = 0
@@ -160,27 +114,10 @@ class MineRLEnv(gym.Env):
         self.action_space = action_space
 
         self.resets = 0
-        self.done = True
+        self.done = False
         self.agent_info = {}
         self.reset_mission_xml_fn = reset_mission_xml_fn or (lambda x: x)
         
-        self.instance = self._get_new_instance(port)
-
-    def _get_new_instance(self, port=None, instance_id=None):
-        """
-        Gets a new instance and sets up a logger if need be. 
-        """
-
-        if not port is None:
-            instance = InstanceManager.add_existing_instance(port)
-        else:
-            instance = InstanceManager.get_instance(os.getpid(), instance_id=instance_id)
-
-        if InstanceManager.is_remote():
-            launch_queue_logger_thread(instance, self.is_closed)
-
-        instance.launch(replaceable=self.restartable_java) 
-        return instance
 
     def init(self):
         """Initializes the MineRL Environment.
@@ -200,6 +137,9 @@ class MineRLEnv(gym.Env):
         """
         exp_uid = None
 
+        # Load fake info
+        self._info = np.load('info.npz', allow_pickle=True)['arr_0'].tolist()
+        
         # Parse XML file
         xml = self.xml_in
         xml = xml.replace("$(MISSIONS_DIR)", missions_dir)
@@ -263,7 +203,7 @@ class MineRLEnv(gym.Env):
         self.xml.find(self.ns + 'ExperimentUID').text = self.exp_uid
         if self.role != 0 and self.agent_count > 1:
             e = etree.Element(self.ns + 'MinecraftServerConnection',
-                              attrib={'address': self.instance.host,
+                              attrib={'address': 0,
                                       'port': str(0)
                                       })
             self.xml.insert(2, e)
@@ -293,8 +233,8 @@ class MineRLEnv(gym.Env):
                 self.ns + "ObservationFromFullInventory",
                 attrib={"flat": "false"},
             )
+        
 
-        # TODO (R): REPLACE WITH JT TEMPLATING
         self._last_ac = None
 
 
@@ -317,11 +257,6 @@ class MineRLEnv(gym.Env):
         """
         Process observation into the proper dict space.
         """
-        if info:
-            info = json.loads(info)
-        else:
-            info = {}
-
         
         info['pov'] = pov
         
@@ -423,9 +358,6 @@ class MineRLEnv(gym.Env):
         self.max_players = max_players
             
 
-    @staticmethod
-    def _hello(sock):
-        comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
 
     def reset(self):
         # Add support for existing instances.
@@ -447,98 +379,35 @@ class MineRLEnv(gym.Env):
     @retry
     def _start_up(self):
         self.resets += 1
-
-        try:
-            if not self.client_socket:
-                logger.debug("Creating socket connection!")
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-                sock.settimeout(SOCKTIME)
-                sock.connect((self.instance.host, self.instance.port))
-                self._hello(sock)
-
-                # Now retries will use connected socket.
-                self.client_socket = sock
-            self._init_mission()
-
-            self.done = False
-            return self._peek_obs()
-        except (socket.timeout, socket.error) as e:
-            logger.error("Failed to reset (socket error), trying again!")
-            self._clean_connection()
-            raise e
-        except RuntimeError as e:
-            # Reset the instance if there was an error timeout waiting for episode pause.
-            self.had_to_clean = True
-            self._clean_connection()
-            raise e
+        self.done = False
+        pass
 
     def _clean_connection(self):
         logger.error("Cleaning connection! Something must have gone wrong.")
-        try:
-            if self.client_socket:
-                self.client_socket.shutdown(socket.SHUT_RDWR)
-                self.client_socket.close()
-        except (BrokenPipeError, OSError, socket.error):
-            # There is no connection left!
-            pass
+        pass
 
         self.client_socket = None
         if self.had_to_clean:
             # Connect to a new instance!!
             logger.error(
                 "Connection with Minecraft client cleaned more than once; restarting.")
-            if self.instance:
-                self.instance.kill()
-            
-            self.instance = self._get_new_instance(instance_id=self.instance.instance_id)
 
             self.had_to_clean = False
         else:
             self.had_to_clean = True
 
     def _peek_obs(self):
-        obs = None
-        info = {}
-        start_time = time.time()
-        if not self.done:
-            logger.debug("Peeking the client.")
-            peek_message = "<Peek/>"
-            comms.send_message(self.client_socket, peek_message.encode())
-            obs = comms.recv_message(self.client_socket)
-            info = comms.recv_message(self.client_socket).decode('utf-8')
-
-            reply = comms.recv_message(self.client_socket)
-            done, = struct.unpack('!b', reply)
-            self.done = done == 1
-            if obs is None or len(obs) == 0:
-                if time.time() - start_time > MAX_WAIT:
-                    self.client_socket.close()
-                    self.client_socket = None
-                    raise MissionInitException(
-                        'too long waiting for first observation')
-                time.sleep(0.1)
-            if self.done:
-                raise RuntimeError(
-                    "Something went wrong resetting the environment! "
-                    "`done` was true on first frame.")
-
-        # See if there is an integrated port
-        if self._is_interacting:
-            port = self._find_server()
-            self.integratedServerPort = port
-            logger.warn("MineRL agent is public, connect on port {} with Minecraft 1.11".format(port))
-            # Todo make a launch command.
+        icopy = deepcopy(self._info)
+        obs = icopy['pov']
+        info = icopy
+        
             
 
 
         return self._process_observation(obs, info)
 
     def _quit_episode(self):
-        comms.send_message(self.client_socket, "<Quit/>".encode())
-        reply = comms.recv_message(self.client_socket)
-        ok, = struct.unpack('!I', reply)
-        return ok != 0
+        return True
 
     def seed(self, seed=42, seed_spaces=True):
         """Seeds the environment!
@@ -572,23 +441,14 @@ class MineRLEnv(gym.Env):
                                malmo_command + \
                                "</Step" + str(MineRLEnv.STEP_OPTIONS) + " >"
 
-                # Send Actions.
-                comms.send_message(self.client_socket, step_message.encode())
-
-                # Receive the observation.
-                obs = comms.recv_message(self.client_socket)
-
-                # Receive reward done and sent.
-                reply = comms.recv_message(self.client_socket)
-                reward, done, sent = struct.unpack('!dbb', reply)
-
+                reward = 0
+                done = False
+    
                 # Receive info from the environment.
-                if withinfo:
-                    info = comms.recv_message(
-                        self.client_socket).decode('utf-8')
-                else:
-                    info = {}
-
+                
+                icopy = deepcopy(self._info)
+                obs = icopy['pov']
+                info = icopy
                 # Process the observation and done state.
                 out_obs = self._process_observation(obs, info)
                 self.done = (done == 1)
@@ -605,7 +465,7 @@ class MineRLEnv(gym.Env):
             else:
                 raise RuntimeError(
                     "Attempted to step an environment with done=True")
-        except (socket.timeout, socket.error, TypeError) as e:
+        except (socket.timeout, socket.error) as e:
             # If the socket times out some how! We need to catch this and reset the environment.
             self._clean_connection()
             self.done = True
@@ -656,56 +516,21 @@ class MineRLEnv(gym.Env):
         if self._already_closed:
             return
 
-        if self.client_socket:
-            self.client_socket.close()
-            self.client_socket = None
-
-        if self.instance and self.instance.running:
-            self.instance.kill()
 
         self._already_closed = True
 
     def reinit(self):
         """Use carefully to reset the episode count to 0."""
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.instance.host, self.instance.port))
-        self._hello(sock)
-
-        comms.send_message(sock, ("<Init>" + self._get_token() + "</Init>").encode())
-        reply = comms.recv_message(sock)
-        sock.close()
-        (ok,) = struct.unpack("!I", reply)
-        return ok != 0
+        return True
 
     def status(self):
         """Get status from server.
         head - Ping the the head node if True.
         """
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.instance.host, self.instance.port))
-
-        self._hello(sock)
-
-        comms.send_message(sock, "<Status/>".encode())
-        status = comms.recv_message(sock).decode('utf-8')
-        sock.close()
-        return status
+        return "good"
 
     def _find_server(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.instance.host, self.instance.port))
-        self._hello(sock)
-
-        start_time = time.time()
-        port = 0
-        while port == 0:
-            comms.send_message(
-                sock, ("<Find>" + self._get_token() + "</Find>").encode())
-            reply = comms.recv_message(sock)
-            port, = struct.unpack('!I', reply)
-        sock.close()
-        # print("Found mission integrated server port " + str(port))
-        return  port
+        return 1
         # e = self.xml.find(self.ns + 'MinecraftServerConnection')
         # if e is not None:
         #     e.attrib['port'] = str(self.integratedServerPort)
@@ -745,157 +570,8 @@ class MineRLEnv(gym.Env):
             if self._seed is not None:
                 token += ":{}".format(self._seed)
             token = token.encode()
-            comms.send_message(self.client_socket, xml)
-            comms.send_message(self.client_socket, token)
-
-            reply = comms.recv_message(self.client_socket)
-            (ok,) = struct.unpack("!I", reply)
-            if ok != 1:
-                num_retries += 1
-                if num_retries > MAX_WAIT:
-                    raise socket.timeout()
-                logger.debug("Recieved a MALMOBUSY from Malmo; trying again.")
-                time.sleep(1)
+            return 1 # port
 
     def _get_token(self):
         return self.exp_uid + ":" + str(self.role) + ":" + str(self.resets)
 
-
-
-class TraceRecording(object):
-    # Todo (R): Fix trace recorder.
-    _id_counter = 0
-
-    def __init__(self, directory=None):
-        """
-        Create a TraceRecording, writing into directory
-        """
-
-        if directory is None:
-            directory = os.path.join('/tmp', 'openai.gym.{}.{}'.format(time.time(), os.getpid()))
-            os.mkdir(directory)
-
-        self.directory = directory
-        self.file_prefix = 'openaigym.trace.{}.{}'.format(self._id_counter, os.getpid())
-        TraceRecording._id_counter += 1
-
-        self.closed = False
-
-        self.actions = []
-        self.observations = []
-        self.rewards = []
-        self.episode_id = 0
-
-        self.buffered_step_count = 0
-        self.buffer_batch_size = 100
-
-        self.episodes_first = 0
-        self.episodes = []
-        self.batches = []
-
-    def add_reset(self, observation):
-        assert not self.closed
-        self.end_episode()
-        self.observations.append(observation)
-
-    def add_step(self, action, observation, reward):
-        assert not self.closed
-        self.actions.append(action)
-        self.observations.append(observation)
-        self.rewards.append(reward)
-        self.buffered_step_count += 1
-
-    def end_episode(self):
-        """
-        if len(observations) == 0, nothing has happened yet.
-        If len(observations) == 1, then len(actions) == 0, and we have only called reset and done a null episode.
-        """
-        if len(self.observations) > 0:
-            if len(self.episodes) == 0:
-                self.episodes_first = self.episode_id
-
-            self.episodes.append({
-                'actions': optimize_list_of_ndarrays(self.actions),
-                'observations': optimize_list_of_ndarrays(self.observations),
-                'rewards': optimize_list_of_ndarrays(self.rewards),
-            })
-            self.actions = []
-            self.observations = []
-            self.rewards = []
-            self.episode_id += 1
-
-            if self.buffered_step_count >= self.buffer_batch_size:
-                self.save_complete()
-
-    def save_complete(self):
-        """
-        Save the latest batch and write a manifest listing all the batches.
-        We save the arrays as raw binary, in a format compatible with np.load.
-        We could possibly use numpy's compressed format, but the large observations we care about (VNC screens)
-        don't compress much, only by 30%, and it's a goal to be able to read the files from C++ or a browser someday.
-        """
-
-        batch_fn = '{}.ep{:09}.json'.format(self.file_prefix, self.episodes_first)
-        bin_fn = '{}.ep{:09}.bin'.format(self.file_prefix, self.episodes_first)
-
-        with atomic_write.atomic_write(os.path.join(self.directory, batch_fn), False) as batch_f:
-            with atomic_write.atomic_write(os.path.join(self.directory, bin_fn), True) as bin_f:
-
-                def json_encode(obj):
-                    if isinstance(obj, np.ndarray):
-                        offset = bin_f.tell()
-                        while offset % 8 != 0:
-                            bin_f.write(b'\x00')
-                            offset += 1
-                        obj.tofile(bin_f)
-                        size = bin_f.tell() - offset
-                        return {'__type': 'ndarray', 'shape': obj.shape, 'order': 'C', 'dtype': str(obj.dtype),
-                                'npyfile': bin_fn, 'npyoff': offset, 'size': size}
-                    return obj
-
-                json.dump({'episodes': self.episodes}, batch_f, default=json_encode)
-
-                bytes_per_step = float(bin_f.tell() + batch_f.tell()) / float(self.buffered_step_count)
-
-        self.batches.append({
-            'first': self.episodes_first,
-            'len': len(self.episodes),
-            'fn': batch_fn})
-
-        manifest = {'batches': self.batches}
-        manifest_fn = os.path.join(self.directory, '{}.manifest.json'.format(self.file_prefix))
-        with atomic_write.atomic_write(os.path.join(self.directory, manifest_fn), False) as f:
-            json.dump(manifest, f)
-
-        # Adjust batch size, aiming for 5 MB per file.
-        # This seems like a reasonable tradeoff between:
-        #   writing speed (not too much overhead creating small files)
-        #   local memory usage (buffering an entire batch before writing)
-        #   random read access (loading the whole file isn't too much work when just grabbing one episode)
-        self.buffer_batch_size = max(1, min(50000, int(5000000 / bytes_per_step + 1)))
-
-        self.episodes = []
-        self.episodes_first = None
-        self.buffered_step_count = 0
-
-    def close(self):
-        """
-        Flush any buffered data to disk and close. It should get called automatically at program exit time, but
-        you can free up memory by calling it explicitly when you're done
-        """
-        if not self.closed:
-            self.end_episode()
-            if len(self.episodes) > 0:
-                self.save_complete()
-            self.closed = True
-            logger.info('Wrote traces to %s', self.directory)
-
-
-def _deepdict_find(d, key):
-    retval = []
-    for k, v in d.items():
-        if k == key:
-            retval.append(v)
-        elif isinstance(v, dict):
-            retval += _deepdict_find(v, key)
-    return retval
