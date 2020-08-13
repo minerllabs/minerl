@@ -295,10 +295,8 @@ class MineRLEnv(gym.Env):
             import hashlib
             import traceback
             stack = traceback.extract_stack()
-            locator = ""
-            for frame in stack:
-                locator += f"{frame.filename}:{frame.lineno}|"
-            key = hashlib.md5(locator.encode('utf-8'))
+            locator = f"{stack[-2].filename}:{stack[-2].lineno}|"
+            key = hashlib.md5(locator.encode('utf-8')).hexdigest()
 
             # check if stack trace is silenced
             if key in self.silenced_logs:
