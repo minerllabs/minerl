@@ -16,6 +16,7 @@ from minerl.herobraine.hero import spaces
 # TODO (R): Rename to Task
 class EnvSpec(abc.ABC):
     ENTRYPOINT = 'minerl.env:MineRLEnv'
+    FAKE_ENTRYPOINT = 'minerl.env:FakeMineRLEnv'
 
     def __init__(self, name, max_episode_steps=None, reward_threshold=None):
         self.name = name
@@ -166,10 +167,10 @@ class EnvSpec(abc.ABC):
     def get_docstring(self):
         return NotImplemented
 
-    def register(self):
+    def register(self, fake=False):
         reg_spec = dict(
-            id=self.name,
-            entry_point=EnvSpec.ENTRYPOINT,
+            id=("Fake" if fake else "") + self.name,
+            entry_point=EnvSpec.ENTRYPOINT if not fake else EnvSpec.FAKE_ENTRYPOINT,
             kwargs={
                 'observation_space': self.observation_space,
                 'action_space': self.action_space,
@@ -195,18 +196,20 @@ class EnvSpec(abc.ABC):
         """Gets the XML by templating mission.xml.j2 using Jinja
         """
         with open(MISSION_TEMPLATE, "rt") as fh:
-            template = jinja2.Template(fh.read())
             # TODO: Pull this out into a method.
             var_dict = {}
             for attr_name in dir(self):
                 if 'to_xml' not in attr_name:
                     var_dict[attr_name] = getattr(self, attr_name)
 
+            env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+            template = env.from_string(fh.read())
             xml = template.render(var_dict)
 
         # Now do one more pretty printing
         xml = etree.tostring(etree.fromstring(xml.encode('utf-8')), pretty_print=True).decode('utf-8')
         # TODO: Perhaps some logging is necessary
+        # print(xml)
         return xml
             
     def get_consolidated_xml(self, handlers : List[Handler]) -> List[str]:

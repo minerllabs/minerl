@@ -86,6 +86,7 @@ ENVS = [env for env in locals().values() if isinstance(env, EnvSpec)]
 for env in ENVS:
     if env.name not in gym.envs.registry.env_specs:
         env.register()
+        env.register(fake=True)
 
 
 

@@ -50,7 +50,7 @@ class Navigate(SimpleEmbodimentEnvSpec):
 
     def create_agent_handlers(self) -> List[Handler]:
         return [
-            handlers.AgentQuitFromTouchingBlock(
+            handlers.AgentQuitFromTouchingBlockType(
                 ["diamond_block"]
             )
         ]

@@ -16,8 +16,8 @@ class SmeltItemNearby(CraftAction):
     def to_string(self):
         return 'nearbySmelt'
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("<NearbySmeltCommands/>")
+    def xml_template(self) -> str:
+        return str("<NearbySmeltCommands/>")
 
     def from_universal(self, obs):
         if 'diff' in obs and 'smelted' in obs['diff'] and len(obs['diff']['smelted']) > 0:

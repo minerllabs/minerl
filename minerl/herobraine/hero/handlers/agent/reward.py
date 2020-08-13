@@ -56,8 +56,8 @@ class _RewardForPosessingItemBase(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_posessing_item"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<RewardForPossessingItem sparse="{{ sparse | lower }}" excludeLoops="{{ exclude_loops | string | lower}}">
                     {% for item in items %}
                     <Item amount="{{ item.amount }}" reward="{{ item.reward }}" type="{{ item.type }}" />
@@ -146,8 +146,8 @@ class RewardForMissionEnd(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_mission_end"
 
-    def xml_element(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_element(self) -> str:
+        return str(
             """<RewardForMissionEnd>
                     <Reward description="{{ description }}" reward="{{ reward }}" />
                 </RewardForMissionEnd>"""
@@ -175,8 +175,8 @@ class RewardForTouchingBlockType(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_touching_block_type"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<RewardForTouchingBlockType>
                     {% for block in blocks %}
                     <Block reward="{{ block.reward }}" type="{{ block.type }}" behaviour="{{ block.behaviour }}" />
@@ -221,9 +221,9 @@ class RewardForDistanceTraveledToCompassTarget(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_distance_traveled_to_compass_target"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
-            """<RewardForDistanceTraveledToCompassTarget rewardPerBlock="{{ rewardPerBlock }}" density="{{ density }}"/>"""
+    def xml_template(self) -> str:
+        return str(
+            """<RewardForDistanceTraveledToCompassTarget rewardPerBlock="{{ reward_per_block }}" density="{{ density }}"/>"""
         )
 
     def __init__(self, reward_per_block : int, density : str = 'PER_TICK'):

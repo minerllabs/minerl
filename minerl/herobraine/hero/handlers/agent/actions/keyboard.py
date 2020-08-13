@@ -37,7 +37,7 @@ class KeybasedCommandAction(Action):
     def to_string(self):
         return self.command
 
-    def xml_template(self) -> jinja2.Template:
+    def xml_template(self) -> str:
         """Notice how all of the instances of keybased command actions,
         of which there will be typically many in an environment spec,
         correspond to exactly the same XML stub.
@@ -45,7 +45,7 @@ class KeybasedCommandAction(Action):
         This is discussed at length in the unification proposal
         and is a chief example of where manifest consolidation is needed.
         """
-        return jinja2.Template("<HumanLevelCommands/>")
+        return str("<HumanLevelCommands/>")
 
     def __init__(self, command, *keys):
         if len(keys) == 2:
@@ -83,8 +83,8 @@ class KeybasedCommandAction(Action):
 #     in MissionHandlers.xsd.
 
 #     """
-#     def xml_template(self) -> jinja2.Template:
-#         return jinja2.Template("""
+#     def xml_template(self) -> str:
+#         return str("""
 #             <HumanLevelCommands>
 #                 <ModifierList type="allow-list">
 #                     {% for command in commands %}

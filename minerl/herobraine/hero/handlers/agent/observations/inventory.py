@@ -16,8 +16,8 @@ class FlatInventoryObservation(TranslationHandler):
         return 'inventory'
 
     
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<ObservationFromFullInventory flat="false"/>""")
 
 

@@ -16,10 +16,10 @@ class POVObservation(KeymapTranslationHandler):
     def to_string(self):
         return 'pov'
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("""
+    def xml_template(self) -> str:
+        return str("""
             <VideoProducer 
-                want_depth="{{ self.include_depth | string | lower }}">
+                want_depth="{{ include_depth | string | lower }}">
                 <Width>{{ video_width }} </Width>
                 <Height>{{ video_height }}</Height>
             </VideoProducer>""")
@@ -39,12 +39,23 @@ class POVObservation(KeymapTranslationHandler):
         # TODO (R): FIGURE THIS THE FUCK OUT & Document it.
         self.video_height = video_resolution[0]
         self.video_width = video_resolution[1]
+        
 
         super().__init__(
             hero_keys=["pov"], 
             univ_keys=["pov"], space=space)
 
-    
+    def from_hero(self, obs):
+        byte_array = super().from_hero(obs)
+        pov = np.frombuffer(byte_array, dtype=np.uint8)
+
+        if pov is None or len(pov) == 0:
+            pov = np.zeros((self.video_height, self.video_width, self.video_depth), dtype=np.uint8)
+        else:
+            pov = pov.reshape((self.video_height, self.video_width, self.video_depth))[::-1, :, :]
+
+        return pov
+        
     def __or__(self, other):
         """
         Combines two POV observations into one. If all of the properties match return self

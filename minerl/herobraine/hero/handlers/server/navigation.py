@@ -13,8 +13,8 @@ class NavigationDecorator(Handler):
     def to_string(self) -> str:
         return "navigation_decorator"
 
-    def xml_template(self) -> jinja2.Template:
-         return jinja2.Template(
+    def xml_template(self) -> str:
+         return str(
             """<NavigationDecorator>
                 <randomPlacementProperties>
                     <maxRandomizedRadius>{{max_randomized_radius}}</maxRandomizedRadius>

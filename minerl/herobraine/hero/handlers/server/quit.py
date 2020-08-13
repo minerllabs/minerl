@@ -14,8 +14,8 @@ class ServerQuitFromTimeUp(Handler):
     def to_string(self) -> str:
         return "server_quit_after_time_up"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<ServerQuitFromTimeUp 
                     timeLimitMs="{{ time_limit_ms | string }}"
                     description="{{description}}"/>
@@ -34,8 +34,8 @@ class ServerQuitWhenAnyAgentFinishes(Handler):
     def to_string(self) -> str:
          return "server_quit_when_any_agent_finishes"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<ServerQuitWhenAnyAgentFinishes/>
             """
         )

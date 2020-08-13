@@ -22,8 +22,8 @@ class InventoryAgentStart(Handler):
     def to_string(self) -> str:
         return "inventory_agent_start"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<Inventory>
             {% for  slot in inventory %}
                 <InventoryObject slot="{{ slot }}" type="{{ inventory[slot]['type'] }}" quantity="{{ inventory[slot]['quantity'] }}"/>

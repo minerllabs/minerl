@@ -14,8 +14,8 @@ class CompassObservation(TranslationHandlerGroup):
     def to_string(self) -> str:
         return "compass"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<ObservationFromCompass/>"""
         ) 
 
@@ -37,7 +37,7 @@ class CompassObservation(TranslationHandlerGroup):
         if distance:
             handlers.append(
                 KeymapTranslationHandler(
-                    hero_keys=["distance"],
+                    hero_keys=["compassDistance"],
                     univ_keys=['compass']["distance"],
                     space=spaces.Box(low=0, high=128, shape=(1,), dtype=np.uint8))
             )
@@ -51,7 +51,7 @@ class _CompassAngleObservation(KeymapTranslationHandler):
 
     def __init__(self):
         super().__init__(
-            hero_keys=["angle"],
+            hero_keys=["compassAngle"],
             univ_keys=['compass',"angle"],
             space=spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)
         )
@@ -61,4 +61,4 @@ class _CompassAngleObservation(KeymapTranslationHandler):
         return y
 
     def from_hero(self, obs):
-        return np.array((super.from_hero(obs) + 0.5) % 1.0)
+        return np.array((super().from_hero(obs) + 0.5) % 1.0)

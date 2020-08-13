@@ -15,8 +15,8 @@ class CraftAction(ItemListAction):
     def to_string(self):
         return "craft"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("<SimpleCraftCommands/>")
+    def xml_template(self) -> str:
+        return str("<SimpleCraftCommands/>")
 
 
     def __init__(self, items: list):
@@ -54,5 +54,5 @@ class CraftNearbyAction(CraftAction):
     def to_string(self):
         return 'nearbyCraft'
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("<NearbyCraftCommands/>")
+    def xml_template(self) -> str:
+        return str("<NearbyCraftCommands/>")

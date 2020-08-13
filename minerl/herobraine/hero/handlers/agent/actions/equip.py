@@ -10,8 +10,8 @@ class EquipAction(ItemListAction):
     def to_string(self):
         return 'equip'
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("<EquipCommands/>")
+    def xml_template(self) -> str:
+        return str("<EquipCommands/>")
 
     def __init__(self, items: list, _default='none', _other='other'):
         """

@@ -11,8 +11,8 @@ class PlaceBlock(ItemListAction):
         return 'place'
 
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("<PlaceCommands/>")
+    def xml_template(self) -> str:
+        return str("<PlaceCommands/>")
 
     def __init__(self, blocks: list, **item_list_kwargs):
         """

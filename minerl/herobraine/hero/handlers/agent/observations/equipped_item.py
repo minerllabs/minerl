@@ -23,8 +23,8 @@ class EquippedItemObservation(TranslationHandlerGroup):
     def to_string(self) -> str:
         return "equipped_items"
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<ObservationFromEquippedItem/>""")
 
     def __init__(self,

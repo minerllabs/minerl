@@ -22,8 +22,8 @@ class ObservationFromFullStats(TranslationHandlerGroup):
             ]
         )
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("""<ObservationFromFullStats/>""")
+    def xml_template(self) -> str:
+        return str("""<ObservationFromFullStats/>""")
 
 
 
@@ -35,8 +35,8 @@ class LifeStatsObservation(KeymapTranslationHandler):
         super().__init__(hero_keys=hero_keys, univ_keys=['life_stats'] + univ_keys, space=space, default_if_missing=default_if_missing)
 
 
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("""<ObservationFromFullStats/>""")
+    def xml_template(self) -> str:
+        return str("""<ObservationFromFullStats/>""")
 
 
 class _LifeObservation(LifeStatsObservation):

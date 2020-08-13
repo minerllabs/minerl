@@ -27,7 +27,7 @@ class Handler(ABC):
     # @abstractmethod #TODO: This should be abstract per convention
     # but this strict handler -> xml enforcement will happen
     # with a pyxb update.
-    def xml_template(self) -> jinja2.Template:
+    def xml_template(self) -> str:
         """Generates an XML representation of the handler.
 
         This XML representaiton is templated via Jinja2 and
@@ -52,7 +52,9 @@ class Handler(ABC):
             if 'xml' not in attr_name:
                 var_dict[attr_name] = getattr(self, attr_name)
         try:
-            return self.xml_template().render(var_dict)
+            env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+            template = env.from_string(self.xml_template())
+            return template.render(var_dict)
         except jinja2.UndefinedError as e:
             # print the exception with traceback
             message = e.message + "\nOccurred in {}".format(self)
@@ -78,5 +80,5 @@ class Handler(ABC):
         return self.to_string() == other.to_string()
 
     def __repr__(self):
-        return self.to_string()
+        return super().__repr__() + ":" +  self.to_string()
 

@@ -11,8 +11,8 @@ class CameraAction(Action):
     def to_string(self):
         return 'camera'
     
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template("<CameraCommands/>")
+    def xml_template(self) -> str:
+        return str("<CameraCommands/>")
 
     def __init__(self):
         # TODO: Document and clean this wierd _ magic.

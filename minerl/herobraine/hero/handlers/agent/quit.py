@@ -7,17 +7,17 @@ from typing import List, Dict, Union
 #     <Block type="diamond_block"/>
 #     <Block type="iron_block"/>
 # </AgentQuitFromTouchingBlockType>
-class AgentQuitFromTouchingBlock(Handler):
+class AgentQuitFromTouchingBlockType(Handler):
     def to_string(self) -> str:
-        return "agent_quit_from_touching_block"
+        return "agent_quit_from_touching_block_type"
     
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
-            """<AgentQuitFromTouchingBlock>
+    def xml_template(self) -> str:
+        return str(
+            """<AgentQuitFromTouchingBlockType>
                     {% for block in blocks %}
                     <Block type="{{ block }}"/>
                     {% endfor %}
-                </AgentQuitFromTouchingBlock>"""
+                </AgentQuitFromTouchingBlockType>"""
         )
 
     def __init__(self, blocks: List[str]):
@@ -34,8 +34,8 @@ class  AgentQuitFromCraftingItem(Handler):
     def to_string(self) -> str:
         return "agent_quit_from_crafting_item"
     
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
             """<AgentQuitFromCraftingItem>
                     {% for item in items %}
                     <Item type="{{ item.type }}"/>
@@ -58,8 +58,8 @@ class AgentQuitFromPossessingItem(Handler):
     def to_string(self) -> str:
         return "agent_quit_from_possessing_item"
     
-    def xml_template(self) -> jinja2.Template:
-        return jinja2.Template(
+    def xml_template(self) -> str:
+        return str(
              """<AgentQuitFromPossessingItem>
                     {% for item in items %}
                     <Item type="{{ item.type }}" amount="{{ item.amount }}"/>

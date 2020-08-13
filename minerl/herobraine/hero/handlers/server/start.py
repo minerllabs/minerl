@@ -13,8 +13,8 @@ class TimeInitialCondition(Handler):
     def to_string(self) -> str:
         return "time_initial_condition"
 
-    def xml_template(self) -> jinja2.Template:
-         return jinja2.Template(
+    def xml_template(self) -> str:
+         return str(
              """<Time>
                     {% if start_time is not none %}
                     <StartTime>{{start_time | string}}</StartTime>
@@ -33,8 +33,8 @@ class WeatherInitialCondition(Handler):
     def to_string(self) -> str:
         return "weather_initial_condition"
     
-    def xml_template(self) -> jinja2.Template:
-         return jinja2.Template(
+    def xml_template(self) -> str:
+         return str(
              """<Weather>{{weather | string }}</Weather>"""
          )
         
@@ -46,8 +46,8 @@ class SpawningInitialCondition(Handler):
      def to_string(self) -> str:
          return "spawning_initial_condition"
     
-     def xml_template(self) -> jinja2.Template:
-         return jinja2.Template(
+     def xml_template(self) -> str:
+         return str(
              """<AllowSpawning>{{allow_spawning | string | lower}}</AllowSpawning>"""
          )
         
