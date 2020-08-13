@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from abc import abstractmethod
 from minerl.herobraine.hero.spaces import Dict
 from minerl.herobraine.hero.handler import Handler

@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from minerl.herobraine.hero.mc import STEPS_PER_MS
 from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
 from minerl.herobraine.hero.handler import Handler

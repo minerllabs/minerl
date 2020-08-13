@@ -1,6 +1,5 @@
-"""TODO: REFACTOR TO BE A SUBCLASS!
-
-"""
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
 
 import collections
 
@@ -138,7 +137,9 @@ class FakeMineRLEnv(gym.Env):
         exp_uid = None
 
         # Load fake info
-        self._info = np.load('info.npz', allow_pickle=True)['arr_0'].tolist()
+        self._info = np.load(
+            os.path.join(os.path.dirname(__file__), 'info.npz'), 
+        allow_pickle=True)['arr_0'].tolist()
         
         # Parse XML file
         xml = self.xml_in
@@ -443,7 +444,7 @@ class FakeMineRLEnv(gym.Env):
 
                 reward = 0
                 done = False
-    
+
                 # Receive info from the environment.
                 
                 icopy = deepcopy(self._info)

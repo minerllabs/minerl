@@ -1,3 +1,5 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
 from minerl.herobraine.hero.handlers.agent.action import Action
 import jinja2
 import minerl.herobraine.hero.spaces as spaces

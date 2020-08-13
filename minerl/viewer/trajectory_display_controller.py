@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 """ 
 trajectory_display_controller.py -- Contains the main controller for interactive trajectory controllers.
 """

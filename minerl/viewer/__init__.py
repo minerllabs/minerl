@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 """A module for viewing individual streams from the dataset!
 
 To use:

@@ -1,3 +1,8 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
+
+# TODO: DEPRECRATE.
 import json
 import logging
 import multiprocessing

@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from minerl.herobraine.hero.handlers.agent.quit import AgentQuitFromPossessingItem
 from minerl.herobraine.hero.handlers.agent.actions.equip import EquipAction
 from minerl.herobraine.hero.mc import STEPS_PER_MS

@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 import minerl.herobraine.envs as envs
 from minerl.herobraine.wrappers.util import intersect_space
 

@@ -6,6 +6,9 @@ import jinja2
 import numpy as np
 
 from minerl.herobraine.hero import spaces
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler, TranslationHandlerGroup
 
 

@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from abc import ABC, abstractmethod
 from collections.abc import MutableMapping
 from typing import Dict, Iterator, Any, List, Tuple

@@ -24,7 +24,7 @@ def main():
     """
     Tests running a simple environment.
     """
-    env = gym.make('MineRLNavigateDense-v0')
+    env = gym.make('MineRLNavigateDense-v0', port=31415)
     
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []

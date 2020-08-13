@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from collections import OrderedDict, MutableMapping
 
 from minerl.herobraine.env_spec import EnvSpec

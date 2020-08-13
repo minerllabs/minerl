@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 ### TESTS ###
 
 # A method which asserts equality between an ordered dict of numpy arrays and another

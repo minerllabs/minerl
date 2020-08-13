@@ -1,3 +1,5 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
 import os
 from urllib.error import URLError
 from urllib.error import HTTPError

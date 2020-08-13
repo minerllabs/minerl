@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 import jinja2
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler, TranslationHandlerGroup
 import minerl.herobraine.hero.mc as mc

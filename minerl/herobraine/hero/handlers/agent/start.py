@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 """Defines the agent start conditions"""
 from minerl.herobraine.hero.handler import Handler
 from typing import Dict, List, Union

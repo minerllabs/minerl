@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 import argparse
 from minerl.env.malmo import InstanceManager, malmo_version
 from minerl.env.core import MineRLEnv

@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 """
 Note that this file contains unimplemented functionality 
 and remains as a stub for future work.

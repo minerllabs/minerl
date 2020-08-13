@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 import typing
 from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction

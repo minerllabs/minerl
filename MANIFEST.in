@@ -3,6 +3,8 @@ include requirements.txt
 include LICENSE
 recursive-include minerl/herobraine/env_specs/ *
 include minerl/herobraine/hero/mc_constants.json
+include minerl/herobraine/hero/mission.xml.j2
+include minerl/env/info.npz
 recursive-include minerl/data/assets *
 recursive-include minerl/Malmo/Minecraft *
 recursive-include minerl/Malmo/Schemas *

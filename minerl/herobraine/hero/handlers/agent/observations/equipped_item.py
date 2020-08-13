@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 
 """
 Not very proud of the code reuse in this module -- @wguss
@@ -72,7 +75,7 @@ class _HandObservation(TranslationHandlerGroup):
 
     def __init__(self,
         hand : str,
-        items :  Iterable[str],
+        items :  List[str],
         _default,
         _other):
 

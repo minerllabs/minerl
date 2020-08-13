@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from minerl.herobraine.env_spec import EnvSpec
 import minerl.herobraine.hero.handlers as handlers
 

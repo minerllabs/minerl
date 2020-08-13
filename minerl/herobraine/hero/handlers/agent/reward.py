@@ -1,3 +1,5 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
 
 import abc
 from minerl.herobraine.hero.mc import strip_item_prefix
