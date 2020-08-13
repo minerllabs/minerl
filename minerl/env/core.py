@@ -418,7 +418,6 @@ class MineRLEnv(gym.Env):
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
-
         # TODO: Decide if we want to remove assertions.
         action_strs = []
         for action_in in actions_in:
@@ -701,8 +700,7 @@ class MineRLEnv(gym.Env):
 
             instance = self._controller_instance()
             try:
-                step_message = "<StepServer" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
-                               "</StepServer" + str(MineRLEnv.STEP_OPTIONS) + " >"
+                step_message = "<StepServer></StepServer>"
 
                 # Send Actions.
                 comms.send_message(instance.client_socket, step_message.encode())
@@ -715,7 +713,7 @@ class MineRLEnv(gym.Env):
                     "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
                     "To account for this failure case in your code check to see if `'error' in info` where info is "
                     "the info dictionary returned by the step function.")
-                return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
+                # return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
             # synchronize with real time
             if self._is_real_time:
