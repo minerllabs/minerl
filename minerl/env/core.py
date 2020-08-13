@@ -610,9 +610,9 @@ class MineRLEnv(gym.Env):
 
     def _quit_episode(self):
         for instance in self.instances:
-        comms.send_message(instance.client_socket, "<Quit/>".encode())
-        reply = comms.recv_message(instance.client_socket)
-        ok, = struct.unpack('!I', reply)
+            comms.send_message(instance.client_socket, "<Quit/>".encode())
+            reply = comms.recv_message(instance.client_socket)
+            ok, = struct.unpack('!I', reply)
             if ok == 0:
                 return False
         return True
@@ -759,6 +759,8 @@ class MineRLEnv(gym.Env):
 
     def close(self):
         """gym api close"""
+        logger.debug("Closing MineRL env...")
+
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
@@ -777,6 +779,8 @@ class MineRLEnv(gym.Env):
         self._already_closed = True
 
     def reinit(self):
+        raise Exception("FIXME HACK Where is 'reinit()' used?")
+
         """Use carefully to reset the episode count to 0."""
         # TODO - only need controller instance here?
         instance = self._controller_instance()
@@ -791,6 +795,8 @@ class MineRLEnv(gym.Env):
         return ok != 0
 
     def status(self):
+        raise Exception("FIXME HACK Where is 'status()'' used?")
+
         """Get status from server.
         head - Ping the the head node if True.
         """
@@ -807,11 +813,9 @@ class MineRLEnv(gym.Env):
         return status
 
     def _find_server(self, instance):
-        # calling find on the master client to get the server port
+        # calling Find on the master client to get the server port
         controller_instance = self._controller_instance()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((controller_instance.host, controller_instance.port))
-        self._hello(sock)
+        sock = controller_instance.client_socket
 
         # try until you get something valid
         port = 0
@@ -823,7 +827,6 @@ class MineRLEnv(gym.Env):
             reply = comms.recv_message(sock)
             port, = struct.unpack('!I', reply)
             tries += 1
-        sock.close()
         if port == 0:
             raise Exception("Failed to find master server port!")
         self.integratedServerPort = port  # should/can this even be cached?
