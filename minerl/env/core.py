@@ -225,8 +225,6 @@ class MineRLEnv(gym.Env):
             )
             e.insert(0, xml)
             xml = e
-            # xml.find(self.ns + "ClientRole").text = str(role)
-            # xml.find(self.ns + "ExperimentUID").text = self.exp_uid
 
             port = self.port
             if port is not None:
@@ -585,7 +583,6 @@ class MineRLEnv(gym.Env):
         if not self.done:
             logger.debug("Peeking the client.")
             peek_message = "<Peek/>"
-            # TODO - only need controller instance here?
             instance = self._controller_instance()
             comms.send_message(instance.client_socket, peek_message.encode())
             obs = comms.recv_message(instance.client_socket)
