@@ -75,6 +75,7 @@ class ItemListAction(Action):
         self._command = command
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
+        
         assert _default in self._items
         assert _other in self._items
         self._default = _default
@@ -111,11 +112,11 @@ class ItemListAction(Action):
             raise ValueError("Command must be the same for merging")
 
         new_items = list(set(self._items) | set(other._items))
-        return self.__class__(new_items)
+        return self.__class__(new_items, _default=self._default, _other=self._other)
 
     def __eq__(self, other):
         """
-        Asserts equality betwen item list command actions.
+        Asserts equality between item list command actions.
         """
         if not isinstance(other, ItemListAction):
             return False

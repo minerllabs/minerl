@@ -4,7 +4,7 @@ import os
 import re
 import glob
 
-DATA_VERSION = 4
+DATA_VERSION = 3 
 FILE_PREFIX = "v{}_".format(DATA_VERSION)
 VERSION_FILE_NAME = "VERSION"
 

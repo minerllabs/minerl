@@ -32,13 +32,15 @@ class Navigate(SimpleEmbodimentEnvSpec):
 
     def create_actionables(self) -> List[Handler]:
         return super().create_actionables() + [
-            handlers.PlaceBlock(['none', 'dirt', 'other'])]
-
+            handlers.PlaceBlock(['none', 'dirt'],
+            _other='none')]
+# john rl nyu microsfot van roy and ian osband
 
     def create_rewardables(self) -> List[Handler]:
         return [
             handlers.RewardForTouchingBlockType([
-                {'type':'diamond_block', 'behaviour':'onceOnly', 'reward': 100.0},
+                {'type':'diamond_block', 'behaviour':'onceOnly',
+                 'reward': 100.0},
             ])
         ] + ([handlers.RewardForDistanceTraveledToCompassTarget(
                 reward_per_block=1.0

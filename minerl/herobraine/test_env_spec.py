@@ -35,8 +35,8 @@ class TestSpec(EnvSpec):
         pass
 
 
-def test_to_xml():
-    """
-    Tests the env_spec to xml.
-    """
-    assert False, "test not written yet."
+# def test_to_xml():
+#     """
+#     Tests the env_spec to xml.
+#     """
+#     assert False, "test not written yet." # TODO: (@wguss)

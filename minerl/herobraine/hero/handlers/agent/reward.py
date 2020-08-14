@@ -169,6 +169,7 @@ class RewardForMissionEnd(RewardHandler):
 
 
 
+
 #  <RewardForTouchingBlockType>
 #     <Block reward="100.0" type="diamond_block" behaviour="onceOnly"/>
 #     <Block reward="189.0" type="diamond_block" behaviour="onceOnly"/>
@@ -185,8 +186,9 @@ class RewardForTouchingBlockType(RewardHandler):
                     {% endfor %}
                 </RewardForTouchingBlockType>"""
         )
+        
 
-    def __init__(self, blocks : List[Dict[str, Union[str, int]]]):
+    def __init__(self, blocks : List[Dict[str, Union[str, int, float]]]):
         """Creates a reward which is awarded when the player touches a block.
         An example of instantiating the class:
 

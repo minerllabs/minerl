@@ -20,7 +20,7 @@ from collections import OrderedDict
 TESTS_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tests_data'))
 
 
-def _test_pipeline(copy_test_data_out=True, upload_test_data=''):
+def test_pipeline(copy_test_data_out=True, upload_test_data=''):
     # 0. Download and unzip a sample stream.
     sample_stream = os.path.join(TESTS_DATA, 'sample_stream.zip')
     # TODO get this from AWS one?
@@ -110,7 +110,7 @@ def _test_obfuscated_data():
         assert d == do
 
 
-def _test_dataloader_regression():
+def test_dataloader_regression():
     sample_data_dir = os.path.join(TESTS_DATA, 'out', 'test_pipeline', 'output', 'data')
     sweet_potato_path = os.path.join(TESTS_DATA, 'sweet_potato.zip')
     old_data_root = J(TESTS_DATA, 'old_data', 'MineRLTreechop-v0')
@@ -176,6 +176,6 @@ def _test_dataloader_regression():
         assert np.allclose(nr, o_r)
 
 
-def _test_ao_on_or_off():
+def test_ao_on_or_off():
     assert False, "AO has not been fixed."
 

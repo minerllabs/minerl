@@ -101,7 +101,7 @@ navigate_observation_space = spaces.Dict({
     'inventory': spaces.Dict(spaces={
         'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int)
     }),
-    'compassAngle': spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)
+    'compass': spaces.Dict(spaces={'angle': spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)})
 })
 
 old_envs.append(dict(
@@ -180,10 +180,17 @@ obtain_observation_space = spaces.Dict({
         'iron_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
         'iron_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
     }),
-    'equipped_items.mainhand.type': spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+    'equipped_items': spaces.Dict(
+        dict(mainhand=spaces.Dict(
+            dict(
+                type=spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                 'iron_axe', 'iron_pickaxe', 'other'),
-    'equipped_items.mainhand.damage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
-    'equipped_items.mainhand.maxDamage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
+                damage=spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
+                maxDamage=spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
+            )
+        )
+        )
+    )
 
 })
 

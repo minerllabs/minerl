@@ -60,20 +60,24 @@ class Obtain(SimpleEmbodimentEnvSpec):
                 'iron_pickaxe'
             ]),
             handlers.EquippedItemObservation(items=[
-                 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', other
+                'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', none, # REMOVE NONE FOR MINERL-v1
+                other
             ], _default='air'),
         ]
 
     def create_actionables(self):
+        #TODO (R): MineRL-v1 use invalid (for data)
         return super().create_actionables() + [
-            handlers.PlaceBlock([none, 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', other]),
+            handlers.PlaceBlock([none, 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'], _other=none),
             handlers.EquipAction([none, 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe',
-                                'iron_pickaxe', other]),
-            handlers.CraftAction([none, 'torch', 'stick', 'planks', 'crafting_table', other]),
+                                'iron_pickaxe'], _other=none),
+            handlers.CraftAction([none, 'torch', 'stick', 'planks', 'crafting_table'], _other=none),
             handlers.CraftNearbyAction(
                 [none, 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe',
-                 'furnace', other]),
-            handlers.SmeltItemNearby([none, 'iron_ingot', 'coal', other]),
+                 'furnace'], _other=none),
+            handlers.SmeltItemNearby([none, 'iron_ingot', 'coal'], _other=none), # As apart of pervious todo
+            # this should be handlers.SmeltItem([none, 'iron_ingot', 'coal', other]), but this is not supported by mineRL-v0
+
         ]
 
     def create_rewardables(self) -> List[Handler]:
@@ -288,7 +292,7 @@ class ObtainDiamondDebug(ObtainDiamond):
         # Add a red flower to the equip action by replacing it with a new one
         equip_item = [a for a in actions if isinstance(a, handlers.EquipAction)][0]
         actions[actions.index(equip_item)] = (
-            handlers.EquipAction(equip_item.items + ['red_flower'])
+            handlers.EquipAction(equip_item.items + ['red_flower'], _other=none)
         )
         return actions
         

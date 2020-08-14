@@ -26,8 +26,9 @@ class EnvSpec(abc.ABC):
         self.max_episode_steps = max_episode_steps
         self.reward_threshold = reward_threshold
 
-        # TODO: Consider movign this to init.
+        self.reset()
 
+    def reset(self):
         self.observables = self.create_observables()
         self.actionables = self.create_actionables()
         self.rewardables = self.create_rewardables() 
@@ -48,10 +49,11 @@ class EnvSpec(abc.ABC):
 
         self._observation_space = self.create_observation_space()
         self._action_space = self.create_action_space()
-
+    
     ########################
     ### API METHODS #######
     #######################
+
 
     ############## AGENT ##########################
     
@@ -210,6 +212,7 @@ class EnvSpec(abc.ABC):
             xml = template.render(var_dict)
 
         # Now do one more pretty printing
+        
         xml = etree.tostring(etree.fromstring(xml.encode('utf-8')), pretty_print=True).decode('utf-8')
         # TODO: Perhaps some logging is necessary
         # print(xml)

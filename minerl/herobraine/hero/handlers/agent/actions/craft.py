@@ -23,7 +23,7 @@ class CraftAction(ItemListAction):
         return str("<SimpleCraftCommands/>")
 
 
-    def __init__(self, items: list):
+    def __init__(self, items: list, **item_list_kwargs):
         """
         Initializes the space of the handler to be one for each item in the list plus one for the
         default no-craft action (command 0)
@@ -31,7 +31,7 @@ class CraftAction(ItemListAction):
         Items are minecraft resource ID's
         """
         super().__init__(
-            self._command, items)
+            self._command, items, **item_list_kwargs)
 
     def from_universal(self, obs):
         if 'diff' in obs and 'crafted' in obs['diff'] and len(obs['diff']['crafted']) > 0:
