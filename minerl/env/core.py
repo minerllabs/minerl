@@ -102,14 +102,16 @@ class MineRLEnv(gym.Env):
     STEP_OPTIONS = 0
 
     def __init__(self, xml, observation_space, action_space, env_spec, port=None, noop_action=None, docstr=None):
-        self.action_space = None
-        self.observation_space = None
         self._default_action = noop_action
 
         self.viewer = None
+        self.viewer_agent = 0
 
-        self._last_ac = None
+        self._last_ac = {}
+        self._last_obs = {}
+        self._last_pov = {}
         self.agent_count = 0
+        self.actor_names = []
         self.resets = 0
         self.ns = '{http://ProjectMalmo.microsoft.com}'
 
@@ -199,6 +201,7 @@ class MineRLEnv(gym.Env):
 
         # calculate agent count
         self.agent_count = len(base_xml.findall('{http://ProjectMalmo.microsoft.com}AgentSection'))
+        self.actor_names = [f"actor{role}" for role in range(self.agent_count)]
 
         for role in range(self.agent_count):
             xml = deepcopy(base_xml)
@@ -248,7 +251,6 @@ class MineRLEnv(gym.Env):
                         <MaxPlayers>{}</MaxPlayers>
                     </HumanInteraction>""".format(self.interact_port, self.max_players))
                 # Update the xml
-
                 ss = xml.find(".//" + self.ns + 'ServerSection')
                 ss.insert(0, hi)
 
@@ -265,7 +267,9 @@ class MineRLEnv(gym.Env):
             instance.role = role
             instance.xml = xml
 
-        self._last_ac = None
+        self._last_ac = {}
+        self._last_obs = {}
+        self._last_pov = {}
 
         self.has_init = True
 
@@ -303,7 +307,7 @@ class MineRLEnv(gym.Env):
 
         logger.warning(message, *args, **kwargs)
 
-    def _process_observation(self, pov, info):
+    def _process_observation(self, actor_name, pov, info):
         """
         Process observation into the proper dict space.
         """
@@ -388,66 +392,61 @@ class MineRLEnv(gym.Env):
             return nested_dict
 
         obs_dict = recursive_update(obs_dict, info)
-        
 
         # Now we wrap
         if isinstance(self.env_spec, EnvWrapper):
             obs_dict = self.env_spec.wrap_observation(obs_dict)
-            
-         
-        self._last_pov = obs_dict['pov']
-        self._last_obs = obs_dict
 
-        return obs_dict
+        self._last_pov[actor_name] = obs_dict['pov']
+        self._last_obs[actor_name] = obs_dict
 
-    def _process_actions(self, actions_in) -> str:
+        return obs_dict, info
+
+    def _process_action(self, actor_name, action_in) -> str:
         """
         Process the actions into a proper command.
         """
-        self._last_ac = actions_in
-        actions_in = [deepcopy(action_in) for action_in in actions_in]
+        self._last_ac[actor_name] = action_in
+        action_in = deepcopy(action_in)
 
         if isinstance(self.env_spec, EnvWrapper):
-            action_ins = [self.env_spec.unwrap_action(action_in) for action_in in actions_in]
+            action_in = self.env_spec.unwrap_action(action_in)
 
         bottom_env_spec = self.env_spec
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
         # TODO: Decide if we want to remove assertions.
-        action_strs = []
-        for action_in in actions_in:
-            action_str = []
-            for act in action_in:
-                # Process enums.
-                if isinstance(bottom_env_spec.action_space.spaces[act], spaces.Enum):
-                    if isinstance(action_in[act], int):
-                        action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
-                    else:
-                        assert isinstance(
-                            action_in[act], str), "Enum action {} must be str or int".format(act)
-                        assert action_in[act] in bottom_env_spec.action_space.spaces[
-                            act].values, "Invalid value for enum action {}, {}".format(
-                            act, action_in[act])
+        action_str = []
+        for act in action_in:
+            # Process enums.
+            if isinstance(bottom_env_spec.action_space.spaces[act], spaces.Enum):
+                if isinstance(action_in[act], int):
+                    action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
+                else:
+                    assert isinstance(
+                        action_in[act], str), "Enum action {} must be str or int".format(act)
+                    assert action_in[act] in bottom_env_spec.action_space.spaces[
+                        act].values, "Invalid value for enum action {}, {}".format(
+                        act, action_in[act])
 
-                elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Box):
-                    subact = action_in[act]
-                    assert not isinstance(
-                        subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
-                    if isinstance(subact, np.ndarray):
-                        subact = subact.flatten()
+            elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Box):
+                subact = action_in[act]
+                assert not isinstance(
+                    subact, str), "Box action {} is a string! It should be a ndarray: {}".format(act, subact)
+                if isinstance(subact, np.ndarray):
+                    subact = subact.flatten()
 
-                    if isinstance(subact, Iterable):
-                        subact = " ".join(str(x) for x in subact)
+                if isinstance(subact, Iterable):
+                    subact = " ".join(str(x) for x in subact)
 
-                    action_in[act] = subact
-                elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Discrete):
-                    action_in[act] = int(action_in[act])
+                action_in[act] = subact
+            elif isinstance(bottom_env_spec.action_space.spaces[act], gym.spaces.Discrete):
+                action_in[act] = int(action_in[act])
 
-                action_str.append("{} {}".format(act, str(action_in[act])))
+            action_str.append("{} {}".format(act, str(action_in[act])))
 
-            action_strs.append("\n".join(action_str))
-        return action_strs
+        return "\n".join(action_str)
 
     def make_interactive(self, port, max_players=10, realtime=True):
         """
@@ -578,32 +577,37 @@ class MineRLEnv(gym.Env):
             self.had_to_clean = True
 
     def _peek_obs(self):
-        obs = None
-        start_time = time.time()
+        multi_obs = {}
         if not self.done:
-            logger.debug("Peeking the client.")
+            logger.debug("Peeking the clients.")
             peek_message = "<Peek/>"
-            instance = self._controller_instance()
-            comms.send_message(instance.client_socket, peek_message.encode())
-            obs = comms.recv_message(instance.client_socket)
-            info = comms.recv_message(instance.client_socket).decode('utf-8')
+            multi_done = True
+            for instance in self.instances:
+                start_time = time.time()
+                comms.send_message(instance.client_socket, peek_message.encode())
+                obs = comms.recv_message(instance.client_socket)
+                info = comms.recv_message(instance.client_socket).decode('utf-8')
 
-            reply = comms.recv_message(instance.client_socket)
-            done, = struct.unpack('!b', reply)
-            self.done = done == 1
-            if obs is None or len(obs) == 0:
-                if time.time() - start_time > MAX_WAIT:
-                    instance.client_socket.close()
-                    instance.client_socket = None
-                    raise MissionInitException(
-                        'too long waiting for first observation')
-                time.sleep(0.1)
+                reply = comms.recv_message(instance.client_socket)
+                done, = struct.unpack('!b', reply)
+                multi_done = multi_done and done == 1
+                if obs is None or len(obs) == 0:
+                    if time.time() - start_time > MAX_WAIT:
+                        instance.client_socket.close()
+                        instance.client_socket = None
+                        raise MissionInitException(
+                            'too long waiting for first observation')
+                    time.sleep(0.1)
+                    # FIXME - shouldn't we error or retry here?
+
+                actor_name = instance.actor_name
+                multi_obs[actor_name], _ = self._process_observation(actor_name, obs, info)
+            self.done = multi_done
             if self.done:
                 raise RuntimeError(
                     "Something went wrong resetting the environment! "
                     "`done` was true on first frame.")
-
-        return self._process_observation(obs, info)
+        return multi_obs
 
     def _quit_episode(self):
         for instance in self.instances:
@@ -636,16 +640,16 @@ class MineRLEnv(gym.Env):
         if not self.done:
             withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
 
-            # Process the multi-agent actions.
-            malmo_commands = self._process_actions(actions)
-            multi_obs = []
-            multi_reward = []
-            multi_done = []
-            multi_info = []
+            multi_obs = {}
+            multi_reward = {}
+            multi_done = True
+            multi_info = {}
 
+            # Process multi-agent actions, apply and process multi-agent observations
             for instance in self.instances:
                 try:  # TODO - we could wrap entire function in try, if sockets don't need to individually clean
-                    malmo_command = malmo_commands[instance.role]
+                    actor_name = instance.actor_name
+                    malmo_command = self._process_action(actor_name, actions[actor_name])
                     step_message = "<StepClient" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
                                     malmo_command + \
                                     "</StepClient" + str(MineRLEnv.STEP_OPTIONS) + " >"
@@ -667,14 +671,20 @@ class MineRLEnv(gym.Env):
                         info = {}
 
                     # Process the observation and done state.
-                    out_obs = self._process_observation(obs, info)
+                    out_obs, info = self._process_observation(actor_name, obs, info)
                     done = (done == 1)
 
-                    # concatenate multi-agent obs
-                    multi_obs.append(out_obs)
-                    multi_reward.append(reward)
-                    multi_done.append(done)
-                    multi_info.append(info)
+                    # concatenate multi-agent obs, rew, done
+                    multi_obs[actor_name] = out_obs
+                    multi_reward[actor_name] = reward
+                    multi_done = multi_done and done
+
+                    # merge multi-agent info
+                    if instance.role == 0:
+                        multi_info.update(info)
+                    if 'actor_info' not in multi_info:
+                        multi_info['actor_info'] = {}
+                    multi_info['actor_info'][actor_name] = info
                 except (socket.timeout, socket.error, TypeError) as e:
                     # If the socket times out some how! We need to catch this and reset the environment.
                     self._clean_connection()
@@ -692,7 +702,7 @@ class MineRLEnv(gym.Env):
                     )
 
             # this will currently only consider the env done when all agents report done individually
-            self.done = np.all(multi_done)
+            self.done = multi_done
 
             instance = self._controller_instance()
             try:
@@ -746,10 +756,15 @@ class MineRLEnv(gym.Env):
         return self.viewer.isopen
 
     def render(self, mode='human'):
+        viewer_actor_name = self.actor_names[self.viewer_agent]
+        current_obs = self._last_obs.get(viewer_actor_name, None)
+        current_ac = self._last_ac.get(viewer_actor_name, None)
+        current_pov = self._last_pov.get(viewer_actor_name, None)
+
         if mode == 'human' and (
                 not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
-            self._renderObs(self._last_obs, self._last_ac)
-        return self._last_pov
+            self._renderObs(current_obs, current_ac)
+        return current_pov
 
     def is_closed(self):
         return self._already_closed

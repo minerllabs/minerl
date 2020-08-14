@@ -458,6 +458,10 @@ class InstanceManager:
             self._setup_logging()
             self._target_port = port
 
+        @property
+        def actor_name(self):
+            return f"actor{self.role}"
+
         def launch(self, daemonize=False):
             port = self._target_port
             self._starting = True

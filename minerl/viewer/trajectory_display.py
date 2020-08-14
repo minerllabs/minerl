@@ -211,9 +211,6 @@ class HumanTrajectoryDisplay(TrajectoryDisplayBase):
 
         self.key_labels = self.make_key_labels()
 
-        self.current_agent = 0
-
-
     def make_key_labels(self):
         keys = {}
         default_params = {  
@@ -260,11 +257,6 @@ class HumanTrajectoryDisplay(TrajectoryDisplayBase):
         for k in self.key_labels:
             self.key_labels[k].set_style('color', (128,128,128,255))
 
-        # only will show current agent
-        multiagent = not isinstance(action[0], str)
-        if multiagent:
-            action = action[self.current_agent]
-        
         for x in action:
             try:
                 if action[x] > 0:
@@ -273,7 +265,7 @@ class HumanTrajectoryDisplay(TrajectoryDisplayBase):
                 pass
 
         # Update mouse poisiton.
-        delta_y, delta_x = action['camera'] 
+        delta_y, delta_x = action['camera']
         self.camera_info_label.document.text = "[{0:.2f},{1:.2f}]".format(float(delta_y), float(delta_x))
         delta_x = np.clip(delta_x/60, -1,1)*self.camera_rect.width/2
         delta_y = np.clip(delta_y/60,-1,1)*self.camera_rect.height/2
