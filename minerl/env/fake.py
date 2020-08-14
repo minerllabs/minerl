@@ -381,7 +381,11 @@ class FakeMineRLEnv(gym.Env):
     def _start_up(self):
         self.resets += 1
         self.done = False
-        pass
+        icopy = deepcopy(self._info)
+        obs = icopy['pov']
+        info = icopy
+        # Process the observation and done state.
+        return self._process_observation(obs, info)
 
     def _clean_connection(self):
         logger.error("Cleaning connection! Something must have gone wrong.")
@@ -422,6 +426,8 @@ class FakeMineRLEnv(gym.Env):
             seed (long, optional):  Defaults to 42.
             seed_spaces (bool, option): If the observation space and action space shoud be seeded. Defaults to True.
         """
+        # TODO FIX THIS BAD THING NOW DUDE!
+        seed = 42
         assert isinstance(seed, int), "Seed must be an int!"
         self._seed = seed
         if seed_spaces:

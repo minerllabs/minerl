@@ -112,15 +112,15 @@ class MineRLEnv(gym.Env):
 
     STEP_OPTIONS = 0
 
-    def __init__(self, 
-        xml, 
-        observation_space, 
-        action_space, 
-        env_spec, 
-        port=None, 
-        docstr=None,
-        restartable_java=True,
-        reset_mission_xml_fn=None):
+    def __init__(self,
+                 xml,
+                 observation_space: spaces.MineRLSpace,
+                 action_space: spaces.MineRLSpace,
+                 env_spec,
+                 port=None,
+                 docstr=None,
+                 restartable_java=True,
+                 reset_mission_xml_fn=None):
         self.action_space = None
         self.observation_space = None
 
@@ -211,7 +211,7 @@ class MineRLEnv(gym.Env):
 
         # Bootstrap the environment if it hasn't been.
         role = 0
-
+        print(xml)
         if not xml.startswith("<Mission"):
             i = xml.index("<Mission")
             if i == -1:
@@ -552,6 +552,8 @@ class MineRLEnv(gym.Env):
             seed (long, optional):  Defaults to 42.
             seed_spaces (bool, option): If the observation space and action space shoud be seeded. Defaults to True.
         """
+        #TODO this is wrong and bad
+        seed = 42
         assert isinstance(seed, int), "Seed must be an int!"
         self._seed = seed
         if seed_spaces:

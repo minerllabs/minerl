@@ -492,7 +492,6 @@ MAX_FOOD = 20  # Default max food
 MAX_FOOD_SATURATION = 20.0  # Current max saturation limit as of 1.11.2
 MAX_SCORE = 0x7FFFFF  # Implemented as XP in survival but can change e.g. mini-games
 
-
 def get_item_id(item: str) -> int:
     """
     Gets the item ID of an MC item.
