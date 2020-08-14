@@ -7,13 +7,13 @@ from lxml import etree
 import numpy as np
 
 
-DEFAULT_SINGLE_AGENT_XML = 'minerl/env/Malmo/MalmoEnv/missions/mobchase_single_agent.xml'
-DEFAULT_MULTI_AGENT_XML = 'minerl/env/Malmo/MalmoEnv/missions/mobchase_two_agents.xml'
+DEFAULT_SINGLE_AGENT_XML = 'tests/single_agent.xml'
+DEFAULT_MULTI_AGENT_XML = 'tests/two_agents.xml'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env', type=str, default='MineRLNavigateDense-v0', help='the gym env')
-    parser.add_argument('--single', type=bool, default=False, help='use the single agent default xml')
+    parser.add_argument('--single', action="store_true", help='use the single agent default xml')
     parser.add_argument('--xml', type=str, default=None, help='the mission xml path, None uses single/multi default')
     parser.add_argument('--port', type=int, default=9000, help='the mission server port')
     parser.add_argument('--episodes', type=int, default=1, help='the number of resets to perform - default is 1')
