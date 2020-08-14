@@ -40,7 +40,7 @@ class PlaceBlock(ItemListAction):
                         else:
                             return item_name
                 except ValueError:
-                    return self._default
+                    return self._other
         except TypeError:
             print('Saw a type error in PlaceBlock')
             raise TypeError
