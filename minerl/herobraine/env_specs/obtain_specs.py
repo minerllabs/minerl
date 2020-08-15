@@ -7,7 +7,7 @@ from minerl.herobraine.hero.mc import STEPS_PER_MS
 from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
 from minerl.herobraine.hero.handler import Handler
 from minerl.herobraine.hero import handlers
-from typing import List
+from typing import List, Union, Dict
 from gym import spaces
 
 none = 'none'
@@ -22,13 +22,13 @@ class Obtain(SimpleEmbodimentEnvSpec):
     def __init__(self,
                  target_item,
                  dense,
-                 reward_schedule,
+                 reward_schedule : List[Dict[str, Union[str, int, float]]],
                  max_episode_steps=6000):
         self.target_item = target_item
         self.dense = dense
         suffix = snake_to_camel(self.target_item)
         dense_suffix = "Dense" if self.dense else ""
-        self.reward_schedule = reward_schedule
+        self.reward_schedule = reward_schedule 
 
         super().__init__(
             name="MineRLObtain{}{}-v0".format(suffix, dense_suffix),
@@ -134,8 +134,14 @@ class Obtain(SimpleEmbodimentEnvSpec):
         rewards = set(rewards)
         allow_missing_ratio = 0.1
         max_missing = round(len(self.reward_schedule) * allow_missing_ratio)
-        return len(rewards.intersection(self.reward_schedule.values())) \
-            >= len(self.reward_schedule.values()) - max_missing
+
+        # Get a list of the rewards from the reward_schedule.
+        reward_values = [
+            s['reward'] for s in self.reward_schedule
+        ]
+
+        return len(rewards.intersection(reward_values)) \
+            >= len(reward_values) - max_missing
 
 
 class ObtainDiamond(Obtain):

@@ -78,6 +78,13 @@ class _RewardForPosessingItemBase(RewardHandler):
         self.sparse = sparse
         self.exclude_loops = exclude_loops
         self.items = item_rewards
+        self.reward_dict = {
+            a['type']: dict(reward=a['reward'], amount=a['amount']) for a in self.items
+        }
+        # Assert that no amount is greater than 1.
+        for k, v in self.reward_dict.items():
+            assert int(v['amount']) <= 1, "Currently from universal is not implemented for item amounts > 1"
+        
         # Assert all items have the appropriate fields for the XML template.
         for item in self.items:
             assert set(item.keys()) == {"amount", "reward", "type"}
@@ -98,6 +105,7 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
         super().__init__(sparse=False, exclude_loops=False, item_rewards=item_rewards )
 
     def from_universal(self, x):
+        # TODO: Now get all of these to work correctly.
         total_reward = 0
         if 'diff' in x and 'changes' in x['diff']:
             for change_json in x['diff']['changes']:
@@ -106,7 +114,7 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
                     item_name = 'log'
                 if item_name in self.reward_dict and 'quantity_change' in change_json:
                     if change_json['quantity_change'] > 0:
-                        total_reward += change_json['quantity_change'] * self.reward_dict[item_name]
+                        total_reward += change_json['quantity_change'] * self.reward_dict[item_name]['reward']
         return total_reward
 
 
@@ -132,13 +140,10 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
                     item_name = 'log'
                 if item_name in self.reward_dict and 'quantity_change' in change_json and item_name not in self.seen_dict:
                     if change_json['quantity_change'] > 0:
-                        total_reward += self.reward_dict[item_name]
+                        total_reward += self.reward_dict[item_name]['reward']
                         self.seen_dict[item_name] = True
         return total_reward
 
-    def reset(self): # TODO (R): Convert away from using reset and just reinitialziing the handler.
-        # print(self.seen_dict.keys())
-        self.seen_dict = dict()
 
 
 # <RewardForMissionEnd>

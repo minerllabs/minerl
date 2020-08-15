@@ -81,7 +81,6 @@ class AgentQuitFromPossessingItem(Handler):
         self.items = items
         # Assert that all the items have the correct fields for the XML.
         for item in self.items:
-            print(item)
             assert "type" in item, "{} does contain `type`".format(item)
             assert "amount" in item, "{} does not contain `amount`".format(item)
 
