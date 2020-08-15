@@ -4,10 +4,12 @@
 
 from minerl.herobraine.hero import spaces
 import os
+from minerl.herobraine.hero.test_spaces import assert_equal_recursive
 import numpy as np
 import gym
+import xmltodict
 
-missions_dir = '.' #TODO FOR REGRESSION
+missions_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test')
 old_envs = []
 
 old_envs.append(dict(
@@ -415,16 +417,20 @@ def test_env_space_regressions():
         assert newspec.max_episode_steps == env['max_episode_steps']
         if 'reward_threshold' in env or hasattr(newspec, 'reward_threshold'): 
             assert newspec.reward_threshold == env['reward_threshold']
-
-
-def test_env_mission_regressions():
-    for env in old_envs:
-        newspec = gym.envs.registration.spec(env['id'])
-        # TODO: FINISH.
-
+        
+        with open(env['kwargs']['xml'], 'rt') as f:
+            old_env_xml = f.read()
+        new_env_xml = newspec._kwargs['env_spec'].to_xml()
+        old_xml_dict =xmltodict.parse(old_env_xml)
+        new_xml_dict = xmltodict.parse(new_env_xml)
+        del old_xml_dict['Mission']['About'], new_xml_dict['Mission']['About']
+        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions'])
 
 
 
 # #######################
 # #        DEBUG        #
 # #######################
+
+if __name__ == '__main__':
+    test_env_space_regressions()

@@ -12,13 +12,14 @@
         <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
+                <AllowPassageOfTime>true</AllowPassageOfTime>
             </Time>
             <AllowSpawning>true</AllowSpawning>
             
         </ServerInitialConditions>
         <ServerHandlers>
             <DefaultWorldGenerator forceReset="true"/>
-            <ServerQuitFromTimeUp timeLimitMs="900000" description="out_of_time"/>
+            <ServerQuitFromTimeUp timeLimitMs="600000" description="out_of_time"/>
             <ServerQuitWhenAnyAgentFinishes/>
         </ServerHandlers>
     </ServerSection>
@@ -46,33 +47,16 @@
             </HumanLevelCommands>
             <CameraCommands/>
             <SimpleCraftCommands/>
-            <!--      Provided as demonstration - don't use these for determining action space  ordering    -->
-            <!--        <Item type="minecraft:stick"/>-->
-            <!--        <Item type="minecraft:planks"/>-->
-            <!--        <Item type="minecraft:torch"/>-->
             <NearbyCraftCommands/>
-            <!--        <Item type="minecraft:wooden_axe"/>-->
-            <!--        <Item type="minecraft:wooden_pickaxe"/>-->
-            <!--        <Item type="minecraft:stone_axe"/>-->
-            <!--        <Item type="minecraft:stone_pickaxe"/>-->
-            <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <NearbySmeltCommands/>
-            <!--        <Item type="minecraft:iron_ingot"/>-->
-            <!--        <Item type="minecraft:coal"/>-->
             <PlaceCommands/>
-            <!--          <Item type="minecraft:crafting_table"/>-->
-            <!--          <Item type="minecraft:furnace"/>-->
-            <!--          <Item type="minecraft:torch"/>-->
-            <EquipCommands/>
-            <!--        <Item type="minecraft:stone_pickaxe"/>-->
-            <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <PauseCommand/>
 
             <!--  Rewards   -->
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <RewardForPossessingItem sparse="false" excludeLoops="false">
+            <RewardForPossessingItem sparse="true">
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
@@ -84,11 +68,10 @@
                 <Item amount="1" reward="64" type="iron_ore" />
                 <Item amount="1" reward="128" type="iron_ingot" />
                 <Item amount="1" reward="256" type="iron_pickaxe" />
-                <Item amount="1" reward="1024" type="diamond" />
             </RewardForPossessingItem>
-            <AgentQuitFromPossessingItem>
-                <Item type="diamond"/>
-            </AgentQuitFromPossessingItem>
+            <AgentQuitFromCraftingItem>
+                <Item type="iron_pickaxe"/>
+            </AgentQuitFromCraftingItem>
         </AgentHandlers>
     </AgentSection>
 </Mission>

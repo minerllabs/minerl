@@ -12,6 +12,7 @@
         <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
+                <AllowPassageOfTime>true</AllowPassageOfTime>
             </Time>
             <AllowSpawning>true</AllowSpawning>
             
@@ -46,9 +47,26 @@
             </HumanLevelCommands>
             <CameraCommands/>
             <SimpleCraftCommands/>
+            <!--      Provided as demonstration - don't use these for determining action space  ordering    -->
+            <!--        <Item type="minecraft:stick"/>-->
+            <!--        <Item type="minecraft:planks"/>-->
+            <!--        <Item type="minecraft:torch"/>-->
             <NearbyCraftCommands/>
+            <!--        <Item type="minecraft:wooden_axe"/>-->
+            <!--        <Item type="minecraft:wooden_pickaxe"/>-->
+            <!--        <Item type="minecraft:stone_axe"/>-->
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <NearbySmeltCommands/>
+            <!--        <Item type="minecraft:iron_ingot"/>-->
+            <!--        <Item type="minecraft:coal"/>-->
             <PlaceCommands/>
+            <!--          <Item type="minecraft:crafting_table"/>-->
+            <!--          <Item type="minecraft:furnace"/>-->
+            <!--          <Item type="minecraft:torch"/>-->
+            <EquipCommands/>
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <PauseCommand/>
 
             <!--  Rewards   -->
@@ -67,10 +85,11 @@
                 <Item amount="1" reward="64" type="iron_ore" />
                 <Item amount="1" reward="128" type="iron_ingot" />
                 <Item amount="1" reward="256" type="iron_pickaxe" />
+                <Item amount="1" reward="1024" type="diamond" />
             </RewardForPossessingItem>
-            <AgentQuitFromCraftingItem>
-                <Item type="iron_pickaxe"/>
-            </AgentQuitFromCraftingItem>
+            <AgentQuitFromPossessingItem>
+                <Item type="diamond"/>
+            </AgentQuitFromPossessingItem>
         </AgentHandlers>
     </AgentSection>
 </Mission>

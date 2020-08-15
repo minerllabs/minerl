@@ -1,7 +1,7 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
-from minerl.herobraine.hero.mc import STEPS_PER_MS
+from minerl.herobraine.hero.mc import MS_PER_STEP, STEPS_PER_MS
 from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
 from minerl.herobraine.hero.handler import Handler
 import sys
@@ -77,7 +77,7 @@ class Navigate(SimpleEmbodimentEnvSpec):
       
     def create_server_quit_producers(self) -> List[Handler]:     
         return [
-            handlers.ServerQuitFromTimeUp(NAVIGATE_STEPS // STEPS_PER_MS),
+            handlers.ServerQuitFromTimeUp(NAVIGATE_STEPS * MS_PER_STEP),
             handlers.ServerQuitWhenAnyAgentFinishes() 
         ]  
 

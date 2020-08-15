@@ -61,10 +61,13 @@ def test_box_flat_map():
 
 # A method which asserts equality between an ordered dict of numpy arrays and another
 # ordered dict - WTH
-def assert_equal_recursive(npa_dict, dict_to_test, atol=1.e-8):
+def assert_equal_recursive(npa_dict, dict_to_test, atol=1.e-8, ignore=None):
+    ignore = [] if ignore is None else ignore
     assert isinstance(npa_dict, collections.OrderedDict)
     assert isinstance(dict_to_test, collections.OrderedDict)
     for key, value in npa_dict.items():
+        if key in ignore:
+            continue
         if isinstance(value, np.ndarray):
             if key == 'camera':
                 assert np.allclose(value, dict_to_test[key], atol=1.5)
@@ -74,7 +77,7 @@ def assert_equal_recursive(npa_dict, dict_to_test, atol=1.e-8):
                 assert np.allclose(value, dict_to_test[key], atol=atol)
             # assert np.array_equal(value, dict_to_test[key])
         elif isinstance(value, collections.OrderedDict):
-            assert_equal_recursive(value, dict_to_test[key], atol)
+            assert_equal_recursive(value, dict_to_test[key], atol, ignore)
         else:
             assert value == dict_to_test[key]
 

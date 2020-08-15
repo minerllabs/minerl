@@ -12,20 +12,33 @@
         <ServerInitialConditions>
             <Time>
                 <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-            <AllowSpawning>true</AllowSpawning>
             
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
-            <DefaultWorldGenerator forceReset="true"/>
-            <ServerQuitFromTimeUp timeLimitMs="900000" description="out_of_time"/>
+            <FlatWorldGenerator forceReset="true"/>
+            <ServerQuitFromTimeUp timeLimitMs="100000" description="out_of_time"/>
             <ServerQuitWhenAnyAgentFinishes/>
         </ServerHandlers>
     </ServerSection>
 
     <AgentSection mode="Survival">
         <Name>MalmoTutorialBot</Name>
-        <AgentStart/>
+        <AgentStart>
+            <Inventory>
+                <InventoryObject slot="0" type="dirt"/>
+                <InventoryObject slot="1" type="planks" quantity="3"/>
+                <InventoryObject slot="2" type="log2" quantity="2"/>
+                <InventoryObject slot="3" type="log" quantity="3"/>
+                <InventoryObject slot="4" type="iron_ore" quantity="4"/>
+                <InventoryObject slot="5" type="diamond_ore" quantity="2"/>
+                <InventoryObject slot="6" type="cobblestone" quantity="17"/>
+                <InventoryObject slot="7" type="red_flower" quantity="1"/>
+            </Inventory>
+        </AgentStart>
         <AgentHandlers>
             <!--  Observations     -->
             <VideoProducer want_depth="false">
@@ -46,7 +59,6 @@
             </HumanLevelCommands>
             <CameraCommands/>
             <SimpleCraftCommands/>
-            <!--      Provided as demonstration - don't use these for determining action space  ordering    -->
             <!--        <Item type="minecraft:stick"/>-->
             <!--        <Item type="minecraft:planks"/>-->
             <!--        <Item type="minecraft:torch"/>-->
@@ -58,7 +70,6 @@
             <!--        <Item type="minecraft:iron_pickaxe"/>-->
             <NearbySmeltCommands/>
             <!--        <Item type="minecraft:iron_ingot"/>-->
-            <!--        <Item type="minecraft:coal"/>-->
             <PlaceCommands/>
             <!--          <Item type="minecraft:crafting_table"/>-->
             <!--          <Item type="minecraft:furnace"/>-->
@@ -72,7 +83,8 @@
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <RewardForPossessingItem sparse="true">
+            <!-- Working for sparse rewards -->
+            <RewardForPossessingItem sparse="false" excludeLoops="false">
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
@@ -86,8 +98,9 @@
                 <Item amount="1" reward="256" type="iron_pickaxe" />
                 <Item amount="1" reward="1024" type="diamond" />
             </RewardForPossessingItem>
+            <!-- </RewardForCollectingItemQuantity> -->
             <AgentQuitFromPossessingItem>
-                <Item type="diamond"/>
+                <Item type="diamond" amount="2"/>
             </AgentQuitFromPossessingItem>
         </AgentHandlers>
     </AgentSection>

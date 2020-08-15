@@ -2,7 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 
 from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
-from minerl.herobraine.hero.mc import STEPS_PER_MS
+from minerl.herobraine.hero.mc import MS_PER_STEP, STEPS_PER_MS
 from minerl.herobraine.hero.handler import Handler
 from typing import List
 
@@ -74,7 +74,7 @@ class Treechop(SimpleEmbodimentEnvSpec):
     def create_server_quit_producers(self) -> List[Handler]:     
         return [
             handlers.ServerQuitFromTimeUp(
-                TREECHOP_LENGTH // STEPS_PER_MS),
+                (TREECHOP_LENGTH * MS_PER_STEP)),
             handlers.ServerQuitWhenAnyAgentFinishes()
         ]     
 

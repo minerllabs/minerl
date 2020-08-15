@@ -34,18 +34,13 @@
     <AgentStart>
       <!-- <Randomized>true</Randomized> -->
       <Inventory>
-        <InventoryItem slot="0" type="iron_axe"/>
+        <InventoryObject slot="0" type="iron_axe"/>
       </Inventory>
     </AgentStart>
     <AgentHandlers>
       <ObservationFromFullInventory flat="false"/>
       <ObservationFromFullStats/>
-      <HumanLevelCommands>
-        <ModifierList type="deny-list"> 
-          <command>moveMouse</command> 
-          <command>inventory</command> 
-        </ModifierList>
-      </HumanLevelCommands>
+      <HumanLevelCommands/>
       <CameraCommands/>
       <PauseCommand/>
       <RewardForPossessingItem sparse="false">

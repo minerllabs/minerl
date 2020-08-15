@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <About>
-        <Summary>$(ENV_NAME)</Summary>
+        <Summary>MineRLNavigateExtreme-v0</Summary>
     </About>
 
     <ModSettings>
@@ -52,13 +52,8 @@
             </VideoProducer>
             <FileBasedPerformanceProducer/>
             
-            <ObservationFromFullInventory flat="false"/>
-            <HumanLevelCommands>
-                <ModifierList type="deny-list"> 
-                <command>moveMouse</command> 
-                <command>inventory</command> 
-                </ModifierList>
-            </HumanLevelCommands>
+            <ObservationFromFullInventory flat="false"/><HumanLevelCommands/>
+<PlaceCommands/>
             <CameraCommands/>
             <ObservationFromCompass/>
 
@@ -68,7 +63,6 @@
             <RewardForTouchingBlockType>
                 <Block reward="100.0" type="diamond_block" behaviour="onceOnly"/>
             </RewardForTouchingBlockType>
-            <RewardForDistanceTraveledToCompassTarget rewardPerBlock="1" density="PER_TICK"/>
             <PauseCommand/>
         </AgentHandlers>
     </AgentSection>

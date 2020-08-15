@@ -3,7 +3,7 @@
 
 from minerl.herobraine.hero.handlers.agent.quit import AgentQuitFromPossessingItem
 from minerl.herobraine.hero.handlers.agent.actions.equip import EquipAction
-from minerl.herobraine.hero.mc import STEPS_PER_MS
+from minerl.herobraine.hero.mc import MS_PER_STEP, STEPS_PER_MS
 from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
 from minerl.herobraine.hero.handler import Handler
 from minerl.herobraine.hero import handlers
@@ -24,6 +24,8 @@ class Obtain(SimpleEmbodimentEnvSpec):
                  dense,
                  reward_schedule : List[Dict[str, Union[str, int, float]]],
                  max_episode_steps=6000):
+                 # 6000 for obtain iron  (5 mins)
+                 # 18000 for obtain diamond (15 mins)
         self.target_item = target_item
         self.dense = dense
         suffix = snake_to_camel(self.target_item)
@@ -105,7 +107,7 @@ class Obtain(SimpleEmbodimentEnvSpec):
     def create_server_quit_producers(self) -> List[Handler]:     
         return [           
              handlers.ServerQuitFromTimeUp(time_limit_ms=
-                self.max_episode_steps // STEPS_PER_MS),
+                self.max_episode_steps * MS_PER_STEP),
             handlers.ServerQuitWhenAnyAgentFinishes()]  
 
     def create_server_decorators(self) -> List[Handler]:

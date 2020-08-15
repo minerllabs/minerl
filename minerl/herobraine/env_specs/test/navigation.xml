@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<Mission xmlns="http://ProjectMalmo.microsoft.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<Mission xmlns="http://ProjectMalmo.microsoft.com"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <About>
-        <Summary>$(ENV_NAME)</Summary>
+        <Summary>MineRLNavigate-v0</Summary>
     </About>
 
     <ModSettings>
@@ -14,7 +15,7 @@
                 <StartTime>6000</StartTime>
                 <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-            
+
             <Weather>clear</Weather>
             <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
@@ -41,7 +42,7 @@
         <Name>MineRLAgent</Name>
         <AgentStart>
             <Inventory>
-                    <InventoryObject slot="0" type="compass" quantity="1"/>
+                <InventoryObject slot="0" type="compass" quantity="1"/>
             </Inventory>
         </AgentStart>
         <AgentHandlers>
@@ -51,12 +52,8 @@
             </VideoProducer>
             <FileBasedPerformanceProducer/>
             <ObservationFromFullInventory flat="false"/>
-            <HumanLevelCommands>
-                <ModifierList type="deny-list"> 
-                <command>moveMouse</command> 
-                <command>inventory</command> 
-                </ModifierList>
-            </HumanLevelCommands>
+            <HumanLevelCommands/>
+            <PlaceCommands/>
             <CameraCommands/>
             <ObservationFromCompass/>
 
