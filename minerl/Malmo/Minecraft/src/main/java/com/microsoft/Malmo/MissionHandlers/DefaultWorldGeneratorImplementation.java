@@ -78,6 +78,7 @@ public class DefaultWorldGeneratorImplementation extends HandlerBase implements 
         WorldSettings worldsettings = new WorldSettings(seed, GameType.SURVIVAL, true, false, worldtype);
         worldsettings.enableCommands();
         worldsettings.setGeneratorOptions(this.dwparams.getGeneratorOptions());
+        System.out.println("[LOGTOPY] GENERATOR OPTIONS = " + worldsettings.getGeneratorOptions().toString());
         // Create a filename for this map - we use the time stamp to make sure it is different from other worlds, otherwise no new world
         // will be created, it will simply load the old one.
         return MapFileHelper.createAndLaunchWorld(worldsettings, this.dwparams.isDestroyAfterUse());

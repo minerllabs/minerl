@@ -16,7 +16,7 @@ class DefaultWorldGenerator(Handler):
         return str(
             """<DefaultWorldGenerator 
                 forceReset="{{force_reset | string | lower}}"
-                generatorOptions="{{generator_options}}"/>
+                generatorOptions='{{generator_options}}'/>
             """
         )
 
@@ -28,7 +28,6 @@ class DefaultWorldGenerator(Handler):
             generator_options: A JSON object specifying parameters to the procedural generator.
         """
         self.force_reset = force_reset
-        generator_options = generator_options.replace('"', "'")
         self.generator_options = generator_options
         
 class FileWorldGenerator(Handler):

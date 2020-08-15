@@ -53,7 +53,7 @@ The agent begins in a forest biome (near many trees) with an iron axe for cuttin
 
 
 #######################
-#      NAVIGATE       #
+#      NAVIATE       #
 #######################
 
 def make_navigate_text(top, dense):
@@ -423,7 +423,7 @@ def test_env_space_regressions():
         new_env_xml = newspec._kwargs['env_spec'].to_xml()
         old_xml_dict =xmltodict.parse(old_env_xml)
         new_xml_dict = xmltodict.parse(new_env_xml)
-        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions', 'Name', 'About'])
+        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['Name', 'About'])
 
 
 
