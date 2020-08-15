@@ -236,6 +236,13 @@ class ObtainIronPickaxe(Obtain):
             ],
         )
 
+    def create_agent_handlers(self):
+        return [
+            handlers.AgentQuitFromCraftingItem([
+                dict(type="iron_pickaxe", amount=1)
+            ])
+        ]
+
     def is_from_folder(self, folder: str) -> bool:
         return folder == 'o_iron'
 

@@ -26,7 +26,7 @@
     </ServerSection>
 
     <AgentSection mode="Survival">
-        <Name>MalmoTutorialBot</Name>
+        <Name>MineRLAgent</Name>
         <AgentStart>
             <Inventory>
                 <InventoryObject slot="0" type="dirt"/>
@@ -51,12 +51,7 @@
             <ObservationFromEquippedItem/>
 
             <!--  Commands   -->
-            <HumanLevelCommands>
-                <ModifierList type="deny-list">
-                    <command>moveMouse</command>
-                    <command>inventory</command>
-                </ModifierList>
-            </HumanLevelCommands>
+            <HumanLevelCommands/>
             <CameraCommands/>
             <SimpleCraftCommands/>
             <!--        <Item type="minecraft:stick"/>-->
@@ -84,7 +79,7 @@
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
             <!-- Working for sparse rewards -->
-            <RewardForPossessingItem sparse="false" excludeLoops="false">
+            <RewardForPossessingItem sparse="false" excludeLoops="true">
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />

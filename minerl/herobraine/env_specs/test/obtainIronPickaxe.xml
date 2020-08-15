@@ -19,13 +19,13 @@
         </ServerInitialConditions>
         <ServerHandlers>
             <DefaultWorldGenerator forceReset="true"/>
-            <ServerQuitFromTimeUp timeLimitMs="600000" description="out_of_time"/>
+            <ServerQuitFromTimeUp timeLimitMs="300000" description="out_of_time"/>
             <ServerQuitWhenAnyAgentFinishes/>
         </ServerHandlers>
     </ServerSection>
 
     <AgentSection mode="Survival">
-        <Name>MalmoTutorialBot</Name>
+        <Name>MineRLAgent</Name>
         <AgentStart/>
         <AgentHandlers>
             <!--  Observations     -->
@@ -39,12 +39,8 @@
             <ObservationFromEquippedItem/>
 
             <!--  Commands   -->
-            <HumanLevelCommands>
-                <ModifierList type="deny-list">
-                    <command>moveMouse</command>
-                    <command>inventory</command>
-                </ModifierList>
-            </HumanLevelCommands>
+            <HumanLevelCommands/>
+            <EquipCommands/>
             <CameraCommands/>
             <SimpleCraftCommands/>
             <NearbyCraftCommands/>
@@ -56,7 +52,7 @@
             <RewardForMissionEnd>
                 <Reward description="out_of_time" reward="0" />
             </RewardForMissionEnd>
-            <RewardForPossessingItem sparse="true">
+            <RewardForPossessingItem sparse="true" excludeLoops="true">
                 <Item amount="1" reward="1" type="log" />
                 <Item amount="1" reward="2" type="planks" />
                 <Item amount="1" reward="4" type="stick" />
@@ -70,7 +66,7 @@
                 <Item amount="1" reward="256" type="iron_pickaxe" />
             </RewardForPossessingItem>
             <AgentQuitFromCraftingItem>
-                <Item type="iron_pickaxe"/>
+                <Item type="iron_pickaxe" amount="1"/>
             </AgentQuitFromCraftingItem>
         </AgentHandlers>
     </AgentSection>

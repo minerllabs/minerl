@@ -41,7 +41,7 @@ class  AgentQuitFromCraftingItem(Handler):
         return str(
             """<AgentQuitFromCraftingItem>
                     {% for item in items %}
-                    <Item type="{{ item.type }}"/>
+                    <Item type="{{ item.type}}" amount="{{ item.amount }}"/>
                     {% endfor %}
                 </AgentQuitFromCraftingItem>"""
         )
@@ -49,9 +49,14 @@ class  AgentQuitFromCraftingItem(Handler):
     def __init__(self, items : List[Dict[str, Union[str, int]]]):
         """Creates a reward which will cause the player to quit when they have finished crafting something."""
         self.items = items
-        # Assert that all the items have the correct fields for the XML.
+
         for item in self.items:
-            assert "type" in item, "{} does not contain `type`".format(item)
+            assert "type" in item, "{} does contain `type`".format(item)
+            assert "amount" in item, "{} does not contain `amount`".format(item)
+
+
+
+        
             
 
 #  <AgentQuitFromPossessingItem>

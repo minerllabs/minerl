@@ -26,7 +26,7 @@
     </ServerSection>
 
     <AgentSection mode="Survival">
-        <Name>MalmoTutorialBot</Name>
+        <Name>MineRLAgent</Name>
         <AgentStart>
             <Inventory>
                 <InventoryObject slot="0" type="dirt"/>
@@ -51,12 +51,7 @@
             <ObservationFromEquippedItem/>
 
             <!--  Commands   -->
-            <HumanLevelCommands>
-                <ModifierList type="deny-list">
-                    <command>moveMouse</command>
-                    <command>inventory</command>
-                </ModifierList>
-            </HumanLevelCommands>
+            <HumanLevelCommands/>
             <CameraCommands/>
             <SimpleCraftCommands/>
             <!--        <Item type="minecraft:stick"/>-->

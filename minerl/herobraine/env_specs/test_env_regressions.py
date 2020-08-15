@@ -423,8 +423,7 @@ def test_env_space_regressions():
         new_env_xml = newspec._kwargs['env_spec'].to_xml()
         old_xml_dict =xmltodict.parse(old_env_xml)
         new_xml_dict = xmltodict.parse(new_env_xml)
-        del old_xml_dict['Mission']['About'], new_xml_dict['Mission']['About']
-        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions'])
+        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions', 'Name', 'About'])
 
 
 

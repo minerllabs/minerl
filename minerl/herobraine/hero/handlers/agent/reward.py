@@ -68,7 +68,7 @@ class _RewardForPosessingItemBase(RewardHandler):
                 """
         )
 
-    def __init__(self, sparse : bool,  exclude_loops : bool, item_rewards : List[Dict[str, Union[str,int]]], ):
+    def __init__(self, sparse : bool,  exclude_loops: bool, item_rewards : List[Dict[str, Union[str,int]]]):
         """Creates a reward which gives rewards based on items in the 
         inventory that are provided.
 
@@ -102,7 +102,7 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
                 dict(type="log", amount=1, reward=1.0),
             ])
         """
-        super().__init__(sparse=False, exclude_loops=False, item_rewards=item_rewards )
+        super().__init__(sparse=False, exclude_loops=True, item_rewards=item_rewards )
 
     def from_universal(self, x):
         # TODO: Now get all of these to work correctly.
@@ -128,7 +128,7 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
         ])
     """
     def __init__(self, item_rewards : List[Dict[str, Union[str,int]]]):
-        super().__init__(sparse=True, exclude_loops=False, item_rewards=item_rewards)
+        super().__init__(sparse=True, exclude_loops=True, item_rewards=item_rewards)
         self.seen_dict = dict()
 
     def from_universal(self, x):

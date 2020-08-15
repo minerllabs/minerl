@@ -41,7 +41,7 @@
       <HumanLevelCommands/>
       <CameraCommands/>
       <PauseCommand/>
-      <RewardForPossessingItem sparse="false" excludeLoops="false">
+      <RewardForPossessingItem sparse="false" excludeLoops="true">
       <!-- <RewardForCollectingItem sparse="true"> -->
         <Item reward="1.0" type="log" amount="1"/>
       </RewardForPossessingItem>
