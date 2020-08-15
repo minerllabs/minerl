@@ -6,7 +6,7 @@ import numpy as np
 import tqdm
 
 
-def test_batch_iter():
+def _test_batch_iter():
     dat = minerl.data.make('MineRLTreechopVectorObf-v0')
 
     act_vectors = []
