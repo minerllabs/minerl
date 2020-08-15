@@ -35,8 +35,6 @@ import gym
 import gym.envs.registration
 import gym.spaces
 
-# TODO: Drop inflection dependencies.
-import inflection as inflection
 import numpy as np
 from lxml import etree
 import xmltodict

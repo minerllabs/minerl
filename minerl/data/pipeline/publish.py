@@ -269,20 +269,17 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
             if E(rendered_dest):
                 continue
 
+            environment.reset()
+
             # Load relevant handlers
             info_handlers = [obs for obs in environment.observables if not isinstance(obs, handlers.POVObservation)]
-            reward_handlers = [r for r in environment.mission_handlers if isinstance(r, handlers.RewardHandler)]
+            reward_handlers = environment.rewardables 
+            # TODO (R): Support done handlers.
             # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
             action_handlers = environment.actionables
-
-
+            
             all_handlers = [hdl for sublist in [info_handlers, reward_handlers, action_handlers] for hdl in sublist]
-            for hdl in all_handlers:
-                try:
-                    if "reset" in dir(hdl):
-                        hdl.reset()
-                except (NotImplementedError, AttributeError):
-                    continue
+
             try:
 
                 published = dict(
