@@ -20,7 +20,7 @@ from collections import OrderedDict
 TESTS_DATA = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tests_data'))
 
 
-def test_pipeline(copy_test_data_out=False, upload_test_data=''):
+def test_pipeline(copy_test_data_out=True, upload_test_data=''):
     # 0. Download and unzip a sample stream.
     sample_stream = os.path.join(TESTS_DATA, 'sample_stream.zip')
     # TODO get this from AWS one?
