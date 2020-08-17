@@ -37,14 +37,9 @@ if __name__ == '__main__':
         else:
             xml_path = DEFAULT_MULTI_AGENT_XML
 
-    # get agent count from xml (TODO - this should use the full parsing from MineRLEnv)
-    xml = Path(xml_path).read_text()
-    mission = etree.fromstring(xml)
-    number_of_agents = len(mission.findall('{http://ProjectMalmo.microsoft.com}AgentSection'))
-    logging.debug("Number of agents: " + str(number_of_agents))
-
     # make env
-    env = gym.make(args.env, xml=xml_path, port=args.port)
+    xml = Path(xml_path).read_text()
+    env = gym.make(args.env, xml=xml, port=args.port)
 
     # iterate desired episodes
     for r in range(args.episodes):

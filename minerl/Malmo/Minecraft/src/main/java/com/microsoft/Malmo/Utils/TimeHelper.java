@@ -50,6 +50,7 @@ public class TimeHelper
     public static long serverTickLength = 50;
     public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
+    public static int frameSkip = 1; // Note: Not fully implemented
 
     static public class SyncManager {
         static Boolean synchronous = false;
