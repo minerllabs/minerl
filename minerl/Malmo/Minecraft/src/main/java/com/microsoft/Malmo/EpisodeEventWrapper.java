@@ -71,6 +71,7 @@ public class EpisodeEventWrapper {
         	}
         	catch (Exception e)
         	{
+        	    System.err.println("Failed to tick client state episode: " + e);
         		// Do what??
         	}
         }
