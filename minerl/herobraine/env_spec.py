@@ -21,10 +21,11 @@ class EnvSpec(abc.ABC):
     ENTRYPOINT = 'minerl.env:MineRLEnv'
     FAKE_ENTRYPOINT = 'minerl.env:FakeMineRLEnv'
 
-    def __init__(self, name, max_episode_steps=None, reward_threshold=None):
+    def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=1):
         self.name = name
         self.max_episode_steps = max_episode_steps
         self.reward_threshold = reward_threshold
+        self.agent_count = agent_count
 
         self.reset()
 
@@ -35,7 +36,7 @@ class EnvSpec(abc.ABC):
         self.agent_handlers = self.create_agent_handlers()
         self.agent_start = self.create_agent_start()
 
-       
+
         self.server_initial_conditions = self.create_server_initial_conditions()
         self.server_world_generators = self.create_server_world_generators()
         self.server_decorators = self.create_server_decorators()

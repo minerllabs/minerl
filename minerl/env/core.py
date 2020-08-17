@@ -165,8 +165,6 @@ class MineRLEnv(gym.Env):
         self.done = True
         self.agent_info = {}
         self.reset_mission_xml_fn = reset_mission_xml_fn or (lambda x: x)
-        
-        self.instance = self._get_new_instance(port)
 
     def _get_new_instance(self, port=None, instance_id=None):
         """
@@ -281,7 +279,7 @@ class MineRLEnv(gym.Env):
         
             # pass the xml through the modifier function before extracting agent handler
             # and video_producer to make sure those have not been set to some invalid values
-            
+
             # Ensure all observations are present for unified env.
             agent_handler = xml.find(".//" + self.ns + "AgentHandlers")
             if agent_handler.find("./" + self.ns + "ObservationFromEquippedItem") is None:
@@ -992,6 +990,10 @@ def _deepdict_find(d, key):
     for k, v in d.items():
         if k == key:
             retval.append(v)
+        elif isinstance(v, list):
+            for e in v:
+                if isinstance(e, dict):
+                    retval += _deepdict_find(e, key)
         elif isinstance(v, dict):
             retval += _deepdict_find(v, key)
     return retval

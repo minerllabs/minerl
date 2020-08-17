@@ -1,20 +1,14 @@
 import gym
 import minerl  # noqa
 import argparse
-from pathlib import Path
 import time
-from lxml import etree
-import numpy as np
 
-
-DEFAULT_SINGLE_AGENT_XML = 'tests/single_agent.xml'
-DEFAULT_MULTI_AGENT_XML = 'tests/two_agents.xml'
+ENV_NAME_SINGLE = 'MineRLTreechop-v0'
+ENV_NAME_MULTI = 'MineRLTreechopMultiAgent2-v0'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', type=str, default='MineRLNavigateDense-v0', help='the gym env')
     parser.add_argument('--single', action="store_true", help='use the single agent default xml')
-    parser.add_argument('--xml', type=str, default=None, help='the mission xml path, None uses single/multi default')
     parser.add_argument('--port', type=int, default=None, help='the port of existing client or None to launch')
     parser.add_argument('--episodes', type=int, default=1, help='the number of resets to perform - default is 1')
     args = parser.parse_args()
@@ -29,17 +23,12 @@ if __name__ == '__main__':
     logging.debug("Deleting previous java log files...")
     subprocess.check_call("rm -rf logs/*", shell=True)
 
-    # check if default xmls should be used
-    xml_path = args.xml
-    if xml_path is None:
-        if args.single:
-            xml_path = DEFAULT_SINGLE_AGENT_XML
-        else:
-            xml_path = DEFAULT_MULTI_AGENT_XML
-
     # make env
-    xml = Path(xml_path).read_text()
-    env = gym.make(args.env, xml=xml, port=args.port)
+    if args.single:
+        env_name = ENV_NAME_SINGLE
+    else:
+        env_name = ENV_NAME_MULTI
+    env = gym.make(env_name, port=args.port)
 
     # iterate desired episodes
     for r in range(args.episodes):
