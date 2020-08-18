@@ -1185,6 +1185,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 if (Minecraft.getMinecraft().getCurrentServerData() == null || !Minecraft.getMinecraft().getCurrentServerData().serverIP.equals(targetIP))
                 {
                     net.minecraftforge.fml.client.FMLClientHandler.instance().connectToServerAtStartup(address, port);
+
+                    // TODO - should we wait for a connected notification?
+                    TimeHelper.SyncManager.setServerRunning();
+                    TimeHelper.SyncManager.setPistolFired(true);
                 }
                 this.waitingForPlayer = false;
             }
@@ -1885,14 +1889,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             ModSettings modsettings = currentMissionInit().getMission().getModSettings();
             if (modsettings != null) {
                 if (modsettings.getMsPerTick() != null)
-                    TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick());
+                TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick());
                 if (modsettings.isPrioritiseOffscreenRendering() == Boolean.TRUE)
-                    TimeHelper.displayGranularityMs = 1000;
+                TimeHelper.displayGranularityMs = 1000;
                 if (modsettings.getFrameSkip() != null)
                     TimeHelper.frameSkip = modsettings.getFrameSkip();
             }
             TimeHelper.unpause();
-
+            
 
             // smelting recipes with regular coal (standard recipes produce coal with damage
             // 1 - unclear why

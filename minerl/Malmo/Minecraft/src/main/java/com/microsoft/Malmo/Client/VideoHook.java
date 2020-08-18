@@ -131,7 +131,7 @@ public class VideoHook {
         this.renderWidth = videoProducer.getWidth();
         this.renderHeight = videoProducer.getHeight();
         resizeIfNeeded();
-        Display.setResizable(false); // prevent the user from resizing using the window borders
+//        Display.setResizable(false); // prevent the user from resizing using the window borders
 
         ClientAgentConnection cac = missionInit.getClientAgentConnection();
         if (cac == null)
@@ -172,6 +172,7 @@ public class VideoHook {
     /**
      * Resizes the window and the Minecraft rendering if necessary. Set renderWidth and renderHeight first.
      */
+    private static boolean resizeWarning = true;
     private void resizeIfNeeded()
     {
         // resize the window if we need to
@@ -180,17 +181,21 @@ public class VideoHook {
         if( this.renderWidth == oldRenderWidth && this.renderHeight == oldRenderHeight )
             return;
 
-        try {
-            int old_x = Display.getX();
-            int old_y = Display.getY();
-            Display.setLocation(old_x, old_y);
-            Display.setDisplayMode(new DisplayMode(this.renderWidth, this.renderHeight));
-            System.out.println("Resized the window");
-        } catch (LWJGLException e) {
-            System.out.println("Failed to resize the window!");
-            e.printStackTrace();
+        if (resizeWarning) {
+            resizeWarning = false;
+            System.out.println("[LOGTOPY] On Mac OSX Catalina make sure to install this OpenJDK 1.8.0_152-release-1056-b12, this prevents the NSDragRegions crash");
         }
-        forceResize(this.renderWidth, this.renderHeight);
+       try {
+           int old_x = Display.getX();
+           int old_y = Display.getY();
+           Display.setLocation(old_x, old_y);
+           Display.setDisplayMode(new DisplayMode(this.renderWidth, this.renderHeight));
+           System.out.println("Resized the window");
+       } catch (LWJGLException e) {
+           System.out.println("Failed to resize the window!");
+           e.printStackTrace();
+       }
+       forceResize(this.renderWidth, this.renderHeight);
     }
 
     /**

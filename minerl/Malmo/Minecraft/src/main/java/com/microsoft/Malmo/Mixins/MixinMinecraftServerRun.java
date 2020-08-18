@@ -104,18 +104,15 @@ public abstract class MixinMinecraftServerRun  {
 
                         if (TimeHelper.SyncManager.isSynchronous() && TimeHelper.SyncManager.numTicks > 32){
 
-                            if(TimeHelper.SyncManager.shouldServerTick() && 
-                            (TimeHelper.SyncManager.numTicks > 32)
-                            ){
+                            if(TimeHelper.SyncManager.shouldServerTick()){
 
                                 // TimeHelper.SyncManager.debugLog("[SERVER] tick start." +Long.toString(SyncManager.numTicks));
                                 this.tick();
-                                // TODO: Implement propper java frameskipping.
-                                // for (int subtick = 0; subtick < TimeHelper.frameSkip; subtick++)
-                                //     this.tick();
                                 // TimeHelper.SyncManager.debugLog("[SERVER] tick end." +Long.toString(SyncManager.numTicks));
                                 TimeHelper.SyncManager.numTicks += 1;
-                                TimeHelper.SyncManager.completeServerTick();
+
+                                // Complete the entire client/server tick (master only runs this mixin)
+                                TimeHelper.SyncManager.completeTick();
                             }
                         } else
                         {

@@ -14,12 +14,12 @@ NAVIGATE_STEPS = 6000
 
 class Navigate(SimpleEmbodimentEnvSpec):
 
-    def __init__(self, dense, extreme):
+    def __init__(self, dense, extreme, *args, **kwargs):
         suffix = 'Extreme' if extreme else ''
         suffix += 'Dense' if dense else ''
         name = 'MineRLNavigate{}-v0'.format(suffix)
         self.dense, self.extreme = dense, extreme
-        super().__init__(name, max_episode_steps=6000)
+        super().__init__(name, *args, max_episode_steps=6000, **kwargs)
 
     def is_from_folder(self, folder: str) -> bool:
         return folder == 'navigateextreme' if self.extreme else folder == 'navigate'

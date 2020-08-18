@@ -50,36 +50,28 @@ public class TimeHelper
     public static long serverTickLength = 50;
     public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
-    private static float currentTicksPerSecond = 0;
     public static int frameSkip = 1; // Note: Not fully implemented
 
     static public class SyncManager {
         static Boolean synchronous = false;
-        static Boolean shouldClientTick =false;
-        static Boolean clientTickCompleted = false;
-        static Boolean serverTickCompleted = false;
+        static Boolean shouldClientTick = false;
+        static Boolean shouldServerTick = false;
         static Boolean serverRunning = false;
-        static Boolean tickCompleted = false;
         static Boolean shouldFlush = false;
         static Boolean serverPistolFired = false;
         public static long numTicks = 0;
         final static Boolean verbose = false;
-
-        static Boolean isTicking = false;
+        public static int role = 0;
 
         public static synchronized Boolean isSynchronous(){
             return synchronous;
         } 
-
 
         public static synchronized Boolean shouldFlush(){
             return shouldFlush;
         }
         public static synchronized  void setSynchronous(Boolean value){
             if(value == true){
-                if(synchronous == false){
-                    isTicking = false;
-                }
                 synchronous = value;
                 shouldFlush = false;
             }
@@ -88,22 +80,28 @@ public class TimeHelper
             }
         }
         
-        public static synchronized Boolean requestTick(){
+        public static synchronized Boolean requestClientTick() {
             // Build a locking system.
-            if ( ! isTicking && synchronous) {
-
-                // TimeHelper.SyncManager.debugLog("============ SYNC TICK STARTED ===========");
+            if (!shouldClientTick && !shouldServerTick && synchronous) {
+                // TimeHelper.SyncManager.debugLog("============ SYNC CLIENT TICK STARTED ===========");
                 shouldClientTick = true;
-                isTicking = true;
-                clientTickCompleted = false;
-                serverTickCompleted = false;
-                tickCompleted = false;
                 return true;
             }
             else{
                 return false;
             }
-        } 
+        }
+
+        public static synchronized Boolean requestServerTick() {
+            // Build a locking system.
+            if (!shouldClientTick && !shouldServerTick && synchronous) {
+                // TimeHelper.SyncManager.debugLog("============ SYNC SERVER TICK STARTED ===========");
+                shouldServerTick = true;
+                return true;
+            } else {
+                return false;
+            }
+        }
 
         public static synchronized void setPistolFired(Boolean hasIt){
             if(hasIt && !serverPistolFired){
@@ -113,16 +111,12 @@ public class TimeHelper
         }   
 
         public static synchronized Boolean shouldClientTick(){
-            return shouldClientTick && isTicking || shouldFlush;
+            return shouldClientTick || shouldFlush;
         }
 
 
         public static synchronized Boolean shouldServerTick(){
-            return isTicking && clientTickCompleted && !serverTickCompleted && !tickCompleted || shouldFlush;
-        }
-
-        public static synchronized Boolean shouldRenderTick(){
-            return isTicking && (serverTickCompleted || !serverRunning) && clientTickCompleted || shouldFlush;
+            return shouldServerTick || shouldFlush;
         }
 
         public static void debugLog(String logger){
@@ -145,12 +139,7 @@ public class TimeHelper
         }
 
         public static synchronized  void completeClientTick(){
-            clientTickCompleted = true;
             shouldClientTick = false;
-        }
-
-        public static  synchronized void completeServerTick(){
-            serverTickCompleted = true;
         }
 
         public static synchronized void completeTick(){
@@ -158,19 +147,8 @@ public class TimeHelper
                 synchronous = false;
             }
             shouldFlush = false;
-            isTicking = false; 
             shouldClientTick = false;
-            serverTickCompleted = false;
-            clientTickCompleted = false;
-            tickCompleted = true;
-        }
-
-        public static synchronized Boolean isTicking(){
-            return isTicking;
-        }
-
-        public static synchronized Boolean isTickCompleted(){
-            return tickCompleted;
+            shouldServerTick = false;
         }
 
         public static synchronized Boolean hasServerFiredPistol(){

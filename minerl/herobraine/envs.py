@@ -6,7 +6,7 @@ import collections
 import gym
 
 from minerl.herobraine.env_spec import EnvSpec
-from minerl.herobraine.env_specs.treechop_specs import Treechop
+from minerl.herobraine.env_specs.treechop_specs import Treechop, TreechopMultiAgent
 from minerl.herobraine.env_specs.navigate_specs import Navigate
 from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, ObtainDiamondDebug
 from minerl.herobraine.wrappers import Obfuscated, Vectorized
@@ -17,6 +17,8 @@ import os
 # Must load non-obfuscated envs first!
 # Publish.py depends on this order for black-listing streams
 MINERL_TREECHOP_V0 = Treechop()
+MINERL_TREECHOP_MULTI_AGENT_2_V0 = TreechopMultiAgent(agent_count=2)
+MINERL_TREECHOP_MULTI_AGENT_3_V0 = TreechopMultiAgent(agent_count=3)
 
 MINERL_NAVIGATE_V0 = Navigate(dense=False, extreme=False)
 MINERL_NAVIGATE_EXTREME_V0 = Navigate(dense=False, extreme=True)

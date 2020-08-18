@@ -153,9 +153,6 @@ public abstract class MixinMinecraftGameloop {
 
             if(TimeHelper.SyncManager.shouldClientTick()){
                 this.runTick();
-                // TODO (R): Implement proper frameskipping. With server alternation.
-                // for (int subtick = 0; subtick < TimeHelper.frameSkip; subtick++)
-                //     this.runTick();
 
                 TimeHelper.SyncManager.completeClientTick();
             } 
@@ -164,17 +161,6 @@ public abstract class MixinMinecraftGameloop {
             }
             
             this.mcProfiler.endSection(); //ClientTick
-            this.mcProfiler.startSection("serverTick");
-
-            // Wait for the server tick to finish.
-            // TimeHelper.SyncManager.debugLog("[Client] Client tick end. Client Waiting for server to tick!");
-            while(!TimeHelper.SyncManager.shouldRenderTick()) {
-                Thread.yield();
-            }
-
-            this.mcProfiler.endSection(); //serverTick
-
-
          } else{
             for (int j = 0; j < this.timer.elapsedTicks; ++j)
             {
@@ -195,9 +181,9 @@ public abstract class MixinMinecraftGameloop {
 
         //Speeds up rendering; though it feels necessary. s
         if(!TimeHelper.SyncManager.isSynchronous()){
-            GlStateManager.pushMatrix();
-            GlStateManager.clear(16640);
-            this.framebufferMc.bindFramebuffer(true);
+        GlStateManager.pushMatrix();
+        GlStateManager.clear(16640);
+        this.framebufferMc.bindFramebuffer(true);
         }
         this.mcProfiler.startSection("display");
         GlStateManager.enableTexture2D();
@@ -233,15 +219,15 @@ public abstract class MixinMinecraftGameloop {
         // Speeds up rendering!
         if(!TimeHelper.SyncManager.isSynchronous()){
             // TODO: IF WE WANT TO ENABE AGENT GUI WE SHOULD LET THIS CODE RUN
-            this.guiAchievement.updateAchievementWindow();
-            this.framebufferMc.unbindFramebuffer();
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
-            GlStateManager.popMatrix();
+        this.guiAchievement.updateAchievementWindow();
+        this.framebufferMc.unbindFramebuffer();
+        GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
+        this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
+        GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
+        this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
+        GlStateManager.popMatrix();
         }
 
         this.mcProfiler.startSection("root");
@@ -249,21 +235,17 @@ public abstract class MixinMinecraftGameloop {
         lastUpdateTime = System.nanoTime();
         if(
             (TimeHelper.SyncManager.isSynchronous() && 
-            TimeHelper.SyncManager.isServerRunning() && 
-            TimeHelper.SyncManager.shouldRenderTick() &&
-            TimeHelper.SyncManager.isTicking()) || TimeHelper.SyncManager.shouldFlush()){
-            
-            
+            TimeHelper.SyncManager.isServerRunning()) || TimeHelper.SyncManager.shouldFlush()){
 
             this.mcProfiler.startSection("syncTickEventPost");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
             this.mcProfiler.endSection();
             
             // TimeHelper.SyncManager.debugLog("[Client] Tick fully complete..");
-                
-            TimeHelper.SyncManager.completeTick();
 
-
+            if (TimeHelper.SyncManager.role != 0) {
+                TimeHelper.SyncManager.completeTick();
+            }
         }
         Thread.yield();
         this.checkGLError("Post render");
