@@ -172,6 +172,17 @@ class EnvSpec(abc.ABC):
     def get_docstring(self):
         return NotImplemented
 
+    def make(self, fake=False, **additonal_kwargs):
+        """Turns the env_spec into a MineRLEnv
+
+        Args:
+            fake (bool, optional): Whether or not the env created should be fake. 
+            Defaults to False.
+        """
+        pass
+        
+
+
     def register(self, fake=False):
         reg_spec = dict(
             id=("Fake" if fake else "") + self.name,
