@@ -2,6 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 
 from abc import abstractmethod
+import typing
 from minerl.herobraine.hero.spaces import Dict
 from minerl.herobraine.hero.handler import Handler
 from typing import List
@@ -11,6 +12,7 @@ import gym
 from lxml import etree
 import os
 import abc
+import importlib
 
 MISSION_TEMPLATE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'hero', 'mission.xml.j2')
@@ -173,34 +175,43 @@ class EnvSpec(abc.ABC):
     def get_docstring(self):
         return NotImplemented
 
-    def make(self, fake=False, **additonal_kwargs):
+    def make(self, fake=False, **additonal_kwargs) -> "MineRLEnv | MineRLFakeEnv":
         """Turns the env_spec into a MineRLEnv
 
         Args:
             fake (bool, optional): Whether or not the env created should be fake. 
             Defaults to False.
         """
-        pass
+        entry_point=self._entry_point(fake)
+        module = importlib.import_module(entry_point.split(':')[0])
+        class_ = getattr(module, entry_point.split(':')[-1])
+        return class_(self._env_kwargs)
         
-
 
     def register(self, fake=False):
         reg_spec = dict(
             id=("Fake" if fake else "") + self.name,
-            entry_point=EnvSpec.ENTRYPOINT if not fake else EnvSpec.FAKE_ENTRYPOINT,
-            kwargs={
-                'observation_space': self.observation_space,
-                'action_space': self.action_space,
-                'docstr': self.get_docstring(),
-                'xml': self.to_xml(),
-                'env_spec': self,
-            },
+            entry_point=self._entry_point(fake),
+            kwargs=self._env_kwargs(),
             max_episode_steps=self.max_episode_steps,
         )
         if self.reward_threshold:
             reg_spec.update(dict(reward_threshold=self.reward_threshold))
 
         gym.register(**reg_spec)
+
+    
+    def _entry_point(self, fake : bool) -> str:
+        return EnvSpec.ENTRYPOINT if not fake else EnvSpec.FAKE_ENTRYPOINT
+
+    def _env_kwargs(self) -> typing.Dict[str, typing.Any]:
+        return {
+                'observation_space': self.observation_space,
+                'action_space': self.action_space,
+                'docstr': self.get_docstring(),
+                'xml': self.to_xml(),
+                'env_spec': self,
+            }
 
     def __repr__(self):
         """
