@@ -183,19 +183,19 @@ public class VideoHook {
 
         if (resizeWarning) {
             resizeWarning = false;
-            System.out.println("HACK - Skipping window resizing - this prevents the crash in OSX Catalina");
+            System.out.println("[LOGTOPY] On Mac OSX Catalina make sure to install this OpenJDK 1.8.0_152-release-1056-b12, this prevents the NSDragRegions crash");
         }
-//        try {
-//            int old_x = Display.getX();
-//            int old_y = Display.getY();
-//            Display.setLocation(old_x, old_y);
-//            Display.setDisplayMode(new DisplayMode(this.renderWidth, this.renderHeight));
-//            System.out.println("Resized the window");
-//        } catch (LWJGLException e) {
-//            System.out.println("Failed to resize the window!");
-//            e.printStackTrace();
-//        }
-//        forceResize(this.renderWidth, this.renderHeight);
+       try {
+           int old_x = Display.getX();
+           int old_y = Display.getY();
+           Display.setLocation(old_x, old_y);
+           Display.setDisplayMode(new DisplayMode(this.renderWidth, this.renderHeight));
+           System.out.println("Resized the window");
+       } catch (LWJGLException e) {
+           System.out.println("Failed to resize the window!");
+           e.printStackTrace();
+       }
+       forceResize(this.renderWidth, this.renderHeight);
     }
 
     /**
