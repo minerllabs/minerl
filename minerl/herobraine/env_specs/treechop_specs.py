@@ -103,11 +103,3 @@ class Treechop(SimpleEmbodimentEnvSpec):
     def get_docstring(self):
         return TREECHOP_DOC
 
-
-class TreechopMultiAgent(Treechop):
-    def __init__(self, *args, **kwargs):
-        agent_count = kwargs.get('agent_count', 1)
-
-        super().__init__(*args,
-            name=f'MineRLTreechopMultiAgent{agent_count}-v0',
-            **kwargs)

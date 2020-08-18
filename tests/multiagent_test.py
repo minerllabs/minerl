@@ -1,10 +1,8 @@
+from minerl.herobraine.env_specs.treechop_specs import Treechop
 import gym
 import minerl  # noqa
 import argparse
 import time
-
-ENV_NAME_SINGLE = 'MineRLTreechop-v0'
-ENV_NAME_MULTI = 'MineRLTreechopMultiAgent2-v0'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -25,10 +23,11 @@ if __name__ == '__main__':
 
     # make env
     if args.single:
-        env_name = ENV_NAME_SINGLE
+        env_spec = Treechop(agent_count=1)
     else:
-        env_name = ENV_NAME_MULTI
-    env = gym.make(env_name, port=args.port)
+        env_spec = Treechop(agent_count=2)
+
+    env = env_spec.make( port=args.port)
 
     # iterate desired episodes
     for r in range(args.episodes):

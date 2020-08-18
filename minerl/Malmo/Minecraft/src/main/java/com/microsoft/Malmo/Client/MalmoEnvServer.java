@@ -75,7 +75,7 @@ public class MalmoEnvServer implements IWantToQuit {
         boolean done = false;
         double reward = 0.0;
         byte[] obs = null;
-        String info = "";
+        String info = "{}";
         LinkedList<String> commands = new LinkedList<String>();
     }
 
@@ -361,7 +361,7 @@ public class MalmoEnvServer implements IWantToQuit {
         envState.reward = 0.0;
         envState.commands.clear();
         envState.obs = null;
-        envState.info = "";
+        envState.info = "{}";
 
 
         envState.missionInit = command;
@@ -505,7 +505,7 @@ public class MalmoEnvServer implements IWantToQuit {
             }
             done = envState.done;
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> STATUS " + Boolean.toString(done));
-            envState.info = null;
+            envState.info = "{}";
             envState.obs = null;
             envState.reward = 0.0;
 

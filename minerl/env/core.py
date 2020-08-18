@@ -119,6 +119,7 @@ class MineRLEnv(gym.Env):
                  docstr=None,
                  restartable_java=True,
                  reset_mission_xml_fn=None):
+
         self.action_space = None
         self.observation_space = None
 
@@ -222,7 +223,7 @@ class MineRLEnv(gym.Env):
             self.exp_uid = exp_uid
 
         # calculate agent count
-        self.agent_count = len(base_xml.findall('{http://ProjectMalmo.microsoft.com}AgentSection'))
+        self.agent_count = self.env_spec.agent_count
         self.actor_names = [f"actor{role}" for role in range(self.agent_count)]
 
         for role in range(self.agent_count):
@@ -276,21 +277,6 @@ class MineRLEnv(gym.Env):
                 # Update the xml
                 ss = xml.find(".//" + self.ns + 'ServerSection')
                 ss.insert(0, hi)
-        
-            # pass the xml through the modifier function before extracting agent handler
-            # and video_producer to make sure those have not been set to some invalid values
-
-            # Ensure all observations are present for unified env.
-            agent_handler = xml.find(".//" + self.ns + "AgentHandlers")
-            if agent_handler.find("./" + self.ns + "ObservationFromEquippedItem") is None:
-                etree.SubElement(agent_handler, self.ns + "ObservationFromEquippedItem")
-            
-            if agent_handler.find("./" + self.ns + "ObservationFromFullInventory") is None:
-                etree.SubElement(
-                    agent_handler,
-                    self.ns + "ObservationFromFullInventory",
-                    attrib={"flat": "false"},
-                )
 
             instance.role = role
             instance.xml = xml
@@ -477,12 +463,12 @@ class MineRLEnv(gym.Env):
                 if instance.role == 1:
                     self._find_server(instance)
                 if not instance.client_socket:
-                    logger.debug(f"Creating socket connection {instance}")
+                    logger.debug("Creating socket connection {instance}".format(instance=instance))
                     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                     sock.settimeout(SOCKTIME)
                     sock.connect((instance.host, instance.port))
-                    logger.debug(f"Saying hello for client: {instance}")
+                    logger.debug("Saying hello for client: {instance}".format(instance=instance))
                     self._hello(sock)
 
                     # Now retries will use connected socket.
@@ -743,39 +729,6 @@ class MineRLEnv(gym.Env):
 
         self._already_closed = True
 
-    def reinit(self):
-        raise Exception("FIXME HACK Where is 'reinit()' used?")
-
-        """Use carefully to reset the episode count to 0."""
-        # TODO - only need controller instance here?
-        instance = self._controller_instance()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((instance.host, instance.port))
-        self._hello(sock)
-
-        comms.send_message(sock, ("<Init>" + self._get_token(instance) + "</Init>").encode())
-        reply = comms.recv_message(sock)
-        sock.close()
-        (ok,) = struct.unpack("!I", reply)
-        return ok != 0
-
-    def status(self):
-        raise Exception("FIXME HACK Where is 'status()'' used?")
-
-        """Get status from server.
-        head - Ping the the head node if True.
-        """
-        # TODO - only need controller instance here?
-        instance = self._controller_instance()
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((instance.host, instance.port))
-
-        self._hello(sock)
-
-        comms.send_message(sock, "<Status/>".encode())
-        status = comms.recv_message(sock).decode('utf-8')
-        sock.close()
-        return status
 
     def _find_server(self, instance):
         # calling Find on the master client to get the server port
@@ -807,7 +760,7 @@ class MineRLEnv(gym.Env):
         # init all instance missions
         ok = 0
         num_retries = 0
-        logger.debug(f"Sending mission init: {instance}")
+        logger.debug("Sending mission init: {instance}".format(instance=instance))
         while ok != 1:
             xml = etree.tostring(instance.xml)
             # inject mission dict into the xml
@@ -816,7 +769,7 @@ class MineRLEnv(gym.Env):
             video_producers = _deepdict_find(xml_dict, "VideoProducer")
             assert len(video_producers) == self.agent_count
             video_producer = video_producers[instance.role]
-            # TODO: Deprecate width, height, and POV forcing.
+
             self.width = int(video_producer["Width"])
             self.height = int(video_producer["Height"])
             want_depth = video_producer.get("@want_depth")
