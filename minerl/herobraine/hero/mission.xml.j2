@@ -36,53 +36,53 @@
     </ServerSection>
 
 
-    {#  TODO (R): Convert for multiagent. #} 
-    <AgentSection mode="Survival">
-        <Name>MineRLAgent</Name>
+    {% for agent_index in range(agent_count) %}
+        <AgentSection mode="Survival">
+            <Name>MineRLAgent{{ agent_index }}</Name>
 
-         {#  TODO (R): Enable multiagent starts.. #} 
-        <AgentStart>
+            <AgentStart>
 
-            {% for x in get_consolidated_xml((agent_start)) %}
+                {% for x in get_consolidated_xml((agent_start)) %}
+                    {{ x }}
+                {% endfor %}
+
+
+            </AgentStart>
+            <AgentHandlers>
+                <!-- These area  bit of boilerplate that
+                 we always expect to be included ... -->
+                <FileBasedPerformanceProducer/>
+                <PauseCommand/>
+
+                <!--  Observations     -->
+
+                {% for x in get_consolidated_xml((observables)) %}
                 {{ x }}
-            {% endfor %}
-            
-       
-        </AgentStart>
-        <AgentHandlers>
-            <!-- These area  bit of boilerplate that
-             we always expect to be included ... -->
-            <FileBasedPerformanceProducer/>
-            <PauseCommand/>
+                {% endfor %}
 
-            <!--  Observations     -->
 
-            {% for x in get_consolidated_xml((observables)) %}
-            {{ x }}
-            {% endfor %}
-            
-            
-            <!--  Actions   -->
-            
-            {% for x in get_consolidated_xml((actionables)) %}
-            {{ x }}
-            {% endfor %}
+                <!--  Actions   -->
 
-            <!--  Rewards   -->
-            
-            {% for x in get_consolidated_xml((rewardables)) %}
-            {{ x }}
-            {% endfor %}
+                {% for x in get_consolidated_xml((actionables)) %}
+                {{ x }}
+                {% endfor %}
 
-            <!-- Additional Agent Handlers like quitting -->
-            {% for x in get_consolidated_xml((agent_handlers)) %}
-            {{ x }}
-            {% endfor %}
+                <!--  Rewards   -->
 
-            <!-- Env Monitors? -->
-            {# {% for m in monitors %} }
-                {{ m.xml() }}
-            {% endfor %} #}
-        </AgentHandlers>
-    </AgentSection>
+                {% for x in get_consolidated_xml((rewardables)) %}
+                {{ x }}
+                {% endfor %}
+
+                <!-- Additional Agent Handlers like quitting -->
+                {% for x in get_consolidated_xml((agent_handlers)) %}
+                {{ x }}
+                {% endfor %}
+
+                <!-- Env Monitors? -->
+                {# {% for m in monitors %} }
+                    {{ m.xml() }}
+                {% endfor %} #}
+            </AgentHandlers>
+        </AgentSection>
+    {% endfor %}
 </Mission>

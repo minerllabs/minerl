@@ -23,7 +23,9 @@ class Obtain(SimpleEmbodimentEnvSpec):
                  target_item,
                  dense,
                  reward_schedule : List[Dict[str, Union[str, int, float]]],
-                 max_episode_steps=6000):
+                 *args,
+                 max_episode_steps=6000,
+                 **kwargs):
                  # 6000 for obtain iron  (5 mins)
                  # 18000 for obtain diamond (15 mins)
         self.target_item = target_item
@@ -32,9 +34,10 @@ class Obtain(SimpleEmbodimentEnvSpec):
         dense_suffix = "Dense" if self.dense else ""
         self.reward_schedule = reward_schedule 
 
-        super().__init__(
+        super().__init__(*args,
             name="MineRLObtain{}{}-v0".format(suffix, dense_suffix),
             max_episode_steps=max_episode_steps,
+            **kwargs
         )
 
 
@@ -148,8 +151,8 @@ class Obtain(SimpleEmbodimentEnvSpec):
 
 class ObtainDiamond(Obtain):
 
-    def __init__(self, dense):
-        super(ObtainDiamond, self).__init__(
+    def __init__(self, dense, *args, **kwargs):
+        super(ObtainDiamond, self).__init__(*args,
             target_item='diamond',
             dense=dense,
             reward_schedule=[
@@ -166,7 +169,8 @@ class ObtainDiamond(Obtain):
                 dict(type="iron_pickaxe", amount=1, reward=256),
                 dict(type="diamond", amount=1, reward=1024)
             ],
-            max_episode_steps=18000
+            max_episode_steps=18000,
+            **kwargs
         )
 
     def is_from_folder(self, folder: str) -> bool:
@@ -217,8 +221,8 @@ item are given here::
 
 
 class ObtainIronPickaxe(Obtain):
-    def __init__(self, dense):
-        super(ObtainIronPickaxe, self).__init__(
+    def __init__(self, dense, *args, **kwargs):
+        super(ObtainIronPickaxe, self).__init__(*args,
             target_item='iron_pickaxe',
             dense=dense,
             reward_schedule=[
@@ -234,6 +238,7 @@ class ObtainIronPickaxe(Obtain):
                 dict(type="iron_ingot", amount=1, reward=128),
                 dict(type="iron_pickaxe", amount=1, reward=256),
             ],
+            **kwargs,
         )
 
     def create_agent_handlers(self):

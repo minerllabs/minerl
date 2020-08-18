@@ -343,6 +343,9 @@ class InstanceManager:
             self._starting = True
             self.minecraft_process = None
             self.watcher_process = None
+            self.xml = None
+            self.role = None
+            self.client_socket = None
             self._port = port
             self._host = InstanceManager.DEFAULT_IP
             self.locked = False
@@ -352,7 +355,6 @@ class InstanceManager:
             self.instance_dir = None
             self._status_dir = status_dir
             self.owner = None
-
 
             self.instance_id = instance_id
 
@@ -367,7 +369,11 @@ class InstanceManager:
 
             self._setup_logging()
             self._target_port = port
-            
+
+        @property
+        def actor_name(self):
+            return f"actor{self.role}"
+
         def launch(self, daemonize=False, replaceable=True):
             port = self._target_port
             self._starting = True
@@ -378,7 +384,8 @@ class InstanceManager:
 
                 self.instance_dir = tempfile.mkdtemp()
                 self.minecraft_dir = os.path.join(self.instance_dir, 'Minecraft')
-                shutil.copytree(os.path.join(InstanceManager.MINECRAFT_DIR), self.minecraft_dir)
+                shutil.copytree(os.path.join(InstanceManager.MINECRAFT_DIR), self.minecraft_dir,
+                                ignore=shutil.ignore_patterns('cache.properties.lock'))
                 shutil.copytree(os.path.join(InstanceManager.SCHEMAS_DIR), os.path.join(self.instance_dir, 'Schemas'))
 
                     
@@ -569,7 +576,7 @@ class InstanceManager:
             if self.status_dir:
                 cmd += ['-performanceDir', self.status_dir]
             if self._seed:
-                cmd += ['-seed', ",".join(self._seed)]
+                cmd += ['-seed', ",".join([str(x) for x in self._seed])]
 
             cmd_to_print = cmd[:] if not self._seed else cmd[:-2]
             self._logger.info("Starting Minecraft process: " + str(cmd_to_print))
@@ -645,7 +652,8 @@ class InstanceManager:
 
         
         def __repr__(self):
-            return ("Malmo[{}, proc={}, addr={}:{}, locked={}]".format(
+            return ("Malmo[{}:{}, proc={}, addr={}:{}, locked={}]".format(
+                self.role,
                 self.uuid,
                 self.minecraft_process.pid if not self.existing else "EXISTING",
                 self.host,
