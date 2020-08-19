@@ -106,7 +106,7 @@ repositories {
 // exec.getOutputs().files.setFrom(file("dummy_value"))
 
 // We also force the up-to-date check to return false, since the user will ALWAYS want runClient to run.
-exec.getOutputs().upToDateWhen( { return false } )
+// exec.getOutputs().upToDateWhen( { return false } )
 
 dependencies {
     // compile 'com.github.SpongePowered:Mixin:404f5da' // 0.7.5-SNAPSHOT

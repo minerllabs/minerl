@@ -15,6 +15,9 @@ class FlatInventoryObservation(TranslationHandler):
     Handles GUI Container Observations for selected items
     """
 
+    def to_hero(self, x) -> str:
+        raise NotImplementedError
+
     def to_string(self):
         return 'inventory'
 

@@ -76,8 +76,8 @@ class ItemListAction(Action):
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
         
-        assert _default in self._items
-        assert _other in self._items
+        # assert _default in self._items
+        # assert _other in self._items
         self._default = _default
         self._other = _other
         super().__init__(
