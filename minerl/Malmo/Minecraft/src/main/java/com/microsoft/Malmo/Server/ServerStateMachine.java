@@ -1258,7 +1258,7 @@ public class ServerStateMachine extends StateMachine
             if (success)
             {
                 // Mission is over - wait for all agents to stop.
-                episodeHasCompleted(ServerState.CLEAN_UP);
+                episodeHasCompleted(ServerState.WAITING_FOR_AGENTS_TO_QUIT);
             }
         }
         
@@ -1303,6 +1303,9 @@ public class ServerStateMachine extends StateMachine
         {
             // Put in all cleanup code here.
             ServerStateMachine.this.currentMissionInit = null;
+            
+            // TODO (R): Kick all of the clients out?
+
             episodeHasCompleted(ServerState.DORMANT);
         }
     }

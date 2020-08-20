@@ -64,6 +64,3 @@ class _CompassAngleObservation(KeymapTranslationHandler):
     def from_universal(self, obs):
         y = np.array(((super().from_universal(obs) * 360.0 + 180) % 360.0) - 180)
         return y
-
-    def from_hero(self, obs):
-        return np.array((super().from_hero(obs) + 0.5) % 1.0)

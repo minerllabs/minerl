@@ -72,13 +72,16 @@ def reap_process_and_children(process, timeout=5):
             proc.exe(),
             proc.status(),
             proc.ppid()
-        )
 
+        )
     procs = process.children(recursive=True)[::-1] + [process]
-    logger.info("About to reap process tree of {}, ".format(get_process_info(process)) +
-                "printing process tree status in termination order:")
-    for p in procs:
-        logger.info("\t-{}".format(get_process_info(p)))
+    try:
+        logger.info("About to reap process tree of {}, ".format(get_process_info(process)) +
+                    "printing process tree status in termination order:")
+        for p in procs:
+            logger.info("\t-{}".format(get_process_info(p)))
+    except psutil.ZombieProcess:
+        logger.info("Zombie process found in process tree.")
 
     for p in procs:
         try:
@@ -102,8 +105,8 @@ def reap_process_and_children(process, timeout=5):
                     # Give up
                     logger.info(
                     "Process {} survived SIGKILL; giving up (final status) {}, (owner) {}".format(p.pid, p.status(), p.ppid()))
-        except psutil.NoSuchProcess:
-            logger.info("Process {} does not exist. (It may have already been reaped successfully)".format(p))
+        except (psutil.NoSuchProcess, psutil.ZombieProcess):
+            logger.info("Process {} does not exist or is zombie.".format(p))
 
 
 def main(args):

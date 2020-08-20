@@ -4,6 +4,13 @@ import minerl  # noqa
 import argparse
 import time
 
+class TreechopMultiAgentNoQuit(Treechop):
+    def create_server_quit_producers(self):
+        return [
+
+        ]
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--single', action="store_true", help='use the single agent default xml')
@@ -29,6 +36,7 @@ if __name__ == '__main__':
 
     env = env_spec.make( port=args.port)
 
+
     # iterate desired episodes
     for r in range(args.episodes):
         logging.debug(f"Reset for episode {r + 1}")
@@ -40,10 +48,11 @@ if __name__ == '__main__':
         while not done:
             steps += 1
             env.render()
-
-            actions = {actor_name: env.action_space.sample() for actor_name in actor_names}
+            
+            actions = env.action_space.no_op()
+            print(actions)
             # print(str(steps) + " actions: " + str(actions))
-
+        
             obs, reward, done, info = env.step(actions)
 
             # log("reward: " + str(reward))
@@ -54,4 +63,3 @@ if __name__ == '__main__':
             time.sleep(.05)
         logging.debug(f"Episode {r + 1}/{args.episodes} done: {steps} steps")
 
-    env.close()

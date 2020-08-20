@@ -8,6 +8,7 @@ from os.path import isdir
 import subprocess
 import pathlib
 import setuptools
+from setuptools import Command
 from setuptools.command.develop import develop
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
@@ -89,6 +90,18 @@ class CustomBuild(build):
         build_minecraft(MALMO_DIR, os.path.join(
             self.build_lib, 'minerl', 'Malmo'
         ))
+
+class ShadowInplace(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        build_minecraft(MALMO_DIR, MALMO_DIR)
+
         
 
 def build_minecraft(source_dir, build_dir):
@@ -151,7 +164,8 @@ setuptools.setup(
         'bdist_wheel': bdist_wheel,
         'install': InstallPlatlib,
         'install_lib': InstallWithMinecraftLib,
-        'build_malmo': CustomBuild},
+        'build_malmo': CustomBuild,
+        'shadow_develop': ShadowInplace},
 )
 
 # global-exclude .git/*

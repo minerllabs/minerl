@@ -1,11 +1,11 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
+from minerl.env.singleagent import SingleAgentEnv
 import os
 import numpy as np
 import logging
 
-from minerl.env.core import MineRLEnv
 
 J = os.path.join
 E = os.path.exists
@@ -16,7 +16,7 @@ MINERL_RECORDING_PATH = os.environ.get('MINERL_RECORDING_PATH', None)
 logger = logging.getLogger(__name__)
 
 
-class MineRLRecorder(MineRLEnv):
+class MineRLRecorder(SingleAgentEnv):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

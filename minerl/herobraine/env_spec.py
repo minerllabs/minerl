@@ -18,16 +18,16 @@ MISSION_TEMPLATE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'hero', 'mission.xml.j2')
 from minerl.herobraine.hero import spaces
 
-# TODO (R): Rename to Task
 class EnvSpec(abc.ABC):
-    ENTRYPOINT = 'minerl.env:MineRLEnv'
-    FAKE_ENTRYPOINT = 'minerl.env:FakeMineRLEnv'
+    U_MULTI_AGENT_ENTRYPOINT = 'minerl.env:{}MultiAgentEnv'
+    U_SINGLE_AGENT_ENTRYPOINT = 'minerl.env:{}SingleAgentEnv'
 
     def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=1):
         self.name = name
         self.max_episode_steps = max_episode_steps
         self.reward_threshold = reward_threshold
         self.agent_count = agent_count
+        self.agent_names = ["actor{role}".format(role=role) for role in range(self.agent_count)]
 
         self.reset()
 
@@ -160,16 +160,26 @@ class EnvSpec(abc.ABC):
         # TODO: 
         raise NotImplementedError('subclasses must override determine_success_from_rewards()')
 
+    def _singlify(self, space : spaces.Dict):
+        if self.agent_count is 1:
+            return space.spaces[self.agent_names[0]]
+        else:
+            return space
+
     def create_observation_space(self):
-        # Todo: handle nested dict space.
-        return spaces.Dict({
-            o.to_string(): o.space for o in self.observables
-        })
+        return self._singlify(spaces.Dict({
+            agent: spaces.Dict({
+                o.to_string(): o.space for o in self.observables
+            }) for agent in self.agent_names
+        }))
 
     def create_action_space(self):
-        return spaces.Dict({
-            a.to_string(): a.space for a in self.actionables
-        })
+        return self._singlify(spaces.Dict({
+             agent: spaces.Dict({
+                a.to_string(): a.space for a in self.actionables
+            }) for agent in self.agent_names    
+        }))       
+
 
     @abstractmethod
     def get_docstring(self):
@@ -202,14 +212,13 @@ class EnvSpec(abc.ABC):
 
     
     def _entry_point(self, fake : bool) -> str:
-        return EnvSpec.ENTRYPOINT if not fake else EnvSpec.FAKE_ENTRYPOINT
+        assert fake is False, "Fake envs are currently not implemented! Bug the maintainer."
+        entry = EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1 else EnvSpec.U_MULTI_AGENT_ENTRYPOINT
+        return entry.format('Fake' if fake else '')
 
+    
     def _env_kwargs(self) -> typing.Dict[str, typing.Any]:
         return {
-                'observation_space': self.observation_space,
-                'action_space': self.action_space,
-                'docstr': self.get_docstring(),
-                'xml': self.to_xml(),
                 'env_spec': self,
             }
 

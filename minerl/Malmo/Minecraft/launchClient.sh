@@ -79,6 +79,7 @@ if [ $replaceable -gt 0 ]; then
 " >> $configDir/malmomodCLIENT.cfg
 fi
 
+
 if [ $env -gt 0 ]; then
     echo "envtype {
   B:env=true
@@ -97,7 +98,10 @@ echo "$runDir"
 # gradle does not respect --gradle-user-home when it comes to where to download itself
 # rather, it is set in gradle.properties and is controlled by an env variable
 # If build/libs/MalmoMod-0.37.0-fat.jar does not exist change command to 'test'
-if [ ! -e build/libs/MalmoMod-0.37.0-fat.jar ]; then
+echo $MINERL_FORCE_BUILD 
+
+if [ ! -e build/libs/MalmoMod-0.37.0-fat.jar ] || [ "$MINERL_FORCE_BUILD" == "1" ]; then
+    echo "HELLO"
     cmd="./gradlew runClient --stacktrace -PrunDir=$runDir"
 else
 

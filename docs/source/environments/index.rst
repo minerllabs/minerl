@@ -59,7 +59,7 @@ Basic Environments
    
 
    
-        envspec = gym.spec(id)
+        envspec = gym.spec(id)._kwargs['enc_spec']
 
 
         print("______________")
@@ -67,12 +67,12 @@ Basic Environments
         print("______________")
         
         if 'docstr' in envspec._kwargs:
-            print(envspec._kwargs['docstr'])
+            print(envspec.get_docstring())
 
 
 
-        action_space = prep_space(envspec._kwargs['action_space'])
-        state_space = prep_space(envspec._kwargs['observation_space'])
+        action_space = prep_space(envspec.action_space)
+        state_space = prep_space(envspec.observation_space)
 
         print(".......")
         print("Observation Space")
@@ -162,20 +162,21 @@ Competition Environments
 
 
 
-        envspec = gym.spec(id)
+        envspec = gym.spec(id)._kwargs['enc_spec']
 
 
         print("______________")
         print("{}".format(id))
         print("______________")
-
+        
         if 'docstr' in envspec._kwargs:
-            print(envspec._kwargs['docstr'])
+            print(envspec.get_docstring())
 
 
 
-        action_space = prep_space(envspec._kwargs['action_space'])
-        state_space = prep_space(envspec._kwargs['observation_space'])
+        action_space = prep_space(envspec.action_space)
+        state_space = prep_space(envspec.observation_space)
+
 
         print(".......")
         print("Observation Space")

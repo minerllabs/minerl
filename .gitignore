@@ -286,3 +286,6 @@ jenkins_home/
 #eclipse
 Malmo/Minecraft/*.launch
 *minerl_watchers/
+caches/
+native/
+wrapper/

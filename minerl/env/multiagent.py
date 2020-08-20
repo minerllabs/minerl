@@ -16,20 +16,22 @@
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # ------------------------------------------------------------------------------------------------
-
+# TODO: This file needs a refactor and cleanup.
 import collections
 
 import copy
 import json
 import logging
+from minerl.env.exceptions import EnvException, MissionInitException
+from minerl.herobraine.env_spec import EnvSpec
 import os
 import random
 import socket
 import struct
 import time
 import uuid
-from copy import copy, deepcopy
-from typing import Iterable
+from copy import deepcopy
+from typing import Any, Dict, Iterable, Tuple
 
 import gym
 import gym.envs.registration
@@ -50,35 +52,14 @@ logger = logging.getLogger(__name__)
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
 
 
-class EnvException(Exception):
-    """A special exception thrown in the creation of an environment's Malmo mission XML.
-
-    Args:
-        message (str): The exception message.
-    """
-
-    def __init__(self, message):
-        super(EnvException, self).__init__(message)
-
-
-class MissionInitException(Exception):
-    """An exception thrown when a mission fails to initialize
-
-    Args:
-        message (str): The exception message.
-    """
-
-    def __init__(self, message):
-        super(MissionInitException, self).__init__(message)
-
 
 MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
 MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv'  # Default id for a MineRLEnv
 TICK_LENGTH = 0.05
 
-class MineRLEnv(gym.Env):
-    """The MineRLEnv class.
+class MultiAgentEnv(gym.Env):
+    """The multi-agent MineRLEnv class.
 
         Example:
             To actually create a MineRLEnv. Use any one of the package MineRL environments (Todo: Link.)
@@ -111,12 +92,8 @@ class MineRLEnv(gym.Env):
     STEP_OPTIONS = 0
 
     def __init__(self,
-                 xml,
-                 observation_space: spaces.MineRLSpace,
-                 action_space: spaces.MineRLSpace,
-                 env_spec,
+                 env_spec : EnvSpec,
                  port=None,
-                 docstr=None,
                  restartable_java=True,
                  reset_mission_xml_fn=None):
 
@@ -143,7 +120,7 @@ class MineRLEnv(gym.Env):
         self.height = 0
         self.channels = 0 
 
-        self.xml_in = xml
+        self.xml_in = env_spec.to_xml()
         self.has_init = False
         self._seed = None
         self.had_to_clean = False
@@ -159,12 +136,13 @@ class MineRLEnv(gym.Env):
         self.port = port
         self.integratedServerPort = 0
 
-        self.observation_space = observation_space
-        self.action_space = action_space
+        self.observation_space = env_spec.observation_space
+        self.action_space = env_spec.action_space
 
         self.resets = 0
         self.done = True
         self.agent_info = {}
+        self.has_finished = {}
         self.reset_mission_xml_fn = reset_mission_xml_fn or (lambda x: x)
 
     def _get_new_instance(self, port=None, instance_id=None):
@@ -224,7 +202,7 @@ class MineRLEnv(gym.Env):
 
         # calculate agent count
         self.agent_count = self.env_spec.agent_count
-        self.actor_names = [f"actor{role}" for role in range(self.agent_count)]
+        self.actor_names = self.env_spec.agent_names
 
         for role in range(self.agent_count):
             xml = deepcopy(base_xml)
@@ -321,7 +299,7 @@ class MineRLEnv(gym.Env):
 
         logger.warning(message, *args, **kwargs)
 
-    def _process_observation(self, actor_name, pov, info):
+    def _process_observation(self, actor_name, pov, info) -> Dict[str, Any]:
         """
         Process observation into the proper dict space.
         """
@@ -370,6 +348,7 @@ class MineRLEnv(gym.Env):
 
         # TODO(wguss): Clean up the envSpec wrapper paradigm,
         # the env shouldn't be doing this IMO.
+        # TODO (R): Make wrappers compatible with mutliple agents.
         if isinstance(self.env_spec, EnvWrapper):
             action_in = self.env_spec.unwrap_action(action_in)
 
@@ -377,13 +356,20 @@ class MineRLEnv(gym.Env):
         while isinstance(bottom_env_spec, EnvWrapper):
             bottom_env_spec = bottom_env_spec.env_to_wrap
 
-        assert action_in in bottom_env_spec.action_space
+        act_space = bottom_env_spec.action_space[actor_name] if self.agent_count > 1 else (
+            bottom_env_spec.action_space
+        )
+        assert self._check_action(actor_name, action_in, bottom_env_spec)
 
         action_str = []
         for h in bottom_env_spec.actionables:
             action_str.append(h.to_hero(action_in[h.to_string()]))
 
         return "\n".join(action_str)
+
+    def _check_action(self, actor_name, action, env_spec):
+        # TODO (R): Move this to env_spec in some reasonable way.
+        return  action in env_spec.action_space[actor_name]
 
     def make_interactive(self, port, max_players=10, realtime=True):
         """
@@ -447,7 +433,8 @@ class MineRLEnv(gym.Env):
 
                 if not self.done:
                     time.sleep(0.1)
-
+            
+            self.has_finished = {agent: False for agent in self.env_spec.agent_names}
             return self._start_up()
         finally:
             # We don't force the same seed every episode, you gotta send it yourself queen.
@@ -514,6 +501,7 @@ class MineRLEnv(gym.Env):
             self.had_to_clean = True
 
     def _peek_obs(self):
+        
         multi_obs = {}
         if not self.done:
             logger.debug("Peeking the clients.")
@@ -527,6 +515,7 @@ class MineRLEnv(gym.Env):
 
                 reply = comms.recv_message(instance.client_socket)
                 done, = struct.unpack('!b', reply)
+                self.has_finished[instance.actor_name] = self.has_finished[instance.actor_name] or done
                 multi_done = multi_done and done == 1
                 if obs is None or len(obs) == 0:
                     if time.time() - start_time > MAX_WAIT:
@@ -555,7 +544,7 @@ class MineRLEnv(gym.Env):
                 return False
         return True
 
-    def seed(self, seed=42, seed_spaces=True):
+    def seed(self, seed=None, seed_spaces=True):
         """Seeds the environment!
 
         This also seeds the aciton_space and observation_space sampling.
@@ -567,51 +556,63 @@ class MineRLEnv(gym.Env):
             seed (long, optional):  Defaults to 42.
             seed_spaces (bool, option): If the observation space and action space shoud be seeded. Defaults to True.
         """
-        #TODO this is wrong and bad
-        seed = 42
-        assert isinstance(seed, int), "Seed must be an int!"
+        assert isinstance(seed, int) or seed is None, "Seed must be an int!"
         self._seed = seed
         if seed_spaces:
             self.observation_space.seed(self._seed)
             self.action_space.seed(self._seed)
 
-    def step(self, actions):
+    def step(self, actions) -> Tuple[
+        Dict[str,Dict[str, Any]], Dict[str,float], Dict[str,bool], Dict[str,Dict[str, Any]]]:
         if not self.done:
-            withinfo = MineRLEnv.STEP_OPTIONS == 0 or MineRLEnv.STEP_OPTIONS == 2
+            withinfo = MultiAgentEnv.STEP_OPTIONS == 0 or MultiAgentEnv.STEP_OPTIONS == 2
 
             multi_obs = {}
             multi_reward = {}
             multi_done = True
             multi_info = {}
+            # TODO (R): REMOVE INFO FOR COMPETITION!
 
+            # TODO (R): Randomly iterate over this.
             # Process multi-agent actions, apply and process multi-agent observations
             for instance in self.instances:
                 try:  # TODO - we could wrap entire function in try, if sockets don't need to individually clean
                     actor_name = instance.actor_name
-                    malmo_command = self._process_action(actor_name, actions[actor_name])
-                    step_message = "<StepClient" + str(MineRLEnv.STEP_OPTIONS) + ">" + \
-                                    malmo_command + \
-                                    "</StepClient" + str(MineRLEnv.STEP_OPTIONS) + " >"
 
-                    # Send Actions.
-                    comms.send_message(instance.client_socket, step_message.encode())
+                    if not self.has_finished[actor_name]:
+                        malmo_command = self._process_action(actor_name, actions[actor_name])
+                        step_message = "<StepClient" + str(MultiAgentEnv.STEP_OPTIONS) + ">" + \
+                                        malmo_command + \
+                                        "</StepClient" + str(MultiAgentEnv.STEP_OPTIONS) + " >"
 
-                    # Receive the observation.
-                    obs = comms.recv_message(instance.client_socket)
+                        # Send Actions.
+                        comms.send_message(instance.client_socket, step_message.encode())
 
-                    # Receive reward done and sent.
-                    reply = comms.recv_message(instance.client_socket)
-                    reward, done, sent = struct.unpack("!dbb", reply)
+                        # Receive the observation.
+                        obs = comms.recv_message(instance.client_socket)
 
-                    # Receive info from the environment.
-                    if withinfo:
-                        info = comms.recv_message(instance.client_socket).decode("utf-8")
+                        # Receive reward done and sent.
+                        reply = comms.recv_message(instance.client_socket)
+                        reward, done, sent = struct.unpack("!dbb", reply)
+                        done = (done == 1)
+
+                        self.has_finished[instance.actor_name] = self.has_finished[instance.actor_name] or done
+                        print("DONE", instance, "IS", self.has_finished[instance.actor_name])
+                
+                        # Receive info from the environment.
+                        if withinfo:
+                            info = comms.recv_message(instance.client_socket).decode("utf-8")
+                        else:
+                            info = {}
+
+                        # Process the observation and done state.
+                        out_obs, info = self._process_observation(actor_name, obs, info)
                     else:
+                        # IF THIS PARTICULAR AGENT IS DONE THEN:
+                        reward = 0.0
+                        out_obs = self._last_obs[actor_name]
+                        done = True
                         info = {}
-
-                    # Process the observation and done state.
-                    out_obs, info = self._process_observation(actor_name, obs, info)
-                    done = (done == 1)
 
                     # concatenate multi-agent obs, rew, done
                     multi_obs[actor_name] = out_obs
@@ -642,7 +643,7 @@ class MineRLEnv(gym.Env):
 
             # this will currently only consider the env done when all agents report done individually
             self.done = multi_done
-
+            
             instance = self._controller_instance()
             try:
                 step_message = "<StepServer></StepServer>"
@@ -806,136 +807,6 @@ class MineRLEnv(gym.Env):
 
     def _get_token(self, instance):
         return self.exp_uid + ":" + str(instance.role) + ":" + str(self.resets)
-
-
-
-class TraceRecording(object):
-    # Todo (R): Fix trace recorder.
-    _id_counter = 0
-
-    def __init__(self, directory=None):
-        """
-        Create a TraceRecording, writing into directory
-        """
-
-        if directory is None:
-            directory = os.path.join('/tmp', 'openai.gym.{}.{}'.format(time.time(), os.getpid()))
-            os.mkdir(directory)
-
-        self.directory = directory
-        self.file_prefix = 'openaigym.trace.{}.{}'.format(self._id_counter, os.getpid())
-        TraceRecording._id_counter += 1
-
-        self.closed = False
-
-        self.actions = []
-        self.observations = []
-        self.rewards = []
-        self.episode_id = 0
-
-        self.buffered_step_count = 0
-        self.buffer_batch_size = 100
-
-        self.episodes_first = 0
-        self.episodes = []
-        self.batches = []
-
-    def add_reset(self, observation):
-        assert not self.closed
-        self.end_episode()
-        self.observations.append(observation)
-
-    def add_step(self, action, observation, reward):
-        assert not self.closed
-        self.actions.append(action)
-        self.observations.append(observation)
-        self.rewards.append(reward)
-        self.buffered_step_count += 1
-
-    def end_episode(self):
-        """
-        if len(observations) == 0, nothing has happened yet.
-        If len(observations) == 1, then len(actions) == 0, and we have only called reset and done a null episode.
-        """
-        if len(self.observations) > 0:
-            if len(self.episodes) == 0:
-                self.episodes_first = self.episode_id
-
-            self.episodes.append({
-                'actions': optimize_list_of_ndarrays(self.actions),
-                'observations': optimize_list_of_ndarrays(self.observations),
-                'rewards': optimize_list_of_ndarrays(self.rewards),
-            })
-            self.actions = []
-            self.observations = []
-            self.rewards = []
-            self.episode_id += 1
-
-            if self.buffered_step_count >= self.buffer_batch_size:
-                self.save_complete()
-
-    def save_complete(self):
-        """
-        Save the latest batch and write a manifest listing all the batches.
-        We save the arrays as raw binary, in a format compatible with np.load.
-        We could possibly use numpy's compressed format, but the large observations we care about (VNC screens)
-        don't compress much, only by 30%, and it's a goal to be able to read the files from C++ or a browser someday.
-        """
-
-        batch_fn = '{}.ep{:09}.json'.format(self.file_prefix, self.episodes_first)
-        bin_fn = '{}.ep{:09}.bin'.format(self.file_prefix, self.episodes_first)
-
-        with atomic_write.atomic_write(os.path.join(self.directory, batch_fn), False) as batch_f:
-            with atomic_write.atomic_write(os.path.join(self.directory, bin_fn), True) as bin_f:
-
-                def json_encode(obj):
-                    if isinstance(obj, np.ndarray):
-                        offset = bin_f.tell()
-                        while offset % 8 != 0:
-                            bin_f.write(b'\x00')
-                            offset += 1
-                        obj.tofile(bin_f)
-                        size = bin_f.tell() - offset
-                        return {'__type': 'ndarray', 'shape': obj.shape, 'order': 'C', 'dtype': str(obj.dtype),
-                                'npyfile': bin_fn, 'npyoff': offset, 'size': size}
-                    return obj
-
-                json.dump({'episodes': self.episodes}, batch_f, default=json_encode)
-
-                bytes_per_step = float(bin_f.tell() + batch_f.tell()) / float(self.buffered_step_count)
-
-        self.batches.append({
-            'first': self.episodes_first,
-            'len': len(self.episodes),
-            'fn': batch_fn})
-
-        manifest = {'batches': self.batches}
-        manifest_fn = os.path.join(self.directory, '{}.manifest.json'.format(self.file_prefix))
-        with atomic_write.atomic_write(os.path.join(self.directory, manifest_fn), False) as f:
-            json.dump(manifest, f)
-
-        # Adjust batch size, aiming for 5 MB per file.
-        # This seems like a reasonable tradeoff between:
-        #   writing speed (not too much overhead creating small files)
-        #   local memory usage (buffering an entire batch before writing)
-        #   random read access (loading the whole file isn't too much work when just grabbing one episode)
-        self.buffer_batch_size = max(1, min(50000, int(5000000 / bytes_per_step + 1)))
-
-        self.episodes = []
-        self.episodes_first = None
-        self.buffered_step_count = 0
-
-    def close(self):
-        """
-        Flush any buffered data to disk and close. It should get called automatically at program exit time, but
-        you can free up memory by calling it explicitly when you're done
-        """
-        if not self.closed:
-            self.end_episode()
-            if len(self.episodes) > 0:
-                self.save_complete()
-            self.closed = True
-            logger.info('Wrote traces to %s', self.directory)
 
 
 def _deepdict_find(d, key):
