@@ -86,7 +86,7 @@ public abstract class MixinMinecraftGameloop {
         if(lastUpdateTime == -1)
             lastUpdateTime = curTime;
         if(curTime - lastUpdateTime > MIN_TIME_TO_UPDATE){
-            this.updateDisplay();
+            TimeHelper.updateDisplay();
             lastUpdateTime = curTime;
         }
     }
@@ -128,18 +128,19 @@ public abstract class MixinMinecraftGameloop {
         this.mcProfiler.endSection(); //scheduledExecutables
         long l = System.nanoTime();
 
-        if(
-            (TimeHelper.SyncManager.isSynchronous() && TimeHelper.SyncManager.isServerRunning() && !this.isGamePaused ) 
-            || TimeHelper.SyncManager.shouldFlush()){
+        if(TimeHelper.SyncManager.isSynchronous() && TimeHelper.SyncManager.isServerRunning() && !this.isGamePaused ){
             this.mcProfiler.startSection("waitForTick");
-
             // TimeHelper.SyncManager.debugLog("[Client] Waiting for tick request!");
 
-            // Wait for the shouldClientTick to be true!
-            while(!TimeHelper.SyncManager.shouldClientTick()) {
-                checkUpdateDisplay();
-                Thread.yield();
-            }
+            TimeHelper.SyncManager.clientTick.awaitRequest(new Runnable() {
+                public void run() {
+                    checkUpdateDisplay();
+                }
+            });
+
+
+            this.timer.renderPartialTicks = 0;
+
             this.mcProfiler.endSection();
             this.mcProfiler.startSection("syncTickEventPre");
 
@@ -151,15 +152,11 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.startSection("clientTick");
 
 
-            if(TimeHelper.SyncManager.shouldClientTick()){
-                this.runTick();
+            this.runTick();
 
-                TimeHelper.SyncManager.completeClientTick();
-            } 
-            else{
-                this.timer.renderPartialTicks = f;
-            }
-            
+            // TODO: FIGURE OUT BS WITH 
+            // this.timer.renderPartialTicks = f; MAYBE 0 makes something consistent
+
             this.mcProfiler.endSection(); //ClientTick
          } else{
             for (int j = 0; j < this.timer.elapsedTicks; ++j)
@@ -219,33 +216,29 @@ public abstract class MixinMinecraftGameloop {
         // Speeds up rendering!
         if(!TimeHelper.SyncManager.isSynchronous()){
             // TODO: IF WE WANT TO ENABE AGENT GUI WE SHOULD LET THIS CODE RUN
-        this.guiAchievement.updateAchievementWindow();
-        this.framebufferMc.unbindFramebuffer();
-        GlStateManager.popMatrix();
-        GlStateManager.pushMatrix();
-        this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
-        GlStateManager.popMatrix();
-        GlStateManager.pushMatrix();
-        this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
-        GlStateManager.popMatrix();
+            this.guiAchievement.updateAchievementWindow();
+            this.framebufferMc.unbindFramebuffer();
+            GlStateManager.popMatrix();
+            GlStateManager.pushMatrix();
+            this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
+            GlStateManager.popMatrix();
+            GlStateManager.pushMatrix();
+            this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
+            GlStateManager.popMatrix();
         }
 
         this.mcProfiler.startSection("root");
-        this.updateDisplay();
+        TimeHelper.updateDisplay();
         lastUpdateTime = System.nanoTime();
         if(
             (TimeHelper.SyncManager.isSynchronous() && 
-            TimeHelper.SyncManager.isServerRunning()) || TimeHelper.SyncManager.shouldFlush()){
+            TimeHelper.SyncManager.isServerRunning())){
 
             this.mcProfiler.startSection("syncTickEventPost");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
             this.mcProfiler.endSection();
             
-            // TimeHelper.SyncManager.debugLog("[Client] Tick fully complete..");
-
-            if (TimeHelper.SyncManager.role != 0) {
-                TimeHelper.SyncManager.completeTick();
-            }
+            TimeHelper.SyncManager.clientTick.complete();
         }
         Thread.yield();
         this.checkGLError("Post render");
