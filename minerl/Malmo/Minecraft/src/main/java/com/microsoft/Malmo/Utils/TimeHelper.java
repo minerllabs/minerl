@@ -49,7 +49,7 @@ public class TimeHelper
     public final static float MillisecondsPerSecond = 1000.0f;
     private static Boolean paused = false;  //If ticking should be paused.
     public static long serverTickLength = 50;
-    public static long displayGranularityMs = 0;  // How quickly we allow the Minecraft window to update.
+    public static long displayGranularityMs = 50;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
     public static int frameSkip = 1; // Note: Not fully implemented
 
@@ -107,7 +107,9 @@ public class TimeHelper
         public synchronized void awaitRequest(Runnable doWhileWaiting) {
             // This waits for someone to request execution.
             while( !this.executing && SyncManager.synchronous) { 
-                if (doWhileWaiting != null)
+                if (doWhileWaiting == null)
+                    TimeHelper.updateDisplay();
+                else
                     doWhileWaiting.run();
                 Thread.yield();
             }
@@ -300,7 +302,9 @@ public class TimeHelper
     }
     static public void updateDisplay()
     {
-        long timeNow = System.currentTimeMillis();
+        long timeNow = System.currentTimeMillis();        
+        if(lastUpdateTimeMs == -1)
+            lastUpdateTimeMs = timeNow;
         if (timeNow - lastUpdateTimeMs > displayGranularityMs)
         {
             Minecraft.getMinecraft().updateDisplay();
