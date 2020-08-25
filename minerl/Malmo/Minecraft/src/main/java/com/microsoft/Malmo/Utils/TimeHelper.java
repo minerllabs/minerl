@@ -60,18 +60,19 @@ public class TimeHelper
         boolean shouldFlush = false;
         boolean completed = true;
         ReentrantLock lock = new ReentrantLock();
+        ReentrantLock requestLock = new ReentrantLock();
         String name = "";
 
         public FlushableStateMachine(String name) {
             this.name = name;
         }
         
-        public synchronized boolean request(){
+        public boolean request(){
             lock.lock();
             try {
                 if(completed){
                     // ONLY EXECUTE ON SYNCHRONOUS MODE
-                    SyncManager.debugLog("[FSM:" + name + "] STARTING TICK");
+                    SyncManager.debugLog("[FSM:" + name + "] REQUEST SENT");
                     completed = false;
                     executing = true;
                     return true;
@@ -83,7 +84,7 @@ public class TimeHelper
             }
         }
 
-        public synchronized void complete() {
+        public void complete() {
             lock.lock();
             try {
                 SyncManager.debugLog("[FSM:" + name + "] COMPLETING TICK");
@@ -95,24 +96,31 @@ public class TimeHelper
         }
         
         
-        public synchronized void requestAndWait() {
+        public void requestAndWait() {
             // This requests the state machien to run and waits for completion.
-            while(! this.request() && SyncManager.synchronous) { Thread.yield();}
-            while(! this.completed && SyncManager.synchronous) { Thread.yield();}
+            requestLock.lock();
+            try{
+                if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] REQUESTING ");
+                while(SyncManager.synchronous && ! this.request() ) { Thread.yield();}
+                if(SyncManager.synchronous)  SyncManager.debugLog("[FSM:" + name + "] WAITING FOR COMPLETION ");
+                while(SyncManager.synchronous && ! this.completed) { Thread.yield();}
+                if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] COMPLETED ");
+            } finally {
+                requestLock.unlock();
+            }
         }
 
-        public synchronized void awaitRequest() {
-            awaitRequest(null);
-        }
-        public synchronized void awaitRequest(Runnable doWhileWaiting) {
+        public void awaitRequest(Boolean updateDisplay) {
             // This waits for someone to request execution.
-            while( !this.executing && SyncManager.synchronous) { 
-                if (doWhileWaiting == null)
+
+            if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] AWAITING REQUEST ");
+            while( SyncManager.synchronous && !this.executing) { 
+                if (updateDisplay)
                     TimeHelper.updateDisplay();
-                else
-                    doWhileWaiting.run();
+
                 Thread.yield();
             }
+            if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] REQUEST RECIEVED STARTING ");
         }
     }
     
@@ -137,7 +145,7 @@ public class TimeHelper
 
         public static synchronized void setPistolFired(Boolean hasIt){
             if(hasIt && !serverPistolFired){
-                // TimeHelper.SyncManager.debugLog("Server pistol has started firing.");
+                TimeHelper.SyncManager.debugLog("Server pistol has started firing.");
             }
             serverPistolFired = hasIt;
         }   
@@ -305,6 +313,7 @@ public class TimeHelper
         long timeNow = System.currentTimeMillis();        
         if(lastUpdateTimeMs == -1)
             lastUpdateTimeMs = timeNow;
+        
         if (timeNow - lastUpdateTimeMs > displayGranularityMs)
         {
             Minecraft.getMinecraft().updateDisplay();

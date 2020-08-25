@@ -1910,11 +1910,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (envServer != null){
                 if(!envServer.doIWantToQuit(currentMissionInit())){
 
-                    // TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
+                    TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
                     TimeHelper.SyncManager.setSynchronous(envServer.isSynchronous());
-                    // TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
+                    TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
                 } else {
+                    TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
                     TimeHelper.SyncManager.setSynchronous(false);
+                    TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
                 }
             }
         }
@@ -2003,7 +2005,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         }
 
         private synchronized void onTick(Boolean synchronous, TickEvent.Phase phase){
-            // TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE] <onTICK> " + phase.toString());
+            TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE] <onTICK> " + phase.toString());
             // Check to see whether anything has caused us to abort - if so, go to the abort state.
             if (inAbortState())
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
@@ -2187,7 +2189,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             if (data != null && data.length() > 2 && cac != null) // An empty json string will be "{}" (length 2) - don't send these.
             {
-                // TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE INFO] " + Integer.toString(AddressHelper.getMissionControlPort()));
+                TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE INFO] " + Integer.toString(AddressHelper.getMissionControlPort()));
                 if (AddressHelper.getMissionControlPort() == 0) {
                     if (envServer != null) {
                         // TODO wierd, aren't we doing this? 

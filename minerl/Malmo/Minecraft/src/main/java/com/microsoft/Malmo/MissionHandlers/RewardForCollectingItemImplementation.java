@@ -97,7 +97,7 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     public void onGainItem(GainItemEvent event)
     {
 
-        // TimeHelper.SyncManager.debugLog("----------------------------> onItemCraft!");
+        TimeHelper.SyncManager.debugLog("----------------------------> onItemCraft!");
         if (event.stack != null)
         {
             accumulateReward(this.params.getDimension(), event.stack);
@@ -108,7 +108,7 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     public void onPickupItem(EntityItemPickupEvent event)
     {
 
-        // TimeHelper.SyncManager.debugLog("----------------------------> onItemCraft!");
+        TimeHelper.SyncManager.debugLog("----------------------------> onItemCraft!");
         if (event.getItem() != null && event.getEntityPlayer() instanceof EntityPlayerMP )
         {
             // This event is received on the server side, so we need to pass it to the client.

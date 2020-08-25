@@ -31,7 +31,7 @@ def main():
         obs = env.reset()
         done = False
         netr = 0
-        for _ in range(1000):
+        for _ in range(100):
             random_act = env.action_space.noop()
             # random_act['camera'] = [0, 0.1]
             # random_act['back'] = 0
@@ -42,6 +42,8 @@ def main():
             netr += reward
             print(reward, netr)
             env.render()
+            if done:
+                break
 
 
 

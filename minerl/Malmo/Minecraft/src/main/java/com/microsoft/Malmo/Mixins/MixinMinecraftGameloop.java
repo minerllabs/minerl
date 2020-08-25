@@ -116,11 +116,12 @@ public abstract class MixinMinecraftGameloop {
         this.mcProfiler.endSection(); //scheduledExecutables
         long l = System.nanoTime();
 
-        if(TimeHelper.SyncManager.isSynchronous() && TimeHelper.SyncManager.isServerRunning() && !this.isGamePaused ){
-            this.mcProfiler.startSection("waitForTick");
-            // TimeHelper.SyncManager.debugLog("[Client] Waiting for tick request!");
 
-            TimeHelper.SyncManager.clientTick.awaitRequest();
+        if(TimeHelper.SyncManager.isSynchronous() && !this.isGamePaused ){
+            this.mcProfiler.startSection("waitForTick");
+            TimeHelper.SyncManager.debugLog("[Client] Waiting for tick request!");
+
+            TimeHelper.SyncManager.clientTick.awaitRequest(true);
 
 
             this.timer.renderPartialTicks = 0;
@@ -129,7 +130,6 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.startSection("syncTickEventPre");
 
 
-            // TimeHelper.SyncManager.debugLog("[Client] Starting client tick.");
 
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.START));
             this.mcProfiler.endSection();
@@ -160,15 +160,19 @@ public abstract class MixinMinecraftGameloop {
         this.mcProfiler.endSection();
         this.mcProfiler.startSection("render");
 
+
+        
         //Speeds up rendering; though it feels necessary. s
         if(!TimeHelper.SyncManager.isSynchronous()){
         GlStateManager.pushMatrix();
         GlStateManager.clear(16640);
         this.framebufferMc.bindFramebuffer(true);
         }
+
         this.mcProfiler.startSection("display");
         GlStateManager.enableTexture2D();
         this.mcProfiler.endSection(); //display
+
 
         if (!this.skipRenderWorld)
         {
@@ -214,9 +218,12 @@ public abstract class MixinMinecraftGameloop {
         this.mcProfiler.startSection("root");
         TimeHelper.updateDisplay();
         // this.updateDisplay();
+
         if(
-            (TimeHelper.SyncManager.isSynchronous() && 
-            TimeHelper.SyncManager.isServerRunning())){
+            (TimeHelper.SyncManager.isSynchronous())
+            // TODO WHY REMOVE 
+            // TimeHelper.SyncManager.isServerRunning()
+        ){
 
             this.mcProfiler.startSection("syncTickEventPost");
             MinecraftForge.EVENT_BUS.post(new TimeHelper.SyncTickEvent(Phase.END));
