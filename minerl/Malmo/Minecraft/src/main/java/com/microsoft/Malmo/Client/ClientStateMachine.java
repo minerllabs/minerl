@@ -1909,7 +1909,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Synchronization
             if (envServer != null){
                 if(!envServer.doIWantToQuit(currentMissionInit())){
+
+                    // TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
                     TimeHelper.SyncManager.setSynchronous(envServer.isSynchronous());
+                    // TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
                 } else {
                     TimeHelper.SyncManager.setSynchronous(false);
                 }
@@ -1970,7 +1973,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             TimeHelper.setMinecraftClientClockSpeed(20);
             TimeHelper.displayGranularityMs = 0;
             TimeHelper.unpause();
-            TimeHelper.SyncManager.setSynchronous(false);
 
             ClientStateMachine.this.missionQuitCode = this.quitCode;
             if (errorReport != null)
@@ -2132,7 +2134,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     map.put("quitcode", this.quitCode);
                     MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
 
-                    onMissionEnded(ClientState.MISSION_ABORTED, null);
+                    onMissionEnded(ClientState.IDLING, null);
                 }
                 else
                 {

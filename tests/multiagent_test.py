@@ -60,6 +60,6 @@ if __name__ == '__main__':
             # log("info: " + str(info))
             # log(" obs: " + str(obs))
 
-            time.sleep(.05)
+            # time.sleep(.05)
         logging.debug(f"Episode {r + 1}/{args.episodes} done: {steps} steps")
 

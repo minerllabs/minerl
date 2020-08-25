@@ -20,6 +20,7 @@
 package com.microsoft.Malmo.Utils;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.locks.ReentrantLock;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.Launch;
@@ -52,56 +53,85 @@ public class TimeHelper
     private static long lastUpdateTimeMs;
     public static int frameSkip = 1; // Note: Not fully implemented
 
+
+    static public class FlushableStateMachine {
+        // We should really just use locks.
+        boolean executing = false;
+        boolean shouldFlush = false;
+        boolean completed = true;
+        ReentrantLock lock = new ReentrantLock();
+        String name = "";
+
+        public FlushableStateMachine(String name) {
+            this.name = name;
+        }
+        
+        public synchronized boolean request(){
+            lock.lock();
+            try {
+                if(completed){
+                    // ONLY EXECUTE ON SYNCHRONOUS MODE
+                    SyncManager.debugLog("[FSM:" + name + "] STARTING TICK");
+                    completed = false;
+                    executing = true;
+                    return true;
+                } 
+                // OTHERWISE DENY THE REQUEST.
+                return false;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public synchronized void complete() {
+            lock.lock();
+            try {
+                SyncManager.debugLog("[FSM:" + name + "] COMPLETING TICK");
+                executing = false;
+                completed = true;
+            } finally {
+                lock.unlock();
+            }
+        }
+        
+        
+        public synchronized void requestAndWait() {
+            // This requests the state machien to run and waits for completion.
+            while(! this.request() && SyncManager.synchronous) { Thread.yield();}
+            while(! this.completed && SyncManager.synchronous) { Thread.yield();}
+        }
+
+        public synchronized void awaitRequest() {
+            awaitRequest(null);
+        }
+        public synchronized void awaitRequest(Runnable doWhileWaiting) {
+            // This waits for someone to request execution.
+            while( !this.executing && SyncManager.synchronous) { 
+                if (doWhileWaiting != null)
+                    doWhileWaiting.run();
+                Thread.yield();
+            }
+        }
+    }
+    
     static public class SyncManager {
         static Boolean synchronous = false;
-        static Boolean shouldClientTick = false;
-        static Boolean shouldServerTick = false;
+        public static FlushableStateMachine clientTick = new FlushableStateMachine("client");
+        public static FlushableStateMachine serverTick = new FlushableStateMachine("server");
         static Boolean serverRunning = false;
-        static Boolean shouldFlush = false;
         static Boolean serverPistolFired = false;
         public static long numTicks = 0;
-        final static Boolean verbose = false;
+        final static Boolean verbose = true;
         public static int role = 0;
 
         public static synchronized Boolean isSynchronous(){
             return synchronous;
         } 
 
-        public static synchronized Boolean shouldFlush(){
-            return shouldFlush;
-        }
         public static synchronized  void setSynchronous(Boolean value){
-            if(value == true){
-                synchronous = value;
-                shouldFlush = false;
-            }
-            else if(value == false && synchronous == true){
-                shouldFlush = true;
-            }
+            synchronous = value;
         }
-        
-        public static synchronized Boolean requestClientTick() {
-            // Build a locking system.
-            if (!shouldClientTick && !shouldServerTick && synchronous) {
-                // TimeHelper.SyncManager.debugLog("============ SYNC CLIENT TICK STARTED ===========");
-                shouldClientTick = true;
-                return true;
-            }
-            else{
-                return false;
-            }
-        }
-
-        public static synchronized Boolean requestServerTick() {
-            // Build a locking system.
-            if (!shouldClientTick && !shouldServerTick && synchronous) {
-                // TimeHelper.SyncManager.debugLog("============ SYNC SERVER TICK STARTED ===========");
-                shouldServerTick = true;
-                return true;
-            } else {
-                return false;
-            }
-        }
+     
 
         public static synchronized void setPistolFired(Boolean hasIt){
             if(hasIt && !serverPistolFired){
@@ -110,18 +140,10 @@ public class TimeHelper
             serverPistolFired = hasIt;
         }   
 
-        public static synchronized Boolean shouldClientTick(){
-            return shouldClientTick || shouldFlush;
-        }
 
-
-        public static synchronized Boolean shouldServerTick(){
-            return shouldServerTick || shouldFlush;
-        }
-
-        public static void debugLog(String logger){
+        public static synchronized void debugLog(String logger){
             if(verbose){
-                System.out.println("SYNCMANAGER DEBUG: " + logger);
+                System.out.println("SM: " + logger);
             }
         }
 
@@ -134,22 +156,10 @@ public class TimeHelper
             return serverRunning;
         }
 
-        public static synchronized void serverFinished(){
-            serverRunning =false;
+        public static synchronized void setServerFinished(){
+            serverRunning = false;
         }
 
-        public static synchronized  void completeClientTick(){
-            shouldClientTick = false;
-        }
-
-        public static synchronized void completeTick(){
-            if(shouldFlush){
-                synchronous = false;
-            }
-            shouldFlush = false;
-            shouldClientTick = false;
-            shouldServerTick = false;
-        }
 
         public static synchronized Boolean hasServerFiredPistol(){
             return serverPistolFired;

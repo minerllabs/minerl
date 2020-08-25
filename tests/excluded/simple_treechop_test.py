@@ -8,7 +8,6 @@ import gym
 import matplotlib.pyplot as plt
 import minerl
 import numpy as np
-from minerl.env.core import MineRLEnv
 
 import coloredlogs
 coloredlogs.install(logging.DEBUG)

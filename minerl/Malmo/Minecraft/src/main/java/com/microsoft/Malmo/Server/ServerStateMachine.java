@@ -623,7 +623,7 @@ public class ServerStateMachine extends StateMachine
                     MalmoMod.safeSendToAll(MalmoMessageType.SERVER_MISSIONOVER);
                     episodeHasCompleted(ServerState.CLEAN_UP);
                 }
-            }
+            } 
         }
 
         @Override

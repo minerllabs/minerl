@@ -408,21 +408,19 @@ public class MalmoEnvServer implements IWantToQuit {
 
     private void waitTick() {
         // run a client tick
-        while (!TimeHelper.SyncManager.requestClientTick()) { Thread.yield(); }
-        while (TimeHelper.SyncManager.shouldClientTick()) { Thread.yield(); }
-
+        
+        TimeHelper.SyncManager.clientTick.requestAndWait();
         // run a server tick
-        if (TimeHelper.SyncManager.role == 0) {
-            while (!TimeHelper.SyncManager.requestServerTick()) { Thread.yield(); }
-            while (TimeHelper.SyncManager.shouldServerTick()) { Thread.yield(); }
-        }
+        if (TimeHelper.SyncManager.role == 0) 
+            TimeHelper.SyncManager.serverTick.requestAndWait();
+
     }
 
     private static final int stepClientTagLength = "<StepClient_>".length(); // Step with option code.
     private synchronized void stepClientSync(String command, Socket socket, DataInputStream din) throws IOException
     {
         profiler.startSection("rootClient");
-        TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <StepClient_> Entering synchronous step.");
+        // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <StepClient_> Entering synchronous step.");
 
         profiler.startSection("commandProcessing");
         String actions = command.substring(stepClientTagLength, command.length() - (stepClientTagLength + 2));
@@ -460,27 +458,16 @@ public class MalmoEnvServer implements IWantToQuit {
             sent = true;
 
             profiler.endSection(); //cmd
-            profiler.startSection("requestClientTick");
+            profiler.startSection("clientTick");
 
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Received: " + actions);
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Requesting tick.");
             // Now wait to run a tick
+
             // If synchronous mode is off then we should see if want to quit is true.
-            while (!TimeHelper.SyncManager.requestClientTick() && !done) {
-                Thread.yield();
-            }
+            if(!done) 
+                TimeHelper.SyncManager.clientTick.requestAndWait();
 
-            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Tick request granted.");
-
-            profiler.endSection();
-            profiler.startSection("waitForClientTick");
-
-            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Waiting for tick.");
-
-            // Then wait until the tick is finished
-            while (TimeHelper.SyncManager.shouldClientTick() && !done) {
-                Thread.yield();
-            }
 
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> TICK DONE.  Getting observation.");
             profiler.endSection();
@@ -504,7 +491,14 @@ public class MalmoEnvServer implements IWantToQuit {
 
             }
             done = envState.done;
+
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> STATUS " + Boolean.toString(done));
+
+            // if done, desynchronize the environment!
+            if (done) {
+                TimeHelper.SyncManager.setSynchronous(false);
+            }
+
             envState.info = "{}";
             envState.obs = null;
             envState.reward = 0.0;
@@ -546,7 +540,7 @@ public class MalmoEnvServer implements IWantToQuit {
     private synchronized void stepServerSync(String command, Socket socket) throws IOException
     {
         profiler.startSection("rootServer");
-        TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <StepServer_> Entering synchronous step.");
+        // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <StepServer_> Entering synchronous step.");
 
         // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Acquiring lock for synchronous step.");
 
@@ -555,17 +549,11 @@ public class MalmoEnvServer implements IWantToQuit {
             // Then wait until the tick is finished
             boolean done = envState.done;
 
-            profiler.startSection("requestServerTick");
+            profiler.startSection("serverTick");
+            
 
-            // If synchronous mode is off then we should see if want to quit is true.
-            while (!TimeHelper.SyncManager.requestServerTick() && !done) {
-                Thread.yield();
-            }
-
-            profiler.endSection();
-            profiler.startSection("waitForServerTick");
-
-            while (TimeHelper.SyncManager.shouldServerTick() && !done ) { Thread.yield(); }
+            if(!done) TimeHelper.SyncManager.serverTick.requestAndWait();
+            else TimeHelper.SyncManager.setSynchronous(false);
 
             profiler.endSection();
         } finally {
