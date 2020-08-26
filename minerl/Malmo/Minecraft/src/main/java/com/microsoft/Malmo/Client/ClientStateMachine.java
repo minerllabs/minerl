@@ -1828,7 +1828,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         private TCPSocketChannel rewardSocket = null;
         private long lastPingSent = 0;
         private long pingFrequencyMs = 1000;
-        private boolean shouldMissionEnd = false;
+        private boolean serverWantsToEndMission = false;
         private long frameTimestamp = 0;
 
         public void frameProduced() {
@@ -1842,7 +1842,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Open our communication channels:
             openSockets();
 
-            this.shouldMissionEnd = false;
+            this.serverWantsToEndMission = false;
             // Tell the server we have started:
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("username", Minecraft.getMinecraft().player.getName());
@@ -1910,13 +1910,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if (envServer != null){
                 if(!envServer.doIWantToQuit(currentMissionInit())){
 
-                    TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
+                    // TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
                     TimeHelper.SyncManager.setSynchronous(envServer.isSynchronous());
-                    TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
+                    // TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
                 } else {
-                    TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
+                    // TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
                     TimeHelper.SyncManager.setSynchronous(false);
-                    TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
+                    // TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
                 }
             }
         }
@@ -1934,7 +1934,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         protected void onMissionEnded(IState nextState, String errorReport)
         {
             //Send the final data associated with the misson here.
-            this.shouldMissionEnd = false;
+            this.serverWantsToEndMission = false;
             sendData(true);
 
             // Tidy up our mission handlers:
@@ -2005,7 +2005,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         }
 
         private synchronized void onTick(Boolean synchronous, TickEvent.Phase phase){
-            TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE] <onTICK> " + phase.toString());
+            // TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE] <onTICK> " + phase.toString());
             // Check to see whether anything has caused us to abort - if so, go to the abort state.
             if (inAbortState())
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
@@ -2106,7 +2106,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Check whether or not we want to quit:
                 IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
                 boolean quitHandlerFired = (quitHandler != null && quitHandler.doIWantToQuit(currentMissionInit()));
-                if (quitHandlerFired || this.wantsToQuit || this.playerDied || this.shouldMissionEnd)
+                if (quitHandlerFired || this.wantsToQuit || this.playerDied || this.serverWantsToEndMission)
                 {
                     if (quitHandlerFired)
                     {
@@ -2134,9 +2134,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     map.put("agentname", agentName);
                     map.put("username", Minecraft.getMinecraft().player.getName());
                     map.put("quitcode", this.quitCode);
-                    MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
 
-                    onMissionEnded(ClientState.IDLING, null);
+                    if(this.serverWantsToEndMission){
+                        onMissionEnded(ClientState.MISSION_ENDED, null);
+                    } else{
+                        // TODO: ONE AGENT HARDCODED UID?
+                        MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
+                        
+                        // If we terminated on our own accord go to idling 
+                        onMissionEnded(ClientState.IDLING, null);
+                    }
                 }
                 else
                 {
@@ -2189,7 +2196,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             if (data != null && data.length() > 2 && cac != null) // An empty json string will be "{}" (length 2) - don't send these.
             {
-                TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE INFO] " + Integer.toString(AddressHelper.getMissionControlPort()));
+                // TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE INFO] " + Integer.toString(AddressHelper.getMissionControlPort()));
                 if (AddressHelper.getMissionControlPort() == 0) {
                     if (envServer != null) {
                         // TODO wierd, aren't we doing this? 
@@ -2349,7 +2356,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 if (currentMissionBehaviour() != null && currentMissionBehaviour().rewardProducer != null && cac != null)
                     currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(), ClientStateMachine.this.finalReward);
 
-                this.shouldMissionEnd = true;
+                this.serverWantsToEndMission = true;
                 
             }
             else if (messageType == MalmoMessageType.SERVER_GO)

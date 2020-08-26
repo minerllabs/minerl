@@ -72,7 +72,7 @@ public class TimeHelper
             try {
                 if(completed){
                     // ONLY EXECUTE ON SYNCHRONOUS MODE
-                    SyncManager.debugLog("[FSM:" + name + "] REQUEST SENT");
+                    // SyncManager.debugLog("[FSM:" + name + "] REQUEST SENT");
                     completed = false;
                     executing = true;
                     return true;
@@ -87,7 +87,7 @@ public class TimeHelper
         public void complete() {
             lock.lock();
             try {
-                SyncManager.debugLog("[FSM:" + name + "] COMPLETING TICK");
+                // SyncManager.debugLog("[FSM:" + name + "] COMPLETING TICK");
                 executing = false;
                 completed = true;
             } finally {
@@ -100,11 +100,11 @@ public class TimeHelper
             // This requests the state machien to run and waits for completion.
             requestLock.lock();
             try{
-                if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] REQUESTING ");
+                // if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] REQUESTING ");
                 while(SyncManager.synchronous && ! this.request() ) { Thread.yield();}
-                if(SyncManager.synchronous)  SyncManager.debugLog("[FSM:" + name + "] WAITING FOR COMPLETION ");
+                // if(SyncManager.synchronous)  SyncManager.debugLog("[FSM:" + name + "] WAITING FOR COMPLETION ");
                 while(SyncManager.synchronous && ! this.completed) { Thread.yield();}
-                if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] COMPLETED ");
+                // if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] COMPLETED ");
             } finally {
                 requestLock.unlock();
             }
@@ -113,14 +113,14 @@ public class TimeHelper
         public void awaitRequest(Boolean updateDisplay) {
             // This waits for someone to request execution.
 
-            if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] AWAITING REQUEST ");
+            // if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] AWAITING REQUEST ");
             while( SyncManager.synchronous && !this.executing) { 
                 if (updateDisplay)
                     TimeHelper.updateDisplay();
 
                 Thread.yield();
             }
-            if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] REQUEST RECIEVED STARTING ");
+            // if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] REQUEST RECIEVED STARTING ");
         }
     }
     
@@ -145,7 +145,7 @@ public class TimeHelper
 
         public static synchronized void setPistolFired(Boolean hasIt){
             if(hasIt && !serverPistolFired){
-                TimeHelper.SyncManager.debugLog("Server pistol has started firing.");
+                // TimeHelper.SyncManager.debugLog("Server pistol has started firing.");
             }
             serverPistolFired = hasIt;
         }   

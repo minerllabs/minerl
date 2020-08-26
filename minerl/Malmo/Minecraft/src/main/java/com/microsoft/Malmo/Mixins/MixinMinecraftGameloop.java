@@ -119,7 +119,7 @@ public abstract class MixinMinecraftGameloop {
 
         if(TimeHelper.SyncManager.isSynchronous() && !this.isGamePaused ){
             this.mcProfiler.startSection("waitForTick");
-            TimeHelper.SyncManager.debugLog("[Client] Waiting for tick request!");
+            // TimeHelper.SyncManager.debugLog("[Client] Waiting for tick request!");
 
             TimeHelper.SyncManager.clientTick.awaitRequest(true);
 
