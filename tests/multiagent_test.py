@@ -50,7 +50,11 @@ if __name__ == '__main__':
             env.render()
             
             actions = env.action_space.no_op()
-            print(actions)
+            for agent in actions:
+                actions[agent]["forward"] = 1
+                actions[agent]["attack"] = 1
+                actions[agent]["camera"] = [0,0.1]
+
             # print(str(steps) + " actions: " + str(actions))
         
             obs, reward, done, info = env.step(actions)
@@ -60,6 +64,5 @@ if __name__ == '__main__':
             # log("info: " + str(info))
             # log(" obs: " + str(obs))
 
-            # time.sleep(.05)
         logging.debug(f"Episode {r + 1}/{args.episodes} done: {steps} steps")
 

@@ -594,10 +594,10 @@ class MultiAgentEnv(gym.Env):
                         # Receive reward done and sent.
                         reply = comms.recv_message(instance.client_socket)
                         reward, done, sent = struct.unpack("!dbb", reply)
+                        # TODO: REFACTOR TO USE REWARD HANDLERS INSTEAD OF MALMO REWARD.
                         done = (done == 1)
 
                         self.has_finished[instance.actor_name] = self.has_finished[instance.actor_name] or done
-                        print("DONE", instance, "IS", self.has_finished[instance.actor_name])
                 
                         # Receive info from the environment.
                         if withinfo:
