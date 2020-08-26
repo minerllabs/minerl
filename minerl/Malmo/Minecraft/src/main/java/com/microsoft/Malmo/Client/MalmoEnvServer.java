@@ -614,8 +614,14 @@ public class MalmoEnvServer implements IWantToQuit {
 
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <PEEK>  Pistol fired!.");
             // Wait two ticks for the first observation from server to be propagated.
+            while(! TimeHelper.SyncManager.isSynchronous() ){ 
+                waitTick();
+                Thread.yield();
+            }
+            
             waitTick();
             waitTick();
+
 
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <PEEK> Getting observation.");
 
@@ -889,6 +895,7 @@ public class MalmoEnvServer implements IWantToQuit {
         // lock.lock();
         try {
             envState.obs = frame; // Replaces current.
+            // System.out.println("[ERROR] ADD FRAME, " + (frame == null) + ", sync " + TimeHelper.SyncManager.isSynchronous() );
             // cond.signalAll();
         } finally {
             // lock.unlock();

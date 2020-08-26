@@ -102,7 +102,7 @@ public class TimeHelper
             try{
                 // if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] REQUESTING ");
                 while(SyncManager.synchronous && ! this.request() ) { Thread.yield();}
-                // if(SyncManager.synchronous)  SyncManager.debugLog("[FSM:" + name + "] WAITING FOR COMPLETION ");
+                // if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] WAITING FOR COMPLETION ");
                 while(SyncManager.synchronous && ! this.completed) { Thread.yield();}
                 // if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] COMPLETED ");
             } finally {
