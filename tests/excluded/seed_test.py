@@ -4,10 +4,8 @@ import time
 import logging
 
 import gym
-import matplotlib.pyplot as plt
 import minerl
 import numpy as np
-from minerl.env.core import MineRLEnv
 
 import coloredlogs
 coloredlogs.install(logging.DEBUG)
@@ -24,7 +22,7 @@ def main():
     """
     Tests running a simple environment.
     """
-    env = gym.make('MineRLNavigateDense-v0', port=31415)
+    env = gym.make('MineRLNavigateDense-v0')
     
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []

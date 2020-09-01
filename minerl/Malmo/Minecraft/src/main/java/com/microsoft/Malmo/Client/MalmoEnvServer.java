@@ -73,6 +73,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
         // OpenAI gym state:
         boolean done = false;
+        boolean running = false;
         double reward = 0.0;
         byte[] obs = null;
         String info = "{}";
@@ -136,7 +137,6 @@ public class MalmoEnvServer implements IWantToQuit {
             try {
                 final Socket socket = serverSocket.accept();
                 socket.setTcpNoDelay(true);
-
                 Thread thread = new Thread("EnvServerSocketHandler") {
                     public void run() {
                         boolean running = false;
@@ -144,6 +144,7 @@ public class MalmoEnvServer implements IWantToQuit {
                             checkHello(socket);
 
                             while (true) {
+                                
                                 DataInputStream din = new DataInputStream(socket.getInputStream());
                                 int hdr = 0;
                                 try {
@@ -154,7 +155,9 @@ public class MalmoEnvServer implements IWantToQuit {
                                     break;
                                 }
                                 byte[] data = new byte[hdr];
+                                
                                 din.readFully(data);
+                                
 
                                 String command = new String(data, utf8);
 
@@ -221,6 +224,9 @@ public class MalmoEnvServer implements IWantToQuit {
                                     dout.writeInt(hdr);
                                     dout.write(data, 0, hdr);
                                     dout.flush();
+                                } else if (command.startsWith("<Disconnect")) {
+                                    socket.close();
+                                    break;
                                 } else {
                                     throw new IOException("Unknown env service command: " + command);
                                 }
@@ -228,7 +234,7 @@ public class MalmoEnvServer implements IWantToQuit {
                         } catch (IOException ioe) {
                             ioe.printStackTrace();
                             TCPUtils.Log(Level.SEVERE, "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
-                            System.out.println("[ERROR] " + "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
+                            
                             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] MalmoEnv socket error");
                             try {
                                 if (running) {
@@ -260,6 +266,7 @@ public class MalmoEnvServer implements IWantToQuit {
     }
 
     private void checkHello(Socket socket) throws IOException {
+        
         DataInputStream din = new DataInputStream(socket.getInputStream());
         int hdr = din.readInt();
         if (hdr <= 0 || hdr > hello.length() + 8) // Version number may be somewhat longer in future.
@@ -268,6 +275,7 @@ public class MalmoEnvServer implements IWantToQuit {
         din.readFully(data);
         if (!new String(data).startsWith(hello + version))
             throw new IOException("MalmoEnv invalid protocol or version - expected " + hello + version);
+        
     }
 
     // Handler for <MissionInit> messages.
@@ -302,6 +310,7 @@ public class MalmoEnvServer implements IWantToQuit {
             TimeHelper.SyncManager.role = role;
             if (role == 0) {
                 String previousToken = experimentId + ":0:" + (reset - 1);
+                
                 initTokens.remove(previousToken);
 
                 String myToken = experimentId + ":0:" + reset;
@@ -333,6 +342,7 @@ public class MalmoEnvServer implements IWantToQuit {
             lock.unlock();
         }
 
+        
         DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
         dout.writeInt(BYTES_INT);
         dout.writeInt(allTokensConsumed && started ? 1 : 0);
@@ -366,6 +376,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
         envState.missionInit = command;
         envState.done = false;
+        envState.running = true;
         envState.quit = false;
         envState.token = myToken;
         envState.experimentId = experimentId;
@@ -386,6 +397,7 @@ public class MalmoEnvServer implements IWantToQuit {
         DataOutputStream dos = new DataOutputStream(baos);
 
         missionPoller.commandReceived(command, ipOriginator, dos);
+        
 
         dos.flush();
         byte[] reply = baos.toByteArray();
@@ -396,6 +408,7 @@ public class MalmoEnvServer implements IWantToQuit {
         dis.readFully(replyBytes);
 
         String replyStr = new String(replyBytes);
+        
         if (replyStr.equals("MALMOOK")) {
             TCPUtils.Log(Level.INFO, "MalmoEnvServer Mission starting ...");
             return true;
@@ -570,7 +583,7 @@ public class MalmoEnvServer implements IWantToQuit {
             stepClientSync(command, socket, din);
         }
         else{
-            System.out.println("[ERROR] Asynchronous stepping is not supported in MineRL.");
+            
         }
     }
 
@@ -590,7 +603,7 @@ public class MalmoEnvServer implements IWantToQuit {
             }
         }
         else{
-            System.out.println("[ERROR] Asynchronous server stepping is not supported in MineRL.");
+            
         }
     }
 
@@ -618,7 +631,7 @@ public class MalmoEnvServer implements IWantToQuit {
                 waitTick();
                 Thread.yield();
             }
-            
+
             waitTick();
             waitTick();
 
@@ -652,7 +665,7 @@ public class MalmoEnvServer implements IWantToQuit {
     public byte[] getObservation(boolean done)  {
         byte[] obs = envState.obs;
         if (obs == null){
-            System.out.println("[ERROR] Video observation is null; please notify the developer.");
+            
         }
         return obs;
     }
@@ -772,10 +785,12 @@ public class MalmoEnvServer implements IWantToQuit {
             }
 
             waitTick();
+            waitTick();
+            TimeHelper.SyncManager.setSynchronous(false);
 
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             dout.writeInt(BYTES_INT);
-            dout.writeInt(envState.done ? 1 : 0);
+            dout.writeInt((envState.done || !envState.running) ? 1 : 0);
             dout.flush();
         } finally {
             lock.unlock();
@@ -868,6 +883,10 @@ public class MalmoEnvServer implements IWantToQuit {
             // lock.unlock();
         } finally {
         }
+    }
+
+    public void setRunning(boolean running) {
+        envState.running = false;
     }
     // Record a Malmo "observation" json - as the env info since an environment "obs" is a video frame.
     public void observation(String info) {
