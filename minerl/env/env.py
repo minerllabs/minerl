@@ -466,7 +466,6 @@ class MineRLEnv(gym.Env):
 
             self._send_mission(self.instances[0], agent_xmls[0], self._get_token(0, ep_uid)) # Master
             if self.task.agent_count > 1:
-                # 1/0
                 mc_server_ip, mc_server_port = self._TO_MOVE_find_ip_and_port(self.instances[0], self._get_token(1, ep_uid))
                 # update slave instnaces xmls with the server port and IP and setup their missions.
                 for slave_instance, slave_xml, role in list(zip(
@@ -554,6 +553,7 @@ class MineRLEnv(gym.Env):
         self.instances.extend(
            [ self._get_new_instance() for _ in range(num_instances_to_start)]
         )
+        self.instances = self.instances[:self.task.agent_count]
 
         # Now let's clean and establish new socket connections.
         for instance in self.instances:
@@ -729,20 +729,18 @@ class MineRLEnv(gym.Env):
 
             instance.kill()
             instance = self._get_new_instance(instance_id=self.instance.instance_id)
-            # TODO: THIS DOESN'T SUPPORT ALL OF THE ADDED PROPERTIES.
-            # TODO: THIS CLASS NEEDS A CLEAN REFACTOR
         else:
             instance.had_to_clean = True
 
     @retry
     def _TO_MOVE_create_connection(self, instance : MinecraftInstance) -> None:
         try:
-            logger.info("Creating socket connection {instance}".format(instance=instance))
+            logger.debug("Creating socket connection {instance}".format(instance=instance))
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             sock.settimeout(SOCKTIME)
             sock.connect((instance.host, instance.port))
-            logger.info("Saying hello for client: {instance}".format(instance=instance))
+            logger.debug("Saying hello for client: {instance}".format(instance=instance))
             self._TO_MOVE_hello(sock)
 
             instance.client_socket = sock

@@ -883,6 +883,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 ClientStateMachine.this.controlInputPoller.clearCommands();
             // Finally, do some Java housekeeping:
             System.gc();
+
+            if (envServer != null) {
+                envServer.setRunning(false);
+            }
         }
 
         @Override
@@ -1148,6 +1152,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 String msg = "Too long waiting for server episode to start.";
                 TCPUtils.Log(Level.SEVERE, msg);
                 episodeHasCompletedWithErrors(ClientState.ERROR_TIMED_OUT_WAITING_FOR_EPISODE_START, msg);
+            }
+
+            if(envServer != null) {
+                if(envServer.doIWantToQuit(currentMissionInit())){
+                    episodeHasCompleted(ClientState.MISSION_ABORTED); //This could be a source of a race condition.
+                }
             }
         }
 
@@ -2022,7 +2032,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
                 {
                     // Connection has been lost.
-                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - " + netman.getExitMessage().getUnformattedText());
+                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - ");
                 }
     
             }

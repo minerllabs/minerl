@@ -2,7 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 
 import argparse
-from minerl.env.malmo import InstanceManager, malmo_version
+from minerl.env.malmo import InstanceManager, MinecraftInstance, malmo_version
 from minerl.env.core import MineRLEnv
 from minerl.env import comms
 import os
@@ -46,7 +46,7 @@ def run_interactor(ip, port, interactor_port=INTERACTOR_PORT):
         print(instance)
     except AssertionError as e:
         logger.warning("No existing interactor found on port {}. Starting a new interactor.".format(interactor_port))
-        instance = InstanceManager.Instance(interactor_port)
+        instance = MinecraftInstance(interactor_port)
         instance.launch(daemonize=True)
     
     request_interactor(

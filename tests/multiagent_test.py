@@ -1,3 +1,4 @@
+from minerl.env.malmo import InstanceManager
 from minerl.herobraine.env_specs.treechop_specs import Treechop
 import gym
 import minerl  # noqa
@@ -5,6 +6,8 @@ import argparse
 import time
 
 class TreechopMultiAgentNoQuit(Treechop):
+    # This version of treechop doesn't terminate the episode 
+    # if the other agent quits/dies (or gets the max reward)
     def create_server_quit_producers(self):
         return [
 
@@ -15,7 +18,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--single', action="store_true", help='use the single agent default xml')
     parser.add_argument('--port', type=int, default=None, help='the port of existing client or None to launch')
-    parser.add_argument('--episodes', type=int, default=1, help='the number of resets to perform - default is 1')
+    parser.add_argument('--episodes', type=int, default=2, help='the number of resets to perform - default is 1')
     args = parser.parse_args()
 
     # logs
@@ -30,11 +33,17 @@ if __name__ == '__main__':
 
     # make env
     if args.single:
-        env_spec = Treechop(agent_count=1)
+        env_spec = TreechopMultiAgentNoQuit(agent_count=1)
     else:
-        env_spec = Treechop(agent_count=2)
+        env_spec = TreechopMultiAgentNoQuit(agent_count=2)
+    
+    # IF you want to use existing instances use this!
+    # instances = [
+    #     InstanceManager.add_existing_instance(9001),
+    #     InstanceManager.add_existing_instance(9002)]
+    instances = []
 
-    env = env_spec.make( port=args.port)
+    env = env_spec.make(instances=instances) 
 
 
     # iterate desired episodes
@@ -44,7 +53,7 @@ if __name__ == '__main__':
         steps = 0
 
         done = False
-        actor_names = env.actor_names
+        actor_names = env.task.agent_names
         while not done:
             steps += 1
             env.render()
