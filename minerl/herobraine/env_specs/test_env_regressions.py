@@ -410,10 +410,12 @@ def test_env_space_regressions():
         newspec = gym.envs.registration.spec(env['id'])
         k1 = newspec._kwargs
         k2 = env['kwargs']
-        assert newspec._kwargs['action_space'] == env['kwargs']['action_space']
-        assert newspec._kwargs['observation_space'] == env['kwargs']['observation_space']
-        print(k1.keys(), k2.keys())
-        assert set(k1.keys()) == set(k2.keys())
+        task = k1['env_spec']
+        # print(k1)
+        assert task.action_space == env['kwargs']['action_space']
+        assert task.observation_space == env['kwargs']['observation_space']
+        
+        # assert set(k1.keys()) == set(k2.keys()), Invalid as of MineRL 0.4.0
         assert newspec.max_episode_steps == env['max_episode_steps']
         if 'reward_threshold' in env or hasattr(newspec, 'reward_threshold'): 
             assert newspec.reward_threshold == env['reward_threshold']

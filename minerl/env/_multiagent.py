@@ -479,7 +479,7 @@ class _MultiAgentEnv(gym.Env):
                     self._send_mission(slave_instance, slave_xml, self._get_token(role, ep_uid))
 
             # Finally, peek all of the observations.
-            self._peek_obs()
+            return self._peek_obs()
             
         finally:
 
