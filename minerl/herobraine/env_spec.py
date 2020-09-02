@@ -19,8 +19,10 @@ MISSION_TEMPLATE = os.path.join(
 from minerl.herobraine.hero import spaces
 
 class EnvSpec(abc.ABC):
-    U_MULTI_AGENT_ENTRYPOINT = 'minerl.env:{}MultiAgentEnv'
-    U_SINGLE_AGENT_ENTRYPOINT = 'minerl.env:{}SingleAgentEnv'
+    U_MULTI_AGENT_ENTRYPOINT = 'minerl.env._multiagent:_MultiAgentEnv'
+    U_FAKE_MULTI_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeMultiAgentEnv'
+    U_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._singleagent:_SingleAgentEnv'
+    U_FAKE_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeSingleAgentEnv' 
 
     def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=1):
         self.name = name
@@ -212,9 +214,14 @@ class EnvSpec(abc.ABC):
 
     
     def _entry_point(self, fake : bool) -> str:
-        assert fake is False, "Fake envs are currently not implemented! Bug the maintainer."
-        entry = EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1 else EnvSpec.U_MULTI_AGENT_ENTRYPOINT
-        return entry.format('Fake' if fake else '')
+        if fake:
+            return  (
+                EnvSpec.U_FAKE_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1 
+                else EnvSpec.U_FAKE_MULTI_AGENT_ENTRYPOINT)
+        else:
+            return  (
+                EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1 
+                else EnvSpec.U_MULTI_AGENT_ENTRYPOINT)
 
     
     def _env_kwargs(self) -> typing.Dict[str, typing.Any]:

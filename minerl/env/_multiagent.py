@@ -1,4 +1,6 @@
 
+# # Copyright (c) 2020 All Rights Reserved
+# # Author: William H. Guss, Brandon Houghton
 
 from copy import deepcopy
 import json
@@ -26,16 +28,18 @@ STEP_OPTIONS = 0
 
 MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
-MINERL_CUSTOM_ENV_ID = 'MineRLCustomEnv'  # Default id for a MineRLEnv
 TICK_LENGTH = 0.05
 
 logger = logging.getLogger(__name__)
 
-class MineRLEnv(gym.Env):
+class _MultiAgentEnv(gym.Env):
     """
     The MineRLEnv class, a gym environment which implements stepping, and resetting, for the MineRL
     simulator from an environment specification.
 
+
+    THIS CLASS SHOULD NOT BE INSTANTIATED DIRECTLY
+    USE ENV SPEC.
 
         Example:
             To actually create a MineRLEnv. Use any one of the package MineRL environments (Todo: Link.)
@@ -766,7 +770,7 @@ class MineRLEnv(gym.Env):
         # time.sleep(0.1) 
          
 
-    def _TO_MOVE_find_ip_and_port(self, instance : MinecraftInstance, token : str):
+    def _TO_MOVE_find_ip_and_port(self, instance : MinecraftInstance, token : str) -> Tuple[str,str]:
         # calling Find on the master client to get the server port
         sock = instance.client_socket
 
