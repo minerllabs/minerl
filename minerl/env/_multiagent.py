@@ -220,16 +220,6 @@ class _MultiAgentEnv(gym.Env):
         for h in bottom_env_spec.observables:
             obs_dict[h.to_string()] = h.from_hero(info)
 
-        # TODO (R): Add achievment handlers. 
-        # Add Achievements to observation
-        if "achievements" in info:
-            obs_dict["achievements"] = info["achievements"]
-            
-        # TODO (REI): CONVERT TO OBSERVATION HANDLER!
-        # Add structure grid to observation
-        if "structure" in info:
-            obs_dict["structure"] = info["structure"]
-
         # Now we wrap
         if isinstance(self.task, EnvWrapper):
             obs_dict = self.task.wrap_observation(obs_dict)

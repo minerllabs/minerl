@@ -128,6 +128,8 @@ class EnvSpec(abc.ABC):
         These are also strictly typed (in terms of MineRLSpaces) just like observables and actionables.
 
         Any set of rewards/observables can go here.
+
+        TODO (future): Allow monitors to accept state and action previously taken.
         """
         raise NotImplementedError('subclasses must override create_monitors()!')
 

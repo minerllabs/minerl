@@ -13,8 +13,6 @@ color = coloredlogs.install(level=logging.DEBUG)
 # Let's also test monitors
 
 class NavigateWithDistanceMonitor(Navigate):
-    
-
     def create_monitors(self) -> List[TranslationHandler]:
         return [
             handlers.CompassObservation(angle=False, distance=True)
@@ -57,9 +55,12 @@ def test_fake_navigate_with_distance_monitor():
 
     for _ in range(100):
         fake_obs, _,_,fake_monitor = fake_env.step(fake_env.action_space.sample())
+        print(fake_monitor)
         assert fake_monitor in fake_env.monitor_space
         assert "compass" in fake_monitor
         assert "distance" in fake_monitor["compass"]
+
+        
 
 
 
