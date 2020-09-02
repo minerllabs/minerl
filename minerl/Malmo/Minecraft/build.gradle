@@ -29,16 +29,9 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
-// For versions >= 1.8
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
-// For versions < 1.8
-// apply plugin: 'forge'
 
-// ext {
-//     mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
-//     mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.malmo.refmap.json')
-// }
 
 
 // Read the version number from the Mod's version properties file.
@@ -84,24 +77,24 @@ repositories {
 }
 
 // Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
-jar {
-
-    manifest {
-        attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': '0',
-                'FMLCorePluginContainsFMLMod': 'true',
-                'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
-                'FMLAT': 'malmomod_at.cfg'
-    }
-    manifest {
-        attributes  'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
-                    'FMLCorePluginContainsFMLMod': 'true'
-    }
-}
+//jar {
+//
+//    manifest {
+//        attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+//                'TweakOrder': '0',
+//                'FMLCorePluginContainsFMLMod': 'true',
+//                'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
+//                'FMLAT': 'malmomod_at.cfg'
+//    }
+//    manifest {
+//        attributes  'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
+//                    'FMLCorePluginContainsFMLMod': 'true'
+//    }
+//}
 
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
-JavaExec exec = project.getTasks().getByName("runClient")
-exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
+// JavaExec exec = project.getTasks().getByName("runClient")
+// exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
 // ForgeGradle automatically sets the runClient task's outputs to be the runDir above (eg "run"). This
 // means that gradle will helpfully try to take a snapshot of the complete contents of the run folder in order
 // to carry out up-to-date checks for any tasks that depend on runClient.
@@ -113,7 +106,7 @@ exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx
 // exec.getOutputs().files.setFrom(file("dummy_value"))
 
 // We also force the up-to-date check to return false, since the user will ALWAYS want runClient to run.
-exec.getOutputs().upToDateWhen( { return false } )
+// exec.getOutputs().upToDateWhen( { return false } )
 
 dependencies {
     // compile 'com.github.SpongePowered:Mixin:404f5da' // 0.7.5-SNAPSHOT
@@ -156,10 +149,8 @@ if (JavaVersion.current().isJava8Compatible())
 
 // Mixin stuff.
 
-sourceSets {
-    main {
-        ext.refMap = "mixins.malmomod.refmap.json"
-    }
+mixin {
+    add sourceSets.main, "mixins.malmomod.refmap.json"
 }
 
 
@@ -340,7 +331,7 @@ task copyModToServer(type: Copy) {
 // Interesting. We've packaged forge gradle into the full jar and use gradle inherently??
 shadowJar {
     classifier = 'fat'
-    configurations = [project.configurations.all]
+    configurations = [project.configurations.compile, project.configurations.runtime]
     manifest {
         attributes "Main-Class": "com.microsoft.Malmo.Launcher.GradleStart"
     }

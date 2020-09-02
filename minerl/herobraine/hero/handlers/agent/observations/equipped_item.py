@@ -19,7 +19,7 @@ __all__ = ['EquippedItemObservation']
 
 class EquippedItemObservation(TranslationHandlerGroup):
     """
-    Enables the observation of equppied items in the main and offhand
+    Enables the observation of equipped items in the main and offhand
     of the agent.
     """
 
@@ -33,7 +33,7 @@ class EquippedItemObservation(TranslationHandlerGroup):
     def __init__(self,
         items :  Iterable[str],
         mainhand : bool = True , offhand : bool = False,
-        _default : str ='none',
+        _default : str ='air',
         _other : str ='other'):
 
         assert mainhand or offhand, "Must select at least one hand to observer."
@@ -52,7 +52,7 @@ class EquippedItemObservation(TranslationHandlerGroup):
     def __eq__(self, other):
         return (
             super().__eq__(other)
-            and other.hand == self.hand
+            and other.hand == self._hand
         )
     
     def __or__(self, other):
@@ -92,8 +92,10 @@ class _HandObservation(TranslationHandlerGroup):
 class _TypeObservation(TranslationHandler):
     """
     Returns the item list index  of the tool in the given hand
-    List must start with 'none' as 0th element and end with 'other' as wildcard element
-    # TODO (R): Update this dcoumentation
+    If _default and _other are NOT specified, list must contain all possible items
+    @:param _default - Overrides the default type, "air"
+    @:param _other - String to return if the observerd element is not in items
+    # TODO (R): Update this documentation
     """
 
     def __init__(self, hand: str, items: list, _default : str, _other : str):
@@ -104,10 +106,10 @@ class _TypeObservation(TranslationHandler):
         self._items = sorted(items)
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
-        self._default = _default 
-        self._other = _other 
-        assert self._other in items
-        assert self._default in items
+        self._default = _default
+        self._other = _other
+        # assert self._other in items
+        # assert self._default in items
         super().__init__(
             spaces.Enum(*self._items, default=self._default)
         )
@@ -118,7 +120,8 @@ class _TypeObservation(TranslationHandler):
     def from_hero(self, obs_dict):
         try:
             item = obs_dict['equipped_item']['mainhand']['type']
-            return (self._other if item not in self._items else item)
+            # TODO properly return _other for air?
+            return self._other if item not in self._items else item
         except KeyError:
             return self._default
 
@@ -142,7 +145,7 @@ class _TypeObservation(TranslationHandler):
                 raise NotImplementedError('type not implemented for hand type' + self._hand)
         except KeyError:
             # No item in hotbar slot - return 'none'
-            # This looks wierd, but this will happen if the obs doesn't show up in the univ json.
+            # This looks weird, but this will happen if the obs doesn't show up in the univ json.
             return self._default
         except ValueError:
             return  self._other
@@ -202,4 +205,3 @@ class _DamageObservation(TranslationHandler):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._hand == other._hand and self.type_str == other.type_str
-

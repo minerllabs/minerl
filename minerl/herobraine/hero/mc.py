@@ -519,7 +519,11 @@ mc_constants_file = os.path.join(
 )
 all_data = json.load(open(mc_constants_file))
 
+# Note minecraft:air is an ITEM in ALL_ITEMS it servers as a defualt item and fills all empty spaces
 ALL_ITEMS = [item["type"] for item in all_data["items"]]
+
+# Real items are all items that can be dropped, picked-up, ect.
+REAL_ITEMS = [item["type"] for item in all_data["items"] if item["type"] != 'air']
 
 # We choose these not to be included by default; they are not items.
 NONE = "none"
