@@ -116,23 +116,23 @@ class TranslationHandlerGroup(TranslationHandler):
         return  "\n".join(
             [self.handler_dict[s].to_hero(x[s]) for s in self.handler_dict])
 
-    def from_hero(self, x : typing.Dict[str, Any]) -> typing.OrderedDict[str, Any]:
+    def from_hero(self, x : typing.Dict[str, Any]) -> typing.Dict[str, Any]:
         """Applies the constituent from_hero methods on the object X 
            and builds a dictionary with keys corresponding to the constituent 
            handlers applied."""
 
-        return  OrderedDict([
-            (h.to_string() , h.from_hero(x))
+        return  {
+            h.to_string() : h.from_hero(x)
             for h in self.handlers
-        ])
+        }
 
-    def from_universal(self, x: typing.Dict[str, Any]) -> typing.OrderedDict[str, Any]:
+    def from_universal(self, x: typing.Dict[str, Any]) -> typing.Dict[str, Any]:
         """Performs the same operation as from_hero except with from_universal.
         """
-        return OrderedDict([
-            (h.to_string(), h.from_universal(x))
+        return {
+            h.to_string(): h.from_universal(x)
             for h in self.handlers
-        ])
+        }
 
     @property
     def handler_dict(self) -> typing.Dict[str, Handler]:

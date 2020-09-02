@@ -11,7 +11,6 @@ from minerl.herobraine.hero import spaces
 
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler, TranslationHandlerGroup
 
-
 __all__ = ['CompassObservation']
 class CompassObservation(TranslationHandlerGroup):
     def to_string(self) -> str:
@@ -40,10 +39,10 @@ class CompassObservation(TranslationHandlerGroup):
         if distance:
             handlers.append(
                 KeymapTranslationHandler(
-                    hero_keys=["compassDistance"],
-                    univ_keys=['compass']["distance"],
+                    hero_keys=["distanceToCompassTarget"],
+                    univ_keys=['compass', 'distance'],
                     to_string = "distance",
-                    space=spaces.Box(low=0, high=128, shape=(1,), dtype=np.uint8))
+                    space=spaces.Box(low=0,high=np.inf,  shape=(), dtype=np.float32))
             )
 
         super(CompassObservation, self).__init__(handlers=handlers)

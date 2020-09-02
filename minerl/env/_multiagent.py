@@ -216,6 +216,7 @@ class _MultiAgentEnv(gym.Env):
         
         # Process all of the observations using handlers.
         obs_dict = {}
+        monitor_dict = {}
         for h in bottom_env_spec.observables:
             obs_dict[h.to_string()] = h.from_hero(info)
 
@@ -236,7 +237,11 @@ class _MultiAgentEnv(gym.Env):
         self._last_pov[actor_name] = obs_dict['pov']
         self._last_obs[actor_name] = obs_dict
 
-        return obs_dict, info
+        # Process all of the monotors (aux info) using THIS env spec.
+        for m in self.task.monitors:
+            monitor_dict[m.to_string()] = m.from_hero(info)
+        
+        return obs_dict, monitor_dict
 
     def _process_action(self, actor_name, action_in) -> str:
         """
@@ -492,6 +497,7 @@ class _MultiAgentEnv(gym.Env):
     def _setup_spaces(self) -> None:
         self.observation_space =  self.task.observation_space
         self.action_space = self.task.action_space
+        self.monitor_space = self.task.monitor_space
 
     def _setup_agent_xmls(self, ep_uid : str) -> List[etree.Element]:
         """Generates the XML for an episode.

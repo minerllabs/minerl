@@ -136,3 +136,5 @@ class EnvWrapper(EnvSpec):
     def create_server_initial_conditions(self):
         return self.env_to_wrap.create_server_initial_conditions()
     
+    def create_monitors(self):
+        return self.env_to_wrap.create_monitors()

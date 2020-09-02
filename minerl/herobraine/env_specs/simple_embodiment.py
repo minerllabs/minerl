@@ -3,6 +3,7 @@
 
 import abc
 from abc import ABC
+from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
 
 from minerl.herobraine.hero import handlers
@@ -32,12 +33,12 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
         self.resolution = resolution
         super().__init__(name, *args, **kwargs)
 
-    def create_observables(self) -> List[Handler]:
+    def create_observables(self) -> List[TranslationHandler]:
         return [
             handlers.POVObservation(self.resolution)
         ]
 
-    def create_actionables(self) -> List[Handler]:
+    def create_actionables(self) -> List[TranslationHandler]:
         """
         Simple envs have some basic keyboard control functionality, but
         not all.
@@ -48,3 +49,6 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
                ] + [
                    handlers.CameraAction()
                ]
+
+    def create_monitors(self) -> List[TranslationHandler]:
+        return [] # No monitors by default! 

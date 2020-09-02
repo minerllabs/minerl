@@ -403,7 +403,6 @@ for e in old_envs:
     e['kwargs']['env_spec'] = None
 
 
-# TODO: Convert to using default arguments
 def test_env_space_regressions():
     import minerl.herobraine.env_specs
     for env in old_envs:

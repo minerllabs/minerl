@@ -38,7 +38,7 @@ PUBLISHER_VERSION = minerl.data.DATA_VERSION
 #      UTILITIES      #
 #######################
 from minerl.data.util.constants import (
-    J, E,
+    ACTIONABLE_KEY, HANDLER_TYPE_SEPERATOR, J, E, MONITOR_KEY, OBSERVABLE_KEY, REWARD_KEY,
     touch,
     remove,
     METADATA_FILES,
@@ -277,21 +277,24 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
             # TODO (R): Support done handlers.
             # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
             action_handlers = environment.actionables
+            monitor_handlers = environment.monitors
             
             all_handlers = [hdl for sublist in [info_handlers, reward_handlers, action_handlers] for hdl in sublist]
 
             try:
 
-                published = dict(
-                    reward=np.array(
+                published = {
+                    REWARD_KEY: np.array(
                         [sum([hdl.from_universal(universal[tick]) for hdl in reward_handlers]) for tick in universal],
-                        dtype=np.float32)[1:])
+                        dtype=np.float32)[1:]
+                }
 
                 for tick in universal:
                     tick_data = {}
                     for _prefix, hdlrs in [
-                        ("observation", info_handlers),
-                        ("action", action_handlers)
+                        (OBSERVABLE_KEY, info_handlers),
+                        (ACTIONABLE_KEY, action_handlers),
+                        (MONITOR_KEY, monitor_handlers),
                     ]:
                         if _prefix not in tick_data:
                             tick_data[_prefix] = OrderedDict()
@@ -305,14 +308,14 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
 
                         # Perhaps we can wrap here
                         if isinstance(environment, EnvWrapper):
-                            if _prefix == "observation":
+                            if _prefix == OBSERVABLE_KEY:
                                 tick_data[_prefix]['pov'] = environment.observation_space['pov'].no_op()
                                 tick_data[_prefix] = environment.wrap_observation(tick_data[_prefix])
                                 del tick_data[_prefix]['pov']
-                            elif _prefix == "action":
+                            elif _prefix == ACTIONABLE_KEY:
                                 tick_data[_prefix] = environment.wrap_action(tick_data[_prefix])
 
-                    tick_data = flatten(tick_data, sep='$')
+                    tick_data = flatten(tick_data, sep=HANDLER_TYPE_SEPERATOR)
                     for k, v in tick_data.items():
                         try:
                             published[k].append(v)
@@ -321,7 +324,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
 
                 # Adjust the action one forward (recall that the action packet is one off.)
                 for k in published:
-                    if k.startswith("action"):
+                    if k.startswith(ACTIONABLE_KEY):
                         published[k] = published[k][1:]
 
             except NotImplementedError as err:

@@ -2,6 +2,8 @@
 # Author: William H. Guss, Brandon Houghton
 
 from abc import abstractmethod
+import types
+from minerl.herobraine.hero.handlers.translation import TranslationHandler
 import typing
 from minerl.herobraine.hero.spaces import Dict
 from minerl.herobraine.hero.handler import Handler
@@ -13,6 +15,8 @@ from lxml import etree
 import os
 import abc
 import importlib
+
+
 
 MISSION_TEMPLATE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'hero', 'mission.xml.j2')
@@ -29,7 +33,7 @@ class EnvSpec(abc.ABC):
         self.max_episode_steps = max_episode_steps
         self.reward_threshold = reward_threshold
         self.agent_count = agent_count
-        self.agent_names = ["actor{role}".format(role=role) for role in range(self.agent_count)]
+        self.agent_names = ["agent_{role}".format(role=role) for role in range(self.agent_count)]
 
         self.reset()
 
@@ -39,6 +43,7 @@ class EnvSpec(abc.ABC):
         self.rewardables = self.create_rewardables() 
         self.agent_handlers = self.create_agent_handlers()
         self.agent_start = self.create_agent_start()
+        self.monitors = self.create_monitors()
 
 
         self.server_initial_conditions = self.create_server_initial_conditions()
@@ -54,6 +59,7 @@ class EnvSpec(abc.ABC):
 
         self._observation_space = self.create_observation_space()
         self._action_space = self.create_action_space()
+        self._monitor_space = self.create_monitor_space()
     
     ########################
     ### API METHODS #######
@@ -64,7 +70,7 @@ class EnvSpec(abc.ABC):
     
     # observables
     @abstractmethod
-    def create_observables(self) -> List[Handler]:
+    def create_observables(self) -> List[TranslationHandler]:
         """Specifies all of the observation handlers for the env specification.
         These are used to comprise the observation space.
         """
@@ -72,7 +78,7 @@ class EnvSpec(abc.ABC):
 
     # actionables
     @abstractmethod
-    def create_actionables(self) -> List[Handler]:
+    def create_actionables(self) -> List[TranslationHandler]:
         """Specifies all of the action handlers for the env specification.
         These are used to comprise the action space.
         """
@@ -80,7 +86,7 @@ class EnvSpec(abc.ABC):
 
     # rewardables
     @abstractmethod
-    def create_rewardables(self) -> List[Handler]:
+    def create_rewardables(self) -> List[TranslationHandler]:
         """Specifies all of the reward handlers for the env specification.
         These are used to comprise the reward and are summed in the gym environment.
         """
@@ -113,13 +119,17 @@ class EnvSpec(abc.ABC):
         raise NotImplementedError('subclasses must override create_agent_handlers()!')
 
 
-    # monitors TODO (R):
-    # @abstractmethod
-    # def create_monitors(self) -> List[AgentHandler]:
-    #     """Specifies all of the environment monitor handlers for the env specification.
-    #     These are used to comprise the reward and are summed in the gym environment.
-    #     """
-    #     raise NotImplementedError('subclasses must override create_monitors()!')
+    @abstractmethod
+    def create_monitors(self) -> List[TranslationHandler]:
+        """Specifies all of the environment monitor handlers for the env specification.
+        These are used to comprise the info dictionary returned by the environment.
+        Note because of the way Gym1 works, these are not accessible at the first tick.
+
+        These are also strictly typed (in terms of MineRLSpaces) just like observables and actionables.
+
+        Any set of rewards/observables can go here.
+        """
+        raise NotImplementedError('subclasses must override create_monitors()!')
 
 
     ##################### SERVER #########################
@@ -149,6 +159,11 @@ class EnvSpec(abc.ABC):
     @property
     def action_space(self) -> Dict:
         return self._action_space
+
+    @property 
+    def monitor_space(self) -> Dict:     
+        return self._monitor_space
+    
 
     def to_string(self):
         return self.name
@@ -182,6 +197,12 @@ class EnvSpec(abc.ABC):
             }) for agent in self.agent_names    
         }))       
 
+    def create_monitor_space(self):
+        return self._singlify(spaces.Dict({
+            agent: spaces.Dict({
+                m.to_string(): m.space for m in self.monitors
+            }) for agent in self.agent_names
+        }))
 
     @abstractmethod
     def get_docstring(self):

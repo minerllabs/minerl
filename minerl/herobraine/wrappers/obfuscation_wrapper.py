@@ -109,6 +109,10 @@ class Obfuscated(EnvWrapper):
         act_space.spaces['vector'] = spaces.Box(low=-1.05, high=1.05, shape=[self.obf_vector_len])
         return act_space
 
+    def create_monitors(self):
+        # We want to not preserve any original monitor information as its obfuscated.
+        return []
+
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
         obs['vector'] = self.obs_enc(obs['vector'])
         return obs

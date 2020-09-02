@@ -91,6 +91,13 @@ FAILED_COMMANDS = []
 GENERATE_VERSION = '1'
 
 
+OBSERVABLE_KEY = 'observation'
+ACTIONABLE_KEY = 'action'
+MONITOR_KEY = 'monitor'
+REWARD_KEY = 'reward'
+HANDLER_TYPE_SEPERATOR = '$'
+
+
 def touch(path):
     with open(path, 'w'):
         pass

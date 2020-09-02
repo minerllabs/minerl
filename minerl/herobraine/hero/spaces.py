@@ -116,7 +116,8 @@ class Box(gym.spaces.Box, MineRLSpace):
         else:
             # assumes everything is in batch format, a scalar is already flattened and needs to be normalzied
             flatx = x.reshape(list(x.shape) + [-1])
-
+        
+        # TODO: CHECK IF THE SPACE IS BOUNDED! IN WHICH WE CANNOT NORMALIZEN USING HIGHS
         if self.normalizer_scale == 'linear':
             return (flatx.astype(np.float64) - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
         elif self.normalizer_scale == 'log':
