@@ -46,6 +46,7 @@ def _test_fake_env(env_spec, should_render=False):
 
 def test_fake_navigate():
     _test_fake_env(Navigate(dense=True, extreme=False))
+    _test_fake_env(Navigate(dense=True, extreme=False, agent_count=3))
 
 
 def test_fake_navigate_with_distance_monitor():
@@ -55,7 +56,6 @@ def test_fake_navigate_with_distance_monitor():
 
     for _ in range(100):
         fake_obs, _,_,fake_monitor = fake_env.step(fake_env.action_space.sample())
-        print(fake_monitor)
         assert fake_monitor in fake_env.monitor_space
         assert "compass" in fake_monitor
         assert "distance" in fake_monitor["compass"]
@@ -66,4 +66,5 @@ def test_fake_navigate_with_distance_monitor():
 
 if __name__ == "__main__":
     # _test_fake_env(Navigate(dense=True, extreme=False), should_render=True)
-    test_fake_navigate_with_distance_monitor()
+    _test_fake_env(Navigate(dense=True, extreme=False, agent_count=3), should_render=True)
+    # test_fake_navigate_with_distance_monitor()
