@@ -1,3 +1,4 @@
+from minerl.env.malmo import InstanceManager
 import minerl
 import time
 import gym
@@ -42,7 +43,7 @@ def gen_obtain_debug_actions(env):
     # Testing craft handlers
     act(place='log')
     act()
-    act(place='log2')
+    # act(place='log') Test log 2
     act(craft='stick')
     act(craft='stick')  # Should fail - no more planks remaining
     act(craft='planks')
@@ -135,7 +136,7 @@ def test_wrapped_obf_env():
 
 
 def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVector-v0'):
-
+    
     env = gym.make(environment)
     env.seed(1)
     wenv = gym.make(wrapped_env)
@@ -196,7 +197,8 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
     if not interactive:
         # Disable tests for now
         pass#assert False
-    env = gym.make(environment)
+    inst = InstanceManager.add_existing_instance(9001)
+    env = gym.make(environment, instances=[inst])
     done = False
     inventories = []
     rewards = []
@@ -210,7 +212,8 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
         action['equip'] = 'red_flower'
         obs, _, _, _ = env.step(action)
         obs, _, _, _ = env.step(env.action_space.no_op())
-        assert obs['equipped_items.mainhand.type'] == 'other', '{} is not of type other'.format(obs['equipped_items.mainhand.type'])
+        assert obs['equipped_items']['mainhand']['type'] == 'other', '{} is not of type other'.format(
+            obs['equipped_items']['mainhand']['type'])
 
         for action in gen_obtain_debug_actions(env):    
             for key, value in action.items():
@@ -254,4 +257,6 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
     
 
 if __name__ == '__main__':
-    test_wrapped_env()
+    # test_wrapped_env()
+    test_env()
+

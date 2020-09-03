@@ -268,13 +268,13 @@ class _MultiAgentEnv(gym.Env):
     def step(self, actions) -> Tuple[
         Dict[str,Dict[str, Any]], Dict[str,float], Dict[str,bool], Dict[str,Dict[str, Any]]]:
         if not self.done:
-            withinfo = STEP_OPTIONS == 0 or STEP_OPTIONS == 2
+            assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
 
             multi_obs = {}
             multi_reward = {}
-            multi_done = True
-            multi_info = {}
-            # TODO (R): REMOVE INFO FOR COMPETITION!
+            everyone_is_done = True
+            multi_monitor = {}
+    
 
             # TODO (R): Randomly iterate over this.
             # Process multi-agent actions, apply and process multi-agent observations
@@ -302,31 +302,22 @@ class _MultiAgentEnv(gym.Env):
                         self.has_finished[actor_name] = self.has_finished[actor_name] or done
                 
                         # Receive info from the environment.
-                        if withinfo:
-                            info = comms.recv_message(instance.client_socket).decode("utf-8")
-                        else:
-                            info = {}
+                        _malmo_json = comms.recv_message(instance.client_socket).decode("utf-8")
 
                         # Process the observation and done state.
-                        out_obs, info = self._process_observation(actor_name, obs, info)
+                        out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
                     else:
                         # IF THIS PARTICULAR AGENT IS DONE THEN:
                         reward = 0.0
                         out_obs = self._last_obs[actor_name]
                         done = True
-                        info = {}
+                        monitor = {}
 
                     # concatenate multi-agent obs, rew, done
                     multi_obs[actor_name] = out_obs
                     multi_reward[actor_name] = reward
-                    multi_done = multi_done and done
-
-                    # merge multi-agent info
-                    if role == 0:
-                        multi_info.update(info)
-                    if 'actor_info' not in multi_info:
-                        multi_info['actor_info'] = {}
-                    multi_info['actor_info'][actor_name] = info
+                    everyone_is_done = everyone_is_done and done
+                    multi_monitor[actor_name] = monitor
                 except (socket.timeout, socket.error, TypeError) as e:
                     # If the socket times out some how! We need to catch this and reset the environment.
                     self._clean_connection()
@@ -344,7 +335,7 @@ class _MultiAgentEnv(gym.Env):
                     )
 
             # this will currently only consider the env done when all agents report done individually
-            self.done = multi_done
+            self.done = everyone_is_done
 
 
             # STEP THE SERVER!
@@ -378,7 +369,7 @@ class _MultiAgentEnv(gym.Env):
         #  WE DON'T CURRENTLY PIPE OUT WHETHER EACH AGENT IS DONE
         # JUST IF EVERY AGENT IS DONE. THIS CAN BE ASCERTAINED BY
         # CALLING env.has_finished['agent_name_here]
-        return multi_obs, multi_reward, multi_done, multi_info
+        return multi_obs, multi_reward, everyone_is_done, multi_monitor
 
     def noop_action(self):
         """Gets the no-op action for the environment.

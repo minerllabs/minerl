@@ -117,7 +117,7 @@ class _TypeObservation(TranslationHandler):
 
     def from_hero(self, obs_dict):
         try:
-            item = obs_dict['equipped_item']['mainhand']['type']
+            item = obs_dict['equipped_items']['mainhand']['type']
             return (self._other if item not in self._items else item)
         except KeyError:
             return self._default

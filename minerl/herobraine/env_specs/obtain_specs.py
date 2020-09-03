@@ -65,9 +65,9 @@ class Obtain(SimpleEmbodimentEnvSpec):
                 'iron_pickaxe'
             ]),
             handlers.EquippedItemObservation(items=[
-                'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', none, # REMOVE NONE FOR MINERL-v1
+                'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', none, # TODO (R): REMOVE NONE FOR MINERL-v1
                 other
-            ], _default='air'),
+            ], _default='air', _other=other),
         ]
 
     def create_actionables(self):
@@ -314,26 +314,24 @@ class ObtainDiamondDebug(ObtainDiamond):
         actions[actions.index(equip_item)] = (
             handlers.EquipAction(equip_item.items + ['red_flower'], _other=none)
         )
+        place_action = [a for a in actions if isinstance(a, handlers.PlaceBlock)][0]
+        actions[actions.index(place_action)] = (
+            handlers.PlaceBlock(place_action.items + ['log', 'diamond_ore'], _other=none)
+        )
         return actions
         
-    def create_server_handlers(self):
-        shandlers = super().create_server_handlers()
-        # Replace the default world with  a flat world.
-        world_generator = [
-            h for h in shandlers if isinstance(h, handlers.DefaultWorldGenerator)][0]
+    def create_server_world_generators(self):
         
-        shandlers[shandlers.index(world_generator)] = (
+        return [
             handlers.FlatWorldGenerator(force_reset=True)
-        )
-        return shandlers
+        ]
 
     def create_agent_start(self) -> List[Handler]:
         return [
             handlers.SimpleInventoryAgentStart([
                 dict(type='dirt', quantity=1),
                 dict(type='planks', quantity=3),
-                dict(type='log2', quantity=2),
-                dict(type='log', quantity=3),
+                dict(type='log', quantity=5),
                 dict(type='iron_ore', quantity=4),
                 dict(type='diamond_ore', quantity=1),
                 dict(type='cobblestone', quantity=17),
