@@ -31,7 +31,7 @@ class _SingleAgentEnv(_MultiAgentEnv):
         }
         obs, rew, done, info =  super().step(multi_agent_action)
 
-        return obs[aname], rew[aname], done, info
+        return obs[aname], rew[aname], done, info[aname]
 
     def _check_action(self, actor_name, action, env_spec):
         # TODO: Refactor to move to the env spec.

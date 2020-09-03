@@ -51,7 +51,7 @@ class _FakeEnvMixin(object):
         Dict[str,Dict[str, Any]], Dict[str,float], Dict[str,bool], Dict[str,Dict[str, Any]]]:
         fobs, monitor = self._get_fake_obs()
         done = False
-        reward = 0.0
+        reward = {a: 0.0 for a in self.task.agent_names}
         for actor_name in self.task.agent_names:
             cmd = self._process_action(actor_name, action[actor_name])
         # TODO: Abstract the malmo communication out of the step function.p
@@ -69,7 +69,7 @@ class _FakeEnvMixin(object):
             pov = pov[::-1, :, :]
             _json_info = json.dumps(malmo_data)
 
-            obs[agent], info = self._process_observation(agent, pov, _json_info)
+            obs[agent], info[agent] = self._process_observation(agent, pov, _json_info)
         # TODO: UPDATE INFO FOR MONITORS!
         return obs, info
 
@@ -91,4 +91,4 @@ class _FakeSingleAgentEnv(_FakeEnvMixin, _SingleAgentEnv):
             aname: action
         }
         s, reward, done, info = super().step(multi_agent_action)
-        return s[self.task.agent_names[0]], reward, done, info
+        return s[aname], reward[aname], done, info[aname]

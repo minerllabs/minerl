@@ -373,7 +373,11 @@ class _MultiAgentEnv(gym.Env):
                 self._last_step_time = time.time()
         else:
             raise RuntimeError("Attempted to step an environment server with done=True")
+        
 
+        #  WE DON'T CURRENTLY PIPE OUT WHETHER EACH AGENT IS DONE
+        # JUST IF EVERY AGENT IS DONE. THIS CAN BE ASCERTAINED BY
+        # CALLING env.has_finished['agent_name_here]
         return multi_obs, multi_reward, multi_done, multi_info
 
     def noop_action(self):
@@ -388,6 +392,14 @@ class _MultiAgentEnv(gym.Env):
             Any: A no-op action in the env's space.
         """
         return self.action_space.no_op()
+
+
+    def has_agent_finished(self, name):
+        """Determines the done state for a particular agent.
+        The environment does not automatically return this information.
+        """
+        assert name in self.has_finished, "No agent called {0} in this environment".format(name)
+        return self.has_finished[name]
 
     ########### RENDERING METHODS #########
 
