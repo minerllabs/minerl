@@ -391,7 +391,10 @@ class DataPipeline:
 
             def traj_iter():
                 for _ in jobs:
-                    s, a, r, sp1, d = trajectory_queue.get()
+                    data_tuple = trajectory_queue.get()
+                    if data_tuple is None:
+                        continue
+                    s, a, r, sp1, d = data_tuple
                     yield dict(
                         obs=s,
                         act=a,
