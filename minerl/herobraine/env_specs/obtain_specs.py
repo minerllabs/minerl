@@ -73,14 +73,14 @@ class Obtain(SimpleEmbodimentEnvSpec):
     def create_actionables(self):
         #TODO (R): MineRL-v1 use invalid (for data)
         return super().create_actionables() + [
-            handlers.PlaceBlock([none, 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'], _other=none),
+            handlers.PlaceBlock([none, 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'], _other=none, _default=none),
             handlers.EquipAction([none, 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe',
-                                'iron_pickaxe'], _other=none),
-            handlers.CraftAction([none, 'torch', 'stick', 'planks', 'crafting_table'], _other=none),
+                                'iron_pickaxe'], _other=none, _default=none),
+            handlers.CraftAction([none, 'torch', 'stick', 'planks', 'crafting_table'], _other=none, _default=none),
             handlers.CraftNearbyAction(
                 [none, 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe',
-                 'furnace'], _other=none),
-            handlers.SmeltItemNearby([none, 'iron_ingot', 'coal'], _other=none), # As apart of pervious todo
+                 'furnace'], _other=none, _default=none),
+            handlers.SmeltItemNearby([none, 'iron_ingot', 'coal'], _other=none, _default=none), # As apart of pervious todo
             # this should be handlers.SmeltItem([none, 'iron_ingot', 'coal', other]), but this is not supported by mineRL-v0
 
         ]
@@ -312,11 +312,11 @@ class ObtainDiamondDebug(ObtainDiamond):
         # Add a red flower to the equip action by replacing it with a new one
         equip_item = [a for a in actions if isinstance(a, handlers.EquipAction)][0]
         actions[actions.index(equip_item)] = (
-            handlers.EquipAction(equip_item.items + ['red_flower'], _other=none)
+            handlers.EquipAction(equip_item.items + ['red_flower'], _other=none, _default=none)
         )
         place_action = [a for a in actions if isinstance(a, handlers.PlaceBlock)][0]
         actions[actions.index(place_action)] = (
-            handlers.PlaceBlock(place_action.items + ['log', 'diamond_ore'], _other=none)
+            handlers.PlaceBlock(place_action.items + ['log', 'diamond_ore'], _other=none, _default=none)
         )
         return actions
         

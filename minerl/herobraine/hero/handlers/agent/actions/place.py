@@ -1,5 +1,6 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
+from typing import Optional
 
 from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
 import jinja2
@@ -17,7 +18,7 @@ class PlaceBlock(ItemListAction):
     def xml_template(self) -> str:
         return str("<PlaceCommands/>")
 
-    def __init__(self, blocks: list, **item_list_kwargs):
+    def __init__(self, blocks: list, _other=Optional[str], _default=Optional[str]):
         """
         Initializes the space of the handler to be one for each item in the list
         Requires 0th item to be 'none' and last item to be 'other' coresponding to
@@ -25,7 +26,12 @@ class PlaceBlock(ItemListAction):
         """
         self._items = blocks
         self._command = 'place'
-        super().__init__(self._command, self._items, **item_list_kwargs)
+        kwargs = {}
+        if _other is not None:
+            kwargs['_other'] = _other
+        if _default is not None:
+            kwargs['_default'] = _default
+        super().__init__(self._command, self._items, **kwargs)
         self._prev_inv = None
 
     def from_universal(self, obs):

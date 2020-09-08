@@ -1,6 +1,6 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
-
+from typing import Optional
 
 from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
 import jinja2
@@ -23,15 +23,20 @@ class CraftAction(ItemListAction):
         return str("<SimpleCraftCommands/>")
 
 
-    def __init__(self, items: list, **item_list_kwargs):
+    def __init__(self, items: list, _other=Optional[str], _default=Optional[str]):
         """
         Initializes the space of the handler to be one for each item in the list plus one for the
         default no-craft action (command 0)
 
         Items are minecraft resource ID's
         """
+        kwargs = {}
+        if _other is not None:
+            kwargs['_other'] = _other
+        if _default is not None:
+            kwargs['_default'] = _default
         super().__init__(
-            self._command, items, **item_list_kwargs)
+            self._command, items, **kwargs)
 
     def from_universal(self, obs):
         if 'diff' in obs and 'crafted' in obs['diff'] and len(obs['diff']['crafted']) > 0:

@@ -6,8 +6,7 @@
 Not very proud of the code reuse in this module -- @wguss
 """
 
-import typing
-from typing import Iterable
+from typing import List
 
 import jinja2
 from minerl.herobraine.hero import spaces
@@ -31,20 +30,23 @@ class EquippedItemObservation(TranslationHandlerGroup):
             """<ObservationFromEquippedItem/>""")
 
     def __init__(self,
-        items :  Iterable[str],
-        mainhand : bool = True , offhand : bool = False,
-        _default : str ='none',
-        _other : str ='other'):
+                 items :  List[str],
+                 mainhand : bool = True, offhand : bool = False,
+                 _default : str ='none',
+                 _other : str ='other'):
 
-        assert mainhand or offhand, "Must select at least one hand to observer."
+        assert mainhand or offhand, "Must select at least one hand to observe."
         assert not offhand, "Offhand equipped items is not implemented yet."
         self._hand = 'mainhand' # TODO: Implement offhand.
         self._items = items
         self._other = _other
         self._default = _default
-
+        if self._other not in self._items:
+            self._items.append(self._other)
+        if self._default not in self._items:
+            self._items.append(self._default)
         super().__init__(handlers= [
-            _HandObservation(self._hand, items, _default= _default, _other= _other) #,
+            _HandObservation(self._hand, self._items, _default= _default, _other= _other) #,
             # Eventually this can include offhand.
             ], 
         )
@@ -52,7 +54,7 @@ class EquippedItemObservation(TranslationHandlerGroup):
     def __eq__(self, other):
         return (
             super().__eq__(other)
-            and other.hand == self.hand
+            and other.hand == self._hand
         )
     
     def __or__(self, other):
@@ -105,7 +107,11 @@ class _TypeObservation(TranslationHandler):
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
         self._default = _default 
-        self._other = _other 
+        self._other = _other
+        if _other not in self._items or _default not in self._items:
+            print(self._items)
+            print(_default)
+            print(_other)
         assert self._other in items
         assert self._default in items
         super().__init__(

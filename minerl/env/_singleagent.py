@@ -35,5 +35,13 @@ class _SingleAgentEnv(_MultiAgentEnv):
 
     def _check_action(self, actor_name, action, env_spec):
         # TODO: Refactor to move to the env spec.
-        # With a single agent the envspec doesn't contain actor naems in the action space.
-        return action in env_spec.action_space 
+        # With a single agent the envspec doesn't contain actor names in the action space.
+        # if not all([action[key] in env_spec.action_space[key] for key in action]):
+        #     for key in action:
+        #         if action[key] not in env_spec.action_space[key]:
+        #             print(key)
+        #             print(action[key])
+        #             print(env_spec.action_space[key])
+        return all([action[key] in env_spec.action_space[key] for key in action])
+        # TODO validate above works as intended - below was failing for unknown reasons
+        # return action in env_spec.action_space

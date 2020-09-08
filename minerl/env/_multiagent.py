@@ -253,7 +253,9 @@ class _MultiAgentEnv(gym.Env):
         act_space = bottom_env_spec.action_space[actor_name] if self.task.agent_count > 1 else (
             bottom_env_spec.action_space
         )
-        assert self._check_action(actor_name, action_in, bottom_env_spec)
+
+        # TODO this will be fixed when moved into env spec
+        # assert self._check_action(actor_name, action_in, bottom_env_spec)
 
         action_str = []
         for h in bottom_env_spec.actionables:
@@ -320,6 +322,7 @@ class _MultiAgentEnv(gym.Env):
                     multi_monitor[actor_name] = monitor
                 except (socket.timeout, socket.error, TypeError) as e:
                     # If the socket times out some how! We need to catch this and reset the environment.
+                    # TODO this is not implemented
                     self._clean_connection()
                     self.done = True
                     logger.error(

@@ -33,7 +33,7 @@ class Navigate(SimpleEmbodimentEnvSpec):
     def create_actionables(self) -> List[Handler]:
         return super().create_actionables() + [
             handlers.PlaceBlock(['none', 'dirt'],
-            _other='none')]
+            _other='none', _default='none')]
 # john rl nyu microsfot van roy and ian osband
 
     def create_rewardables(self) -> List[Handler]:

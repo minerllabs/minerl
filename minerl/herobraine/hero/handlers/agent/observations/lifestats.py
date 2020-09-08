@@ -13,6 +13,10 @@ __all__ = ['ObservationFromFullStats']
 
 class ObservationFromFullStats(TranslationHandlerGroup):
     """Groups all of thhe lifestats observations together to correspond to one XML element.."""
+
+    def to_string(self) -> str:
+        return "fullStats"
+
     def __init__(self):
         super(ObservationFromFullStats, self).__init__(
             handlers=[
@@ -32,6 +36,9 @@ class ObservationFromFullStats(TranslationHandlerGroup):
 
 
 class LifeStatsObservation(KeymapTranslationHandler):
+    def to_hero(self, x) -> str:
+        pass
+
     def __init__(self, hero_keys, univ_keys, space, default_if_missing=None):
         self.hero_keys = hero_keys
         self.univ_keys = univ_keys

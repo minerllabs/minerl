@@ -1,6 +1,7 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
-
+import typing
+from typing import Any
 
 import numpy as np
 from minerl.herobraine.hero import spaces
@@ -65,6 +66,12 @@ class ItemListAction(Action):
     The action space is determiend by the length of the list plus one
     """
 
+    def from_hero(self, x: typing.Dict[str, Any]):
+        pass
+
+    def xml_template(self) -> str:
+        pass
+
     def __init__(self, command: str, items: list, _default='none', _other='other'):
         """
         Initializes the space of the handler with a gym.spaces.Dict
@@ -75,7 +82,10 @@ class ItemListAction(Action):
         self._command = command
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
-        
+        if _other not in self._items or _default not in self._items:
+            print(self._items)
+            print(_default)
+            print(_other)
         assert _default in self._items
         assert _other in self._items
         self._default = _default
