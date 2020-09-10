@@ -112,7 +112,7 @@ class _BreathObservation(LifeStatsObservation):
     """
 
     def __init__(self):
-        super().__init__(hero_keys=['breath'], univ_keys=['air'], space=spaces.Box(low=0, high=mc.MAX_BREATH, shape=(),
+        super().__init__(hero_keys=['air'], univ_keys=['air'], space=spaces.Box(low=0, high=mc.MAX_BREATH, shape=(),
                          dtype=np.int), default_if_missing=300)
 
 
