@@ -521,9 +521,13 @@ all_data = json.load(open(mc_constants_file))
 
 ALL_ITEMS = [item["type"] for item in all_data["items"]]
 
+
 # We choose these not to be included by default; they are not items.
 NONE = "none"
 INVALID = "invalid"
+
+# TODO remove hack based on ordering in MineRL
+MINERL_ITEM_MAP = sorted(["none"] + ALL_ITEMS)
 
 ITEMS_BY_CATEGORY = {
         # Items which take 2 seconds to USE

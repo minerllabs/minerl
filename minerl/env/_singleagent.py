@@ -33,6 +33,9 @@ class _SingleAgentEnv(_MultiAgentEnv):
 
         return obs[aname], rew[aname], done, info[aname]
 
+    def render(self, mode='human'):
+        return super().render(mode)[self.task.agent_names[0]]
+
     def _check_action(self, actor_name, action, env_spec):
         # TODO: Refactor to move to the env spec.
         # With a single agent the envspec doesn't contain actor names in the action space.
