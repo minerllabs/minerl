@@ -922,7 +922,7 @@ public class MalmoEnvServer implements IWantToQuit {
     }
 
     public void notifyIntegrationServerStarted(int integrationServerPort) {
-        // lock.lock();
+         lock.lock();
         try {
             if (envState.token != null) {
                 TCPUtils.Log(Level.INFO,"Integration server start up - token: " + envState.token);
@@ -932,7 +932,7 @@ public class MalmoEnvServer implements IWantToQuit {
                 TCPUtils.Log(Level.WARNING,"No mission token on integration server start up!");
             }
         } finally {
-            // lock.unlock();
+             lock.unlock();
         }
     }
 

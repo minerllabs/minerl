@@ -403,8 +403,8 @@ def test_env_space_regressions():
         k2 = env['kwargs']
         task = k1['env_spec']
         # print(k1)
-        assert task.action_space == env['kwargs']['action_space']
-        assert task.observation_space == env['kwargs']['observation_space']
+        assert task.action_space['agent_0'] == env['kwargs']['action_space']
+        assert task.observation_space['agent_0'] == env['kwargs']['observation_space']
 
         # assert set(k1.keys()) == set(k2.keys()), Invalid as of MineRL 0.4.0
         assert newspec.max_episode_steps == env['max_episode_steps']

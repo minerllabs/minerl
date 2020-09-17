@@ -56,8 +56,9 @@ def test_fake_navigate_with_distance_monitor():
     for _ in range(100):
         fake_obs, _, _, fake_monitor = fake_env.step(fake_env.action_space.sample())
         assert fake_monitor in fake_env.monitor_space
-        assert "compass" in fake_monitor
-        assert "distance" in fake_monitor["compass"]
+        assert "agent_0" in fake_monitor
+        assert "compass" in fake_monitor["agent_0"]
+        assert "distance" in fake_monitor["agent_0"]["compass"]
 
 
 if __name__ == "__main__":

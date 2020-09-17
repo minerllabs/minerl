@@ -168,35 +168,28 @@ class EnvSpec(abc.ABC):
 
     @abstractmethod
     def determine_success_from_rewards(self, rewards: list) -> bool:
-        # TODO: 
         raise NotImplementedError('subclasses must override determine_success_from_rewards()')
 
-    def _singlify(self, space: spaces.Dict):
-        if self.agent_count is 1:
-            return space.spaces[self.agent_names[0]]
-        else:
-            return space
-
     def create_observation_space(self):
-        return self._singlify(spaces.Dict({
+        return spaces.Dict({
             agent: spaces.Dict({
                 o.to_string(): o.space for o in self.observables
             }) for agent in self.agent_names
-        }))
+        })
 
     def create_action_space(self):
-        return self._singlify(spaces.Dict({
-            agent: spaces.Dict({
+        return spaces.Dict({
+             agent: spaces.Dict({
                 a.to_string(): a.space for a in self.actionables
-            }) for agent in self.agent_names
-        }))
+            }) for agent in self.agent_names    
+        })
 
     def create_monitor_space(self):
-        return self._singlify(spaces.Dict({
+        return spaces.Dict({
             agent: spaces.Dict({
                 m.to_string(): m.space for m in self.monitors
             }) for agent in self.agent_names
-        }))
+        })
 
     @abstractmethod
     def get_docstring(self):
@@ -228,13 +221,9 @@ class EnvSpec(abc.ABC):
 
     def _entry_point(self, fake: bool) -> str:
         if fake:
-            return (
-                EnvSpec.U_FAKE_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1
-                else EnvSpec.U_FAKE_MULTI_AGENT_ENTRYPOINT)
+            return EnvSpec.U_FAKE_MULTI_AGENT_ENTRYPOINT
         else:
-            return (
-                EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1
-                else EnvSpec.U_MULTI_AGENT_ENTRYPOINT)
+            return EnvSpec.U_MULTI_AGENT_ENTRYPOINT
 
     def _env_kwargs(self) -> typing.Dict[str, typing.Any]:
         return {
