@@ -663,9 +663,9 @@ class _MultiAgentEnv(gym.Env):
         """gym api close"""
         logger.debug("Closing MineRL env...")
 
-        if self.viewer is not None:
-            self.viewer.close()
-            self.viewer = None
+        if self.viewers is not None:
+            self.viewers.close()
+            self.viewers = None
 
         if self._already_closed:
             return
