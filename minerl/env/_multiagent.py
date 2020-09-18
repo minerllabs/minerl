@@ -664,7 +664,7 @@ class _MultiAgentEnv(gym.Env):
         logger.debug("Closing MineRL env...")
 
         if self.viewers is not None:
-            self.viewers.close()
+            [viewer.close() for viewer in self.viewers]
             self.viewers = None
 
         if self._already_closed:
