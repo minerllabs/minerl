@@ -35,7 +35,7 @@ pip list
 
 cur_dir=$(pwd)
 cd ..
-python -c "import minerl; import gym, logging; logging.basicConfig(level=logging.DEBUG); env=gym.make('minerl:MineRLTreechop-v0', restartable_java=False); env.reset(); env.close()"
+python -c "import minerl; import gym, logging; logging.basicConfig(level=logging.DEBUG); env=gym.make('minerl:MineRLTreechop-v0', is_fault_tolerant=False); env.reset(); env.close()"
 cd $cur_dir
 # Finally, if this is not a cron build, we deploy the wheel
 if [ "$BUILDKITE_SOURCE" != "schedule" ]; then 
