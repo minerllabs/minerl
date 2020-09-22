@@ -149,7 +149,7 @@ public class NearbyCraftCommandsImplementation extends CommandBase {
 
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
-        if (verb.equalsIgnoreCase("nearbyCraft") && !parameter.equalsIgnoreCase("none   ")) {
+        if (verb.equalsIgnoreCase("craftNearby") && !parameter.equalsIgnoreCase("none")) {
             MalmoMod.network.sendToServer(new CraftNearbyMessage(parameter));
             return true;
         }
