@@ -29,4 +29,4 @@ if __name__ == '__main__':
 
 
 def test_data():
-    assert(time_data() > 0)
+    assert (time_data() > 0)

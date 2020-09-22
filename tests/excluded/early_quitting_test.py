@@ -11,20 +11,21 @@ import numpy as np
 from minerl.env.core import MineRLEnv
 
 import coloredlogs
+
 coloredlogs.install(logging.DEBUG)
 
+# import minerl.env.bootstrap
+# minerl.env.bootstrap._check_port_avail = lambda _,__: True
 
-#import minerl.env.bootstrap
-#minerl.env.bootstrap._check_port_avail = lambda _,__: True
+NUM_EPISODES = 5
 
-NUM_EPISODES=5
 
 def main():
     """
     Tests running a simple environment.
     """
     env = gym.make('MineRLNavigateDense-v0')
-    
+
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []
     for _ in range(NUM_EPISODES):
@@ -46,9 +47,8 @@ def main():
             # print(netr)
             env.render()
 
-
-
     print("Demo complete.")
+
 
 if __name__ == "__main__":
     main()

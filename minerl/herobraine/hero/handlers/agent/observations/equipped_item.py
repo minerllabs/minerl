@@ -12,8 +12,8 @@ import jinja2
 from minerl.herobraine.hero import spaces
 from minerl.herobraine.hero.handlers.translation import TranslationHandler, TranslationHandlerGroup
 import numpy as np
-__all__ = ['EquippedItemObservation']
 
+__all__ = ['EquippedItemObservation']
 
 
 class EquippedItemObservation(TranslationHandlerGroup):
@@ -30,14 +30,14 @@ class EquippedItemObservation(TranslationHandlerGroup):
             """<ObservationFromEquippedItem/>""")
 
     def __init__(self,
-                 items :  List[str],
-                 mainhand : bool = True, offhand : bool = False,
-                 _default : str ='none',
-                 _other : str ='other'):
+                 items: List[str],
+                 mainhand: bool = True, offhand: bool = False,
+                 _default: str = 'none',
+                 _other: str = 'other'):
 
         assert mainhand or offhand, "Must select at least one hand to observe."
         assert not offhand, "Offhand equipped items is not implemented yet."
-        self._hand = 'mainhand' # TODO: Implement offhand.
+        self._hand = 'mainhand'  # TODO: Implement offhand.
         self._items = items
         self._other = _other
         self._default = _default
@@ -45,29 +45,28 @@ class EquippedItemObservation(TranslationHandlerGroup):
             self._items.append(self._other)
         if self._default not in self._items:
             self._items.append(self._default)
-        super().__init__(handlers= [
-            _HandObservation(self._hand, self._items, _default= _default, _other= _other) #,
+        super().__init__(handlers=[
+            _HandObservation(self._hand, self._items, _default=_default, _other=_other)  # ,
             # Eventually this can include offhand.
-            ], 
+        ],
         )
 
     def __eq__(self, other):
         return (
-            super().__eq__(other)
-            and other.hand == self._hand
+                super().__eq__(other)
+                and other.hand == self._hand
         )
-    
+
     def __or__(self, other):
         return EquippedItemObservation(
-            items = list(set(self._items) | set(other._items)),
-            mainhand = (self._hand == 'mainhand'),
-            offhand = False,
-            _other= self._other,
+            items=list(set(self._items) | set(other._items)),
+            mainhand=(self._hand == 'mainhand'),
+            offhand=False,
+            _other=self._other,
             _default=self._default
         )
 
-        
-            
+
 # This handler grouping doesn't really correspond nicely to the stubbed version of
 # observations and violates our conventions a bit.
 # Eventually this will need to be consolidated.
@@ -76,19 +75,17 @@ class _HandObservation(TranslationHandlerGroup):
         return self.hand
 
     def __init__(self,
-        hand : str,
-        items :  List[str],
-        _default,
-        _other):
-
+                 hand: str,
+                 items: List[str],
+                 _default,
+                 _other):
         self.hand = hand
-        
+
         return super().__init__(handlers=[
             _TypeObservation(hand, items, _default=_default, _other=_other),
             _DamageObservation(hand, type_str="damage"),
             _DamageObservation(hand, type_str="maxDamage")
         ])
-
 
 
 class _TypeObservation(TranslationHandler):
@@ -98,7 +95,7 @@ class _TypeObservation(TranslationHandler):
     # TODO (R): Update this dcoumentation
     """
 
-    def __init__(self, hand: str, items: list, _default : str, _other : str):
+    def __init__(self, hand: str, items: list, _default: str, _other: str):
         """
         Initializes the space of the handler with a spaces.Dict
         of all of the spaces for each individual command.
@@ -106,7 +103,7 @@ class _TypeObservation(TranslationHandler):
         self._items = sorted(items)
         self._hand = hand
         self._univ_items = ['minecraft:' + item for item in items]
-        self._default = _default 
+        self._default = _default
         self._other = _other
         if _other not in self._items or _default not in self._items:
             print(self._items)
@@ -144,14 +141,14 @@ class _TypeObservation(TranslationHandler):
                     raise KeyError()
 
                 return item_name
-            else: 
+            else:
                 raise NotImplementedError('type not implemented for hand type' + self._hand)
         except KeyError:
             # No item in hotbar slot - return 'none'
             # This looks wierd, but this will happen if the obs doesn't show up in the univ json.
             return self._default
         except ValueError:
-            return  self._other
+            return self._other
 
     def __or__(self, other):
         """
@@ -160,7 +157,7 @@ class _TypeObservation(TranslationHandler):
         """
         if isinstance(other, _TypeObservation):
             return _TypeObservation(self._hand, list(set(self._items + other._items)),
-                _other= self._other, _default= self._default)
+                                    _other=self._other, _default=self._default)
         else:
             raise TypeError('Operands have to be of type TypeObservation')
 
@@ -173,7 +170,7 @@ class _DamageObservation(TranslationHandler):
     Returns a damage observation from a type str.
     """
 
-    def __init__(self, hand: str, type_str : str):
+    def __init__(self, hand: str, type_str: str):
         """
         Initializes the space of the handler with a spaces.Dict
         of all of the spaces for each individual command.
@@ -181,7 +178,7 @@ class _DamageObservation(TranslationHandler):
 
         self._hand = hand
         self.type_str = type_str
-        self._default = 0 
+        self._default = 0
         super().__init__(spaces.Box(low=-1, high=1562, shape=(), dtype=np.int))
 
     def to_string(self):
@@ -208,4 +205,3 @@ class _DamageObservation(TranslationHandler):
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self._hand == other._hand and self.type_str == other.type_str
-

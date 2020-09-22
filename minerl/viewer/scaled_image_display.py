@@ -1,7 +1,8 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
- 
-import pyglet   
+
+import pyglet
+
 try:
     from pyglet.gl import *
 except ImportError as e:
@@ -14,6 +15,7 @@ except ImportError as e:
 
 from gym.envs.classic_control import rendering
 
+
 class ScaledImageDisplay(rendering.SimpleImageViewer):
     def __init__(self, width, height):
         super().__init__(None, 2700)
@@ -22,11 +24,11 @@ class ScaledImageDisplay(rendering.SimpleImageViewer):
             scale = self.maxwidth / width
             width = int(scale * width)
             height = int(scale * height)
-        self.window = pyglet.window.Window(width=width, height=height, 
-            display=self.display, vsync=False, resizable=True)
-        self.window.dispatch_events()   
+        self.window = pyglet.window.Window(width=width, height=height,
+                                           display=self.display, vsync=False, resizable=True)
+        self.window.dispatch_events()
         self.window.switch_to()
-        self.window.flip()   
+        self.window.flip()
         self.width = width
         self.height = height
         self.isopen = True
@@ -41,17 +43,16 @@ class ScaledImageDisplay(rendering.SimpleImageViewer):
             self.isopen = False
 
     def blit_texture(self, arr, pos_x=0, pos_y=0, width=None, height=None):
-
         assert len(arr.shape) == 3, "You passed in an image with the wrong number shape"
-        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0], 
-            'RGB', arr.tobytes(), pitch=arr.shape[1]*-3)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, 
-            gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
+        image = pyglet.image.ImageData(arr.shape[1], arr.shape[0],
+                                       'RGB', arr.tobytes(), pitch=arr.shape[1] * -3)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D,
+                           gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
         texture = image.get_texture()
         texture.width = width if width else self.width
         texture.height = height if height else self.height
-        
-        texture.blit(pos_x, pos_y) # draw
+
+        texture.blit(pos_x, pos_y)  # draw
 
     def imshow(self, arr):
         self.window.clear()

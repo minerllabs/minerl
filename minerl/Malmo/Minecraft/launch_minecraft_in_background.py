@@ -94,6 +94,6 @@ def launch_minecraft_in_background(minecraft_path, ports=None, timeout=360, repl
 if __name__ == "__main__":
     minecraft_launch_path = os.path.dirname(os.path.abspath(__file__))
     launch_ports = [int(port_arg) for port_arg in sys.argv[1:] if port_arg != "--replaceable" and port_arg != "--score"]
-    launch_minecraft_in_background(minecraft_launch_path, launch_ports, 300, 
+    launch_minecraft_in_background(minecraft_launch_path, launch_ports, 300,
                                    replaceable="--replaceable" in sys.argv,
                                    score="--score" in sys.argv)

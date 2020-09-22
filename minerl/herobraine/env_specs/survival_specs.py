@@ -32,13 +32,14 @@ MS_PER_STEP = 50
 NONE = 'none'
 OTHER = 'other'
 
+
 class Survival(SimpleEmbodimentEnvSpec):
     def __init__(self, *args, **kwargs):
         if 'name' not in kwargs:
             kwargs['name'] = 'MineRLSurvival-v0'
         # TODO determine if we actually need to limit episode steps
         if 'max_episode_steps' not in kwargs:
-            kwargs['max_episode_steps'] = 24 * 60 * 60 * 20 # 24 hours * 20hz
+            kwargs['max_episode_steps'] = 24 * 60 * 60 * 20  # 24 hours * 20hz
         self.episode_len = kwargs['max_episode_steps']
         super().__init__(*args, **kwargs)
 
@@ -101,9 +102,9 @@ class Survival(SimpleEmbodimentEnvSpec):
 
     def create_actionables(self) -> List[Handler]:
         actionables = [
-            handlers.KeyboardAction(k, v) for k,v in INVERSE_KEYMAP.items()
+            handlers.KeyboardAction(k, v) for k, v in INVERSE_KEYMAP.items()
         ]
-        actionables +=[
+        actionables += [
             handlers.CraftItem(none + ALL_ITEMS),
             handlers.CraftItemNearby(none + ALL_ITEMS),
             handlers.SmeltItemNearby(none + ALL_ITEMS),
@@ -112,4 +113,3 @@ class Survival(SimpleEmbodimentEnvSpec):
             handlers.Camera(),
         ]
         return actionables
-

@@ -14,7 +14,6 @@ from threading import Thread
 
 from minerl.data.util import download_with_resume
 
-
 import logging
 
 from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
@@ -85,7 +84,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         min_str = '_minimal' if minimal else ''
         filename = "v{}/data_texture_{}_{}_res{}.tar".format(DATA_VERSION, texture_pack, resolution, min_str)
         urls = [mirror + filename for mirror in mirrors]
-        
+
     else:
         # Check if experiment is already downloaded
         if os.path.exists(os.path.join(directory, experiment)):

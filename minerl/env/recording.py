@@ -46,10 +46,10 @@
 
 #         self.states.append(obs_0)
 #         return obs_0
-        
+
 #     def step(self, action):
 #         next_state, reward, done, info = super().step(action)
-        
+
 #         self.actions.append(action)
 #         self.rewards.append(reward)
 #         self.next_states.append(next_state)
@@ -76,13 +76,3 @@
 #         np.save(J(episode_dir, 'actions'), self.actions)
 
 #         logger.debug("Saved recording")
-        
-
-        
-
-
-        
-
-    
-
-

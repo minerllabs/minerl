@@ -51,4 +51,4 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
                ]
 
     def create_monitors(self) -> List[TranslationHandler]:
-        return [] # No monitors by default! 
+        return []  # No monitors by default!

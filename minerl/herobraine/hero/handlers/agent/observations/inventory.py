@@ -18,19 +18,17 @@ class FlatInventoryObservation(TranslationHandler):
     def to_string(self):
         return 'inventory'
 
-    
     def xml_template(self) -> str:
         return str(
             """<ObservationFromFullInventory flat="false"/>""")
-
 
     logger = logging.getLogger(__name__ + ".FlatInventoryObservation")
 
     def __init__(self, item_list, _other='other'):
         item_list = sorted(item_list)
         super().__init__(spaces.Dict(spaces={
-            k: spaces.Box(low=0, high=2304, 
-                shape=(), dtype=np.int32, normalizer_scale='log')
+            k: spaces.Box(low=0, high=2304,
+                          shape=(), dtype=np.int32, normalizer_scale='log')
             for k in item_list
         }))
         self.num_items = len(item_list)
@@ -54,7 +52,7 @@ class FlatInventoryObservation(TranslationHandler):
                 type_name = stack['type']
                 if type_name == 'log2':
                     type_name = 'log'
-                
+
                 # This sets the nubmer of air to correspond to the number of empty slots :)
                 try:
                     if type_name == "air":
@@ -66,7 +64,6 @@ class FlatInventoryObservation(TranslationHandler):
                     continue
 
         return item_dict
-
 
     def from_universal(self, obs):
         item_dict = self.space.no_op()
@@ -92,7 +89,7 @@ class FlatInventoryObservation(TranslationHandler):
                     name = mc.strip_item_prefix(stack['name'])
                     name = 'log' if name == 'log2' else name
                     if name == "air":
-                            item_dict[name] += 1
+                        item_dict[name] += 1
                     else:
                         item_dict[name] += stack['count']
                 except (KeyError, ValueError):

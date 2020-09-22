@@ -54,8 +54,8 @@ def gen_obtain_debug_actions(env):
     # Testing nearbyCraft implementation (note crafting table must be in view of the agent)
     act(nearbyCraft='stone_pickaxe')  # Should fail - no crafting table in view
     act(place='crafting_table')
-    act(nearbyCraft='stone_pickaxe') 
-    act(nearbyCraft='furnace') 
+    act(nearbyCraft='stone_pickaxe')
+    act(nearbyCraft='furnace')
 
     act(camera=np.array([0.0, 90.0], dtype=np.float32))
 
@@ -70,7 +70,8 @@ def gen_obtain_debug_actions(env):
 
     # Test place mechanic (attack ground first to clear grass)
     act(attack=1)
-    [(act(jump=1), act(jump=1), act(jump=1), act(jump=1), act(jump=1), act(place='cobblestone'), act()) for _ in range(2)]
+    [(act(jump=1), act(jump=1), act(jump=1), act(jump=1), act(jump=1), act(place='cobblestone'), act()) for _ in
+     range(2)]
     act(equip='stone_pickaxe')
     [act(attack=1) for _ in range(40)]
 
@@ -90,13 +91,12 @@ def gen_obtain_debug_actions(env):
     [act(attack=1) for _ in range(20)]
     [act(forward=1) for _ in range(10)]
 
-   # Test empty equip command
+    # Test empty equip command
     act(equip='air')
 
     [act(attack=1) for _ in range(62)]
     [act(forward=1) for _ in range(10)]
 
- 
     # Continue reward loop test with crafting table
     act(craft='planks')
     act(craft='crafting_table')
@@ -113,13 +113,12 @@ def gen_obtain_debug_actions(env):
     act(equip='iron_pickaxe')
 
     for _ in range(2):
-        act(place='diamond_ore')    
+        act(place='diamond_ore')
 
         [act(attack=1) for _ in range(20)]
         [act(forward=1) for _ in range(10)]
-    
+
     [act() for _ in range(10)]
-    
 
     return actions
 
@@ -127,16 +126,15 @@ def gen_obtain_debug_actions(env):
 def test_acitons():
     wrapper = envs.MINERL_OBTAIN_TEST_DENSE_OBF_V0
     acts = gen_obtain_debug_actions(wrapper.env_to_wrap.env_to_wrap)
-    for act in acts: 
+    for act in acts:
         wrapper.wrap_action(act)
-    
+
 
 def test_wrapped_obf_env():
     return test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVectorObf-v0')
 
 
 def test_wrapped_env(environment='MineRLObtainTest-v0', wrapped_env='MineRLObtainTestVector-v0'):
-    
     env = gym.make(environment)
     env.seed(1)
     wenv = gym.make(wrapped_env)
@@ -196,7 +194,7 @@ def test_dense_env():
 def test_env(environment='MineRLObtainTest-v0', interactive=False):
     if not interactive:
         # Disable tests for now
-        pass#assert False
+        pass  # assert False
     inst = InstanceManager.add_existing_instance(9001)
     env = gym.make(environment, instances=[inst])
     done = False
@@ -215,7 +213,7 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
         assert obs['equipped_items']['mainhand']['type'] == 'other', '{} is not of type other'.format(
             obs['equipped_items']['mainhand']['type'])
 
-        for action in gen_obtain_debug_actions(env):    
+        for action in gen_obtain_debug_actions(env):
             for key, value in action.items():
                 if isinstance(value, str) and value in reward_dict and key not in ['equip']:
                     print('Action of {}:{} if successful gets {}'.format(key, value, reward_dict[value]))
@@ -232,7 +230,7 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
             if reward != 0:
                 print(obs['inventory'])
                 print(reward)
-                print_next_inv = True  
+                print_next_inv = True
                 total_reward += reward
             if done:
                 break
@@ -249,14 +247,13 @@ def test_env(environment='MineRLObtainTest-v0', interactive=False):
     for r, i in zip(inventories, rewards):
         print(r)
         print(i)
-    
+
     if environment == 'MineRLObtainTest-v0':
-        assert(all(r == 1482.0 for r in rewards))
+        assert (all(r == 1482.0 for r in rewards))
     elif environment == 'MineRLObtainTestDense-v0':
-        assert(all(r == 2874.0 for r in rewards))
-    
+        assert (all(r == 2874.0 for r in rewards))
+
 
 if __name__ == '__main__':
     # test_wrapped_env()
     test_env()
-

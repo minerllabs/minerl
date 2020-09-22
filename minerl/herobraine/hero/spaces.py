@@ -66,7 +66,7 @@ class MineRLSpace(abc.ABC, gym.Space):
             np.ndarray: the No_op action.
         """
         warnings.warn("space.noop() is being deprecated for space.no_op() in MineRL 1.0.0. "
-            "Please change your code to reflect this change.", DeprecationWarning)
+                      "Please change your code to reflect this change.", DeprecationWarning)
         return self.no_op(batch_shape)
 
 
@@ -116,7 +116,7 @@ class Box(gym.spaces.Box, MineRLSpace):
         else:
             # assumes everything is in batch format, a scalar is already flattened and needs to be normalzied
             flatx = x.reshape(list(x.shape) + [-1])
-        
+
         # TODO: CHECK IF THE SPACE IS BOUNDED! IN WHICH WE CANNOT NORMALIZEN USING HIGHS
         if self.normalizer_scale == 'linear':
             return (flatx.astype(np.float64) - self._flat_low) / (self._flat_high - self._flat_low) - Box.CENTER
@@ -488,9 +488,9 @@ class Text(MineRLSpace):
         return np.array(np.reshape(strings, self.shape), np.dtype)
 
     def contains(self, x):
-        contained = False #? TODO (R): Look back in git.
+        contained = False  # ? TODO (R): Look back in git.
         contained = contained or isinstance(x, np.ndarray) and x.shape == self.shape and x.dtype.type in [np.string_,
-                                                                                                     np.unicode]
+                                                                                                          np.unicode]
         contained = contained or self.shape in [None, 1] and isinstance(x, str)
         return contained
 

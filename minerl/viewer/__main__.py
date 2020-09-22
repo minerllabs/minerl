@@ -20,8 +20,6 @@ coloredlogs.install(logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-
-
 def main(opts):
     logger.info("Welcome to the MineRL Stream viewer! \n")
 

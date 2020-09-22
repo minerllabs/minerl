@@ -2,7 +2,6 @@
 # Author: William H. Guss, Brandon Houghton
 
 
-
 #### TESTS
 
 
@@ -11,7 +10,8 @@ from minerl.herobraine.hero.spaces import Box, Dict, Discrete, MultiDiscrete, En
 import collections
 import numpy as np
 
-def _test_batch_map(stackable_space, batch_dims = (32,16), no_op=False):
+
+def _test_batch_map(stackable_space, batch_dims=(32, 16), no_op=False):
     n_in_batch = np.prod(batch_dims).astype(int)
     if no_op:
         batch = stackable_space.no_op(batch_dims)
@@ -19,11 +19,11 @@ def _test_batch_map(stackable_space, batch_dims = (32,16), no_op=False):
         batch = np.array([stackable_space.sample() for _ in range(n_in_batch)])
 
         # Reshape into the batch dim
-        batch =batch.reshape(list(batch_dims) + list(batch[0].shape))
-    
+        batch = batch.reshape(list(batch_dims) + list(batch[0].shape))
+
     # Now map it through
     unmapped = stackable_space.unmap(stackable_space.flat_map(batch))
-    if  unmapped.dtype.type is np.float:
+    if unmapped.dtype.type is np.float:
         assert np.allclose(unmapped, batch)
     else:
         assert np.all(unmapped == batch)
@@ -38,11 +38,9 @@ def test_batch_flat_map():
         MultiDiscrete([3, 4]),
         MultiDiscrete([3]),
         Discrete(94),
-        Enum('asd','sd','asdads','qweqwe')]:
+        Enum('asd', 'sd', 'asdads', 'qweqwe')]:
         _test_batch_map(space)
         _test_batch_map(space, no_op=True)
-
-
 
 
 def test_unmap_flat_map():
@@ -156,5 +154,3 @@ def test_all_flat_map_nested_dict():
     })
     x = all_spaces.sample()
     assert_equal_recursive(all_spaces.unmap(all_spaces.flat_map(x)), x)
-
-

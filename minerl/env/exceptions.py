@@ -1,4 +1,3 @@
-
 class EnvException(Exception):
     """A special exception thrown in the creation of an environment's Malmo mission XML.
 

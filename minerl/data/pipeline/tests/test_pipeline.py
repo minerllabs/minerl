@@ -167,7 +167,7 @@ def _test_dataloader_regression():
         # assert meta is the same
         if 'stream_name' in ometa: del ometa['stream_name']
         if 'stream_name' in nmeta: del nmeta['stream_name']
-        
+
         # New feature
         if 'true_video_frame_count' in nmeta:
             del nmeta['true_video_frame_count']
@@ -180,10 +180,9 @@ def _test_dataloader_regression():
         # assert the new reward (nr) is equal to the old reward (o_r)
         assert np.allclose(nr, o_r)
 
-
 # def _test_ao_on_or_off():
-    # assert False, "AO has not been fixed."
+# assert False, "AO has not been fixed."
 
 # if __name__ == "__main__":
 #     _test_dataloader_regression()
-#     # test_pipeline( copy_test_data_out=True)           
+#     # test_pipeline( copy_test_data_out=True)

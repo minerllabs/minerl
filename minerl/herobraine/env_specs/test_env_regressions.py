@@ -1,4 +1,3 @@
-
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
@@ -21,13 +20,13 @@ old_envs.append(dict(
             'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
         }),
         'action_space': spaces.Dict(spaces={
-            "forward": spaces.Discrete(2), 
-            "back": spaces.Discrete(2), 
-            "left": spaces.Discrete(2), 
-            "right": spaces.Discrete(2), 
-            "jump": spaces.Discrete(2), 
-            "sneak": spaces.Discrete(2), 
-            "sprint": spaces.Discrete(2), 
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
             "attack": spaces.Discrete(2),
             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
         }),
@@ -74,7 +73,7 @@ In this task, the agent must move to a goal location denoted by a diamond block.
 The agent is given a sparse reward (+100 upon reaching the goal, at which point the episode terminates). """
     if dense:
         navigate_text += "**This variant of the environment is dense reward-shaped where the agent is given a reward every tick for how much closer (or negative reward for farther) the agent gets to the target.**\n"
-    else: 
+    else:
         navigate_text += "**This variant of the environment is sparse.**\n"
 
     if top is "normal":
@@ -130,7 +129,6 @@ old_envs.append(dict(
     max_episode_steps=6000,
 ))
 
-
 old_envs.append(dict(
     id='MineRLNavigateExtreme-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -138,7 +136,7 @@ old_envs.append(dict(
         'xml': os.path.join(missions_dir, 'navigationExtreme.xml'),
         'observation_space': navigate_observation_space,
         'action_space': navigate_action_space,
-        'docstr': make_navigate_text('extreme', False) 
+        'docstr': make_navigate_text('extreme', False)
     },
     max_episode_steps=6000,
 ))
@@ -150,11 +148,10 @@ old_envs.append(dict(
         'xml': os.path.join(missions_dir, 'navigationExtremeDense.xml'),
         'observation_space': navigate_observation_space,
         'action_space': navigate_action_space,
-        'docstr': make_navigate_text('extreme', True)  
+        'docstr': make_navigate_text('extreme', True)
     },
     max_episode_steps=6000,
 ))
-
 
 #######################
 #     Obtain Iron     #
@@ -186,7 +183,7 @@ obtain_observation_space = spaces.Dict({
         dict(mainhand=spaces.Dict(
             dict(
                 type=spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                'iron_axe', 'iron_pickaxe', 'other'),
+                                 'iron_axe', 'iron_pickaxe', 'other'),
                 damage=spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
                 maxDamage=spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
             )
@@ -207,12 +204,13 @@ obtain_action_space = spaces.Dict({
     "attack": spaces.Discrete(2),
     "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
     "place": spaces.Enum('none', 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
-    "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
+    "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe',
+                         'iron_pickaxe'),
     "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
-    "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
+    "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe',
+                               'iron_pickaxe', 'furnace'),
     "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')}
 )
-
 
 old_envs.append(dict(
     id='MineRLObtainIronPickaxe-v0',
@@ -256,7 +254,6 @@ item is given here::
     max_episode_steps=6000,
 ))
 
-
 old_envs.append(dict(
     id='MineRLObtainIronPickaxeDense-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -298,7 +295,6 @@ item are given here::
     },
     max_episode_steps=6000,
 ))
-
 
 #######################
 #   Obtain Diamond    #
@@ -350,7 +346,6 @@ item is given here::
     max_episode_steps=18000,
 ))
 
-
 old_envs.append(dict(
     id='MineRLObtainDiamondDense-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -394,9 +389,6 @@ item are given here::
     max_episode_steps=18000,
 ))
 
-
-
-
 for e in old_envs:
     if not 'reward_threshold' in e:
         e['reward_threshold'] = None
@@ -413,19 +405,18 @@ def test_env_space_regressions():
         # print(k1)
         assert task.action_space == env['kwargs']['action_space']
         assert task.observation_space == env['kwargs']['observation_space']
-        
+
         # assert set(k1.keys()) == set(k2.keys()), Invalid as of MineRL 0.4.0
         assert newspec.max_episode_steps == env['max_episode_steps']
-        if 'reward_threshold' in env or hasattr(newspec, 'reward_threshold'): 
+        if 'reward_threshold' in env or hasattr(newspec, 'reward_threshold'):
             assert newspec.reward_threshold == env['reward_threshold']
-        
+
         with open(env['kwargs']['xml'], 'rt') as f:
             old_env_xml = f.read()
         new_env_xml = newspec._kwargs['env_spec'].to_xml()
-        old_xml_dict =xmltodict.parse(old_env_xml)
+        old_xml_dict = xmltodict.parse(old_env_xml)
         new_xml_dict = xmltodict.parse(new_env_xml)
         assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions', 'Name', 'About'])
-
 
 
 # #######################

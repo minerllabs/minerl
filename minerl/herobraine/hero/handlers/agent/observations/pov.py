@@ -38,14 +38,13 @@ class POVObservation(KeymapTranslationHandler):
         else:
             space = spaces.Box(0, 255, list(video_resolution)[::-1] + [3], dtype=np.uint8)
             self.video_depth = 3
-            
+
         # TODO (R): FIGURE THIS THE FUCK OUT & Document it.
         self.video_height = video_resolution[0]
         self.video_width = video_resolution[1]
-        
 
         super().__init__(
-            hero_keys=["pov"], 
+            hero_keys=["pov"],
             univ_keys=["pov"], space=space)
 
     def from_hero(self, obs):
@@ -55,10 +54,10 @@ class POVObservation(KeymapTranslationHandler):
         if pov is None or len(pov) == 0:
             pov = np.zeros((self.video_height, self.video_width, self.video_depth), dtype=np.uint8)
         else:
-            pov = pov.reshape((self.video_height, self.video_width, self.video_depth))[::-1,:,:]
+            pov = pov.reshape((self.video_height, self.video_width, self.video_depth))[::-1, :, :]
 
         return pov
-        
+
     def __or__(self, other):
         """
         Combines two POV observations into one. If all of the properties match return self
@@ -69,5 +68,3 @@ class POVObservation(KeymapTranslationHandler):
             return POVObservation(self.video_resolution, include_depth=self.include_depth)
         else:
             raise ValueError("Incompatible observables!")
-
-    

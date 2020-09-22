@@ -3,6 +3,7 @@ import minerl
 import time
 from minerl.env.bootstrap import MinecraftInstance
 
+
 def main():
     """
     Tests launching and closing a Minecraft process.
@@ -12,8 +13,6 @@ def main():
     inst.launch(9000)
     time.sleep(10)
     inst.kill()
-
-
 
 
 if __name__ == "__main__":

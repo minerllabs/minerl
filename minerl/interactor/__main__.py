@@ -12,6 +12,7 @@ import time
 
 import logging
 import coloredlogs
+
 coloredlogs.install(logging.DEBUG)
 
 logger = logging.getLogger(__name__)
@@ -22,12 +23,13 @@ def request_interactor(instance, ip):
     MineRLEnv._hello(sock)
 
     comms.send_message(sock,
-        ("<Interact>" + ip + "</Interact>").encode())
+                       ("<Interact>" + ip + "</Interact>").encode())
     reply = comms.recv_message(sock)
     ok, = struct.unpack('!I', reply)
     if not ok:
         raise RuntimeError("Failed to start interactor")
     sock.close()
+
 
 def get_socket(instance):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,7 +39,9 @@ def get_socket(instance):
 
     return sock
 
+
 INTERACTOR_PORT = 31415
+
 
 def run_interactor(ip, port, interactor_port=INTERACTOR_PORT):
     try:
@@ -48,11 +52,10 @@ def run_interactor(ip, port, interactor_port=INTERACTOR_PORT):
         logger.warning("No existing interactor found on port {}. Starting a new interactor.".format(interactor_port))
         instance = MinecraftInstance(interactor_port)
         instance.launch(daemonize=True)
-    
+
     request_interactor(
         instance, '{}:{}'.format(ip, port)
     )
-    
 
 
 def parse_args():
@@ -63,7 +66,7 @@ def parse_args():
     # ip default localhost
     parser.add_argument('-i', '--ip', default='127.0.0.1',
                         help='The ip to connect to.')
-    parser.add_argument('--debug', action='store_true', 
+    parser.add_argument('--debug', action='store_true',
                         help='If this is set, then debug logging will be enabled.')
     return parser.parse_args()
 
@@ -75,6 +78,3 @@ if __name__ == '__main__':
     if opts.debug:
         coloredlogs.install(logging.DEBUG)
     run_interactor(ip=opts.ip, port=opts.port)
-    
-    
-

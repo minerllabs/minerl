@@ -23,6 +23,7 @@ ENVIRONMENTS = ['MineRLNavigate-v0',
                 'MineRLObtainDiamond-v0',
                 'MineRLObtainDiamondDense-v0']
 
+
 # Helper functions
 def _check_shape(num_samples, sample_shape, obs):
     if isinstance(obs, list):

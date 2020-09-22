@@ -8,14 +8,13 @@ import minerl
 import numpy as np
 
 import coloredlogs
+
 coloredlogs.install(logging.DEBUG)
 
+# import minerl.env.bootstrap
+# minerl.env.bootstrap._check_port_avail = lambda _,__: True
 
-#import minerl.env.bootstrap
-#minerl.env.bootstrap._check_port_avail = lambda _,__: True
-
-NUM_EPISODES=10
-
+NUM_EPISODES = 10
 
 
 def main():
@@ -23,7 +22,7 @@ def main():
     Tests running a simple environment.
     """
     env = gym.make('MineRLNavigateDense-v0')
-    
+
     actions = [env.action_space.sample() for _ in range(2000)]
     xposes = []
     reward_list = []
@@ -33,10 +32,10 @@ def main():
         done = False
         netr = 0
         rewards = []
-        while not done and  len(rewards) < 50:
+        while not done and len(rewards) < 50:
             random_act = env.action_space.noop()
             # if(len(rewards) > 50):
-            
+
             random_act['camera'] = [0, 0.1]
             random_act['back'] = 0
             random_act['forward'] = 1
@@ -58,9 +57,8 @@ def main():
     # from IPython import embed; embed()
     input()
 
-
-
     print("Demo complete.")
+
 
 if __name__ == "__main__":
     main()

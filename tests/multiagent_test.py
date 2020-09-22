@@ -5,6 +5,7 @@ import minerl  # noqa
 import argparse
 import time
 
+
 class TreechopMultiAgentNoQuit(Treechop):
     # This version of treechop doesn't terminate the episode 
     # if the other agent quits/dies (or gets the max reward)
@@ -24,10 +25,12 @@ if __name__ == '__main__':
     # logs
     import coloredlogs
     import logging
+
     coloredlogs.install(level=logging.DEBUG)
 
     # clear logs
     import subprocess
+
     logging.debug("Deleting previous java log files...")
     subprocess.check_call("rm -rf logs/*", shell=True)
 
@@ -36,15 +39,14 @@ if __name__ == '__main__':
         env_spec = TreechopMultiAgentNoQuit(agent_count=1)
     else:
         env_spec = TreechopMultiAgentNoQuit(agent_count=2)
-    
+
     # IF you want to use existing instances use this!
     # instances = [
     #     InstanceManager.add_existing_instance(9001),
     #     InstanceManager.add_existing_instance(9002)]
     instances = []
 
-    env = env_spec.make(instances=instances) 
-
+    env = env_spec.make(instances=instances)
 
     # iterate desired episodes
     for r in range(args.episodes):
@@ -57,15 +59,15 @@ if __name__ == '__main__':
         while not done:
             steps += 1
             env.render()
-            
+
             actions = env.action_space.no_op()
             for agent in actions:
                 actions[agent]["forward"] = 1
                 actions[agent]["attack"] = 1
-                actions[agent]["camera"] = [0,0.1]
+                actions[agent]["camera"] = [0, 0.1]
 
             # print(str(steps) + " actions: " + str(actions))
-        
+
             obs, reward, done, info = env.step(actions)
 
             # log("reward: " + str(reward))
@@ -74,4 +76,3 @@ if __name__ == '__main__':
             # log(" obs: " + str(obs))
 
         logging.debug(f"Episode {r + 1}/{args.episodes} done: {steps} steps")
-

@@ -1,10 +1,10 @@
 dist: xenial
 language: python
 python:
-- '3.5'
-- '3.6'
-- '3.7'
-- '3.8.3'
+  - '3.5'
+  - '3.6'
+  - '3.7'
+  - '3.8.3'
 
 cache:
   pip: true
@@ -13,23 +13,23 @@ cache:
 addons:
   apt:
     packages:
-    - openjdk-8-jdk
-    - libglu1-mesa-dev
-    - freeglut3-dev
-    - mesa-common-dev
-    - mesa-utils
-    - xvfb
-    - libgl1-mesa-dri
-    - libglapi-mesa
-    - libosmesa6
-    - libxi-dev
+      - openjdk-8-jdk
+      - libglu1-mesa-dev
+      - freeglut3-dev
+      - mesa-common-dev
+      - mesa-utils
+      - xvfb
+      - libgl1-mesa-dri
+      - libglapi-mesa
+      - libosmesa6
+      - libxi-dev
 env:
   - MINERL_DATA_ROOT=$HOME/data
 install:
-- export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/ 
-- pip install -e .
-- pip install pytest-xdist
-- python -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(minimal=True)"
+  - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
+  - pip install -e .
+  - pip install pytest-xdist
+  - python -c "import logging; import minerl; logging.basicConfig(level=logging.DEBUG); minerl.data.download(minimal=True)"
 services: xvfb
 script:
   - export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
@@ -37,7 +37,7 @@ script:
 
 branches:
   only:
-  - master
+    - master
 deploy:
   provider: pypi
   user: minerl-test

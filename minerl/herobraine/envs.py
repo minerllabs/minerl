@@ -8,11 +8,11 @@ import gym
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.env_specs.treechop_specs import Treechop
 from minerl.herobraine.env_specs.navigate_specs import Navigate
-from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, ObtainDiamondDebug
+from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, \
+    ObtainDiamondDebug
 from minerl.herobraine.wrappers import Obfuscated, Vectorized
 import minerl.data.version
 import os
-
 
 # Must load non-obfuscated envs first!
 # Publish.py depends on this order for black-listing streams
@@ -48,25 +48,32 @@ MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0 = ObtainIronPickaxe(dense=True)
 comp_envs = [MINERL_OBTAIN_DIAMOND_V0, MINERL_TREECHOP_V0, MINERL_NAVIGATE_V0, MINERL_OBTAIN_IRON_PICKAXE_V0]
 comp_obfuscator_dir = os.path.join(
 
-# TODO FORMAT THIS AUTOMATICALLY USING CIRCULAR IMPORTS
-os.path.dirname(os.path.abspath(__file__)), "env_specs", "obfuscators", "comp", "v3")
-
+    # TODO FORMAT THIS AUTOMATICALLY USING CIRCULAR IMPORTS
+    os.path.dirname(os.path.abspath(__file__)), "env_specs", "obfuscators", "comp", "v3")
 
 MINERL_TREECHOP_OBF_V0 = Obfuscated(Vectorized(MINERL_TREECHOP_V0, common_envs=comp_envs), comp_obfuscator_dir)
 
 MINERL_NAVIGATE_OBF_V0 = Obfuscated(Vectorized(MINERL_NAVIGATE_V0, common_envs=comp_envs), comp_obfuscator_dir)
-MINERL_NAVIGATE_EXTREME_OBF_V0 = Obfuscated(Vectorized(MINERL_NAVIGATE_EXTREME_V0, common_envs=comp_envs), comp_obfuscator_dir)
-MINERL_NAVIGATE_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_NAVIGATE_DENSE_V0, common_envs=comp_envs), comp_obfuscator_dir)
-MINERL_NAVIGATE_DENSE_EXTREME_OBF_V0 = Obfuscated(Vectorized(MINERL_NAVIGATE_DENSE_EXTREME_V0, common_envs=comp_envs), comp_obfuscator_dir)
+MINERL_NAVIGATE_EXTREME_OBF_V0 = Obfuscated(Vectorized(MINERL_NAVIGATE_EXTREME_V0, common_envs=comp_envs),
+                                            comp_obfuscator_dir)
+MINERL_NAVIGATE_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_NAVIGATE_DENSE_V0, common_envs=comp_envs),
+                                          comp_obfuscator_dir)
+MINERL_NAVIGATE_DENSE_EXTREME_OBF_V0 = Obfuscated(Vectorized(MINERL_NAVIGATE_DENSE_EXTREME_V0, common_envs=comp_envs),
+                                                  comp_obfuscator_dir)
 
-MINERL_OBTAIN_DIAMOND_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_DIAMOND_V0, common_envs=comp_envs), comp_obfuscator_dir)
-MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_DIAMOND_DENSE_V0, common_envs=comp_envs), comp_obfuscator_dir)
+MINERL_OBTAIN_DIAMOND_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_DIAMOND_V0, common_envs=comp_envs),
+                                          comp_obfuscator_dir)
+MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_DIAMOND_DENSE_V0, common_envs=comp_envs),
+                                                comp_obfuscator_dir)
 
-MINERL_OBTAIN_IRON_PICKAXE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IRON_PICKAXE_V0, common_envs=comp_envs), comp_obfuscator_dir)
-MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0, common_envs=comp_envs), comp_obfuscator_dir)
+MINERL_OBTAIN_IRON_PICKAXE_OBF_V0 = Obfuscated(Vectorized(MINERL_OBTAIN_IRON_PICKAXE_V0, common_envs=comp_envs),
+                                               comp_obfuscator_dir)
+MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0 = Obfuscated(
+    Vectorized(MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0, common_envs=comp_envs), comp_obfuscator_dir)
 
 # Survival envs
-MINERL_OBTAIN_DIAMOND_SURVIVAL_V0 = Obfuscated(Vectorized(ObtainDiamondSurvival(dense=True), common_envs=comp_envs), comp_obfuscator_dir, 'MineRLObtainDiamondSurvivalVectorObf-v0')
+MINERL_OBTAIN_DIAMOND_SURVIVAL_V0 = Obfuscated(Vectorized(ObtainDiamondSurvival(dense=True), common_envs=comp_envs),
+                                               comp_obfuscator_dir, 'MineRLObtainDiamondSurvivalVectorObf-v0')
 
 obfuscated_envs = [e for e in locals().values() if isinstance(e, Obfuscated)]
 
@@ -90,5 +97,3 @@ for env in ENVS:
     if env.name not in gym.envs.registry.env_specs:
         env.register()
         # env.register(fake=True)
-
-

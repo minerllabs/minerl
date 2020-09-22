@@ -3,7 +3,6 @@
 
 """Defines miscellaneous agent handlers"""
 
-
 # class PauseAction(Handler):
 #     def to_string(self):
 #         return "pause"

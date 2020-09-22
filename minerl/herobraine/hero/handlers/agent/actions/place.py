@@ -6,6 +6,7 @@ from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
 import jinja2
 import minerl.herobraine.hero.spaces as spaces
 
+
 class PlaceBlock(ItemListAction):
     """
     An action handler for placing a specific block
@@ -13,7 +14,6 @@ class PlaceBlock(ItemListAction):
 
     def to_string(self):
         return 'place'
-
 
     def xml_template(self) -> str:
         return str("<PlaceCommands/>")
@@ -59,4 +59,3 @@ class PlaceBlock(ItemListAction):
                 self._prev_inv = None
 
         return self._default
-

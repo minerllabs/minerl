@@ -60,7 +60,6 @@ class DataPipeline:
         self._action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
         self._observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
 
-
     @property
     def action_space(self):
         """
@@ -113,6 +112,7 @@ class DataPipeline:
             else:
                 dst[key] = src[i]
                 return i + 1
+
         result = collections.OrderedDict()
         index = 0
         for key, space in target_space.spaces.items():
@@ -162,14 +162,15 @@ class DataPipeline:
         if queue_size is not None:
             max_size = queue_size
         elif max_sequence_len == -1:
-            max_size = 2*self.number_of_workers
+            max_size = 2 * self.number_of_workers
         else:
-            max_size = 16*self.number_of_workers
+            max_size = 16 * self.number_of_workers
         data_queue = m.Queue(maxsize=max_size)
         logger.debug(str(self.number_of_workers) + str(max_size))
 
         # Setup arguments for the workers.
-        files = [(file_dir, max_sequence_len, data_queue, self.environment, 0, include_metadata) for file_dir in data_list]
+        files = [(file_dir, max_sequence_len, data_queue, self.environment, 0, include_metadata) for file_dir in
+                 data_list]
 
         epoch = 0
 
@@ -197,13 +198,14 @@ class DataPipeline:
 
                     observation_dict = DataPipeline.map_to_dict(observation_seq, gym_spec._kwargs['observation_space'])
                     action_dict = DataPipeline.map_to_dict(action_seq, gym_spec._kwargs['action_space'])
-                    next_observation_dict = DataPipeline.map_to_dict(next_observation_seq, gym_spec._kwargs['observation_space'])
-                    
+                    next_observation_dict = DataPipeline.map_to_dict(next_observation_seq,
+                                                                     gym_spec._kwargs['observation_space'])
+
                     if include_metadata:
                         yield observation_dict, action_dict, reward_seq[0], next_observation_dict, done_seq[0], meta
                     else:
                         yield observation_dict, action_dict, reward_seq[0], next_observation_dict, done_seq[0]
-                
+
                 except Empty:
                     if map_promise.ready():
                         epoch += 1
@@ -247,9 +249,10 @@ class DataPipeline:
             gym_spec = gym.envs.registration.spec(self.environment)
             action_dict = DataPipeline.map_to_dict(action_slice, gym_spec._kwargs['action_space'])
             observation_dict = DataPipeline.map_to_dict(observation_slice, gym_spec._kwargs['observation_space'])
-            next_observation_dict = DataPipeline.map_to_dict(next_observation_slice, gym_spec._kwargs['observation_space'])
+            next_observation_dict = DataPipeline.map_to_dict(next_observation_slice,
+                                                             gym_spec._kwargs['observation_space'])
 
-            yield_list = [observation_dict, action_dict, reward_seq[0][idx], next_observation_dict, done_seq[0][idx]] 
+            yield_list = [observation_dict, action_dict, reward_seq[0][idx], next_observation_dict, done_seq[0][idx]]
             yield yield_list + [meta] if include_metadata else yield_list
 
     def get_trajectory_names(self):
@@ -271,7 +274,7 @@ class DataPipeline:
             if ret:
                 cv2.cvtColor(frame, code=cv2.COLOR_BGR2RGB, dst=frame)
                 frame = np.asarray(np.clip(frame, 0, 255), dtype=np.uint8)
-            
+
             return ret, frame
         except Exception as err:
             logger.error("error reading capture device:", err)
@@ -293,7 +296,8 @@ class DataPipeline:
 
     # Todo: Make data pipeline split files per push.
     @staticmethod
-    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, env_str="", skip_interval=0, include_metadata=False):
+    def _load_data_pyfunc(file_dir: str, max_seq_len: int, data_queue, env_str="", skip_interval=0,
+                          include_metadata=False):
         """
         Enqueueing mechanism for loading a trajectory from a file onto the data_queue
         :param file_dir: file path to data directory
@@ -304,7 +308,7 @@ class DataPipeline:
         :return:
         """
         logger.debug("Loading from file {}".format(file_dir))
-        
+
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
         numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
         meta_path = str(os.path.join(file_dir, 'metadata.json'))
@@ -321,7 +325,7 @@ class DataPipeline:
                 meta = json.load(file)
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
-                
+
                 # Hotfix for incorrect success metadata from server [TODO: remove]
                 reward_threshold = {
                     'MineRLTreechop-v0': 64,
@@ -337,21 +341,19 @@ class DataPipeline:
                     'MineRLObtainDiamondDense-v0': [1024, 256, 128, 64, 32, 32, 16, 8, 4, 4, 2, 1],
                 }
 
-
                 try:
                     meta['success'] = meta['total_reward'] >= reward_threshold[env_str]
                 except KeyError:
                     try:
                         # For dense env use set of rewards (assume all disjoint rewards) within 8 of reward is good
                         quantized_reward_vec = int(meta['total_reward'] // 8)
-                        meta['success'] = all(reward//8 in quantized_reward_vec for reward in reward_list[env_str])
+                        meta['success'] = all(reward // 8 in quantized_reward_vec for reward in reward_list[env_str])
                     except KeyError:
                         logger.warning("success in metadata may be incorrect")
 
             action_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('action_')])
             reward_vec = state['reward']
             info_dict = collections.OrderedDict([(key, state[key]) for key in state if key.startswith('observation_')])
-
 
             # There is no action or reward for the terminal state of an episode.
             # Hence in Publish.py we shorten the action and reward vector to reflect this.
@@ -362,9 +364,9 @@ class DataPipeline:
             ret, frame_num = True, 0
             while ret:
                 ret, _ = DataPipeline.read_frame(cap)
-                if ret: 
+                if ret:
                     frame_num += 1
-                
+
             max_frame_num = frame_num  # int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) <- this is not correct!
             frames = []
             frame_num, stop_idx = 0, 0
@@ -385,7 +387,6 @@ class DataPipeline:
             # Loop through the video and construct frames
             # of observations to be sent via the multiprocessing queue
             # in chunks of worker_batch_size to the batch_iter loop.
-
 
             while True:
                 ret = True
@@ -425,14 +426,13 @@ class DataPipeline:
                             next_observation_data[i] = np.asanyarray(frames[1:])
                         elif key == 'observation_compassAngle':
                             current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx, 0])
-                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx+1:stop_idx+1, 0])
+                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx + 1:stop_idx + 1, 0])
                         else:
                             current_observation_data[i] = np.asanyarray(info_dict[key][start_idx:stop_idx])
-                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx+1:stop_idx+1])
+                            next_observation_data[i] = np.asanyarray(info_dict[key][start_idx + 1:stop_idx + 1])
 
                     # We are getting (S_t, A_t -> R_t),   S_{t+1}, D_{t+1} so there are less actions and rewards
                     for i, key in enumerate(actionables):
-                        
                         action_data[i] = np.asanyarray(action_dict[key][start_idx: stop_idx])
 
                     reward_data = np.asanyarray(reward_vec[start_idx:stop_idx], dtype=np.float32)
@@ -444,7 +444,8 @@ class DataPipeline:
                     logger.error("error drawing batch from npz file:", err)
                     raise err
 
-                batches = [current_observation_data, action_data, [reward_data], next_observation_data, [np.array(done_data, dtype=np.bool)]]
+                batches = [current_observation_data, action_data, [reward_data], next_observation_data,
+                           [np.array(done_data, dtype=np.bool)]]
                 if include_metadata:
                     batches += [meta]
 
@@ -465,16 +466,15 @@ class DataPipeline:
             logger.debug("Caught windows error {} - this is expected when closing the data pool".format(e))
             return None
         except BrokenPipeError:
-            
+
             print("Broken pipe!")
             return None
-        except FileNotFoundError as e: 
+        except FileNotFoundError as e:
             print("File not found!")
             raise e
         except Exception as e:
             logger.debug("Exception \'{}\' caught on file \"{}\" by a worker of the data pipeline.".format(e, file_dir))
             return None
-
 
     @staticmethod
     def _is_blacklisted(path):

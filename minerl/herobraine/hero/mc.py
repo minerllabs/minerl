@@ -492,6 +492,7 @@ MAX_FOOD = 20  # Default max food
 MAX_FOOD_SATURATION = 20.0  # Current max saturation limit as of 1.11.2
 MAX_SCORE = 0x7FFFFF  # Implemented as XP in survival but can change e.g. mini-games
 
+
 def get_item_id(item: str) -> int:
     """
     Gets the item ID of an MC item.
@@ -521,7 +522,6 @@ all_data = json.load(open(mc_constants_file))
 
 ALL_ITEMS = [item["type"] for item in all_data["items"]]
 
-
 # We choose these not to be included by default; they are not items.
 NONE = "none"
 INVALID = "invalid"
@@ -530,11 +530,11 @@ INVALID = "invalid"
 MINERL_ITEM_MAP = sorted(["none"] + ALL_ITEMS)
 
 ITEMS_BY_CATEGORY = {
-        # Items which take 2 seconds to USE
-        'edible': [item['type'] for item in all_data['items'] if item['useAction'] in {'EAT', 'DRINK'}],
-        # Items which have ongoing effect when equipped
-        'tool': [item['type'] for item in all_data['items'] if item['tab'] in {'tools', 'combat'}]
-    }
+    # Items which take 2 seconds to USE
+    'edible': [item['type'] for item in all_data['items'] if item['useAction'] in {'EAT', 'DRINK'}],
+    # Items which have ongoing effect when equipped
+    'tool': [item['type'] for item in all_data['items'] if item['tab'] in {'tools', 'combat'}]
+}
 
 # Check that all edible items have the same maxUseDuration
 use_times = {item['maxUseDuration'] for item in all_data['items'] if item['useAction'] in {'EAT', 'DRINK'}}
@@ -590,50 +590,49 @@ CRAFTING_RECIPES_BY_OUTPUT = sort_recipes_by_output(all_data["craftingRecipes"])
 SMELTING_RECIPES_BY_OUTPUT = sort_recipes_by_output(all_data["smeltingRecipes"])
 
 ALL_PERSONAL_CRAFTING_ITEMS = [
-    "none",  # empty inventory slot (for obs); take no action (for actions).
-    "invalid",  # item not in the list
-] + [
-    item["type"]
-    for item in all_data["items"]
-    if item["type"] in CRAFTING_RECIPES_BY_OUTPUT.keys()
-    and len(CRAFTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
-    and all(
+                                  "none",  # empty inventory slot (for obs); take no action (for actions).
+                                  "invalid",  # item not in the list
+                              ] + [
+                                  item["type"]
+                                  for item in all_data["items"]
+                                  if item["type"] in CRAFTING_RECIPES_BY_OUTPUT.keys()
+                                     and len(CRAFTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
+                                     and all(
         [
             recipe["recipeSize"] in [0, 1, 2, 4]  # TODO recipeSize needs to be 2D
             for recipe in CRAFTING_RECIPES_BY_OUTPUT[item["type"]]
         ]
     )
-]
+                              ]
 
 ALL_CRAFTING_TABLE_ITEMS = [
-    "none",  # empty inventory slot (for obs); take no action (for actions).
-    "invalid",  # item not in the list
-] + [
-    item["type"]
-    for item in all_data["items"]
-    if item["type"] in CRAFTING_RECIPES_BY_OUTPUT.keys()
-    and len(CRAFTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
-    and any(
+                               "none",  # empty inventory slot (for obs); take no action (for actions).
+                               "invalid",  # item not in the list
+                           ] + [
+                               item["type"]
+                               for item in all_data["items"]
+                               if item["type"] in CRAFTING_RECIPES_BY_OUTPUT.keys()
+                                  and len(CRAFTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
+                                  and any(
         [
             recipe["recipeSize"] <= 9
             for recipe in CRAFTING_RECIPES_BY_OUTPUT[item["type"]]
         ]
     )
-]
+                           ]
 
 ALL_SMELTING_ITEMS = [
-    "none",  # empty inventory slot (for obs); take no action (for actions).
-    "invalid",  # item not in the list
-] + [
-    item["type"]
-    for item in all_data["items"]
-    if item["type"] in SMELTING_RECIPES_BY_OUTPUT.keys()
-    and len(SMELTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
-]
-
+                         "none",  # empty inventory slot (for obs); take no action (for actions).
+                         "invalid",  # item not in the list
+                     ] + [
+                         item["type"]
+                         for item in all_data["items"]
+                         if item["type"] in SMELTING_RECIPES_BY_OUTPUT.keys()
+                            and len(SMELTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
+                     ]
 
 MS_PER_STEP = 50
-STEPS_PER_MS = 1/50
+STEPS_PER_MS = 1 / 50
 
 
 def strip_item_prefix(minecraft_name):

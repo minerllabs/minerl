@@ -260,7 +260,6 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
             rendered_dest = J(dest_folder, 'rendered.npz')
             metadata_dest = J(dest_folder, 'metadata.json')
 
-
             # TODO remove to incrementally render files - during testing re-render each time
             if E(J(dest_folder, 'rendered.npz')):
                 os.remove(J(dest_folder, 'rendered.npz'))
@@ -273,12 +272,12 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
 
             # Load relevant handlers
             info_handlers = [obs for obs in environment.observables if not isinstance(obs, handlers.POVObservation)]
-            reward_handlers = environment.rewardables 
+            reward_handlers = environment.rewardables
             # TODO (R): Support done handlers.
             # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
             action_handlers = environment.actionables
             monitor_handlers = environment.monitors
-            
+
             all_handlers = [hdl for sublist in [info_handlers, reward_handlers, action_handlers] for hdl in sublist]
 
             try:
@@ -384,7 +383,8 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                     source = json.load(meta_file)
                     metadata_out = {}
                     metadata_out['success'] = bool(environment.determine_success_from_rewards(published['reward']))
-                    metadata_out['duration_ms'] = len(published['reward']) * 50  # source['end_time'] - source['start_time']
+                    metadata_out['duration_ms'] = len(
+                        published['reward']) * 50  # source['end_time'] - source['start_time']
                     metadata_out['duration_steps'] = len(published['reward'])
                     metadata_out['total_reward'] = sum(published['reward'])
                     metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])

@@ -89,8 +89,6 @@ and remains as a stub for future work.
 #                 and self.num_slots == other.num_slots)
 
 
-
-
 # class HotbarObservation(GUIContainerObservation):
 #     """
 #     Handles hotbar observation.

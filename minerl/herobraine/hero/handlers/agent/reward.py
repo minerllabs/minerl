@@ -7,7 +7,7 @@ from minerl.herobraine.hero.spaces import Box
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
 import jinja2
-from typing import List,Dict,Union
+from typing import List, Dict, Union
 import numpy as np
 
 
@@ -32,7 +32,6 @@ class RewardHandler(TranslationHandler):
         return obs_dict["reward"]
 
 
-
 class ConstantReward(RewardHandler):
     """
     A constant reward handler
@@ -49,10 +48,9 @@ class ConstantReward(RewardHandler):
         return self.constant
 
 
-
 # <RewardForPossessingItem sparse="true">
-    # <Item amount="1" reward="1" type="log" />
-    # <Item amount="1" reward="2" type="planks" />
+# <Item amount="1" reward="1" type="log" />
+# <Item amount="1" reward="2" type="planks" />
 # <RewardForPossessingItem sparse="true">
 class _RewardForPosessingItemBase(RewardHandler):
     def to_string(self) -> str:
@@ -68,7 +66,7 @@ class _RewardForPosessingItemBase(RewardHandler):
                 """
         )
 
-    def __init__(self, sparse : bool,  exclude_loops: bool, item_rewards : List[Dict[str, Union[str,int]]]):
+    def __init__(self, sparse: bool, exclude_loops: bool, item_rewards: List[Dict[str, Union[str, int]]]):
         """Creates a reward which gives rewards based on items in the 
         inventory that are provided.
 
@@ -84,7 +82,7 @@ class _RewardForPosessingItemBase(RewardHandler):
         # Assert that no amount is greater than 1.
         for k, v in self.reward_dict.items():
             assert int(v['amount']) <= 1, "Currently from universal is not implemented for item amounts > 1"
-        
+
         # Assert all items have the appropriate fields for the XML template.
         for item in self.items:
             assert set(item.keys()) == {"amount", "reward", "type"}
@@ -93,8 +91,9 @@ class _RewardForPosessingItemBase(RewardHandler):
     def from_universal(self, obs):
         raise NotImplementedError()
 
+
 class RewardForCollectingItems(_RewardForPosessingItemBase):
-    def __init__(self, item_rewards : List[Dict[str, Union[str,int]]]):
+    def __init__(self, item_rewards: List[Dict[str, Union[str, int]]]):
         """
         The standard malmo reward for collecting item.
 
@@ -102,7 +101,7 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
                 dict(type="log", amount=1, reward=1.0),
             ])
         """
-        super().__init__(sparse=False, exclude_loops=True, item_rewards=item_rewards )
+        super().__init__(sparse=False, exclude_loops=True, item_rewards=item_rewards)
 
     def from_universal(self, x):
         # TODO: Now get all of these to work correctly.
@@ -118,7 +117,6 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
         return total_reward
 
 
-
 class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
     """
     The standard malmo reward for collecting item once.
@@ -127,7 +125,8 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
             dict(type="log", amount=1, reward=1.0),
         ])
     """
-    def __init__(self, item_rewards : List[Dict[str, Union[str,int]]]):
+
+    def __init__(self, item_rewards: List[Dict[str, Union[str, int]]]):
         super().__init__(sparse=True, exclude_loops=True, item_rewards=item_rewards)
         self.seen_dict = dict()
 
@@ -145,7 +144,6 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
         return total_reward
 
 
-
 # <RewardForMissionEnd>
 #     <Reward description="out_of_time" reward="0" />
 # </RewardForMissionEnd>
@@ -159,8 +157,8 @@ class RewardForMissionEnd(RewardHandler):
                     <Reward description="{{ description }}" reward="{{ reward }}" />
                 </RewardForMissionEnd>"""
         )
-    
-    def __init__(self, reward : int, description :str = "out_of_time"):
+
+    def __init__(self, reward: int, description: str = "out_of_time"):
         """Creates a reward which is awarded when a mission ends."""
         super().__init__()
         self.reward = reward
@@ -171,8 +169,6 @@ class RewardForMissionEnd(RewardHandler):
         # Idea: just add an "episode terminated obs in the universal"
         # during generate.
         return 0
-
-
 
 
 #  <RewardForTouchingBlockType>
@@ -191,9 +187,8 @@ class RewardForTouchingBlockType(RewardHandler):
                     {% endfor %}
                 </RewardForTouchingBlockType>"""
         )
-        
 
-    def __init__(self, blocks : List[Dict[str, Union[str, int, float]]]):
+    def __init__(self, blocks: List[Dict[str, Union[str, int, float]]]):
         """Creates a reward which is awarded when the player touches a block.
         An example of instantiating the class:
 
@@ -214,7 +209,7 @@ class RewardForTouchingBlockType(RewardHandler):
             for block in obs['touched_blocks']:
                 for bl in self.blocks:
                     if bl['type'] in block['name'] and (
-                        not self.fired[bl['type']] or bl['behaviour'] is not "onlyOnce"):
+                            not self.fired[bl['type']] or bl['behaviour'] is not "onlyOnce"):
                         reward += bl['reward']
                         self.fired[bl['type']] = True
 
@@ -222,7 +217,6 @@ class RewardForTouchingBlockType(RewardHandler):
 
     def reset(self):
         self.fired = {bl['type']: False for bl in self.blocks}
-
 
 
 # <RewardForDistanceTraveledToCompassTarget rewardPerBlock="1" density="PER_TICK"/>
@@ -235,7 +229,7 @@ class RewardForDistanceTraveledToCompassTarget(RewardHandler):
             """<RewardForDistanceTraveledToCompassTarget rewardPerBlock="{{ reward_per_block }}" density="{{ density }}"/>"""
         )
 
-    def __init__(self, reward_per_block : int, density : str = 'PER_TICK'):
+    def __init__(self, reward_per_block: int, density: str = 'PER_TICK'):
         """Creates a reward which is awarded when the player reaches a certain distance from a target."""
         self.reward_per_block = reward_per_block
         self.density = density
@@ -258,5 +252,3 @@ class RewardForDistanceTraveledToCompassTarget(RewardHandler):
 
     def reset(self):
         self._prev_delta = None
-
-    

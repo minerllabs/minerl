@@ -12,13 +12,15 @@ from minerl.env._multiagent import _MultiAgentEnv
 from minerl.env._singleagent import _SingleAgentEnv
 from minerl.herobraine.env_specs.navigate_specs import Navigate
 
-
 logger = logging.getLogger(__name__)
+
+
 class _FakeEnvMixin(object):
     """A fake environment for unit testing.
 
     Uses the info from a single agent environment.
     """
+
     def __init__(self, *args, **kwargs):
         super(_FakeEnvMixin, self).__init__(*args, **kwargs)
 
@@ -28,34 +30,33 @@ class _FakeEnvMixin(object):
         # TODO: Make github issue for expanding fake envs.
         # TODO: Move fake environments.
         self._fake_malmo_data = np.load(
-            os.path.join(os.path.abspath(os.path.dirname(__file__)), 'info.npz'), 
-        allow_pickle=True)['arr_0'].tolist()
+            os.path.join(os.path.abspath(os.path.dirname(__file__)), 'info.npz'),
+            allow_pickle=True)['arr_0'].tolist()
 
-        
     def _setup_instances(self) -> None:
         self.instances = [NotImplemented for _ in range(self.task.agent_count)]
 
-    def _send_mission(self, _, mission_xml_etree : etree.Element, token_in : str) -> None:
+    def _send_mission(self, _, mission_xml_etree: etree.Element, token_in: str) -> None:
         logger.debug(
             "Sending fake XML for {}:".format(token_in)
-            +  etree.tostring(mission_xml_etree).decode())
-        
-    def _TO_MOVE_find_ip_and_port(self, _, token_in : str) -> Tuple[str,str]:
+            + etree.tostring(mission_xml_etree).decode())
+
+    def _TO_MOVE_find_ip_and_port(self, _, token_in: str) -> Tuple[str, str]:
         return "1", "1"
 
-    def _peek_obs(self) -> Dict[str,Any]:
-        r,_ = self._get_fake_obs()
+    def _peek_obs(self) -> Dict[str, Any]:
+        r, _ = self._get_fake_obs()
         return r
 
     def step(self, action) -> Tuple[
-        Dict[str,Dict[str, Any]], Dict[str,float], Dict[str,bool], Dict[str,Dict[str, Any]]]:
+        Dict[str, Dict[str, Any]], Dict[str, float], Dict[str, bool], Dict[str, Dict[str, Any]]]:
         fobs, monitor = self._get_fake_obs()
         done = False
         reward = {a: 0.0 for a in self.task.agent_names}
         for actor_name in self.task.agent_names:
             cmd = self._process_action(actor_name, action[actor_name])
         # TODO: Abstract the malmo communication out of the step function.p
-        
+
         return fobs, reward, done, monitor
 
     def _get_fake_obs(self) -> Dict[str, Any]:
@@ -75,14 +76,16 @@ class _FakeEnvMixin(object):
 
     def _get_fake_malmo_data(self) -> Dict[str, Any]:
         return copy.deepcopy(self._fake_malmo_data)
-        
+
 
 class _FakeMultiAgentEnv(_FakeEnvMixin, _MultiAgentEnv):
     """The fake multiagent environment."""
     pass
 
+
 class _FakeSingleAgentEnv(_FakeEnvMixin, _SingleAgentEnv):
     """The fake singleagent environment."""
+
     def step(self, action):
         # Gets the resulting s,r,d,i pair from super but
         # but returns s[self.task.agent_names[0]], ...

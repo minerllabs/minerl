@@ -9,11 +9,11 @@ import minerl
 import numpy as np
 
 import coloredlogs
+
 coloredlogs.install(logging.DEBUG)
 
+NUM_EPISODES = 1
 
-
-NUM_EPISODES=1
 
 def main():
     """
@@ -28,8 +28,8 @@ def main():
         while not done:
             random_act = env.action_space.noop()
             print(obs["compass"]["angle"])
-            
-            random_act['camera'] = [0, 0.1*obs["compass"]["angle"]]
+
+            random_act['camera'] = [0, 0.1 * obs["compass"]["angle"]]
             random_act['back'] = 0
             random_act['forward'] = 1
             random_act['jump'] = 1
@@ -40,9 +40,8 @@ def main():
             netr += reward
             env.render()
 
-
-
     print("Demo complete.")
+
 
 if __name__ == "__main__":
     main()

@@ -13,12 +13,11 @@ import os
 import signal
 from daemoniker import daemonize
 
-
-
 logger = logging.getLogger('process_watcher')
-MINERL_WATCHERS_DIR=os.path.join('logs', 'minerl_watchers')
+MINERL_WATCHERS_DIR = os.path.join('logs', 'minerl_watchers')
 
 CHILD_DIR_ARG = 'child-dirs'
+
 
 def parse_args():
     """Parses the arguments for the process watcher.
@@ -37,8 +36,6 @@ def parse_args():
     return parser.parse_args()
 
 
-
-
 def launch(parent_pid, child_pid, *temp_dirs):
     """Launches the process watcher with a PID.
 
@@ -51,20 +48,20 @@ def launch(parent_pid, child_pid, *temp_dirs):
     """
     logger.info("Launhing process watcher daemonizer.")
     subprocess.check_call([
-        'python', '-m', 'minerl.utils.process_watcher',
-        str(parent_pid), str(child_pid),
-        '--{}'.format(CHILD_DIR_ARG)] + list(temp_dirs))
+                              'python', '-m', 'minerl.utils.process_watcher',
+                              str(parent_pid), str(child_pid),
+                              '--{}'.format(CHILD_DIR_ARG)] + list(temp_dirs))
     logger.info("Process watcher daemonizer launched successfully.")
-
 
 
 def reap_process_and_children(process, timeout=5):
     "Tries hard to terminate and ultimately kill all the children of this process."
+
     def on_process_wait_successful(proc):
         returncode = proc.returncode if hasattr(proc, 'returncode') else None
         logger.info("Process {} terminated with exit code {}".format(
             proc, returncode))
-    
+
     def get_process_info(proc):
         return "{}:{}:{} i {}, owner {}".format(
             proc.pid,
@@ -74,6 +71,7 @@ def reap_process_and_children(process, timeout=5):
             proc.ppid()
 
         )
+
     procs = process.children(recursive=True)[::-1] + [process]
     try:
         logger.info("About to reap process tree of {}, ".format(get_process_info(process)) +
@@ -104,7 +102,8 @@ def reap_process_and_children(process, timeout=5):
                 except psutil.TimeoutExpired:
                     # Give up
                     logger.info(
-                    "Process {} survived SIGKILL; giving up (final status) {}, (owner) {}".format(p.pid, p.status(), p.ppid()))
+                        "Process {} survived SIGKILL; giving up (final status) {}, (owner) {}".format(p.pid, p.status(),
+                                                                                                      p.ppid()))
         except (psutil.NoSuchProcess, psutil.ZombieProcess):
             logger.info("Process {} does not exist or is zombie.".format(p))
 
@@ -115,7 +114,6 @@ def main(args):
     Args:
         args (--): Arguments from the process watcher.
     """
-
 
     # Wait for processes to be launched
     logger.info(
@@ -173,14 +171,11 @@ if __name__ == '__main__':
         args.child_pid
     )
 
-
-    daemonize(os.path.join(os_cur_dir,MINERL_WATCHERS_DIR, watcher_name + '.pid'))   
+    daemonize(os.path.join(os_cur_dir, MINERL_WATCHERS_DIR, watcher_name + '.pid'))
 
     coloredlogs.install(level=logging.DEBUG, stream=open(
         os.path.join(os_cur_dir, MINERL_WATCHERS_DIR, watcher_name + '.log'), 'w'
     ))
 
     main(args)
-    exit() # Correctly invoke the at_exit handlers and any other os clean up _explicitly_!
-
-        
+    exit()  # Correctly invoke the at_exit handlers and any other os clean up _explicitly_!

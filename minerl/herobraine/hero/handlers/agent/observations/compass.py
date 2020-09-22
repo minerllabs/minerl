@@ -1,4 +1,3 @@
-
 """
     Defines compass observations.
 """
@@ -12,6 +11,8 @@ from minerl.herobraine.hero import spaces
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler, TranslationHandlerGroup
 
 __all__ = ['CompassObservation']
+
+
 class CompassObservation(TranslationHandlerGroup):
     def to_string(self) -> str:
         return "compass"
@@ -19,7 +20,7 @@ class CompassObservation(TranslationHandlerGroup):
     def xml_template(self) -> str:
         return str(
             """<ObservationFromCompass/>"""
-        ) 
+        )
 
     def __init__(self, angle=True, distance=False):
         """Initializes a compass observation. Forms
@@ -41,11 +42,12 @@ class CompassObservation(TranslationHandlerGroup):
                 KeymapTranslationHandler(
                     hero_keys=["distanceToCompassTarget"],
                     univ_keys=['compass', 'distance'],
-                    to_string = "distance",
-                    space=spaces.Box(low=0,high=np.inf,  shape=(), dtype=np.float32))
+                    to_string="distance",
+                    space=spaces.Box(low=0, high=np.inf, shape=(), dtype=np.float32))
             )
 
         super(CompassObservation, self).__init__(handlers=handlers)
+
 
 class _CompassAngleObservation(KeymapTranslationHandler):
     """
@@ -55,9 +57,9 @@ class _CompassAngleObservation(KeymapTranslationHandler):
     def __init__(self):
         super().__init__(
             hero_keys=["compassAngle"],
-            univ_keys=['compass',"angle"],
+            univ_keys=['compass', "angle"],
             space=spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32),
-            to_string = "angle"
+            to_string="angle"
         )
 
     def from_universal(self, obs):

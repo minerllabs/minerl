@@ -23,7 +23,7 @@ def launch():
 if __name__ == '__main__':
     if len(sys.argv) == 2 and sys.argv[1] == 'daemon':
 
-        daemonize('pid.pid')        
+        daemonize('pid.pid')
 
         print("daemon", os.getpid(), os.getppid())
         time.sleep(1)

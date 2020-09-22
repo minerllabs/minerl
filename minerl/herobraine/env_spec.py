@@ -16,17 +16,16 @@ import os
 import abc
 import importlib
 
-
-
 MISSION_TEMPLATE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'hero', 'mission.xml.j2')
 from minerl.herobraine.hero import spaces
+
 
 class EnvSpec(abc.ABC):
     U_MULTI_AGENT_ENTRYPOINT = 'minerl.env._multiagent:_MultiAgentEnv'
     U_FAKE_MULTI_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeMultiAgentEnv'
     U_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._singleagent:_SingleAgentEnv'
-    U_FAKE_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeSingleAgentEnv' 
+    U_FAKE_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeSingleAgentEnv'
 
     def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=1):
         self.name = name
@@ -40,11 +39,10 @@ class EnvSpec(abc.ABC):
     def reset(self):
         self.observables = self.create_observables()
         self.actionables = self.create_actionables()
-        self.rewardables = self.create_rewardables() 
+        self.rewardables = self.create_rewardables()
         self.agent_handlers = self.create_agent_handlers()
         self.agent_start = self.create_agent_start()
         self.monitors = self.create_monitors()
-
 
         self.server_initial_conditions = self.create_server_initial_conditions()
         self.server_world_generators = self.create_server_world_generators()
@@ -56,18 +54,16 @@ class EnvSpec(abc.ABC):
         assert len([o.to_string() for o in self.observables]) == len(set([o.to_string() for o in self.observables]))
         assert len([a.to_string() for a in self.actionables]) == len(set([a.to_string() for a in self.actionables]))
 
-
         self._observation_space = self.create_observation_space()
         self._action_space = self.create_action_space()
         self._monitor_space = self.create_monitor_space()
-    
+
     ########################
     ### API METHODS #######
     #######################
 
-
     ############## AGENT ##########################
-    
+
     # observables
     @abstractmethod
     def create_observables(self) -> List[TranslationHandler]:
@@ -98,9 +94,8 @@ class EnvSpec(abc.ABC):
         at the beginning of a mission. This can be used for domain randomization
         as these handlers are reinstantiated on every reset!
         """
-        raise  NotImplementedError('subclasses must override create_agent_start()!')
+        raise NotImplementedError('subclasses must override create_agent_start()!')
 
-    
     @abstractmethod
     def create_agent_handlers(self) -> List[Handler]:
         """Creates all of the agent handlers for an env specificaiton.
@@ -118,7 +113,6 @@ class EnvSpec(abc.ABC):
         """
         raise NotImplementedError('subclasses must override create_agent_handlers()!')
 
-
     @abstractmethod
     def create_monitors(self) -> List[TranslationHandler]:
         """Specifies all of the environment monitor handlers for the env specification.
@@ -133,27 +127,26 @@ class EnvSpec(abc.ABC):
         """
         raise NotImplementedError('subclasses must override create_monitors()!')
 
-
     ##################### SERVER #########################
 
     @abstractmethod
     def create_server_initial_conditions(self) -> List[Handler]:
-        raise  NotImplementedError('subclasses must override create_server_initial_conditions()!')
+        raise NotImplementedError('subclasses must override create_server_initial_conditions()!')
 
     @abstractmethod
-    def create_server_decorators(self) -> List[Handler]:     
-        raise NotImplementedError('subclasses must override create_server_decorators()!')   
-    
-    @abstractmethod     
-    def create_server_world_generators(self) -> List[Handler]:     
-        raise NotImplementedError('subclasses must override create_server_world_generators()!')       
-    
-    @abstractmethod     
-    def create_server_quit_producers(self) -> List[Handler]:     
-        raise NotImplementedError('subclasses must override create_server_quit_producers()!')       
-    
+    def create_server_decorators(self) -> List[Handler]:
+        raise NotImplementedError('subclasses must override create_server_decorators()!')
 
-    ################## PROPERTIES & HELPERS #################
+    @abstractmethod
+    def create_server_world_generators(self) -> List[Handler]:
+        raise NotImplementedError('subclasses must override create_server_world_generators()!')
+
+    @abstractmethod
+    def create_server_quit_producers(self) -> List[Handler]:
+        raise NotImplementedError('subclasses must override create_server_quit_producers()!')
+
+        ################## PROPERTIES & HELPERS #################
+
     @property
     def observation_space(self) -> Dict:
         return self._observation_space
@@ -162,10 +155,9 @@ class EnvSpec(abc.ABC):
     def action_space(self) -> Dict:
         return self._action_space
 
-    @property 
-    def monitor_space(self) -> Dict:     
+    @property
+    def monitor_space(self) -> Dict:
         return self._monitor_space
-    
 
     def to_string(self):
         return self.name
@@ -179,7 +171,7 @@ class EnvSpec(abc.ABC):
         # TODO: 
         raise NotImplementedError('subclasses must override determine_success_from_rewards()')
 
-    def _singlify(self, space : spaces.Dict):
+    def _singlify(self, space: spaces.Dict):
         if self.agent_count is 1:
             return space.spaces[self.agent_names[0]]
         else:
@@ -194,10 +186,10 @@ class EnvSpec(abc.ABC):
 
     def create_action_space(self):
         return self._singlify(spaces.Dict({
-             agent: spaces.Dict({
+            agent: spaces.Dict({
                 a.to_string(): a.space for a in self.actionables
-            }) for agent in self.agent_names    
-        }))       
+            }) for agent in self.agent_names
+        }))
 
     def create_monitor_space(self):
         return self._singlify(spaces.Dict({
@@ -217,11 +209,10 @@ class EnvSpec(abc.ABC):
             fake (bool, optional): Whether or not the env created should be fake. 
             Defaults to False.
         """
-        entry_point=self._entry_point(fake)
+        entry_point = self._entry_point(fake)
         module = importlib.import_module(entry_point.split(':')[0])
         class_ = getattr(module, entry_point.split(':')[-1])
         return class_(**self._env_kwargs(), **additonal_kwargs)
-        
 
     def register(self, fake=False):
         reg_spec = dict(
@@ -235,22 +226,20 @@ class EnvSpec(abc.ABC):
 
         gym.register(**reg_spec)
 
-    
-    def _entry_point(self, fake : bool) -> str:
+    def _entry_point(self, fake: bool) -> str:
         if fake:
-            return  (
-                EnvSpec.U_FAKE_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1 
+            return (
+                EnvSpec.U_FAKE_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1
                 else EnvSpec.U_FAKE_MULTI_AGENT_ENTRYPOINT)
         else:
-            return  (
-                EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1 
+            return (
+                EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.agent_count == 1
                 else EnvSpec.U_MULTI_AGENT_ENTRYPOINT)
 
-    
     def _env_kwargs(self) -> typing.Dict[str, typing.Any]:
         return {
-                'env_spec': self,
-            }
+            'env_spec': self,
+        }
 
     def __repr__(self):
         """
@@ -274,13 +263,13 @@ class EnvSpec(abc.ABC):
             xml = template.render(var_dict)
 
         # Now do one more pretty printing
-        
+
         xml = etree.tostring(etree.fromstring(xml.encode('utf-8')), pretty_print=True).decode('utf-8')
         # TODO: Perhaps some logging is necessary
         # print(xml)
         return xml
-            
-    def get_consolidated_xml(self, handlers : List[Handler]) -> List[str]:
+
+    def get_consolidated_xml(self, handlers: List[Handler]) -> List[str]:
         """Consolidates duplicate XML representations from the handlers.
 
         Deduplication happens by first getting all of the handler.xml() strings
@@ -296,17 +285,12 @@ class EnvSpec(abc.ABC):
         """
         handler_xml_strs = [handler.xml() for handler in handlers]
 
-        
         if not handler_xml_strs:
             return ''
 
         # TODO: RAISE VALID XML ERROR. FOR EASE OF USE
         trees = [etree.fromstring(xml) for xml in handler_xml_strs]
         consolidated_trees = {tree.tag: tree for tree in trees}.values()
-        
-        
 
-        return [etree.tostring(t, pretty_print=True).decode('utf-8')  
-            for t in consolidated_trees]
-
-
+        return [etree.tostring(t, pretty_print=True).decode('utf-8')
+                for t in consolidated_trees]

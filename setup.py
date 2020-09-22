@@ -22,17 +22,17 @@ with open("README.md", "r") as fh:
 with open("requirements.txt", "r") as fh:
     requirements = fh.read()
 
-MALMO_BRANCH="minerl"
-MALMO_VERSION="0.37.0"
+MALMO_BRANCH = "minerl"
+MALMO_VERSION = "0.37.0"
 MALMO_DIR = os.path.join(os.path.dirname(__file__), 'minerl', 'Malmo')
 BINARIES_IGNORE = shutil.ignore_patterns(
-    'build', 
-    'bin', 
-    'dists', 
-    'caches', 
+    'build',
+    'bin',
+    'dists',
+    'caches',
     'native',
-    '.git', 
-    'doc', 
+    '.git',
+    'doc',
     '*.lock',
     '.gradle',
     '.minecraftserver',
@@ -44,6 +44,8 @@ BINARIES_IGNORE = shutil.ignore_patterns(
 
 try:
     from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+
+
     # @minecraft_build
     class bdist_wheel(_bdist_wheel):
         def finalize_options(self):
@@ -59,10 +61,14 @@ except ImportError:
 # Original fix proposed here: https://github.com/google/or-tools/issues/616
 class BinaryDistribution(Distribution):
     """This class is needed in order to create OS specific wheels."""
+
     def has_ext_modules(self):
         return True
+
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 
 class InstallPlatlib(install):
     def finalize_options(self):
@@ -76,6 +82,7 @@ class InstallWithMinecraftLib(install_lib):
     """Overrides the build command in install lib to build the minecraft library
     and place it in the build directory.
     """
+
     def build(self):
         super().build()
         # Install Minecraft to the build directory. Let's first print it.
@@ -84,6 +91,7 @@ class InstallWithMinecraftLib(install_lib):
         ))
         # TODO (R): Build the parser [not necessary at the moment]
 
+
 class CustomBuild(build):
     def run(self):
         super().run()
@@ -91,8 +99,10 @@ class CustomBuild(build):
             self.build_lib, 'minerl', 'Malmo'
         ))
 
+
 class ShadowInplace(Command):
     user_options = []
+
     def initialize_options(self):
         pass
 
@@ -102,7 +112,6 @@ class ShadowInplace(Command):
     def run(self):
         build_minecraft(MALMO_DIR, MALMO_DIR)
 
-        
 
 def build_minecraft(source_dir, build_dir):
     """Set up Minecraft for use with the MalmoEnv gym environment"""
@@ -113,12 +122,12 @@ def build_minecraft(source_dir, build_dir):
         print("copying source dir")
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir)
-        shutil.copytree(source_dir, build_dir, 
-            ignore=BINARIES_IGNORE
-        ) 
+        shutil.copytree(source_dir, build_dir,
+                        ignore=BINARIES_IGNORE
+                        )
 
-    gradlew =  'gradlew.bat' if os.name == 'nt' else './gradlew'
-    
+    gradlew = 'gradlew.bat' if os.name == 'nt' else './gradlew'
+
     # TODO: Remove the change directoty.
     # 2. Change to the directory and build it; perhaps it need live inside of MineRL
     cwd = os.getcwd()
@@ -142,21 +151,22 @@ def build_minecraft(source_dir, build_dir):
         os.chdir(cwd)
     return build_dir
 
+
 setuptools.setup(
-      name='minerl',
-      version=os.environ.get('MINERL_BUILD_VERSION','0.4.0'),
-      description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
-      long_description=markdown,
-      long_description_content_type="text/markdown",
-      url='http://github.com/minerllabs/minerl',
-      author='MineRL Labs',
-      author_email='minerl@andrew.cmu.edu',
-      license='MIT',
-      packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
-            classifiers=[
-                 "Programming Language :: Python :: 3",
-                 "Operating System :: OS Independent",
-            ],
+    name='minerl',
+    version=os.environ.get('MINERL_BUILD_VERSION', '0.4.0'),
+    description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
+    long_description=markdown,
+    long_description_content_type="text/markdown",
+    url='http://github.com/minerllabs/minerl',
+    author='MineRL Labs',
+    author_email='minerl@andrew.cmu.edu',
+    license='MIT',
+    packages=setuptools.find_packages(exclude=['tests', 'tests.*']),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent",
+    ],
     install_requires=requirements,
     distclass=BinaryDistribution,
     include_package_data=True,

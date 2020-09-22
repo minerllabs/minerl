@@ -1,4 +1,3 @@
-
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
@@ -23,8 +22,7 @@ class TranslationHandler(Handler):
     def __init__(self, space: MineRLSpace, **other_kwargs):
         self.space = space
 
-
-    def from_hero(self, x : typing.Dict[str, Any]) :
+    def from_hero(self, x: typing.Dict[str, Any]):
         """
         Converts a "hero" representation of an instance of this handler
         to a member of the space.
@@ -38,7 +36,7 @@ class TranslationHandler(Handler):
         """
         raise NotImplementedError()
 
-    def from_universal(self, x : typing.Dict[str, Any]):
+    def from_universal(self, x: typing.Dict[str, Any]):
         """sure
         Converts a universal representation of the handler (e.g. unviersal action/observation)
         """
@@ -48,11 +46,11 @@ class TranslationHandler(Handler):
 # TODO: ONLY WORKS FOR OBSERVATIONS.
 # TODO: Consider moving this to observations.
 class KeymapTranslationHandler(TranslationHandler):
-    def __init__(self, 
-        hero_keys: typing.List[str], 
-        univ_keys: typing.List[str], 
-        space: MineRLSpace, default_if_missing=None,
-        to_string : str = None):
+    def __init__(self,
+                 hero_keys: typing.List[str],
+                 univ_keys: typing.List[str],
+                 space: MineRLSpace, default_if_missing=None,
+                 to_string: str = None):
         """
         Wrapper for simple observations which just remaps keys.
         :param keys: list of nested dictionary keys from the root of the observation dict
@@ -66,7 +64,6 @@ class KeymapTranslationHandler(TranslationHandler):
         self.default_if_missing = default_if_missing
         # TODO (R): UNIFY THE LOGGING FRAMEWORK FOR MINERL
         self.logger = logging.getLogger(f'{__name__}.{self.to_string()}')
-
 
     def walk_dict(self, d, keys):
         for key in keys:
@@ -93,36 +90,37 @@ class KeymapTranslationHandler(TranslationHandler):
 
     def from_universal(self, univ_dict):
         return self.walk_dict(univ_dict, self.univ_keys)
-    
+
     def to_string(self) -> str:
         return self._to_string
-    
+
+
 class TranslationHandlerGroup(TranslationHandler):
     """Combines several space handlers into a single handler group.
     """
-    def __init__(self, handlers : List[TranslationHandler]):
 
+    def __init__(self, handlers: List[TranslationHandler]):
         self.handlers = sorted(handlers, key=lambda x: x.to_string())
         super(TranslationHandlerGroup, self).__init__(
             spaces.Dict([(h.to_string(), h.space) for h in self.handlers])
         )
 
-    def to_hero(self, x : typing.Dict[str, Any]) -> str:
+    def to_hero(self, x: typing.Dict[str, Any]) -> str:
         """Produces a string from an object X contained in self.space
         into a string by calling all of the corresponding
         to_hero methods and joining them with new lines
         """
 
-        return  "\n".join(
+        return "\n".join(
             [self.handler_dict[s].to_hero(x[s]) for s in self.handler_dict])
 
-    def from_hero(self, x : typing.Dict[str, Any]) -> typing.Dict[str, Any]:
+    def from_hero(self, x: typing.Dict[str, Any]) -> typing.Dict[str, Any]:
         """Applies the constituent from_hero methods on the object X 
            and builds a dictionary with keys corresponding to the constituent 
            handlers applied."""
 
-        return  {
-            h.to_string() : h.from_hero(x)
+        return {
+            h.to_string(): h.from_hero(x)
             for h in self.handlers
         }
 
@@ -139,4 +137,3 @@ class TranslationHandlerGroup(TranslationHandler):
         return {
             h.to_string(): h for h in self.handlers
         }
-

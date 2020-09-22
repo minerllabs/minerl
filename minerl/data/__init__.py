@@ -6,7 +6,9 @@ from minerl.data.version import DATA_VERSION, FILE_PREFIX, VERSION_FILE_NAME
 
 import minerl.data.version
 
-def make(environment=None , data_dir=None, num_workers=4, worker_batch_size=32, minimum_size_to_dequeue=32, force_download=False):
+
+def make(environment=None, data_dir=None, num_workers=4, worker_batch_size=32, minimum_size_to_dequeue=32,
+         force_download=False):
     """
     Initalizes the data loader with the chosen environment
     

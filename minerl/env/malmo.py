@@ -23,11 +23,11 @@ import logging
 import multiprocessing
 import os
 import traceback
-import pathlib 
+import pathlib
 import Pyro4.core
 import argparse
 from enum import IntEnum
- 
+
 import shutil
 import socket
 import struct
@@ -43,7 +43,6 @@ import uuid
 import psutil
 import Pyro4
 
-
 from random import Random
 from minerl.env import comms
 import minerl.utils.process_watcher
@@ -51,6 +50,7 @@ import minerl.utils.process_watcher
 logger = logging.getLogger(__name__)
 
 malmo_version = "0.37.0"
+
 
 class SeedType(IntEnum):
     """The seed type for an instance manager.
@@ -70,17 +70,16 @@ class SeedType(IntEnum):
     GENERATED = 2
     SPECIFIED = 3
 
-
-
     @classmethod
     def get_index(cls, type):
         return list(cls).index(type)
 
-        
+
 MAXRAND = 1000000
 
 INSTANCE_MANAGER_PYRO = 'minerl.instance_manager'
 MINERL_INSTANCE_MANAGER_REMOTE = 'MINERL_INSTANCE_MANAGER_REMOTE'
+
 
 @Pyro4.expose
 @Pyro4.behavior(instance_mode="single")
@@ -94,8 +93,8 @@ class InstanceManager:
     Note: In future versions of MineRL the instance manager will become its own daemon process which provides
     instance allocation capability using remote procedure calls.
     """
-    MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), '..', 'Malmo', 'Minecraft') 
-    SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), '..', 'Malmo', 'Schemas') 
+    MINECRAFT_DIR = os.path.join(os.path.dirname(__file__), '..', 'Malmo', 'Minecraft')
+    SCHEMAS_DIR = os.path.join(os.path.dirname(__file__), '..', 'Malmo', 'Schemas')
     STATUS_DIR = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), 'performance')
     MAXINSTANCES = None
     KEEP_ALIVE_PYRO_FREQUENCY = 5
@@ -123,7 +122,7 @@ class InstanceManager:
             TypeError: If the SeedType specified does not fall within the SeedType.
         """
         seed_type = int(seed_type)
-        
+
         if seed_type == (SeedType.NONE):
             assert seeds is None, "Seed type set to NONE, therefore seed cannot be set."
         elif seed_type == (SeedType.CONSTANT):
@@ -136,11 +135,11 @@ class InstanceManager:
             cls._seed_generator = ([[str(x) for x in s.split(",") if x] for s in seeds.split("-") if s])
         else:
             raise TypeError("Seed type {} not supported".format(seed_type))
-        
-        cls._seed_type  = seed_type
+
+        cls._seed_type = seed_type
 
     @classmethod
-    def _get_next_seed(cls, i=None): # TODO (R): Update this documentation. And clean the param name. 
+    def _get_next_seed(cls, i=None):  # TODO (R): Update this documentation. And clean the param name.
         """Gets the next seed for an instance.
         
         Raises:
@@ -155,7 +154,7 @@ class InstanceManager:
             return [cls._seed_generator.randint(-MAXRAND, MAXRAND)]
         elif cls._seed_type == SeedType.SPECIFIED:
             try:
-                if i is None: 
+                if i is None:
                     i = 0
                     logger.warning("Trying to use specified seed type without specifying index id.")
                 return (cls._seed_generator[i])
@@ -163,7 +162,6 @@ class InstanceManager:
                 raise TypeError("Seed type {} ran out of seeds.".format(cls._seed_type))
         else:
             raise TypeError("Seed type {} does not support getting next seed".format(cls._seed_type))
-
 
     @classmethod
     def get_instance(cls, pid, instance_id=None):
@@ -184,11 +182,9 @@ class InstanceManager:
             for inst in cls._instance_pool:
                 if not inst.locked:
                     inst._acquire_lock(pid)
-        
 
                     if hasattr(cls, "_pyroDaemon"):
                         cls._pyroDaemon.register(inst)
-                        
 
                     return inst
         # Otherwise make a new instance if possible
@@ -214,7 +210,7 @@ class InstanceManager:
                     cls._pyroDaemon.register(inst)
 
                 return inst
- 
+
             else:
                 raise RuntimeError("No available instances and max instances reached! :O :O")
         else:
@@ -241,14 +237,15 @@ class InstanceManager:
     @classmethod
     def add_existing_instance(cls, port):
         assert cls._is_port_taken(port), "No Malmo mod utilizing the port specified."
-        instance = MinecraftInstance(port=port, existing=True,  status_dir=None)
+        instance = MinecraftInstance(port=port, existing=True, status_dir=None)
         cls._instance_pool.append(instance)
         cls.ninstances += 1
         return instance
 
     @classmethod
-    def add_keep_alive(cls,_pid, _callback):
+    def add_keep_alive(cls, _pid, _callback):
         logger.debug("Recieved keep-alive callback from client {}. Starting thread.".format(_pid))
+
         def check_client_connected(client_pid, keep_alive_proxy):
             logger.debug("Client keep-alive connection monitor started for {}.".format(client_pid))
             while True:
@@ -269,7 +266,7 @@ class InstanceManager:
 
     @staticmethod
     def _is_port_taken(port, address='0.0.0.0'):
-        if psutil.MACOS  or psutil.AIX:
+        if psutil.MACOS or psutil.AIX:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 s.bind((address, port))
@@ -283,7 +280,7 @@ class InstanceManager:
             s.close()
             return taken
         else:
-            ports = [x.laddr.port for x  in psutil.net_connections()]
+            ports = [x.laddr.port for x in psutil.net_connections()]
             return port in ports
 
     @staticmethod
@@ -304,19 +301,17 @@ class InstanceManager:
     @classmethod
     def _get_valid_port(cls):
         malmo_base_port = cls._malmo_base_port
-        port = (cls.ninstances  % 5000) + malmo_base_port
-        port += (17 * os.getpid())  % 3989
+        port = (cls.ninstances % 5000) + malmo_base_port
+        port += (17 * os.getpid()) % 3989
         while cls._is_port_taken(port) or \
-              cls._is_display_port_taken(port - malmo_base_port, cls.X11_DIR) or \
-              cls._port_in_instance_pool(port):
+                cls._is_display_port_taken(port - malmo_base_port, cls.X11_DIR) or \
+                cls._port_in_instance_pool(port):
             port += 1
         return port
-
 
     @classmethod
     def is_remote(cls):
         return cls.REMOTE
-
 
 
 @Pyro4.expose
@@ -335,7 +330,7 @@ class MinecraftInstance(object):
     """
     MAX_PIPE_LENGTH = 500
 
-    def __init__(self, port=None, existing=False, status_dir=None, seed=None, instance_id=None): 
+    def __init__(self, port=None, existing=False, status_dir=None, seed=None, instance_id=None):
         """
         Launches the subprocess.
         """
@@ -349,7 +344,7 @@ class MinecraftInstance(object):
         self._port = port
         self._host = InstanceManager.DEFAULT_IP
         self.locked = False
-        self.uuid = str(uuid.uuid4()).replace("-","")[:6]
+        self.uuid = str(uuid.uuid4()).replace("-", "")[:6]
         self.existing = existing
         self.minecraft_dir = None
         self.instance_dir = None
@@ -388,29 +383,25 @@ class MinecraftInstance(object):
                             ignore=shutil.ignore_patterns('cache.properties.lock'))
             shutil.copytree(os.path.join(InstanceManager.SCHEMAS_DIR), os.path.join(self.instance_dir, 'Schemas'))
 
-                
             # 0. Get PID of launcher.
             parent_pid = os.getpid()
             # 1. Launch minecraft process and 
-            self.minecraft_process=  self._launch_minecraft(
-                port, 
+            self.minecraft_process = self._launch_minecraft(
+                port,
                 InstanceManager.headless,
                 self.minecraft_dir,
                 replaceable=replaceable)
 
-            
             # 2. Create a watcher process to ensure things get cleaned up
             if not daemonize:
                 # 2. Create a watcher process to ensure things get cleaned up
                 self.watcher_process = minerl.utils.process_watcher.launch(
                     parent_pid, self.minecraft_process.pid, self.instance_dir)
 
-            
             # wait until Minecraft process has outputed "CLIENT enter state: DORMANT"
             lines = []
             client_ready = False
             server_ready = False
-
 
             while True:
                 mine_log_encoding = locale.getpreferredencoding(False)
@@ -426,39 +417,42 @@ class MinecraftInstance(object):
                     for l in lines:
                         spline = "\n".join(l.split("\n")[:-1])
                         self._logger.error(spline)
-                        error_str += spline +"\n"
+                        error_str += spline + "\n"
                     # Throw an exception!
-                    raise EOFError(error_str + "\n\nMinecraft process finished unexpectedly. There was an error with Malmo.")
-                
+                    raise EOFError(
+                        error_str + "\n\nMinecraft process finished unexpectedly. There was an error with Malmo.")
+
                 lines.append(line)
                 self._log_heuristic("\n".join(line.split("\n")[:-1]))
-                
 
-                MALMOENVPORTSTR =  "***** Start MalmoEnvServer on port " 
+                MALMOENVPORTSTR = "***** Start MalmoEnvServer on port "
                 port_received = MALMOENVPORTSTR in line
                 if port_received:
                     self._port = int(line.split(MALMOENVPORTSTR)[-1].strip())
-                    
-                client_ready =  "CLIENT enter state: DORMANT" in line
-                server_ready =  "SERVER enter state: DORMANT" in line
 
-                if  client_ready:
+                client_ready = "CLIENT enter state: DORMANT" in line
+                server_ready = "SERVER enter state: DORMANT" in line
+
+                if client_ready:
                     break
-            
+
             if not self.port:
-                raise RuntimeError("Malmo failed to start the MalmoEnv server! Check the logs from the Minecraft process.")
+                raise RuntimeError(
+                    "Malmo failed to start the MalmoEnv server! Check the logs from the Minecraft process.")
             self._logger.info("Minecraft process ready")
-                
 
             if not port == self._port:
-                self._logger.warning("Tried to launch Minecraft on port {} but that port was taken, instead Minecraft is using port {}.".format(port, self.port))
+                self._logger.warning(
+                    "Tried to launch Minecraft on port {} but that port was taken, instead Minecraft is using port {}.".format(
+                        port, self.port))
+
             # supress entire output, otherwise the subprocess will block
             # NB! there will be still logs under Malmo/Minecraft/run/logs
             # FNULL = open(os.devnull, 'w')
             # launch a logger process
             def log_to_file(logdir):
                 if not os.path.exists(os.path.join(logdir, 'logs')):
-                        os.makedirs((os.path.join(logdir, 'logs')))
+                    os.makedirs((os.path.join(logdir, 'logs')))
 
                 file_path = os.path.join(logdir, 'logs', 'mc_{}.log'.format(self._target_port - 9000))
 
@@ -473,7 +467,7 @@ class MinecraftInstance(object):
                         line = self.minecraft_process.stdout.readline()
                         if not line:
                             break
-                        
+
                         try:
                             linestr = line.decode(mine_log_encoding)
                         except UnicodeDecodeError:
@@ -489,7 +483,7 @@ class MinecraftInstance(object):
                         mine_log.flush()
                 finally:
                     mine_log.close()
-                
+
             logdir = os.environ.get('MALMO_MINECRAFT_OUTPUT_LOGDIR', '.')
             self._logger_thread = threading.Thread(target=functools.partial(log_to_file, logdir=logdir))
             self._logger_thread.setDaemon(True)
@@ -571,7 +565,7 @@ class MinecraftInstance(object):
 
         launch_script = os.path.join(minecraft_dir, launch_script)
         rundir = os.path.join(minecraft_dir, 'run')
-        
+
         cmd = [launch_script, '-port', str(port), '-env', '-runDir', rundir]
         if self.status_dir:
             cmd += ['-performanceDir', self.status_dir]
@@ -587,14 +581,14 @@ class MinecraftInstance(object):
         preexec_fn = os.setsid if 'linux' in str(sys.platform) or sys.platform == 'darwin' else None
         # print(preexec_fn)
         minecraft_process = psutil.Popen(cmd,
-            cwd=InstanceManager.MINECRAFT_DIR, # TODO (R): Asses if this works with new wheel.
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            # use process group, see http://stackoverflow.com/a/4791612/18576
-            preexec_fn=preexec_fn
-        )
+                                         cwd=InstanceManager.MINECRAFT_DIR,
+                                         # TODO (R): Asses if this works with new wheel.
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.STDOUT,
+                                         # use process group, see http://stackoverflow.com/a/4791612/18576
+                                         preexec_fn=preexec_fn
+                                         )
         return minecraft_process
-
 
     @staticmethod
     def _kill_minecraft_via_malmoenv(host, port):
@@ -629,7 +623,6 @@ class MinecraftInstance(object):
             self.running = False
             self._starting = False
 
-
             # Wait for the process to start.
             time.sleep(1)
             # kill the minecraft process and its subprocesses
@@ -650,7 +643,6 @@ class MinecraftInstance(object):
                 self.release_lock()
         pass
 
-    
     def __repr__(self):
         return ("Malmo[{}:{}, proc={}, addr={}:{}, locked={}]".format(
             self.role,
@@ -675,10 +667,10 @@ class MinecraftInstance(object):
         message content
         '''
         if (
-            ('STDERR' in msg or 'ERROR' in msg or 'Exception' in msg or '    at ' in msg or msg.startswith('Error'))
-            and 
-            (not 'connection closed, likely by peer' in msg)
-            ):
+                ('STDERR' in msg or 'ERROR' in msg or 'Exception' in msg or '    at ' in msg or msg.startswith('Error'))
+                and
+                (not 'connection closed, likely by peer' in msg)
+        ):
             self._logger.error(msg)
         elif 'WARN' in msg:
             self._logger.warn(msg)
@@ -690,7 +682,7 @@ class MinecraftInstance(object):
 
 def _check_for_launch_errors(line):
     if "at org.lwjgl.opengl.Display.<clinit>" in line:
-        raise  RuntimeError(
+        raise RuntimeError(
             "ERROR! MineRL could not detect an X Server, Monitor, or Virtual Monitor! "
             "\n"
             "\n"
@@ -726,7 +718,6 @@ def _check_for_launch_errors(line):
             "If all else fails, JUST PUT THIS IN A DOCKER CONTAINER! :)")
 
 
-
 def launch_queue_logger_thread(output_producer, should_end):
     def queue_logger_thread(out_prod, should_end):
         while not should_end():
@@ -743,14 +734,12 @@ def launch_queue_logger_thread(output_producer, should_end):
             except Exception as e:
                 print(e)
                 break
-        
-    
+
     thread = threading.Thread(
         target=queue_logger_thread,
         args=(output_producer, should_end))
     thread.setDaemon(True)
     thread.start()
-            
 
 
 def launch_instance_manager():
@@ -759,22 +748,20 @@ def launch_instance_manager():
     # Todo: Use name servers in the docker contexct (set up a docker compose?)
     # pyro4-ns
     parser = argparse.ArgumentParser("python3 launch_instance_manager.py")
-    parser.add_argument("--seeds", type=str, default=None, 
-        help="The default seed for the environment.")
-    parser.add_argument("--seeding_type", type=str, default=SeedType.CONSTANT, 
-        help="The seeding type for the environment. Defaults to 1 (CONSTANT)"
-             "if a seed specified, otherwise 0 (NONE): \n{}".format(SeedType.__doc__))
+    parser.add_argument("--seeds", type=str, default=None,
+                        help="The default seed for the environment.")
+    parser.add_argument("--seeding_type", type=str, default=SeedType.CONSTANT,
+                        help="The seeding type for the environment. Defaults to 1 (CONSTANT)"
+                             "if a seed specified, otherwise 0 (NONE): \n{}".format(SeedType.__doc__))
 
-    
     parser.add_argument("--max_instances", type=int, default=None,
-        help="The maximum number of instances the instance manager is able to spawn,"
-              "before an exception is thrown. Defaults to Unlimited.")
+                        help="The maximum number of instances the instance manager is able to spawn,"
+                             "before an exception is thrown. Defaults to Unlimited.")
     opts = parser.parse_args()
-    
+
     if opts.max_instances is not None:
         assert opts.max_instances > 0, "Maximum instances must be more than zero!"
         InstanceManager.MAXINSTANCES = opts.max_instances
-    
 
     try:
         print("Removing the performance directory!")
@@ -785,9 +772,9 @@ def launch_instance_manager():
         finally:
             if not os.path.exists(InstanceManager.STATUS_DIR):
                 os.makedirs(InstanceManager.STATUS_DIR)
-        print("autoproxy?",Pyro4.config.AUTOPROXY)
+        print("autoproxy?", Pyro4.config.AUTOPROXY)
         InstanceManager.REMOTE = True
-        Pyro4.config.COMMTIMEOUT = InstanceManager.KEEP_ALIVE_PYRO_FREQUENCY  
+        Pyro4.config.COMMTIMEOUT = InstanceManager.KEEP_ALIVE_PYRO_FREQUENCY
 
         # Initialize seeding.
         if opts.seeds is not None:
@@ -795,13 +782,12 @@ def launch_instance_manager():
         else:
             InstanceManager._init_seeding(seed_type=SeedType.NONE)
 
-        
         Pyro4.Daemon.serveSimple(
             {
                 InstanceManager: INSTANCE_MANAGER_PYRO
             },
-            ns = True)
-        
+            ns=True)
+
     except Pyro4.errors.NamingError as e:
         print(e)
         print("Start the Pyro name server with pyro4-ns and re-run this script.")
@@ -813,18 +799,20 @@ class CustomAsyncRemoteMethod(Pyro4.core._AsyncRemoteMethod):
         val = res.value
         if isinstance(val, Pyro4.Proxy):
             val._pyroAsync(asynchronous=True)
- 
+
         return val
 
 
 if os.getenv(MINERL_INSTANCE_MANAGER_REMOTE):
-    sys.excepthook = Pyro4.util.excepthook  
-    Pyro4.core._AsyncRemoteMethod = CustomAsyncRemoteMethod     
-    InstanceManager = Pyro4.Proxy("PYRONAME:" + INSTANCE_MANAGER_PYRO )
+    sys.excepthook = Pyro4.util.excepthook
+    Pyro4.core._AsyncRemoteMethod = CustomAsyncRemoteMethod
+    InstanceManager = Pyro4.Proxy("PYRONAME:" + INSTANCE_MANAGER_PYRO)
     InstanceManager._pyroAsync(asynchronous=True)
 
     # Set up the keep alive signal.
     logger.debug("Starting client keep-alive server...")
+
+
     def keep_alive_pyro():
         class KeepAlive(object):
             @Pyro4.expose
@@ -841,8 +829,7 @@ if os.getenv(MINERL_INSTANCE_MANAGER_REMOTE):
         logger.debug("Client keep-alive server started.")
         daemon.requestLoop()
 
+
     thread = threading.Thread(target=keep_alive_pyro)
     thread.setDaemon(True)
     thread.start()
-        
-        

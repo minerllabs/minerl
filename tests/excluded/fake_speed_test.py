@@ -13,10 +13,10 @@ import numpy as np
 from minerl.env.core import MineRLEnv
 
 import coloredlogs
+
 coloredlogs.install(logging.DEBUG)
 
-NUM_EPISODES=10
-
+NUM_EPISODES = 10
 
 
 def main():
@@ -24,7 +24,6 @@ def main():
     Test fake speed test
     """
     env = gym.make('FakeMineRLNavigateDense-v0')
-    
 
     random_act = env.action_space.noop()
     random_act['camera'] = [0, 0.1]
@@ -41,18 +40,18 @@ def main():
         done = False
         netr = 0
         rewards = []
-        while (not done and  not nsteps % 50 == 0) or nsteps == 0:
+        while (not done and not nsteps % 50 == 0) or nsteps == 0:
             # if(len(rewards) > 50):
-            
+
             # print(random_act)
-            t0 = time.time() 
+            t0 = time.time()
             obs, reward, done, info = env.step(
                 random_act)
-            avg_time += (1/(time.time() - t0)) 
+            avg_time += (1 / (time.time() - t0))
             nsteps += 1
 
-    print(" AVERAGE FPS WITHOUT MINECRAFT: " + str(avg_time/nsteps))
-  
+    print(" AVERAGE FPS WITHOUT MINECRAFT: " + str(avg_time / nsteps))
+
 
 if __name__ == "__main__":
     main()

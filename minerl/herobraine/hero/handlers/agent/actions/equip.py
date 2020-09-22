@@ -5,6 +5,7 @@ from minerl.herobraine.hero.handlers.agent.action import ItemListAction
 import jinja2
 import minerl.herobraine.hero.spaces as spaces
 
+
 class EquipAction(ItemListAction):
     """
     An action handler for observing a list of equipped items
@@ -26,9 +27,8 @@ class EquipAction(ItemListAction):
         super().__init__(self._command, self._items, _default=_default, _other=_other),
         self.previous = self._default
 
-
     def from_universal(self, obs):
-        try:    
+        try:
             if obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerPlayer':
                 hotbar_index = int(obs['hotbar'])
                 item = self._univ_items.index(obs['slots']['gui']['slots'][-10 + hotbar_index]['name'])

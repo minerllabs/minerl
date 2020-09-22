@@ -83,7 +83,8 @@ def get_mirror(urls) -> requests.Response:
                     return request
                 else:
                     logging.warning('Mirror {} returned status code {}'.format(request.url, request.status_code))
-            raise HTTPError(first_request.url, first_request.status_code, "resource not found", first_request.headers, None)
+            raise HTTPError(first_request.url, first_request.status_code, "resource not found", first_request.headers,
+                            None)
 
 
 def download_with_resume(urls, file_path, hash=None, timeout=10):
@@ -111,7 +112,7 @@ def download_with_resume(urls, file_path, hash=None, timeout=10):
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     mirror = get_mirror(urls)
-    url, ping_ms = mirror.url, mirror.elapsed.microseconds/1000
+    url, ping_ms = mirror.url, mirror.elapsed.microseconds / 1000
 
     logging.debug('Picked {} ping={}ms'.format(url, ping_ms))
 
@@ -173,19 +174,19 @@ class OrderedJobStreamer(threading.Thread):
 
     def _ordered_job_streamer(self):
 
-        
         ex = self.executor(self.max_workers)
 
         def end_processes():
             if ex is not None:
                 if ex._processes is not None:
-                    for process in  ex._processes.values():
+                    for process in ex._processes.values():
                         try:
                             process.kill()
                         except:
                             print("couldn;t kill process")
                             pass
                 ex.shutdown(wait=False)
+
         atexit.register(end_processes)
 
         try:
@@ -207,18 +208,16 @@ class OrderedJobStreamer(threading.Thread):
                         break
                     except queue.Full:
                         pass
-                        
+
             return
         except Exception:
             # abort workers immediately if anything goes wrong
             for process in ex._processes.values():
                 process.kill()
-            
+
             raise
         finally:
             ex.shutdown(wait=False)
-
-
 
     def shutdown(self):
         self._should_exit = True

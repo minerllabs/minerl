@@ -8,7 +8,6 @@ from functools import reduce
 
 from typing import List, Tuple
 
-
 from minerl.herobraine.hero.spaces import Box, Dict, Enum, MineRLSpace
 
 
@@ -22,7 +21,6 @@ def union_spaces(hdls_1: List[Handler], hdls_2: List[Handler]) -> List[MineRLSpa
     merged_hdls = [reduce(lambda a, b: a | b, matching) for matching in hdl_dict.values()]
 
     return merged_hdls
-
 
 
 # TODO: make a test.
@@ -40,7 +38,7 @@ def intersect_space(space, sample):
         return new_sample
     elif isinstance(space, Enum):
         if sample not in space:
-            return space.default    
+            return space.default
         else:
             return sample
     else:

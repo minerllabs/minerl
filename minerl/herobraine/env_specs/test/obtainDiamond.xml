@@ -15,7 +15,7 @@
                 <AllowPassageOfTime>true</AllowPassageOfTime>
             </Time>
             <AllowSpawning>true</AllowSpawning>
-            
+
         </ServerInitialConditions>
         <ServerHandlers>
             <DefaultWorldGenerator forceReset="true"/>
@@ -66,21 +66,21 @@
 
             <!--  Rewards   -->
             <RewardForMissionEnd>
-                <Reward description="out_of_time" reward="0" />
+                <Reward description="out_of_time" reward="0"/>
             </RewardForMissionEnd>
             <RewardForPossessingItem sparse="true" excludeLoops="true">
-                <Item amount="1" reward="1" type="log" />
-                <Item amount="1" reward="2" type="planks" />
-                <Item amount="1" reward="4" type="stick" />
-                <Item amount="1" reward="4" type="crafting_table" />
-                <Item amount="1" reward="8" type="wooden_pickaxe" />
-                <Item amount="1" reward="16" type="cobblestone" />
-                <Item amount="1" reward="32" type="furnace" />
-                <Item amount="1" reward="32" type="stone_pickaxe" />
-                <Item amount="1" reward="64" type="iron_ore" />
-                <Item amount="1" reward="128" type="iron_ingot" />
-                <Item amount="1" reward="256" type="iron_pickaxe" />
-                <Item amount="1" reward="1024" type="diamond" />
+                <Item amount="1" reward="1" type="log"/>
+                <Item amount="1" reward="2" type="planks"/>
+                <Item amount="1" reward="4" type="stick"/>
+                <Item amount="1" reward="4" type="crafting_table"/>
+                <Item amount="1" reward="8" type="wooden_pickaxe"/>
+                <Item amount="1" reward="16" type="cobblestone"/>
+                <Item amount="1" reward="32" type="furnace"/>
+                <Item amount="1" reward="32" type="stone_pickaxe"/>
+                <Item amount="1" reward="64" type="iron_ore"/>
+                <Item amount="1" reward="128" type="iron_ingot"/>
+                <Item amount="1" reward="256" type="iron_pickaxe"/>
+                <Item amount="1" reward="1024" type="diamond"/>
             </RewardForPossessingItem>
             <AgentQuitFromPossessingItem>
                 <Item type="diamond" amount="1"/>

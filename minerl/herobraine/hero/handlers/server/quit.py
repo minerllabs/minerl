@@ -2,17 +2,13 @@
 # Author: William H. Guss, Brandon Houghton
 
 
-
 import jinja2
 from minerl.herobraine.hero.handler import Handler
 
 
-
-
-
 class ServerQuitFromTimeUp(Handler):
     """ Forces the server to quit after a certain time_limit_ms
-    also specifies a description parameter for the xml.""" 
+    also specifies a description parameter for the xml."""
 
     def to_string(self) -> str:
         return "server_quit_after_time_up"
@@ -25,7 +21,7 @@ class ServerQuitFromTimeUp(Handler):
             """
         )
 
-    def __init__(self, time_limit_ms : int, description="out_of_time"):
+    def __init__(self, time_limit_ms: int, description="out_of_time"):
         self.time_limit_ms = time_limit_ms
         self.description = description
 
@@ -35,7 +31,7 @@ class ServerQuitWhenAnyAgentFinishes(Handler):
     Has no parameters."""
 
     def to_string(self) -> str:
-         return "server_quit_when_any_agent_finishes"
+        return "server_quit_when_any_agent_finishes"
 
     def xml_template(self) -> str:
         return str(

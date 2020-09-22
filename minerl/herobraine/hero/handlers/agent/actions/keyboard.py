@@ -59,7 +59,7 @@ class KeybasedCommandAction(Action):
             # Eg hotbar actions
             super().__init__(command, spaces.Discrete(len(keys) + 1))
         self.keys = keys
-        
+
     def from_universal(self, x):
         actions_mapped = list(x['custom_action']['actions'].keys())
 
@@ -74,10 +74,6 @@ class KeybasedCommandAction(Action):
                     return i + 1 + offset
 
         return default
-
-
-
-
 
 # TODO: This will be useful for when full keyboard actions are introduced.
 # class KeyboardAction(TranslationHandler):
@@ -96,7 +92,6 @@ class KeybasedCommandAction(Action):
 #                 </ModifierList>
 #             </HumanLevelCommands>
 #             """)
-
 
 
 #     def to_string(self) -> str:
@@ -141,7 +136,7 @@ class KeybasedCommandAction(Action):
 #         out.update({
 #             out[self.keymap[a]] : np.array(1, dtype=np.int) for a in actions_mapped
 #         })
-        
+
 
 #         return out
 
@@ -153,7 +148,3 @@ class KeybasedCommandAction(Action):
 #         new_keymap.update(self.keymap)
 #         new_keymap.update(other.keymap)
 #         return  KeyboardAction(keymap=new_keymap)
-
-
-
-

@@ -11,7 +11,6 @@ import gym
 import jinja2
 
 
-
 class Handler(ABC):
     """Defines the minimal interface for a MineRL handler.
 
@@ -64,7 +63,6 @@ class Handler(ABC):
             raise jinja2.UndefinedError(message=message)
             pass
 
-    
     def __or__(self, other):
         """
         Checks to see if self and other have the same to_string
@@ -74,7 +72,6 @@ class Handler(ABC):
             "Incompatible handlers: {self} and {other}".format(**locals()))
         return self
 
-
     def __eq__(self, other):
         """
         Checks to see if self and other have the same to_string
@@ -83,5 +80,4 @@ class Handler(ABC):
         return self.to_string() == other.to_string()
 
     def __repr__(self):
-        return super().__repr__() + ":" +  self.to_string()
-
+        return super().__repr__() + ":" + self.to_string()

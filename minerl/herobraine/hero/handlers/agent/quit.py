@@ -13,7 +13,7 @@ from typing import List, Dict, Union
 class AgentQuitFromTouchingBlockType(Handler):
     def to_string(self) -> str:
         return "agent_quit_from_touching_block_type"
-    
+
     def xml_template(self) -> str:
         return str(
             """<AgentQuitFromTouchingBlockType>
@@ -33,10 +33,10 @@ class AgentQuitFromTouchingBlockType(Handler):
 #     <Item type="wooden_axe"/>
 #     <Item type="chest"/>
 # </AgentQuitFromCraftingItem>
-class  AgentQuitFromCraftingItem(Handler):
+class AgentQuitFromCraftingItem(Handler):
     def to_string(self) -> str:
         return "agent_quit_from_crafting_item"
-    
+
     def xml_template(self) -> str:
         return str(
             """<AgentQuitFromCraftingItem>
@@ -46,7 +46,7 @@ class  AgentQuitFromCraftingItem(Handler):
                 </AgentQuitFromCraftingItem>"""
         )
 
-    def __init__(self, items : List[Dict[str, Union[str, int]]]):
+    def __init__(self, items: List[Dict[str, Union[str, int]]]):
         """Creates a reward which will cause the player to quit when they have finished crafting something."""
         self.items = items
 
@@ -55,27 +55,23 @@ class  AgentQuitFromCraftingItem(Handler):
             assert "amount" in item, "{} does not contain `amount`".format(item)
 
 
-
-        
-            
-
 #  <AgentQuitFromPossessingItem>
 #     <Item type="log" amount="64"/>
 # </AgentQuitFromPossessingItem>
 class AgentQuitFromPossessingItem(Handler):
     def to_string(self) -> str:
         return "agent_quit_from_possessing_item"
-    
+
     def xml_template(self) -> str:
         return str(
-             """<AgentQuitFromPossessingItem>
-                    {% for item in items %}
-                    <Item type="{{ item.type }}" amount="{{ item.amount }}"/>
-                    {% endfor %}
-                </AgentQuitFromPossessingItem>"""
+            """<AgentQuitFromPossessingItem>
+                   {% for item in items %}
+                   <Item type="{{ item.type }}" amount="{{ item.amount }}"/>
+                   {% endfor %}
+               </AgentQuitFromPossessingItem>"""
         )
 
-    def __init__(self, items : List[Dict[str, Union[str, int]]]):
+    def __init__(self, items: List[Dict[str, Union[str, int]]]):
         """Creates a reward which will cause the player to quit when they obtain something.
         
         aqfpi = AgentQuitFromPossessingItem([
@@ -88,4 +84,3 @@ class AgentQuitFromPossessingItem(Handler):
         for item in self.items:
             assert "type" in item, "{} does contain `type`".format(item)
             assert "amount" in item, "{} does not contain `amount`".format(item)
-

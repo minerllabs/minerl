@@ -591,7 +591,7 @@ def main():
     # valid_renders, invalid_renders = render_actions(valid_renders)
     print("... found {} valid recordings and {} invalid recordings"
           " out of {} total files".format(
-            len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR))))
+        len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR))))
 
     unfinished_renders = [v for v in valid_renders if
                           not len(glob.glob(J(v[1], '*.mp4')))

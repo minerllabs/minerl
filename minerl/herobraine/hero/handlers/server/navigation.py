@@ -2,10 +2,8 @@
 # Author: William H. Guss, Brandon Houghton
 
 
-
 import jinja2
 from minerl.herobraine.hero.handler import Handler
-
 
 
 class NavigationDecorator(Handler):
@@ -17,7 +15,7 @@ class NavigationDecorator(Handler):
         return "navigation_decorator"
 
     def xml_template(self) -> str:
-         return str(
+        return str(
             """<NavigationDecorator>
                 <randomPlacementProperties>
                     <maxRandomizedRadius>{{max_randomized_radius}}</maxRandomizedRadius>
@@ -35,10 +33,10 @@ class NavigationDecorator(Handler):
         )
 
     def __init__(
-            self, 
+            self,
             max_randomized_radius: int = 64,
             min_randomized_radius: int = 64,
-            min_randomized_distance : int = 0,
+            min_randomized_distance: int = 0,
             max_randomized_distance: int = 8,
             max_radius: int = 8,
             min_radius: int = 0,

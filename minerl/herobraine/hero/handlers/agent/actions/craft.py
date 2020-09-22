@@ -6,6 +6,7 @@ from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
 import jinja2
 import minerl.herobraine.hero.spaces as spaces
 
+
 class CraftAction(ItemListAction):
     """
     An action handler for crafting items
@@ -21,7 +22,6 @@ class CraftAction(ItemListAction):
 
     def xml_template(self) -> str:
         return str("<SimpleCraftCommands/>")
-
 
     def __init__(self, items: list, _other=Optional[str], _default=Optional[str]):
         """
@@ -41,14 +41,13 @@ class CraftAction(ItemListAction):
     def from_universal(self, obs):
         if 'diff' in obs and 'crafted' in obs['diff'] and len(obs['diff']['crafted']) > 0:
             try:
-                x =  self._univ_items.index(obs['diff']['crafted'][0]['item'])
+                x = self._univ_items.index(obs['diff']['crafted'][0]['item'])
                 return obs['diff']['crafted'][0]['item'].split('minecraft:')[-1]
             except ValueError:
                 return self._default
                 # return self._items.index('other')
         else:
             return self._default
-
 
 
 class CraftNearbyAction(CraftAction):

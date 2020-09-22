@@ -12,7 +12,7 @@ def _test_batch_iter():
     act_vectors = []
     i = 0
     for _ in tqdm.tqdm(dat.batch_iter(1, 32, 1, preload_buffer_size=2)):
-        i +=1 
+        i += 1
         print(_)
         if i > 100:
             # assert False

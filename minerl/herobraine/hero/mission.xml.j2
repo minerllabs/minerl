@@ -11,78 +11,78 @@
     <ServerSection>
         <ServerInitialConditions>
             <!-- Initial Conditions -->
-            
+
             {% for x in get_consolidated_xml((server_initial_conditions)) %}
-                {{ x }}
+            {{ x }}
             {% endfor %}
-            
+
         </ServerInitialConditions>
         <ServerHandlers>
 
             {% for x in get_consolidated_xml((server_world_generators)) %}
-                {{ x }}
+            {{ x }}
             {% endfor %}
 
             {% for x in get_consolidated_xml((server_decorators)) %}
-                {{ x }}
+            {{ x }}
             {% endfor %}
-            
+
             {% for x in get_consolidated_xml((server_quit_producers)) %}
-                {{ x }}
+            {{ x }}
             {% endfor %}
-            
+
 
         </ServerHandlers>
     </ServerSection>
 
 
     {% for agent_index in range(agent_count) %}
-        <AgentSection mode="Survival">
-            <Name>MineRLAgent{{ agent_index }}</Name>
+    <AgentSection mode="Survival">
+        <Name>MineRLAgent{{ agent_index }}</Name>
 
-            <AgentStart>
+        <AgentStart>
 
-                {% for x in get_consolidated_xml((agent_start)) %}
-                    {{ x }}
-                {% endfor %}
-
-
-            </AgentStart>
-            <AgentHandlers>
-                <!-- These area  bit of boilerplate that
-                 we always expect to be included ... -->
-                <FileBasedPerformanceProducer/>
-                <PauseCommand/>
-
-                <!--  Observations     -->
-
-                {% for x in get_consolidated_xml((observables)) %}
-                {{ x }}
-                {% endfor %}
+            {% for x in get_consolidated_xml((agent_start)) %}
+            {{ x }}
+            {% endfor %}
 
 
-                <!--  Actions   -->
+        </AgentStart>
+        <AgentHandlers>
+            <!-- These area  bit of boilerplate that
+             we always expect to be included ... -->
+            <FileBasedPerformanceProducer/>
+            <PauseCommand/>
 
-                {% for x in get_consolidated_xml((actionables)) %}
-                {{ x }}
-                {% endfor %}
+            <!--  Observations     -->
 
-                <!--  Rewards   -->
+            {% for x in get_consolidated_xml((observables)) %}
+            {{ x }}
+            {% endfor %}
 
-                {% for x in get_consolidated_xml((rewardables)) %}
-                {{ x }}
-                {% endfor %}
 
-                <!-- Additional Agent Handlers like quitting -->
-                {% for x in get_consolidated_xml((agent_handlers)) %}
-                {{ x }}
-                {% endfor %}
+            <!--  Actions   -->
 
-                <!-- Env Monitors? -->
-                {# {% for m in monitors %} }
-                    {{ m.xml() }}
-                {% endfor %} #}
-            </AgentHandlers>
-        </AgentSection>
+            {% for x in get_consolidated_xml((actionables)) %}
+            {{ x }}
+            {% endfor %}
+
+            <!--  Rewards   -->
+
+            {% for x in get_consolidated_xml((rewardables)) %}
+            {{ x }}
+            {% endfor %}
+
+            <!-- Additional Agent Handlers like quitting -->
+            {% for x in get_consolidated_xml((agent_handlers)) %}
+            {{ x }}
+            {% endfor %}
+
+            <!-- Env Monitors? -->
+            {# {% for m in monitors %} }
+            {{ m.xml() }}
+            {% endfor %} #}
+        </AgentHandlers>
+    </AgentSection>
     {% endfor %}
 </Mission>

@@ -90,7 +90,8 @@ class Obfuscated(EnvWrapper):
         ac_enc, ac_dec = make_func(ac_enc), make_func(ac_dec)
 
         # obs_enc, obs_dec = dill.load(f)
-        obs_enc, obs_dec = np.load(os.path.join(obfuscator_dir, OBSERVATION_OBFUSCATOR_FILE_NAME), allow_pickle=True)['arr_0']
+        obs_enc, obs_dec = np.load(os.path.join(obfuscator_dir, OBSERVATION_OBFUSCATOR_FILE_NAME), allow_pickle=True)[
+            'arr_0']
         obs_enc, obs_dec = make_func(obs_enc), make_func(obs_dec)
 
         return obf_vector_len, ac_enc, ac_dec, obs_enc, obs_dec

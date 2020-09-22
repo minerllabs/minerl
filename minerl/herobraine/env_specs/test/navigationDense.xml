@@ -14,7 +14,7 @@
                 <StartTime>6000</StartTime>
                 <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-            
+
             <Weather>clear</Weather>
             <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
@@ -42,7 +42,7 @@
         <Name>MineRLAgent</Name>
         <AgentStart>
             <Inventory>
-                    <InventoryObject slot="0" type="compass" quantity="1"/>
+                <InventoryObject slot="0" type="compass" quantity="1"/>
             </Inventory>
         </AgentStart>
         <AgentHandlers>
@@ -51,9 +51,10 @@
                 <Height>64</Height>
             </VideoProducer>
             <FileBasedPerformanceProducer/>
-            
-            <ObservationFromFullInventory flat="false"/><HumanLevelCommands/>
-<PlaceCommands/>
+
+            <ObservationFromFullInventory flat="false"/>
+            <HumanLevelCommands/>
+            <PlaceCommands/>
             <CameraCommands/>
             <ObservationFromCompass/>
 

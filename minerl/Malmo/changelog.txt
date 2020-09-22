@@ -318,7 +318,7 @@ Add: Malmo.GetMissionInitString() now allows the video size and save location to
 ----------------
 Change: No longer saves mission file by default - call Malmo.SaveSession manually in OnMissionEndedMessage().
 Python agents no longer require bat files to launch from the launcher/experiment studio, and can train.
-Fix: timeout issue when launching missions from python ("no agent available" error)
+Fix: timeout issue when launching missions from python ("no agent available" error)
 Fix: Sample Python agents were giving an error saying no module named malmo.
 Mod's observations now report agent's position using floats rather than ints.
 Mod shouldn't grab mouse pointer anymore (mostly).
@@ -347,7 +347,7 @@ New whitelisting/blacklisting of individual commands in the command handlers
 0.3.1 (2015-07-27)
 ------------------
 Change: In Python agents, the OnVideo callback now takes a PIL (Python Imaging Library) Image, instead of a raw buffer of bytes. See the sample scripts for usage hints.
-Change: Needs 'requests': pip install requests
+Change: Needs 'requests': pip install requests
 Change: You need an Experiment Studio human account created in order to log into Human Action.
 Change: OutputUri is now required in MissionInit nodes
 Add: Parameterisation added to the grid observation producer (the one that produces the hull of blocks around the player).
@@ -355,7 +355,7 @@ Add: Parameterisation added to the discrete world builder (produces a flat maze-
 New MissionHandlers available (see the md files for details):
   WorldBuilder: "WorldFromDefaultGame" - basically loads a default world.
   ObservationProducers: "ObservationFromHotBar" and "ObservationFromFullInventory"
-  CommandHandler: "CommandForInventoryToHotBar" - allows basic manipulation of inventory.
+  CommandHandler: "CommandForInventoryToHotBar" - allows basic manipulation of inventory.
 Fixes to Discrete MissionHandlers: Discrete.RewardForGridWalking should now give a negative reward for attempting to move, even if the move was unsuccessful (eg the agent tried to walk into a wall).
 Stabilisation - hopefully the Mod can now cope with thousands of missions without crashing, hanging, or otherwise doing weird things.
 

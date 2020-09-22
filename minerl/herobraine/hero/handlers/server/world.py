@@ -11,7 +11,6 @@ class DefaultWorldGenerator(Handler):
     def to_string(self) -> str:
         return "default_world_generator"
 
-    
     def xml_template(self) -> str:
         return str(
             """<DefaultWorldGenerator 
@@ -20,7 +19,7 @@ class DefaultWorldGenerator(Handler):
             """
         )
 
-    def __init__(self, force_reset=True, generator_options : str = "{}"):
+    def __init__(self, force_reset=True, generator_options: str = "{}"):
         """Generates a world using minecraft procedural generation.
 
         Args:
@@ -29,9 +28,11 @@ class DefaultWorldGenerator(Handler):
         """
         self.force_reset = force_reset
         self.generator_options = generator_options
-        
+
+
 class FileWorldGenerator(Handler):
     """Generates a world from a file."""
+
     def to_string(self) -> str:
         return "file_world_generator"
 
@@ -42,9 +43,8 @@ class FileWorldGenerator(Handler):
                 src = "{{filename}}" />
             """
         )
-        
-    def __init__(self, filename: str, destroy_after_use : bool =True):
 
+    def __init__(self, filename: str, destroy_after_use: bool = True):
         self.filename = filename
         self.destroy_after_use = destroy_after_use
 
@@ -52,6 +52,7 @@ class FileWorldGenerator(Handler):
 #  <FlatWorldGenerator forceReset="true"/>
 class FlatWorldGenerator(Handler):
     """Generates a world that is a flat landscape."""
+
     def to_string(self) -> str:
         return "flat_world_generator"
 
@@ -61,15 +62,16 @@ class FlatWorldGenerator(Handler):
                 forceReset="{{force_reset | string | lower}}" />
             """
         )
-    
-    def __init__(self, force_reset: bool =True):
+
+    def __init__(self, force_reset: bool = True):
         self.force_reset = force_reset
 
+
 #  <BiomeGenerator forceReset="true" biome="3"/>
-class BiomeGenerator(Handler):    
+class BiomeGenerator(Handler):
     def to_string(self) -> str:
         return "biome_generator"
-    
+
     def xml_template(self) -> str:
         return str(
             """<BiomeGenerator 
@@ -77,7 +79,7 @@ class BiomeGenerator(Handler):
                 biome="{{biome_id}}" />
             """
         )
-        
-    def __init__(self,  biome_id: int, force_reset: bool =True):
+
+    def __init__(self, biome_id: int, force_reset: bool = True):
         self.biome_id = biome_id
         self.force_reset = force_reset

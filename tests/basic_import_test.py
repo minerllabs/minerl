@@ -4,7 +4,8 @@ import os
 import gym
 import minerl
 
-def main(): 
+
+def main():
     """
     Tests importing of gym envs
     """
@@ -13,7 +14,7 @@ def main():
     spec = gym.spec('MineRLNavigateDense-v0')
     spec = gym.spec('MineRLNavigateExtreme-v0')
     spec = gym.spec('MineRLNavigateExtremeDense-v0')
-    spec = gym.spec('MineRLObtainIronPickaxe-v0') 
+    spec = gym.spec('MineRLObtainIronPickaxe-v0')
     spec = gym.spec('MineRLObtainIronPickaxeDense-v0')
     spec = gym.spec('MineRLObtainDiamond-v0')
     spec = gym.spec('MineRLObtainDiamondDense-v0')
@@ -29,4 +30,3 @@ def test_import():
 
 if __name__ == '__main__':
     main()
-

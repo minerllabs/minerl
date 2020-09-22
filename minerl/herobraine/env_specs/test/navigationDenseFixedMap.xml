@@ -14,12 +14,12 @@
                 <StartTime>6000</StartTime>
                 <AllowPassageOfTime>false</AllowPassageOfTime>
             </Time>
-            
+
             <Weather>clear</Weather>
             <AllowSpawning>false</AllowSpawning>
         </ServerInitialConditions>
         <ServerHandlers>
-            <FileWorldGenerator src= "$(MISSIONS_DIR)/forest_survival" destroyAfterUse = "true"/>
+            <FileWorldGenerator src="$(MISSIONS_DIR)/forest_survival" destroyAfterUse="true"/>
             <NavigationDecorator>
                 <randomPlacementProperties>
                     <maxRandomizedRadius>64</maxRandomizedRadius>
@@ -32,7 +32,7 @@
                 <minRandomizedDistance>0</minRandomizedDistance>
                 <maxRandomizedDistance>8</maxRandomizedDistance>
                 <randomizeCompassLocation>false</randomizeCompassLocation>
-<!--            TODO set random placement seed to disable randomness-->
+                <!--            TODO set random placement seed to disable randomness-->
             </NavigationDecorator>
             <ServerQuitFromTimeUp timeLimitMs="300000" description="out_of_time"/>
             <ServerQuitWhenAnyAgentFinishes/>
@@ -42,9 +42,9 @@
     <AgentSection mode="Survival">
         <Name>MineRLAgent</Name>
         <AgentStart>
-            <Placement x ="-22" y="61" z="278" yaw="134" pitch="22.2"/>
+            <Placement x="-22" y="61" z="278" yaw="134" pitch="22.2"/>
             <Inventory>
-                    <InventoryObject slot="0" type="compass" quantity="1"/>
+                <InventoryObject slot="0" type="compass" quantity="1"/>
             </Inventory>
         </AgentStart>
         <AgentHandlers>
@@ -54,15 +54,16 @@
                 <Height>64</Height>
             </VideoProducer>
             <FileBasedPerformanceProducer/>
-            
+
             <ObservationFromFullInventory flat="false"/>
-            <ObservationFromFullStats/><HumanLevelCommands/>
-<PlaceCommands/>
+            <ObservationFromFullStats/>
+            <HumanLevelCommands/>
+            <PlaceCommands/>
             <CameraCommands/>
             <ObservationFromCompass/>
 
             <RewardForMissionEnd>
-                <Reward description="out_of_time" reward="0" />
+                <Reward description="out_of_time" reward="0"/>
             </RewardForMissionEnd>
             <AgentQuitFromTouchingBlockType>
                 <Block type="diamond_block"/>

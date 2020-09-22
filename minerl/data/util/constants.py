@@ -90,7 +90,6 @@ EXP_MIN_LEN_TICKS = 20 * 15  # 15 sec
 FAILED_COMMANDS = []
 GENERATE_VERSION = '1'
 
-
 OBSERVABLE_KEY = 'observation'
 ACTIONABLE_KEY = 'action'
 MONITOR_KEY = 'monitor'

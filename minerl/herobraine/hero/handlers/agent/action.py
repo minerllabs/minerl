@@ -9,6 +9,7 @@ from minerl.herobraine.hero.handlers.translation import TranslationHandler
 
 from collections import Iterable
 
+
 class Action(TranslationHandler):
     """
     An action handler based on commands
@@ -59,7 +60,6 @@ class Action(TranslationHandler):
         return self
 
 
-
 class ItemListAction(Action):
     """
     An action handler based on a list of items
@@ -91,7 +91,7 @@ class ItemListAction(Action):
         self._default = _default
         self._other = _other
         super().__init__(
-            self._command, 
+            self._command,
             spaces.Enum(*self._items, default=self._default))
 
     @property
@@ -142,8 +142,3 @@ class ItemListAction(Action):
             return False
 
         return True
-
-
-
-
-

@@ -5,6 +5,7 @@
 import jinja2
 from minerl.herobraine.hero.handler import Handler
 
+
 # TODO: THIS SHOULD ACTUALLY BE AN INITIAL CONDITONS OR AN AGENT
 # START HANDLER :\ HENCE THE MISC CLASSIFCIATION.
 class RandomizedStartDecorator(Handler):
@@ -15,4 +16,3 @@ class RandomizedStartDecorator(Handler):
         return str(
             """<RandomizedStartDecorator/>"""
         )
-        

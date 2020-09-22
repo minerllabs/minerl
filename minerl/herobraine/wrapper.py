@@ -123,18 +123,18 @@ class EnvWrapper(EnvSpec):
 
     def create_agent_handlers(self):
         return self.env_to_wrap.create_agent_handlers()
-        
+
     def create_server_world_generators(self):
-        return self.env_to_wrap.create_server_world_generators()    
-    
+        return self.env_to_wrap.create_server_world_generators()
+
     def create_server_quit_producers(self):
-        return self.env_to_wrap.create_server_quit_producers()      
-    
+        return self.env_to_wrap.create_server_quit_producers()
+
     def create_server_decorators(self):
         return self.env_to_wrap.create_server_decorators()
 
     def create_server_initial_conditions(self):
         return self.env_to_wrap.create_server_initial_conditions()
-    
+
     def create_monitors(self):
         return self.env_to_wrap.create_monitors()

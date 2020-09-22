@@ -5,6 +5,7 @@ import jinja2
 import minerl.herobraine.hero.spaces as spaces
 import numpy as np
 
+
 class CameraAction(Action):
     """
     Uses <delta_pitch, delta_yaw> vector in degrees to rotate the camera. pitch range [-180, 180], yaw range [-180, 180]
@@ -12,7 +13,7 @@ class CameraAction(Action):
 
     def to_string(self):
         return 'camera'
-    
+
     def xml_template(self) -> str:
         return str("<CameraCommands/>")
 
@@ -30,5 +31,3 @@ class CameraAction(Action):
             return np.array([-delta_pitch, -delta_yaw], dtype=np.float32)
         else:
             return np.array([0.0, 0.0], dtype=np.float32)
-
-

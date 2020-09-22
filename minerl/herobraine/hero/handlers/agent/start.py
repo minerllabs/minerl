@@ -35,7 +35,7 @@ class InventoryAgentStart(Handler):
             """
         )
 
-    def __init__(self, inventory: Dict[int, Dict[str, Union[str,int]]]):
+    def __init__(self, inventory: Dict[int, Dict[str, Union[str, int]]]):
         """Creates an inventory agent start which sets the inventory of the 
         agent by slot id.
 
@@ -59,8 +59,9 @@ class InventoryAgentStart(Handler):
 class SimpleInventoryAgentStart(InventoryAgentStart):
     """ An inventory agentstart specification which
     just fills the inventory of the agent sequentially.
-    """  
-    def __init__(self, inventory : List[Dict[str, Union[str, int]]]):
+    """
+
+    def __init__(self, inventory: List[Dict[str, Union[str, int]]]):
         """ Creates a simple inventory agent start.
 
         For example: 

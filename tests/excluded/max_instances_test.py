@@ -12,6 +12,7 @@ from minerl.env.core import MineRLEnv
 from minerl.env.malmo import InstanceManager
 
 import coloredlogs
+
 coloredlogs.install(logging.INFO)
 
 
@@ -28,6 +29,7 @@ def main():
         pass
 
     print("Demo complete.")
+
 
 if __name__ == "__main__":
     main()

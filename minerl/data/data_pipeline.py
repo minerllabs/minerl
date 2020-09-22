@@ -1,6 +1,6 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
- 
+
 import collections
 import functools
 import json
@@ -121,17 +121,16 @@ class DataPipeline:
 
         if DataPipeline._is_blacklisted(stream_name):
             raise RuntimeError("This stream is corrupted (and will be removed in the next version of the data!)")
-        
-        
+
         seq = DataPipeline._load_data_pyfunc(file_dir, -1, None, self.environment, skip_interval=skip_interval,
                                              include_metadata=include_metadata)
-        
+
         observation_seq, action_seq, reward_seq, next_observation_seq, done_seq = seq[:5]
         remainder = iter(seq[5:])
-        
+
         monitor_seq = next(remainder) if include_monitor_data else None
         meta = next(remainder) if include_monitor_data else None
-            
+
         # make a copty  
         gym_spec = gym.envs.registration.spec(self.environment)
         target_space = copy.deepcopy(gym_spec._kwargs['observation_space'])
@@ -151,8 +150,8 @@ class DataPipeline:
 
             yield_list = [observation_dict, action_dict, reward_seq[idx], next_observation_dict, done_seq[idx]]
             yield yield_list + (
-                ([tree_slice(monitor_seq, idx)] if include_monitor_data else []) + 
-                ([meta] if include_metadata else [])
+                    ([tree_slice(monitor_seq, idx)] if include_monitor_data else []) +
+                    ([meta] if include_metadata else [])
             )
 
     def get_trajectory_names(self):
@@ -224,14 +223,14 @@ class DataPipeline:
                 if 'stream_name' not in meta:
                     meta['stream_name'] = file_dir
 
-            action_dict = collections.OrderedDict([(key, state[key]) for key in state 
-                if key.startswith(ACTIONABLE_KEY + HANDLER_TYPE_SEPERATOR)])
+            action_dict = collections.OrderedDict([(key, state[key]) for key in state
+                                                   if key.startswith(ACTIONABLE_KEY + HANDLER_TYPE_SEPERATOR)])
             reward_vec = state[REWARD_KEY]
-            info_dict = collections.OrderedDict([(key, state[key]) for key in state 
-                if key.startswith(OBSERVABLE_KEY + HANDLER_TYPE_SEPERATOR)])
-            monitor_dict = collections.OrderedDict([(key, state[key]) for key in state 
-                if key.startswith(MONITOR_KEY + HANDLER_TYPE_SEPERATOR)])
-            
+            info_dict = collections.OrderedDict([(key, state[key]) for key in state
+                                                 if key.startswith(OBSERVABLE_KEY + HANDLER_TYPE_SEPERATOR)])
+            monitor_dict = collections.OrderedDict([(key, state[key]) for key in state
+                                                    if key.startswith(MONITOR_KEY + HANDLER_TYPE_SEPERATOR)])
+
             # Recursively sorts nested dicts
             def recursive_sort(dct):
                 for key in list(dct.keys()):
@@ -306,19 +305,19 @@ class DataPipeline:
 
                 # Load non-image data from npz
                 current_observation_data = OrderedDict()
-                monitor_data = OrderedDict() # info resulting from next tick.
+                monitor_data = OrderedDict()  # info resulting from next tick.
                 action_data = OrderedDict()
                 next_observation_data = OrderedDict()
 
                 try:
-                    for key in list(info_dict.keys()) + [OBSERVABLE_KEY + HANDLER_TYPE_SEPERATOR +  "pov"]:
+                    for key in list(info_dict.keys()) + [OBSERVABLE_KEY + HANDLER_TYPE_SEPERATOR + "pov"]:
                         if 'pov' in key:
                             current_observation_data[key] = np.asanyarray(frames[:-1])
                             next_observation_data[key] = np.asanyarray(frames[1:])
                         else:
                             current_observation_data[key] = np.asanyarray(info_dict[key][start_idx:stop_idx])
                             next_observation_data[key] = np.asanyarray(info_dict[key][start_idx + 1:stop_idx + 1])
-                    
+
                     for key in monitor_dict:
                         monitor_data[key] = np.asanyarray(monitor_data[key][start_idx + 1:stop_idx + 1])
 
@@ -381,7 +380,7 @@ class DataPipeline:
                    preload_buffer_size: int = 2,
                    seed: int = None,
                    include_metadata: bool = False,
-                   include_monitor_data : bool = False):
+                   include_monitor_data: bool = False):
         """Returns batches of sequences length SEQ_LEN of the data of size BATCH_SIZE.
         The iterator produces batches sequentially. If an element of a batch reaches the
         end of its 
@@ -429,15 +428,15 @@ class DataPipeline:
 
             for seg_batch in minibatch_gen(traj_iter(), batch_size=batch_size, nsteps=seq_len):
                 yield [
-                    seg_batch['obs'], 
-                    seg_batch['act'], 
-                    seg_batch['reward'], 
-                    seg_batch['next_obs'], 
-                    seg_batch['done'],
-                ] + (
-                    (seg_batch['monitor'] if include_monitor_data else []) +
-                    (seg_batch['meta'] if include_metadata else [])
-                )
+                          seg_batch['obs'],
+                          seg_batch['act'],
+                          seg_batch['reward'],
+                          seg_batch['next_obs'],
+                          seg_batch['done'],
+                      ] + (
+                              (seg_batch['monitor'] if include_monitor_data else []) +
+                              (seg_batch['meta'] if include_metadata else [])
+                      )
 
             trajectory_loader.shutdown()
 

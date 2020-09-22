@@ -15,7 +15,6 @@ class TestSpec(EnvSpec):
             handlers.CraftItem(self.items)
         ]
 
-
     def create_observables(self):
         return [
             handlers.POVObservation(self.resolution)
@@ -33,7 +32,6 @@ class TestSpec(EnvSpec):
 
     def determine_success_from_rewards(self):
         pass
-
 
 # def test_to_xml():
 #     """
