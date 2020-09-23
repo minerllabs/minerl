@@ -606,7 +606,8 @@ class _MultiAgentEnv(gym.Env):
             ok, = struct.unpack("!I", reply)
             if ok != 1:
                 num_retries += 1
-                # TODO: This is odd, MAX_WAIT is usually a number of seconds but here it's a number of retries. Probably needs to be fixed.
+                # TODO: This is odd, MAX_WAIT is usually a number of seconds but here
+                #  it's a number of retries. Probably needs to be fixed.
                 if num_retries > MAX_WAIT:
                     raise socket.timeout()
                 logger.debug("Recieved a MALMOBUSY from {}; trying again.".format(instance))

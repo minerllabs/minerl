@@ -179,9 +179,9 @@ class EnvSpec(abc.ABC):
 
     def create_action_space(self):
         return spaces.Dict({
-             agent: spaces.Dict({
+            agent: spaces.Dict({
                 a.to_string(): a.space for a in self.actionables
-            }) for agent in self.agent_names    
+            }) for agent in self.agent_names
         })
 
     def create_monitor_space(self):
