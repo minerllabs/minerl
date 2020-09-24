@@ -551,6 +551,9 @@ class _MultiAgentEnv(gym.Env):
         self.instances = self.instances[:self.task.agent_count]
 
         # Now let's clean and establish new socket connections.
+        # Note: it is important that all clients are informed of the episode end BEFORE the
+        #  server. Since the first client is the one that communicates to the server, we
+        #  inform it last by iterating backwards.
         for instance in reversed(self.instances):
             self._TO_MOVE_clean_connection(instance)
             self._TO_MOVE_create_connection(instance)
