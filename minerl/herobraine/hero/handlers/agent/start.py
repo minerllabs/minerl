@@ -36,7 +36,7 @@ class InventoryAgentStart(Handler):
         )
 
     def __init__(self, inventory: Dict[int, Dict[str, Union[str, int]]]):
-        """Creates an inventory agent start which sets the inventory of the 
+        """Creates an inventory agent start which sets the inventory of the
         agent by slot id.
 
         For example:
@@ -60,12 +60,11 @@ class SimpleInventoryAgentStart(InventoryAgentStart):
     """ An inventory agentstart specification which
     just fills the inventory of the agent sequentially.
     """
-
-    def __init__(self, inventory: List[Dict[str, Union[str, int]]]):
+    def __init__(self, inventory : List[Dict[str, Union[str, int]]]):
         """ Creates a simple inventory agent start.
 
-        For example: 
-        
+        For example:
+
             sias =  SimpleInventoryAgentStart(
                 [
                     {'type':'dirt', 'quantity':10},
@@ -78,3 +77,19 @@ class SimpleInventoryAgentStart(InventoryAgentStart):
         super().__init__({
             i: item for i, item in enumerate(inventory)
         })
+
+
+class AgentStartPlacement(Handler):
+    def to_string(self) -> str:
+        return f"agent_start_placement({self.x}, {self.y}, {self.z}, {self.yaw})"
+
+    def xml_template(self) -> str:
+        return str(
+            """<Placement x="{{x}}" y="{{y}}" z="{{z}}" yaw="{{yaw}}" />"""
+        )
+
+    def __init__(self, x, y, z, yaw):
+        self.x = x
+        self.y = y
+        self.z = x
+        self.yaw = yaw

@@ -13,7 +13,7 @@ class DefaultWorldGenerator(Handler):
 
     def xml_template(self) -> str:
         return str(
-            """<DefaultWorldGenerator 
+            """<DefaultWorldGenerator
                 forceReset="{{force_reset | string | lower}}"
                 generatorOptions='{{generator_options}}'/>
             """
@@ -38,7 +38,7 @@ class FileWorldGenerator(Handler):
 
     def xml_template(self) -> str:
         return str(
-            """<FileWorldGenerator 
+            """<FileWorldGenerator
                 destroyAfterUse = "{{destroy_after_use | string | lower}}"
                 src = "{{filename}}" />
             """
@@ -58,13 +58,16 @@ class FlatWorldGenerator(Handler):
 
     def xml_template(self) -> str:
         return str(
-            """<FlatWorldGenerator 
-                forceReset="{{force_reset | string | lower}}" />
+            """<FlatWorldGenerator
+                forceReset="{{force_reset | string | lower}}"
+                generatorString="{{generatorString}}" />
             """
         )
 
-    def __init__(self, force_reset: bool = True):
+    def __init__(self, force_reset: bool = True, generatorString: str =""):
         self.force_reset = force_reset
+        self.generatorString = generatorString
+
 
 
 #  <BiomeGenerator forceReset="true" biome="3"/>
@@ -74,7 +77,7 @@ class BiomeGenerator(Handler):
 
     def xml_template(self) -> str:
         return str(
-            """<BiomeGenerator 
+            """<BiomeGenerator
                 forceReset="{{force_reset | string | lower}}"
                 biome="{{biome_id}}" />
             """
@@ -83,3 +86,15 @@ class BiomeGenerator(Handler):
     def __init__(self, biome_id: int, force_reset: bool = True):
         self.biome_id = biome_id
         self.force_reset = force_reset
+
+
+class DrawingDecorator(Handler):
+    def __init__(self, to_draw: str):
+        self.to_draw = to_draw
+
+    def xml_template(self) -> str:
+        tmp = """<DrawingDecorator>{{to_draw}}</DrawingDecorator>"""
+        return tmp
+
+    def to_string(self) -> str:
+        return "drawing_decorator"
