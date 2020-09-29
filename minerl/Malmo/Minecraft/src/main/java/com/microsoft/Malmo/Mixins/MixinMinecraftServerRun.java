@@ -74,7 +74,7 @@ public abstract class MixinMinecraftServerRun  {
                     long k = MinecraftServer.getCurrentTimeMillis();
                     long j = k - this.currentTime;
 
-                    if (j > 2000L && this.currentTime - this.timeOfLastWarning >= 15000L)
+                    if (!TimeHelper.SyncManager.isSynchronous() && i > 2000L && this.currentTime - this.timeOfLastWarning >= 15000L)
                     {
                         LOG.warn("Can\'t keep up! Did the system time change, or is the server overloaded? Running {}ms behind, skipping {} tick(s)", new Object[] {Long.valueOf(j), Long.valueOf(j / TimeHelper.serverTickLength)});
                         j = 2000L;
