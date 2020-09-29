@@ -7,7 +7,7 @@ from minerl.herobraine.hero.spaces import Box
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
 import jinja2
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
 import numpy as np
 
 
@@ -252,3 +252,21 @@ class RewardForDistanceTraveledToCompassTarget(RewardHandler):
 
     def reset(self):
         self._prev_delta = None
+
+
+class RewardForMinecraftAchievements(RewardHandler):
+    # TODO complete reward handler for achevements in MineRL
+    def to_hero(self, x) -> str:
+        pass
+
+    def from_universal(self, x: Dict[str, Any]):
+        pass
+
+    def to_string(self) -> str:
+        pass
+
+    def xml_template(self) -> str:
+        pass
+
+    def __init__(self):
+        super().__init__()

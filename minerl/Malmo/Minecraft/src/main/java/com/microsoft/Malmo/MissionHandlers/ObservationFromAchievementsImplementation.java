@@ -63,7 +63,12 @@ public class ObservationFromAchievementsImplementation extends HandlerBase imple
         EntityPlayerSP player = mc.player;
 
         for (Achievement achievement : AchievementList.ACHIEVEMENTS) {
-            achievements.addProperty(achievement.statId, player.getStatFileWriter().hasAchievementUnlocked(achievement));
+            JsonObject ach = new JsonObject();
+            ach.addProperty("progress", player.getStatFileWriter().getProgress(achievement).toString());
+            ach.addProperty("value", player.getStatFileWriter().readStat(achievement));
+            ach.addProperty("unlocked", player.getStatFileWriter().canUnlockAchievement(achievement));
+            ach.addProperty("completed", player.getStatFileWriter().hasAchievementUnlocked(achievement));
+            achievements.add(achievement.toString(), ach);
         }
 
         json.add("achievements", achievements);
