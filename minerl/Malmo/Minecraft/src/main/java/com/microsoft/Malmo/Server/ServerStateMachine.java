@@ -1302,6 +1302,7 @@ public class ServerStateMachine extends StateMachine
         protected void execute()
         {
             // Put in all cleanup code here.
+            MinecraftForge.EVENT_BUS.unregister(ServerStateMachine.this);
             ServerStateMachine.this.currentMissionInit = null;
             
             // TODO (R): Kick all of the clients out?
