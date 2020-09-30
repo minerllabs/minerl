@@ -27,11 +27,12 @@ class EnvSpec(abc.ABC):
     U_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._singleagent:_SingleAgentEnv'
     U_FAKE_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeSingleAgentEnv'
 
-    def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=1):
+    def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=None):
         self.name = name
         self.max_episode_steps = max_episode_steps
         self.reward_threshold = reward_threshold
-        self.agent_count = agent_count
+        self.agent_count = 1 if agent_count is None else agent_count
+        self.is_single_agent = agent_count is None
         self.agent_names = ["agent_{role}".format(role=role) for role in range(self.agent_count)]
 
         self.reset()
@@ -170,26 +171,32 @@ class EnvSpec(abc.ABC):
     def determine_success_from_rewards(self, rewards: list) -> bool:
         raise NotImplementedError('subclasses must override determine_success_from_rewards()')
 
+    def _singlify(self, space: spaces.Dict):
+        if self.is_single_agent:
+            return space.spaces[self.agent_names[0]]
+        else:
+            return space
+
     def create_observation_space(self):
-        return spaces.Dict({
+        return self._singlify(spaces.Dict({
             agent: spaces.Dict({
                 o.to_string(): o.space for o in self.observables
             }) for agent in self.agent_names
-        })
+        }))
 
     def create_action_space(self):
-        return spaces.Dict({
+        return self._singlify(spaces.Dict({
             agent: spaces.Dict({
                 a.to_string(): a.space for a in self.actionables
             }) for agent in self.agent_names
-        })
+        }))
 
     def create_monitor_space(self):
-        return spaces.Dict({
+        return self._singlify(spaces.Dict({
             agent: spaces.Dict({
                 m.to_string(): m.space for m in self.monitors
             }) for agent in self.agent_names
-        })
+        }))
 
     @abstractmethod
     def get_docstring(self):
@@ -221,9 +228,13 @@ class EnvSpec(abc.ABC):
 
     def _entry_point(self, fake: bool) -> str:
         if fake:
-            return EnvSpec.U_FAKE_MULTI_AGENT_ENTRYPOINT
+            return (
+                EnvSpec.U_FAKE_SINGLE_AGENT_ENTRYPOINT if self.is_single_agent
+                else EnvSpec.U_FAKE_MULTI_AGENT_ENTRYPOINT)
         else:
-            return EnvSpec.U_MULTI_AGENT_ENTRYPOINT
+           return (
+               EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.is_single_agent
+               else EnvSpec.U_MULTI_AGENT_ENTRYPOINT)
 
     def _env_kwargs(self) -> typing.Dict[str, typing.Any]:
         return {
