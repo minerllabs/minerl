@@ -21,6 +21,8 @@ class Vectorized(EnvWrapper):
         return name.split('-')[0] + 'Vector-' + name.split('-')[-1]
 
     def __init__(self, env_to_wrap: EnvSpec, common_envs=None):
+        assert env_to_wrap.is_single_agent, \
+            "Vectorized (currently) only supports single agents environments."
         self.env_to_wrap = env_to_wrap
         self.common_envs = [env_to_wrap] if common_envs is None or len(common_envs) == 0 else common_envs
 
