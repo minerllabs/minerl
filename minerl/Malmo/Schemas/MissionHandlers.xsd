@@ -2539,6 +2539,30 @@
         <xs:complexType/>
     </xs:element>
 
+    <xs:element name="ObservationFromCurrentBiome">
+        <xs:annotation>
+            <xs:documentation>
+                Including this observation handler adds a new json object called currentBiome with the following properties:
+
+                // Name of the current biome
+                biomeJson.addProperty("biomeName", playerBiome.getBiomeName());
+                // The average temperature of the current biome
+                biomeJson.addProperty("biomeTemperature", playerBiome.getTemperature());
+                // The average rainfall chance of the current biome
+                biomeJson.addProperty("biomeRainfall", playerBiome.getRainfall());
+                // [0. 14] The current combined light level of the current player pos
+                biomeJson.addProperty("lightLevel", player.world.getLight(playerPos));
+                // If the playerPos has LOS to the sky
+                biomeJson.addProperty("canSeeSky", player.world.canSeeSky(playerPos));
+                // [0, 1] Brightness factor of the sun
+                biomeJson.addProperty("sunBrightness", player.world.getSunBrightnessFactor(0));
+                // [0, 14] Light level provided by the sky
+                biomeJson.addProperty("skyLightLevel", player.world.getSunBrightness(0));
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType/>
+    </xs:element>
+
 
     <xs:element name="FileBasedPerformanceProducer">
         <xs:annotation>
