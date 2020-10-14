@@ -55,29 +55,30 @@ public class ObservationFromCurrentBiome extends HandlerBase implements IObserva
 		EntityPlayerSP player = Minecraft.getMinecraft().player;
 		JsonObject biomeJson = new JsonObject();
 
-		if (player == null)
+		if (player == null || player.world == null)
 			return;
-
-		Minecraft mc = Minecraft.getMinecraft();
 
 		BlockPos playerPos = player.getPosition();
 		Biome playerBiome = player.world.getBiome(playerPos);
 		// Name of the current biome
-		biomeJson.addProperty("biomeName", playerBiome.getBiomeName());
+		biomeJson.addProperty("biome_name", playerBiome.getBiomeName());
+		// ID of the current biome
+		biomeJson.addProperty("biome_id", Biome.getIdForBiome(playerBiome));
 		// The average temperature of the current biome
-		biomeJson.addProperty("biomeTemperature", playerBiome.getTemperature());
+		biomeJson.addProperty("biome_temperature", playerBiome.getTemperature());
 		// The average rainfall chance of the current biome
-		biomeJson.addProperty("biomeRainfall", playerBiome.getRainfall());
+		biomeJson.addProperty("biome_rainfall", playerBiome.getRainfall());
 		// [0. 14] The current combined light level of the current player pos
-		biomeJson.addProperty("lightLevel", player.world.getLight(playerPos));
+		biomeJson.addProperty("light_level", player.world.getLight(playerPos));
 		// If the playerPos has LOS to the sky
-		biomeJson.addProperty("canSeeSky", player.world.canSeeSky(playerPos));
+		biomeJson.addProperty("can_see_sky", player.world.canSeeSky(playerPos));
 		// [0, 1] Brightness factor of the sun
-		biomeJson.addProperty("sunBrightness", player.world.getSunBrightnessFactor(0));
+		biomeJson.addProperty("sun_brightness", player.world.getSunBrightnessFactor(0));
 		// [0, 14] Light level provided by the sky
-		biomeJson.addProperty("skyLightLevel", player.world.getSunBrightness(0));
+		biomeJson.addProperty("sky_light_level", player.world.getSunBrightness(0));
 		// TODO add other statuses such as current weather
 
+		baseJson.add("current_biome", biomeJson);
 	}
 
 	@Override
