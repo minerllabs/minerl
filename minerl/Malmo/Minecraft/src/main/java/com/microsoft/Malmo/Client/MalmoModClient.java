@@ -19,6 +19,7 @@
 
 package com.microsoft.Malmo.Client;
 
+import net.minecraft.client.gui.GuiGameOver;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -251,7 +252,7 @@ public class MalmoModClient
     public void onGuiOpenEvent(GuiOpenEvent event){
         if(this.stateMachine.getStableState() == ClientState.RUNNING){
             Logger logger = Logger.getLogger("MalmoModClient.onGuiOpenEvent");
-            if (event != null && event.getGui() != null) {
+            if (event != null && event.getGui() != null && !(event.getGui() instanceof GuiGameOver)) {
                 logger.log(Level.WARNING, "GUI Window " + event.getGui().getClass().getSimpleName() + " opened!");
                 throw new AssertionError("GUI Window " + event.getGui().getClass().getSimpleName() + " opened!");
             }
