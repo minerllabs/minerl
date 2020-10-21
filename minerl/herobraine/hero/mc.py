@@ -532,8 +532,16 @@ MINERL_ITEM_MAP = sorted(["none"] + ALL_ITEMS)
 ITEMS_BY_CATEGORY = {
     # Items which take 2 seconds to USE
     'edible': [item['type'] for item in all_data['items'] if item['useAction'] in {'EAT', 'DRINK'}],
-    # Items which have ongoing effect when equipped
-    'tool': [item['type'] for item in all_data['items'] if item['tab'] in {'tools', 'combat'}]
+    # Items which have ongoing effect when equipped (includes armor)
+    'tool': [item['type'] for item in all_data['items'] if item['tab'] in {'tools', 'combat'}],
+    # Items which are used for building
+    'building_block': [item['type'] for item in all_data['items'] if item['tab'] in {'buildingBlock'}],
+    # Redstone items (doors, buttons, levers)
+    'redstone': [item['type'] for item in all_data['items'] if item['tab'] in {'redstone'}],
+    # Brewing items
+    'brewing': [item['type'] for item in all_data['items'] if item['tab'] in {'brewing'}],
+    # Decoration items (includes torch)
+    'decoration': [item['type'] for item in all_data['items'] if item['tab'] in {'decoration'}]
 }
 
 # Check that all edible items have the same maxUseDuration
