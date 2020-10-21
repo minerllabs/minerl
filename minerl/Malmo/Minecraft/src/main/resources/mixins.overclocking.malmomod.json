@@ -6,7 +6,6 @@
     "MixinLargeInventory",
     "MixinMinecraftGameloop",
     "MixinMinecraftServerRun",
-    "MixinNoGuiInteract",
     "MixinRandomSkinTexture",
     "MixinWorldProviderSpawn"
   ],
