@@ -3,6 +3,7 @@ import functools
 import json
 import logging
 import multiprocessing
+from multiprocessing import Process
 import os
 import time
 from collections import OrderedDict
@@ -377,12 +378,23 @@ class DataPipeline:
             Generator: A generator that yields (sarsd) batches
         """
         # Todo: Not implemented/
+        input_queue = multiprocessing.Queue()
+        trajectory_queue = multiprocessing.Queue(maxsize=preload_buffer_size)
+
+        workers = []
+        args = (input_queue, trajectory_queue)
+        for _ in range(self.number_of_workers):
+            workers.append(Process(target=loader_func, args=args))
+            workers[-1].start()
+
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
-            trajectory_queue = queue.Queue(maxsize=preload_buffer_size)
 
             def traj_iter():
                 for _ in jobs:
-                    s, a, r, sp1, d = trajectory_queue.get()
+                    data_tuple = trajectory_queue.get()
+                    if data_tuple is None:
+                        continue
+                    s, a, r, sp1, d = data_tuple
                     yield dict(
                         obs=s,
                         act=a,
@@ -391,21 +403,20 @@ class DataPipeline:
                         done=d
                     )
 
-            jobs = [(f, -1, None) for f in self._get_all_valid_recordings(self.data_dir)]
+            jobs = [(f, -1, None)
+                    for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
-            trajectory_loader = minerl.data.util.OrderedJobStreamer(
-                job,
-                jobs,
-                trajectory_queue,
-                # executor=concurrent.futures.ThreadPoolExecutor,
-                max_workers=preload_buffer_size
-            )
-            trajectory_loader.start()
+            for job in jobs:
+                input_queue.put(job)
 
             for seg_batch in minibatch_gen(traj_iter(), batch_size=batch_size, nsteps=seq_len):
                 yield seg_batch['obs'], seg_batch['act'], seg_batch['reward'], seg_batch['next_obs'], seg_batch['done']
 
-            trajectory_loader.shutdown()
+        for _ in range(self.number_of_workers):
+            input_queue.put(("SHUTDOWN",))
+
+        for w in workers:
+            w.join()
 
     @staticmethod
     def _is_blacklisted(path):
@@ -485,5 +496,10 @@ class DataPipeline:
             "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
 
-def job(arg):
-    return DataPipeline._load_data_pyfunc(*arg)
+def loader_func(input_queue, output_queue):
+    while True:
+        arg = input_queue.get()
+        if arg[0] == "SHUTDOWN":
+            break
+        output = DataPipeline._load_data_pyfunc(*arg)
+        output_queue.put(output)
