@@ -4,8 +4,8 @@ For internal use only. Requires privileged AWS credentials.
 This script syncs recorded player trajectories (raw format) from the
 "s3://pizza-party" bucket to the DOWNLOAD_DIR, ~/minerl.data/downloaded_sync/.
 
-Other scripts can process these downloaded trajectories to a format that is usable by
-`minerl.data.make()` (i.e. `minerl.data.DataPipeline`).
+Other scripts can process these downloaded trajectories to a format that is
+usable by `minerl.data.make()` (i.e. `minerl.data.DataPipeline`).
 
 Protip: If you need to use a particular AWS profile for this script, execute
 `export AWS_PROFILE=$minerl_profile` before running.
