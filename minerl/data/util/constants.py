@@ -30,7 +30,7 @@ BASE_DIR = os.environ.get('MINERL_OUTPUT_ROOT', os.path.expanduser(
 
 RENDERERS_DIR = os.path.expanduser(
     J('~', 'renderers'))
-NUM_MINECRAFTS = 28
+NUM_MINECRAFTS = 2
 
 OUTPUT_DIR = J(BASE_DIR, 'output')
 DOWNLOAD_DIR = J(BASE_DIR, 'downloaded_sync')
@@ -41,7 +41,7 @@ MERGED_DIR = J(OUTPUT_DIR, 'merged')
 BLACKLIST_TXT = J(OUTPUT_DIR, 'blacklist.txt')
 PARSE_COMMAND = [os.path.abspath(J(os.path.dirname((__file__)), '..', 'pipeline', 'parser', 'parse')), '-f']
 Z7_COMMAND = ["7z"]
-TEMP_ROOT = J(BASE_DIR, 'tmp')
+TEMP_ROOT = J(BASE_DIR)
 BLOCK_SIZE = 1024 * 1024
 ACTION_FILE = 'actions.tmcpr'
 RECORDING_FILE = 'recording.tmcpr'
