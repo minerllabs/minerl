@@ -111,6 +111,13 @@ else
 fi
 # If build/libs/MalmoMod-0.37.0-fat.jar does not exist change command to 'test'
 
-$cmd
+# TODO (R): Decide if this dependency on xvfb-run is deserved. Maybe this should go externally!
+if [[ $(uname) == 'Linux' && -z "$DISPLAY" ]]; then
+   echo "Running minecraft with xvfb"
+   xvfb-run -a -s "-screen 0 1024x768x24" $cmd
+else
+   echo "Running minecraft without xvfb"
+   $cmd
+fi
 [ $replaceable -gt 0 ]
 
