@@ -2,12 +2,13 @@
   "required": true,
   "package": "com.microsoft.Malmo.Mixins",
   "mixins": [
-    "MixinMinecraftServerRun",
-    "MixinMinecraftGameloop",
-    "MixinWorldProviderSpawn",
     "MixinEntityRandom",
+    "MixinLargeInventory",
+    "MixinMinecraftGameloop",
+    "MixinMinecraftServerRun",
     "MixinNoGuiInteract",
-    "MixinLargeInventory"
+    "MixinRandomSkinTexture",
+    "MixinWorldProviderSpawn"
   ],
   "server": [
   ],
