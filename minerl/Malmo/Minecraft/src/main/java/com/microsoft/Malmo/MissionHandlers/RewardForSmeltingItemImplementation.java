@@ -45,6 +45,7 @@ public class RewardForSmeltingItemImplementation extends RewardForItemBase imple
 
     @SubscribeEvent
     public void onItemSmelt(PlayerEvent.ItemSmeltedEvent event) {
+        checkCorrectPlayer(event.player.getName(), event);
         if (event.player instanceof EntityPlayerMP && !event.smelting.isEmpty())
             checkForMatch(event.smelting);
     }

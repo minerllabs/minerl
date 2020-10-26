@@ -177,12 +177,14 @@ public class InventoryCommandsImplementation extends CommandGroup
         {
             if (message.itemsGained != null)
             {
-                RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(message.itemsGained);
+                RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(
+                        ctx.getServerHandler().playerEntity, message.itemsGained);
                 MinecraftForge.EVENT_BUS.post(event);
             }
             if (message.itemsLost != null)
             {
-                RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(message.itemsLost);
+                RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(
+                        ctx.getServerHandler().playerEntity, message.itemsLost);
                 MinecraftForge.EVENT_BUS.post(event);
             }
             return null;

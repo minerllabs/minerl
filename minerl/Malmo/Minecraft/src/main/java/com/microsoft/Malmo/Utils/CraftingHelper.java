@@ -324,7 +324,8 @@ public class CraftingHelper {
                 }
             }
             ItemStack resultForReward = isIngredient.copy();
-            RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(resultForReward);
+            RewardForDiscardingItemImplementation.LoseItemEvent event = new RewardForDiscardingItemImplementation.LoseItemEvent(
+                    player, resultForReward);
             MinecraftForge.EVENT_BUS.post(event);
         }
     }
@@ -473,12 +474,15 @@ public class CraftingHelper {
 
     /**
      * Attempt to craft the given recipe.<br>
-     * This pays no attention to tedious things like using the right crafting table / brewing stand etc, or getting the right shape.<br>
-     * It simply takes the raw ingredients out of the player's inventory, and inserts the output of the recipe, if possible.
+     * This pays no attention to tedious things like using the right crafting table
+     * / brewing stand etc, or getting the right shape.<br>
+     * It simply takes the raw ingredients out of the player's inventory, and
+     * inserts the output of the recipe, if possible.
      *
      * @param player the SERVER SIDE player that will do the crafting.
      * @param recipe the IRecipe we wish to craft.
-     * @return true if the recipe had an output, and the player had the required ingredients to create it; false otherwise.
+     * @return true if the recipe had an output, and the player had the required
+     *         ingred:xients to create it; false otherwise.
      */
     public static boolean attemptCrafting(EntityPlayerMP player, IRecipe recipe) {
         if (player == null || recipe == null)
@@ -495,7 +499,8 @@ public class CraftingHelper {
             ItemStack resultForInventory = is.copy();
             ItemStack resultForReward = is.copy();
             player.inventory.addItemStackToInventory(resultForInventory);
-            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(resultForReward);
+            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(
+                    player, resultForReward);
             event.setCause(1);
             MinecraftForge.EVENT_BUS.post(event);
 
@@ -621,7 +626,8 @@ public class CraftingHelper {
             ItemStack resultForInventory = isOutput.copy();
             ItemStack resultForReward = isOutput.copy();
             player.inventory.addItemStackToInventory(resultForInventory);
-            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(resultForReward);
+            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(
+                    player, resultForReward);
             event.setCause(2);
             MinecraftForge.EVENT_BUS.post(event);
 

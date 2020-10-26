@@ -20,6 +20,10 @@ public class RewardForDamagingEntityImplementation extends RewardBase implements
     RewardForDamagingEntity params;
     Map<MobWithReward, Float> damages = new HashMap<MobWithReward, Float>();
 
+    public RewardForDamagingEntityImplementation() {
+        throw new RuntimeException("Implementation is is single-agent and needs to be fixed for multi-agent case");
+    }
+
     @Override
     public boolean parseParameters(Object params)
     {

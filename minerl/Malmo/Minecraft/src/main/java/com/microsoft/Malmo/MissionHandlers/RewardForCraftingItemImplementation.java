@@ -46,6 +46,7 @@ public class RewardForCraftingItemImplementation extends RewardForItemBase imple
 
     @SubscribeEvent
     public void onItemCraft(PlayerEvent.ItemCraftedEvent event) {
+        checkCorrectPlayer(event.player.getName(), event);
         if (event.player instanceof EntityPlayerMP && !event.crafting.isEmpty())
             checkForMatch(event.crafting);
     }

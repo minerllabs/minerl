@@ -26,10 +26,12 @@ import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -63,7 +65,7 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
         }
     }
     
-    public static class LoseItemEvent extends Event
+    public static class LoseItemEvent extends PlayerEvent
     {
         public final ItemStack stack;
 
@@ -72,8 +74,9 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
          */
         public int cause = 0;
 
-        public LoseItemEvent(ItemStack stack)
+        public LoseItemEvent(EntityPlayer player, ItemStack stack)
         {
+            super(player);
             this.stack = stack;
         }
 
@@ -99,6 +102,7 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onLoseItem(LoseItemEvent event)
     {
+        checkCorrectPlayer(event.getEntityPlayer().getName(), event);
         if (event.stack != null)
         {
             accumulateReward(this.params.getDimension(), event.stack);
@@ -108,6 +112,7 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onTossItem(ItemTossEvent event)
     {
+        checkCorrectPlayer(event.getPlayer().getName(), event);
         if (event.getEntityItem() != null && event.getPlayer() instanceof EntityPlayerMP)
         {
             ItemStack stack = event.getEntityItem().getEntityItem();
@@ -118,6 +123,7 @@ public class RewardForDiscardingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onPlaceBlock(BlockEvent.PlaceEvent event)
     {
+        checkCorrectPlayer(event.getPlayer().getName(), event);
         if (event.getPlayer().getHeldItem(event.getHand()) != null && event.getPlayer() instanceof EntityPlayerMP )
         {
             // This event is received on the server side, so we need to pass it to the client.
