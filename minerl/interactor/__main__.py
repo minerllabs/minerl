@@ -2,8 +2,8 @@
 # Author: William H. Guss, Brandon Houghton
 
 import argparse
+from minerl.env._multiagent import _MultiAgentEnv
 from minerl.env.malmo import InstanceManager, MinecraftInstance, malmo_version
-from minerl.env.core import MineRLEnv
 from minerl.env import comms
 import os
 import socket
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def request_interactor(instance, ip):
     sock = get_socket(instance)
-    MineRLEnv._hello(sock)
+    _MultiAgentEnv._TO_MOVE_hello(sock)
 
     comms.send_message(sock,
                        ("<Interact>" + ip + "</Interact>").encode())

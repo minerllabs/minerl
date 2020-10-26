@@ -530,7 +530,8 @@ class _MultiAgentEnv(gym.Env):
                         <MaxPlayers>{}</MaxPlayers>
                     </HumanInteraction>""".format(self.interact_port, self.max_players))
                 # Update the xml
-                ss = agent_xml_etree.find(".//" + self.ns + 'ServerSection')
+                namespace = '{http://ProjectMalmo.microsoft.com}'
+                ss = agent_xml_etree.find(".//" + namespace + 'ServerSection')
                 ss.insert(0, hi)
 
             # inject mission dict into the xml
