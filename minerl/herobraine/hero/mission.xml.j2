@@ -42,7 +42,7 @@
 
         <AgentStart>
 
-            {% for x in get_consolidated_xml((agent_start)) %}
+            {% for x in get_consolidated_xml((agent_start[agent_index])) %}
             {{ x }}
             {% endfor %}
 
