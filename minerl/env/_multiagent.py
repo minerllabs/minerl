@@ -742,7 +742,7 @@ class _MultiAgentEnv(gym.Env):
             self._TO_MOVE_hello(sock)
 
             instance.client_socket = sock
-        except (socket.timeout, socket.error) as e:
+        except (socket.timeout, socket.error, ConnectionRefusedError) as e:
             instance.had_to_clean = True
             logger.error("Failed to reset (socket error), trying again!")
             logger.error("Cleaning connection! Something must have gone wrong.")

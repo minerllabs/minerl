@@ -7,10 +7,10 @@ import minerl.herobraine.hero.mc as mc
 import minerl.herobraine.hero.spaces as spaces
 import numpy as np
 
-__all__ = ['ObservationFromCurrentBiome']
+__all__ = ['ObservationFromFullStats']
 
 
-class ObservationFromCurrentBiome(TranslationHandlerGroup):
+class ObservationFromFullStats(TranslationHandlerGroup):
     """
     Groups all of the biome observations together to correspond to one XML element.
 
@@ -18,15 +18,11 @@ class ObservationFromCurrentBiome(TranslationHandlerGroup):
     sky is, and if the player can see the sky."""
 
     def to_string(self) -> str:
-        return "currentBiome"
+        return "fullStats"
 
     def __init__(self):
-        super(ObservationFromCurrentBiome, self).__init__(
+        super(ObservationFromFullStats, self).__init__(
             handlers=[
-                _BiomeNameObservation(),
-                _BiomeIDObservation(),
-                _BiomeTemperatureObservation(),
-                _BiomeRainfallObservation(),
                 _CanSeeSkyObservation(),
                 _LightLevelObservation(),
                 _SkyLightLevelObservation(),
@@ -35,11 +31,11 @@ class ObservationFromCurrentBiome(TranslationHandlerGroup):
         )
 
     def xml_template(self) -> str:
-        return str("""<ObservationFromCurrentBiome/>""")
+        return str("""<ObservationFromFullStats/>""")
 
 
 
-class BiomeObservation(KeymapTranslationHandler):
+class ObservationFromFullStats(KeymapTranslationHandler):
     def to_hero(self, x) -> str:
         pass
 
@@ -51,7 +47,7 @@ class BiomeObservation(KeymapTranslationHandler):
         return str("""<ObservationFromFullStats/>""")
 
 
-class _BiomeNameObservation(BiomeObservation):
+class _StatObservation(ObservationFromFullStats):
     """
     Handles current biome observation. Represents a string coresoponding to the current biome of the agent
         See line 543 of Biome.java for an enumeration of the current java biomes, or EXPLORATION_BIOMES_LIST
@@ -61,19 +57,18 @@ class _BiomeNameObservation(BiomeObservation):
         super().__init__(dict_key='biome_name',
                          space=spaces.Text(shape=()))
 
-class _BiomeIDObservation(BiomeObservation):
+class _AchievementObservation(ObservationFromFullStats):
     """
-    Handles current biome observation. Represents the MC ID corresponding to the current biome of the agent
-    See line 543 of Biome.java for an enumeration of the current java biome IDs
-    Note: According to EXPLORATION_BIOMES_LIST, only biom ID's 0-39 inclusive are available for exploration, however
-    corrupted biomes and 'void' are also registered with IDs ranging from 127-167 inclusive
+    A abstract class for achievement status. Given the large number of keys with little change we implement these as a
+    their default value of false when not present
     """
 
-    def __init__(self):
-        super().__init__(dict_key='biome_name',
-                         space=spaces.Discrete(40))
+    def __init__(self, achievement_key : str):
+        super().__init__(dict_keys=['achievement', achievement_key],
+                         space=spaces.Discrete(2),
+                         default_if_missing=np.eye(2)[0,:])
 
-class _BiomeTemperatureObservation(BiomeObservation):
+class _BlockStatObservation(ObservationFromFullStats):
     """
     """
 
@@ -82,7 +77,7 @@ class _BiomeTemperatureObservation(BiomeObservation):
                          space=spaces.Box(low=0.0, high=1.0, shape=()),
                          default_if_missing=0.5)
 
-class _BiomeRainfallObservation(BiomeObservation):
+class _ItemStatObservation(ObservationFromFullStats):
     """
     """
 
@@ -91,19 +86,19 @@ class _BiomeRainfallObservation(BiomeObservation):
                          space=spaces.Box(low=0.0, high=1.0, shape=()),
                          default_if_missing=0.5)
 
-class _LightLevelObservation(BiomeObservation):
+class _LightLevelObservation(ObservationFromFullStats):
     def __init__(self):
         super().__init__(dict_key='light_level', space=spaces.Discrete(15), default_if_missing=7)
 
-class _CanSeeSkyObservation(BiomeObservation):
+class _CanSeeSkyObservation(ObservationFromFullStats):
     def __init__(self):
         super().__init__(dict_key='can_see_sky', space=spaces.Discrete(2), default_if_missing=1)
 
-class _SunBrightnessObservation(BiomeObservation):
+class _SunBrightnessObservation(ObservationFromFullStats):
     def __init__(self):
         super().__init__(dict_key='sun_brightness', space=spaces.Box(low=0.0, high=1.0, shape=()), default_if_missing=0.5)
 
-class _SkyLightLevelObservation(BiomeObservation):
+class _SkyLightLevelObservation(ObservationFromFullStats):
     def __init__(self):
         super().__init__(dict_key='sky_light_level', space=spaces.Discrete(15), default_if_missing=7)
 

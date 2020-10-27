@@ -174,7 +174,8 @@ def render_metadata(renders: list):
                     with open(J(render_path, 'metaData.json'), 'r') as f:
                         # print(render_path)
                         jbos = json.load(f)
-                        # assert (ile["duration"] > 60000 or jbos["duration"] == 0)
+                        print(jbos)
+                        # assert (jbos["duration"] > 60000 or jbos["duration"] == 0)
                         assert (jbos["duration"] > 300000)
 
                         # go through and check if we got the experiments.
@@ -375,7 +376,7 @@ def render_videos(render: tuple, index=0, debug=False):
             return 0
 
         mcpr_path = J(MERGED_DIR, (recording_name + ".mcpr"))
-
+        os.makedirs(RECORDING_PATH[index], exist_ok=True)
         copyfile(mcpr_path, J(RECORDING_PATH[index], (recording_name + ".mcpr")))
         copy_time = os.path.getmtime(
             J(RECORDING_PATH[index], (recording_name + ".mcpr")))

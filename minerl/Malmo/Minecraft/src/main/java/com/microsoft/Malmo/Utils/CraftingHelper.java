@@ -60,7 +60,10 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.*;
+import net.minecraft.stats.Achievement;
 import net.minecraft.stats.AchievementList;
+import net.minecraft.stats.StatBase;
+import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
@@ -715,7 +718,7 @@ public class CraftingHelper {
     }
 
     /**
-     * Little utility method for gejerating a json array of all of the Minecraft blocks
+     * Little utility method for generating a json array of all of the Minecraft blocks
      */
     public static JsonArray generateBlockJson(){
         JsonArray blocks = new JsonArray();
@@ -734,6 +737,45 @@ public class CraftingHelper {
         }
         return blocks;
     }
+
+    /**
+     * Little utility method for generating a json array of all of the Minecraft achievements
+     */
+    public static JsonArray generateAchievements(){
+        JsonArray achievements = new JsonArray();
+        for (Achievement achievement : AchievementList.ACHIEVEMENTS) {
+            JsonObject json = new JsonObject();
+            json.addProperty("statID", achievement.statId);
+            if (achievement.parentAchievement != null && achievement.parentAchievement.statId != null)
+                json.addProperty("parentStatID", achievement.parentAchievement.statId);
+            json.addProperty("isIndependent", achievement.isIndependent);
+            json.addProperty("displayColumn", achievement.displayColumn);
+            json.addProperty("displayRow", achievement.displayRow);
+            json.addProperty("isSpecial", achievement.getSpecial());
+            json.addProperty("description", achievement.getDescription());
+
+            achievements.add(json);
+        }
+        return achievements;
+    }
+
+
+    /**
+     * Little utility method for generating a json array of all of the Minecraft base stats
+     */
+    public static JsonArray generateStats(){
+        JsonArray stats = new JsonArray();
+        for (StatBase stat : StatList.ALL_STATS) {
+            JsonObject json = new JsonObject();
+            json.addProperty("statID", stat.statId);
+            json.addProperty("minerl_keys", stat.statId);
+            json.addProperty("isIndependent", stat.isIndependent);
+            json.addProperty("isAchievement",stat.isAchievement());
+            stats.add(json);
+        }
+        return stats;
+    }
+
 
     /**
      * Little utility method for generating a json array of all of the Minecraft crafting recipes
@@ -803,6 +845,7 @@ public class CraftingHelper {
         allRecipes.add("smeltingRecipes", generateSmeltingRecipeJson());
         allRecipes.add("items", generateItemJson());
         allRecipes.add("blocks", generateBlockJson());
+        allRecipes.add("achievements", generateAchievements());
         try {
             Writer writer = new FileWriter(filename);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
