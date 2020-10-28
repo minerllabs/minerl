@@ -888,6 +888,9 @@ public class ServerStateMachine extends StateMachine
                 double angle = rng.nextDouble() * 2.0 * Math.PI;
                 double Z = anchor.posZ + distance * Math.cos(angle);
                 double X = anchor.posX + distance * Math.sin(angle);
+                // ideally, should be determined by the width of the viewport, so that agents
+                // are in each
+                // other's field of view
                 double angleNoise = 20.0;
 
                 double Y = Minecraft.getMinecraft().world.getTopSolidOrLiquidBlock(new BlockPos(X, 0, Z)).getY();
