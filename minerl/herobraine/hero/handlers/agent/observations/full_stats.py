@@ -58,7 +58,7 @@ class _FullStatsObservation(KeymapTranslationHandler):
     def __init__(self, key_list : List[str], space=None, default_if_missing=None):
         if space is None:
             if 'achievement' == key_list[0]:
-                space = spaces.Box(low=0, high=1, shape=())
+                space = spaces.Box(low=0, high=1, shape=(), dtype=np.int)
             else:
                 space = spaces.Box(low=0, high=32000, shape=(), dtype=np.int),
         if default_if_missing is None:
@@ -158,13 +158,3 @@ class _CanSeeSkyObservation(_FullStatsObservation):
                          space=spaces.Discrete(2),
                                  default_if_missing=np.eye(2)[1])
 
-class _IsRainingObservation(_FullStatsObservation):
-    def to_hero(self, x):
-        for key in self.hero_keys:
-            x = x[key]
-        return np.eye(2)[x]
-
-    def __init__(self):
-        super().__init__(key_list=['is_raining'],
-                         space=spaces.Discrete(2),
-                         default_if_missing=np.eye(2)[1])
