@@ -2,6 +2,8 @@
 # Author: William H. Guss, Brandon Houghton
 
 import jinja2
+from typing import List
+
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler, TranslationHandlerGroup
 import minerl.herobraine.hero.mc as mc
 import minerl.herobraine.hero.spaces as spaces
@@ -12,93 +14,147 @@ __all__ = ['ObservationFromFullStats']
 
 class ObservationFromFullStats(TranslationHandlerGroup):
     """
-    Groups all of the biome observations together to correspond to one XML element.
+    Groups all of the minecraft statistics and biome observations together to correspond to one XML element.
 
     Includes the current biome, how likely rain and snow are there, as well as the current light level, how bright the
-    sky is, and if the player can see the sky."""
+    sky is, and if the player can see the sky.
+
+    Also includes every statistic tracked by MC's statistic tracking
+    """
+
+    def xml_template(self) -> str:
+        return str("""<ObservationFromFullStats/>""")
 
     def to_string(self) -> str:
         return "fullStats"
 
     def __init__(self):
         super(ObservationFromFullStats, self).__init__(
-            handlers=[
-                _CanSeeSkyObservation(),
-                _LightLevelObservation(),
+            handlers = [_FullStatsObservation(statKeys) for statKeys in mc.ALL_STAT_KEYS] + [
+                _SunBrightnessObservation(),
                 _SkyLightLevelObservation(),
-                _SunBrightnessObservation()
+                _LightLevelObservation(),
+                _CanSeeSkyObservation(),
+                _BiomeRainfallObservation()
             ]
         )
 
-    def xml_template(self) -> str:
-        return str("""<ObservationFromFullStats/>""")
+
+class _FullStatsObservation(KeymapTranslationHandler):
+    def to_hero(self, x) -> int:
+        for key in self.hero_keys:
+            x = x[key]
+        return x
+
+    def __init__(self, key_list : List[str], space=None, default_if_missing=None):
+        if space is None:
+            if 'achievement' == key_list[0]:
+                space = spaces.Box(low=0, high=1, shape=())
+            else:
+                space = spaces.Box(low=0, high=32000, shape=(), dtype=np.int),
+        if default_if_missing is None:
+            default_if_missing = np.zeros((),dtype=np.float)
 
 
-
-class ObservationFromFullStats(KeymapTranslationHandler):
-    def to_hero(self, x) -> str:
-        pass
-
-    def __init__(self, dict_key, space, default_if_missing=None):
-        super().__init__(hero_keys=['currrent_biome', dict_key], univ_keys=['currrent_biome', dict_key], space=space,
+        super().__init__(hero_keys=key_list, univ_keys=key_list, space=space,
                          default_if_missing=default_if_missing)
 
     def xml_template(self) -> str:
         return str("""<ObservationFromFullStats/>""")
 
 
-class _StatObservation(ObservationFromFullStats):
-    """
-    Handles current biome observation. Represents a string coresoponding to the current biome of the agent
-        See line 543 of Biome.java for an enumeration of the current java biomes, or EXPLORATION_BIOMES_LIST
-    """
+class _SunBrightnessObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['sun_brightness'], space=spaces.Box(low=0.0, high=1.0, shape=()), default_if_missing=0.94)
+
+class _SkyLightLevelObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['sky_light_level'], space=spaces.Box(low=0.0, high=1.0, shape=()), default_if_missing=0.71)
+
+class _XPositionObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['xpos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=()), default_if_missing=0)
+class _YPositionObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['ypos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=()), default_if_missing=0)
+class _ZPositionObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['zpos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=()), default_if_missing=0)
+
+class _PitchObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['pitch'], space=spaces.Box(low=-180.0, high=180.0, shape=()),
+                         default_if_missing=0)
+
+class _YawObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['yaw'], space=spaces.Box(low=-180.0, high=180.0, shape=()),
+                         default_if_missing=0)
+
+class _BiomeNameObservation(_FullStatsObservation):
+    def to_hero(self, x):
+        for key in self.hero_keys:
+            x = x[key]
+        return np.eye(40)[x]
 
     def __init__(self):
-        super().__init__(dict_key='biome_name',
-                         space=spaces.Text(shape=()))
+        super().__init__(key_list=['biome_name'],
+                         space=spaces.Discrete(40),
+                         default_if_missing=np.eye(40)[0])
 
-class _AchievementObservation(ObservationFromFullStats):
-    """
-    A abstract class for achievement status. Given the large number of keys with little change we implement these as a
-    their default value of false when not present
-    """
+class _BiomeRainfallObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['biome_rainfall'],
+                         space=spaces.Box(low=0.0, high=1.0, shape=()),
+                         default_if_missing=0.5)
 
-    def __init__(self, achievement_key : str):
-        super().__init__(dict_keys=['achievement', achievement_key],
+class _BiomeTemperatureObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['biome_temperature'],
+                         space=spaces.Box(low=0.0, high=1.0, shape=()),
+                         default_if_missing=0.5)
+
+class _SeaLevelObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['sea_level'],
+                         space=spaces.Box(low=0.0, high=255, shape=(), dtype=np.int),
+                         default_if_missing=63)
+
+class _LightLevelObservation(_FullStatsObservation):
+    def __init__(self):
+        super().__init__(key_list=['light_level'],
+                         space=spaces.Box(low=0.0, high=15, shape=(), dtype=np.int),
+                         default_if_missing=15)
+
+class _IsRainingObservation(_FullStatsObservation):
+    def to_hero(self, x):
+        for key in self.hero_keys:
+            x = x[key]
+        return np.eye(2)[x]
+
+    def __init__(self):
+        super().__init__(key_list=['is_raining'],
                          space=spaces.Discrete(2),
-                         default_if_missing=np.eye(2)[0,:])
+                         default_if_missing=np.eye(2)[0])
 
-class _BlockStatObservation(ObservationFromFullStats):
-    """
-    """
-
-    def __init__(self):
-        super().__init__(dict_key='biome_temperature',
-                         space=spaces.Box(low=0.0, high=1.0, shape=()),
-                         default_if_missing=0.5)
-
-class _ItemStatObservation(ObservationFromFullStats):
-    """
-    """
+class _CanSeeSkyObservation(_FullStatsObservation):
+    def to_hero(self, x):
+        for key in self.hero_keys:
+            x = x[key]
+        return np.eye(2)[x]
 
     def __init__(self):
-        super().__init__(dict_key='biome_rainfall',
-                         space=spaces.Box(low=0.0, high=1.0, shape=()),
-                         default_if_missing=0.5)
+        super().__init__(key_list=['is_raining'],
+                         space=spaces.Discrete(2),
+                                 default_if_missing=np.eye(2)[1])
 
-class _LightLevelObservation(ObservationFromFullStats):
+class _CanSeeSkyObservation(_FullStatsObservation):
+    def to_hero(self, x):
+        for key in self.hero_keys:
+            x = x[key]
+        return np.eye(2)[x]
+
     def __init__(self):
-        super().__init__(dict_key='light_level', space=spaces.Discrete(15), default_if_missing=7)
-
-class _CanSeeSkyObservation(ObservationFromFullStats):
-    def __init__(self):
-        super().__init__(dict_key='can_see_sky', space=spaces.Discrete(2), default_if_missing=1)
-
-class _SunBrightnessObservation(ObservationFromFullStats):
-    def __init__(self):
-        super().__init__(dict_key='sun_brightness', space=spaces.Box(low=0.0, high=1.0, shape=()), default_if_missing=0.5)
-
-class _SkyLightLevelObservation(ObservationFromFullStats):
-    def __init__(self):
-        super().__init__(dict_key='sky_light_level', space=spaces.Discrete(15), default_if_missing=7)
-
+        super().__init__(key_list=['is_raining'],
+                         space=spaces.Discrete(2),
+                         default_if_missing=np.eye(2)[1])

@@ -138,22 +138,10 @@ public class JSONWorldDataHelper
                 + sfw.readStat(StatList.AVIATE_ONE_CM)
                 );
 
-            JsonObject banana = new JsonObject();
-            JsonObject stats = new JsonObject();
-            JsonObject achievements = new JsonObject();
-            Map<String, JsonObject> jsonObjectMap = new HashMap<>();
-            jsonObjectMap.put("killEntity", new JsonObject());
-            jsonObjectMap.put("entityKilledBy", new JsonObject());
-            jsonObjectMap.put("mineBlock", new JsonObject());
-            jsonObjectMap.put("useItem", new JsonObject());
-            jsonObjectMap.put("breakItem", new JsonObject());
-            jsonObjectMap.put("craftItem", new JsonObject());
-            jsonObjectMap.put("pickup", new JsonObject());
-            jsonObjectMap.put("drop", new JsonObject());
-
             for(StatBase stat : StatList.ALL_STATS) {
+                // For MineRL, split over . and convert all camelCase to snake_case
                 String[] stat_fields = stat.statId.split("\\.");
-                JsonObject head = banana;
+                JsonObject head = json;
                 for (String unformatted_token : stat_fields) {
                     String token = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, unformatted_token);
                     // Last element is a leaf
@@ -164,7 +152,7 @@ public class JSONWorldDataHelper
                             if (head.get(token) instanceof JsonObject)
                                 head = head.getAsJsonObject(token);
                             else {
-                                System.out.println("Duplicate token! " + Arrays.toString(stat_fields));
+//                                System.out.println("Duplicate token! " + Arrays.toString(stat_fields));
                                 head.remove(token);
                                 JsonObject newRoot = new JsonObject();
                                 head.add(token, newRoot);
@@ -178,62 +166,6 @@ public class JSONWorldDataHelper
                     }
                 }
             }
-
-            // Record base minecraft statistics (~1800 statistics)
-            for(StatBase stat : StatList.ALL_STATS) {
-                String[] stat_fields = stat.statId.split("\\.");
-
-                if (stat_fields[0].equals("achievement")){
-                    // There are not currently any nested achievements
-                    assert stat_fields.length == 2;
-                    addStatToJson(sfw, achievements, stat, "achievement.");
-                } else if (stat_fields[0].equals("stat")) {
-                    // Stats have many keys - we will map them to their own json objects
-                    if (stat_fields.length == 2) {
-                        addStatToJson(sfw, stats, stat, "stat.");
-                    } else if (stat_fields.length > 2) {
-                        if (jsonObjectMap.containsKey(stat_fields[1])){
-                            JsonObject child = jsonObjectMap.get(stat_fields[1]);
-                            addStatToJson(sfw, child, stat, "stat." + stat_fields[1] + ".");
-                        } else {
-                            throw new UnknownElementException((Element) stat, null);
-                        }
-                    }
-                } else {
-                    throw new UnknownElementException((Element) stat, null);
-                }
-            }
-
-            for (Map.Entry<String, JsonObject> entry : jsonObjectMap.entrySet()) {
-                stats.add(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entry.getKey()), entry.getValue());
-            }
-
-//            // Record block stats (~ 170 statistics)
-//            for(Block block : Block.REGISTRY){
-//                StatBase stat = getBlockStats(block);
-//                if (addStatToJson(sfw, block_stats, stat, "stat."))
-//                    throw new UnknownElementException((Element) stat, null);
-//            }
-//
-//            // Record item stats (~ 1500 statistics)
-//            List<Function<Item, StatBase>> functions = new ArrayList<>(Arrays.asList(
-//                (StatList::getCraftStats),
-//                (StatList::getObjectUseStats),
-//                (StatList::getObjectBreakStats), // Only applies to tools
-//                (StatList::getObjectsPickedUpStats),
-//                (StatList::getDroppedObjectStats))
-//            );
-//            for(Item item : Item.REGISTRY){
-//                for(Function<Item, StatBase> fn :  functions){
-//                    StatBase stat = fn.apply(item);
-//                    if (addStatToJson(sfw, item_stats, stat, "stat."))
-//                        throw new UnknownElementException((Element) stat, null);
-//                }
-//            }
-
-            json.add("stat", stats);
-            json.add("achievement", achievements);
-            json.add("banana", banana);
         }
 
 
