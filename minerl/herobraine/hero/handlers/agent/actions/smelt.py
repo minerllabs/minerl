@@ -14,7 +14,7 @@ class SmeltItemNearby(CraftAction):
         Note when used along side Craft Item, block lists must be disjoint or from_universal will fire multiple times
 
     """
-    _command = 'smeltNearby'
+    _command = 'nearbySmelt'
 
     def to_string(self):
         return 'nearbySmelt'
