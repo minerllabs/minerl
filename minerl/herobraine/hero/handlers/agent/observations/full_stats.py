@@ -35,7 +35,16 @@ class ObservationFromFullStats(TranslationHandlerGroup):
                 _SkyLightLevelObservation(),
                 _LightLevelObservation(),
                 _CanSeeSkyObservation(),
-                _BiomeRainfallObservation()
+                _BiomeRainfallObservation(),
+                _BiomeTemperatureObservation(),
+                # TODO _BiomeNameObservation(),
+                _BiomeIDObservation(),
+                _PitchObservation(),
+                _YawObservation(),
+                _XPositionObservation(),
+                _YPositionObservation(),
+                _ZPositionObservation(),
+                _SeaLevelObservation()
             ]
         )
 
@@ -91,7 +100,8 @@ class _YawObservation(_FullStatsObservation):
         super().__init__(key_list=['yaw'], space=spaces.Box(low=-180.0, high=180.0, shape=()),
                          default_if_missing=0)
 
-class _BiomeNameObservation(_FullStatsObservation):
+#TODO implement biome name observation
+class _BiomeIDObservation(_FullStatsObservation):
     def to_hero(self, x):
         for key in self.hero_keys:
             x = x[key]
@@ -148,7 +158,7 @@ class _CanSeeSkyObservation(_FullStatsObservation):
                          space=spaces.Discrete(2),
                                  default_if_missing=np.eye(2)[1])
 
-class _CanSeeSkyObservation(_FullStatsObservation):
+class _IsRainingObservation(_FullStatsObservation):
     def to_hero(self, x):
         for key in self.hero_keys:
             x = x[key]
