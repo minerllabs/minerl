@@ -18,6 +18,7 @@ import time
 from lxml import etree
 from minerl.env import comms
 import xmltodict
+from concurrent.futures import ThreadPoolExecutor
 
 from minerl.herobraine.env_spec import EnvSpec
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -545,9 +546,9 @@ class _MultiAgentEnv(gym.Env):
         """Sets up the instances for the environment 
         """
         num_instances_to_start = self.task.agent_count - len(self.instances)
-        self.instances.extend(
-            [self._get_new_instance() for _ in range(num_instances_to_start)]
-        )
+        with ThreadPoolExecutor(max_workers=num_instances_to_start) as tpe:
+            instance_futures = [tpe.submit(self._get_new_instance) for _ in range(num_instances_to_start)]
+        self.instances.extend([f.result() for f in instance_futures])
         self.instances = self.instances[:self.task.agent_count]
 
         # Now let's clean and establish new socket connections.
