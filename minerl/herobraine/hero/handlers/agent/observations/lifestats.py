@@ -14,7 +14,7 @@ class ObservationFromLifeStats(TranslationHandlerGroup):
     """Groups all of the lifestats observations together to correspond to one XML element.."""
 
     def to_string(self) -> str:
-        return "lifeStats"
+        return "life_stats"
 
     def __init__(self):
         super(ObservationFromLifeStats, self).__init__(

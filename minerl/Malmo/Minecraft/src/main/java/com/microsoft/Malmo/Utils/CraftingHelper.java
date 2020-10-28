@@ -768,6 +768,11 @@ public class CraftingHelper {
             json.addProperty("statID", stat.statId);
             JsonArray tokens = new JsonArray();
             for (String token : stat.statId.split("\\.")){
+                // BAH map drop stat to items_dropped to prevent hash collision in dict keys
+                // MUST change this in JSONWorldDataHelper.java as well!!!! (search above comment)
+                if (token.equals(stat.statId.split("\\.")[stat.statId.split("\\.").length - 1]))
+                    if (token.equals("drop"))
+                        token = "items_dropped";
                 tokens.add(new JsonPrimitive(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, token)));
             }
             json.add("minerl_keys", tokens);

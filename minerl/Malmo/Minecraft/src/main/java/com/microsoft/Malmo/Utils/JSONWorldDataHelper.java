@@ -146,13 +146,17 @@ public class JSONWorldDataHelper
                     String token = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, unformatted_token);
                     // Last element is a leaf
                     if (unformatted_token.equals(stat_fields[stat_fields.length - 1])) {
+                        // BAH map drop stat to items_dropped to prevent hash collision in dict keys
+                        // MUST change this in CraftingHelper.java as well!!!! (search above comment)
+                        if (token.equals("drop"))
+                            token = "items_dropped";
                         head.addProperty(token, sfw.readStat(stat));
                     } else {
                         if (head.has(token))
                             if (head.get(token) instanceof JsonObject)
                                 head = head.getAsJsonObject(token);
                             else {
-//                                System.out.println("Duplicate token! " + Arrays.toString(stat_fields));
+                                System.out.println("Duplicate token! " + Arrays.toString(stat_fields));
                                 head.remove(token);
                                 JsonObject newRoot = new JsonObject();
                                 head.add(token, newRoot);
@@ -167,22 +171,6 @@ public class JSONWorldDataHelper
                 }
             }
         }
-
-
-
-        /* Other potential reinforcement signals that may be worth researching:
-        json.addProperty("BlocksDestroyed", sfw.readStat((StatBase)StatList.objectBreakStats) - but objectBreakStats is an array of 32000 StatBase objects - indexed by block type.);
-        json.addProperty("Blocked", ev.player.isMovementBlocked()) - but isMovementBlocker() is a protected method (can get round this with reflection)
-        */
-    }
-
-    private static boolean addStatToJson(StatisticsManagerServer sfw, JsonObject json, StatBase stat, String prefix) {
-        if (stat != null && stat.statId != null && stat.statId.startsWith(prefix)) {
-            json.addProperty(
-                    CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, stat.statId.substring(prefix.length())),
-                    sfw.readStat(stat));
-            return false; // Prefix was not missed
-        } else return stat != null && stat.statId != null; // Prefix was missed iff stat is null and has no stat ID
     }
 
     /** Builds the basic life world data to be used as observation signals by the listener.

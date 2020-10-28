@@ -98,7 +98,7 @@ class Survival(SimpleEmbodimentEnvSpec):
             handlers.TypeObservation('mainhand', none + ALL_ITEMS + other),
             handlers.DamageObservation('mainhand'),
             handlers.MaxDamageObservation('mainhand'),
-            handlers.ObservationFromFullStats()
+            handlers.ObservationFromCurrentLocation()
         ]
 
     def create_actionables(self) -> List[Handler]:

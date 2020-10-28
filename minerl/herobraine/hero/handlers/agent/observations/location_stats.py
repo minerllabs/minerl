@@ -6,37 +6,36 @@ from typing import List
 
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler, TranslationHandlerGroup
 import minerl.herobraine.hero.mc as mc
-import minerl.herobraine.hero.spaces as spaces
+from minerl.herobraine.hero import spaces
 import numpy as np
 
-__all__ = ['ObservationFromFullStats']
+__all__ = ['ObservationFromCurrentLocation']
 
 
-class ObservationFromFullStats(TranslationHandlerGroup):
+class ObservationFromCurrentLocation(TranslationHandlerGroup):
     """
-    Groups all of the minecraft statistics and biome observations together to correspond to one XML element.
-
     Includes the current biome, how likely rain and snow are there, as well as the current light level, how bright the
     sky is, and if the player can see the sky.
 
-    Also includes every statistic tracked by MC's statistic tracking
+    Also includes x, y, z, roll, and pitch
     """
 
     def xml_template(self) -> str:
         return str("""<ObservationFromFullStats/>""")
 
     def to_string(self) -> str:
-        return "fullStats"
+        return "location_stats"
 
     def __init__(self):
-        super(ObservationFromFullStats, self).__init__(
-            handlers = [_FullStatsObservation(statKeys) for statKeys in mc.ALL_STAT_KEYS] + [
+        super(ObservationFromCurrentLocation, self).__init__(
+            handlers = [
                 _SunBrightnessObservation(),
                 _SkyLightLevelObservation(),
                 _LightLevelObservation(),
                 _CanSeeSkyObservation(),
                 _BiomeRainfallObservation(),
                 _BiomeTemperatureObservation(),
+                _IsRainingObservation(),
                 # TODO _BiomeNameObservation(),
                 _BiomeIDObservation(),
                 _PitchObservation(),
@@ -60,7 +59,7 @@ class _FullStatsObservation(KeymapTranslationHandler):
             if 'achievement' == key_list[0]:
                 space = spaces.Box(low=0, high=1, shape=(), dtype=np.int)
             else:
-                space = spaces.Box(low=0, high=32000, shape=(), dtype=np.int),
+                space = spaces.Box(low=0, high=np.inf, shape=(), dtype=np.int)
         if default_if_missing is None:
             default_if_missing = np.zeros((),dtype=np.float)
 
@@ -74,33 +73,32 @@ class _FullStatsObservation(KeymapTranslationHandler):
 
 class _SunBrightnessObservation(_FullStatsObservation):
     def __init__(self):
-        super().__init__(key_list=['sun_brightness'], space=spaces.Box(low=0.0, high=1.0, shape=()), default_if_missing=0.94)
+        super().__init__(key_list=['sun_brightness'], space=spaces.Box(low=0.0, high=1.0, shape=(), dtype=np.float), default_if_missing=0.94)
 
 class _SkyLightLevelObservation(_FullStatsObservation):
     def __init__(self):
-        super().__init__(key_list=['sky_light_level'], space=spaces.Box(low=0.0, high=1.0, shape=()), default_if_missing=0.71)
+        super().__init__(key_list=['sky_light_level'], space=spaces.Box(low=0.0, high=1.0, shape=(), dtype=np.float), default_if_missing=0.71)
 
 class _XPositionObservation(_FullStatsObservation):
     def __init__(self):
-        super().__init__(key_list=['xpos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=()), default_if_missing=0)
+        super().__init__(key_list=['xpos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=(), dtype=np.float), default_if_missing=0.0)
 class _YPositionObservation(_FullStatsObservation):
     def __init__(self):
-        super().__init__(key_list=['ypos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=()), default_if_missing=0)
+        super().__init__(key_list=['ypos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=(), dtype=np.float), default_if_missing=0.0)
 class _ZPositionObservation(_FullStatsObservation):
     def __init__(self):
-        super().__init__(key_list=['zpos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=()), default_if_missing=0)
+        super().__init__(key_list=['zpos'], space=spaces.Box(low=-640000.0, high=640000.0, shape=(), dtype=np.float), default_if_missing=0.0)
 
 class _PitchObservation(_FullStatsObservation):
     def __init__(self):
-        super().__init__(key_list=['pitch'], space=spaces.Box(low=-180.0, high=180.0, shape=()),
-                         default_if_missing=0)
+        super().__init__(key_list=['pitch'], space=spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float),
+                         default_if_missing=0.0)
 
 class _YawObservation(_FullStatsObservation):
     def __init__(self):
-        super().__init__(key_list=['yaw'], space=spaces.Box(low=-180.0, high=180.0, shape=()),
-                         default_if_missing=0)
+        super().__init__(key_list=['yaw'], space=spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float),
+                         default_if_missing=0.0)
 
-#TODO implement biome name observation
 class _BiomeIDObservation(_FullStatsObservation):
     def to_hero(self, x):
         for key in self.hero_keys:
@@ -108,7 +106,7 @@ class _BiomeIDObservation(_FullStatsObservation):
         return np.eye(40)[x]
 
     def __init__(self):
-        super().__init__(key_list=['biome_name'],
+        super().__init__(key_list=['biome_id'],
                          space=spaces.Discrete(40),
                          default_if_missing=np.eye(40)[0])
 
@@ -154,7 +152,7 @@ class _CanSeeSkyObservation(_FullStatsObservation):
         return np.eye(2)[x]
 
     def __init__(self):
-        super().__init__(key_list=['is_raining'],
+        super().__init__(key_list=['can_see_sky'],
                          space=spaces.Discrete(2),
-                                 default_if_missing=np.eye(2)[1])
+                         default_if_missing=np.eye(2)[1])
 
