@@ -157,6 +157,48 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <xs:element name="NearPlayer" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element name="Name" type="xs:string" minOccurs="1" maxOccurs="1">
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        Start the player next to player with this name
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                            <xs:element name="MinDistance" type="xs:double">
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        Min horizontal distance to the anchor player
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                            <xs:element name="MaxDistance" type="xs:double">
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        Max horizontal distance to the anchor player
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                            <xs:element name="MaxVertDistance" type="xs:double">
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        Max vertical distance to the anchor player
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                             <xs:element name="LookingAt" type="xs:boolean">
+                                <xs:annotation>
+                                    <xs:documentation>
+                                        If true, orient this player such to be looking at the anchor player.
+                                        Does not always guarantee visibility if there are obstacles in the way
+                                    </xs:documentation>
+                                </xs:annotation>
+                            </xs:element>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="Inventory" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:choice minOccurs="0"
