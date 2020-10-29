@@ -1636,13 +1636,13 @@
             <xs:documentation>
                 A command for simple smelting:
 
-                "{{{ nearbySmelt carpet PINK}}}"
+                "{{{ smeltNearby carpet PINK}}}"
 
                 etc.
             </xs:documentation>
         </xs:annotation>
         <xs:restriction base="xs:string">
-            <xs:enumeration value="nearbySmelt"/>
+            <xs:enumeration value="smeltNearby"/>
         </xs:restriction>
     </xs:simpleType>
 
