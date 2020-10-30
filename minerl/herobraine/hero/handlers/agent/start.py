@@ -130,7 +130,7 @@ class StartingHealthAgentStart(Handler):
                 """<StartingHealth maxHealth="{{ max_health }}" health="{{ health }}"/>"""
             )
 
-    def __init__(self, max_health: float=20, health: float=None):
+    def __init__(self, max_health: float = 20, health: float = None):
         """Sets the starting health of the agent.
 
         For example:
@@ -159,7 +159,7 @@ class StartingFoodAgentStart(Handler):
                 """<StartingHealth food="{{ food }}" foodSaturation="{{ food_saturation }}"/>"""
             )
 
-    def __init__(self, food: int=20, food_saturation: float=None):
+    def __init__(self, food: int = 20, food_saturation: float = None):
         """Sets the starting food of the agent.
 
         For example:
