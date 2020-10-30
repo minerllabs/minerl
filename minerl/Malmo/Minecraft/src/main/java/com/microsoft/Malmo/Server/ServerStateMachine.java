@@ -21,13 +21,22 @@ package com.microsoft.Malmo.Server;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.*;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -805,13 +814,15 @@ public class ServerStateMachine extends StateMachine
         }
 
         private void setMaxHealth(EntityLivingBase entity, float maxHealth) {
-            UUID MODIFIER_ID = UUID.fromString("d7efc338-70d7-42dd-afc0-b198a67c926e");
+            // An arbitrary UUID, we just need it to be different than any other attribute modifier UUID
+            // used in any other mod.
+            UUID modifier_id = UUID.fromString("d7efc338-70d7-42dd-afc0-b198a67c926e");
             IAttributeInstance attribute = entity.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
-            attribute.removeModifier(MODIFIER_ID);
+            attribute.removeModifier(modifier_id);
             double toAdd = maxHealth - attribute.getAttributeValue();
             // Note: the last argument being 0 means that this is an addition modifier.
             // See https://minecraft.gamepedia.com/Attribute#Modifiers
-            attribute.applyModifier(new AttributeModifier(MODIFIER_ID, "Set Max Health", toAdd, 0));
+            attribute.applyModifier(new AttributeModifier(modifier_id, "Set Max Health", toAdd, 0));
         }
 
         private void initialisePlayer(String username, String agentname)
