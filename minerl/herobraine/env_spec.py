@@ -42,14 +42,16 @@ class EnvSpec(abc.ABC):
         self.actionables = self.create_actionables()
         self.rewardables = self.create_rewardables()
         self.agent_handlers = self.create_agent_handlers()
-        self.agent_start = self.create_agent_start()
         self.monitors = self.create_monitors()
 
         self.server_initial_conditions = self.create_server_initial_conditions()
         self.server_world_generators = self.create_server_world_generators()
         self.server_decorators = self.create_server_decorators()
         self.server_quit_producers = self.create_server_quit_producers()
-        # self.monitors = []
+
+        # after create_server_world_generators(), because it will see python generated map
+        # to pick a good location
+        self.agent_start = self.create_agent_start()
 
         # check that the observables (list) have no duplicate to_strings
         assert len([o.to_string() for o in self.observables]) == len(set([o.to_string() for o in self.observables]))
@@ -206,7 +208,7 @@ class EnvSpec(abc.ABC):
         """Turns the env_spec into a MineRLEnv
 
         Args:
-            fake (bool, optional): Whether or not the env created should be fake. 
+            fake (bool, optional): Whether or not the env created should be fake.
             Defaults to False.
         """
         entry_point = self._entry_point(fake)
@@ -273,7 +275,7 @@ class EnvSpec(abc.ABC):
         """Consolidates duplicate XML representations from the handlers.
 
         Deduplication happens by first getting all of the handler.xml() strings
-        of the handlers, and then converting them into etrees. After that we check 
+        of the handlers, and then converting them into etrees. After that we check
         if the there are any top level elements that are duplicated and pick the first of them
         to retain. We then convert the remaining etrees back into strings and join them with new lines.
 
