@@ -547,9 +547,10 @@ class _MultiAgentEnv(gym.Env):
         """
         num_instances_to_start = self.task.agent_count - len(self.instances)
         instance_futures = []
-        with ThreadPoolExecutor(max_workers=num_instances_to_start) as tpe:
-            for _ in range(num_instances_to_start):
-                instance_futures.append(tpe.submit(self._get_new_instance))
+        if num_instances_to_start > 0:
+            with ThreadPoolExecutor(max_workers=num_instances_to_start) as tpe:
+                for _ in range(num_instances_to_start):
+                    instance_futures.append(tpe.submit(self._get_new_instance))
         self.instances.extend([f.result() for f in instance_futures])
         self.instances = self.instances[:self.task.agent_count]
 
