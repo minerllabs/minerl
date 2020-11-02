@@ -316,5 +316,6 @@ public class RewardForPossessingItemImplementation extends RewardForItemBase
         super.cleanup();
         MinecraftForge.EVENT_BUS.unregister(this);
         MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_COLLECTITEM);
+        MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.SERVER_DISCARDITEM);
     }
 }
