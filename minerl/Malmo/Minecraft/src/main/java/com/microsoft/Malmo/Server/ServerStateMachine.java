@@ -809,6 +809,7 @@ public class ServerStateMachine extends StateMachine
 
         private void initialisePlayer(String username, String agentname)
         {
+            System.out.println("Initializing player with username " + username + " and agentname " + agentname);
             AgentSection as = getAgentSectionFromAgentName(agentname);
             EntityPlayerMP player = getPlayerFromUsername(username);
 
@@ -844,18 +845,86 @@ public class ServerStateMachine extends StateMachine
                 
                 // Set their initial position and speed:
                 PosAndDirection pos = as.getAgentStart().getPlacement();
+                NearPlayer nearPlayer = as.getAgentStart().getNearPlayer();
 
                 if (pos != null) {
-                    player.rotationYaw = pos.getYaw().floatValue();
-                    player.rotationPitch = pos.getPitch().floatValue();
-                    player.setPositionAndUpdate(pos.getX().doubleValue(),pos.getY().doubleValue(),pos.getZ().doubleValue());
-                    player.onUpdate();	// Needed to force scene to redraw
+                    if (nearPlayer != null) {
+                        throw new RuntimeException(
+                                "Either absolute starting position or NearAgent can be specified, but not both!");
+                    }
+                    setPlayerAbsolutePosition(player, pos);
+                } else if (nearPlayer != null) {
+                    setPlayerNearPlayer(player, nearPlayer);
                 }
                 player.setVelocity(0, 0, 0);	// Minimise chance of drift!
                 player.onUpdateEntity();
             }
         }
         
+        private void setPlayerAbsolutePosition(EntityPlayerMP player, PosAndDirection pos) {
+            player.rotationYaw = pos.getYaw().floatValue();
+            player.rotationPitch = pos.getPitch().floatValue();
+            player.setPositionAndUpdate(pos.getX().doubleValue(), pos.getY().doubleValue(), pos.getZ().doubleValue());
+            player.onUpdate(); // Needed to force scene to redraw
+        }
+
+        private void setPlayerNearPlayer(EntityPlayerMP player, NearPlayer np) {
+
+            if (player.getName().equals(np.getName())) {
+                // Player is next to themselves by default - no need for further action
+                return;
+            }
+            System.out.println("Setting player " + player.getName() + " next to " + np.getName());
+            double maxDistance = np.getMaxDistance();
+            double minDistance = np.getMinDistance();
+            double maxVertDistance = np.getMaxVertDistance();
+            int tries = 20;
+            EntityPlayerMP anchor = getPlayerFromUsername(np.getName());
+            anchor.onUpdate();
+
+            Random rng = new Random();
+            for (int i = 0; i < tries; i++) {
+                double distance = minDistance + rng.nextDouble() * (maxDistance - minDistance);
+                double angle = rng.nextDouble() * 2.0 * Math.PI;
+                double Z = anchor.posZ + distance * Math.cos(angle);
+                double X = anchor.posX + distance * Math.sin(angle);
+                // ideally, should be determined by the width of the viewport, so that agents
+                // are in each
+                // other's field of view
+                double angleNoise = 20.0;
+
+                double Y = Minecraft.getMinecraft().world.getTopSolidOrLiquidBlock(new BlockPos(X, 0, Z)).getY();
+                System.out.println("Y = " + String.valueOf(Y) + ", anchor.posY = " + String.valueOf(anchor.posY)
+                        + ", anchor.posX = " + String.valueOf(anchor.posX) + ", anchor.posZ = "
+                        + String.valueOf(anchor.posZ));
+                if (np.isLookingAt()) {
+                    double yaw = -angle * 180.0 / Math.PI;
+                    double pitch = -Math.atan((anchor.posY - Y) / distance) * 180 / Math.PI;
+                    player.rotationYaw = (float) (180.0 + yaw + angleNoise * (rng.nextDouble() - 0.5));
+                    anchor.rotationYaw = (float) (yaw + angleNoise * (rng.nextDouble() - 0.5));
+                    player.rotationPitch = (float) (pitch + angleNoise * (rng.nextDouble() - 0.5));
+                    anchor.rotationPitch = -(float) (pitch + angleNoise * (rng.nextDouble() - 0.5));
+
+                    System.out.println(
+                            "Setting agents " + player.getName() + " and " + np.getName() + " looking at each other");
+                    System.out.println("With yaw " + String.valueOf(yaw) + " and pitch " + String.valueOf(pitch));
+
+                }
+                player.setPositionAndUpdate(X, Y, Z);
+                anchor.setPositionAndUpdate(anchor.posX, anchor.posY, anchor.posZ);
+                if (Math.abs(Y - anchor.posY) < maxVertDistance) {
+
+                    break;
+                }
+
+                System.out.println("(Attempt " + String.valueOf(i) + " of " + String.valueOf(tries)
+                        + "):  Failed to place agent " + player.getName() + " within vertical distance "
+                        + String.valueOf(maxVertDistance) + " of anchor player " + np.getName());
+            }
+
+            player.onUpdate();
+        }
+
         private boolean disablePlayerGracePeriod(EntityPlayerMP player)
         {
             // Are we in the dev environment or deployed?

@@ -93,3 +93,24 @@ class AgentStartPlacement(Handler):
         self.y = y
         self.z = z
         self.yaw = yaw
+
+
+class AgentStartNear(Handler):
+    def to_string(self) -> str:
+        return f"agent_start_near({self.anchor_name}, h {self.min_distance} - {self.max_distance}, v {self.max_vert_distance})"
+
+    def xml_template(self) -> str:
+        return str(
+            """<NearPlayer>
+                    <Name>{{anchor_name}}</Name>
+                    <MaxDistance>{{max_distance}}</MaxDistance>
+                    <MinDistance>{{min_distance}}</MinDistance>
+                    <MaxVertDistance>{{max_vert_distance}}</MaxVertDistance>
+                    <LookingAt>true</LookingAt>
+               </NearPlayer>""")
+
+    def __init__(self, anchor_name="MineRLAgent0", min_distance=2, max_distance=10, max_vert_distance=3):
+        self.anchor_name = anchor_name
+        self.min_distance = min_distance
+        self.max_distance = max_distance
+        self.max_vert_distance = max_vert_distance
