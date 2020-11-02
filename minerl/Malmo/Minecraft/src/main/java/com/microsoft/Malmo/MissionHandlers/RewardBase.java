@@ -10,6 +10,9 @@ import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.eventhandler.Event;
+
 public class RewardBase extends HandlerBase implements IRewardProducer
 {
     private String agentName;
@@ -85,6 +88,7 @@ public class RewardBase extends HandlerBase implements IRewardProducer
     public void prepare(MissionInit missionInit)
     {
         this.agentName = missionInit.getMission().getAgentSection().get(missionInit.getClientRole()).getName();
+        System.out.println("Preparing reward " + this + " with agent name " + this.agentName);
     }
 
     @Override
@@ -114,6 +118,14 @@ public class RewardBase extends HandlerBase implements IRewardProducer
     {
         float adjusted_reward = adjustAndDistributeReward(reward, dimension, distribution);
         addCachedReward(dimension, adjusted_reward);
+    }
+
+    protected void checkCorrectPlayer(String eventPlayer, Event event) {
+        if (!eventPlayer.equals(agentName)) {
+            throw new RuntimeException("event " + event + " corresponds to agent " + eventPlayer
+                    + ", so it is not mine. I am "
+                    + agentName);
+        }
     }
 
     @Override

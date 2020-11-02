@@ -132,6 +132,7 @@ public class RewardForTouchingBlockTypeImplementation extends RewardBase impleme
     @SubscribeEvent
     public void onDiscretePartialMoveEvent(DiscreteMovementCommandsImplementation.DiscretePartialMoveEvent event)
     {
+        checkCorrectPlayer(event.getEntityPlayer().getName(), event);
         MultidimensionalReward reward = new MultidimensionalReward();
         calculateReward(reward);
         addCachedReward(reward);

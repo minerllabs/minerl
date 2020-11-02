@@ -27,6 +27,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -40,6 +41,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
@@ -66,17 +68,18 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
     private boolean isOverriding;
     DiscreteMovementCommands params;
 
-    public static class DiscretePartialMoveEvent extends Event
+    public static class DiscretePartialMoveEvent extends PlayerEvent
     {
         public final double x;
         public final double y;
         public final double z;
 
-        public DiscretePartialMoveEvent(double x, double y, double z)
+        public DiscretePartialMoveEvent(EntityPlayer player)
         {
-            this.x = x;
-            this.y = y;
-            this.z = z;
+            super(player);
+            this.x = player.posX;
+            this.y = player.posY;
+            this.z = player.posZ;
         }
     }
 
@@ -391,7 +394,8 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
                             java.util.List<ItemStack> items = block.getDrops(player.world, hitPos, iblockstate, 0);
                             for (ItemStack item : items)
                             {
-                                RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(item);
+                            RewardForCollectingItemImplementation.GainItemEvent event = new RewardForCollectingItemImplementation.GainItemEvent(
+                                    player, item);
                                 MinecraftForge.EVENT_BUS.post(event);
                             }
                         }
@@ -487,7 +491,7 @@ public class DiscreteMovementCommandsImplementation extends CommandBase implemen
 
                     // Before we do that, fire off a message - this will give the TouchingBlockType handlers
                     // a chance to react to the current position:
-                    DiscretePartialMoveEvent event = new DiscretePartialMoveEvent(player.posX, player.posY, player.posZ);
+                    DiscretePartialMoveEvent event = new DiscretePartialMoveEvent(player);
                     MinecraftForge.EVENT_BUS.post(event);
                     // Now adjust the player:
                     player.move(MoverType.SELF, oldX - newX, 0.0, oldZ - newZ);

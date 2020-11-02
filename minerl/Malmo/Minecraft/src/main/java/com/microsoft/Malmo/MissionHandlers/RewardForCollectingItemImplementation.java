@@ -19,20 +19,9 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
 import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
-
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
@@ -41,11 +30,26 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IRewardProducer;
 import com.microsoft.Malmo.Schemas.BlockOrItemSpecWithReward;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.RewardForCollectingItem;
-import com.microsoft.Malmo.Utils.TimeHelper;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 public class RewardForCollectingItemImplementation extends RewardForItemBase implements IRewardProducer, IMalmoMessageListener
 {
     private RewardForCollectingItem params;
+
+    public RewardForCollectingItemImplementation() {
+        // prohibit instantiation - use RewardForPossessingItem instead
+        throw new RuntimeException("Do not use RewardForCollectingItem, use RewardForPosssessingItem instead");
+    };
 
     @Override
     public void onMessage(MalmoMessageType messageType, Map<String, String> data) 
@@ -63,7 +67,7 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
         }
     }
     
-    public static class GainItemEvent extends Event {
+    public static class GainItemEvent extends PlayerEvent {
         public final ItemStack stack;
 
         /**
@@ -71,7 +75,8 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
          */
         public int cause = 0;
 
-        public GainItemEvent(ItemStack stack) {
+        public GainItemEvent(EntityPlayer player, ItemStack stack) {
+            super(player);
             this.stack = stack;
         }
 
@@ -96,8 +101,8 @@ public class RewardForCollectingItemImplementation extends RewardForItemBase imp
     @SubscribeEvent
     public void onGainItem(GainItemEvent event)
     {
-
         // TimeHelper.SyncManager.debugLog("----------------------------> onItemCraft!");
+        checkCorrectPlayer(event.getEntityPlayer().getName(), event);
         if (event.stack != null)
         {
             accumulateReward(this.params.getDimension(), event.stack);

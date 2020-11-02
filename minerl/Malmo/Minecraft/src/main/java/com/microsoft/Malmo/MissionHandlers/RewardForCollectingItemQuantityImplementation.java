@@ -48,24 +48,28 @@ public class RewardForCollectingItemQuantityImplementation extends RewardForItem
 
     @SubscribeEvent
     public void onGainItem(RewardForCollectingItemImplementation.GainItemEvent event) {
+        checkCorrectPlayer(event.getEntityPlayer().getName(), event);
         if (event.stack != null && event.cause == 0)
             checkForMatch(event.stack);
     }
 
     @SubscribeEvent
     public void onPickupItem(EntityItemPickupEvent event) {
+        checkCorrectPlayer(event.getEntityPlayer().getName(), event);
         if (event.getItem() != null && event.getEntityPlayer() instanceof EntityPlayerMP)
             checkForMatch(event.getItem().getEntityItem());
     }
 
     @SubscribeEvent
     public void onItemCraft(PlayerEvent.ItemCraftedEvent event) {
+        checkCorrectPlayer(event.player.getName(), event);
         if (event.player instanceof EntityPlayerMP && !event.crafting.isEmpty())
             checkForMatch(event.crafting);
     }
 
     @SubscribeEvent
     public void onItemSmelt(PlayerEvent.ItemSmeltedEvent event) {
+        checkCorrectPlayer(event.player.getName(), event);
         if (event.player instanceof EntityPlayerMP && !event.smelting.isEmpty())
             checkForMatch(event.smelting);
     }
