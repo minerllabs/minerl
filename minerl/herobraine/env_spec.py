@@ -38,6 +38,8 @@ class EnvSpec(abc.ABC):
         self.reset()
 
     def reset(self):
+        # Note: currently only agent_start needs to be per-agent. To make more attributes per-agent,
+        # remember to modify minerl/herobraine/hero/mission.xml.j2 as well.
         self.observables = self.create_observables()
         self.actionables = self.create_actionables()
         self.rewardables = self.create_rewardables()
@@ -51,7 +53,7 @@ class EnvSpec(abc.ABC):
 
         # after create_server_world_generators(), because it will see python generated map
         # to pick a good location
-        self.agent_start = self.create_agent_start()
+        self.agent_start = [self.create_agent_start() for _ in range(self.agent_count)]
 
         # check that the observables (list) have no duplicate to_strings
         assert len([o.to_string() for o in self.observables]) == len(set([o.to_string() for o in self.observables]))

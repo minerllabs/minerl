@@ -19,6 +19,7 @@ class ObservationFromFullStats(TranslationHandlerGroup):
     def __init__(self):
         super(ObservationFromFullStats, self).__init__(
             handlers=[
+                _IsAliveObservation(),
                 _LifeObservation(),
                 _ScoreObservation(),
                 _FoodObservation(),
@@ -44,6 +45,18 @@ class LifeStatsObservation(KeymapTranslationHandler):
 
     def xml_template(self) -> str:
         return str("""<ObservationFromFullStats/>""")
+
+
+class _IsAliveObservation(LifeStatsObservation):
+    """
+    Handles is_alive observation. Initial value is True (alive)
+    """
+
+    def __init__(self):
+        keys = ['is_alive']
+        super().__init__(hero_keys=keys, univ_keys=keys,
+                         space=spaces.Box(low=False, high=True, shape=(), dtype=np.bool),
+                         default_if_missing=True)
 
 
 class _LifeObservation(LifeStatsObservation):

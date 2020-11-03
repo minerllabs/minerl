@@ -28,17 +28,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityList;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
+import net.minecraft.util.FoodStats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
@@ -807,6 +813,18 @@ public class ServerStateMachine extends StateMachine
             return player;
         }
 
+        private void setMaxHealth(EntityLivingBase entity, float maxHealth) {
+            // An arbitrary UUID, we just need it to be different than any other attribute modifier UUID
+            // used in any other mod.
+            UUID modifier_id = UUID.fromString("d7efc338-70d7-42dd-afc0-b198a67c926e");
+            IAttributeInstance attribute = entity.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
+            attribute.removeModifier(modifier_id);
+            double toAdd = maxHealth - attribute.getAttributeValue();
+            // Note: the last argument being 0 means that this is an addition modifier.
+            // See https://minecraft.gamepedia.com/Attribute#Modifiers
+            attribute.applyModifier(new AttributeModifier(modifier_id, "Set Max Health", toAdd, 0));
+        }
+
         private void initialisePlayer(String username, String agentname)
         {
             System.out.println("Initializing player with username " + username + " and agentname " + agentname);
@@ -823,8 +841,29 @@ public class ServerStateMachine extends StateMachine
                 }
 
                 // Reset their food and health:
-                player.setHealth(player.getMaxHealth());
-                player.getFoodStats().addStats(20, 40);
+                StartingHealth startingHealth = as.getAgentStart().getStartingHealth();
+                if (startingHealth != null) {
+                    setMaxHealth(player, startingHealth.getMaxHealth());
+                    if (startingHealth.getHealth() == null) {
+                        player.setHealth(player.getMaxHealth());
+                    }
+                    else {
+                        player.setHealth(startingHealth.getHealth());
+                    }
+                }
+                else {
+                    player.setHealth(player.getMaxHealth());
+                }
+
+                FoodStats foodStats = player.getFoodStats();
+                foodStats.addStats(20, 40);
+                StartingFood startingFood = as.getAgentStart().getStartingFood();
+                if (startingFood != null) {
+                    foodStats.setFoodLevel(startingFood.getFood());
+                    if (startingFood.getFoodSaturation() != null) {
+                        foodStats.setFoodSaturationLevel(startingFood.getFoodSaturation());
+                    }
+                }
                 player.maxHurtResistantTime = 1; // Set this to a low value so that lava will kill the player straight away.
                 disablePlayerGracePeriod(player);   // Otherwise player will be invulnerable for the first 60 ticks.
                 player.extinguish();	// In case the player was left burning.

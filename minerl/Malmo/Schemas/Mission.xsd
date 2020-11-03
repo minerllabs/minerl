@@ -215,6 +215,18 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="StartingHealth" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:attribute name="health" type="xs:float" use="optional"/>
+                        <xs:attribute name="maxHealth" type="xs:float" default="20" />
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="StartingFood" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:attribute name="food" type="xs:int" default="20" />
+                        <xs:attribute name="foodSaturation" type="xs:float" use="optional" />
+                    </xs:complexType>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
