@@ -81,18 +81,19 @@ class SimpleInventoryAgentStart(InventoryAgentStart):
 
 class AgentStartPlacement(Handler):
     def to_string(self) -> str:
-        return f"agent_start_placement({self.x}, {self.y}, {self.z}, {self.yaw})"
+        return f"agent_start_placement({self.x}, {self.y}, {self.z}, {self.yaw}, {self.pitch})"
 
     def xml_template(self) -> str:
         return str(
-            """<Placement x="{{x}}" y="{{y}}" z="{{z}}" yaw="{{yaw}}" />"""
+            """<Placement x="{{x}}" y="{{y}}" z="{{z}}" yaw="{{yaw}}" pitch="{{pitch}}"/>"""
         )
 
-    def __init__(self, x, y, z, yaw):
+    def __init__(self, x, y, z, yaw, pitch=0.0):
         self.x = x
         self.y = y
         self.z = z
         self.yaw = yaw
+        self.pitch = pitch
 
 
 class AgentStartNear(Handler):
