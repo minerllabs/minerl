@@ -17,14 +17,18 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 @Mixin(DefaultPlayerSkin.class)
 public abstract class MixinRandomSkinTexture {
     // Randomize the skin for agents ignoring UUID
-    private static Boolean isSlim = null;
+    private static Integer skinSeed = null;
     @Inject(method = "isSlimSkin", at = @At("HEAD"), cancellable = true)
     private static void isSlimSkin(UUID playerUUID, CallbackInfoReturnable<Boolean> cir){
-        if (isSlim == null) {
+        if (skinSeed == null) {
+            // TODO now this is not blinking, and randomized, but not consistent between
+            // clients. Ideally, we should somehow sync this between clients -
+            // is there any pseudo-random number in the minecraft world we
+            // could base this on?
             Random rand = new Random();
-            isSlim = rand.nextBoolean();
+            skinSeed = rand.nextInt();
         }
-        cir.setReturnValue(isSlim);
+        cir.setReturnValue(((playerUUID.hashCode() + skinSeed) & 1) == 0);
         cir.cancel();
     }
   
