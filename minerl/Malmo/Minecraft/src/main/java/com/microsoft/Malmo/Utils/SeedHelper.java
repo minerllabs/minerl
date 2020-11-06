@@ -19,26 +19,42 @@
 
 package com.microsoft.Malmo.Utils;
 
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import com.microsoft.Malmo.MalmoMod;
+import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
+import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
+
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import com.microsoft.Malmo.MalmoMod;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 
 @Mod.EventBusSubscriber
-public class SeedHelper
+public class SeedHelper implements IMalmoMessageListener
 {
     private static ArrayDeque<Long> seeds = new ArrayDeque<Long>();
     private static Long currentSeed;
     private static HashMap<String, Random> specificSeedGenerators = new HashMap<String, Random>();
     private static int numRandoms = 0;
+
+    public static Integer mapSeed;
+
+    // The pseudo-random number that is shared across all players
+    private static long worldSeed = new Random().nextLong();
+
+    public static SeedHelper instance = new SeedHelper();
+
+    public SeedHelper() {
+        MalmoMod.MalmoMessageHandler.registerForMessage(this, MalmoMessageType.SERVER_COMMON_SEED);
+    }
 
     /** Initialize seeding. */
     static public void update(Configuration configs)
@@ -82,9 +98,18 @@ public class SeedHelper
 
     @SubscribeEvent
     public static void onWorldCreate(WorldEvent.Load loadEvent){
+
         loadEvent.getWorld().rand = getRandom(loadEvent.getWorld().toString());
     }
 
+    @SubscribeEvent
+    public static void onPlayerLogin(PlayerLoggedInEvent event) {
+        MalmoMod.network.sendTo(
+                new MalmoMod.MalmoMessage(MalmoMessageType.SERVER_COMMON_SEED, 0,
+                        Collections.singletonMap("commonSeed", String.valueOf(worldSeed))),
+                (EntityPlayerMP) event.player);
+
+    }
 
     public static void forceUpdateMinecraftRandoms(){
         Item.itemRand = getRandom("item");
@@ -116,5 +141,16 @@ public class SeedHelper
             }
         }
         return true;
+    }
+
+    @Override
+    public void onMessage(MalmoMessageType messageType, Map<String, String> data) {
+        if (messageType == MalmoMessageType.SERVER_COMMON_SEED) {
+            worldSeed = Long.valueOf(data.get("commonSeed"));
+        }
+    }
+
+    public static long getWorldSeed() {
+        return worldSeed;
     }
 }
