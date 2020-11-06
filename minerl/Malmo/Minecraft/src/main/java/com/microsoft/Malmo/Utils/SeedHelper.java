@@ -104,8 +104,6 @@ public class SeedHelper implements IMalmoMessageListener
 
     @SubscribeEvent
     public static void onPlayerLogin(PlayerLoggedInEvent event) {
-        // MalmoMod.safeSendToAll(MalmoMessageType.SERVER_COMMON_SEED,
-        // Collections.singletonMap("commonSeed", String.valueOf(worldSeed)));
         MalmoMod.network.sendTo(
                 new MalmoMod.MalmoMessage(MalmoMessageType.SERVER_COMMON_SEED, 0,
                         Collections.singletonMap("commonSeed", String.valueOf(worldSeed))),
