@@ -3,7 +3,6 @@
 package com.microsoft.Malmo.Mixins;
 
 
-import java.util.Random;
 import java.util.UUID;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,10 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.Utils.SeedHelper;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 
 
