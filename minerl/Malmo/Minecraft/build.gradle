@@ -24,7 +24,6 @@ buildscript {
     }
 }
 
-
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '1.2.4'

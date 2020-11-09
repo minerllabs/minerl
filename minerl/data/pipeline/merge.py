@@ -184,12 +184,9 @@ def merge_stream(stream_name):
     # 2. Merge files.
     # 3. 7z files
     # 4. Place ifles
-    tempdir = None
     try:
-        # tempdir = tempfile.mkdtemp()
-        tempdir = tempfile.mkdtemp(dir=TEMP_ROOT)
-        os.chmod(tempdir, 0o777)
         target_name = J(MERGED_DIR, "{}.mcpr".format(stream_name))
+        tempdir = tempfile.mkdtemp(dir=TEMP_ROOT)
         bin_name = J(tempdir, "{}.bin".format(stream_name))
         # Concatenate
         shards = sorted(glob.glob(J(GLOB_STR_BASE, "{}-*".format(stream_name))))
@@ -202,12 +199,13 @@ def merge_stream(stream_name):
         results_dir = J(tempdir, 'result')
         if not E(results_dir):
             os.makedirs(results_dir)
-        proc = subprocess.Popen(PARSE_COMMAND + [bin_name], cwd=tempdir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(PARSE_COMMAND + [bin_name], cwd=tempdir, stdout=DEVNULL, stderr=STDOUT)
         parse_success = (proc.wait() == 0)
 
         if parse_success:
 
             if processFile(results_dir):
+
                 zip_file = "{}.zip".format(stream_name)
                 mcpr_file = "{}.mcpr".format(stream_name)
                 proc = subprocess.Popen(
@@ -229,16 +227,14 @@ def merge_stream(stream_name):
             print("FAILED_TO_PARSE {}".format(stream_name))
             return "FAILED TO PARSE", stream_name
     finally:
-        if tempdir is not None:
-            shutil.rmtree(tempdir)
+        shutil.rmtree(tempdir)
 
 
 def main():
     parser = argparse.ArgumentParser('Merge Script')
     parser.add_argument('num_workers', type=int, help='Number of parallel workers.')
     opts = parser.parse_args()
-    if not E(WORKING_DIR):
-        os.makedirs(WORKING_DIR)
+
     assert E(WORKING_DIR), "No output directory created! {}".format(WORKING_DIR)
     assert E(DOWNLOADED_DIR), "No download directory! Be sure to have the downloaded files prepared:\n\t{}".format(
         DOWNLOADED_DIR)
