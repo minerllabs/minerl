@@ -370,7 +370,6 @@
             <xs:element ref="ObservationFromAchievements" minOccurs="0"/>
             <xs:element ref="ObservationFromChat" minOccurs="0"/>
             <xs:element ref="ObservationFromCompass" minOccurs="0"/>
-            <xs:element ref="ObservationFromCurrentBiome" minOccurs="0"/>
             <xs:element ref="ObservationFromDiscreteCell" minOccurs="0"/>
             <xs:element ref="ObservationFromDistance" minOccurs="0"/>
             <xs:element ref="ObservationFromEquippedItem" minOccurs="0"/>
