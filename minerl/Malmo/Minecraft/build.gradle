@@ -35,6 +35,10 @@ apply plugin: 'org.spongepowered.mixin'
 // For versions < 1.8
 // apply plugin: 'forge'
 
+apply plugin: 'java'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+
 // ext {
 //     mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
 //     mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.malmo.refmap.json')

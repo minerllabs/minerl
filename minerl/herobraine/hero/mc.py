@@ -521,6 +521,8 @@ mc_constants_file = os.path.join(
 all_data = json.load(open(mc_constants_file))
 
 ALL_ITEMS = [item["type"] for item in all_data["items"]]
+ALL_STATS = [stat["statID"] for stat in all_data["stats"]]
+ALL_STAT_KEYS = [stat["minerl_keys"] for stat in all_data["stats"]]
 
 # We choose these not to be included by default; they are not items.
 NONE = "none"

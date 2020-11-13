@@ -19,6 +19,7 @@
 
 package com.microsoft.Malmo.Utils;
 
+import com.google.common.base.CaseFormat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -29,20 +30,23 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.stats.StatBase;
-import net.minecraft.stats.StatList;
-import net.minecraft.stats.StatisticsManagerServer;
+import net.minecraft.item.Item;
+import net.minecraft.stats.*;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import net.minecraft.stats.StatList;
 import net.minecraft.stats.StatisticsManagerServer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.biome.Biome;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.UnknownElementException;
+import javax.swing.*;
+import java.util.*;
+import java.util.function.Function;
+
+import static net.minecraft.stats.StatList.*;
 
 /**
  * Helper class for building the "World data" to be passed from Minecraft back to the agent.<br>
@@ -112,33 +116,63 @@ public class JSONWorldDataHelper
     /** Builds the basic achievement world data to be used as observation signals by the listener.
      * @param json a JSON object into which the achievement stats will be added.
      */
-    public static void buildAchievementStats(JsonObject json, EntityPlayerSP player)
+    public static void buildBaseMinecraftStats(JsonObject json, EntityPlayerSP player)
     {
         if(Minecraft.getMinecraft().isIntegratedServerRunning()){
 
-            StatisticsManagerServer sfw = Minecraft.getMinecraft().getIntegratedServer().getPlayerList().getPlayerStatsFile(player);
+            StatisticsManagerServer sfw = Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerStatsFile(player);
 
-            json.addProperty("distance_travelled",
+            json.addProperty("distance_travelled_cm",
                 sfw.readStat(StatList.WALK_ONE_CM)
+                + sfw.readStat(StatList.CROUCH_ONE_CM)
+                + sfw.readStat(StatList.SPRINT_ONE_CM)
                 + sfw.readStat(StatList.SWIM_ONE_CM)
-                + sfw.readStat(StatList.DIVE_ONE_CM)
                 + sfw.readStat(StatList.FALL_ONE_CM)
-                ); // TODO: there are many other ways of moving!
-            json.addProperty("time_alive", sfw.readStat(StatList.TIME_SINCE_DEATH));
-            json.addProperty("mobs_killed", sfw.readStat(StatList.MOB_KILLS));
-            json.addProperty("players_killed", sfw.readStat(StatList.PLAYER_KILLS));
-            json.addProperty("damage_taken", sfw.readStat(StatList.DAMAGE_TAKEN));
-            json.addProperty("damage_dealt", sfw.readStat(StatList.DAMAGE_DEALT));
+                + sfw.readStat(StatList.CLIMB_ONE_CM)
+                + sfw.readStat(StatList.FLY_ONE_CM)
+                + sfw.readStat(StatList.DIVE_ONE_CM)
+                + sfw.readStat(StatList.MINECART_ONE_CM)
+                + sfw.readStat(StatList.BOAT_ONE_CM)
+                + sfw.readStat(StatList.PIG_ONE_CM)
+                + sfw.readStat(StatList.HORSE_ONE_CM)
+                + sfw.readStat(StatList.AVIATE_ONE_CM)
+                );
+
+            for(StatBase stat : StatList.ALL_STATS) {
+                // For MineRL, split over . and convert all camelCase to snake_case
+                String[] stat_fields = stat.statId.split("\\.");
+                JsonObject head = json;
+                for (String unformatted_token : stat_fields) {
+                    String token = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, unformatted_token);
+                    // Last element is a leaf
+                    if (unformatted_token.equals(stat_fields[stat_fields.length - 1])) {
+                        // BAH map drop stat to items_dropped to prevent hash collision in dict keys
+                        // MUST change this in CraftingHelper.java as well!!!! (search above comment)
+                        if (token.equals("drop"))
+                            token = "items_dropped";
+                        head.addProperty(token, sfw.readStat(stat));
+                    } else {
+                        if (head.has(token))
+                            if (head.get(token) instanceof JsonObject)
+                                head = head.getAsJsonObject(token);
+                            else {
+                                System.out.println("Duplicate token! " + Arrays.toString(stat_fields));
+                                head.remove(token);
+                                JsonObject newRoot = new JsonObject();
+                                head.add(token, newRoot);
+                                head = newRoot;
+                            }
+                        else {
+                            JsonObject newRoot = new JsonObject();
+                            head.add(token, newRoot);
+                            head = newRoot;
+                        }
+                    }
+                }
+            }
         }
-
-
-
-        /* Other potential reinforcement signals that may be worth researching:
-        json.addProperty("BlocksDestroyed", sfw.readStat((StatBase)StatList.objectBreakStats) - but objectBreakStats is an array of 32000 StatBase objects - indexed by block type.);
-        json.addProperty("Blocked", ev.player.isMovementBlocked()) - but isMovementBlocker() is a protected method (can get round this with reflection)
-        */
     }
-    
+
     /** Builds the basic life world data to be used as observation signals by the listener.
      * @param json a JSON object into which the life stats will be added.
      */
@@ -163,6 +197,45 @@ public class JSONWorldDataHelper
         json.addProperty("zpos", player.posZ);
         json.addProperty("pitch",  player.rotationPitch);
         json.addProperty("yaw", player.rotationYaw);
+    }
+
+    /** Builds the player's biome data.
+     * @param json a JSON object into which the biome information will be added.
+     * @param player - Non-null, must have player.world
+     */
+    public static void buildBiomeStats(JsonObject json, EntityPlayerSP player)
+    {
+        BlockPos playerPos = player.getPosition();
+        Biome playerBiome = player.world.getBiome(playerPos);
+        // Name of the current biome
+        json.addProperty("biome_name", playerBiome.getBiomeName());
+        // ID of the current biome
+        json.addProperty("biome_id", Biome.getIdForBiome(playerBiome));
+        // The average temperature of the current biome
+        json.addProperty("biome_temperature", playerBiome.getTemperature());
+        // The average rainfall chance of the current biome
+        json.addProperty("biome_rainfall", playerBiome.getRainfall());
+        // The water level for oceans and rivers
+        json.addProperty("sea_level", player.world.getSeaLevel());
+    }
+
+    /** Builds the player's weather information
+     * @param json a JSON object into which the weather information will be added.
+     * @param player - Non-null, must have player.world
+     */
+    public static void buildWeatherStats(JsonObject json, EntityPlayerSP player)
+    {
+        BlockPos playerPos = player.getPosition();
+        json.addProperty("light_level", player.world.getLight(playerPos));
+        // If it is currently precipitating here
+        json.addProperty("is_raining", player.world.isRaining());
+        // If the playerPos has LOS to the sky
+        json.addProperty("can_see_sky", player.world.canSeeSky(playerPos));
+        // [0, 1] Brightness factor of the sun
+        json.addProperty("sun_brightness", player.world.getSunBrightnessFactor(0));
+        // [0, 1] Light level provided by the sky
+        json.addProperty("sky_light_level", player.world.getSunBrightness(0));
+        // TODO add other statuses such as is_raining or other current weather
     }
 
     public static void buildEnvironmentStats(JsonObject json, EntityPlayerSP player)

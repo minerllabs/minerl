@@ -383,12 +383,13 @@ public class MinecraftTypeHelper
             return null;
 
         DrawItem di = new DrawItem();
+        // BAH TODO this is NOT PROPER and should not be used as the item name. It is preferred to use registry name
         String name = is.getUnlocalizedName();  // Get unlocalised name from the stack, not the stack's item - this ensures we keep the metadata.
         if (is.getHasSubtypes())
         {
             // If the item has subtypes, then there are varieties - eg different colours, types, etc.
             // Attempt to map from these subtypes back to variant/colour.
-            // Do this by decomposing the unlocalised name:
+            // Do this by decomposing the unlocalized name:
             List<String> itemParts = new ArrayList<String>(Arrays.asList(name.split("\\.")));
             if (is.getItem() instanceof ItemMonsterPlacer)
             {

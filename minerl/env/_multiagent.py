@@ -77,6 +77,7 @@ class _MultiAgentEnv(gym.Env):
         :param verbose: If the MineRL env is verbose.
         :param _xml_mutator_to_be_deprecated: A function which mutates the mission XML when called.
         """
+        self.ns = NS
         self.task = env_spec
         self.instances = instances if instances is not None else []  # type: List[MinecraftInstance]
 
@@ -747,7 +748,7 @@ class _MultiAgentEnv(gym.Env):
             self._TO_MOVE_hello(sock)
 
             instance.client_socket = sock
-        except (socket.timeout, socket.error) as e:
+        except (socket.timeout, socket.error, ConnectionRefusedError) as e:
             instance.had_to_clean = True
             logger.error("Failed to reset (socket error), trying again!")
             logger.error("Cleaning connection! Something must have gone wrong.")
