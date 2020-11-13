@@ -383,6 +383,7 @@ public class MinecraftTypeHelper
             return null;
 
         DrawItem di = new DrawItem();
+        // BAH TODO this is NOT PROPER and should not be used as the item name. It is preferred to use registry name
         String name = is.getUnlocalizedName();  // Get unlocalised name from the stack, not the stack's item - this ensures we keep the metadata.
         if (is.getHasSubtypes())
         {

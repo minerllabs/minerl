@@ -31,14 +31,19 @@ public class ObservationFromEquippedItemImplementation extends HandlerBase imple
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        JsonObject equippedItems = new JsonObject();
+        JsonObject equipment = new JsonObject();
         ItemStack mainItem = player.getHeldItemMainhand();
         ItemStack offhandItem = player.getHeldItemOffhand();
-        
-        equippedItems.add("mainhand", getInventoryJson(mainItem));
-        equippedItems.add("offhand", getInventoryJson(offhandItem));
+        JsonArray equippedArmor = new JsonArray();
 
-        json.add("equipped_items", equippedItems);
+        for(ItemStack armor : player.getArmorInventoryList())
+            equippedArmor.add(getInventoryJson(armor));
+        
+        equipment.add("mainhand", getInventoryJson(mainItem));
+        equipment.add("offhand", getInventoryJson(offhandItem));
+        equipment.add("armor", equippedArmor);
+
+        json.add("equipped_items", equipment);
     }
 
     public static JsonObject getInventoryJson(ItemStack itemToAdd){

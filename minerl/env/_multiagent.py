@@ -77,6 +77,7 @@ class _MultiAgentEnv(gym.Env):
         :param verbose: If the MineRL env is verbose.
         :param _xml_mutator_to_be_deprecated: A function which mutates the mission XML when called.
         """
+        self.ns = NS
         self.task = env_spec
         self.instances = instances if instances is not None else []  # type: List[MinecraftInstance]
 
@@ -531,8 +532,7 @@ class _MultiAgentEnv(gym.Env):
                         <MaxPlayers>{}</MaxPlayers>
                     </HumanInteraction>""".format(self.interact_port, self.max_players))
                 # Update the xml
-                namespace = '{http://ProjectMalmo.microsoft.com}'
-                ss = agent_xml_etree.find(".//" + namespace + 'ServerSection')
+                ss = agent_xml_etree.find(".//" + self.ns + 'ServerSection')
                 ss.insert(0, hi)
 
             # inject mission dict into the xml
