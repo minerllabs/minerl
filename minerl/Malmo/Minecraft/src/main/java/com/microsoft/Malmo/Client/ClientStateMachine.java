@@ -1898,6 +1898,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
             TimeHelper.unpause();
 
+            // smelting recipes with regular coal (standard recipes produce coal:1 or charcoal)
+            removeSmeltingRecipe(Blocks.LOG);
+            removeSmeltingRecipe(Blocks.LOG2);
+            // TODO: Move this somewhere else. This is the wrong place.
+            FurnaceRecipes.instance().addSmeltingRecipeForBlock(Blocks.LOG, new ItemStack(Items.COAL), 0.15F);
+            FurnaceRecipes.instance().addSmeltingRecipeForBlock(Blocks.LOG2, new ItemStack(Items.COAL), 0.15F);
 
             // Synchronization
             if (envServer != null){
@@ -1910,6 +1916,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
                     TimeHelper.SyncManager.setSynchronous(false);
                     // TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
+                }
+            }
+        }
+
+        private void removeSmeltingRecipe(Block block) {
+            Item keyToRemove = Item.getItemFromBlock(block);
+            for (Map.Entry<ItemStack, ItemStack> e : FurnaceRecipes.instance().getSmeltingList().entrySet()) {
+                if (keyToRemove.unlocalizedName.equals(e.getKey().getItem().unlocalizedName)) {
+                    FurnaceRecipes.instance().getSmeltingList().remove(e.getKey());
+                    break;
                 }
             }
         }
