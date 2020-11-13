@@ -113,15 +113,10 @@ class _YawObservation(_FullStatsObservation):
 
 
 class _BiomeIDObservation(_FullStatsObservation):
-    def to_hero(self, x):
-        for key in self.hero_keys:
-            x = x[key]
-        return np.eye(40)[x]
-
     def __init__(self):
         super().__init__(key_list=['biome_id'],
-                         space=spaces.Discrete(40),
-                         default_if_missing=np.eye(40)[0])
+                         space=spaces.Box(low=0, high=167, shape=(), dtype=np.int),
+                         default_if_missing=0)
 
 
 class _BiomeRainfallObservation(_FullStatsObservation):

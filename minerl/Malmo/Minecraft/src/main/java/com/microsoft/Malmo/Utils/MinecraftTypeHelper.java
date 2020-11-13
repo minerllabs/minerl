@@ -389,7 +389,7 @@ public class MinecraftTypeHelper
         {
             // If the item has subtypes, then there are varieties - eg different colours, types, etc.
             // Attempt to map from these subtypes back to variant/colour.
-            // Do this by decomposing the unlocalised name:
+            // Do this by decomposing the unlocalized name:
             List<String> itemParts = new ArrayList<String>(Arrays.asList(name.split("\\.")));
             if (is.getItem() instanceof ItemMonsterPlacer)
             {
