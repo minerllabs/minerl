@@ -223,8 +223,8 @@ public class MalmoModClient
                 IBlockState blockState = mc.world.getBlockState(blockpos);
                 if (blockState.getBlock() instanceof BlockContainer
                 || blockState.getBlock() instanceof BlockWorkbench){
-                    event.setUseBlock(Event.Result.DENY);
-                    logger.log(Level.INFO, "Denied usage of " + blockState.getBlock().getRegistryName().toString());
+                    // event.setUseBlock(Event.Result.DENY);
+                    logger.log(Level.INFO, "Allowed usage of " + blockState.getBlock().getRegistryName().toString());
                 }
                 else
                     logger.log(Level.INFO, "Allowed usage of " + blockState.getBlock().getRegistryName().toString());
@@ -254,7 +254,7 @@ public class MalmoModClient
             Logger logger = Logger.getLogger("MalmoModClient.onGuiOpenEvent");
             if (event != null && event.getGui() != null && !(event.getGui() instanceof GuiGameOver)) {
                 logger.log(Level.WARNING, "GUI Window " + event.getGui().getClass().getSimpleName() + " opened!");
-                throw new AssertionError("GUI Window " + event.getGui().getClass().getSimpleName() + " opened!");
+                // throw new AssertionError("GUI Window " + event.getGui().getClass().getSimpleName() + " opened!");
             }
         }
 

@@ -59,6 +59,7 @@ public abstract class MixinNoGuiInteract {
      * @param heldItem
      * @param cir
      */
+    /* 
     @Inject(method = "interactWithEntity(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/entity/Entity;Lnet/minecraft/util/EnumHand;)Lnet/minecraft/util/EnumActionResult;",at = @At("HEAD"), cancellable = true)
     private void onInteractWithEntity(EntityPlayer player, Entity target, EnumHand heldItem, CallbackInfoReturnable<EnumActionResult> cir) {
         catchGuiEntity(target, cir);
@@ -86,6 +87,6 @@ public abstract class MixinNoGuiInteract {
     private void onProcessRightClick(EntityPlayer player, World worldIn, EnumHand stack, CallbackInfoReturnable<EnumActionResult> cir) {
         catchGuiItem(player.getHeldItem(stack).getItem(), cir);
     }
-
+    */
 
 }

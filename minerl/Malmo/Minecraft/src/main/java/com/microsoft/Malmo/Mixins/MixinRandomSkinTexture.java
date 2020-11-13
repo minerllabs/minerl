@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.microsoft.Malmo.Utils.SeedHelper;
 
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.launchwrapper.Launch;
 
 
 @Mixin(DefaultPlayerSkin.class)
@@ -20,6 +21,7 @@ public abstract class MixinRandomSkinTexture {
     // Randomize the skin for agents ignoring UUID
     @Inject(method = "isSlimSkin", at = @At("HEAD"), cancellable = true)
     private static void isSlimSkin(UUID playerUUID, CallbackInfoReturnable<Boolean> cir){
+        Launch.classLoader.addTransformerExclusion("bla");
         cir.setReturnValue(((playerUUID.hashCode() + SeedHelper.getWorldSeed()) & 1) == 0);
         cir.cancel();
     }

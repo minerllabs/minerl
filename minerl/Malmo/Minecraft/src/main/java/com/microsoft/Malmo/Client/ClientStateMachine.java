@@ -1881,7 +1881,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             Minecraft.getMinecraft().gameSettings.gammaSetting = (float) 2.0;
             
             // Disable the gui for the episode!
-            Minecraft.getMinecraft().gameSettings.hideGUI = true;
+            Minecraft.getMinecraft().gameSettings.hideGUI = false;
+            Minecraft.getMinecraft().gameSettings.guiScale = 2;
+            Minecraft.getMinecraft().gameSettings.fancyGraphics = true;
 
             for (IVideoProducer videoProducer : currentMissionBehaviour().videoProducers)
             {

@@ -38,6 +38,10 @@ public class OverclockingClassTransformer implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass)
     {
+
+        if (name.startsWith("org.lwjgl")) {
+            System.out.println("Overclocking transformer called: name = " + name);
+        }
         if (transformedName.startsWith("net.minecraft.client.entity"))
             System.out.println("Transformed Name: " + transformedName);
         boolean isObfuscated = !name.equals(transformedName);

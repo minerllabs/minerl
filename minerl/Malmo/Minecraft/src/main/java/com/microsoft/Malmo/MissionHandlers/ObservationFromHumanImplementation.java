@@ -146,7 +146,7 @@ public class ObservationFromHumanImplementation extends HandlerBase implements I
         MouseHelper mhelp = Minecraft.getMinecraft().mouseHelper;
         if (!(mhelp instanceof MalmoModClient.MouseHook))
         {
-            System.out.println("ERROR! MouseHook not installed - Malmo won't work correctly.");
+            System.out.println("ERROR! MouseHook not installwded - Malmo won't work correctly.");
             return;
         }
         ((MalmoModClient.MouseHook)mhelp).requestEvents(null);

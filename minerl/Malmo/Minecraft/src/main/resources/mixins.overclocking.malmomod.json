@@ -8,7 +8,9 @@
     "MixinMinecraftServerRun",
     "MixinNoGuiInteract",
     "MixinRandomSkinTexture",
-    "MixinWorldProviderSpawn"
+    "MixinWorldProviderSpawn",
+    "MixinGuiScreen",
+    "MixinKeyboard"
   ],
   "server": [
   ],

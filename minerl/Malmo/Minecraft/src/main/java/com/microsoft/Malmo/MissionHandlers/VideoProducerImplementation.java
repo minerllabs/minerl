@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
 
@@ -162,7 +163,8 @@ public class VideoProducerImplementation extends HandlerBase implements IVideoPr
 
         // Render the Minecraft frame into our own FBO, at the desired size:
         this.fbo.bindFramebuffer(true);
-        Minecraft.getMinecraft().getFramebuffer().framebufferRenderExt(width, height, true);
+        Minecraft.getMinecraft().getFramebuffer().framebufferRender(width, height);
+
         // Now read the pixels out from that:
         // glReadPixels appears to be faster than doing:
         // GlStateManager.bindTexture(this.fbo.framebufferTexture);
@@ -172,6 +174,8 @@ public class VideoProducerImplementation extends HandlerBase implements IVideoPr
         this.fbo.unbindFramebuffer();
         GlStateManager.enableDepth();
         Minecraft.getMinecraft().getFramebuffer().bindFramebuffer(true);
+        Minecraft mc = Minecraft.getMinecraft();
+        mc.getFramebuffer().framebufferRender(width, height);
     }
 
     @Override

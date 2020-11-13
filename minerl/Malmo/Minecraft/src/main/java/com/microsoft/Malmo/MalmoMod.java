@@ -132,21 +132,31 @@ public class MalmoMod
 
         // Until we can do tighter message passing and syncing in sync ticking, we want to keep
         // things client side.
-        network.registerMessage(ObservationFromGridImplementation.GridRequestMessageHandler.class, ObservationFromGridImplementation.GridRequestMessage.class, 2, Side.SERVER);
+        
+        // TODO peterz sort these
         network.registerMessage(MalmoMessageHandler.class, MalmoMessage.class, 3, Side.CLIENT);	// Malmo messages from server to client
+        network.registerMessage(MalmoMessageHandler.class, MalmoMessage.class, 6, Side.SERVER); // Malmo messages from client to server
+        network.registerMessage(ObservationFromSystemImplementation.SystemRequestMessageHandler.class, ObservationFromSystemImplementation.SystemRequestMessage.class, 12, Side.SERVER);
+        network.registerMessage(HumanLevelCommandsImplementation.MessageHandler.class, HumanLevelCommandsImplementation.Message.class, 17, Side.SERVER);
+
+        network.registerMessage(ObservationFromGridImplementation.GridRequestMessageHandler.class, ObservationFromGridImplementation.GridRequestMessage.class, 2, Side.SERVER);
         network.registerMessage(SimpleCraftCommandsImplementation.CraftMessageHandler.class, SimpleCraftCommandsImplementation.CraftMessage.class, 4, Side.SERVER);
         network.registerMessage(NearbyCraftCommandsImplementation.CraftNearbyMessageHandler.class, NearbyCraftCommandsImplementation.CraftNearbyMessage.class, 13, Side.SERVER);
         network.registerMessage(NearbySmeltCommandsImplementation.SmeltNearbyMessageHandler.class, NearbySmeltCommandsImplementation.SmeltNearbyMessage.class, 14, Side.SERVER);
         network.registerMessage(EquipCommandsImplementation.EquipMessageHandler.class, EquipCommandsImplementation.EquipMessage.class, 15, Side.SERVER);
         network.registerMessage(PlaceCommandsImplementation.PlaceMessageHandler.class, PlaceCommandsImplementation.PlaceMessage.class, 16, Side.SERVER);
         network.registerMessage(AbsoluteMovementCommandsImplementation.TeleportMessageHandler.class, AbsoluteMovementCommandsImplementation.TeleportMessage.class, 5, Side.SERVER);
-        network.registerMessage(MalmoMessageHandler.class, MalmoMessage.class, 6, Side.SERVER);	// Malmo messages from client to server
+        
         network.registerMessage(InventoryCommandsImplementation.InventoryMessageHandler.class, InventoryCommandsImplementation.InventoryMessage.class, 7, Side.SERVER);
         network.registerMessage(DiscreteMovementCommandsImplementation.UseActionMessageHandler.class, DiscreteMovementCommandsImplementation.UseActionMessage.class, 8, Side.SERVER);
         network.registerMessage(DiscreteMovementCommandsImplementation.AttackActionMessageHandler.class, DiscreteMovementCommandsImplementation.AttackActionMessage.class, 9, Side.SERVER);
         network.registerMessage(ObservationFromFullInventoryImplementation.InventoryRequestMessageHandler.class, ObservationFromFullInventoryImplementation.InventoryRequestMessage.class, 10, Side.SERVER);
+        
+
         network.registerMessage(InventoryCommandsImplementation.InventoryChangeMessageHandler.class, InventoryCommandsImplementation.InventoryChangeMessage.class, 11, Side.CLIENT);
-        network.registerMessage(ObservationFromSystemImplementation.SystemRequestMessageHandler.class, ObservationFromSystemImplementation.SystemRequestMessage.class, 12, Side.SERVER);
+        
+        
+
     }
 
     @EventHandler

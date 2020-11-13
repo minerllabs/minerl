@@ -10,6 +10,7 @@ import com.microsoft.Malmo.Utils.TimeHelper;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.glu.GLU;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import akka.actor.FSM.TimeoutMarker;
@@ -25,6 +26,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.network.NetworkManager;
@@ -76,6 +78,12 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public Snooper usageSnooper;
     @Shadow public abstract int getLimitFramerate();
     @Shadow public abstract boolean isFramerateLimitBelowMax();
+    
+    @Shadow public boolean inGameHasFocus; 
+    @Shadow private int leftClickCounter; 
+
+    @Shadow public abstract void displayGuiScreen(GuiScreen guiScreen);
+    
     private  int numTicksPassed = 0;
 
 
@@ -163,10 +171,10 @@ public abstract class MixinMinecraftGameloop {
 
         
         //Speeds up rendering; though it feels necessary. s
-        if(!TimeHelper.SyncManager.isSynchronous()){
-        GlStateManager.pushMatrix();
-        GlStateManager.clear(16640);
-        this.framebufferMc.bindFramebuffer(true);
+        if (!TimeHelper.SyncManager.isSynchronous() || true) {
+            GlStateManager.pushMatrix();
+            GlStateManager.clear(16640);
+            this.framebufferMc.bindFramebuffer(true);
         }
 
         this.mcProfiler.startSection("display");
@@ -202,8 +210,9 @@ public abstract class MixinMinecraftGameloop {
         }
 
         // Speeds up rendering!
-        if(!TimeHelper.SyncManager.isSynchronous()){
-            // TODO: IF WE WANT TO ENABE AGENT GUI WE SHOULD LET THIS CODE RUN
+        if (!TimeHelper.SyncManager.isSynchronous() || true) {
+            // TODO: IF WE WANT TO ENABLE AGENT GUI WE SHOULD LET THIS CODE RUN
+
             this.guiAchievement.updateAchievementWindow();
             this.framebufferMc.unbindFramebuffer();
             GlStateManager.popMatrix();
@@ -213,6 +222,7 @@ public abstract class MixinMinecraftGameloop {
             GlStateManager.pushMatrix();
             this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
             GlStateManager.popMatrix();
+
         }
 
         this.mcProfiler.startSection("root");
@@ -264,4 +274,15 @@ public abstract class MixinMinecraftGameloop {
 
         this.mcProfiler.endSection(); //root
     }
+    
+    @Overwrite
+    public void setIngameFocus()
+    {
+        if (!this.inGameHasFocus) {
+            this.inGameHasFocus = true;
+            this.displayGuiScreen((GuiScreen) null);
+            this.leftClickCounter = 10000;
+        }
+    }
+
 }

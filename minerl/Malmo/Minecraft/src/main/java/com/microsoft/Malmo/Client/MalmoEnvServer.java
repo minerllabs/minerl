@@ -458,6 +458,7 @@ public class MalmoEnvServer implements IWantToQuit {
             done = envState.done;
             // TODO Handle when the environment is done.
 
+
             // Process the actions.
             if (actions.contains("\n")) {
                 String[] cmds = actions.split("\\n");
