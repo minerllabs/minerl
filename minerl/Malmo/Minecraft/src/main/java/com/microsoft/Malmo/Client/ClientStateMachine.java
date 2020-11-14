@@ -1839,8 +1839,10 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             openSockets();
 
             // Reset our statistics
-            StatisticsManagerServer sfw = Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerStatsFile(Minecraft.getMinecraft().player);
-            sfw.readStatFile();
+            if (Minecraft.getMinecraft().getIntegratedServer() != null){
+                StatisticsManagerServer sfw = Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerStatsFile(Minecraft.getMinecraft().player);
+                sfw.readStatFile();
+            }
 
 
             this.serverWantsToEndMission = false;

@@ -77,7 +77,6 @@ class _MultiAgentEnv(gym.Env):
         :param verbose: If the MineRL env is verbose.
         :param _xml_mutator_to_be_deprecated: A function which mutates the mission XML when called.
         """
-        self.ns = NS
         self.task = env_spec
         self.instances = instances if instances is not None else []  # type: List[MinecraftInstance]
 
@@ -548,9 +547,13 @@ class _MultiAgentEnv(gym.Env):
         """Sets up the instances for the environment 
         """
         num_instances_to_start = self.task.agent_count - len(self.instances)
-        self.instances.extend(
-            [self._get_new_instance() for _ in range(num_instances_to_start)]
-        )
+        instance_futures = []
+        if num_instances_to_start > 0:
+            with ThreadPoolExecutor(max_workers=num_instances_to_start) as tpe:
+                for _ in range(num_instances_to_start):
+                    instance_futures.append(tpe.submit(self._get_new_instance))
+            self.instances.extend([f.result() for f in instance_futures])
+            self.instances = self.instances[:self.task.agent_count]
 
         # Now let's clean and establish new socket connections.
         # Note: it is important that all clients are informed of the episode end BEFORE the
