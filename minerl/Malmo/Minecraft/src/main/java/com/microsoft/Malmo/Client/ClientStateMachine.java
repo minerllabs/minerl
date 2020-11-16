@@ -46,6 +46,7 @@ import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -1840,10 +1841,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             // Reset our statistics
             if (Minecraft.getMinecraft().getIntegratedServer() != null){
-                StatisticsManagerServer sfw = Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerStatsFile(Minecraft.getMinecraft().player);
-                sfw.readStatFile();
+                for (EntityPlayerMP player : Minecraft.getMinecraft().getIntegratedServer().getPlayerList().playerEntityList) {
+                    StatisticsManagerServer sfw = Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerStatsFile(player);
+                    sfw.readStatFile();
+                }
             }
-
 
             this.serverWantsToEndMission = false;
             // Tell the server we have started:
