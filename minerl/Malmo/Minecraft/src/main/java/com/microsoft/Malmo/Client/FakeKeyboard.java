@@ -99,8 +99,6 @@ public class FakeKeyboard {
     }
 
     public static boolean isKeyDown(int key) {
-        // System.out.println("Mixin Keyboard - isKeyDown is called with key " + String.valueOf(key) + ", returning "
-        //         + String.valueOf(keysDown.contains(key)));
         return keysDown.contains(key);
     }
 }

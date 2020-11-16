@@ -9,8 +9,9 @@
     "MixinNoGuiInteract",
     "MixinRandomSkinTexture",
     "MixinWorldProviderSpawn",
-    "MixinGuiScreen",
-    "MixinKeyboard"
+    "MixinKeyboard",
+    "MixinMouse", 
+    "MixinDisplay"
   ],
   "server": [
   ],

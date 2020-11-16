@@ -4,6 +4,7 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import com.microsoft.Malmo.Client.FakeMouse;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
@@ -51,18 +52,22 @@ public class CameraCommandsImplementation extends CommandBase {
         try {
             String[] camParams = parameter.split(" ");
 
-            float pitch = Float.parseFloat(camParams[0]);
-            float yaw = Float.parseFloat(camParams[1]);
-            EntityPlayerSP player = Minecraft.getMinecraft().player;
-            if (player != null) {
-                this.currentYaw = player.rotationYaw;
-                this.currentPitch = player.rotationPitch;
-
-                player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw + yaw, this.currentPitch + pitch);
-
-                this.currentYaw = player.rotationYaw;
-                this.currentPitch = player.rotationPitch;
+            double pitch = Double.parseDouble(camParams[0]);
+            double yaw = Double.parseDouble(camParams[1]);
+            double sensitivity = 3.0;
+            if (yaw != 0.0 || pitch != 0.0) {
+                FakeMouse.addMovement((int) (sensitivity * yaw), -(int) (sensitivity * pitch));
             }
+//            EntityPlayerSP player = Minecraft.getMinecraft().player;
+//            if (player != null) {
+//                this.currentYaw = player.rotationYaw;
+//                this.currentPitch = player.rotationPitch;
+//
+//                player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw + yaw, this.currentPitch + pitch);
+//
+//                this.currentYaw = player.rotationYaw;
+//                this.currentPitch = player.rotationPitch;
+//            }
         } catch (NumberFormatException e) {
             System.out.println("ERROR: Malformed parameter string (" + parameter + ") - " + e.getMessage());
             return false;
@@ -80,24 +85,24 @@ public class CameraCommandsImplementation extends CommandBase {
      * 
      * @param ev the RenderTickEvent object for this tick
      */
-    @SubscribeEvent
-    public void onRenderTick(TickEvent.RenderTickEvent ev) {
-
-        if (ev.phase == Phase.START && this.isOverriding()) {
-            // Track average fps:
-            if (this.isOverriding()) {
-                EntityPlayerSP player = Minecraft.getMinecraft().player;
-                if(player != null){
-                    if(this.currentYaw == -10000 & this.currentPitch == -10000){
-                        
-
-                        this.currentYaw = player.rotationYaw;
-                        this.currentPitch = player.rotationPitch;
-                    }
-                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw, this.currentPitch);
-                }
-            }
-        }
-
-    }
+//    @SubscribeEvent
+//    public void onRenderTick(TickEvent.RenderTickEvent ev) {
+//
+//        if (ev.phase == Phase.START && this.isOverriding()) {
+//            // Track average fps:
+//            if (this.isOverriding()) {
+//                EntityPlayerSP player = Minecraft.getMinecraft().player;
+//                if(player != null){
+//                    if(this.currentYaw == -10000 & this.currentPitch == -10000){
+//                        
+//
+//                        this.currentYaw = player.rotationYaw;
+//                        this.currentPitch = player.rotationPitch;
+//                    }
+//                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw, this.currentPitch);
+//                }
+//            }
+//        }
+//
+//    }
 }

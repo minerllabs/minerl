@@ -27,6 +27,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.KeyBindingMap;
 
 import com.microsoft.Malmo.Client.FakeKeyboard;
+import com.microsoft.Malmo.Client.FakeMouse;
 import com.microsoft.Malmo.Client.FakeKeyboard.FakeKeyEvent;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
@@ -391,6 +392,15 @@ public class CommandForKey extends CommandBase
 //        return (this.keyHook != null) ? this.keyHook.execute(verb, parameter) : false;
 
         if (verb != null && verb.equalsIgnoreCase(keyHook.getCommandString())) {
+            if (verb.equals("attack")) {
+                if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING)) {
+                    FakeMouse.pressButton(0);
+                } else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING)) {
+                    FakeMouse.releaseButton(0);
+                } else {
+                    return false;
+                }
+            } 
             if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING)) {
                 FakeKeyboard.press(keyHook.getKeyCode());
             } else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING)) {
