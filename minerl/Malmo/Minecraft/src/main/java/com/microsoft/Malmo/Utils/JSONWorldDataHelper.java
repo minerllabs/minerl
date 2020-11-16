@@ -118,55 +118,52 @@ public class JSONWorldDataHelper
      */
     public static void buildBaseMinecraftStats(JsonObject json, EntityPlayerSP player)
     {
-        if(Minecraft.getMinecraft().isIntegratedServerRunning()){
+        StatisticsManager statisticsManager = player.getStatFileWriter();
 
-            StatisticsManagerServer sfw = Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerStatsFile(player);
+        json.addProperty("distance_travelled_cm",
+            statisticsManager.readStat(StatList.WALK_ONE_CM)
+            + statisticsManager.readStat(StatList.CROUCH_ONE_CM)
+            + statisticsManager.readStat(StatList.SPRINT_ONE_CM)
+            + statisticsManager.readStat(StatList.SWIM_ONE_CM)
+            + statisticsManager.readStat(StatList.FALL_ONE_CM)
+            + statisticsManager.readStat(StatList.CLIMB_ONE_CM)
+            + statisticsManager.readStat(StatList.FLY_ONE_CM)
+            + statisticsManager.readStat(StatList.DIVE_ONE_CM)
+            + statisticsManager.readStat(StatList.MINECART_ONE_CM)
+            + statisticsManager.readStat(StatList.BOAT_ONE_CM)
+            + statisticsManager.readStat(StatList.PIG_ONE_CM)
+            + statisticsManager.readStat(StatList.HORSE_ONE_CM)
+            + statisticsManager.readStat(StatList.AVIATE_ONE_CM)
+            );
 
-            json.addProperty("distance_travelled_cm",
-                sfw.readStat(StatList.WALK_ONE_CM)
-                + sfw.readStat(StatList.CROUCH_ONE_CM)
-                + sfw.readStat(StatList.SPRINT_ONE_CM)
-                + sfw.readStat(StatList.SWIM_ONE_CM)
-                + sfw.readStat(StatList.FALL_ONE_CM)
-                + sfw.readStat(StatList.CLIMB_ONE_CM)
-                + sfw.readStat(StatList.FLY_ONE_CM)
-                + sfw.readStat(StatList.DIVE_ONE_CM)
-                + sfw.readStat(StatList.MINECART_ONE_CM)
-                + sfw.readStat(StatList.BOAT_ONE_CM)
-                + sfw.readStat(StatList.PIG_ONE_CM)
-                + sfw.readStat(StatList.HORSE_ONE_CM)
-                + sfw.readStat(StatList.AVIATE_ONE_CM)
-                );
-
-            for(StatBase stat : StatList.ALL_STATS) {
-                // For MineRL, split over . and convert all camelCase to snake_case
-                String[] stat_fields = stat.statId.split("\\.");
-                JsonObject head = json;
-                for (String unformatted_token : stat_fields) {
-                    String token = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, unformatted_token);
-                    // Last element is a leaf
-                    if (unformatted_token.equals(stat_fields[stat_fields.length - 1])) {
-                        // BAH map drop stat to items_dropped to prevent hash collision in dict keys
-                        // MUST change this in CraftingHelper.java as well!!!! (search above comment)
-                        if (token.equals("drop"))
-                            token = "items_dropped";
-                        head.addProperty(token, sfw.readStat(stat));
-                    } else {
-                        if (head.has(token))
-                            if (head.get(token) instanceof JsonObject)
-                                head = head.getAsJsonObject(token);
-                            else {
-                                System.out.println("Duplicate token! " + Arrays.toString(stat_fields));
-                                head.remove(token);
-                                JsonObject newRoot = new JsonObject();
-                                head.add(token, newRoot);
-                                head = newRoot;
-                            }
+        for(StatBase stat : StatList.ALL_STATS) {
+            // For MineRL, split over . and convert all camelCase to snake_case
+            String[] stat_fields = stat.statId.split("\\.");
+            JsonObject head = json;
+            for (String unformatted_token : stat_fields) {
+                String token = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, unformatted_token);
+                // Last element is a leaf
+                if (unformatted_token.equals(stat_fields[stat_fields.length - 1])) {
+                    // BAH map drop stat to items_dropped to prevent hash collision in dict keys
+                    // MUST change this in CraftingHelper.java as well!!!! (search above comment)
+                    if (token.equals("drop"))
+                        token = "items_dropped";
+                    head.addProperty(token, statisticsManager.readStat(stat));
+                } else {
+                    if (head.has(token))
+                        if (head.get(token) instanceof JsonObject)
+                            head = head.getAsJsonObject(token);
                         else {
+                            System.out.println("Duplicate token! " + Arrays.toString(stat_fields));
+                            head.remove(token);
                             JsonObject newRoot = new JsonObject();
                             head.add(token, newRoot);
                             head = newRoot;
                         }
+                    else {
+                        JsonObject newRoot = new JsonObject();
+                        head.add(token, newRoot);
+                        head = newRoot;
                     }
                 }
             }
