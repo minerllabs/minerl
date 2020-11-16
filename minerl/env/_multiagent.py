@@ -819,3 +819,6 @@ class _MultiAgentEnv(gym.Env):
 
     def _get_token(self, role, ep_uid: str):
         return ep_uid + ":" + str(role) + ":" + str(0)  # resets
+
+    def _clean_connection(self):
+        pass
