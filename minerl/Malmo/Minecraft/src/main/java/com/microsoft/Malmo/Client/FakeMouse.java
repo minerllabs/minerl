@@ -108,6 +108,7 @@ public class FakeMouse {
 
     public static void pressButton(int button) {
         if (!pressedButtons.contains(button)) {
+            System.out.println("Button " + String.valueOf(button) + " is pressed");
             addEvent(new FakeMouseEvent(x, y, 0, 0, button, true, System.nanoTime()));
         }
     }
@@ -115,6 +116,7 @@ public class FakeMouse {
     public static void releaseButton(int button) {
         // TODO - match the press event and add dx, dy? Is that necessary?
         if (pressedButtons.contains(button)) {
+            System.out.println("Button " + String.valueOf(button) + " is released");
             addEvent(new FakeMouseEvent(x, y, 0, 0, button, false, System.nanoTime()));
         }
     }
