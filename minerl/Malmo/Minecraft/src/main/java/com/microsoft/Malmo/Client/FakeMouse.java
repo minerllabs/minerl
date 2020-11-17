@@ -73,6 +73,10 @@ public class FakeMouse {
         return currentEvent.button;
     }
 
+    public static boolean getEventButtonState() {
+        return currentEvent.state;
+    }
+
     public static int getEventX() {
         return currentEvent.x;
     }

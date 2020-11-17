@@ -54,6 +54,11 @@ public abstract class MixinMouse {
     }
 
     @Overwrite(remap = false)
+    public static boolean getEventButtonState() {
+        return FakeMouse.getEventButtonState();
+    }
+
+    @Overwrite(remap = false)
     public static int getEventX() {
         return FakeMouse.getEventX();
     }

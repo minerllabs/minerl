@@ -393,10 +393,20 @@ public class CommandForKey extends CommandBase
 
         if (verb != null && verb.equalsIgnoreCase(keyHook.getCommandString())) {
             if (verb.equals("attack")) {
+                // imitate right mouse button click
                 if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING)) {
                     FakeMouse.pressButton(0);
                 } else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING)) {
                     FakeMouse.releaseButton(0);
+                } else {
+                    return false;
+                }
+            } else if (verb.equals("use")) {
+                // imitate right mouse button click
+                if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING)) {
+                    FakeMouse.pressButton(1);
+                } else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING)) {
+                    FakeMouse.releaseButton(1);
                 } else {
                     return false;
                 }

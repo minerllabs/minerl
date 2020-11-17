@@ -12,19 +12,6 @@ from minerl.herobraine.env_spec import EnvSpec
 
 from typing import List
 
-SIMPLE_KEYBOARD_ACITON = [
-    "forward",
-    "back",
-    "left",
-    "right",
-    "jump",
-    "sneak",
-    "sprint",
-    "attack"
-    "use",
-]
-
-
 class HumanControlEnvSpec(EnvSpec, ABC):
     """
     A simple base environment from which all other simple envs inherit.
@@ -46,6 +33,8 @@ class HumanControlEnvSpec(EnvSpec, ABC):
         """
         return [
                    handlers.KeybasedCommandAction(k, v) for k, v in INVERSE_KEYMAP.items()
+               ] + [
+                   handlers.KeybasedCommandAction(f"hotbar.{i}", i) for i in range(10)
                ] + [
                    handlers.CameraAction()
                ]
