@@ -7,7 +7,7 @@ from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
 
 from minerl.herobraine.hero import handlers
-from minerl.herobraine.hero.mc import INVERSE_KEYMAP
+from minerl.herobraine.hero.mc import INVERSE_KEYMAP, ALL_ITEMS
 from minerl.herobraine.env_spec import EnvSpec
 
 from typing import List
@@ -23,7 +23,7 @@ class HumanControlEnvSpec(EnvSpec, ABC):
 
     def create_observables(self) -> List[TranslationHandler]:
         return [
-            handlers.POVObservation(self.resolution)
+            handlers.POVObservation(self.resolution),
         ]
 
     def create_actionables(self) -> List[TranslationHandler]:

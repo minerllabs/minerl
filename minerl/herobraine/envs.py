@@ -8,6 +8,7 @@ import gym
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.env_specs.treechop_specs import Treechop
 from minerl.herobraine.env_specs.treechop_human_specs import TreechopHuman
+from minerl.herobraine.env_specs.equip_weapon_specs import EquipWeapon
 from minerl.herobraine.env_specs.navigate_specs import Navigate
 from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, \
     ObtainDiamondDebug
@@ -31,6 +32,7 @@ MINERL_OBTAIN_DIAMOND_DENSE_V0 = ObtainDiamond(dense=True)
 MINERL_OBTAIN_IRON_PICKAXE_V0 = ObtainIronPickaxe(dense=False)
 MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0 = ObtainIronPickaxe(dense=True)
 
+MINERL_EQUIP_WEAPON_V0 = EquipWeapon()
 # # prototype envs
 # # TODO: Actually make these work and correct, it'll be good to release these.
 # MINERL_OBTAIN_MEAT_V0 = Obtain(target_item='meat', dense=False, reward_schedule={
