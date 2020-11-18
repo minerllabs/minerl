@@ -203,7 +203,7 @@ public abstract class MixinMinecraftGameloop {
 
         // Speeds up rendering!
         if(!TimeHelper.SyncManager.isSynchronous()){
-            // TODO: IF WE WANT TO ENABE AGENT GUI WE SHOULD LET THIS CODE RUN
+            // TODO: IF WE WANT TO ENABLE AGENT GUI WE SHOULD LET THIS CODE RUN
             this.guiAchievement.updateAchievementWindow();
             this.framebufferMc.unbindFramebuffer();
             GlStateManager.popMatrix();
