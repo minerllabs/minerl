@@ -179,7 +179,7 @@ class _DamageObservation(TranslationHandler):
         self._hand = hand
         self.type_str = type_str
         self._default = 0
-        super().__init__(spaces.Box(low=-1, high=1562, shape=(), dtype=np.int))
+        super().__init__(spaces.Box(low=0, high=1562, shape=(), dtype=np.int))
 
     def to_string(self):
         return self.type_str

@@ -7,10 +7,25 @@ from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
 
 from minerl.herobraine.hero import handlers
-from minerl.herobraine.hero.mc import INVERSE_KEYMAP, ALL_ITEMS
+from minerl.herobraine.hero.mc import INVERSE_KEYMAP
 from minerl.herobraine.env_spec import EnvSpec
 
 from typing import List
+
+KEYBOARD_ACTIONS = [
+    "forward",
+    "back",
+    "left",
+    "right",
+    "jump",
+    "sneak",
+    "sprint",
+    "attack",
+    "use",
+    "drop",
+    "inventory"
+]
+
 
 class HumanControlEnvSpec(EnvSpec, ABC):
     """
@@ -32,7 +47,7 @@ class HumanControlEnvSpec(EnvSpec, ABC):
         not all.
         """
         return [
-                   handlers.KeybasedCommandAction(k, v) for k, v in INVERSE_KEYMAP.items()
+                   handlers.KeybasedCommandAction(k, INVERSE_KEYMAP[k]) for k in KEYBOARD_ACTIONS
                ] + [
                    handlers.KeybasedCommandAction(f"hotbar.{i}", i) for i in range(10)
                ] + [
