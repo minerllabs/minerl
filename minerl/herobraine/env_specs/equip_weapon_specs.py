@@ -11,7 +11,7 @@ import minerl.herobraine
 import minerl.herobraine.hero.handlers as handlers
 from minerl.herobraine.env_spec import EnvSpec
 
-TREECHOP_LENGTH = 8000
+TREECHOP_LENGTH = 200
 WEAPON = "iron_axe"
 
 
