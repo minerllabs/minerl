@@ -21,7 +21,7 @@ class EquipWeapon(HumanControlEnvSpec):
             kwargs["name"] = "MineRLEquipWeapon-v0"
 
         super().__init__(
-            *args, max_episode_steps=TREECHOP_LENGTH, reward_threshold=64.0, **kwargs
+            *args, max_episode_steps=EPISODE_LENGTH, reward_threshold=64.0, **kwargs
         )
 
     def create_rewardables(self) -> List[Handler]:
