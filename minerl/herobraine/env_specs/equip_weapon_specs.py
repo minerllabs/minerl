@@ -11,7 +11,7 @@ import minerl.herobraine
 import minerl.herobraine.hero.handlers as handlers
 from minerl.herobraine.env_spec import EnvSpec
 
-TREECHOP_LENGTH = 200
+EPISODE_LENGTH = 1200
 WEAPON = "iron_axe"
 
 
@@ -52,7 +52,7 @@ class EquipWeapon(HumanControlEnvSpec):
 
     def create_server_quit_producers(self) -> List[Handler]:
         return [
-            handlers.ServerQuitFromTimeUp((TREECHOP_LENGTH * MS_PER_STEP)),
+            handlers.ServerQuitFromTimeUp((EPISODE_LENGTH * MS_PER_STEP)),
             handlers.ServerQuitWhenAnyAgentFinishes(),
         ]
 
