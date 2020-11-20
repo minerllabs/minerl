@@ -9,6 +9,8 @@ Not very proud of the code reuse in this module -- @wguss
 from typing import List
 
 import jinja2
+
+from minerl.herobraine.hero.mc import EQUIPMENT_SLOTS
 from minerl.herobraine.hero import spaces
 from minerl.herobraine.hero.handlers.translation import TranslationHandler, TranslationHandlerGroup
 import numpy as np
@@ -57,8 +59,7 @@ class EquippedItemObservation(TranslationHandlerGroup):
                 _EquippedItemObservation(['offhand'], self._items, _default=_default, _other=_other))
         if armor:
             handlers.extend([
-                _EquippedItemObservation(['armor', slot_id], self._items, _default=_default, _other=_other) for slot_id
-                in range(4)
+                _EquippedItemObservation([slot], self._items, _default=_default, _other=_other) for slot in EQUIPMENT_SLOTS if slot not in ["mainhand", "offhand"]
             ])
         super().__init__(handlers)
 

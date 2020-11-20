@@ -46,16 +46,14 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.creativetab.CreativeTabs;
+
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.*;
 import net.minecraft.stats.Achievement;
@@ -67,14 +65,10 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import scala.actors.threadpool.Arrays;
 
 public class CraftingHelper {
     private static Map<EntityPlayerMP, Integer> fuelCaches = new HashMap<EntityPlayerMP, Integer>();
@@ -676,6 +670,7 @@ public class CraftingHelper {
                 json.addProperty("maxUseDuration", is.getMaxItemUseDuration());
                 json.addProperty("block", item instanceof ItemBlock);
                 json.addProperty("hasContainerItem", item.hasContainerItem());
+                json.addProperty("bestEquipmentSlot", EntityLiving.getSlotForItemStack(is).getName());
                 if (item instanceof ItemBlock) {
                     ItemBlock ib = (ItemBlock) item;
                     Block b = ib.getBlock();
