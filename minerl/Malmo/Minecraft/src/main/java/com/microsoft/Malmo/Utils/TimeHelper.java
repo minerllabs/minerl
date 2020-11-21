@@ -97,7 +97,7 @@ public class TimeHelper
         
         
         public void requestAndWait() {
-            // This requests the state machien to run and waits for completion.
+            // This requests the state machine to run and waits for completion.
             requestLock.lock();
             try{
                 // if(SyncManager.synchronous) SyncManager.debugLog("[FSM:" + name + "] REQUESTING ");

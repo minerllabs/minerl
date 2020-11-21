@@ -641,6 +641,20 @@ ALL_SMELTING_ITEMS = [
                             and len(SMELTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
                      ]
 
+EQUIPMENT_SLOTS = [
+    "mainhand",
+    "offhand",
+    "feet",
+    "legs",
+    "chest",
+    "head",
+]
+
+BEST_ITEMS_PER_EQUIPMENT_SLOT = {
+    equip: [item["type"] for item in all_data["items"] if item["bestEquipmentSlot"] == equip] for equip in EQUIPMENT_SLOTS
+}
+
+
 MS_PER_STEP = 50
 STEPS_PER_MS = 1 / 50
 
