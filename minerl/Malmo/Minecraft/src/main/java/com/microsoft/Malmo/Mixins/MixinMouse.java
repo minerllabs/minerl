@@ -20,8 +20,13 @@ public abstract class MixinMouse {
 
     @Overwrite(remap = false)
     public static void setGrabbed(boolean grabbed) {
-
+        FakeMouse.setGrabbed(grabbed);
     }
+//
+//    @Overwrite(remap = false)
+//    public static boolean isGrabbed() {
+//        return FakeMouse.isGrabbed();
+//    }
 
     @Overwrite(remap = false)
     public static boolean next() {

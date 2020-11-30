@@ -15,6 +15,8 @@ public class FakeMouse {
     private static FakeMouseEvent currentEvent;
     private static Set<Integer> pressedButtons = new HashSet<Integer>();
 
+    private static boolean grabbed = false;
+
     public static class FakeMouseEvent {
         private int button;
 
@@ -144,6 +146,14 @@ public class FakeMouse {
     public static void setCursorPosition(int newX, int newY) {
         x = newX;
         y = newY;
+    }
+
+    public static void setGrabbed(boolean grabbed) {
+        FakeMouse.grabbed = grabbed;
+    }
+
+    public static boolean isGrabbed() {
+        return grabbed;
     }
 
 
