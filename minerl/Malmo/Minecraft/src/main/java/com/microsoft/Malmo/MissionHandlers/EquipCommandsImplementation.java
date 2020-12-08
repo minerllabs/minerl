@@ -27,6 +27,8 @@ import com.microsoft.Malmo.Schemas.MissionInit;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -96,38 +98,14 @@ public class EquipCommandsImplementation extends CommandBase {
             EntityEquipmentSlot equipmentSlot = EntityLiving.getSlotForItemStack(new ItemStack(item));
 
             // Hard-coded hack to allow agents to hold pumpkins and skulls which are otherwise seen as helmets
-            if (item.getRegistryName().toString().equals("minecraft.pumpkin")
-                || item.getRegistryName().toString().equals("minecraft.skull")){
+            if (item == Item.getItemFromBlock(Blocks.PUMPKIN) || item == Items.SKULL) {
                 equipmentSlot = EntityEquipmentSlot.MAINHAND;
             }
-            int destinationSlotID;
-            ItemStack prev;
 
-            switch (equipmentSlot){
-                case MAINHAND:
-                    destinationSlotID = player.inventory.currentItem;
-                    prev = player.inventory.mainInventory.get(destinationSlotID);
-                    player.inventory.mainInventory.set(destinationSlotID, stackInInventory);
-                    player.inventory.setInventorySlotContents(stackIndex, prev);
-                    break;
-                case OFFHAND:
-                    destinationSlotID = 0;
-                    prev = player.inventory.offHandInventory.get(destinationSlotID);
-                    player.inventory.offHandInventory.set(destinationSlotID, stackInInventory);
-                    player.inventory.setInventorySlotContents(stackIndex, prev);
-                    break;
-                case FEET:
-                case HEAD:
-                case LEGS:
-                case CHEST:
-                    destinationSlotID = equipmentSlot.getIndex();
-                    prev = player.inventory.armorInventory.get(destinationSlotID);
-                    player.inventory.armorInventory.set(equipmentSlot.getIndex(), stackInInventory);
-                    player.inventory.setInventorySlotContents(stackIndex, prev);
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + equipmentSlot);
-            }
+            // Swap the items between the destination slot and the slot with the matching item
+            ItemStack prev = player.getItemStackFromSlot(equipmentSlot);
+            player.setItemStackToSlot(equipmentSlot, stackInInventory);
+            player.inventory.setInventorySlotContents(stackIndex, prev);
 
             return null;
         }
