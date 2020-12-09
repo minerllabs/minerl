@@ -325,6 +325,7 @@ class _MultiAgentEnv(gym.Env):
                         "To account for this failure case in your code check to see if `'error' in info` where info is "
                         "the info dictionary returned by the step function."
                     )
+                    assert False, str(e)
                     return (
                         {agent: self.observation_space.sample() for agent in actions},
                         {agent: 0 for agent in actions},
