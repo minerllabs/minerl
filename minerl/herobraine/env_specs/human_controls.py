@@ -49,7 +49,7 @@ class HumanControlEnvSpec(EnvSpec, ABC):
         return [
                    handlers.KeybasedCommandAction(k, INVERSE_KEYMAP[k]) for k in KEYBOARD_ACTIONS
                ] + [
-                   handlers.KeybasedCommandAction(f"hotbar.{i}", i) for i in range(10)
+                   handlers.KeybasedCommandAction(f"hotbar.{i}", INVERSE_KEYMAP[str(i)]) for i in range(1, 10)
                ] + [
                    handlers.CameraAction()
                ]

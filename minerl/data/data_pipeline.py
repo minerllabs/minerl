@@ -79,8 +79,10 @@ class DataPipeline:
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
 
         self._env_spec = gym.envs.registration.spec(self.environment)._kwargs['env_spec']
-        self._action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
-        self._observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
+        self._action_space = self._env_spec.create_action_space()
+        self._observation_space = self._env_spec.create_observation_space()
+        # self._action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
+        # self._observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
 
     @property
     def spec(self) -> minerl.herobraine.env_spec.EnvSpec:
@@ -132,8 +134,8 @@ class DataPipeline:
         meta = next(remainder) if include_monitor_data else None
 
         # make a copty  
-        gym_spec = gym.envs.registration.spec(self.environment)
-        target_space = copy.deepcopy(gym_spec._kwargs['observation_space'])
+        gym_spec = gym.envs.registration.spec(self.environment)._kwargs['env_spec']
+        target_space = copy.deepcopy(gym_spec.create_observation_space())
 
         x = list(target_space.spaces.items())
         target_space.spaces = collections.OrderedDict(
@@ -338,12 +340,12 @@ class DataPipeline:
                 current_observation_data = unflatten(current_observation_data)[OBSERVABLE_KEY]
                 action_data = unflatten(action_data)[ACTIONABLE_KEY]
                 next_observation_data = unflatten(next_observation_data)[OBSERVABLE_KEY]
-                monitor_data = unflatten(monitor_data)[MONITOR_KEY]
 
                 batches = [current_observation_data, action_data, reward_data, next_observation_data,
                            np.array(done_data, dtype=np.bool)]
 
                 if include_monitor_data:
+                    monitor_data = unflatten(monitor_data)[MONITOR_KEY]
                     batches += [monitor_data]
 
                 if include_metadata:
