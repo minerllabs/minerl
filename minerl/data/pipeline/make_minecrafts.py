@@ -139,7 +139,7 @@ def download(url, file_name):
 
 import zipfile
 
-if __name__ == "__main__":
+def main():
     print("Downloading mincraft assets and binaries.")
     cracked_libs = J(BASE_DIR, 'cracked_libs')
     os.makedirs(BASE_DIR, exist_ok=True)
@@ -170,3 +170,7 @@ if __name__ == "__main__":
         file = (os.path.join(target_mc_name, 'launch.sh'))
         st = os.stat(file)
         os.chmod(file, st.st_mode | stat.S_IEXEC)
+
+if __name__ == "__main__":
+    main()
+
