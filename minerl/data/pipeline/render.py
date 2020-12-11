@@ -175,7 +175,7 @@ def render_metadata(renders: list):
                         # print(render_path)
                         jbos = json.load(f)
                         # assert (ile["duration"] > 60000 or jbos["duration"] == 0)
-                        assert (jbos["duration"] > 300000)
+                        # assert (jbos["duration"] > 300000)
 
                         # go through and check if we got the experiments.
 

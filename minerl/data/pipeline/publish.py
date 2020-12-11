@@ -356,11 +356,10 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                 # TODO these could be handlers instead!
                 if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name \
                         and ('SimonSays' not in environment.name) \
-                        or sum(published['reward']) < 64 and ('Obtain' not in environment.name) \
-                        or sum(published['reward']) == 0.0 \
                         or sum(published['action$forward']) == 0 \
                         or sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
                     black_list.add(segment_str)
+                    import pdb; pdb.set_trace()
                     print('Hey we should have blacklisted {} tyvm'.format(segment_str))
                     return 0
 
@@ -416,16 +415,20 @@ def publish():
     if E('errors.txt'):
         os.remove('errors.txt')
     try:
-        multiprocessing.freeze_support()
-        with multiprocessing.Pool(num_w, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
-            manager = ThreadManager(multiprocessing.Manager(), num_w, 1, 1)
-            func = functools.partial(_render_data, DATA_DIR, manager)
-            num_segments = list(
-                tqdm.tqdm(pool.imap_unordered(func, valid_data), total=len(valid_data), desc='Files', miniters=1,
-                          position=0, maxinterval=1))
+        # multiprocessing.freeze_support()
+        # with multiprocessing.Pool(num_w, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
+        #     manager = ThreadManager(multiprocessing.Manager(), num_w, 1, 1)
+        #     func = functools.partial(_render_data, DATA_DIR, manager)
+        #     # num_segments = list(
+        #     #     tqdm.tqdm(pool.imap_unordered(func, valid_data), total=len(valid_data), desc='Files', miniters=1,
+        #     #               position=0, maxinterval=1))
 
-            # for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
-            #     num_segments_rendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
+        #     # for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
+        #     #     num_segments_rendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
+        # manager = ThreadManager(multiprocessing.Manager(), num_w, 1, 1)
+        for vd in valid_data:
+            render_data(DATA_DIR, vd[0], vd[1], Blacklist())
+
     except Exception as e:
         if isinstance(e, KeyboardInterrupt):
             pool.terminate()
