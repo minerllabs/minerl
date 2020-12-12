@@ -241,8 +241,11 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
 
     # Gather all renderable environments for this experiment directory
     rendered_envs = 0
+    # filtered_environments = [
+    #    env_spec for env_spec in envs.ENVS if env_spec.is_from_folder(experiment_folder)]
+    # HACK to only render human survival envs (or, rather, render everything as data for human survival)
     filtered_environments = [
-        env_spec for env_spec in envs.ENVS if env_spec.is_from_folder(experiment_folder)]
+        env_spec for env_spec in envs.ENVS if env_spec.is_from_folder('')]
     # Don't render if files are missing
     if not E(source_folder) or not E(recording_source) or not E(universal_source) or not E(metadata_source):
         black_list.add(segment_str)
@@ -359,7 +362,6 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         or sum(published['action$forward']) == 0 \
                         or sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
                     black_list.add(segment_str)
-                    import pdb; pdb.set_trace()
                     print('Hey we should have blacklisted {} tyvm'.format(segment_str))
                     return 0
 
@@ -452,6 +454,11 @@ def package(out_dir=DATA_DIR):
     # Verify version
     if DATA_DIR is None:
         raise RuntimeError('MINERL_DATA_ROOT is not set!')
+
+    # Hack to side-step version check
+    with open(os.path.join(DATA_DIR, minerl.data.VERSION_FILE_NAME), 'w') as version_file:
+        version_file.write(str(minerl.data.DATA_VERSION))
+
     with open(os.path.join(DATA_DIR, minerl.data.VERSION_FILE_NAME)) as version_file:
         version_file_num = int(version_file.readline())
         if minerl.data.DATA_VERSION != version_file_num:

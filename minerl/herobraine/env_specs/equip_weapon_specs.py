@@ -70,7 +70,7 @@ class EquipWeapon(HumanControlEnvSpec):
         return sum(rewards) >= self.reward_threshold
 
     def is_from_folder(self, folder: str) -> bool:
-        return True
+        return False
 
     def get_docstring(self):
         return ""

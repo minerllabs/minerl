@@ -11,7 +11,7 @@ J = os.path.join
 def partition_streams(rank, size):
     stream_list = list(set(get_stream_prefix(o.key) for o in bucket.objects.iterator()))
     stream_list.sort()
-    my_streams = stream_list[rank::size][:2]
+    my_streams = stream_list[rank::size]
     return my_streams
 
 def download_stream(stream_prefix):
@@ -39,13 +39,17 @@ def key_to_local_path(key):
     return J(DOWNLOAD_DIR, key)
 
 
-def download_partition():
+def download_partition_mpi():
     from mpi4py import MPI
     rank = MPI.COMM_WORLD.rank
     size = MPI.COMM_WORLD.size
+    download_partition(rank, size)
+
+def download_partition(rank, size):
     prefixes = partition_streams(rank, size)
     download_streams(prefixes)
 
 
+
 if __name__ == '__main__':
-    download_partition()
+    download_partition(0, 1)

@@ -376,6 +376,7 @@ def render_videos(render: tuple, index=0, debug=False):
 
         mcpr_path = J(MERGED_DIR, (recording_name + ".mcpr"))
 
+        os.makedirs(RECORDING_PATH[index], exist_ok=True)
         copyfile(mcpr_path, J(RECORDING_PATH[index], (recording_name + ".mcpr")))
         copy_time = os.path.getmtime(
             J(RECORDING_PATH[index], (recording_name + ".mcpr")))
@@ -438,11 +439,11 @@ def render_videos(render: tuple, index=0, debug=False):
                             print("\tfound 0 length file")
                         errorDir = ZEROLEN_DIR
 
-                    elif re.search(r"NullPointerException", logLine):
-                        if not re.search(r'exceptionCaught', logLine):
-                            if debug:
-                                print("\tNullPointerException")
-                            errorDir = NULL_PTR_EXCEP_DIR
+                    # elif re.search(r"NullPointerException", logLine):
+                    #     if not re.search(r'exceptionCaught', logLine):
+                    #         if debug:
+                    #             print("\tNullPointerException")
+                    #         errorDir = NULL_PTR_EXCEP_DIR
 
                     elif re.search(r"zip error", logLine) or re.search(r"zip file close", logLine):
                         if debug:

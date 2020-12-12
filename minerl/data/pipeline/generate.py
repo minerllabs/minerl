@@ -525,11 +525,10 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
     return numNewSegments
 
 
-def main():
+def main(num_workers):
     """
     The main render script.
     """
-
     # 1. Load the blacklist.
     blacklist = set(numpy.loadtxt(BLACKLIST_PATH, dtype=numpy.str).tolist())
 
@@ -548,11 +547,10 @@ def main():
     if E('errors.txt'):
         os.remove('errors.txt')
     try:
-        numW = int(sys.argv[1]) if len(sys.argv) > 1 else 2
 
         multiprocessing.freeze_support()
-        with multiprocessing.Pool(numW, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
-            manager = ThreadManager(multiprocessing.Manager(), numW, 1, 1)
+        with multiprocessing.Pool(num_workers, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
+            manager = ThreadManager(multiprocessing.Manager(), num_workers, 1, 1)
             func = functools.partial(_gen_sarsa_pairs, DATA_DIR, manager)
             numSegments = list(
                 tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1,
@@ -561,7 +559,7 @@ def main():
             # for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
             #     numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
     except Exception as e:
-        print('\n' * numW)
+        print('\n' * num_workers)
         print("Exception in pool: ", type(e), e)
         print('Rendered {} new segments in total!'.format(sum(numSegments)))
         if E('errors.txt'):
@@ -571,7 +569,7 @@ def main():
 
     numSegmentsRendered = sum(numSegments)
 
-    print('\n' * numW)
+    print('\n' * num_workers)
     print('Rendered {} new segments in total!'.format(numSegmentsRendered))
     if E('errors.txt'):
         print('Errors:')
@@ -579,4 +577,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    numW = int(sys.argv[1]) if len(sys.argv) > 1 else 2
+    main(numW)
