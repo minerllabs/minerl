@@ -11,7 +11,7 @@ J = os.path.join
 def partition_streams(rank, size):
     stream_list = list(set(get_stream_prefix(o.key) for o in bucket.objects.iterator()))
     stream_list.sort()
-    my_streams = stream_list[rank::size]
+    my_streams = stream_list[rank::size][:2]
     return my_streams
 
 def download_stream(stream_prefix):

@@ -237,10 +237,12 @@ def main():
     merge(opts.num_workers)
 
 def merge(num_workers):
+    os.makedirs(WORKING_DIR, exist_ok=True)
+    os.makedirs(DOWNLOADED_DIR, exist_ok=True)
+    os.makedirs(TEMP_ROOT, exist_ok=True)
     assert E(WORKING_DIR), "No output directory created! {}".format(WORKING_DIR)
     assert E(DOWNLOADED_DIR), "No download directory! Be sure to have the downloaded files prepared:\n\t{}".format(
         DOWNLOADED_DIR)
-    os.makedirs(TEMP_ROOT, exist_ok=True)
 
     if not E(BLACKLIST_TXT):
         touch(BLACKLIST_TXT)
@@ -263,7 +265,7 @@ def merge(num_workers):
     if not files_to_merge:
         return
 
-    with multiprocessing.Pool(max(opts.num_workers, 1), tqdm.tqdm.set_lock,
+    with multiprocessing.Pool(max(num_workers, 1), tqdm.tqdm.set_lock,
                               initargs=(multiprocessing.RLock(),)) as pool:
         timings = list(tqdm.tqdm(
             pool.imap_unordered(merge_stream, files_to_merge),
