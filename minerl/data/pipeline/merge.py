@@ -234,7 +234,9 @@ def main():
     parser = argparse.ArgumentParser('Merge Script')
     parser.add_argument('num_workers', type=int, help='Number of parallel workers.')
     opts = parser.parse_args()
+    merge(opts.num_workers)
 
+def merge(num_workers):
     assert E(WORKING_DIR), "No output directory created! {}".format(WORKING_DIR)
     assert E(DOWNLOADED_DIR), "No download directory! Be sure to have the downloaded files prepared:\n\t{}".format(
         DOWNLOADED_DIR)
