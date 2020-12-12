@@ -393,7 +393,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         else:
                             # Add change if winner
                             try:
-                                if len(metadata['server_metadata']['winners']) > 0:
+                                if 'winners' in metadata['server_metadata'] and len(metadata['server_metadata']['winners']) > 0:
                                     adjust(univ_json, str(meta['tick']))
                             except (KeyError, TypeError) as e:
                                 traceback.print_exc()
