@@ -11,7 +11,7 @@ J = os.path.join
 def partition_streams(rank, size):
     stream_list = list(set(get_stream_prefix(o.key) for o in bucket.objects.iterator()))
     stream_list.sort()
-    my_streams = stream_list[rank:size:]
+    my_streams = stream_list[rank::size]
     return my_streams
 
 def download_stream(stream_prefix):
@@ -20,7 +20,7 @@ def download_stream(stream_prefix):
     stream_pieces = bucket.objects.filter(Prefix=stream_prefix)
     for p in stream_pieces:
         file_path = key_to_local_path(p.key)
-        os.mkdir(os.dirname(file_path), exists_ok=True)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
         client.download_file(BUCKET_NAME, p.key, file_path)
 
 def download_streams(stream_prefixes, n_workers=4):
@@ -36,7 +36,7 @@ def get_stream_name(key):
     return get_stream_prefix(key).split('/')[-1]
 
 def key_to_local_path(key):
-    return J(DOWNLOAD_DIR, '/'.join(key.split('/')[1:]))
+    return J(DOWNLOAD_DIR, key)
 
 
 def download_partition():

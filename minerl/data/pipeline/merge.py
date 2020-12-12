@@ -238,6 +238,7 @@ def main():
     assert E(WORKING_DIR), "No output directory created! {}".format(WORKING_DIR)
     assert E(DOWNLOADED_DIR), "No download directory! Be sure to have the downloaded files prepared:\n\t{}".format(
         DOWNLOADED_DIR)
+    os.makedirs(TEMP_ROOT, exist_ok=True)
 
     if not E(BLACKLIST_TXT):
         touch(BLACKLIST_TXT)
