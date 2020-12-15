@@ -2098,7 +2098,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 return;
             }
 
-            // Perhaps the race condition could be that synchronous is then set to false when the quit command is recieved!
+            // Perhaps the race condition could be that synchronous is then set to false when the quit command is received!
             if(synchronous && phase == Phase.START){
                 checkForControlCommand();
             }
@@ -2473,8 +2473,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // TODO: WE HAVE TO MOVE THIS TO THE onMISSIONENDED of Client Mission
                 // BECAUSE IT WOULD TAKE AN EXTRA TICK TO HAVE THIS APPEAR PROPERLY.
                 // THIS MOVE IS INCOMPATIBLE WITH MULTIPLE AGENTS AND REWARD DISTRIBUTION
-                // A PROPER REHAUL OF THE WHOLE SIMULATOR TO SUPPROT SYNCHRONOUS TICKING
-                // ACCROSS MULTIPLE AGENTS AND A STATE MACHINE WHOSE STATE CHANGES INDEPENDENT
+                // A PROPER REHAUL OF THE WHOLE SIMULATOR TO SUPPORT SYNCHRONOUS TICKING
+                // ACROSS MULTIPLE AGENTS AND A STATE MACHINE WHOSE STATE CHANGES INDEPENDENT
                 // OF CLIENT TICKS IS REQUIRED.
                 // if (!ClientStateMachine.this.finalReward.isEmpty())
                 // {
