@@ -25,17 +25,14 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
+import com.microsoft.Malmo.Schemas.*;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -49,6 +46,7 @@ import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -57,6 +55,7 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.stats.StatisticsManagerServer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.GameType;
@@ -88,19 +87,7 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IVideoProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.MissionHandlers.MissionBehaviour;
 import com.microsoft.Malmo.MissionHandlers.MultidimensionalReward;
-import com.microsoft.Malmo.Schemas.AgentSection;
-import com.microsoft.Malmo.Schemas.AgentStart;
-import com.microsoft.Malmo.Schemas.ClientAgentConnection;
-import com.microsoft.Malmo.Schemas.MinecraftServerConnection;
-import com.microsoft.Malmo.Schemas.Mission;
-import com.microsoft.Malmo.Schemas.MissionDiagnostics;
-import com.microsoft.Malmo.Schemas.MissionEnded;
-import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Schemas.MissionResult;
-import com.microsoft.Malmo.Schemas.Reward;
 import com.microsoft.Malmo.Schemas.ServerSection.HumanInteraction;
-import com.microsoft.Malmo.Schemas.ModSettings;
-import com.microsoft.Malmo.Schemas.PosAndDirection;
 import com.microsoft.Malmo.Utils.AddressHelper;
 import com.microsoft.Malmo.Utils.AuthenticationHelper;
 import com.microsoft.Malmo.Utils.SchemaHelper;
@@ -1852,6 +1839,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Open our communication channels:
             openSockets();
 
+            // Reset our statistics
+            if (Minecraft.getMinecraft().getIntegratedServer() != null){
+                for (EntityPlayerMP player : Minecraft.getMinecraft().getIntegratedServer().getPlayerList().playerEntityList) {
+                    StatisticsManagerServer sfw = Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerStatsFile(player);
+                    sfw.readStatFile();
+                }
+            }
+
             this.serverWantsToEndMission = false;
             // Tell the server we have started:
             HashMap<String, String> map = new HashMap<String, String>();
@@ -1908,10 +1903,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     TimeHelper.frameSkip = modsettings.getFrameSkip();
             }
             TimeHelper.unpause();
-            
 
-            // smelting recipes with regular coal (standard recipes produce coal with damage
-            // 1 - unclear why
+            // smelting recipes with regular coal (standard recipes produce coal:1 or charcoal)
             removeSmeltingRecipe(Blocks.LOG);
             removeSmeltingRecipe(Blocks.LOG2);
             // TODO: Move this somewhere else. This is the wrong place.

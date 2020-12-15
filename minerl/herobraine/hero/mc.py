@@ -521,6 +521,8 @@ mc_constants_file = os.path.join(
 all_data = json.load(open(mc_constants_file))
 
 ALL_ITEMS = [item["type"] for item in all_data["items"]]
+ALL_STATS = [stat["statID"] for stat in all_data["stats"]]
+ALL_STAT_KEYS = [stat["minerl_keys"] for stat in all_data["stats"]]
 
 # We choose these not to be included by default; they are not items.
 NONE = "none"
@@ -638,6 +640,20 @@ ALL_SMELTING_ITEMS = [
                          if item["type"] in SMELTING_RECIPES_BY_OUTPUT.keys()
                             and len(SMELTING_RECIPES_BY_OUTPUT[item["type"]]) > 0
                      ]
+
+EQUIPMENT_SLOTS = [
+    "mainhand",
+    "offhand",
+    "feet",
+    "legs",
+    "chest",
+    "head",
+]
+
+BEST_ITEMS_PER_EQUIPMENT_SLOT = {
+    equip: [item["type"] for item in all_data["items"] if item["bestEquipmentSlot"] == equip] for equip in EQUIPMENT_SLOTS
+}
+
 
 MS_PER_STEP = 50
 STEPS_PER_MS = 1 / 50

@@ -421,23 +421,23 @@
             </xs:appinfo>
         </xs:annotation>
         <xs:all>
-            <xs:element ref="ObservationFromRecentCommands" minOccurs="0"/>
-            <xs:element ref="ObservationFromEquippedItem" minOccurs="0"/>
-            <xs:element ref="ObservationFromHotBar" minOccurs="0"/>
-            <xs:element ref="ObservationFromFullStats" minOccurs="0"/>
             <xs:element ref="ObservationFromAchievements" minOccurs="0"/>
-            <xs:element ref="ObservationFromFullInventory" minOccurs="0"/>
-            <xs:element ref="ObservationFromSubgoalPositionList" minOccurs="0"/>
-            <xs:element ref="ObservationFromGrid" minOccurs="0"/>
-            <xs:element ref="ObservationFromDistance" minOccurs="0"/>
-            <xs:element ref="ObservationFromDiscreteCell" minOccurs="0"/>
             <xs:element ref="ObservationFromChat" minOccurs="0"/>
+            <xs:element ref="ObservationFromCompass" minOccurs="0"/>
+            <xs:element ref="ObservationFromDiscreteCell" minOccurs="0"/>
+            <xs:element ref="ObservationFromDistance" minOccurs="0"/>
+            <xs:element ref="ObservationFromEquippedItem" minOccurs="0"/>
+            <xs:element ref="ObservationFromFullInventory" minOccurs="0"/>
+            <xs:element ref="ObservationFromFullStats" minOccurs="0"/>
+            <xs:element ref="ObservationFromGrid" minOccurs="0"/>
+            <xs:element ref="ObservationFromHotBar" minOccurs="0"/>
+            <xs:element ref="ObservationFromHuman" minOccurs="0"/>
             <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
             <xs:element ref="ObservationFromRay" minOccurs="0"/>
-            <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
-            <xs:element ref="ObservationFromHuman" minOccurs="0"/>
+            <xs:element ref="ObservationFromRecentCommands" minOccurs="0"/>
+            <xs:element ref="ObservationFromSubgoalPositionList" minOccurs="0"/>
             <xs:element ref="ObservationFromSystem" minOccurs="0"/>
-            <xs:element ref="ObservationFromCompass" minOccurs="0"/>
+            <xs:element ref="ObservationFromTurnScheduler" minOccurs="0"/>
 
             <xs:element ref="VideoProducer" minOccurs="0"/>
             <xs:element ref="DepthProducer" minOccurs="0"/>

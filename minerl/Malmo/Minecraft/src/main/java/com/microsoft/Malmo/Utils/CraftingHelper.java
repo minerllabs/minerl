@@ -32,10 +32,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.common.base.CaseFormat;
+import com.google.gson.*;
 import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
 import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
 
@@ -48,32 +46,29 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.creativetab.CreativeTabs;
+
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.inventory.SlotCrafting;
 import net.minecraft.item.*;
 import net.minecraft.item.crafting.*;
+import net.minecraft.stats.Achievement;
 import net.minecraft.stats.AchievementList;
+import net.minecraft.stats.StatBase;
+import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import scala.actors.threadpool.Arrays;
 
 public class CraftingHelper {
     private static Map<EntityPlayerMP, Integer> fuelCaches = new HashMap<EntityPlayerMP, Integer>();
@@ -675,6 +670,7 @@ public class CraftingHelper {
                 json.addProperty("maxUseDuration", is.getMaxItemUseDuration());
                 json.addProperty("block", item instanceof ItemBlock);
                 json.addProperty("hasContainerItem", item.hasContainerItem());
+                json.addProperty("bestEquipmentSlot", EntityLiving.getSlotForItemStack(is).getName());
                 if (item instanceof ItemBlock) {
                     ItemBlock ib = (ItemBlock) item;
                     Block b = ib.getBlock();
@@ -721,7 +717,7 @@ public class CraftingHelper {
     }
 
     /**
-     * Little utility method for gejerating a json array of all of the Minecraft blocks
+     * Little utility method for generating a json array of all of the Minecraft blocks
      */
     public static JsonArray generateBlockJson(){
         JsonArray blocks = new JsonArray();
@@ -740,6 +736,54 @@ public class CraftingHelper {
         }
         return blocks;
     }
+
+    /**
+     * Little utility method for generating a json array of all of the Minecraft achievements
+     */
+    public static JsonArray generateAchievements(){
+        JsonArray achievements = new JsonArray();
+        for (Achievement achievement : AchievementList.ACHIEVEMENTS) {
+            JsonObject json = new JsonObject();
+            json.addProperty("statID", achievement.statId);
+            if (achievement.parentAchievement != null && achievement.parentAchievement.statId != null)
+                json.addProperty("parentStatID", achievement.parentAchievement.statId);
+            json.addProperty("isIndependent", achievement.isIndependent);
+            json.addProperty("displayColumn", achievement.displayColumn);
+            json.addProperty("displayRow", achievement.displayRow);
+            json.addProperty("isSpecial", achievement.getSpecial());
+            json.addProperty("description", achievement.getDescription());
+
+            achievements.add(json);
+        }
+        return achievements;
+    }
+
+
+    /**
+     * Little utility method for generating a json array of all of the Minecraft base stats
+     */
+    public static JsonArray generateStats(){
+        JsonArray stats = new JsonArray();
+        for (StatBase stat : StatList.ALL_STATS) {
+            JsonObject json = new JsonObject();
+            json.addProperty("statID", stat.statId);
+            JsonArray tokens = new JsonArray();
+            for (String token : stat.statId.split("\\.")){
+                // BAH map drop stat to items_dropped to prevent hash collision in dict keys
+                // MUST change this in JSONWorldDataHelper.java as well!!!! (search above comment)
+                if (token.equals(stat.statId.split("\\.")[stat.statId.split("\\.").length - 1]))
+                    if (token.equals("drop"))
+                        token = "items_dropped";
+                tokens.add(new JsonPrimitive(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, token)));
+            }
+            json.add("minerl_keys", tokens);
+            json.addProperty("isIndependent", stat.isIndependent);
+            json.addProperty("isAchievement",stat.isAchievement());
+            stats.add(json);
+        }
+        return stats;
+    }
+
 
     /**
      * Little utility method for generating a json array of all of the Minecraft crafting recipes
@@ -803,12 +847,14 @@ public class CraftingHelper {
         JsonObject allRecipes = new JsonObject();
         allRecipes.addProperty("docstring", "THIS IS AN AUTO GENERATED FILE! This file was generated by " +
                 "com.microsoft.Malmo.Utils.CraftingHelper.dumpMinecraftObjectRules(). Generate this file by " +
-                "launching Malmo and pressing the ENTER key (see MalmoModClient.java) or by adding the following to " +
+                "launching Malmo and pressing the 'u' key (see MalmoModClient.java) or by adding the following to " +
                 "MixinMinecraftServerRun.java: CraftingHelper.dumpMinecraftObjectRules(\"/full/path/mc_constants.json\");");
         allRecipes.add("craftingRecipes", generateCraftingRecipeJson());
         allRecipes.add("smeltingRecipes", generateSmeltingRecipeJson());
         allRecipes.add("items", generateItemJson());
         allRecipes.add("blocks", generateBlockJson());
+        allRecipes.add("achievements", generateAchievements());
+        allRecipes.add("stats", generateStats());
         try {
             Writer writer = new FileWriter(filename);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();

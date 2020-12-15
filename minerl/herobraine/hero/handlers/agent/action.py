@@ -63,7 +63,7 @@ class Action(TranslationHandler):
 class ItemListAction(Action):
     """
     An action handler based on a list of items
-    The action space is determiend by the length of the list plus one
+    The action space is determined by the length of the list plus one
     """
 
     def from_hero(self, x: typing.Dict[str, Any]):

@@ -11,7 +11,9 @@
     "MixinWorldProviderSpawn",
     "MixinKeyboard",
     "MixinMouse", 
-    "MixinDisplay"
+    "MixinDisplay",
+    "MixinSyncClientStats",
+    "MixinWorldProviderSpawn"
   ],
   "server": [
   ],

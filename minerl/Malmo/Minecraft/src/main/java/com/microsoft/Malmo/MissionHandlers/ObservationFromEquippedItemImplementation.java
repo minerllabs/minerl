@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -15,6 +16,8 @@ import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.JSONWorldDataHelper;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+
+import java.util.List;
 
 /**
  * Simple IObservationProducer object that pings out a whole bunch of data.<br>
@@ -31,14 +34,12 @@ public class ObservationFromEquippedItemImplementation extends HandlerBase imple
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        JsonObject equippedItems = new JsonObject();
-        ItemStack mainItem = player.getHeldItemMainhand();
-        ItemStack offhandItem = player.getHeldItemOffhand();
-        
-        equippedItems.add("mainhand", getInventoryJson(mainItem));
-        equippedItems.add("offhand", getInventoryJson(offhandItem));
-
-        json.add("equipped_items", equippedItems);
+        JsonObject equipment = new JsonObject();
+        for(EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+            equipment.add(slot.getName(), getInventoryJson(player.getItemStackFromSlot(slot)));
+        }
+       
+        json.add("equipped_items", equipment);
     }
 
     public static JsonObject getInventoryJson(ItemStack itemToAdd){

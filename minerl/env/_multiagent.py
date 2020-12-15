@@ -552,8 +552,8 @@ class _MultiAgentEnv(gym.Env):
             with ThreadPoolExecutor(max_workers=num_instances_to_start) as tpe:
                 for _ in range(num_instances_to_start):
                     instance_futures.append(tpe.submit(self._get_new_instance))
-        self.instances.extend([f.result() for f in instance_futures])
-        self.instances = self.instances[:self.task.agent_count]
+            self.instances.extend([f.result() for f in instance_futures])
+            self.instances = self.instances[:self.task.agent_count]
 
         # Now let's clean and establish new socket connections.
         # Note: it is important that all clients are informed of the episode end BEFORE the
@@ -747,7 +747,7 @@ class _MultiAgentEnv(gym.Env):
             self._TO_MOVE_hello(sock)
 
             instance.client_socket = sock
-        except (socket.timeout, socket.error) as e:
+        except (socket.timeout, socket.error, ConnectionRefusedError) as e:
             instance.had_to_clean = True
             logger.error("Failed to reset (socket error), trying again!")
             logger.error("Cleaning connection! Something must have gone wrong.")
@@ -819,3 +819,6 @@ class _MultiAgentEnv(gym.Env):
 
     def _get_token(self, role, ep_uid: str):
         return ep_uid + ":" + str(role) + ":" + str(0)  # resets
+
+    def _clean_connection(self):
+        pass

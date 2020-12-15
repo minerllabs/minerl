@@ -7,17 +7,17 @@ import minerl.herobraine.hero.mc as mc
 import minerl.herobraine.hero.spaces as spaces
 import numpy as np
 
-__all__ = ['ObservationFromFullStats']
+__all__ = ['ObservationFromLifeStats']
 
 
-class ObservationFromFullStats(TranslationHandlerGroup):
-    """Groups all of thhe lifestats observations together to correspond to one XML element.."""
+class ObservationFromLifeStats(TranslationHandlerGroup):
+    """Groups all of the lifestats observations together to correspond to one XML element.."""
 
     def to_string(self) -> str:
-        return "fullStats"
+        return "life_stats"
 
     def __init__(self):
-        super(ObservationFromFullStats, self).__init__(
+        super(ObservationFromLifeStats, self).__init__(
             handlers=[
                 _IsAliveObservation(),
                 _LifeObservation(),
