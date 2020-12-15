@@ -14,6 +14,7 @@ def partition_streams(rank, size):
     my_streams = stream_list[rank::size]
     return my_streams
 
+
 def download_stream(stream_prefix):
     print(f"Downloading stream {stream_prefix}")
     client = boto3.client('s3')
@@ -46,7 +47,8 @@ def download_partition_mpi():
     download_partition(rank, size)
 
 def download_partition(rank, size):
-    prefixes = partition_streams(rank, size)
+    print(f" *** Render worker {rank} out of {size} ***")
+    prefixes = partition_streams(rank, size)[2:4]
     download_streams(prefixes)
 
 
