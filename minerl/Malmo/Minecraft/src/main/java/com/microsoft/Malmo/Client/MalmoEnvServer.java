@@ -91,7 +91,7 @@ public class MalmoEnvServer implements IWantToQuit {
     private EnvState envState = new EnvState();
     private EnvState previousEnvState = null;
 
-    private boolean shouldUsePreviousEnvState = true;
+    private boolean shouldUsePreviousEnvState = false;
 
     private Hashtable<String, Integer> initTokens = new Hashtable<String, Integer>();
 
@@ -476,8 +476,8 @@ public class MalmoEnvServer implements IWantToQuit {
             profiler.endSection(); //cmd
             profiler.startSection("clientTick");
 
-            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Received: " + actions);
-            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Requesting tick.");
+             TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Received: " + actions);
+             TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Requesting tick. Should use previous env state: " Boolean.toString(shouldUsePreviousEnvState));
             // Now wait to run a tick
 
             // If synchronous mode is off then we should see if want to quit is true.
@@ -486,16 +486,21 @@ public class MalmoEnvServer implements IWantToQuit {
 
             if (shouldUsePreviousEnvState && previousEnvState != null) {
                 envState = previousEnvState;
+                envState.done = true;
             }
             shouldUsePreviousEnvState = false;
 
-            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> TICK DONE.  Getting observation.");
+             TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> TICK DONE.  Getting observation.");
             profiler.endSection();
             profiler.startSection("getObservation");
             // After which, get the observations.
             obs = getObservation(done);
 
-            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Observation received. Getting info.");
+            TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Observation received. Getting info.");
+             if (obs == null) {
+                 TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Observation IS NULL. WTF??????");
+
+             }
 
             profiler.endSection();
             profiler.startSection("getInfo");
@@ -504,15 +509,15 @@ public class MalmoEnvServer implements IWantToQuit {
             reward = envState.reward;
             if (withInfo) {
                 info = envState.info;
-                // if(info == null)
-                // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING INFO: NULL");
-                // else
-                // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING " + info.toString());
+                 if(info == null)
+                 TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING INFO: NULL");
+                 else
+                 TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING " + info.toString());
 
             }
             done = envState.done;
 
-            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> STATUS " + Boolean.toString(done));
+             TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> STATUS " + Boolean.toString(done));
 
             // if done, desynchronize the environment!
             if (done) {
@@ -540,7 +545,7 @@ public class MalmoEnvServer implements IWantToQuit {
             envState.obs = null;
             envState.reward = 0.0;
 
-            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Info received..");
+             TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Info received..");
             profiler.endSection();
         } finally {
             lock.unlock();
@@ -942,6 +947,7 @@ public class MalmoEnvServer implements IWantToQuit {
     public void addFrame(byte[] frame) {
         // lock.lock();
         try {
+            TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] Adding Frame.");
             envState.obs = frame; // Replaces current.
             // System.out.println("[ERROR] ADD FRAME, " + (frame == null) + ", sync " + TimeHelper.SyncManager.isSynchronous() );
             // cond.signalAll();

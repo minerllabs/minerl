@@ -1941,6 +1941,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         protected void onMissionEnded(IState nextState, String errorReport, boolean worldStillExists)
         {
             //Send the final data associated with the misson here.
+            TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE] Mission ended for reason: " + errorReport + " world still exists: " Boolean.toString(worldStillExists));
             this.serverWantsToEndMission = false;
             sendData(true, worldStillExists);  // Should be sending previous data?
 
