@@ -1936,11 +1936,15 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
         }
 
-        protected void onMissionEnded(IState nextState, String errorReport)
+        protected void onMissionEnded(IState nextState, String errorReport) {
+            onMissionEnded(nextState, errorReport, true);
+        }
+
+        protected void onMissionEnded(IState nextState, String errorReport, boolean worldStillExists)
         {
             //Send the final data associated with the misson here.
             this.serverWantsToEndMission = false;
-            sendData(true);  // Should be sending previous data?
+            sendData(true, worldStillExists);  // Should be sending previous data?
 
             // Tidy up our mission handlers:
             if (currentMissionBehaviour().rewardProducer != null)
@@ -2024,7 +2028,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             if(npc == null){  // TODO: Make this only happen at start phase
                 // TODO: make a quick hack to make npc = null to simulate this bug
                 if(this.serverHasFiredStartingPistol){
-                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Server was closed");
+                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Server was closed", false);
                     return;
                 }
             }
@@ -2185,7 +2189,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             this.rewardSocket.close();
         }
 
-        private void sendData(boolean done) // TODO: pass that the world is terminated, then deal with that
+        private void sendData(boolean done) {
+            sendData(done, true);
+        }
+
+        private void sendData(boolean done, boolean worldstillExists) // TODO: pass that the world is terminated, then deal with that
         {
             TCPUtils.LogSection ls = new TCPUtils.LogSection("Sending data");
 
@@ -2193,6 +2201,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Create the observation data:
             String data = "";
             Minecraft.getMinecraft().mcProfiler.startSection("malmoGatherObservationJSON");
+
+            if (!worldstillExists) {
+                if (envServer != null) {
+                    envServer.usePreviousState();
+                }
+                return;
+            }
 
             // Maybe ignore this if world is terminated
             // if world terminated, envserver.filllastobservation
@@ -2212,7 +2227,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE INFO] " + Integer.toString(AddressHelper.getMissionControlPort()));
                 if (AddressHelper.getMissionControlPort() == 0) {
                     if (envServer != null) {
-                        // TODO wierd, aren't we doing this? 
+                        // TODO wierd, aren't we doing this?
                         envServer.observation(data);
                     }
                 } else {
