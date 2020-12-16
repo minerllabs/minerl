@@ -139,8 +139,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
     long reservationExpirationTime = 0;
     private TCPSocketChannel missionControlSocket;
 
-    private int tickcount = 0;
-
     private void reserveClient(String id)
     {
         synchronized(this.reservationID)
@@ -2011,7 +2009,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         public void onSyncTick(SyncTickEvent ev){
             // If we are performing synchronous ticking
-            tickcount += 1;
             onTick(true, ev.pos);
         }
 
@@ -2022,9 +2019,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
             // Check to see whether we've been kicked from the server.
             NetHandlerPlayClient npc = Minecraft.getMinecraft().getConnection();
-            if (tickcount == 450) {
-                npc = null;
-            }
             if(npc == null){  // TODO: Make this only happen at start phase
                 // TODO: make a quick hack to make npc = null to simulate this bug
                 if(this.serverHasFiredStartingPistol){
