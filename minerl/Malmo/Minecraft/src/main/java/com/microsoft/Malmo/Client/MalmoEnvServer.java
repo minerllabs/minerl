@@ -91,6 +91,8 @@ public class MalmoEnvServer implements IWantToQuit {
     private EnvState envState = new EnvState();
     private EnvState previousEnvState = null;
 
+    private boolean shouldUsePreviousEnvState = true;
+
     private Hashtable<String, Integer> initTokens = new Hashtable<String, Integer>();
 
     static final long COND_WAIT_SECONDS = 3; // Max wait in seconds before timing out (and replying to RPC).
@@ -482,6 +484,10 @@ public class MalmoEnvServer implements IWantToQuit {
             if(!done) 
                 TimeHelper.SyncManager.clientTick.requestAndWait();
 
+            if (shouldUsePreviousEnvState && previousEnvState != null) {
+                envState = previousEnvState;
+            }
+            shouldUsePreviousEnvState = false;
 
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> TICK DONE.  Getting observation.");
             profiler.endSection();
@@ -908,9 +914,7 @@ public class MalmoEnvServer implements IWantToQuit {
     }
 
     public void usePreviousState() {
-        if (previousEnvState != null) {
-            envState = previousEnvState;
-        }
+        shouldUsePreviousEnvState = true;
     }
 
     // Record a Malmo "observation" json - as the env info since an environment "obs" is a video frame.
