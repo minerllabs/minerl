@@ -477,7 +477,7 @@ public class MalmoEnvServer implements IWantToQuit {
             profiler.startSection("clientTick");
 
              TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Received: " + actions);
-             TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Requesting tick. Should use previous env state: " Boolean.toString(shouldUsePreviousEnvState));
+             TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Requesting tick. Should use previous env state: " + Boolean.toString(shouldUsePreviousEnvState));
             // Now wait to run a tick
 
             // If synchronous mode is off then we should see if want to quit is true.
