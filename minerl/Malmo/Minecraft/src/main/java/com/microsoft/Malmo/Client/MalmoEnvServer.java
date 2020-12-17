@@ -512,7 +512,7 @@ public class MalmoEnvServer implements IWantToQuit {
                  if(info == null)
                  TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING INFO: NULL");
                  else
-                 TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING " + info.toString());
+                 TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING NONNULL");
 
             }
             done = envState.done;
