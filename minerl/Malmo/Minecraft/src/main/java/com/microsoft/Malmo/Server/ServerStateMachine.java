@@ -595,7 +595,7 @@ public class ServerStateMachine extends StateMachine
     public class WaitingForAgentsToQuitEpisode extends ErrorAwareEpisode implements MalmoMod.IMalmoMessageListener
     {
         private HashMap<String, Boolean> agentsStopped = new HashMap<String, Boolean>();
-        private Map<String, String>data data = null;
+        private Map<String, String> data = null;
 
         protected WaitingForAgentsToQuitEpisode(ServerStateMachine machine)
         {
