@@ -2116,7 +2116,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Check whether or not we want to quit:
                 IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
                 boolean quitHandlerFired = (quitHandler != null && quitHandler.doIWantToQuit(currentMissionInit()));
-                if (quitHandlerFired || this.wantsToQuit || this.playerDied || this.serverWantsToEndMission)
+                if (quitHandlerFired || this.wantsToQuit || this.serverWantsToEndMission)
                 {
                     if (quitHandlerFired)
                     {
