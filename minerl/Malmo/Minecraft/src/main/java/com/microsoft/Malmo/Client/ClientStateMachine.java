@@ -2148,11 +2148,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     if(this.serverWantsToEndMission){
                         onMissionEnded(ClientState.MISSION_ENDED, null);
                     } else{
+                        // If we terminated on our own accord go to idling
+                        onMissionEnded(ClientState.IDLING, null);
+
                         // TODO: ONE AGENT HARDCODED UID?
                         MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
-                        
-                        // If we terminated on our own accord go to idling 
-                        onMissionEnded(ClientState.IDLING, null);
                     }
                 }
                 else
