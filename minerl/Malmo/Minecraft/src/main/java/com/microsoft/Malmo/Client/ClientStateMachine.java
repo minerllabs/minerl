@@ -2027,7 +2027,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     return;
                 }
             }
-            else if (phase == && phase == Phase.START){
+            else if (phase == Phase.START){
                 NetworkManager netman = npc.getNetworkManager();
                 if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
                 {
