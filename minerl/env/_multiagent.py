@@ -786,7 +786,7 @@ class _MultiAgentEnv(gym.Env):
             reply = comms.recv_message(sock)
             port, = struct.unpack('!I', reply)
             tries += 1
-            time.sleep(0.1)
+            time.sleep(1)
         if port == 0:
             raise Exception("Failed to find master server port!")
         self.integratedServerPort = port  # should/can this even be cached?
