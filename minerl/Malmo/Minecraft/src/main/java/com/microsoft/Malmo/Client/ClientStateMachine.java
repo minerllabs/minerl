@@ -2020,19 +2020,19 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
             // Check to see whether we've been kicked from the server.
             NetHandlerPlayClient npc = Minecraft.getMinecraft().getConnection();
-            if(npc == null){  // TODO: Make this only happen at start phase
+            if(npc == null && phase == Phase.START){  // TODO: Make this only happen at start phase
                 // TODO: make a quick hack to make npc = null to simulate this bug
                 if(this.serverHasFiredStartingPistol){
                     onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Server was closed", false);
                     return;
                 }
             }
-            else{
+            else if (phase == && phase == Phase.START){
                 NetworkManager netman = npc.getNetworkManager();
                 if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
                 {
                     // Connection has been lost.
-                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - ");
+                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - ", false);
                 }
     
             }
