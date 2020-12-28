@@ -57,6 +57,7 @@ import net.minecraft.world.biome.Biome.SpawnListEntry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingSpawnEvent.CheckSpawn;
 import net.minecraftforge.event.world.WorldEvent.PotentialSpawns;
+import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -222,6 +223,27 @@ public class ServerStateMachine extends StateMachine
     {
         // Use the server tick to ensure we regularly update our state (from the server thread)
         updateState();
+    }
+
+    @SubscribeEvent
+    public void onGetBreakSpeed(BreakSpeed bs)
+    {
+        String agentname = bs.getEntityPlayer().getName();
+        if (currentMissionInit() != null && currentMissionInit().getMission() != null) {
+            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+            if (agents != null)
+            {
+                for (AgentSection ascandidate : agents)
+                {
+                    if (ascandidate.getName().equals(agentname)) {
+                        Float mul = ascandidate.getAgentStart().getBreakSpeedMultiplier();
+                        if (mul != null) {
+                            bs.setNewSpeed(bs.getNewSpeed() * mul);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /** Called by Forge - call setCanceled(true) to prevent spawning in our world.*/
