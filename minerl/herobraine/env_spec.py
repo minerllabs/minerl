@@ -293,7 +293,7 @@ class EnvSpec(abc.ABC):
             return ''
 
         # TODO: RAISE VALID XML ERROR. FOR EASE OF USE
-        trees = [etree.fromstring(xml) for xml in handler_xml_strs]
+        trees = [etree.fromstring(xml) for xml in handler_xml_strs if xml != '']
         consolidated_trees = {tree.tag: tree for tree in trees}.values()
 
         return [etree.tostring(t, pretty_print=True).decode('utf-8')
