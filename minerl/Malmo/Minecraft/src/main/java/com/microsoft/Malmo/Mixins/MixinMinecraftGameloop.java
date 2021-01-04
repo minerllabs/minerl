@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
 
+import com.microsoft.Malmo.Client.FakeMouse;
 import org.lwjgl.opengl.Display;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -35,6 +36,7 @@ import net.minecraft.util.Util;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import scala.collection.parallel.ParIterableLike;
 
 @Mixin(Minecraft.class) 
 public abstract class MixinMinecraftGameloop {
@@ -185,6 +187,7 @@ public abstract class MixinMinecraftGameloop {
             net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickStart(this.timer.renderPartialTicks);
             this.mcProfiler.endStartSection("gameRenderer");
             this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks, i);
+            Minecraft mc = Minecraft.getMinecraft();
             MinecraftForge.EVENT_BUS.post(new PostRenderEvent(this.timer.renderPartialTicks));
             this.mcProfiler.endSection();
             net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickEnd(this.timer.renderPartialTicks);

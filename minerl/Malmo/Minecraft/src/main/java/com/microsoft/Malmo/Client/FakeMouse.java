@@ -1,5 +1,21 @@
 package com.microsoft.Malmo.Client;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.FolderResourcePack;
+import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.SimpleReloadableResourceManager;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.ModelLoader;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -16,6 +32,9 @@ public class FakeMouse {
     private static Set<Integer> pressedButtons = new HashSet<Integer>();
 
     private static boolean grabbed = false;
+
+    private static FakeMouseCursor cursor = new FakeMouseCursor();
+
 
     public static class FakeMouseEvent {
         private int button;
@@ -155,6 +174,7 @@ public class FakeMouse {
     public static boolean isGrabbed() {
         return grabbed;
     }
+
 
 
 }

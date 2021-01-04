@@ -34,7 +34,7 @@ def get_stream_prefix(key):
     return '-'.join(key.split('-')[:2])
 
 def get_stream_name(key):
-    return get_stream_prefix(key).split('/')[-1]
+    return get_stream_prefix(key).split('/')[-1].replace("player_stream_","")
 
 def key_to_local_path(key):
     return J(DOWNLOAD_DIR, key)
