@@ -1934,11 +1934,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
         }
 
-        protected void onMissionEnded(IState nextState, String errorReport)
+        protected void onMissionEnded(IState nextState, String errorReport) {
+            onMissionEnded(nextState, errorReport, true);
+        }
+
+        protected void onMissionEnded(IState nextState, String errorReport, boolean worldStillExists)
         {
             //Send the final data associated with the misson here.
+            TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE] Mission ended for reason: " + errorReport + " world still exists: " + Boolean.toString(worldStillExists));
             this.serverWantsToEndMission = false;
-            sendData(true);
+            sendData(true, worldStillExists);
 
             // Tidy up our mission handlers:
             if (currentMissionBehaviour().rewardProducer != null)
@@ -2014,18 +2019,18 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 onMissionEnded(ClientState.MISSION_ABORTED, "Mission was aborted by server: " + ClientStateMachine.this.getErrorDetails());
             // Check to see whether we've been kicked from the server.
             NetHandlerPlayClient npc = Minecraft.getMinecraft().getConnection();
-            if(npc == null){
+            if(npc == null && phase == Phase.START){
                 if(this.serverHasFiredStartingPistol){
-                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Server was closed");
+                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Server was closed", false);
                     return;
-                }                
+                }
             }
-            else{
+            else if (phase == Phase.START){
                 NetworkManager netman = npc.getNetworkManager();
                 if (netman != null && !netman.hasNoChannel() && !netman.isChannelOpen())
                 {
                     // Connection has been lost.
-                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - ");
+                    onMissionEnded(ClientState.ERROR_LOST_NETWORK_CONNECTION, "Client was kicked from server - ", false);
                 }
     
             }
@@ -2098,7 +2103,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 return;
             }
 
-            // Perhaps the race condition could be that synchronous is then set to false when the quit command is recieved!
+            // Perhaps the race condition could be that synchronous is then set to false when the quit command is received!
             if(synchronous && phase == Phase.START){
                 checkForControlCommand();
             }
@@ -2109,7 +2114,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Check whether or not we want to quit:
                 IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
                 boolean quitHandlerFired = (quitHandler != null && quitHandler.doIWantToQuit(currentMissionInit()));
-                if (quitHandlerFired || this.wantsToQuit || this.playerDied || this.serverWantsToEndMission)
+                // Don't quit on death if there are multiple agents:
+                //   1/ Perhaps we want to continue with the surviving agents
+                //   2/ If we decide to quit without the other clients knowing, it can mess things up and cause crashes
+                boolean quitOnDeath = this.playerDied && currentMissionInit().getMission().getAgentSection().size() == 1;
+                if (quitHandlerFired || this.wantsToQuit || quitOnDeath || this.serverWantsToEndMission)
                 {
                     if (quitHandlerFired)
                     {
@@ -2141,11 +2150,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     if(this.serverWantsToEndMission){
                         onMissionEnded(ClientState.MISSION_ENDED, null);
                     } else{
+                        // If we terminated on our own accord go to idling
+                        onMissionEnded(ClientState.IDLING, null);
+
                         // TODO: ONE AGENT HARDCODED UID?
                         MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTFINISHEDMISSION, 0, map));
-                        
-                        // If we terminated on our own accord go to idling 
-                        onMissionEnded(ClientState.IDLING, null);
                     }
                 }
                 else
@@ -2177,7 +2186,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             this.rewardSocket.close();
         }
 
-        private void sendData(boolean done)
+        private void sendData(boolean done) {
+            sendData(done, true);
+        }
+
+        private void sendData(boolean done, boolean worldstillExists)
         {
             TCPUtils.LogSection ls = new TCPUtils.LogSection("Sending data");
 
@@ -2185,6 +2198,13 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Create the observation data:
             String data = "";
             Minecraft.getMinecraft().mcProfiler.startSection("malmoGatherObservationJSON");
+
+            if (!worldstillExists) {
+                if (envServer != null) {
+                    envServer.usePreviousState();
+                }
+                return;
+            }
 
             if (currentMissionBehaviour() != null && currentMissionBehaviour().observationProducer != null)
             {
@@ -2202,7 +2222,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE INFO] " + Integer.toString(AddressHelper.getMissionControlPort()));
                 if (AddressHelper.getMissionControlPort() == 0) {
                     if (envServer != null) {
-                        // TODO wierd, aren't we doing this? 
+                        // TODO weird, aren't we doing this?
                         envServer.observation(data);
                     }
                 } else {
@@ -2473,8 +2493,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // TODO: WE HAVE TO MOVE THIS TO THE onMISSIONENDED of Client Mission
                 // BECAUSE IT WOULD TAKE AN EXTRA TICK TO HAVE THIS APPEAR PROPERLY.
                 // THIS MOVE IS INCOMPATIBLE WITH MULTIPLE AGENTS AND REWARD DISTRIBUTION
-                // A PROPER REHAUL OF THE WHOLE SIMULATOR TO SUPPROT SYNCHRONOUS TICKING
-                // ACCROSS MULTIPLE AGENTS AND A STATE MACHINE WHOSE STATE CHANGES INDEPENDENT
+                // A PROPER REHAUL OF THE WHOLE SIMULATOR TO SUPPORT SYNCHRONOUS TICKING
+                // ACROSS MULTIPLE AGENTS AND A STATE MACHINE WHOSE STATE CHANGES INDEPENDENT
                 // OF CLIENT TICKS IS REQUIRED.
                 // if (!ClientStateMachine.this.finalReward.isEmpty())
                 // {

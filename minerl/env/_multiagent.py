@@ -326,10 +326,10 @@ class _MultiAgentEnv(gym.Env):
                         "the info dictionary returned by the step function."
                     )
                     return (
-                        self.observation_space.sample(),
-                        0,
+                        {agent: self.observation_space.sample() for agent in actions},
+                        {agent: 0 for agent in actions},
                         self.done,
-                        {"error": "Connection timed out!"},
+                        {agent: {"error": "Connection timed out!"} for agent in actions},
                     )
 
             # this will currently only consider the env done when all agents report done individually

@@ -594,6 +594,7 @@ public class ServerStateMachine extends StateMachine
     public class WaitingForAgentsToQuitEpisode extends ErrorAwareEpisode implements MalmoMod.IMalmoMessageListener
     {
         private HashMap<String, Boolean> agentsStopped = new HashMap<String, Boolean>();
+        private Map<String, String> data = null;
 
         protected WaitingForAgentsToQuitEpisode(ServerStateMachine machine)
         {
@@ -610,7 +611,7 @@ public class ServerStateMachine extends StateMachine
                 this.agentsStopped.put(as.getName(), false);
 
             // Now tell all the agents to stop what they are doing:
-            Map<String, String>data = new HashMap<String, String>();
+            data = new HashMap<String, String>();
             data.put("QuitCode", ServerStateMachine.this.quitCode);
             MalmoMod.safeSendToAll(MalmoMessageType.SERVER_STOPAGENTS, data);
         }
@@ -649,6 +650,9 @@ public class ServerStateMachine extends StateMachine
                 // to tell us it's finished its mission.
                 MalmoMod.safeSendToAll(MalmoMessageType.SERVER_ABORT);
                 episodeHasCompleted(ServerState.ERROR);
+            }
+            if (data != null) {
+                MalmoMod.safeSendToAll(MalmoMessageType.SERVER_STOPAGENTS, data);
             }
         }
     }

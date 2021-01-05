@@ -20,6 +20,9 @@
 package com.microsoft.Malmo;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Level;
 
 import net.minecraftforge.common.MinecraftForge;
@@ -38,31 +41,38 @@ abstract public class StateMachine
     private IState state;
 
     private EpisodeEventWrapper eventWrapper = null;
+    private final ReadWriteLock errorDetailsLock = new ReentrantReadWriteLock();
     private String errorDetails = "";
-	private Thread homeThread;
+	private final Thread homeThread;
 
     public void clearErrorDetails()
     {
-        synchronized (this.errorDetails)
-        {
+        try {
+            this.errorDetailsLock.writeLock().lock();
             this.errorDetails = "";
+        } finally {
+            this.errorDetailsLock.writeLock().unlock();
         }
     }
     
     public void saveErrorDetails(String error)
     {
-        synchronized (this.errorDetails)
-        {
+        try {
+            this.errorDetailsLock.writeLock().lock();
             this.errorDetails += error + "\n";
+        } finally {
+            this.errorDetailsLock.writeLock().unlock();
         }
     }
     
     public String getErrorDetails()
     {
         String ret = "";
-        synchronized (this.errorDetails)
-        {
+        try {
+            this.errorDetailsLock.readLock().lock();
             ret = this.errorDetails;
+        } finally {
+            this.errorDetailsLock.readLock().unlock();
         }
         return ret;
     }
@@ -71,7 +81,7 @@ abstract public class StateMachine
      * Should only be required for occasions where a thread other than the home thread instigated the change of state,
      * so we need to queue the state change and allow the home thread to act on it instead.
      */
-    private ArrayList<IState> stateQueue = new ArrayList<IState>();
+    private final ArrayList<IState> stateQueue = new ArrayList<IState>();
     
     public StateMachine(IState initialState)
     {

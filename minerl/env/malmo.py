@@ -446,7 +446,7 @@ class MinecraftInstance(object):
                     "Tried to launch Minecraft on port {} but that port was taken, instead Minecraft is using port {}.".format(
                         port, self.port))
 
-            # supress entire output, otherwise the subprocess will block
+            # suppress entire output, otherwise the subprocess will block
             # NB! there will be still logs under Malmo/Minecraft/run/logs
             # FNULL = open(os.devnull, 'w')
             # launch a logger process
