@@ -644,7 +644,8 @@ class _MultiAgentEnv(gym.Env):
                         instance.client_socket = None
                         raise MissionInitException(
                             'too long waiting for first observation')
-                    time.sleep(0.1)
+                    import random
+                    time.sleep(random.random() * 20)
                     # FIXME - shouldn't we error or retry here?
 
                 multi_obs[actor_name], _ = self._process_observation(actor_name, obs, info)
