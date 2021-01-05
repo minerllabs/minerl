@@ -107,7 +107,7 @@ else
 
     export GRADLE_USER_HOME=${runDir}/gradle
     cd $runDir
-    cmd="java -Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin -Xmx2G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -jar ../build/libs/MalmoMod-0.37.0-fat.jar"
+    cmd="java -Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin -Xmx8G -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Duser.variant -jar ../build/libs/MalmoMod-0.37.0-fat.jar"
 fi
 # If build/libs/MalmoMod-0.37.0-fat.jar does not exist change command to 'test'
 
