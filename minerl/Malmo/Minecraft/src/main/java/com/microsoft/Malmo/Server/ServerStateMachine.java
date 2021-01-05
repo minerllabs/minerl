@@ -45,6 +45,7 @@ import net.minecraft.launchwrapper.Launch;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerList;
 import net.minecraft.util.FoodStats;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
@@ -669,6 +670,9 @@ public class ServerStateMachine extends StateMachine
         // Map used to build turn schedule for turn-based agents.
         private Map<Integer, String> userTurnScheduleMap = new HashMap<Integer, String>();
 
+        // List of which agent to start near which other agent.
+        private ArrayList<Tuple<EntityPlayerMP, NearPlayer> > playerToStartNearPlayer = new ArrayList<Tuple<EntityPlayerMP, NearPlayer> >();
+
         protected WaitingForAgentsEpisode(ServerStateMachine machine)
         {
             super(machine);
@@ -893,7 +897,7 @@ public class ServerStateMachine extends StateMachine
                     }
                     setPlayerAbsolutePosition(player, pos);
                 } else if (nearPlayer != null) {
-                    setPlayerNearPlayer(player, nearPlayer);
+                    playerToStartNearPlayer.add(new Tuple<EntityPlayerMP, NearPlayer>(player, nearPlayer));
                 }
                 player.setVelocity(0, 0, 0);	// Minimise chance of drift!
                 player.onUpdateEntity();
@@ -1033,6 +1037,16 @@ public class ServerStateMachine extends StateMachine
 
         private void onCastAssembled()
         {
+            // First set the player positions, now that all players have joined
+            for (Tuple<EntityPlayerMP, NearPlayer> nearPlayerTuple : playerToStartNearPlayer) {
+                EntityPlayerMP player = nearPlayerTuple.getFirst();
+                NearPlayer nearPlayer = nearPlayerTuple.getSecond();
+                setPlayerNearPlayer(player, nearPlayer);
+                player.setVelocity(0, 0, 0);    // Minimise chance of drift!
+                player.onUpdateEntity();
+            }
+
+
             // Build up any extra mission handlers required:
             MissionBehaviour handlers = getHandlers();
             List<Object> extraHandlers = new ArrayList<Object>();
