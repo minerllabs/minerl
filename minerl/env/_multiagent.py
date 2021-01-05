@@ -26,7 +26,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 NS = "{http://ProjectMalmo.microsoft.com}"
 STEP_OPTIONS = 0
 
-MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
+MAX_WAIT = 300  # After this many MALMO_BUSY's a timeout exception will be thrown
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
 TICK_LENGTH = 0.05
 
