@@ -94,6 +94,7 @@ public class MalmoModClient
             {
                 return;
             }
+            System.out.println("*** grabbing mouse cursor ***");
             super.grabMouseCursor();
         }
     
@@ -104,7 +105,7 @@ public class MalmoModClient
         public void ungrabMouseCursor()
         {
             // Vanilla Minecraft calls Mouse.setCursorPosition(Display.getWidth() / 2, Display.getHeight() / 2) at this point...
-            // but it's seriously annoying, so we don't.
+            // but it's seriously annoying, so we don't
             Mouse.setGrabbed(false);
         }
 
@@ -157,7 +158,7 @@ public class MalmoModClient
     		this.mouseHook.isOverriding = (input == InputType.AI);
 
         // This stops Minecraft from doing the annoying thing of stealing your mouse.
-        System.setProperty("fml.noGrab", input == InputType.AI ? "true" : "false");
+        // System.setProperty("fml.noGrab", input == InputType.AI ? "true" : "false");
         inputType = input;
         if (input == InputType.HUMAN)
         {
