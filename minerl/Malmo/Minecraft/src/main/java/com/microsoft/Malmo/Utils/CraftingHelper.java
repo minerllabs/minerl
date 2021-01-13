@@ -23,14 +23,9 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
+import java.util.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.CaseFormat;
 import com.google.gson.*;
@@ -721,8 +716,9 @@ public class CraftingHelper {
      */
     public static JsonArray generateBlockJson(){
         JsonArray blocks = new JsonArray();
-        for (ResourceLocation i : Block.REGISTRY.getKeys()) {
-            Block block = Block.REGISTRY.getObject(i);
+        for (ResourceLocation b : Block.REGISTRY.getKeys()) {
+            Block block = Block.REGISTRY.getObject(b);
+            IBlockState state = block.getDefaultState();
             JsonObject json = new JsonObject();
             json.addProperty("name", Block.REGISTRY.getNameForObject(block).toString().replace("minecraft:", ""));
             json.addProperty("particleGravity", block.blockParticleGravity);
@@ -730,10 +726,35 @@ public class CraftingHelper {
             json.addProperty("spawnInBlock", block.canSpawnInBlock());
             json.addProperty("isCollidable", block.isCollidable());
             try{
+                json.addProperty("blockResistance", block.getExplosionResistance(null));
+            } catch (NullPointerException ignored){}
+            try{
                 json.addProperty("quantityDropped", block.quantityDropped(null));
             } catch (NullPointerException ignored){}
+
+            for (ResourceLocation i : Item.REGISTRY.getKeys()) {
+                Item item = Item.REGISTRY.getObject(i);
+                if (item != null
+                        && Item.REGISTRY.getNameForObject(item) != null
+                        && Objects.equals(item.getCreativeTab(), CreativeTabs.TOOLS)) {
+                    JsonObject itemJson = new JsonObject();
+
+                    ItemStack itemStack = item.getDefaultInstance();
+                    itemStack.getStrVsBlock(state);
+
+                    // Dropped item
+                    itemJson.addProperty("strength", itemStack.getStrVsBlock(state));
+                    itemJson.addProperty("canHarvest", itemStack.canHarvestBlock(state));
+                    itemJson.addProperty("canDestroy", itemStack.canDestroy(block));
+                    itemJson.addProperty("canPlaceOn", itemStack.canPlaceOn(block));
+
+                    json.add(item.getRegistryName().toString(), itemJson);
+                }
+            }
+
             blocks.add(json);
         }
+
         return blocks;
     }
 
