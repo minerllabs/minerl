@@ -1,5 +1,9 @@
 package com.microsoft.Malmo.Client;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
@@ -13,6 +17,9 @@ public class FakeKeyboard {
 
     public static boolean next() {
         currentEvent = eventQueue.poll();
+        if (currentEvent != null) {
+            System.out.println("next keyboard event is " + new Gson().toJsonTree(currentEvent));
+        }
         return currentEvent != null;
     }
 
@@ -100,5 +107,20 @@ public class FakeKeyboard {
 
     public static boolean isKeyDown(int key) {
         return keysDown.contains(key);
+    }
+
+
+    public static boolean isHumanInput() {
+        return FakeMouse.isHumanInput();
+    }
+
+
+    public static JsonElement getState() {
+        JsonObject retVal = new JsonObject();
+        retVal.add("keys", new Gson().toJsonTree(keysDown.toArray()));
+        if (!keysDown.isEmpty()) {
+            System.out.println("get fake mouse state returns " + retVal);
+        }
+        return retVal;
     }
 }

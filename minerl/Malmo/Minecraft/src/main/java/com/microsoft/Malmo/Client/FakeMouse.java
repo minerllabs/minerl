@@ -30,10 +30,11 @@ public class FakeMouse {
     private static int y;
     private static int dx;
     private static int dy;
+    private static int dwheel;
 
     private static int accumDx;
     private static int accumDy;
-
+    private static int accumDwheel;
 
     private static Deque<FakeMouseEvent> eventQueue = new ArrayDeque<FakeMouseEvent>();
     private static FakeMouseEvent currentEvent;
@@ -45,17 +46,6 @@ public class FakeMouse {
 
     private static FakeMouseCursor cursor = new FakeMouseCursor();
 
-    public static void setXFromMouse(int x) {
-        if (humanInput) {
-            FakeMouse.x = x;
-        }
-    }
-
-    public static void setYFromMouse(int y) {
-        if (humanInput) {
-            FakeMouse.y = y;
-        }
-    }
 
     public static void setHumanInput(boolean humanInput) {
         FakeMouse.humanInput = humanInput;
@@ -71,36 +61,13 @@ public class FakeMouse {
         retVal.addProperty("y", y);
         retVal.addProperty("dx", accumDx);
         retVal.addProperty("dy", accumDy);
+        retVal.addProperty("dwheel", accumDwheel);
         retVal.add("buttons", new Gson().toJsonTree(FakeMouse.accumPressedButtons.toArray()));
-        System.out.println("get fake mouse state returns " + retVal);
-        accumPressedButtons.clear();
+        accumPressedButtons.retainAll(pressedButtons);
         accumDx = 0;
         accumDy = 0;
+        accumDwheel = 0;
         return retVal;
-    }
-
-    public static void setDXFromMouse(Integer dx) {
-        if (humanInput) {
-            FakeMouse.dx = dx;
-            FakeMouse.accumDx += dx;
-        }
-    }
-
-    public static void setDYFromMouse(Integer dy) {
-        if (humanInput) {
-            FakeMouse.dy = dy;
-            FakeMouse.accumDy += dy;
-        }
-    }
-
-    public static void setButtonFromMouse(int button, Boolean down) {
-        if (humanInput) {
-            if (down) {
-                pressButton(button);
-            } else {
-                releaseButton(button);
-            }
-        }
     }
 
     public static class FakeMouseEvent {
@@ -128,13 +95,12 @@ public class FakeMouse {
         }
 
         public static FakeMouseEvent move(int dx, int dy) {
-            return new FakeMouseEvent((int) FakeMouse.x, (int) FakeMouse.y, dx, dy, 0, 0, false, System.nanoTime());
+            return new FakeMouseEvent((int) FakeMouse.x + dx, (int) FakeMouse.y + dy, dx, dy, 0, -1, false, System.nanoTime());
         }
     }
 
     public static boolean next() {
         currentEvent = eventQueue.poll();
-        System.out.println("FakeMouse.next is called, returning " + String.valueOf(currentEvent != null));
         return currentEvent != null;
 
     }
@@ -159,12 +125,26 @@ public class FakeMouse {
         return retval;
     }
 
+    public static int getDWheel() {
+        int retval = dwheel;
+        dwheel = 0;
+        return retval;
+    }
+
     public static int getEventButton() {
-        return currentEvent.button;
+        if (currentEvent != null) {
+            return currentEvent.button;
+        } else {
+            return -1;
+        }
     }
 
     public static boolean getEventButtonState() {
-        return currentEvent.state;
+        if (currentEvent != null) {
+            return currentEvent.state;
+        } else {
+            return false;
+        }
     }
 
     public static int getEventX() {
@@ -172,23 +152,43 @@ public class FakeMouse {
     }
 
     public static int getEventY() {
-        return currentEvent.y;
+        if (currentEvent != null) {
+            return currentEvent.y;
+        } else {
+            return 0;
+        }
     }
 
     public static int getEventDX() {
-        return currentEvent.dx;
+        if (currentEvent != null) {
+            return currentEvent.dx;
+        } else {
+            return 0;
+        }
     }
 
     public static int getEventDY() {
-        return currentEvent.dy;
+        if (currentEvent != null) {
+            return currentEvent.dy;
+        } else {
+            return 0;
+        }
     }
 
     public static int getEventDWheel() {
-        return currentEvent.dwheel;
+        if (currentEvent != null) {
+            return currentEvent.dwheel;
+        } else {
+            return 0;
+        }
     }
 
     public static long getEventNanoseconds() {
-        return currentEvent.nanos;
+        if (currentEvent != null) {
+            return currentEvent.nanos;
+        } else {
+            return 0;
+        }
     }
 
     public static void addEvent(FakeMouseEvent event) {
@@ -198,6 +198,12 @@ public class FakeMouse {
         } else {
             pressedButtons.remove(event.button);
         }
+        dx += event.dx;
+        dy += event.dy;
+        accumDx += event.dx;
+        accumDy += event.dy;
+        x = event.x;
+        y = event.y;
         eventQueue.add(event);
     }
 
@@ -217,12 +223,23 @@ public class FakeMouse {
     }
 
     public static void addMovement(int dx, int dy) {
-        FakeMouse.dx = dx;
-        FakeMouse.dy = dy;
-        x += dx;
-        y += dy;
-        accumDx += dx;
-        accumDy += dy;
+        // split the movement into smaller, one-pixel movements
+        // to help drag-splitting calculator find the start of the trajectory
+        int stepX = (int) Math.signum(dx);
+        int stepY = (int) Math.signum(dy);
+        int curDx = 0;
+        int curDy = 0;
+
+        while (curDx != dx || curDy != dy) {
+            if (curDx != dx) {
+                addEvent(FakeMouseEvent.move(stepX, 0));
+                curDx += stepX;
+            }
+            if (curDy != dy) {
+                addEvent(FakeMouseEvent.move(0, stepY));
+                curDy += stepY;
+            }
+        }
     }
 
     public static boolean isButtonDown(int button) {

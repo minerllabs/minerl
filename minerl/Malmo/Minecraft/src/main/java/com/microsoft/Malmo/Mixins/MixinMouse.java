@@ -7,62 +7,57 @@ import org.spongepowered.asm.mixin.Overwrite;
 import com.microsoft.Malmo.Client.FakeMouse;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Mouse.class)
 public abstract class MixinMouse {
 
     private static boolean mouseNext = false;
-    /*
-    @Overwrite(remap = false)
-    public static boolean isCreated() {
-        return true;
-    }
 
-    @Overwrite(remap = false)
-    public static void poll() {
 
-    }
-
-    @Overwrite(remap = false)
-    public static void setGrabbed(boolean grabbed) {
+    @Inject(at = @At("HEAD"), method = "setGrabbed", remap = false, cancellable = true)
+    private static void setGrabbed(boolean grabbed, CallbackInfo ci) {
         FakeMouse.setGrabbed(grabbed);
+        if (!FakeMouse.isHumanInput()) {
+            ci.cancel();;
+        }
     }
-//
-//    @Overwrite(remap = false)
-//    public static boolean isGrabbed() {
-//        return FakeMouse.isGrabbed();
-//    }
-*/
+
+    @Overwrite(remap = false)
+    public static boolean isGrabbed() {
+        return FakeMouse.isGrabbed();
+    }
 
 
-    @Inject(at = @At("RETURN"), method = "getX", remap = false, cancellable = true)
+
+    @Inject(at = @At("HEAD"), method = "getX", remap = false, cancellable = true)
     private static void getX(CallbackInfoReturnable<Integer> cir) {
-        FakeMouse.setXFromMouse(cir.getReturnValue());
         cir.setReturnValue(FakeMouse.getX());
     }
 
-    @Inject(at = @At("RETURN"), method = "getY", remap = false, cancellable = true)
+    @Inject(at = @At("HEAD"), method = "getY", remap = false, cancellable = true)
     private static void getY(CallbackInfoReturnable<Integer> cir) {
-        FakeMouse.setYFromMouse(cir.getReturnValue());
         cir.setReturnValue(FakeMouse.getY());
     }
 
-    @Inject(at = @At("RETURN"), method = "getDX", remap = false, cancellable = true)
+    @Inject(at = @At("HEAD"), method = "getDX", remap = false, cancellable = true)
     private static void getDX(CallbackInfoReturnable<Integer> cir) {
-        FakeMouse.setDXFromMouse(cir.getReturnValue());
         cir.setReturnValue(FakeMouse.getDX());
     }
 
-    @Inject(at = @At("RETURN"), method = "getDY", remap = false, cancellable = true)
+    @Inject(at = @At("HEAD"), method = "getDY", remap = false, cancellable = true)
     private static void getDY(CallbackInfoReturnable<Integer> cir) {
-        FakeMouse.setDYFromMouse(cir.getReturnValue());
         cir.setReturnValue(FakeMouse.getDY());
     }
 
-    @Inject(at = @At("RETURN"), method = "isButtonDown", remap = false, cancellable = true)
+    @Inject(at = @At("HEAD"), method = "getDWheel", remap = false, cancellable = true)
+    private static void getDWheel(CallbackInfoReturnable<Integer> cir) {
+        cir.setReturnValue(FakeMouse.getDWheel());
+    }
+
+    @Inject(at = @At("HEAD"), method = "isButtonDown", remap = false, cancellable = true)
     private static void isButtonDown(int button, CallbackInfoReturnable<Boolean> cir) {
-        FakeMouse.setButtonFromMouse(button, cir.getReturnValue());
         cir.setReturnValue(FakeMouse.isButtonDown(button));
     }
 
@@ -125,7 +120,7 @@ public abstract class MixinMouse {
     @Inject(at = @At("HEAD"), method = "getEventDWheel", remap = false, cancellable = true)
     private static void getEventDWheel(CallbackInfoReturnable<Integer> cir) {
         if (!mouseNext) {
-            cir.setReturnValue(FakeMouse.getEventDY());
+            cir.setReturnValue(FakeMouse.getEventDWheel());
         }
     }
 
@@ -142,12 +137,15 @@ public abstract class MixinMouse {
     public static boolean isInsideWindow() {
         return FakeMouse.isInsideWindow();
     }
-
-    @Overwrite(remap = false)
-    public static void setCursorPosition(int newX, int newY) {
-        FakeMouse.setCursorPosition(newX, newY);
-    }
 */
+    @Inject(at = @At("HEAD"), method = "setCursorPosition", remap = false, cancellable = true)
+    private static void setCursorPosition(int newX, int newY, CallbackInfo ci) {
+        FakeMouse.setCursorPosition(newX, newY);
+        if (!FakeMouse.isHumanInput()) {
+            ci.cancel();
+        }
+    }
+
 
 
 }

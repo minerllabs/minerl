@@ -1,58 +1,82 @@
 package com.microsoft.Malmo.Mixins;
 
+import com.microsoft.Malmo.Client.FakeMouse;
 import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
 import com.microsoft.Malmo.Client.FakeKeyboard;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Keyboard.class)
 public abstract class MixinKeyboard {
 
-    @Overwrite(remap = false)
-    public static boolean isCreated() {
-        return true;
+    private static boolean keyboardNext = false;
+
+    // @Inject(at = @At("HEAD"), method = "isCreated", remap = false, cancellable = true)
+    private static void isCreated(CallbackInfoReturnable<Boolean> cir) {
+        if (!FakeKeyboard.isHumanInput()) {
+            cir.setReturnValue(true);
+        }
     }
 
-    @Overwrite(remap = false)
-    public static void poll() {
-
+    // @Inject(at = @At("HEAD"), method = "poll", remap = false, cancellable = true)
+    private static void poll(CallbackInfo ci) {
+        if (!FakeKeyboard.isHumanInput()) {
+            ci.cancel();
+        }
     }
 
-    @Overwrite(remap = false)
-    public static boolean isKeyDown(int key) {
-        return FakeKeyboard.isKeyDown(key);
+    @Inject(at = @At("HEAD"), method = "isKeyDown", remap = false, cancellable = true)
+    private static void isKeyDown(int key, CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue(FakeKeyboard.isKeyDown(key));
     }
 
-    @Overwrite(remap = false)
-    public static boolean next() {
-        return FakeKeyboard.next();
+    @Inject(at = @At("RETURN"), method = "next", remap = false, cancellable = true)
+    private static void next(CallbackInfoReturnable<Boolean> cir) {
+        keyboardNext = cir.getReturnValue();
+        if (keyboardNext && FakeKeyboard.isHumanInput()) {
+            FakeKeyboard.add(new FakeKeyboard.FakeKeyEvent(Keyboard.getEventCharacter(), Keyboard.getEventKey(), Keyboard.getEventKeyState(), Keyboard.getEventNanoseconds(), Keyboard.isRepeatEvent()));
+            keyboardNext = false;
+        }
+        cir.setReturnValue(FakeKeyboard.next());
     }
 
-    @Overwrite(remap = false)
-    public static int getEventKey() {
-        return FakeKeyboard.getEventKey();
+    @Inject(at = @At("HEAD"), method = "getEventKey", remap = false, cancellable = true)
+    private static void getEventKey(CallbackInfoReturnable<Integer> cir) {
+        if (!keyboardNext) {
+            cir.setReturnValue(FakeKeyboard.getEventKey());
+        }
     }
 
-    @Overwrite(remap = false)
-    public static char getEventCharacter() {
-        return FakeKeyboard.getEventCharacter();
+    @Inject(at = @At("HEAD"), method = "getEventCharacter", remap = false, cancellable = true)
+    private static void getEventCharacter(CallbackInfoReturnable<Character> cir) {
+        if (!keyboardNext) {
+            cir.setReturnValue(FakeKeyboard.getEventCharacter());
+        }
     }
 
-    @Overwrite(remap = false)
-    public static boolean getEventKeyState() {
-        return FakeKeyboard.getEventKeyState();
+    @Inject(at = @At("HEAD"), method = "getEventKeyState", remap = false, cancellable = true)
+    private static void getEventKeyState(CallbackInfoReturnable<Boolean> cir) {
+        if (!keyboardNext) {
+            cir.setReturnValue(FakeKeyboard.getEventKeyState());
+        }
     }
 
-    @Overwrite(remap = false)
-    public static long getEventNanoseconds() {
-        return FakeKeyboard.getEventNanoseconds();
+    @Inject(at = @At("HEAD"), method = "getEventNanoseconds", remap = false, cancellable = true)
+    private static void getEventNanoseconds(CallbackInfoReturnable<Long> cir) {
+        if (!keyboardNext) {
+            cir.setReturnValue(FakeKeyboard.getEventNanoseconds());
+        }
     }
 
-    @Overwrite(remap = false)
-    public static boolean isRepeatEvent() {
-        return FakeKeyboard.isRepeatEvent();
+    @Inject(at = @At("HEAD"), method = "isRepeatEvent", remap = false, cancellable = true)
+    private static void isRepeatEvent(CallbackInfoReturnable<Boolean> cir) {
+        if (!keyboardNext) {
+            cir.setReturnValue(FakeKeyboard.isRepeatEvent());
+        }
     }
-
-
 }

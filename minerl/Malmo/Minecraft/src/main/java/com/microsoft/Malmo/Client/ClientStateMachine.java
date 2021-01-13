@@ -1917,6 +1917,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
                     // TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");
                     TimeHelper.SyncManager.setSynchronous(envServer.isSynchronous());
+                    // TimeHelper.SyncManager.setSynchronous(false);
                     // TimeHelper.SyncManager.debugLog(" SYNCHRONOUS SET TO " + envServer.isSynchronous());
                 } else {
                     // TimeHelper.SyncManager.debugLog(" SETTING SYNCHRONOUS  IN CLIENT STATEMACHINE ON MISSION STARTED");

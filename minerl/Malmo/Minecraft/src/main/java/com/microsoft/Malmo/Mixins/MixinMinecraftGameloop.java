@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
 
+import com.microsoft.Malmo.Client.FakeKeyboard;
 import com.microsoft.Malmo.Client.FakeMouse;
+import com.microsoft.Malmo.Utils.PlayRecorder;
 import org.lwjgl.opengl.Display;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -83,10 +85,13 @@ public abstract class MixinMinecraftGameloop {
     
     private  int numTicksPassed = 0;
 
+    PlayRecorder recorder = null;
 
     private void runGameLoop() throws IOException
     {
-
+        if (recorder == null) {
+            recorder = new PlayRecorder("recording");
+        }
         long i = System.nanoTime();
         this.mcProfiler.startSection("root");
 
@@ -141,7 +146,8 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.startSection("clientTick");
 
 
-            FakeMouse.getState();
+            // FakeMouse.getState();
+            // FakeKeyboard.getState();
             this.runTick();
 
 
@@ -152,9 +158,10 @@ public abstract class MixinMinecraftGameloop {
          } else{
             for (int j = 0; j < this.timer.elapsedTicks; ++j)
             {
-                FakeMouse.getState();
                 this.runTick();
-
+                if (j == 0) {
+                    // recorder.recordTick();
+                }
             }
         }
 
@@ -275,7 +282,6 @@ public abstract class MixinMinecraftGameloop {
         }
 
         this.mcProfiler.endSection(); //root
-
     }
     
     /*@Overwrite
