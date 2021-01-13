@@ -126,6 +126,7 @@ dependencies {
     // ^ mixin doesn't compile on jitpack, so we'll have to depend on the SNAPSHOT and build it manually for reprod
     //shade group: 'org.apache.commons', name: 'com.springsource.org.apache.commons.codec', version: '1.6.0'
     compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
+    compile group: 'org.openpnp', name: 'opencv', version: '3.4.2-0'
 
 }
 

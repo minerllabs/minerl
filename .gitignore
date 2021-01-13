@@ -285,6 +285,8 @@ jenkins_home/
 
 #eclipse
 minerl/Malmo/Minecraft/*.launch
+minerl/Malmo/Minecraft/run/saves/*
+minerl/Malmo/Minecraft/run/crash-reports/*
 *minerl_watchers/
 caches/
 native/

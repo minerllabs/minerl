@@ -11,6 +11,7 @@
     "MixinWorldProviderSpawn",
     "MixinDisplay",
     "MixinMouse",
+    "MixinKeyboard",
     "MixinSyncClientStats",
     "MixinWorldProviderSpawn"
   ],
