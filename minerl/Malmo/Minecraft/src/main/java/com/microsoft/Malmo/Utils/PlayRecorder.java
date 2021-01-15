@@ -65,9 +65,9 @@ public class PlayRecorder {
             Files.createDirectories(Paths.get(FilenameUtils.getFullPath(filename)));
             videoWriter = new VideoWriter();
             videoWriter.open(filename + ".mp4", VideoWriter.fourcc('m','p', '4', 'v'), fps, new Size(width, height), true) ;
-            if (!videoWriter.isOpened()) {
-                throw new IllegalArgumentException("VideoWriter was not opened");
-            }
+            // if (!videoWriter.isOpened()) {
+            //     throw new IllegalArgumentException("VideoWriter was not opened");
+            // }
             videoWriter.write(new Mat(height, width, CV_8UC3));
             actionsWriter = new FileWriter(filename + ".jsonl", true);
             recording = true;
