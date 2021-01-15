@@ -85,13 +85,8 @@ public abstract class MixinMinecraftGameloop {
     
     private  int numTicksPassed = 0;
 
-    PlayRecorder recorder = null;
-
     private void runGameLoop() throws IOException
     {
-        if (recorder == null) {
-            recorder = new PlayRecorder("recording");
-        }
         long i = System.nanoTime();
         this.mcProfiler.startSection("root");
 
@@ -149,7 +144,7 @@ public abstract class MixinMinecraftGameloop {
             // FakeMouse.getState();
             // FakeKeyboard.getState();
             this.runTick();
-
+            PlayRecorder.getInstance().recordTick();
 
             // TODO: FIGURE OUT BS WITH
             // this.timer.renderPartialTicks = f; MAYBE 0 makes something consistent
@@ -159,9 +154,6 @@ public abstract class MixinMinecraftGameloop {
             for (int j = 0; j < this.timer.elapsedTicks; ++j)
             {
                 this.runTick();
-                if (j == 0) {
-                    // recorder.recordTick();
-                }
             }
         }
 

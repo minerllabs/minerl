@@ -23,14 +23,12 @@ import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.Client.MalmoModClient.InputType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Utils.LogHelper;
-import com.microsoft.Malmo.Utils.TCPUtils;
+import com.microsoft.Malmo.Utils.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.profiler.Profiler;
-import com.microsoft.Malmo.Utils.TimeHelper;
 
 import net.minecraftforge.common.config.Configuration;
 import java.io.*;
@@ -42,7 +40,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.Hashtable;
-import com.microsoft.Malmo.Utils.TCPInputPoller;
 import java.util.logging.Level;
 
 import java.util.LinkedList;
@@ -226,6 +223,7 @@ public class MalmoEnvServer implements IWantToQuit {
                                     dout.flush();
                                 } else if (command.startsWith("<Disconnect")) {
                                     socket.close();
+                                    PlayRecorder.getInstance().finish();
                                     break;
                                 } else {
                                     throw new IOException("Unknown env service command: " + command);

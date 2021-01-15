@@ -9,14 +9,18 @@ import com.microsoft.Malmo.Schemas.VideoProducer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import nu.pattern.OpenCV;
+import org.apache.commons.io.FilenameUtils;
 import org.lwjgl.BufferUtils;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoWriter;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -24,6 +28,7 @@ import static org.opencv.core.CvType.CV_8UC3;
 
 
 public class PlayRecorder {
+    private static PlayRecorder instance = null;
     private String prefix;
     private VideoProducerImplementation videoProducer = new VideoProducerImplementation();
     private FileWriter actionsWriter;
@@ -35,6 +40,12 @@ public class PlayRecorder {
     private boolean recording = false;
     private boolean markTicks = false;
 
+    public static PlayRecorder getInstance() {
+        if (instance == null) {
+            instance = new PlayRecorder(System.getProperty("user.home") + "/minerl_recordings/recording");
+        }
+        return instance;
+    }
 
     public PlayRecorder(String prefix) {
         this.prefix = prefix;
@@ -51,6 +62,7 @@ public class PlayRecorder {
         tickCounter = 0;
         String filename = this.prefix + DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
         try {
+            Files.createDirectories(Paths.get(FilenameUtils.getFullPath(filename)));
             videoWriter = new VideoWriter();
             videoWriter.open(filename + ".mp4", VideoWriter.fourcc('m','p', '4', 'v'), fps, new Size(width, height), true) ;
             if (!videoWriter.isOpened()) {
@@ -86,6 +98,7 @@ public class PlayRecorder {
 
     private void recordTickImpl() {
         ByteBuffer imgBuffer = BufferUtils.createByteBuffer(this.videoProducer.getRequiredBufferSize());
+        Minecraft mc = Minecraft.getMinecraft();
         videoProducer.getFrame(null, imgBuffer);
         try {
             Mat frame = new Mat(height, width, CV_8UC3, imgBuffer);
@@ -102,6 +115,7 @@ public class PlayRecorder {
             JsonObject actions = new JsonObject();
             actions.add("mouse", mouseState);
             actions.add("keyboard", keyboardState);
+            actions.addProperty("isGuiOpen", mc.currentScreen != null);
             actions.addProperty("tick", tickCounter + 1);
             actionsWriter.write(actions.toString());
             actionsWriter.write("\n");
@@ -112,7 +126,11 @@ public class PlayRecorder {
     }
 
     public void finish() {
+        if (!recording) {
+            return;
+        }
         try {
+            System.out.println("Finalizing the video");
             recording = false;
             actionsWriter.close();
             videoWriter.release();

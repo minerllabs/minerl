@@ -42,7 +42,7 @@ public class FakeMouse {
     private static Set<Integer> accumPressedButtons = new HashSet<Integer>();
 
     private static boolean grabbed = false;
-    private static boolean humanInput = true;
+    private static boolean humanInput = false;
 
     private static FakeMouseCursor cursor = new FakeMouseCursor();
 
