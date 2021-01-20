@@ -351,6 +351,8 @@ shadowJar {
     manifest {
         attributes "Main-Class": "com.microsoft.Malmo.Launcher.GradleStart"
     }
+    include "run/gradle/caches/de/*"
+    include "**/*"
 }
 
 javadoc.dependsOn copyMds

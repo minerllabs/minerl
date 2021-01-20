@@ -65,13 +65,22 @@ public abstract class GradleStartCommon
         System.setProperty("net.minecraftforge.gradle.GradleStart.srgDir", SRG_DIR.getCanonicalPath());
 
         // set system vars for passwords
-        System.setProperty("net.minecraftforge.gradle.GradleStart.srg.notch-srg", SRG_NOTCH_SRG.getCanonicalPath());
+        /*
+        // System.setProperty("net.minecraftforge.gradle.GradleStart.srg.notch-srg", SRG_NOTCH_SRG.getCanonicalPath());
         System.setProperty("net.minecraftforge.gradle.GradleStart.srg.notch-mcp", SRG_NOTCH_MCP.getCanonicalPath());
         System.setProperty("net.minecraftforge.gradle.GradleStart.srg.srg-mcp", SRG_SRG_MCP.getCanonicalPath());
         System.setProperty("net.minecraftforge.gradle.GradleStart.srg.mcp-srg", SRG_MCP_SRG.getCanonicalPath());
         System.setProperty("net.minecraftforge.gradle.GradleStart.srg.mcp-notch", SRG_MCP_NOTCH.getCanonicalPath());
         System.setProperty("net.minecraftforge.gradle.GradleStart.csvDir", CSV_DIR.getCanonicalPath());
 
+         */
+
+        System.out.println("SRG-MCP URL = " +  this.getClass().getClassLoader().getResource("malmomod_at.cfg").getFile());
+        System.setProperty("net.minecraftforge.gradle.GradleStart.srg.srg-mcp", this.getClass().getClassLoader().getResource("srg-mcp.srg").getFile());
+        System.setProperty("net.minecraftforge.gradle.GradleStart.srg.mcp-srg", this.getClass().getClassLoader().getResource("mcp-srg.srg").getFile());
+        System.setProperty("net.minecraftforge.gradle.GradleStart.srg.mcp-notch", this.getClass().getClassLoader().getResource("mcp-notch.srg").getFile());
+        System.setProperty("net.minecraftforge.gradle.GradleStart.srg.notch-srg", this.getClass().getClassLoader().getResource("notch-srg.srg").getFile());
+        System.setProperty("net.minecraftforge.gradle.GradleStart.srg.notch-mcp", this.getClass().getClassLoader().getResource("notch-mcp.srg").getFile());
         // set defaults!
         setDefaultArguments(argMap);
 

@@ -15,9 +15,7 @@ import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoWriter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -90,6 +88,7 @@ public class PlayRecorder {
         }
         if (!mc.isGamePaused) {
             recordTickImpl();
+            maybeUpload();
         } else {
             FakeKeyboard.getState();
             FakeMouse.getState();
@@ -122,6 +121,25 @@ public class PlayRecorder {
             tickCounter += 1;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void maybeUpload() {
+        if (tickCounter % 1000 == 0) {
+            String bucket = "az://oaiagidata/data/datasets/minerl_recorder/v2/";
+            try {
+                Process p = Runtime.getRuntime().exec("bbb sync " + FilenameUtils.getFullPath(prefix) + " " + bucket);
+                try(BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                    String line;
+
+                    while ((line = input.readLine()) != null) {
+                        System.out.println(line);
+                    }
+                }
+
+            } catch (Exception err) {
+                throw new RuntimeException(err);
+            }
         }
     }
 
