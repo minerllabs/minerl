@@ -34,8 +34,8 @@ public class PlayRecorder {
     private FileWriter actionsWriter;
     private int tickCounter;
     private VideoWriter videoWriter;
-    private int width = 640;
-    private int height = 360;
+    private int width = 320;
+    private int height = 180;
     private int fps = 20;
     private boolean recording = false;
     private boolean markTicks = false;
