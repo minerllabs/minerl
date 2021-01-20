@@ -11,7 +11,7 @@ bobView:false
 anaglyph3d:false
 maxFps:-1
 fboEnable:true
-difficulty:3
+difficulty:4
 fancyGraphics:false
 ao:2
 renderClouds:true
