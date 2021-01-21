@@ -10,7 +10,7 @@ Once the repo is cloned, run from the root:
 Or, alternatively, this command should get you started rightaway!
 
 ```bash
-git clone git@github.com:openai/minerl -b peterz/human_recorder --depth 1 && cd minerl && ./play.sh
+git clone git@github.com:minerllabs/minerl -b peterz/human_recorder --depth 1 && cd minerl && ./play.sh
 ```
 
 The only python package this depends on is [boostedblob](https://github.com/hauntsaninja/boostedblob) for file upload, so it
