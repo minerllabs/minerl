@@ -2,8 +2,8 @@
 
 function upload {
     while true; do
-        bbb sync $HOME/minerl_recordings az://oaiagidata/data/datasets/minerl_recorder/v2/
-        sleep 10
+        echo bbb sync $HOME/minerl_recordings az://oaiagidata/data/datasets/minerl_recorder/v2/
+        sleep 1
     done
 }
 
