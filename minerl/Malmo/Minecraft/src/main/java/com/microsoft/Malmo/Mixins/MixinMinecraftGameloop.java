@@ -154,6 +154,7 @@ public abstract class MixinMinecraftGameloop {
             for (int j = 0; j < this.timer.elapsedTicks; ++j)
             {
                 this.runTick();
+                PlayRecorder.getInstance().recordTick();
             }
         }
 
