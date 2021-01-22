@@ -40,7 +40,7 @@ public class PlayRecorder {
 
     public static PlayRecorder getInstance() {
         if (instance == null) {
-            instance = new PlayRecorder(System.getProperty("user.home") + "/minerl_recordings/recording");
+            instance = new PlayRecorder(System.getProperty("user.home") + "/minerl_recordings/fov0/recording");
         }
         return instance;
     }
