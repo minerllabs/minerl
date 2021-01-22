@@ -1,10 +1,10 @@
 version:922
 invertYMouse:false
 mouseSensitivity:0.5
-fov:1.0
+fov:0.0
 gamma:2.0
 saturation:0.0
-renderDistance:5
+renderDistance:12
 guiScale:0
 particles:2
 bobView:false
