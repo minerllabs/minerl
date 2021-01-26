@@ -33,6 +33,7 @@ import java.util.UUID;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
@@ -227,17 +228,17 @@ public class ServerStateMachine extends StateMachine
     @SubscribeEvent
     public void onGetBreakSpeed(BreakSpeed bs)
     {
-        String agentname = bs.getEntityPlayer().getName();
-        if (currentMissionInit() != null && currentMissionInit().getMission() != null) {
-            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
-            if (agents != null)
-            {
-                for (AgentSection ascandidate : agents)
-                {
-                    if (ascandidate.getName().equals(agentname)) {
-                        Float mul = ascandidate.getAgentStart().getBreakSpeedMultiplier();
-                        if (mul != null) {
-                            bs.setNewSpeed(bs.getNewSpeed() * mul);
+        if (bs.getState().getMaterial() == Material.WOOD) {
+            String agentname = bs.getEntityPlayer().getName();
+            if (currentMissionInit() != null && currentMissionInit().getMission() != null) {
+                List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+                if (agents != null) {
+                    for (AgentSection ascandidate : agents) {
+                        if (ascandidate.getName().equals(agentname)) {
+                            Float mul = ascandidate.getAgentStart().getBreakSpeedMultiplier();
+                            if (mul != null) {
+                                bs.setNewSpeed(bs.getNewSpeed() * mul);
+                            }
                         }
                     }
                 }
