@@ -9,8 +9,7 @@ import org.lwjgl.opengl.Display;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-
-import com.microsoft.Malmo.Client.PostRenderEvent;
+    
 import com.microsoft.Malmo.Utils.TimeHelper;
 
 import net.minecraft.client.Minecraft;
@@ -188,7 +187,6 @@ public abstract class MixinMinecraftGameloop {
             this.mcProfiler.endStartSection("gameRenderer");
             this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks, i);
             Minecraft mc = Minecraft.getMinecraft();
-            MinecraftForge.EVENT_BUS.post(new PostRenderEvent(this.timer.renderPartialTicks));
             this.mcProfiler.endSection();
             net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickEnd(this.timer.renderPartialTicks);
         }
