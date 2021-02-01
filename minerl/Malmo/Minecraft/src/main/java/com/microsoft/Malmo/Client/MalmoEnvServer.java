@@ -89,9 +89,6 @@ public class MalmoEnvServer implements IWantToQuit {
     private Condition cond = lock.newCondition();
 
     private EnvState envState = new EnvState();
-    private EnvState previousEnvState = null;
-
-    private boolean shouldUsePreviousEnvState = false;
 
     private Hashtable<String, Integer> initTokens = new Hashtable<String, Integer>();
 
@@ -461,7 +458,6 @@ public class MalmoEnvServer implements IWantToQuit {
             done = envState.done;
             // TODO Handle when the environment is done.
 
-
             // Process the actions.
             if (actions.contains("\n")) {
                 String[] cmds = actions.split("\\n");
@@ -477,19 +473,14 @@ public class MalmoEnvServer implements IWantToQuit {
             profiler.endSection(); //cmd
             profiler.startSection("clientTick");
 
-            TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Received: " + actions);
-            TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Requesting tick. Should use previous env state: " + Boolean.toString(shouldUsePreviousEnvState));
+            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Received: " + actions);
+            // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Requesting tick.");
             // Now wait to run a tick
 
             // If synchronous mode is off then we should see if want to quit is true.
             if(!done) 
                 TimeHelper.SyncManager.clientTick.requestAndWait();
 
-            if (shouldUsePreviousEnvState && previousEnvState != null) {
-                envState = previousEnvState;
-                envState.done = true;
-            }
-            shouldUsePreviousEnvState = false;
 
             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> TICK DONE.  Getting observation.");
             profiler.endSection();
@@ -509,7 +500,7 @@ public class MalmoEnvServer implements IWantToQuit {
                 // if(info == null)
                 // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING INFO: NULL");
                 // else
-                // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING NONNULL");
+                // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> FILLING " + info.toString());
 
             }
             done = envState.done;
@@ -520,23 +511,6 @@ public class MalmoEnvServer implements IWantToQuit {
             if (done) {
                 TimeHelper.SyncManager.setSynchronous(false);
             }
-
-            previousEnvState = new EnvState();
-            previousEnvState.reward = envState.reward;
-            previousEnvState.commands = envState.commands;
-            previousEnvState.obs = envState.obs;
-            previousEnvState.info = envState.info;
-            previousEnvState.missionInit = envState.missionInit;
-            previousEnvState.done = envState.done;
-            previousEnvState.running = envState.running;
-            previousEnvState.quit = envState.quit;
-            previousEnvState.token = envState.token;
-            previousEnvState.experimentId = envState.experimentId;
-            previousEnvState.agentCount = envState.agentCount;
-            previousEnvState.reset = envState.reset;
-            previousEnvState.synchronous = envState.synchronous;
-            previousEnvState.seed = envState.seed;
-
 
             envState.info = "{}";
             envState.obs = null;
@@ -914,11 +888,6 @@ public class MalmoEnvServer implements IWantToQuit {
     public void setRunning(boolean running) {
         envState.running = false;
     }
-
-    public void usePreviousState() {
-        shouldUsePreviousEnvState = true;
-    }
-
     // Record a Malmo "observation" json - as the env info since an environment "obs" is a video frame.
     public void observation(String info) {
         // Parsing obs as JSON would be slower but less fragile than extracting the turn_key using string search.
