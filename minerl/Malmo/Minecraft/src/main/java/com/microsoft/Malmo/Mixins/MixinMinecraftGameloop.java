@@ -9,7 +9,7 @@ import org.lwjgl.opengl.Display;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-    
+
 import com.microsoft.Malmo.Utils.TimeHelper;
 
 import net.minecraft.client.Minecraft;
