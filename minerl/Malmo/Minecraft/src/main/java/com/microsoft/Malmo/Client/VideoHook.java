@@ -29,6 +29,7 @@ import com.microsoft.Malmo.Utils.AddressHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -158,6 +159,7 @@ public class VideoHook {
         this.connection = new TCPSocketChannel(agentIPAddress, agentPort, "vid");
         this.failedTCPSendCount = 0;
 
+
         try
         {
             MinecraftForge.EVENT_BUS.register(this);
@@ -263,16 +265,19 @@ public class VideoHook {
      *            Contains information about the event (not used).
      */
     @SubscribeEvent
-    public void postRender(RenderWorldLastEvent event)
-    {
-        // WHG: HAND RENDER
-        // To render with hand convert RenderWorldLastEvent to RenderGameOverlayEvent.Pre
-        // Then include the following lines
-        // $ if(event.getType() != RenderGameOverlayEvent.ElementType.ALL)
-        // $    return;
+    public void postRender(PostRenderEvent event) {
+//        // WHG: HAND RENDER
+//        // To render with hand convert RenderWorldLastEvent to RenderGameOverlayEvent.Pre
+//        // Then include the following lines
+//        if (event.getType() != RenderGameOverlayEvent.ElementType.ALL)
+//            return;
+        float partialTicks = event.getPartialTicks();
+        getVideo(partialTicks);
+    }
 
-
-        // Check that the video producer and frame type match - eg if this is a colourmap frame, then
+    private void getVideo(float partialTicks) {
+        // Check that the video producer and frame type match - eg if this is a
+        // colourmap frame, then
         // only the colourmap videoproducer needs to do anything.
         boolean colourmapFrame = TextureHelper.colourmapFrame;
         boolean colourmapVideoProducer = this.videoProducer.getVideoType() == VideoType.COLOUR_MAP;
@@ -280,11 +285,12 @@ public class VideoHook {
             return;
 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks());
-        float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks());
-        float z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks());
-        float yaw = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * event.getPartialTicks();
-        float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * event.getPartialTicks();
+
+        float x = (float) (player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks);
+        float y = (float) (player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks);
+        float z = (float) (player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks);
+        float yaw = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks;
+        float pitch = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
 
         long time_before_ns = System.nanoTime();
 
