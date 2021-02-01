@@ -139,7 +139,7 @@ def build_minecraft(source_dir, build_dir):
         minecraft_dir = os.getcwd()
         print("CALLING SETUP.")
         os.environ['GRADLE_USER_HOME'] = os.path.join(minecraft_dir, 'run')
-        subprocess.check_call('{} -g --stacktrace run/gradle shadowJar'.format(gradlew).split(' '))
+        subprocess.check_call('{} -g run/gradle shadowJar --stacktrace'.format(gradlew).split(' '))
 
         # Now delete all the *.lock files recursively  in the Minecraft_dir. Should be platform agnostic.
         for root, dirs, files in os.walk(minecraft_dir):
