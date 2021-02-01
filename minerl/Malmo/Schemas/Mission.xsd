@@ -149,6 +149,14 @@
         </xs:annotation>
         <xs:complexType>
             <xs:all>
+                <xs:element name="BreakSpeedMultiplier" type="xs:float" minOccurs="0" maxOccurs="1" default="1.0">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Multiply the agent break speed by this amount (greater is faster).
+                            TODO: should this really be in the AgentStart?
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
                 <xs:element name="Placement" type="PosAndDirection" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>

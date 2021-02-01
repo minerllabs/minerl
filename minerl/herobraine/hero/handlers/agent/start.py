@@ -102,6 +102,19 @@ class RandomInventoryAgentStart(InventoryAgentStart):
         return '\n'.join(lines)
 
 
+class AgentStartBreakSpeedMultiplier(Handler):
+    def to_string(self) -> str:
+        return f"agent_start_break_speed_multiplier({self.multiplier})"
+
+    def xml_template(self) -> str:
+        return str(
+            """<BreakSpeedMultiplier>{{multiplier}}</BreakSpeedMultiplier>"""
+        )
+
+    def __init__(self, multiplier=1.0):
+        self.multiplier = multiplier
+
+
 class AgentStartPlacement(Handler):
     def to_string(self) -> str:
         return f"agent_start_placement({self.x}, {self.y}, {self.z}, {self.yaw}, {self.pitch})"

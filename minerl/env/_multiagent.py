@@ -26,7 +26,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 NS = "{http://ProjectMalmo.microsoft.com}"
 STEP_OPTIONS = 0
 
-MAX_WAIT = 80  # After this many MALMO_BUSY's a timeout exception will be thrown
+MAX_WAIT = 600  # Time to wait before raising an exception (high value because some operations we wait on are very slow)
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
 TICK_LENGTH = 0.05
 
@@ -326,10 +326,10 @@ class _MultiAgentEnv(gym.Env):
                         "the info dictionary returned by the step function."
                     )
                     return (
-                        self.observation_space.sample(),
-                        0,
+                        {agent: self.observation_space.sample() for agent in actions},
+                        {agent: 0 for agent in actions},
                         self.done,
-                        {"error": "Connection timed out!"},
+                        {agent: {"error": "Connection timed out!"} for agent in actions},
                     )
 
             # this will currently only consider the env done when all agents report done individually
