@@ -17,7 +17,7 @@ mkdir -p $MINERL_DATA_ROOT
 
 # First, we run the tests in the repo
 pip install -e .
-az storage copy -s $AZ_MINERL_DATA -d $MINERL_DATA_ROOT --recursive --subscription sci
+#az storage copy -s $AZ_MINERL_DATA -d $MINERL_DATA_ROOT --recursive --subscription sci
 
 pytest .
 pip uninstall -y minerl
