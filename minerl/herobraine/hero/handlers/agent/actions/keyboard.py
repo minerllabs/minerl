@@ -98,7 +98,7 @@ class KeybasedCommandAction(Action):
 #         return "keyboard"
 
 #     def __init__(self, keymap : typing.Dict[str, str]):
-#         """Initializes the keyboard action object with a keymap import pdb; pdb.set_trace()
+#         """Initializes the keyboard action object with a keymap
 #         Anvil rendered keypress ID's and Malmo command actions corresponding to the human level commands object.
 
 #         Args:
