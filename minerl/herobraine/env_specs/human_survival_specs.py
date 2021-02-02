@@ -1,6 +1,3 @@
-# Copyright (c) 2020 All Rights Reserved
-# Author: William H. Guss, Brandon Houghton
-
 from minerl.herobraine.env_specs.human_controls import HumanControlEnvSpec
 from minerl.herobraine.hero.mc import MS_PER_STEP, STEPS_PER_MS, ALL_ITEMS
 from minerl.herobraine.hero.handler import Handler
