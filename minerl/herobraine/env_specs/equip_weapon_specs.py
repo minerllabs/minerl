@@ -29,7 +29,8 @@ class EquipWeapon(HumanControlEnvSpec):
         ]
 
     def create_agent_start(self) -> List[Handler]:
-        return super().create_agent_start() + [handlers.RandomInventoryAgentStart({WEAPON: 1}, use_hotbar=self.hotbar)]
+        return super().create_agent_start() + \
+             [handlers.RandomInventoryAgentStart({WEAPON: 1}, use_hotbar=self.hotbar)]
 
     def create_observables(self) -> List[Handler]:
         return super().create_observables() + [

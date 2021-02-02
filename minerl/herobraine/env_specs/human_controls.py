@@ -4,6 +4,7 @@ from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
 
 from minerl.herobraine.hero import handlers
+from minerl.herobraine.hero.handlers import POVObservation, CameraAction, KeybasedCommandAction
 from minerl.herobraine.hero.mc import INVERSE_KEYMAP
 from minerl.herobraine.env_spec import EnvSpec
 
@@ -35,7 +36,7 @@ class HumanControlEnvSpec(EnvSpec, ABC):
 
     def create_observables(self) -> List[TranslationHandler]:
         return [
-            handlers.POVObservation(self.resolution),
+            POVObservation(self.resolution),
         ]
 
     def create_actionables(self) -> List[TranslationHandler]:
@@ -44,12 +45,11 @@ class HumanControlEnvSpec(EnvSpec, ABC):
         not all.
         """
         return [
-                   handlers.KeybasedCommandAction(k, INVERSE_KEYMAP[k]) for k in KEYBOARD_ACTIONS
+                   KeybasedCommandAction(k, INVERSE_KEYMAP[k]) for k in KEYBOARD_ACTIONS
                ] + [
-                   handlers.KeybasedCommandAction(f"hotbar.{i}", INVERSE_KEYMAP[str(i)]) for i in range(1, 10)
-               ] + [
-                   handlers.CameraAction()
-               ]
+                   KeybasedCommandAction(f"hotbar.{i}", INVERSE_KEYMAP[str(i)]) for i in range(1, 10)
+               ] + CameraAction()
+               
 
     def create_monitors(self) -> List[TranslationHandler]:
         return []  # No monitors by default!o
