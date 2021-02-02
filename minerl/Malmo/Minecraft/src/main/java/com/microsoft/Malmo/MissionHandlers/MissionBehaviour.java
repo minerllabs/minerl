@@ -52,6 +52,7 @@ public class MissionBehaviour
     public IWorldGenerator worldGenerator = null;
     public IPerformanceProducer performanceProducer = null;
     public IWantToQuit quitProducer = null;
+    public boolean lowLevelInputs = false;
 
     private String failedHandlers = "";
     
@@ -116,6 +117,7 @@ public class MissionBehaviour
         List<AgentSection> agents = missionInit.getMission().getAgentSection();
         if (agents != null && agents.size() > 1)
             addHandler(new RewardFromTeamImplementation());
+        lowLevelInputs = true;
     }
 
     public boolean addExtraHandlers(List<Object> handlers)

@@ -47,32 +47,37 @@ public class CameraCommandsImplementation extends CommandBase {
 
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
-        if (!verb.equals("camera"))
-            return false;
         try {
-            String[] camParams = parameter.split(" ");
+            if (verb.equals("camera")) {
+                String[] camParams = parameter.split(" ");
+                double pitch = Double.parseDouble(camParams[0]);
+                double yaw = Double.parseDouble(camParams[1]);
+                double sensitivity = 3.0;
+                EntityPlayerSP player = Minecraft.getMinecraft().player;
+                if (player != null) {
+                    this.currentYaw = player.rotationYaw;
+                    this.currentPitch = player.rotationPitch;
 
-            double pitch = Double.parseDouble(camParams[0]);
-            double yaw = Double.parseDouble(camParams[1]);
-            double sensitivity = 3.0;
-            if (yaw != 0.0 || pitch != 0.0) {
-                FakeMouse.addMovement((int) (sensitivity * yaw), -(int) (sensitivity * pitch));
+                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, (float)(this.currentYaw + yaw), (float)(this.currentPitch + pitch));
+
+                    this.currentYaw = player.rotationYaw;
+                    this.currentPitch = player.rotationPitch;
+                }
+                return true;
+            } else if (verb.equals("mouse")) {
+                String[] camParams = parameter.split(" ");
+                double pitch = Double.parseDouble(camParams[0]);
+                double yaw = Double.parseDouble(camParams[1]);
+                double sensitivity = 3.0;
+                if (yaw != 0.0 || pitch != 0.0) {
+                    FakeMouse.addMovement((int) (sensitivity * yaw), -(int) (sensitivity * pitch));
+                }
+                return true;
             }
-//            EntityPlayerSP player = Minecraft.getMinecraft().player;
-//            if (player != null) {
-//                this.currentYaw = player.rotationYaw;
-//                this.currentPitch = player.rotationPitch;
-//
-//                player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw + yaw, this.currentPitch + pitch);
-//
-//                this.currentYaw = player.rotationYaw;
-//                this.currentPitch = player.rotationPitch;
-//            }
         } catch (NumberFormatException e) {
             System.out.println("ERROR: Malformed parameter string (" + parameter + ") - " + e.getMessage());
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -85,24 +90,23 @@ public class CameraCommandsImplementation extends CommandBase {
      * 
      * @param ev the RenderTickEvent object for this tick
      */
-//    @SubscribeEvent
-//    public void onRenderTick(TickEvent.RenderTickEvent ev) {
-//
-//        if (ev.phase == Phase.START && this.isOverriding()) {
-//            // Track average fps:
-//            if (this.isOverriding()) {
-//                EntityPlayerSP player = Minecraft.getMinecraft().player;
-//                if(player != null){
-//                    if(this.currentYaw == -10000 & this.currentPitch == -10000){
-//                        
-//
-//                        this.currentYaw = player.rotationYaw;
-//                        this.currentPitch = player.rotationPitch;
-//                    }
-//                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw, this.currentPitch);
-//                }
-//            }
-//        }
-//
-//    }
+    @SubscribeEvent
+    public void onRenderTick(TickEvent.RenderTickEvent ev) {
+        if (ev.phase == Phase.START && this.isOverriding()) {
+            // Track average fps:
+            if (this.isOverriding()) {
+                EntityPlayerSP player = Minecraft.getMinecraft().player;
+                if(player != null){
+                    if(this.currentYaw == -10000 & this.currentPitch == -10000){
+                        this.currentYaw = player.rotationYaw;
+                        this.currentPitch = player.rotationPitch;
+                    }
+                    // TODO peterz: I am pretty sure this code is deprecated and does not match the docstring
+                    // i.e. no smooth panning is happening here
+                    // player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw, this.currentPitch);
+                }
+            }
+        }
+
+    }
 }

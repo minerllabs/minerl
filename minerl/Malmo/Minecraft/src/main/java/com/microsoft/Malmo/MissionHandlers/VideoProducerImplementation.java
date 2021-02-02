@@ -30,7 +30,6 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
 
@@ -174,8 +173,6 @@ public class VideoProducerImplementation extends HandlerBase implements IVideoPr
         this.fbo.unbindFramebuffer();
         GlStateManager.enableDepth();
         Minecraft.getMinecraft().getFramebuffer().bindFramebuffer(true);
-        Minecraft mc = Minecraft.getMinecraft();
-        mc.getFramebuffer().framebufferRender(width, height);
     }
 
     @Override

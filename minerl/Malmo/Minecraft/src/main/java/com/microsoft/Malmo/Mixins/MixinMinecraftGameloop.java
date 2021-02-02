@@ -171,11 +171,9 @@ public abstract class MixinMinecraftGameloop {
 
         
         //Speeds up rendering; though it feels necessary. s
-        if (!TimeHelper.SyncManager.isSynchronous() || true) {
-            GlStateManager.pushMatrix();
-            GlStateManager.clear(16640);
-            this.framebufferMc.bindFramebuffer(true);
-        }
+        GlStateManager.pushMatrix();
+        GlStateManager.clear(16640);
+        this.framebufferMc.bindFramebuffer(true);
 
         this.mcProfiler.startSection("display");
         GlStateManager.enableTexture2D();
@@ -211,20 +209,15 @@ public abstract class MixinMinecraftGameloop {
             this.prevFrameTime = System.nanoTime();
         }
 
-        // Speeds up rendering!
-        if (!TimeHelper.SyncManager.isSynchronous() || true) {
-            // TODO: IF WE WANT TO ENABLE AGENT GUI WE SHOULD LET THIS CODE RUN
-
-            this.guiAchievement.updateAchievementWindow();
-            this.framebufferMc.unbindFramebuffer();
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
-            GlStateManager.popMatrix();
-            GlStateManager.pushMatrix();
-            this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
-            GlStateManager.popMatrix();
-        }
+        this.guiAchievement.updateAchievementWindow();
+        this.framebufferMc.unbindFramebuffer();
+        GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
+        this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
+        GlStateManager.popMatrix();
+        GlStateManager.pushMatrix();
+        this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
+        GlStateManager.popMatrix();
 
         this.mcProfiler.startSection("root");
         TimeHelper.updateDisplay();

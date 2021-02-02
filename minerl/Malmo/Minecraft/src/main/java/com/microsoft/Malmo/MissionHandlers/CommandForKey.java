@@ -388,8 +388,11 @@ public class CommandForKey extends CommandBase
     @Override
     public boolean onExecute(String verb, String parameter, MissionInit missionInit)
     {
-        // Our keyhook does all the work:
-//        return (this.keyHook != null) ? this.keyHook.execute(verb, parameter) : false;
+        // The keyboard-related actions are now injected via FakeKeyboard class
+        // Rationale - injection can happen in any phase of the game (including the parts where normal minecraft
+        // bindings are bypassed, like in GUI
+        // TODO clean up unused code (e.g. currently the keyHooks are only used for storing the bindings)
+        // return (this.keyHook != null) ? this.keyHook.execute(verb, parameter) : false;
 
         if (verb != null && verb.equalsIgnoreCase(keyHook.getCommandString())) {
             if (verb.equals("attack")) {
@@ -421,7 +424,6 @@ public class CommandForKey extends CommandBase
             return true;
         }
         return false;
-
     }
     
     /** Return the KeyBinding object we are using.<br>
