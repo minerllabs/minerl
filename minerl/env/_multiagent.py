@@ -26,7 +26,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 NS = "{http://ProjectMalmo.microsoft.com}"
 STEP_OPTIONS = 0
 
-MAX_WAIT = 600  # Time to wait before raising an exception (high value because some operations we wait on are very slow)
+MAX_WAIT = 80  # Time to wait before raising an exception (high value because some operations we wait on are very slow)
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
 TICK_LENGTH = 0.05
 
@@ -56,7 +56,7 @@ class _MultiAgentEnv(gym.Env):
 
                 # Alternatively:
                 env = gym.make('MineRLTreechop-v0') # makes a default treechop environment (with treechop-specific action and observation spaces)
-    
+
     """
 
     metadata = {'render.modes': ['human']}
@@ -70,7 +70,7 @@ class _MultiAgentEnv(gym.Env):
                  ):
         """
         Constructor of MineRLEnv.
-        
+
         :param env_spec: The environment specification object.
         :param instances: A list of prelaunched Minecraft instances..
         :param is_fault_tolerant: If the instance is fault tolerant.
@@ -133,7 +133,7 @@ class _MultiAgentEnv(gym.Env):
 
         Note:
         THIS MUST BE CALLED BEFORE :code:`env.reset()`
-        
+
         Args:
             seed (long, optional):  Defaults to 42.
             seed_spaces (bool, option): If the observation space and action space shoud be seeded. Defaults to True.
@@ -435,7 +435,7 @@ class _MultiAgentEnv(gym.Env):
         Sets-up the Env from its specification (called everytime the env is reset.)
 
         Returns:
-            The first observation of the environment. 
+            The first observation of the environment.
         """
         try:
             # First reset the env spec and its handlers
@@ -444,7 +444,7 @@ class _MultiAgentEnv(gym.Env):
             # Then reset the obs and act spaces from the env spec.
             self._setup_spaces()
 
-            # Get a new episode UID and produce Mission XML's for the agents 
+            # Get a new episode UID and produce Mission XML's for the agents
             # without the element for the slave -> master connection (for multiagent.)
             ep_uid = str(uuid.uuid4())
             agent_xmls = self._setup_agent_xmls(ep_uid)
@@ -456,7 +456,7 @@ class _MultiAgentEnv(gym.Env):
             self.done = False
             self.has_finished = {agent: False for agent in self.task.agent_names}
 
-            # Start the Mission/Task, by sending the master mission XML over 
+            # Start the Mission/Task, by sending the master mission XML over
             # the pipe to these instances, and  update the agent xmls to get
             # the port/ip of the master agent send the remaining XMLS.
 
@@ -524,7 +524,7 @@ class _MultiAgentEnv(gym.Env):
             agent_xml_etree.insert(0, agent_xml)
 
             if self._is_interacting and role == 0:
-                # TODO: CONVERT THIS TO A SERVER HANDLER 
+                # TODO: CONVERT THIS TO A SERVER HANDLER
                 hi = etree.fromstring("""
                     <HumanInteraction>
                         <Port>{}</Port>
@@ -544,7 +544,7 @@ class _MultiAgentEnv(gym.Env):
         return agent_xmls
 
     def _setup_instances(self) -> None:
-        """Sets up the instances for the environment 
+        """Sets up the instances for the environment
         """
         num_instances_to_start = self.task.agent_count - len(self.instances)
         instance_futures = []
@@ -766,7 +766,7 @@ class _MultiAgentEnv(gym.Env):
         has_quit = not (ok == 0)
         # TODO: Get this to work properly
 
-        # time.sleep(0.1) 
+        # time.sleep(0.1)
 
     def _TO_MOVE_find_ip_and_port(self, instance: MinecraftInstance, token: str) -> Tuple[str, str]:
         # calling Find on the master client to get the server port
@@ -800,7 +800,7 @@ class _MultiAgentEnv(gym.Env):
 
     def _get_new_instance(self, port=None, instance_id=None):
         """
-        Gets a new instance and sets up a logger if need be. 
+        Gets a new instance and sets up a logger if need be.
         """
 
         if port is not None:
