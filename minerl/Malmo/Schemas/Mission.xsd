@@ -235,6 +235,14 @@
                         <xs:attribute name="foodSaturation" type="xs:float" use="optional" />
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="LowLevelInputs" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            If set to true, inputs to malmo are injected instead of keyboard and mouse (instead of higher level commands)
+                            Useful for interactions with gui
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>

@@ -117,7 +117,9 @@ public class MissionBehaviour
         List<AgentSection> agents = missionInit.getMission().getAgentSection();
         if (agents != null && agents.size() > 1)
             addHandler(new RewardFromTeamImplementation());
-        lowLevelInputs = true;
+        // TODO hack - low level inputs are read from first agent. Ideally they should be either agent-specific,
+        // or mission-level
+        lowLevelInputs = agents.get(0).getAgentStart().isLowLevelInputs() != null && agents.get(0).getAgentStart().isLowLevelInputs();
     }
 
     public boolean addExtraHandlers(List<Object> handlers)

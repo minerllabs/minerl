@@ -209,3 +209,10 @@ class StartingFoodAgentStart(Handler):
         """
         self.food = food
         self.food_saturation = food_saturation
+
+class LowLevelInputsAgentStart(Handler):
+    def to_string(self) -> str:
+        return "low_level_inputs"
+
+    def xml_template(self) -> str:
+        return "<LowLevelInputs>true</LowLevelInputs>"

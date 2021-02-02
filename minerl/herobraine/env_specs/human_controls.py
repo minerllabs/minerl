@@ -55,4 +55,7 @@ class HumanControlEnvSpec(EnvSpec, ABC):
                ]
 
     def create_monitors(self) -> List[TranslationHandler]:
-        return []  # No monitors by default!
+        return []  # No monitors by default!o
+
+    def create_agent_start(self) -> List[Handler]:
+        return [handlers.LowLevelInputsAgentStart()]

@@ -23,7 +23,7 @@ class HumanSurvival(HumanControlEnvSpec):
         return [] 
 
     def create_agent_start(self) -> List[Handler]:
-        return [] 
+        return super().create_agent_start()
 
     def create_agent_handlers(self) -> List[Handler]:
         return []
