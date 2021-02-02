@@ -45,11 +45,10 @@ class HumanControlEnvSpec(EnvSpec, ABC):
         not all.
         """
         return [
-                   KeybasedCommandAction(k, INVERSE_KEYMAP[k]) for k in KEYBOARD_ACTIONS
-               ] + [
-                   KeybasedCommandAction(f"hotbar.{i}", INVERSE_KEYMAP[str(i)]) for i in range(1, 10)
-               ] + CameraAction()
-               
+           KeybasedCommandAction(k, INVERSE_KEYMAP[k]) for k in KEYBOARD_ACTIONS
+        ] + [
+           KeybasedCommandAction(f"hotbar.{i}", INVERSE_KEYMAP[str(i)]) for i in range(1, 10)
+        ] + CameraAction()
 
     def create_monitors(self) -> List[TranslationHandler]:
         return []  # No monitors by default!o

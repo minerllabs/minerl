@@ -8,6 +8,7 @@ import minerl.herobraine
 import minerl.herobraine.hero.handlers as handlers
 from minerl.herobraine.env_spec import EnvSpec
 
+
 class HumanSurvival(HumanControlEnvSpec):
     def __init__(self, *args, **kwargs):
         if "name" not in kwargs:
@@ -17,7 +18,7 @@ class HumanSurvival(HumanControlEnvSpec):
         )
 
     def create_rewardables(self) -> List[Handler]:
-        return [] 
+        return []
 
     def create_agent_start(self) -> List[Handler]:
         return super().create_agent_start()
