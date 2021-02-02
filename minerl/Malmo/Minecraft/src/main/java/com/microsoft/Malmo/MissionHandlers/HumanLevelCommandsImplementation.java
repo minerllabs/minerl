@@ -3,13 +3,11 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.microsoft.Malmo.MissionHandlers.InventoryCommandsImplementation.InventoryChangeMessage;
 import com.microsoft.Malmo.Schemas.HumanLevelCommand;
 import com.microsoft.Malmo.Schemas.HumanLevelCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.common.MinecraftForge;
@@ -17,9 +15,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class HumanLevelCommandsImplementation extends CommandGroup {
     float targetYawDelta = 0;
@@ -190,30 +185,5 @@ public class HumanLevelCommandsImplementation extends CommandGroup {
                 }
             }
         }
-    }
-
-    public static class MessageHandler implements IMessageHandler<Message, IMessage> {
-        @Override
-        public IMessage onMessage(Message message, MessageContext ctx) {
-
-            return null;
-        }
-    }
-
-    public static class Message implements IMessage {
-
-        @Override
-        public void fromBytes(ByteBuf buf) {
-            // TODO Auto-generated method stub
-            return;
-
-        }
-
-        @Override
-        public void toBytes(ByteBuf buf) {
-            // TODO Auto-generated method stub
-            return;
-        }
-
     }
 }
