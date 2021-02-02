@@ -1,6 +1,3 @@
-# Copyright (c) 2020 All Rights Reserved
-# Author: William H. Guss, Brandon Houghton
-
 from minerl.herobraine.env_specs.human_controls import HumanControlEnvSpec
 from minerl.herobraine.hero.mc import MS_PER_STEP, STEPS_PER_MS, ALL_ITEMS
 from minerl.herobraine.hero.handler import Handler
@@ -32,7 +29,7 @@ class EquipWeapon(HumanControlEnvSpec):
         ]
 
     def create_agent_start(self) -> List[Handler]:
-        return [handlers.RandomInventoryAgentStart({WEAPON: 1}, use_hotbar=self.hotbar)]
+        return super().create_agent_start() + [handlers.RandomInventoryAgentStart({WEAPON: 1}, use_hotbar=self.hotbar)]
 
     def create_observables(self) -> List[Handler]:
         return super().create_observables() + [

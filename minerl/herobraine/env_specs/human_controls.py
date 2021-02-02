@@ -1,6 +1,3 @@
-# Copyright (c) 2020 All Rights Reserved
-# Author: William H. Guss, Brandon Houghton
-
 import abc
 from abc import ABC
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
