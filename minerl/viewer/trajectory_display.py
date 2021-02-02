@@ -235,14 +235,6 @@ class HumanTrajectoryDisplay(TrajectoryDisplayBase):
 
         keys["attack"] = pyglet.text.Label('attack', x=o_x + SZ * 1.5, y=o_y + SZ * 1.2, anchor_x='center',
                                            **info_text_params)
-        keys["use"] = pyglet.text.Label('use', x=o_x + SZ * 1.5, y=o_y + SZ * 2.0, anchor_x='center',
-                                           **info_text_params)
-        keys["inventory"] = pyglet.text.Label('inventory', x=o_x + SZ * 1.5, y=o_y + SZ * 2.4, anchor_x='center',
-                                           **info_text_params)
-
-        for i in range(10):
-            keys[f"hotbar.{i}"] = pyglet.text.Label(f'{i}', x=o_x + i*10, y=o_y + SZ * 2.8, anchor_x='center',
-                                           **info_text_params)
 
         # sprint & sneak
 
