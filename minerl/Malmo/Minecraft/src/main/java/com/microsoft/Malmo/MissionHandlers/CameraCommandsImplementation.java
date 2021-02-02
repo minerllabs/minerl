@@ -5,6 +5,7 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import com.microsoft.Malmo.Client.FakeMouse;
+import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
@@ -52,25 +53,22 @@ public class CameraCommandsImplementation extends CommandBase {
                 String[] camParams = parameter.split(" ");
                 double pitch = Double.parseDouble(camParams[0]);
                 double yaw = Double.parseDouble(camParams[1]);
-                double sensitivity = 3.0;
-                EntityPlayerSP player = Minecraft.getMinecraft().player;
-                if (player != null) {
-                    this.currentYaw = player.rotationYaw;
-                    this.currentPitch = player.rotationPitch;
+                if (MalmoMod.isLowLevelInput()) {
+                    double sensitivity = 3.0;
+                    if (yaw != 0.0 || pitch != 0.0) {
+                        FakeMouse.addMovement((int) (sensitivity * yaw), -(int) (sensitivity * pitch));
+                    }
+                } else {
+                    EntityPlayerSP player = Minecraft.getMinecraft().player;
+                    if (player != null) {
+                        this.currentYaw = player.rotationYaw;
+                        this.currentPitch = player.rotationPitch;
 
-                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, (float)(this.currentYaw + yaw), (float)(this.currentPitch + pitch));
+                        player.setPositionAndRotation(player.posX, player.posY, player.posZ, (float) (this.currentYaw + yaw), (float) (this.currentPitch + pitch));
 
-                    this.currentYaw = player.rotationYaw;
-                    this.currentPitch = player.rotationPitch;
-                }
-                return true;
-            } else if (verb.equals("mouse")) {
-                String[] camParams = parameter.split(" ");
-                double pitch = Double.parseDouble(camParams[0]);
-                double yaw = Double.parseDouble(camParams[1]);
-                double sensitivity = 3.0;
-                if (yaw != 0.0 || pitch != 0.0) {
-                    FakeMouse.addMovement((int) (sensitivity * yaw), -(int) (sensitivity * pitch));
+                        this.currentYaw = player.rotationYaw;
+                        this.currentPitch = player.rotationPitch;
+                    }
                 }
                 return true;
             }

@@ -223,7 +223,7 @@ public class MalmoModClient
             if (mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
                 BlockPos blockpos = mc.objectMouseOver.getBlockPos();
                 IBlockState blockState = mc.world.getBlockState(blockpos);
-                if ((!stateMachine.currentMissionBehaviour().lowLevelInputs) && (blockState.getBlock() instanceof BlockContainer
+                if ((!isLowLevelInput()) && (blockState.getBlock() instanceof BlockContainer
                 || blockState.getBlock() instanceof BlockWorkbench)){
                     event.setUseBlock(Event.Result.DENY);
                     logger.log(Level.INFO, "Denied usage of " + blockState.getBlock().getRegistryName().toString());
@@ -243,6 +243,10 @@ public class MalmoModClient
 
             }
         }
+    }
+
+    public boolean isLowLevelInput() {
+        return stateMachine.currentMissionBehaviour().lowLevelInputs;
     }
 
 }
