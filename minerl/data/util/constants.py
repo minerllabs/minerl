@@ -30,7 +30,7 @@ BASE_DIR = os.environ.get('MINERL_OUTPUT_ROOT', os.path.expanduser(
 
 RENDERERS_DIR = os.path.expanduser(
     J('~', 'renderers'))
-NUM_MINECRAFTS = 1
+NUM_MINECRAFTS = 28
 
 OUTPUT_DIR = J(BASE_DIR, 'output')
 DOWNLOAD_DIR = J(BASE_DIR, 'downloaded_sync')

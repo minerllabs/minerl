@@ -393,7 +393,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
                         else:
                             # Add change if winner
                             try:
-                                if 'winners' in metadata['server_metadata'] and len(metadata['server_metadata']['winners']) > 0:
+                                if len(metadata['server_metadata']['winners']) > 0:
                                     adjust(univ_json, str(meta['tick']))
                             except (KeyError, TypeError) as e:
                                 traceback.print_exc()
@@ -525,10 +525,11 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
     return numNewSegments
 
 
-def main(num_workers):
+def main():
     """
     The main render script.
     """
+
     # 1. Load the blacklist.
     blacklist = set(numpy.loadtxt(BLACKLIST_PATH, dtype=numpy.str).tolist())
 
@@ -547,10 +548,11 @@ def main(num_workers):
     if E('errors.txt'):
         os.remove('errors.txt')
     try:
+        numW = int(sys.argv[1]) if len(sys.argv) > 1 else 2
 
         multiprocessing.freeze_support()
-        with multiprocessing.Pool(num_workers, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
-            manager = ThreadManager(multiprocessing.Manager(), num_workers, 1, 1)
+        with multiprocessing.Pool(numW, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
+            manager = ThreadManager(multiprocessing.Manager(), numW, 1, 1)
             func = functools.partial(_gen_sarsa_pairs, DATA_DIR, manager)
             numSegments = list(
                 tqdm.tqdm(pool.imap_unordered(func, valid_renders), total=len(valid_renders), desc='Files', miniters=1,
@@ -559,7 +561,7 @@ def main(num_workers):
             # for recording_name, render_path in tqdm.tqdm(valid_renders, desc='Files'):
             #     numSegmentsRendered += gen_sarsa_pairs(render_path, recording_name, DATA_DIR)
     except Exception as e:
-        print('\n' * num_workers)
+        print('\n' * numW)
         print("Exception in pool: ", type(e), e)
         print('Rendered {} new segments in total!'.format(sum(numSegments)))
         if E('errors.txt'):
@@ -569,7 +571,7 @@ def main(num_workers):
 
     numSegmentsRendered = sum(numSegments)
 
-    print('\n' * num_workers)
+    print('\n' * numW)
     print('Rendered {} new segments in total!'.format(numSegmentsRendered))
     if E('errors.txt'):
         print('Errors:')
@@ -577,5 +579,4 @@ def main(num_workers):
 
 
 if __name__ == "__main__":
-    numW = int(sys.argv[1]) if len(sys.argv) > 1 else 2
-    main(numW)
+    main()
