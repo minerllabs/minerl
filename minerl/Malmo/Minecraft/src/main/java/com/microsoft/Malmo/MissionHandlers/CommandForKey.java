@@ -81,8 +81,6 @@ public class CommandForKey extends CommandBase
         {
             this.isDown = true;
             this.justPressed = true;
-
-
         }
 
         /** Set our "down" state to false.<br>

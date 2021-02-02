@@ -162,8 +162,7 @@ public class VideoProducerImplementation extends HandlerBase implements IVideoPr
 
         // Render the Minecraft frame into our own FBO, at the desired size:
         this.fbo.bindFramebuffer(true);
-        Minecraft.getMinecraft().getFramebuffer().framebufferRender(width, height);
-
+        Minecraft.getMinecraft().getFramebuffer().framebufferRenderExt(width, height, true);
         // Now read the pixels out from that:
         // glReadPixels appears to be faster than doing:
         // GlStateManager.bindTexture(this.fbo.framebufferTexture);
