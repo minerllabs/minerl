@@ -208,6 +208,43 @@ public class MalmoModClient
         this.keyManager = new KeyManager(settings, extraKeys);
     }
 
+    /**
+     * Event listener that prevents agents from opening gui windows by canceling the 'USE' action of a block
+     * deny (most) blocks that open a gui when {@link net.minecraft.block.Block#onBlockActivated} is called
+     * @param event the captured event
+     */
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public void onRightClickEvent(PlayerInteractEvent.RightClickBlock event){
+        if(this.stateMachine.getStableState() == ClientState.RUNNING){
+            Logger logger = Logger.getLogger("MalmoModClient.onRightClickEvent");
+            Minecraft mc = Minecraft.getMinecraft();
+            logger.log(Level.INFO, "Saw hit on " + mc.objectMouseOver.typeOfHit.toString());
+            if (mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
+                BlockPos blockpos = mc.objectMouseOver.getBlockPos();
+                IBlockState blockState = mc.world.getBlockState(blockpos);
+                if ((!isLowLevelInput()) && (blockState.getBlock() instanceof BlockContainer
+                || blockState.getBlock() instanceof BlockWorkbench)){
+                    event.setUseBlock(Event.Result.DENY);
+                    logger.log(Level.INFO, "Denied usage of " + blockState.getBlock().getRegistryName().toString());
+                }
+                else
+                    logger.log(Level.INFO, "Allowed usage of " + blockState.getBlock().getRegistryName().toString());
+            } else if (mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.ENTITY)) {
+                // This does not seem to be possible given the case logic in Minecraft.java @ line 1585
+                // Included here in the event objectMouseOver changes between these cases
+                if (mc.objectMouseOver.entityHit instanceof EntityVillager
+                || mc.objectMouseOver.entityHit instanceof EntityMinecartContainer
+                || mc.objectMouseOver.entityHit instanceof EntityMinecartCommandBlock) {
+                    event.setUseBlock(Event.Result.DENY);
+                    logger.log(Level.SEVERE, "Denied usage of " + mc.objectMouseOver.entityHit.getName() + "! This" +
+                            "is not expected to happen!");
+                }
+
+            }
+        }
+    }
+
     public boolean isLowLevelInput() {
         return stateMachine.currentMissionBehaviour().lowLevelInputs;
     }
