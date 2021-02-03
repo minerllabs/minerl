@@ -44,7 +44,7 @@ public class FakeMouse {
     private static boolean grabbed = false;
     private static boolean humanInput = true;
 
-    private static FakeMouseCursor cursor = new FakeMouseCursor();
+    // private static FakeMouseCursor cursor = new FakeMouseCursor();
 
 
     public static void setHumanInput(boolean humanInput) {
