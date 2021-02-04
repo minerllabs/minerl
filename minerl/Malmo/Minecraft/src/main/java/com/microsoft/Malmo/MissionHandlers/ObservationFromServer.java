@@ -41,7 +41,7 @@ import com.microsoft.Malmo.MalmoMod.IMalmoMessageListener;
 import com.microsoft.Malmo.MalmoMod.MalmoMessageType;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
-
+import com.microsoft.Malmo.MissionHandlers.BoundedWorldDecoratorImplementation;
 /** Starting-point for observation producers that need to deal with extracting information from the server.<br>
  * It's hard to wrap this stuff cleanly, since the code which actually creates the JSON needs to be executed on the server, and may not
  * have any access to the rest of the code...
