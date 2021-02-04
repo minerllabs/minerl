@@ -1874,9 +1874,15 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             // Force brightness setting
             Minecraft.getMinecraft().gameSettings.gammaSetting = (float) 2.0;
-            
-            // Disable the gui for the episode!
-            Minecraft.getMinecraft().gameSettings.hideGUI = true;
+
+            if (missionBehaviour.lowLevelInputs) {
+                Minecraft.getMinecraft().gameSettings.hideGUI = false;
+                Minecraft.getMinecraft().gameSettings.guiScale = 2;
+                Minecraft.getMinecraft().gameSettings.fancyGraphics = true;
+            } else {
+                // Disable the gui for the episode!
+                Minecraft.getMinecraft().gameSettings.hideGUI = true;
+            }
 
             for (IVideoProducer videoProducer : currentMissionBehaviour().videoProducers)
             {
