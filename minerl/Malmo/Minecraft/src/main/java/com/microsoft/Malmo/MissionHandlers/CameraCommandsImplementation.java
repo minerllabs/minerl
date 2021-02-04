@@ -5,7 +5,6 @@
 package com.microsoft.Malmo.MissionHandlers;
 
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Utils.TimeHelper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;

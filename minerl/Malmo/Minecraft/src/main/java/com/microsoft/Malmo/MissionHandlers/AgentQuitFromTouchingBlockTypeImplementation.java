@@ -32,7 +32,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWantToQuit;
-import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation.GainItemEvent;
 import com.microsoft.Malmo.Schemas.AgentQuitFromTouchingBlockType;
 import com.microsoft.Malmo.Schemas.BlockSpec;
 import com.microsoft.Malmo.Schemas.BlockSpecWithDescription;
