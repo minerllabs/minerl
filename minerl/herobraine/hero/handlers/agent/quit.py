@@ -28,6 +28,17 @@ class AgentQuitFromTouchingBlockType(Handler):
         self.blocks = blocks
 
 
+#  <AgentQuitFromDeath/>
+class AgentQuitFromDeath(Handler):
+    def to_string(self) -> str:
+        return "agent_quit_from_death"
+
+    def xml_template(self) -> str:
+        return str(
+            """<AgentQuitFromDeath/>"""
+        )
+
+
 # <AgentQuitFromCraftingItem>
 #     <Item type="iron_pickaxe"/>
 #     <Item type="wooden_axe"/>
