@@ -40,8 +40,8 @@ class POVObservation(KeymapTranslationHandler):
             self.video_depth = 3
 
         # TODO (R): FIGURE THIS THE FUCK OUT & Document it.
-        self.video_height = video_resolution[1]
-        self.video_width = video_resolution[0]
+        self.video_height = video_resolution[0]
+        self.video_width = video_resolution[1]
 
         super().__init__(
             hero_keys=["pov"],
