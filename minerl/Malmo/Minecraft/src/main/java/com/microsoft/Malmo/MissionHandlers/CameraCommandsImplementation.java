@@ -4,8 +4,6 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
-import com.microsoft.Malmo.Client.FakeMouse;
-import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
@@ -48,34 +46,28 @@ public class CameraCommandsImplementation extends CommandBase {
 
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
+        if (!verb.equals("camera"))
+            return false;
         try {
-            if (verb.equals("camera")) {
-                String[] camParams = parameter.split(" ");
-                double pitch = Double.parseDouble(camParams[0]);
-                double yaw = Double.parseDouble(camParams[1]);
-                if (MalmoMod.isLowLevelInput()) {
-                    double sensitivity = 3.0;
-                    if (yaw != 0.0 || pitch != 0.0) {
-                        FakeMouse.addMovement((int) (sensitivity * yaw), -(int) (sensitivity * pitch));
-                    }
-                } else {
-                    EntityPlayerSP player = Minecraft.getMinecraft().player;
-                    if (player != null) {
-                        this.currentYaw = player.rotationYaw;
-                        this.currentPitch = player.rotationPitch;
+            String[] camParams = parameter.split(" ");
 
-                        player.setPositionAndRotation(player.posX, player.posY, player.posZ, (float) (this.currentYaw + yaw), (float) (this.currentPitch + pitch));
+            float pitch = Float.parseFloat(camParams[0]);
+            float yaw = Float.parseFloat(camParams[1]);
+            EntityPlayerSP player = Minecraft.getMinecraft().player;
+            if (player != null) {
+                this.currentYaw = player.rotationYaw;
+                this.currentPitch = player.rotationPitch;
 
-                        this.currentYaw = player.rotationYaw;
-                        this.currentPitch = player.rotationPitch;
-                    }
-                }
-                return true;
+                player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw + yaw, this.currentPitch + pitch);
+
+                this.currentYaw = player.rotationYaw;
+                this.currentPitch = player.rotationPitch;
             }
         } catch (NumberFormatException e) {
             System.out.println("ERROR: Malformed parameter string (" + parameter + ") - " + e.getMessage());
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -90,18 +82,19 @@ public class CameraCommandsImplementation extends CommandBase {
      */
     @SubscribeEvent
     public void onRenderTick(TickEvent.RenderTickEvent ev) {
+
         if (ev.phase == Phase.START && this.isOverriding()) {
             // Track average fps:
             if (this.isOverriding()) {
                 EntityPlayerSP player = Minecraft.getMinecraft().player;
                 if(player != null){
                     if(this.currentYaw == -10000 & this.currentPitch == -10000){
+                        
+
                         this.currentYaw = player.rotationYaw;
                         this.currentPitch = player.rotationPitch;
                     }
-                    // TODO peterz: I am pretty sure this code is deprecated and does not match the docstring
-                    // i.e. no smooth panning is happening here
-                    // player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw, this.currentPitch);
+                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw, this.currentPitch);
                 }
             }
         }
