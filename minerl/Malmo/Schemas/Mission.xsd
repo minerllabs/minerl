@@ -238,8 +238,7 @@
                 <xs:element name="LowLevelInputs" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
-                            If set to true, inputs to malmo are injected instead of keyboard and mouse (instead of higher level commands)
-                            Useful for interactions with gui
+                            If set to true, inputs to malmo are disabled and instead given via a virtual keyboard and mouse (instead of higher level commands)
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
