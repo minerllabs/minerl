@@ -56,10 +56,10 @@ public class BoundedWorldDecoratorImplementation extends HandlerBase implements 
 
 
             BlockPos playerLocation = new BlockPos(player.posX, player.posY, player.posZ);
-            System.out.println("CUR_LOCATION:" + playerLocation);
+            // System.out.println("CUR_LOCATION:" + playerLocation);
             float dist = (float) playerLocation.getDistance(xCoord, playerLocation.getY(), zCoord);
-            System.out.println("SPAWN:" + w.getSpawnPoint());
-            System.out.println("DIST: " + dist + " RADIUS: " + radius);
+            // System.out.println("SPAWN:" + w.getSpawnPoint());
+            // System.out.println("DIST: " + dist + " RADIUS: " + radius);
             
             if( dist > this.radius ){
                 BlockPos newPos = new BlockPos(
@@ -70,7 +70,7 @@ public class BoundedWorldDecoratorImplementation extends HandlerBase implements 
                 BlockPos teleportPos = new BlockPos(
                     newPos.getX(), height + 1, newPos.getZ()
                 );
-                System.out.println("[ERROR] teleport to:" + teleportPos.toString());
+                // System.out.println("[ERROR] teleport to:" + teleportPos.toString());
 
                 doTeleport(player, teleportPos.getX(), teleportPos.getY(), teleportPos.getZ(), player.rotationYaw, player.rotationPitch);
                 // player.moveToBlockPosAndAngles(teleportPos, player.rotationYaw, player.rotationPitch);
