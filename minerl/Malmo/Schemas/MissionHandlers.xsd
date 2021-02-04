@@ -944,7 +944,17 @@
             </xs:attribute>
         </xs:complexType>
     </xs:element>
-
+    <xs:element name="BoundedWorldDecorator">
+        <xs:complexType>
+            <xs:attribute name="radius" type="xs:float" default="32.0">
+                <xs:annotation>
+                    <xs:documentation>
+                        The radius which to bound the agents in the world.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
     <xs:element name="BuildBattleDecorator">
         <xs:annotation>
             <xs:documentation>
