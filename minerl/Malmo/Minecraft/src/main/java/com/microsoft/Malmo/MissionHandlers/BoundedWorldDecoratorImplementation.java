@@ -27,6 +27,7 @@ import java.util.Set;
 public class BoundedWorldDecoratorImplementation extends HandlerBase implements IWorldDecorator {
     private float radius;
     private BoundedWorldDecorator params;
+    private float PULLBACK = 0.95f;
 
     @Override
     public boolean parseParameters(Object params){
@@ -62,7 +63,7 @@ public class BoundedWorldDecoratorImplementation extends HandlerBase implements 
             
             if( dist > this.radius ){
                 BlockPos newPos = new BlockPos(
-                        (playerLocation.getX()-xCoord)/dist*(radius*.80) + xCoord, playerLocation.getY()+300, (playerLocation.getZ()-zCoord)/dist*(radius*.80) + zCoord
+                        (playerLocation.getX()-xCoord)/dist*(radius*this.PULLBACK - 1) + xCoord, playerLocation.getY()+300, (playerLocation.getZ()-zCoord)/dist*(radius*this.PULLBACK - 1) + zCoord
                 );
                 int height = PositionHelper.getTopSolidOrLiquidBlockFromHeight(w, newPos).getY();
                 // Get the highest position above the ground at this sapwn point.
