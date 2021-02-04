@@ -1265,6 +1265,17 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="ServerQuitFromDeath">
+        <xs:annotation>
+            <xs:documentation>
+                Specifies a time limit that applies to all agents.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="quitWhenAnyDead" type="xs:boolean" use="optional" default="false"/>
+        </xs:complexType>
+    </xs:element>
+
     <xs:element name="ServerQuitWhenAnyAgentFinishes">
         <xs:annotation>
             <xs:documentation>
@@ -3117,6 +3128,15 @@
             <xs:attribute name="timeLimitMs" type="xs:decimal" use="required"/>
             <xs:attribute name="description" type="xs:string" use="optional" default=""/>
         </xs:complexType>
+    </xs:element>
+
+    <xs:element name="AgentQuitFromDeath">
+        <xs:annotation>
+            <xs:documentation>
+                Allows the agent to quit on death. If not specified, agents will respawn per vanilla spawn mechanics.
+                Sets the quit code of the agent based on how the agent died, e.g. "lava", "cactus", "flyIntoWall"
+            </xs:documentation>
+        </xs:annotation>
     </xs:element>
 
     <xs:element name="AgentQuitFromTouchingBlockType">

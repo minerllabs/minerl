@@ -1816,6 +1816,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         boolean serverHasFiredStartingPistol = false;
         boolean playerDied = false;
+        private boolean playerRespawnEnabled = false;
         private int failedTCPRewardSendCount = 0;
         private int failedTCPObservationSendCount = 0;
         private boolean wantsToQuit = false; // We have decided our mission is at an end
@@ -1851,7 +1852,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             // Tell the server we have started:
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("username", Minecraft.getMinecraft().player.getName());
-            MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTRUNNING, 0, map));
+            // TODO this hashcode of UUID is not correct - need to modify MalmoMessages to accept UUIDs rather than int
+            MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTRUNNING, Minecraft.getMinecraft().player.getUniqueID().hashCode(), map));
 
             // Set up our mission handlers:
             if (currentMissionBehaviour().commandHandler != null)
@@ -1940,7 +1942,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         protected void onMissionEnded(IState nextState, String errorReport, boolean worldStillExists)
         {
-            //Send the final data associated with the misson here.
+            //Send the final data associated with the mission here.
             TimeHelper.SyncManager.debugLog("[CLIENT_STATE_MACHINE] Mission ended for reason: " + errorReport + " world still exists: " + Boolean.toString(worldStillExists));
             this.serverWantsToEndMission = false;
             sendData(true, worldStillExists);
@@ -2079,12 +2081,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 return;   
             
             }
-            // Check here to see whether the player has died or not:
-            if (!this.playerDied && Minecraft.getMinecraft().player.isDead)
-            {
-                this.playerDied = true;
-                this.quitCode = MalmoMod.AGENT_DEAD_QUIT_CODE;
-            }
 
             // Although we only arrive in this episode once the server has determined that all clients are ready to go,
             // the server itself waits for all clients to begin running before it enters the running state itself.
@@ -2114,16 +2110,17 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 // Check whether or not we want to quit:
                 IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
                 boolean quitHandlerFired = (quitHandler != null && quitHandler.doIWantToQuit(currentMissionInit()));
-                // Don't quit on death if there are multiple agents:
-                //   1/ Perhaps we want to continue with the surviving agents
-                //   2/ If we decide to quit without the other clients knowing, it can mess things up and cause crashes
-                boolean quitOnDeath = this.playerDied && currentMissionInit().getMission().getAgentSection().size() == 1;
-                if (quitHandlerFired || this.wantsToQuit || quitOnDeath || this.serverWantsToEndMission)
+
+
+                // Check if the quit handlers say we should quit, or if the agent needs to be respawned
+                if (quitHandlerFired || this.wantsToQuit || this.serverWantsToEndMission)
                 {
-                    if (quitHandlerFired)
-                    {
+                    // First see if our quit handlers have fired to end the mission and update the quitCode
+                    if (quitHandlerFired) {
                         this.quitCode = quitHandler.getOutcome();
                     }
+
+                    // Send the quit code to the agent if the agent indeed quit
                     try
                     {
                         // Save the quit code for anything that needs it:
@@ -2169,6 +2166,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // Send off observation and reward data:
                     // And see if we have any incoming commands to act upon:
                     sendData(false);
+
+                    // Since the mission is still in progress, make sure we respawn them
+                    if (Minecraft.getMinecraft().player.isDead){
+                        // TODO this code should respect agent start handlers such as starting inventory ect.
+                        Minecraft.getMinecraft().player.respawnPlayer();
+                    }
                 }
             }
         }
