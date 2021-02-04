@@ -568,6 +568,7 @@
                     <xs:element ref="ClassroomDecorator"/>
                     <xs:element ref="SnakeDecorator"/>
                     <xs:element ref="MovingTargetDecorator"/>
+                    <xs:element ref="BoundedWorldDecorator"/>
                     <xs:element ref="BuildBattleDecorator"/>
                     <xs:element ref="MarkingDecorator"/>
                     <xs:element ref="NavigationDecorator"/>
