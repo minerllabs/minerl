@@ -108,7 +108,7 @@ public class PositionHelper
             blockpos1 = blockpos.down();
             IBlockState state = chunk.getBlockState(blockpos1);
 
-            if ((state.getMaterial().blocksMovement() || state.getMaterial().isLiquid()) && !state.getBlock().isLeaves(state, world, blockpos1) && !state.getBlock().isFoliage(world, blockpos1))
+            if ((state.getMaterial().blocksMovement() || state.getMaterial().isLiquid()) || state.getBlock().isLeaves(state, world, blockpos1) || state.getBlock().isFoliage(world, blockpos1))
             {
                 break;
             }
