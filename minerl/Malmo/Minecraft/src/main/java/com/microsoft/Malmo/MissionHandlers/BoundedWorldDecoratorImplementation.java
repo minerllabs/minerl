@@ -6,6 +6,8 @@ import com.microsoft.Malmo.Schemas.BoundedWorldDecorator;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.PositionHelper;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,6 +16,7 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -30,7 +33,7 @@ public class BoundedWorldDecoratorImplementation extends HandlerBase implements 
     private float PULLBACK = 0.95f;
 
     @Override
-    public boolean parseParameters(Object params){
+    public boolean parseParameters(Object params) {
 
         if (params == null || !(params instanceof BoundedWorldDecorator))
             return false;
@@ -40,47 +43,46 @@ public class BoundedWorldDecoratorImplementation extends HandlerBase implements 
         this.radius = this.params.getRadius();
         return true;
 
-        
     }
 
     @SubscribeEvent
-    public  void onMove(LivingEvent.LivingUpdateEvent event) {
-        if (event.getEntityLiving() != null && event.getEntityLiving() instanceof EntityPlayer)
-        {
-            
+    public void onMove(LivingEvent.LivingUpdateEvent event) {
+        if (event.getEntityLiving() != null && event.getEntityLiving() instanceof EntityPlayer) {
+
             EntityPlayer player = (EntityPlayer) event.getEntity();
             World w = player.world;
-            
+
             int xCoord = w.getSpawnPoint().getX();
             int zCoord = w.getSpawnPoint().getZ();
-
 
             BlockPos playerLocation = new BlockPos(player.posX, player.posY, player.posZ);
             // System.out.println("CUR_LOCATION:" + playerLocation);
             float dist = (float) playerLocation.getDistance(xCoord, playerLocation.getY(), zCoord);
             // System.out.println("SPAWN:" + w.getSpawnPoint());
             // System.out.println("DIST: " + dist + " RADIUS: " + radius);
-            
-            if( dist > this.radius ){
+
+            if (dist > this.radius) {
                 BlockPos newPos = new BlockPos(
-                        (playerLocation.getX()-xCoord)/dist*(radius*this.PULLBACK - 1) + xCoord, playerLocation.getY()+300, (playerLocation.getZ()-zCoord)/dist*(radius*this.PULLBACK - 1) + zCoord
-                );
+                        (playerLocation.getX() - xCoord) / dist * (radius * this.PULLBACK - 1) + xCoord,
+                        playerLocation.getY() + 300,
+                        (playerLocation.getZ() - zCoord) / dist * (radius * this.PULLBACK - 1) + zCoord);
                 int height = PositionHelper.getTopSolidOrLiquidBlockFromHeight(w, newPos).getY();
                 // Get the highest position above the ground at this sapwn point.
-                BlockPos teleportPos = new BlockPos(
-                    newPos.getX(), height + 1, newPos.getZ()
-                );
+                BlockPos teleportPos = new BlockPos(newPos.getX(), height + 1, newPos.getZ());
                 // System.out.println("[ERROR] teleport to:" + teleportPos.toString());
 
-                doTeleport(player, teleportPos.getX(), teleportPos.getY(), teleportPos.getZ(), player.rotationYaw, player.rotationPitch);
-                // player.moveToBlockPosAndAngles(teleportPos, player.rotationYaw, player.rotationPitch);
+                doTeleport(player, teleportPos.getX(), teleportPos.getY(), teleportPos.getZ(), player.rotationYaw,
+                        player.rotationPitch);
+                // player.moveToBlockPosAndAngles(teleportPos, player.rotationYaw,
+                // player.rotationPitch);
                 // player.setVelocity(0, 0, 0);
             }
-
 
         }
 
     }
+
+
 
 
     @Override

@@ -1853,8 +1853,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("username", Minecraft.getMinecraft().player.getName());
             // TODO this hashcode of UUID is not correct - need to modify MalmoMessages to accept UUIDs rather than int
-            MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTRUNNING, Minecraft.getMinecraft().player.getUniqueID().hashCode(), map));
-
+            
+            MalmoMod.network.sendToServer(new MalmoMod.MalmoMessage(MalmoMessageType.CLIENT_AGENTRUNNING, 0, map));
             // Set up our mission handlers:
             if (currentMissionBehaviour().commandHandler != null)
             {
