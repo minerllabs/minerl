@@ -22,13 +22,12 @@ package com.microsoft.Malmo.MissionHandlers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 
-import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.ChatCommand;
 import com.microsoft.Malmo.Schemas.ChatCommands;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /** Chat commands allow the players to broadcast text messages. */
-public class ChatCommandsImplementation extends CommandBase implements ICommandHandler
+public class ChatCommandsImplementation extends CommandBase
 {
     private boolean isOverriding;
 
