@@ -12,6 +12,7 @@ import org.lwjgl.util.glu.GLU;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import org.spongepowered.asm.mixin.Overwrite;
 import akka.actor.FSM.TimeoutMarker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
@@ -33,6 +34,7 @@ import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Timer;
 import net.minecraft.util.Util;
+import net.minecraft.util.MouseHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
@@ -76,8 +78,32 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public Snooper usageSnooper;
     @Shadow public abstract int getLimitFramerate();
     @Shadow public abstract boolean isFramerateLimitBelowMax();
+    @Shadow public boolean inGameHasFocus;
+    @Shadow public MouseHelper mouseHelper;
     private  int numTicksPassed = 0;
 
+    @Shadow private int leftClickCounter; 
+
+    @Shadow public abstract void displayGuiScreen(GuiScreen guiScreen);
+
+    public void setIngameNotInFocus()
+    {
+        // if (this.inGameHasFocus)
+        // {
+        //     this.mouseHelper.ungrabMouseCursor();
+        // }
+    }
+
+    public void setIngameFocus()
+    {
+
+        this.leftClickCounter = 0;
+        if (!this.inGameHasFocus) {
+            this.inGameHasFocus = true;
+            this.displayGuiScreen((GuiScreen) null);
+            this.leftClickCounter = 0;
+        }
+    }
 
     private void runGameLoop() throws IOException
     {
