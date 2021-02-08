@@ -1709,11 +1709,28 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         public void GuiOpenEvent(GuiScreenEvent event)
         {
             
-            if(event.getGui() instanceof GuiGameOver && event.getGui() != lastGuiScreen)
+            if(event.getGui() instanceof GuiGameOver)
             {
+                if(event.getGui() != lastGuiScreen){
                 //     // TODO this code should respect agent start handlers such as starting inventory ect.
-                EntityPlayer player = Minecraft.getMinecraft().player;
-                player.respawnPlayer();
+                    EntityPlayer player = Minecraft.getMinecraft().player;
+                    player.respawnPlayer();
+                }
+                Thread thread = new Thread(){
+                    public void run(){
+                        Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                Minecraft.getMinecraft().displayGuiScreen((GuiScreen)null);					
+                                Minecraft.getMinecraft().setIngameFocus();
+                            }
+                        });
+                    }
+                  };
+                
+                  thread.start();
+
             }
             lastGuiScreen = event.getGui();
 
@@ -1995,7 +2012,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             }
             if (phase == Phase.END)
             {   
-
+                Minecraft.getMinecraft().setIngameFocus();
 
                 // Check whether or not we want to quit:
                 IWantToQuit quitHandler = (currentMissionBehaviour() != null) ? currentMissionBehaviour().quitProducer : null;
