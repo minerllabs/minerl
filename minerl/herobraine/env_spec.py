@@ -53,7 +53,9 @@ class EnvSpec(abc.ABC):
 
         # after create_server_world_generators(), because it will see python generated map
         # to pick a good location
-        self.agent_start = [self.create_agent_start() for _ in range(self.agent_count)]
+        self.agent_start = []
+        for self.current_agent in range(self.agent_count):
+            self.agent_start.append(self.create_agent_start())
 
         # check that the observables (list) have no duplicate to_strings
         assert len([o.to_string() for o in self.observables]) == len(set([o.to_string() for o in self.observables]))
