@@ -36,7 +36,7 @@ import gym.envs.registration
 import gym.spaces
 import numpy as np
 from lxml import etree
-from minerl.env import comms
+from minerl.env import comms, malmo
 from minerl.env.comms import retry
 from minerl.env.malmo import InstanceManager, malmo_version, launch_queue_logger_thread
 
@@ -134,7 +134,7 @@ class MineRLEnv(gym.Env):
         self._is_real_time = False
         self._last_step_time = -1
         self._already_closed = False
-        self.instance = self._get_new_instance(port)
+        self.instance = self._robust_get_new_instance(port)
         self.env_spec = env_spec
 
         self.observation_space = observation_space
@@ -156,8 +156,35 @@ class MineRLEnv(gym.Env):
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
 
-        instance.launch()
         return instance
+
+    def _robust_get_new_instance(self, port=None, instance_id=None, max_tries=3,
+                                 ) -> InstanceManager:
+        """Launch and return a new InstanceManager.
+
+        Attempt up to `max_tries` times in face of known Gradle race condition.."""
+        InstanceManager().shutdown()
+        for i in range(max_tries):
+            instance = self._get_new_instance(port=port, instance_id=instance_id)
+            try:
+                instance.launch()
+            except malmo.IntermittentBuildError:
+                instance.kill()
+                instance = None
+
+            if instance is not None:
+                return instance
+            else:
+                log_str = (
+                    "Minecraft build or launch just failed on attempt {j}/{max_tries}."
+                    "This is probably an intermittent race condition. "
+                    "Trying again (max tries {max_tries})."
+                ).format(j=i+1, max_tries=max_tries)
+                logger.warning(log_str)
+                time.sleep(2)
+
+        raise RuntimeError(f"Failed to build and launch Minecraft instance "
+                           f"{max_tries} times. Giving up.")
 
     def init(self):
         """Initializes the MineRL Environment.
@@ -537,7 +564,8 @@ class MineRLEnv(gym.Env):
             if self.instance:
                 self.instance.kill()
             
-            self.instance = self._get_new_instance(instance_id=self.instance.instance_id)
+            self.instance = self._robust_get_new_instance(
+                instance_id=self.instance.instance_id)
 
             self.had_to_clean = False
         else:

@@ -71,8 +71,6 @@ class SeedType(IntEnum):
     GENERATED = 2
     SPECIFIED = 3
 
-
-
     @classmethod
     def get_index(cls, type):
         return list(cls).index(type)
@@ -82,6 +80,7 @@ MAXRAND = 1000000
 
 INSTANCE_MANAGER_PYRO = 'minerl.instance_manager'
 MINERL_INSTANCE_MANAGER_REMOTE = 'MINERL_INSTANCE_MANAGER_REMOTE'
+
 
 @Pyro4.expose
 @Pyro4.behavior(instance_mode="single")
@@ -470,7 +469,6 @@ class InstanceManager:
                                 ignore=shutil.ignore_patterns('cache.properties.lock'))
                 shutil.copytree(os.path.join(InstanceManager.SCHEMAS_DIR), os.path.join(self.instance_dir, 'Schemas'))
 
-                    
                 # 0. Get PID of launcher.
                 parent_pid = os.getpid()
                 # 1. Launch minecraft process and 
@@ -784,9 +782,21 @@ class InstanceManager:
             self.owner = None
 
 
+class IntermittentBuildError(Exception):
+    """Raised when Gradle fails on corrupted pack file, likely due to race condition.
+    Args:
+        message (str): The exception message.
+    """
+
+
 def _check_for_launch_errors(line):
+    if ("java.io.IOException: Corrupted pack file" in line
+            or "Execution failed for task ':applyBinaryPatches'" in line):
+        raise IntermittentBuildError(
+            "Gradle build error. Probably a race from starting up many environments at "
+            "once.")
     if "at org.lwjgl.opengl.Display.<clinit>" in line:
-        raise  RuntimeError(
+        raise RuntimeError(
             "ERROR! MineRL could not detect an X Server, Monitor, or Virtual Monitor! "
             "\n"
             "\n"
