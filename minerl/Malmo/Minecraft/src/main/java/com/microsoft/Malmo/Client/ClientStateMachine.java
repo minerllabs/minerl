@@ -114,7 +114,7 @@ import com.mojang.authlib.properties.Property;
  */
 public class ClientStateMachine extends StateMachine implements IMalmoMessageListener
 {
-    private static final int WAIT_MAX_TICKS = 2000; // Over 1 minute and a half in client ticks.
+    private static final int WAIT_MAX_TICKS = 20000; // Over 1 minute and a half in client ticks.
     private static final int VIDEO_MAX_WAIT = 90 * 1000; // Max wait for video in ms.
     private static final String MISSING_MCP_PORT_ERROR = "no_mcp";
     private static final String INFO_MCP_PORT = "info_mcp";
