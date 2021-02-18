@@ -5,11 +5,10 @@ tqdm>=4.32.2
 numpy>=1.16.2
 requests>=2.20.0
 ipython>=7.5.0
-typing>=3.6.6
 lxml>=4.3.3
 psutil>=5.6.2
 Pyro4>=4.76
 getch>=1.0; sys_platform != 'win32' and sys_platform != 'cygwin'
 coloredlogs>=10.0
-matplotlib==3.0.3
+matplotlib>=3.2.2
 dill>=0.3.1.1
