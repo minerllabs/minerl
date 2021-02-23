@@ -22,7 +22,6 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IAudioProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
@@ -37,8 +36,6 @@ import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ServerHandlers;
-import com.microsoft.Malmo.Utils.TimeHelper;
-import net.minecraft.client.Minecraft;
 
 /** Holder class for the various MissionHandler interfaces that together define the behaviour of the mission.<br>
  */
