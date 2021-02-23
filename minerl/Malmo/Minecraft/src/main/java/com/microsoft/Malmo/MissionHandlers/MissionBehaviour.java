@@ -38,6 +38,7 @@ import com.microsoft.Malmo.Schemas.AgentSection;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ServerHandlers;
 import com.microsoft.Malmo.Utils.TimeHelper;
+import net.minecraft.client.Minecraft;
 
 /** Holder class for the various MissionHandler interfaces that together define the behaviour of the mission.<br>
  */
@@ -53,6 +54,7 @@ public class MissionBehaviour
     public IPerformanceProducer performanceProducer = null;
     public IWantToQuit quitProducer = null;
     public boolean lowLevelInputs = false;
+    public Integer guiScale = null;
 
     private String failedHandlers = "";
     
@@ -120,6 +122,7 @@ public class MissionBehaviour
         // TODO hack - low level inputs are read from first agent. Ideally they should be either agent-specific,
         // or mission-level
         lowLevelInputs = agents.get(0).getAgentStart().isLowLevelInputs() != null && agents.get(0).getAgentStart().isLowLevelInputs();
+        guiScale = agents.get(0).getAgentStart().getGuiScale();
     }
 
     public boolean addExtraHandlers(List<Object> handlers)

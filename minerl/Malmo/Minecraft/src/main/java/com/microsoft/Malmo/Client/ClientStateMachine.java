@@ -1877,7 +1877,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             if (missionBehaviour.lowLevelInputs) {
                 Minecraft.getMinecraft().gameSettings.hideGUI = false;
-                Minecraft.getMinecraft().gameSettings.guiScale = 2;
+                Minecraft.getMinecraft().gameSettings.guiScale = missionBehaviour.guiScale;
                 Minecraft.getMinecraft().gameSettings.fancyGraphics = true;
             } else {
                 // Disable the gui for the episode!

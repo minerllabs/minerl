@@ -218,3 +218,13 @@ class LowLevelInputsAgentStart(Handler):
 
     def xml_template(self) -> str:
         return "<LowLevelInputs>true</LowLevelInputs>"
+
+class GuiScale(Handler):
+    def __init__(self, gui_scale=4.0):
+        self.gui_scale = gui_scale
+
+    def to_string(self) -> str:
+        return "gui_scale"
+
+    def xml_template(self) -> str:
+        return "<GuiScale>{{gui_scale}}</GuiScale>"

@@ -277,6 +277,10 @@ public abstract class MixinMinecraftGameloop {
             this.displayGuiScreen((GuiScreen) null);
             this.leftClickCounter = 10000;
         }
+
+
     }
+
+
 
 }

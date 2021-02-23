@@ -242,6 +242,13 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <xs:element name="GuiScale" type="xs:int" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Overrides default gui scale
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
