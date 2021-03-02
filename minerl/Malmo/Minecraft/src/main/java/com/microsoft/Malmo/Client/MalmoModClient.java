@@ -140,9 +140,7 @@ public class MalmoModClient
         this.originalMouseHelper = Minecraft.getMinecraft().mouseHelper;
         this.mouseHook = new MouseHook();
         this.mouseHook.isOverriding = true;
-        // TODO MouseHook is disabled. It is currently used in ObservationFromHumanImplementation
-        // which is decprectated? way of passing human-level commands and (may?) have been used for recording
-        // Minecraft.getMinecraft().mouseHelper = this.mouseHook;
+        Minecraft.getMinecraft().mouseHelper = this.mouseHook;
         setInputType(InputType.AI);
     }
 
@@ -223,8 +221,8 @@ public class MalmoModClient
             if (mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
                 BlockPos blockpos = mc.objectMouseOver.getBlockPos();
                 IBlockState blockState = mc.world.getBlockState(blockpos);
-                if ((!isLowLevelInput()) && (blockState.getBlock() instanceof BlockContainer
-                || blockState.getBlock() instanceof BlockWorkbench)){
+                if (blockState.getBlock() instanceof BlockContainer
+                || blockState.getBlock() instanceof BlockWorkbench){
                     event.setUseBlock(Event.Result.DENY);
                     logger.log(Level.INFO, "Denied usage of " + blockState.getBlock().getRegistryName().toString());
                 }
@@ -243,10 +241,6 @@ public class MalmoModClient
 
             }
         }
-    }
-
-    public boolean isLowLevelInput() {
-        return stateMachine.currentMissionBehaviour().lowLevelInputs;
     }
 
 }

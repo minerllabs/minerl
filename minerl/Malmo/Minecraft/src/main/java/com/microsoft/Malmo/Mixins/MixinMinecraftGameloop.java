@@ -1,18 +1,19 @@
 package com.microsoft.Malmo.Mixins;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
 
-import com.microsoft.Malmo.Client.FakeMouse;
-import org.lwjgl.opengl.Display;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-
-import com.microsoft.Malmo.Client.PostRenderEvent;
 import com.microsoft.Malmo.Utils.TimeHelper;
 
+import org.lwjgl.opengl.Display;
+import org.lwjgl.util.glu.GLU;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+
+import org.spongepowered.asm.mixin.Overwrite;
+import akka.actor.FSM.TimeoutMarker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -26,17 +27,16 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.network.NetworkManager;
 import net.minecraft.profiler.Profiler;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.profiler.Snooper;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Timer;
 import net.minecraft.util.Util;
-import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraft.util.MouseHelper;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import scala.collection.parallel.ParIterableLike;
 
 @Mixin(Minecraft.class) 
 public abstract class MixinMinecraftGameloop {
@@ -78,14 +78,32 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public Snooper usageSnooper;
     @Shadow public abstract int getLimitFramerate();
     @Shadow public abstract boolean isFramerateLimitBelowMax();
-    
-    @Shadow public boolean inGameHasFocus; 
+    @Shadow public boolean inGameHasFocus;
+    @Shadow public MouseHelper mouseHelper;
+    private  int numTicksPassed = 0;
+
     @Shadow private int leftClickCounter; 
 
     @Shadow public abstract void displayGuiScreen(GuiScreen guiScreen);
-    
-    private  int numTicksPassed = 0;
 
+    public void setIngameNotInFocus()
+    {
+        // if (this.inGameHasFocus)
+        // {
+        //     this.mouseHelper.ungrabMouseCursor();
+        // }
+    }
+
+    public void setIngameFocus()
+    {
+
+        this.leftClickCounter = 0;
+        if (!this.inGameHasFocus) {
+            this.inGameHasFocus = true;
+            this.displayGuiScreen((GuiScreen) null);
+            this.leftClickCounter = 0;
+        }
+    }
 
     private void runGameLoop() throws IOException
     {
@@ -171,9 +189,11 @@ public abstract class MixinMinecraftGameloop {
 
         
         //Speeds up rendering; though it feels necessary. s
+        if(!TimeHelper.SyncManager.isSynchronous()){
         GlStateManager.pushMatrix();
         GlStateManager.clear(16640);
         this.framebufferMc.bindFramebuffer(true);
+        }
 
         this.mcProfiler.startSection("display");
         GlStateManager.enableTexture2D();
@@ -185,8 +205,6 @@ public abstract class MixinMinecraftGameloop {
             net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickStart(this.timer.renderPartialTicks);
             this.mcProfiler.endStartSection("gameRenderer");
             this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks, i);
-            Minecraft mc = Minecraft.getMinecraft();
-            MinecraftForge.EVENT_BUS.post(new PostRenderEvent(this.timer.renderPartialTicks));
             this.mcProfiler.endSection();
             net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickEnd(this.timer.renderPartialTicks);
         }
@@ -209,15 +227,19 @@ public abstract class MixinMinecraftGameloop {
             this.prevFrameTime = System.nanoTime();
         }
 
-        this.guiAchievement.updateAchievementWindow();
-        this.framebufferMc.unbindFramebuffer();
-        GlStateManager.popMatrix();
-        GlStateManager.pushMatrix();
-        this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
-        GlStateManager.popMatrix();
-        GlStateManager.pushMatrix();
-        this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
-        GlStateManager.popMatrix();
+        // Speeds up rendering!
+        if(!TimeHelper.SyncManager.isSynchronous()){
+            // TODO: IF WE WANT TO ENABLE AGENT GUI WE SHOULD LET THIS CODE RUN
+            this.guiAchievement.updateAchievementWindow();
+            this.framebufferMc.unbindFramebuffer();
+            GlStateManager.popMatrix();
+            GlStateManager.pushMatrix();
+            this.framebufferMc.framebufferRender(this.displayWidth, this.displayHeight);
+            GlStateManager.popMatrix();
+            GlStateManager.pushMatrix();
+            this.entityRenderer.renderStreamIndicator(this.timer.renderPartialTicks);
+            GlStateManager.popMatrix();
+        }
 
         this.mcProfiler.startSection("root");
         TimeHelper.updateDisplay();
@@ -268,15 +290,4 @@ public abstract class MixinMinecraftGameloop {
 
         this.mcProfiler.endSection(); //root
     }
-    
-    @Overwrite
-    public void setIngameFocus()
-    {
-        if (!this.inGameHasFocus) {
-            this.inGameHasFocus = true;
-            this.displayGuiScreen((GuiScreen) null);
-            this.leftClickCounter = 10000;
-        }
-    }
-
 }

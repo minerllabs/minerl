@@ -235,13 +235,6 @@
                         <xs:attribute name="foodSaturation" type="xs:float" use="optional" />
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="LowLevelInputs" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            If set to true, inputs to malmo are disabled and instead given via a virtual keyboard and mouse (instead of higher level commands)
-                        </xs:documentation>
-                    </xs:annotation>
-                </xs:element>
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -496,6 +489,7 @@
             <!-- When adding a new command handler, make sure to update MissionSpec::getListOfCommandHandlers and MissionSpec::getAllowedCommands, and add to TurnBasedApplicableCommandHandlers (below) if appropriate -->
 
             <xs:element ref="AgentQuitFromTimeUp" minOccurs="0"/>
+            <xs:element ref="AgentQuitFromDeath" minOccurs="0"/>
             <xs:element ref="AgentQuitFromReachingPosition" minOccurs="0"/>
             <xs:element ref="AgentQuitFromTouchingBlockType" minOccurs="0"/>
             <xs:element ref="AgentQuitFromCollectingItem" minOccurs="0"/>
@@ -568,6 +562,7 @@
                     <xs:element ref="ClassroomDecorator"/>
                     <xs:element ref="SnakeDecorator"/>
                     <xs:element ref="MovingTargetDecorator"/>
+                    <xs:element ref="BoundedWorldDecorator"/>
                     <xs:element ref="BuildBattleDecorator"/>
                     <xs:element ref="MarkingDecorator"/>
                     <xs:element ref="NavigationDecorator"/>
@@ -580,6 +575,7 @@
                         </xs:appinfo>
                     </xs:annotation>
                     <xs:element ref="ServerQuitFromTimeUp"/>
+                    <xs:element ref="ServerQuitFromDeath"/>
                     <xs:element ref="ServerQuitWhenAnyAgentFinishes"/>
                 </xs:choice>
             </xs:sequence>

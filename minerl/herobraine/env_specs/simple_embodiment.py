@@ -12,7 +12,7 @@ from minerl.herobraine.env_spec import EnvSpec
 
 from typing import List
 
-SIMPLE_KEYBOARD_ACTION = [
+SIMPLE_KEYBOARD_ACITON = [
     "forward",
     "back",
     "left",
@@ -45,7 +45,7 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
         """
         return [
                    handlers.KeybasedCommandAction(k, v) for k, v in INVERSE_KEYMAP.items()
-                   if k in SIMPLE_KEYBOARD_ACTION
+                   if k in SIMPLE_KEYBOARD_ACITON
                ] + [
                    handlers.CameraAction()
                ]
