@@ -2283,6 +2283,17 @@
         <xs:complexType/>
     </xs:element>
 
+    <xs:element name="ObservationFromDamage">
+        <xs:annotation>
+            <xs:documentation>
+                When present, the mod will return a JSON object called "damage_source", containing the observation
+                "is_dead" telling if the player is dead. Additionally, if there was an unprocessed damage event, there
+                are a number .
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType/>
+    </xs:element>
+
     <xs:element name="ObservationFromRay">
         <xs:annotation>
             <xs:documentation>
