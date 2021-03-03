@@ -1,48 +1,122 @@
-// For those who want the bleeding edge
+
 buildscript {
     repositories {
-
-        maven { url 'https://jitpack.io' }
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
-        maven {
-            url = "https://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
+        maven {url='https://dist.creeper.host/Sponge/maven'}
     }
     dependencies {
-        classpath 'org.ow2.asm:asm:6.0'
-        classpath('com.github.SpongePowered:MixinGradle:dcfaf61'){ // 0.6
-            // Because forgegradle requires 6.0 (not -debug-all) while mixingradle depends on 5.0
-            // and putting mixin right here will place it before forge in the class loader
-            exclude group: 'org.ow2.asm', module: 'asm-debug-all'
-        }
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.+', changing: true
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     }
 }
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java'
 
-plugins {
-    id 'java'
-    id 'com.github.johnrengelman.shadow' version '1.2.4'
-}
-
-// For versions >= 1.8
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
-// For versions < 1.8
-// apply plugin: 'forge'
+
 
 apply plugin: 'java'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 
-// ext {
-//     mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
-//     mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.malmo.refmap.json')
-// }
+minecraft {
+    // The mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   Snapshot are built nightly.
+    // stable_#            Stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // Simply re-run your setup task after changing the mappings to update your workspace.
+    mappings channel: 'snapshot', version: '20201028-1.16.3'
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+            workingDirectory project.file('run')
+            arg "-mixin.config=sodium.mixins.json"
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            arg "-mixin.config=sodium.mixins.json"
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+
+            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/')
+
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft 'net.minecraftforge:forge:1.16.5-36.0.22'
+
+    // You may put jars on which you depend on in ./libs or you may define them like so..
+    // compile "some.group:artifact:version:classifier"
+    // compile "some.group:artifact:version"
+
+    // Real examples
+    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // These dependencies get remapped to your current MCP mappings
+    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // For more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    compileOnly fg.deobf(project.dependencies.create("com.feed_the_beast.mods:ftb-chunks:${ftb_chunks_version}") {
+        transitive = false
+    })
+}
 
 
 // Read the version number from the Mod's version properties file.
@@ -58,75 +132,32 @@ group= "com.microsoft.MalmoMod" // http://maven.apache.org/guides/mini/guide-nam
 archivesBaseName = "MalmoMod"
 
 
-
-minecraft {
-    version = "1.11.2-13.20.0.2228"
-    runDir = "run"
-    
-    // the mappings can be changed at any time, and must be in the following format.
-    // snapshot_YYYYMMDD   snapshot are built nightly.
-    // stable_#            stables are built at the discretion of the MCP team.
-    // Use non-default mappings at your own risk. they may not allways work.
-    // simply re-run your setup task after changing the mappings to update your workspace.
-    mappings = "snapshot_20161220"
-    makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-}
-
-
-runClient { 
-    if (project.hasProperty("runDir")) {
-        minecraft.runDir = project.getProperty("runDir")
+afterEvaluate {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xmaxerrs" << "2000"
     }
 }
 
-repositories {
-    maven {
-        name = "SpongePowered Repo"
-        url = "https://repo.spongepowered.org/maven/"
-    }
-    maven { url 'https://jitpack.io' }
-}
-
-// Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
+// Example for how to get properties into the manifest for reading by the runtime..
 jar {
-
     manifest {
-        attributes 'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': '0',
-                'FMLCorePluginContainsFMLMod': 'true',
-                'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
-                'FMLAT': 'malmomod_at.cfg'
-    }
-    manifest {
-        attributes  'FMLCorePlugin': 'com.microsoft.Malmo.OverclockingPlugin',
-                    'FMLCorePluginContainsFMLMod': 'true'
+        attributes([
+                "Specification-Title": "sodium",
+                //"Specification-Vendor": "examplemodsareus",
+                "Specification-Version": project.version, // We are version 1 of ourselves
+                "Implementation-Title": project.name,
+                "Implementation-Version": "${version}",
+                //"Implementation-Vendor" :"examplemodsareus",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs": "mixins.malmomod.refmap.json"
+        ])
     }
 }
 
-// And add to the jvm args so that it is also loaded when running using gradle runClient:
-JavaExec exec = project.getTasks().getByName("runClient")
-exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G", "-Xdebug", "-Dmixin.debug=true"])
-exec.args(["--tweakClass", "com.microsoft.Malmo.Launcher.tweakers.CoremodTweaker"])
-// exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
-// ForgeGradle automatically sets the runClient task's outputs to be the runDir above (eg "run"). This
-// means that gradle will helpfully try to take a snapshot of the complete contents of the run folder in order
-// to carry out up-to-date checks for any tasks that depend on runClient.
-// The run folder also contains the logs folder, which, on Windows at least, can contain locked
-// TCP log files, which gradle won't be able to checksum, meaning that the runClient task will fail
-// if there is already a Minecraft running and logging.
+apply plugin: 'org.spongepowered.mixin'
 
-// To fix this issue, uncomment the following to set the outputs to a dummy value:
-// exec.getOutputs().files.setFrom(file("dummy_value"))
-
-// We also force the up-to-date check to return false, since the user will ALWAYS want runClient to run.
-exec.getOutputs().upToDateWhen( { return false } )
-
-dependencies {
-    // compile 'com.github.SpongePowered:Mixin:404f5da' // 0.7.5-SNAPSHOT
-    // ^ mixin doesn't compile on jitpack, so we'll have to depend on the SNAPSHOT and build it manually for reprod
-    //shade group: 'org.apache.commons', name: 'com.springsource.org.apache.commons.codec', version: '1.6.0'
-    compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
-
+mixin {
+    add sourceSets.main, "mixins.malmomod.refmap.json"
 }
 
 processResources
@@ -204,61 +235,6 @@ compileJava.doLast {
         refmapFile.withWriter { it.write json }
     }
 }
-
-
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
-import java.util.zip.ZipOutputStream
-
-import org.objectweb.asm.*
-
-import static org.objectweb.asm.Opcodes.ASM5
-
-// MC binaries were complied with a java version that produces invalid class files under certain circumstances
-// This causes setupCIWorkspace to be insufficient for compiling.
-// Related JDK bug: https://bugs.openjdk.java.net/browse/JDK-8066725
-// As a workaround, to use setupCIWorkspace on Drone, we modify the bin jar in-place and remove all parameter annotations.
-// WARNING: This piece of code ignores any and all gradle conventions and will probably fail horribly when run outside
-// of a single-use environment (e.g. Drone). Use setupDecompWorkspace for normal use.
-def annotationWorkaround = {
-    println "Applying RuntimeInvisibleParameterAnnotations workaround..."
-    File jar = getOutJar()
-    File tmp = new File((File) getTemporaryDir(), "workaround.jar")
-    tmp.withOutputStream {
-        new ZipOutputStream(it).withStream { dst ->
-            new ZipFile(jar).withCloseable { src ->
-                src.entries().each {
-                    if (it.name.startsWith("net/minecraft/") && it.name.endsWith(".class")) {
-                        def cw = new ClassWriter(0)
-                        def cv = new ClassVisitor(ASM5, cw) {
-                            @Override
-                            MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-                                return new MethodVisitor(ASM5, cv.visitMethod(access, name, desc, signature, exceptions)) {
-                                    @Override
-                                    AnnotationVisitor visitParameterAnnotation(int parameter, String pdesc, boolean visible) {
-                                        return null // Strip all parameter annotations
-                                    }
-                                }
-                            }
-                        }
-                        new ClassReader(src.getInputStream(it)).accept(cv, 0)
-                        dst.putNextEntry(new ZipEntry(it.name))
-                        dst.write(cw.toByteArray())
-                    } else {
-                        dst.putNextEntry(it)
-                        dst.write(src.getInputStream(it).bytes)
-                    }
-                }
-            }
-        }
-    }
-    jar.delete()
-    tmp.renameTo(jar)
-}
-
-tasks.deobfMcMCP.doLast annotationWorkaround
-
-
 
 // -------------- Task 'jaxb' runs xjc to make java files from XSD files --------------------
 
