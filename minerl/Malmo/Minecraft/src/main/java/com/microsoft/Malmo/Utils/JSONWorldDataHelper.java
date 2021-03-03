@@ -27,12 +27,9 @@ import com.google.gson.JsonPrimitive;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.stats.*;
-import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
 
@@ -40,11 +37,7 @@ import net.minecraft.stats.StatList;
 import net.minecraft.stats.StatisticsManagerServer;
 import net.minecraft.world.biome.Biome;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.UnknownElementException;
-import javax.swing.*;
 import java.util.*;
-import java.util.function.Function;
 
 import static net.minecraft.stats.StatList.*;
 
@@ -136,7 +129,7 @@ public class JSONWorldDataHelper
             + statisticsManager.readStat(StatList.AVIATE_ONE_CM)
             );
 
-        for(StatBase stat : StatList.ALL_STATS) {
+        for(Stat stat : StatList.ALL_STATS) {
             // For MineRL, split over . and convert all camelCase to snake_case
             String[] stat_fields = stat.statId.split("\\.");
             JsonObject head = json;

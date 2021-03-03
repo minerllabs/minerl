@@ -42,8 +42,8 @@ public class GradleStart extends GradleStartCommon
     @Override
     protected void setDefaultArguments(Map<String, String> argMap)
     {
-        argMap.put("version",        "1.11.2");
-        argMap.put("assetIndex",     "1.11");
+        argMap.put("version",        "1.16.5");
+        argMap.put("assetIndex",     "1.16");
         argMap.put("assetsDir",      MINECRAFT_CACHE_DIR + "assets");
         argMap.put("accessToken",    "FML");
         argMap.put("userProperties", "{}");

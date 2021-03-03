@@ -3,6 +3,7 @@ package com.microsoft.Malmo.Mixins;
 
 import com.microsoft.Malmo.Utils.SeedHelper;
 
+import net.minecraft.world.dimension.Dimension;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -10,10 +11,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 
-@Mixin(WorldProvider.class)
+@Mixin(Dimension.class)
 public abstract class MixinWorldProviderSpawn{
     @Shadow protected World world;
     @Shadow public abstract boolean hasNoSky();

@@ -84,8 +84,6 @@ public abstract class GradleStartCommon
         // because its the dev env.
         System.setProperty("fml.ignoreInvalidMinecraftCertificates", "true"); // cant hurt. set it now.
 
-        GradleForgeHacks.searchCoremods(this);
-
         // now the actual launch args.
         args = getArgs();
 

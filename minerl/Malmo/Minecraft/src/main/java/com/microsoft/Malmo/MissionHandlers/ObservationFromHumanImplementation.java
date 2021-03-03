@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.MouseHelper;
+import net.minecraft.client.MouseHelper;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

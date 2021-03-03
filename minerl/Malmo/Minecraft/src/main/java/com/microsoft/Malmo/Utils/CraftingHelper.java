@@ -25,10 +25,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +43,7 @@ import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemGroup;
 
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -58,7 +56,7 @@ import net.minecraft.item.*;
 import net.minecraft.item.crafting.*;
 import net.minecraft.stats.Achievement;
 import net.minecraft.stats.AchievementList;
-import net.minecraft.stats.StatBase;
+import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.NonNullList;
@@ -91,8 +89,8 @@ public class CraftingHelper {
     public static NonNullList<ItemStack> getIngredients(IRecipe recipe) {
         // IRecipe helpfully has no method for inspecting the raw ingredients, so we need to do different things depending on the subclass.
         NonNullList<ItemStack> ingredients = NonNullList.create();
-        if (recipe instanceof ShapelessRecipes) {
-            List<?> items = ((ShapelessRecipes) recipe).recipeItems;
+        if (recipe instanceof ShapelessRecipe) {
+            List<?> items = ((ShapelessRecipe) recipe).recipeItems;
             for (Object obj : items) {
                 if (obj instanceof ItemStack)
                     ingredients.add((ItemStack) obj);
@@ -112,8 +110,8 @@ public class CraftingHelper {
                     }
                 }
             }
-        } else if (recipe instanceof ShapedRecipes) {
-            ItemStack[] recipeItems = ((ShapedRecipes) recipe).recipeItems;
+        } else if (recipe instanceof ShapedRecipe) {
+            ItemStack[] recipeItems = ((ShapedRecipe) recipe).recipeItems;
             for (ItemStack itemStack : recipeItems) {
                 if (itemStack != null)
                     ingredients.add(itemStack);
@@ -502,8 +500,8 @@ public class CraftingHelper {
             // Now trigger a craft event
             List<IRecipe> recipes = getRecipesForRequestedOutput(resultForReward, true);
             for (IRecipe iRecipe : recipes) {
-                if (iRecipe instanceof ShapedRecipes) {
-                    ShapedRecipes shapedRecipe = (ShapedRecipes) iRecipe;
+                if (iRecipe instanceof ShapedRecipe) {
+                    ShapedRecipe shapedRecipe = (ShapedRecipe) iRecipe;
                     InventoryCrafting craftMatrix;
                     if (shapedRecipe.recipeItems.length <= 4)
                         craftMatrix = new InventoryCrafting(player.inventoryContainer, 2, 2);
@@ -514,8 +512,8 @@ public class CraftingHelper {
 
                     onCrafting(player, resultForReward, craftMatrix);
                     break;
-                } else if (iRecipe instanceof ShapelessRecipes) {
-                    ShapelessRecipes shapelessRecipe = (ShapelessRecipes) iRecipe;
+                } else if (iRecipe instanceof ShapelessRecipe) {
+                    ShapelessRecipe shapelessRecipe = (ShapelessRecipe) iRecipe;
                     InventoryCrafting craftMatrix;
                     if (shapelessRecipe.recipeItems.size() <= 4) {
                         craftMatrix = new InventoryCrafting(player.inventoryContainer, 2, 2);
@@ -657,7 +655,7 @@ public class CraftingHelper {
                 json.addProperty("damageable", item.isDamageable());
                 json.addProperty("rendersIn3D", item.isFull3D());
                 json.addProperty("repairable", item.isRepairable());
-                CreativeTabs tab = item.getCreativeTab();
+                ItemGroup tab = item.getCreativeTab();
                 json.addProperty("tab", ((tab != null) ? item.getCreativeTab().getTabLabel() : "none"));
                 ItemStack is = item.getDefaultInstance();
                 json.addProperty("stackable", is.isStackable());
@@ -764,7 +762,7 @@ public class CraftingHelper {
      */
     public static JsonArray generateStats(){
         JsonArray stats = new JsonArray();
-        for (StatBase stat : StatList.ALL_STATS) {
+        for (Stat stat : StatList.ALL_STATS) {
             JsonObject json = new JsonObject();
             json.addProperty("statID", stat.statId);
             JsonArray tokens = new JsonArray();

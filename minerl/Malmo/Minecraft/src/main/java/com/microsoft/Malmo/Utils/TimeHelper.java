@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.Timer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;

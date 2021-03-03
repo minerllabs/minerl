@@ -29,14 +29,11 @@ import java.util.Map;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.EntityRenderer;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -62,7 +59,7 @@ import com.microsoft.Malmo.MalmoMod;
 public class TextureHelper
 {
     // Extend EntityRenderer to give us a relatively clean way to render multiple passes.
-    public static class MalmoEntityRenderer extends EntityRenderer
+    public static class MalmoEntityRenderer extends GameRenderer
     {
         public MalmoEntityRenderer(Minecraft mcIn, IResourceManager resourceManagerIn)
         {
@@ -97,7 +94,7 @@ public class TextureHelper
     // Extended the RenderManager so that we can keep track of the entity currently being rendered.
     public static class MalmoRenderManager extends RenderManager
     {
-        public MalmoRenderManager(TextureManager renderEngineIn, RenderItem itemRendererIn)
+        public MalmoRenderManager(TextureManager renderEngineIn, ItemRenderer itemRendererIn)
         {
             super(renderEngineIn, itemRendererIn);
         }
@@ -139,7 +136,7 @@ public class TextureHelper
             GlStateManager.depthMask(false);
             GlStateManager.disableTexture2D();
             Tessellator tessellator = Tessellator.getInstance();
-            VertexBuffer vertexbuffer = tessellator.getBuffer();
+            BufferBuilder vertexbuffer = tessellator.getBuffer();
 
             for (int i = 0; i < 6; ++i)
             {
@@ -222,7 +219,7 @@ public class TextureHelper
             renderMan.setAccessible(true);
             renderMan.set(Minecraft.getMinecraft(), newRenderManager);
 
-            globalRenderMan = RenderGlobal.class.getDeclaredField(globalRenderManagerName);
+            globalRenderMan = WorldRenderer.class.getDeclaredField(globalRenderManagerName);
             globalRenderMan.setAccessible(true);
             globalRenderMan.set(Minecraft.getMinecraft().renderGlobal, newRenderManager);
         }

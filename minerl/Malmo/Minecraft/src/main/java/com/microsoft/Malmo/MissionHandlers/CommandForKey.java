@@ -22,9 +22,8 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.lang.reflect.Field;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraftforge.client.settings.KeyBindingMap;
 
 import com.microsoft.Malmo.Client.FakeKeyboard;
 import com.microsoft.Malmo.Client.FakeMouse;

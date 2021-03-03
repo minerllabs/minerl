@@ -2,31 +2,22 @@ package com.microsoft.Malmo.Mixins;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.microsoft.Malmo.Utils.TimeHelper;
-import com.microsoft.Malmo.Utils.TimeHelper.SyncManager;
-import com.mojang.authlib.GameProfileRepository;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 
+import net.minecraft.crash.ReportedException;
 import org.apache.logging.log4j.LogManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.network.ServerStatusResponse;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.server.management.PlayerProfileCache;
-import net.minecraft.util.ReportedException;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.client.MinecraftForgeClient;
 
 
 @Mixin(MinecraftServer.class)

@@ -19,9 +19,11 @@
 
 package com.microsoft.Malmo.Client;
 
+import net.minecraft.client.GameSettings;
+import net.minecraft.client.MouseHelper;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraftforge.fml.common.eventhandler.Event;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,14 +38,11 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockWorkbench;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.item.EntityMinecartCommandBlock;
 import net.minecraft.entity.item.EntityMinecartContainer;
 import net.minecraft.entity.passive.EntityVillager;
-import net.minecraft.util.MouseHelper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;

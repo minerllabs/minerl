@@ -43,7 +43,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.multiplayer.ThreadLanServerPing;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -102,7 +102,6 @@ import com.microsoft.Malmo.Utils.TimeHelper.SyncTickEvent;
 import com.microsoft.Malmo.Utils.TCPSocketChannel;
 import com.microsoft.Malmo.Utils.TCPUtils;
 import com.microsoft.Malmo.Utils.TimeHelper;
-import com.mojang.authlib.properties.Property;
 
 /**
  * Class designed to track and control the state of the mod, especially regarding mission launching/running.<br>

@@ -7,7 +7,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.SPacketStatistics;
-import net.minecraft.stats.StatBase;
+import net.minecraft.stats.Stat;
 import net.minecraft.stats.StatisticsManagerServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,8 +28,8 @@ public abstract class MixinSyncClientStats {
 
     @Inject(method = "onUpdateEntity", at = @At("TAIL"))
     private void injectSyncStats(CallbackInfo ci) {
-        Map<StatBase, Integer> map = Maps.<StatBase, Integer>newHashMap();
-        for (StatBase statbase : this.getStatFile().getDirty())
+        Map<Stat, Integer> map = Maps.<Stat, Integer>newHashMap();
+        for (Stat statbase : this.getStatFile().getDirty())
         {
             map.put(statbase, this.getStatFile().readStat(statbase));
         }

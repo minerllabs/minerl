@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockSnow;
+import net.minecraft.block.BlockSnowLayer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
@@ -312,7 +312,7 @@ public class BuildBattleDecoratorImplementation extends HandlerBase implements I
             Block block = iblockstate.getBlock();
             EnumFacing side = event.getFace();
             BlockPos pos = event.getPos();
-            if (block == Blocks.SNOW_LAYER && ((Integer)iblockstate.getValue(BlockSnow.LAYERS)).intValue() < 1)
+            if (block == Blocks.SNOW_LAYER && ((Integer)iblockstate.getValue(BlockSnowLayer.LAYERS)).intValue() < 1)
             {
                 side = EnumFacing.UP;
             }
