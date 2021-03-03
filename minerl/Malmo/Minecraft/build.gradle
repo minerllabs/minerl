@@ -10,6 +10,10 @@ buildscript {
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '1.2.4'
+}
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
@@ -22,13 +26,23 @@ repositories {
     }
 }
 
-version = '2.0'
-group = 'me.jellysquid.mods.sodium' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'sodium-forge'
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+// Read the version number from the Mod's version properties file.
+if (!file('src/main/resources/version.properties').exists()) {
+    ant.fail("version.properties file is missing - this is created automatically by CMake. If you are building from source, make sure you have built the full source tree, not just the Minecraft folder.")
+}
+def propFile = file('src/main/resources/version.properties')
+def versionProp = new Properties()
+versionProp.load(propFile.newReader())
+version = versionProp['malmomod.version']
+
+group= "com.microsoft.MalmoMod" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "MalmoMod"
+
+
+
 minecraft {
     // The mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   Snapshot are built nightly.
@@ -142,7 +156,7 @@ jar {
             "Implementation-Version": "${version}",
             //"Implementation-Vendor" :"examplemodsareus",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-            "MixinConfigs": "sodium.mixins.json"
+            "MixinConfigs": "mixins.malmomod.refmap.json"
         ])
     }
 }
@@ -156,18 +170,99 @@ jar.finalizedBy('reobfJar')
 apply plugin: 'org.spongepowered.mixin'
 
 mixin {
-    add sourceSets.main, "sodium.refmap.json"
+    add sourceSets.main, "mixins.malmomod.refmap.json"
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
+
+// -------------- Task 'jaxb' runs xjc to make java files from XSD files --------------------
+
+gradle.projectsEvaluated {
+    // compileJava target isn't available until after forge has initialized things
+    compileJava.dependsOn jaxb
+    compileJava.dependsOn copyModToClient
+    compileJava.dependsOn copyModToServer
+    jaxb.dependsOn copySchemas
+    copySchemas.dependsOn deleteSchemas
+}
+
+configurations {
+    jaxb
+}
+
+dependencies {
+    jaxb group: 'com.sun.xml.bind', name: 'jaxb-xjc', version: '2.2.4-1'
+}
+
+task copySchemas(type: Copy) {
+    from '../Schemas/'
+    into 'src/main/resources/'
+    include ('*.xsd')
+}
+
+task jaxb() {
+    description 'Generate source files for our XML schemas using JAXB'
+
+    // Create an index file listing all the schemas:
+    def schemaIndexFile = new File('src/main/resources/schemas.index')
+    def contents = ""
+    def tree = copySchemas.source
+    tree.visit { fileDetails ->
+        contents += "${fileDetails.relativePath}" + "\n"
     }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
+    schemaIndexFile.write contents
+
+    inputs.files fileTree( dir: 'src/main/resources', include:'*.xsd' )
+    outputs.dir 'src/main/java/com/microsoft/Malmo/Schemas'
+
+    doLast {
+        // first clear the old .java files out of the folder in case some are no longer current
+        delete fileTree(dir: 'src/main/java/com/microsoft/Malmo/Schemas', include: '*.java')
+
+        // use xjc to generate java files from the XML schema
+        ant.taskdef(name: 'xjc', classname: 'com.sun.tools.xjc.XJCTask', classpath: configurations.jaxb.asPath)
+        ant.xjc( destdir: 'src/main/java', package: 'com.microsoft.Malmo.Schemas' )
+                {
+                    schema( dir: 'src/main/resources', includes: '*.xsd' )
+                }
     }
 }
+
+task deleteSchemas() {
+    doLast {
+        // first clear the old .xsd files out of the folder in case some are no longer current
+        delete fileTree(dir: 'src/main/resources', include: '*.xsd')
+    }
+}
+
+// -------------- Task 'copyMds' copied the .md files into the javadoc folder --------------------
+
+task copyMds(type: Copy) {
+    from 'src/main/java/'
+    into 'build/docs/javadoc'
+    include ('**/*.md')
+}
+
+// -------------- Task 'copyMod' copies the Mod file into the Minecraft client and server mods folders --------------------
+
+task copyModToClient(type: Copy) {
+    from 'build/libs/'
+    into '../Minecraft/.minecraft/mods'
+    include ('*.jar')
+}
+
+task copyModToServer(type: Copy) {
+    from 'build/libs/'
+    into '../Minecraft/.minecraftserver/mods'
+    include ('*.jar')
+}
+
+// Interesting. We've packaged forge gradle into the full jar and use gradle inherently??
+shadowJar {
+    classifier = 'fat'
+    configurations = [project.configurations.all]
+    manifest {
+        attributes "Main-Class": "com.microsoft.Malmo.Launcher.GradleStart"
+    }
+}
+
+javadoc.dependsOn copyMds
