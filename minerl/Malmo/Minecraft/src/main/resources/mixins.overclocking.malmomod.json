@@ -3,10 +3,15 @@
   "package": "com.microsoft.Malmo.Mixins",
   "mixins": [
     "MixinEntityRandom",
+    "MixinLargeInventory",
     "MixinMinecraftGameloop",
     "MixinMinecraftServerRun",
     "MixinNoGuiInteract",
     "MixinRandomSkinTexture",
+    "MixinWorldProviderSpawn",
+    "MixinKeyboard",
+    "MixinMouse", 
+    "MixinDisplay",
     "MixinSyncClientStats",
     "MixinWorldProviderSpawn"
   ],

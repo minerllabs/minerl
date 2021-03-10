@@ -131,7 +131,7 @@ public class TimeHelper
         static Boolean serverRunning = false;
         static Boolean serverPistolFired = false;
         public static long numTicks = 0;
-        final static Boolean verbose = false;
+        final static Boolean verbose = true;
         public static int role = 0;
 
         public static synchronized Boolean isSynchronous(){

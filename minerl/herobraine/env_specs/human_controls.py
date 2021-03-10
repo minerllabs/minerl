@@ -1,18 +1,16 @@
-# Copyright (c) 2020 All Rights Reserved
-# Author: William H. Guss, Brandon Houghton
-
 import abc
 from abc import ABC
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 from minerl.herobraine.hero.handler import Handler
 
 from minerl.herobraine.hero import handlers
+from minerl.herobraine.hero.handlers import POVObservation, CameraAction, KeybasedCommandAction
 from minerl.herobraine.hero.mc import INVERSE_KEYMAP
 from minerl.herobraine.env_spec import EnvSpec
 
 from typing import List
 
-SIMPLE_KEYBOARD_ACTION = [
+KEYBOARD_ACTIONS = [
     "forward",
     "back",
     "left",
@@ -20,22 +18,25 @@ SIMPLE_KEYBOARD_ACTION = [
     "jump",
     "sneak",
     "sprint",
-    "attack"
+    "attack",
+    "use",
+    "drop",
+    "inventory"
 ]
 
 
-class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
+class HumanControlEnvSpec(EnvSpec, ABC):
     """
     A simple base environment from which all other simple envs inherit.
     """
 
-    def __init__(self, name, *args, resolution=(64, 64), **kwargs):
+    def __init__(self, name, *args, resolution=(640, 480), **kwargs):
         self.resolution = resolution
         super().__init__(name, *args, **kwargs)
 
     def create_observables(self) -> List[TranslationHandler]:
         return [
-            handlers.POVObservation(self.resolution)
+            POVObservation(self.resolution),
         ]
 
     def create_actionables(self) -> List[TranslationHandler]:
@@ -44,11 +45,13 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
         not all.
         """
         return [
-                   handlers.KeybasedCommandAction(k, v) for k, v in INVERSE_KEYMAP.items()
-                   if k in SIMPLE_KEYBOARD_ACTION
-               ] + [
-                   handlers.CameraAction()
-               ]
+           KeybasedCommandAction(k, INVERSE_KEYMAP[k]) for k in KEYBOARD_ACTIONS
+        ] + [
+           KeybasedCommandAction(f"hotbar.{i}", INVERSE_KEYMAP[str(i)]) for i in range(1, 10)
+        ] + [CameraAction()]
 
     def create_monitors(self) -> List[TranslationHandler]:
-        return []  # No monitors by default!
+        return []  # No monitors by default!o
+
+    def create_agent_start(self) -> List[Handler]:
+        return [handlers.LowLevelInputsAgentStart()]

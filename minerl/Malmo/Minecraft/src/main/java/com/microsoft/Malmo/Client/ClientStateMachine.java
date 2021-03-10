@@ -201,14 +201,16 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         TCPUtils.LogSection ls = new TCPUtils.LogSection("Creating MissionControlSocket");
         // Set up a TCP connection to the agent:
         ClientAgentConnection cac = currentMissionInit().getClientAgentConnection();
-        if (this.missionControlSocket == null || this.missionControlSocket.getPort() != cac.getAgentMissionControlPort()
-                || this.missionControlSocket.getAddress() == null || !this.missionControlSocket.isValid()
+        if (this.missionControlSocket == null
+                || this.missionControlSocket.getPort() != cac.getAgentMissionControlPort()
+                || this.missionControlSocket.getAddress() == null
+                || !this.missionControlSocket.isValid()
                 || !this.missionControlSocket.isOpen()
                 || !this.missionControlSocket.getAddress().equals(cac.getAgentIPAddress())) {
             if (this.missionControlSocket != null)
                 this.missionControlSocket.close();
-            this.missionControlSocket = new TCPSocketChannel(cac.getAgentIPAddress(), cac.getAgentMissionControlPort(),
-                    "mcp");
+            this.missionControlSocket =
+                    new TCPSocketChannel(cac.getAgentIPAddress(), cac.getAgentMissionControlPort(), "mcp");
         }
         ls.close();
     }
@@ -317,18 +319,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 return new MissionEndedEpisode(this, MissionResult.MOD_HAS_NO_AGENT_AVAILABLE, true, true, false);
             case ERROR_LOST_NETWORK_CONNECTION: // run-on deliberate
             case ERROR_CANNOT_CONNECT_TO_SERVER:
-                return new MissionEndedEpisode(this, MissionResult.MOD_CONNECTION_FAILED, true, false, true); // No
-                                                                                                              // point
-                                                                                                              // trying
-                                                                                                              // to
-                                                                                                              // inform
-                                                                                                              // the
-                                                                                                              // server
-                                                                                                              // - we
-                                                                                                              // can't
-                                                                                                              // reach
-                                                                                                              // it
-                                                                                                              // anyway!
+                // No point trying to inform the server - we can't reach it anyway!
+                return new MissionEndedEpisode(this, MissionResult.MOD_CONNECTION_FAILED, true, false, true);
             case ERROR_TIMED_OUT_WAITING_FOR_EPISODE_START: // run-ons deliberate
             case ERROR_TIMED_OUT_WAITING_FOR_EPISODE_PAUSE:
             case ERROR_TIMED_OUT_WAITING_FOR_EPISODE_CLOSE:
@@ -336,19 +328,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             case ERROR_TIMED_OUT_WAITING_FOR_WORLD_CREATE:
                 return new MissionEndedEpisode(this, MissionResult.MOD_CONNECTION_FAILED, true, true, true);
             case MISSION_ABORTED:
-                return new MissionEndedEpisode(this, MissionResult.MOD_SERVER_ABORTED_MISSION, true, false, true); // Don't
-                                                                                                                   // inform
-                                                                                                                   // the
-                                                                                                                   // server
-                                                                                                                   // -
-                                                                                                                   // it
-                                                                                                                   // already
-                                                                                                                   // knows
-                                                                                                                   // (we're
-                                                                                                                   // acting
-                                                                                                                   // on
-                                                                                                                   // its
-                                                                                                                   // notification)
+                // Don't inform the server - it already knows (we're acting on its notification)
+                return new MissionEndedEpisode(this, MissionResult.MOD_SERVER_ABORTED_MISSION, true, false, true);
             case WAITING_FOR_SERVER_MISSION_END:
                 return new WaitingForServerMissionEndEpisode(this);
             default:
@@ -414,11 +395,14 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         // For now, simply return true, since a false positive is less dangerous
         // than a false negative.
         /*
-         * try { String s1 = SchemaHelper.serialiseObject(m1, Mission.class); String s2
-         * = SchemaHelper.serialiseObject(m2, Mission.class); return s1.compareTo(s2) ==
-         * 0; } catch( JAXBException e ) { System.out.println("JAXB exception: " + e);
-         * return false; }
-         */
+        try {
+            String s1 = SchemaHelper.serialiseObject(m1, Mission.class);
+            String s2 = SchemaHelper.serialiseObject(m2, Mission.class);
+            return s1.compareTo(s2) == 0;
+        } catch( JAXBException e ) {
+            System.out.println("JAXB exception: " + e);
+            return false;
+        }*/
     }
 
     /**
@@ -465,8 +449,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 boolean keepProcessing = false;
 
                 // Possible commands:
-                // 1: MALMO_REQUEST_CLIENT:<malmo
-                // version>:<reservation_length(ms)><experiment_id>
+                // 1: MALMO_REQUEST_CLIENT:<malmo version>:<reservation_length(ms)><experiment_id>
                 // 2: MALMO_CANCEL_REQUEST
                 // 3: MALMO_FIND_SERVER<experiment_id>
                 // 4: MALMO_KILL_CLIENT
@@ -492,8 +475,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 } else if (command.startsWith(reservePrefixGeneral)) {
                     // Reservation request, but it didn't match the request we expect, above.
                     // This happens if the agent sending the request is running a different version
-                    // of Malmo -
-                    // a version mismatch error.
+                    // of Malmo ~ a version mismatch error.
                     reply("MALMOERRORVERSIONMISMATCH in reservation string (Got " + command + ", expected "
                             + reservePrefix
                             + " - check your path for old versions of MalmoPython/MalmoJava/Malmo.lib etc)", dos);
@@ -1136,13 +1118,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                         && !Minecraft.getMinecraft().getIntegratedServer().getPublic()) {
                     String portStr = "";
                     if (hc == null)
-                        portStr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, true); // Set
-                                                                                                                      // to
-                                                                                                                      // true
-                                                                                                                      // to
-                                                                                                                      // stop
-                                                                                                                      // spam
-                                                                                                                      // kicks.
+                        // Set to true to spam kicks.
+                        portStr = Minecraft.getMinecraft().getIntegratedServer().shareToLAN(GameType.SURVIVAL, true);
                     else {
                         try {
                             // 1.11.2 - start our own server on a SPECIFIC port.
@@ -1782,9 +1759,15 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
             // Force brightness setting
             Minecraft.getMinecraft().gameSettings.gammaSetting = (float) 2.0;
-            
-            // Disable the gui for the episode!
-            Minecraft.getMinecraft().gameSettings.hideGUI = true;
+
+            if (missionBehaviour.lowLevelInputs) {
+                Minecraft.getMinecraft().gameSettings.hideGUI = false;
+                Minecraft.getMinecraft().gameSettings.guiScale = 2;
+                Minecraft.getMinecraft().gameSettings.fancyGraphics = true;
+            } else {
+                // Disable the gui for the episode!
+                Minecraft.getMinecraft().gameSettings.hideGUI = true;
+            }
 
             for (IVideoProducer videoProducer : currentMissionBehaviour().videoProducers)
             {
@@ -2073,11 +2056,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // Send off observation and reward data:
                     // And see if we have any incoming commands to act upon:
                     sendData(false);
-
-                    // // Since the mission is still in progress, make sure we respawn them
-                    // if (Minecraft.getMinecraft().player.isDead){
-                    //     Minecraft.getMinecraft().player.respawnPlayer();
-                    // }
                 }
             }
         }
