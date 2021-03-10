@@ -19,6 +19,7 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import java.util.Random;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;

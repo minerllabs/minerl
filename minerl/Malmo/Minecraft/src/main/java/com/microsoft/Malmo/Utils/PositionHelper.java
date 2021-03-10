@@ -94,30 +94,6 @@ public class PositionHelper
         return blockpos;
     }
 
-    	/**
-     * Finds the highest block on the x and z coordinate that is solid or liquid, and returns its y coord.
-     */
-    public static BlockPos getTopSolidOrLiquidBlockFromHeight(World world, BlockPos pos)
-    {
-        Chunk chunk = world.getChunkFromBlockCoords(pos);
-        BlockPos blockpos;
-        BlockPos blockpos1;
-
-        for (blockpos = new BlockPos(pos.getX(), pos.getY(), pos.getZ()); blockpos.getY() >= 0; blockpos = blockpos1)
-        {
-            blockpos1 = blockpos.down();
-            IBlockState state = chunk.getBlockState(blockpos1);
-
-            if ((state.getMaterial().blocksMovement() || state.getMaterial().isLiquid()) || state.getBlock().isLeaves(state, world, blockpos1) || state.getBlock().isFoliage(world, blockpos1))
-            {
-                break;
-            }
-        }
-
-        return blockpos;
-    }
-
-
 	/**
      * Finds the highest block on the x and z coordinate that we can teleport an agent to, and returns its y coord.
      */
