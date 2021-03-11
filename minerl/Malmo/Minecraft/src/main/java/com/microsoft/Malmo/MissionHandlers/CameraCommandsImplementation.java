@@ -99,9 +99,13 @@ public class CameraCommandsImplementation extends CommandBase {
                         this.currentYaw = player.rotationYaw;
                         this.currentPitch = player.rotationPitch;
                     }
-                    // TODO peterz: I am pretty sure this code is deprecated and does not match the docstring
-                    // i.e. no smooth panning is happening here
-                    // player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw, this.currentPitch);
+                    // the line below looks like it should be a noop, and normally it is
+                    // however, when specifying agent position via AgentStartPlacement, for a first
+                    // few ticks there is a disagreement between server and client about where the agent is
+                    // and where they are looking, which leads to issues like https://github.com/openai/openai/issues/7415
+                    // Code below fixes this discrepancy.
+                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, player.rotationYaw,
+                            player.rotationPitch);
                 }
             }
         }
