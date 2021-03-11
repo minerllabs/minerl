@@ -99,9 +99,8 @@ public class CameraCommandsImplementation extends CommandBase {
                         this.currentYaw = player.rotationYaw;
                         this.currentPitch = player.rotationPitch;
                     }
-                    // TODO peterz: I am pretty sure this code is deprecated and does not match the docstring
-                    // i.e. no smooth panning is happening here
-                    // player.setPositionAndRotation(player.posX, player.posY, player.posZ, this.currentYaw, this.currentPitch);
+                    player.setPositionAndRotation(player.posX, player.posY, player.posZ, player.rotationYaw,
+                            player.rotationPitch);
                 }
             }
         }
