@@ -1,22 +1,19 @@
 package com.microsoft.Malmo.MissionHandlers;
 
-    import com.google.gson.JsonArray;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-    import com.google.gson.JsonPrimitive;
-    import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
-import com.microsoft.Malmo.Schemas.DrawItem;
+import com.google.gson.JsonPrimitive;
+import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 
 import static java.lang.Math.*;
 
@@ -64,6 +61,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
                 death_json.addProperty("damage_entity", this.damageSource.getEntity().getName());
                 death_json.addProperty("damage_entity_id", this.damageSource.getEntity().getEntityId());
                 JsonArray entity_equipment = new JsonArray();
+                // TODO do we need to mark the equipment slot of this armor?
                 for (ItemStack item : this.damageSource.getEntity().getEquipmentAndArmor()) {
                     if (item.getItem().getRegistryName() != null) {
                         JsonElement jitem = new JsonPrimitive(item.getItem().getRegistryName().toString());
