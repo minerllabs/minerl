@@ -6,7 +6,7 @@ buildscript {
         jcenter()
         mavenCentral()
         maven {
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://files.minecraftforge.net/maven"
         }
         maven {
             name = "sonatype"
@@ -62,7 +62,7 @@ archivesBaseName = "MalmoMod"
 minecraft {
     version = "1.11.2-13.20.0.2228"
     runDir = "run"
-    
+
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
@@ -73,7 +73,7 @@ minecraft {
 }
 
 
-runClient { 
+runClient {
     if (project.hasProperty("runDir")) {
         minecraft.runDir = project.getProperty("runDir")
     }
@@ -105,8 +105,9 @@ jar {
 
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
 JavaExec exec = project.getTasks().getByName("runClient")
-// exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G", "-Xdebug", "-Xrunjdwp:transport=dt_socket,address=127.0.0.1:8888,server=y,suspend=n"])
-exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
+exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G", "-Xdebug", "-Dmixin.debug=true"])
+exec.args(["--tweakClass", "com.microsoft.Malmo.Launcher.tweakers.CoremodTweaker"])
+// exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
 // ForgeGradle automatically sets the runClient task's outputs to be the runDir above (eg "run"). This
 // means that gradle will helpfully try to take a snapshot of the complete contents of the run folder in order
 // to carry out up-to-date checks for any tasks that depend on runClient.
@@ -137,11 +138,11 @@ processResources
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
+
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-        
+
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
@@ -185,7 +186,7 @@ project.tasks.idea.dependsOn copySrg
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 compileJava.doLast {
-    File refmapFile =  compileJava.ext.refMapFile 
+    File refmapFile =  compileJava.ext.refMapFile
     if (refmapFile.exists()) {
         def ordered
         ordered = {
@@ -299,7 +300,7 @@ task jaxb() {
 
     inputs.files fileTree( dir: 'src/main/resources', include:'*.xsd' )
     outputs.dir 'src/main/java/com/microsoft/Malmo/Schemas'
-    
+
     doLast {
         // first clear the old .java files out of the folder in case some are no longer current
         delete fileTree(dir: 'src/main/java/com/microsoft/Malmo/Schemas', include: '*.java')
