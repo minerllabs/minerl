@@ -19,7 +19,9 @@ mkdir -p $MINERL_DATA_ROOT
 pip install -e .
 #az storage copy -s $AZ_MINERL_DATA -d $MINERL_DATA_ROOT --recursive --subscription sci
 
-pytest .
+
+pytest . -n 2
+
 pip uninstall -y minerl
 
 pip list

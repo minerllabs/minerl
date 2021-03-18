@@ -488,4 +488,8 @@ public class MalmoMod
             }
         }
     }
+
+    public static boolean isLowLevelInput() {
+        return instance.client.isLowLevelInput();
+    }
 }

@@ -7,13 +7,10 @@
 [![GitHub issues by-label](https://img.shields.io/github/issues/minerllabs/minerl/bug.svg?color=red)](https://github.com/minerllabs/minerl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Abug)
 [![Discord](https://img.shields.io/discord/565639094860775436.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BT9uegr)
 
-[![Support us on patron](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fwguss_imushroom&style=for-the-badge)](https://www.patreon.com/wguss_imushroom)
 
 Python package providing easy to use gym environments and a simple data api for the MineRLv0 dataset. 
 
 **To [get started please read the docs here](http://minerl.io/docs/)!**
-
-**We develop `minerl` in our spare time, [please consider supporting us on Patreon <3](https://www.patreon.com/wguss_imushroom)**
 
 ![](http://www.minerl.io/docs/_images/demo.gif)
 ## Installation
