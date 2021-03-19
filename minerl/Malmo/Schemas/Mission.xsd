@@ -353,7 +353,7 @@
             <xs:simpleType>
                 <xs:restriction base="xs:int">
                     <xs:minInclusive value="0"/>
-                    <xs:maxInclusive value="39"/>
+                    <xs:maxInclusive value="363"/>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
