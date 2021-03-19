@@ -346,7 +346,38 @@ task copyModToServer(type: Copy) {
 // Interesting. We've packaged forge gradle into the full jar and use gradle inherently??
 shadowJar {
     classifier = 'fat'
-    configurations = [project.configurations.compile, project.configurations.runtime, project.configurations.apiCompile, project.configurations.apiRuntime]
+    configurations = [
+            project.configurations.annotationProcessor,
+            project.configurations.apiAnnotationProcessor,
+            project.configurations.apiCompile,
+            project.configurations.apiCompileClasspath,
+            project.configurations.apiCompileOnly,
+            project.configurations.apiRuntime,
+            project.configurations.apiRuntimeClasspath,
+            project.configurations.archives,
+            project.configurations.compile,
+            project.configurations.compileClasspath,
+            project.configurations.compileOnly,
+            project.configurations.default,
+            project.configurations.deobfCompile,
+            project.configurations.deobfProvided,
+            project.configurations.forgeGradleFfiDeps,
+            project.configurations.forgeGradleGradleStart,
+            project.configurations.forgeGradleMc,
+            project.configurations.forgeGradleMcDeps,
+            project.configurations.forgeGradleMcDepsClient,
+            project.configurations.forgeGradleMcNatives,
+            project.configurations.forgeGradleMcpData,
+            project.configurations.forgeGradleMcpMappings,
+            project.configurations.forgeGradleResolvedDeobfCompile,
+            project.configurations.forgeGradleResovledDeobfProvided,
+            project.configurations.forgeGradleUserDevPackage,
+            project.configurations.jaxb,
+            project.configurations.provided,
+            project.configurations.runtime,
+            project.configurations.runtimeClasspath,
+            project.configurations.shadow
+    ]
     manifest {
         attributes "Main-Class": "com.microsoft.Malmo.Launcher.GradleStart"
     }
