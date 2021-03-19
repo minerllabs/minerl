@@ -104,7 +104,7 @@ jar {
 }
 
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
-JavaExec exec = project.getTasks().getByName("runClient")
+JavaExec exec = project.getTasks().getByName("runClient") as JavaExec
 exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G", "-Xdebug", "-Dmixin.debug=true"])
 exec.args(["--tweakClass", "com.microsoft.Malmo.Launcher.tweakers.CoremodTweaker"])
 // exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
