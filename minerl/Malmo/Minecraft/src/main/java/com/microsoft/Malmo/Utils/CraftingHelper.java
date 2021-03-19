@@ -38,6 +38,8 @@ import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation
 import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -703,7 +705,11 @@ public class CraftingHelper {
                             hasColour = true;
                         if (prop instanceof PropertyEnum && prop.getName().equals("variant")) {
                             hasVariant = true;
-                            json.addProperty("variant", bs.getValue(prop).toString());
+                            JsonArray arr = new JsonArray();
+                            for (Object variant_type : ((PropertyEnum)prop).getAllowedValues()) {
+                                arr.add(new JsonPrimitive(variant_type.toString()));
+                            }
+                            json.add("variant", arr);
                         }
                     }
                     json.addProperty("hasDirection", hasDirection);
