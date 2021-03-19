@@ -126,7 +126,6 @@ class FlatInventoryVariantObservation(FlatInventoryObservation):
 
     logger = logging.getLogger(__name__ + ".FlatInventoryVariantObservation")
 
-
     def from_hero(self, info):
         """
         Converts the Hero observation into a one-hot of the inventory items
