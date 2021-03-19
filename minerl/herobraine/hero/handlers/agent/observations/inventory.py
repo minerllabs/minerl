@@ -144,7 +144,8 @@ class FlatInventoryVariantObservation(FlatInventoryObservation):
         return item_dict
 
     def from_universal(self, obs):
-        # TODO where does this come from?
+        # This comes from minerl; this should break loudly when we attempt to
+        # produce a new dataset, and we'll know to supply these features then
         raise NotImplementedError
 
     def __or__(self, other):
