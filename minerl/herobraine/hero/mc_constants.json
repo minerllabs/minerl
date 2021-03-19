@@ -3794,17 +3794,31 @@
   ],
   "smeltingRecipes": [
     {
-      "outputItemName": "dye",
+      "outputItemName": "quartz",
       "out": 1,
       "ingredients": {
-        "lapis_ore": 1
+        "quartz_ore": 1
       }
     },
     {
       "outputItemName": "iron_nugget",
       "out": 1,
       "ingredients": {
-        "chainmail_boots": 1
+        "iron_pickaxe": 1
+      }
+    },
+    {
+      "outputItemName": "gold_nugget",
+      "out": 1,
+      "ingredients": {
+        "golden_boots": 1
+      }
+    },
+    {
+      "outputItemName": "iron_nugget",
+      "out": 1,
+      "ingredients": {
+        "iron_chestplate": 1
       }
     },
     {
@@ -3818,133 +3832,7 @@
       "outputItemName": "iron_nugget",
       "out": 1,
       "ingredients": {
-        "iron_helmet": 1
-      }
-    },
-    {
-      "outputItemName": "gold_nugget",
-      "out": 1,
-      "ingredients": {
-        "golden_chestplate": 1
-      }
-    },
-    {
-      "outputItemName": "quartz",
-      "out": 1,
-      "ingredients": {
-        "quartz_ore": 1
-      }
-    },
-    {
-      "outputItemName": "stonebrick",
-      "out": 1,
-      "ingredients": {
-        "stonebrick": 1
-      }
-    },
-    {
-      "outputItemName": "gold_nugget",
-      "out": 1,
-      "ingredients": {
-        "golden_axe": 1
-      }
-    },
-    {
-      "outputItemName": "coal",
-      "out": 1,
-      "ingredients": {
-        "coal_ore": 1
-      }
-    },
-    {
-      "outputItemName": "diamond",
-      "out": 1,
-      "ingredients": {
-        "diamond_ore": 1
-      }
-    },
-    {
-      "outputItemName": "iron_nugget",
-      "out": 1,
-      "ingredients": {
-        "chainmail_leggings": 1
-      }
-    },
-    {
-      "outputItemName": "hardened_clay",
-      "out": 1,
-      "ingredients": {
-        "clay": 1
-      }
-    },
-    {
-      "outputItemName": "iron_nugget",
-      "out": 1,
-      "ingredients": {
-        "iron_horse_armor": 1
-      }
-    },
-    {
-      "outputItemName": "cooked_beef",
-      "out": 1,
-      "ingredients": {
-        "beef": 1
-      }
-    },
-    {
-      "outputItemName": "iron_nugget",
-      "out": 1,
-      "ingredients": {
-        "iron_hoe": 1
-      }
-    },
-    {
-      "outputItemName": "gold_nugget",
-      "out": 1,
-      "ingredients": {
-        "golden_pickaxe": 1
-      }
-    },
-    {
-      "outputItemName": "iron_nugget",
-      "out": 1,
-      "ingredients": {
-        "iron_pickaxe": 1
-      }
-    },
-    {
-      "outputItemName": "cooked_rabbit",
-      "out": 1,
-      "ingredients": {
-        "rabbit": 1
-      }
-    },
-    {
-      "outputItemName": "netherbrick",
-      "out": 1,
-      "ingredients": {
-        "netherrack": 1
-      }
-    },
-    {
-      "outputItemName": "gold_ingot",
-      "out": 1,
-      "ingredients": {
-        "gold_ore": 1
-      }
-    },
-    {
-      "outputItemName": "stone",
-      "out": 1,
-      "ingredients": {
-        "cobblestone": 1
-      }
-    },
-    {
-      "outputItemName": "coal",
-      "out": 1,
-      "ingredients": {
-        "log2": 1
+        "chainmail_helmet": 1
       }
     },
     {
@@ -3955,24 +3843,10 @@
       }
     },
     {
-      "outputItemName": "redstone",
+      "outputItemName": "gold_nugget",
       "out": 1,
       "ingredients": {
-        "redstone_ore": 1
-      }
-    },
-    {
-      "outputItemName": "cooked_porkchop",
-      "out": 1,
-      "ingredients": {
-        "porkchop": 1
-      }
-    },
-    {
-      "outputItemName": "iron_nugget",
-      "out": 1,
-      "ingredients": {
-        "iron_chestplate": 1
+        "golden_hoe": 1
       }
     },
     {
@@ -3980,6 +3854,55 @@
       "out": 1,
       "ingredients": {
         "iron_ore": 1
+      }
+    },
+    {
+      "outputItemName": "redstone",
+      "out": 1,
+      "ingredients": {
+        "redstone_ore": 1
+      }
+    },
+    {
+      "outputItemName": "glass",
+      "out": 1,
+      "ingredients": {
+        "sand": 1
+      }
+    },
+    {
+      "outputItemName": "iron_nugget",
+      "out": 1,
+      "ingredients": {
+        "chainmail_boots": 1
+      }
+    },
+    {
+      "outputItemName": "dye",
+      "out": 1,
+      "ingredients": {
+        "cactus": 1
+      }
+    },
+    {
+      "outputItemName": "gold_nugget",
+      "out": 1,
+      "ingredients": {
+        "golden_pickaxe": 1
+      }
+    },
+    {
+      "outputItemName": "cooked_chicken",
+      "out": 1,
+      "ingredients": {
+        "chicken": 1
+      }
+    },
+    {
+      "outputItemName": "iron_nugget",
+      "out": 1,
+      "ingredients": {
+        "iron_sword": 1
       }
     },
     {
@@ -3993,7 +3916,7 @@
       "outputItemName": "iron_nugget",
       "out": 1,
       "ingredients": {
-        "iron_sword": 1
+        "iron_shovel": 1
       }
     },
     {
@@ -4004,20 +3927,6 @@
       }
     },
     {
-      "outputItemName": "gold_nugget",
-      "out": 1,
-      "ingredients": {
-        "golden_sword": 1
-      }
-    },
-    {
-      "outputItemName": "gold_nugget",
-      "out": 1,
-      "ingredients": {
-        "golden_helmet": 1
-      }
-    },
-    {
       "outputItemName": "sponge",
       "out": 1,
       "ingredients": {
@@ -4025,24 +3934,45 @@
       }
     },
     {
-      "outputItemName": "iron_nugget",
+      "outputItemName": "diamond",
       "out": 1,
       "ingredients": {
-        "iron_shovel": 1
+        "diamond_ore": 1
       }
     },
     {
-      "outputItemName": "chorus_fruit_popped",
+      "outputItemName": "stonebrick",
       "out": 1,
       "ingredients": {
-        "chorus_fruit": 1
+        "stonebrick": 1
       }
     },
     {
-      "outputItemName": "cooked_fish",
+      "outputItemName": "emerald",
       "out": 1,
       "ingredients": {
-        "fish": 1
+        "emerald_ore": 1
+      }
+    },
+    {
+      "outputItemName": "hardened_clay",
+      "out": 1,
+      "ingredients": {
+        "clay": 1
+      }
+    },
+    {
+      "outputItemName": "dye",
+      "out": 1,
+      "ingredients": {
+        "lapis_ore": 1
+      }
+    },
+    {
+      "outputItemName": "cooked_beef",
+      "out": 1,
+      "ingredients": {
+        "beef": 1
       }
     },
     {
@@ -4053,45 +3983,52 @@
       }
     },
     {
-      "outputItemName": "glass",
+      "outputItemName": "gold_ingot",
       "out": 1,
       "ingredients": {
-        "sand": 1
+        "gold_ore": 1
       }
     },
     {
-      "outputItemName": "coal",
+      "outputItemName": "gold_nugget",
       "out": 1,
       "ingredients": {
-        "log": 1
-      }
-    },
-    {
-      "outputItemName": "iron_nugget",
-      "out": 1,
-      "ingredients": {
-        "chainmail_chestplate": 1
+        "golden_axe": 1
       }
     },
     {
       "outputItemName": "iron_nugget",
       "out": 1,
       "ingredients": {
-        "chainmail_helmet": 1
+        "iron_helmet": 1
       }
     },
     {
-      "outputItemName": "dye",
+      "outputItemName": "stone",
       "out": 1,
       "ingredients": {
-        "cactus": 1
+        "cobblestone": 1
       }
     },
     {
-      "outputItemName": "emerald",
+      "outputItemName": "gold_nugget",
       "out": 1,
       "ingredients": {
-        "emerald_ore": 1
+        "golden_helmet": 1
+      }
+    },
+    {
+      "outputItemName": "gold_nugget",
+      "out": 1,
+      "ingredients": {
+        "golden_chestplate": 1
+      }
+    },
+    {
+      "outputItemName": "chorus_fruit_popped",
+      "out": 1,
+      "ingredients": {
+        "chorus_fruit": 1
       }
     },
     {
@@ -4109,10 +4046,10 @@
       }
     },
     {
-      "outputItemName": "cooked_chicken",
+      "outputItemName": "coal",
       "out": 1,
       "ingredients": {
-        "chicken": 1
+        "coal_ore": 1
       }
     },
     {
@@ -4123,10 +4060,38 @@
       }
     },
     {
-      "outputItemName": "gold_nugget",
+      "outputItemName": "cooked_porkchop",
       "out": 1,
       "ingredients": {
-        "golden_horse_armor": 1
+        "porkchop": 1
+      }
+    },
+    {
+      "outputItemName": "coal",
+      "out": 1,
+      "ingredients": {
+        "log2": 1
+      }
+    },
+    {
+      "outputItemName": "iron_nugget",
+      "out": 1,
+      "ingredients": {
+        "chainmail_leggings": 1
+      }
+    },
+    {
+      "outputItemName": "iron_nugget",
+      "out": 1,
+      "ingredients": {
+        "chainmail_chestplate": 1
+      }
+    },
+    {
+      "outputItemName": "coal",
+      "out": 1,
+      "ingredients": {
+        "log": 1
       }
     },
     {
@@ -4137,17 +4102,52 @@
       }
     },
     {
-      "outputItemName": "gold_nugget",
+      "outputItemName": "iron_nugget",
       "out": 1,
       "ingredients": {
-        "golden_boots": 1
+        "iron_hoe": 1
+      }
+    },
+    {
+      "outputItemName": "cooked_fish",
+      "out": 1,
+      "ingredients": {
+        "fish": 1
+      }
+    },
+    {
+      "outputItemName": "cooked_rabbit",
+      "out": 1,
+      "ingredients": {
+        "rabbit": 1
+      }
+    },
+    {
+      "outputItemName": "iron_nugget",
+      "out": 1,
+      "ingredients": {
+        "iron_horse_armor": 1
+      }
+    },
+    {
+      "outputItemName": "netherbrick",
+      "out": 1,
+      "ingredients": {
+        "netherrack": 1
       }
     },
     {
       "outputItemName": "gold_nugget",
       "out": 1,
       "ingredients": {
-        "golden_hoe": 1
+        "golden_horse_armor": 1
+      }
+    },
+    {
+      "outputItemName": "gold_nugget",
+      "out": 1,
+      "ingredients": {
+        "golden_sword": 1
       }
     }
   ],
@@ -4276,7 +4276,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "cobblestone",
@@ -4312,7 +4314,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "ender_chest",
@@ -4348,7 +4352,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "nether_brick",
@@ -4384,7 +4390,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "snow_layer",
@@ -4420,7 +4428,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "spawn_egg",
@@ -4492,7 +4502,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "chainmail_chestplate",
@@ -4546,7 +4558,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "tnt",
@@ -4582,7 +4596,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "sand",
@@ -4622,7 +4638,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "diamond_pickaxe",
@@ -4694,7 +4712,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "birch_fence_gate",
@@ -4730,7 +4750,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "fermented_spider_eye",
@@ -4820,7 +4842,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "hardened_clay",
@@ -4856,7 +4880,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "splash_potion",
@@ -4928,7 +4954,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "emerald",
@@ -5004,7 +5032,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "stained_glass",
@@ -5040,7 +5070,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": true,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "stone_button",
@@ -5076,7 +5108,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_ingot",
@@ -5158,7 +5192,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "stained_glass_pane",
@@ -5194,7 +5230,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": true,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "clay",
@@ -5230,7 +5268,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "rabbit",
@@ -5284,7 +5324,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "glass_bottle",
@@ -5345,7 +5387,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "redstone_lamp",
@@ -5381,7 +5425,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "record_cat",
@@ -5450,7 +5496,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "clay_ball",
@@ -5520,9 +5568,16 @@
       "ironMaterial": false,
       "glassyMaterial": false,
       "clothMaterial": false,
+      "variant": [
+        "dead_bush",
+        "tall_grass",
+        "fern"
+      ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": true,
+      "hasHalf": false
     },
     {
       "type": "record_far",
@@ -5594,7 +5649,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "nether_star",
@@ -5648,7 +5705,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "dispenser",
@@ -5684,7 +5743,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "black_shulker_box",
@@ -5720,7 +5781,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "record_wait",
@@ -5792,7 +5855,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "golden_carrot",
@@ -5844,9 +5909,22 @@
       "ironMaterial": false,
       "glassyMaterial": false,
       "clothMaterial": false,
+      "variant": [
+        "poppy",
+        "blue_orchid",
+        "allium",
+        "houstonia",
+        "red_tulip",
+        "orange_tulip",
+        "white_tulip",
+        "pink_tulip",
+        "oxeye_daisy"
+      ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": true,
+      "hasHalf": false
     },
     {
       "type": "beef",
@@ -5945,7 +6023,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "soul_sand",
@@ -5981,7 +6061,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "fireworks",
@@ -6035,7 +6117,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "mycelium",
@@ -6071,7 +6155,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "bookshelf",
@@ -6107,7 +6193,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "chicken",
@@ -6161,7 +6249,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "end_crystal",
@@ -6287,7 +6377,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": true,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "purpur_slab",
@@ -6326,7 +6418,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "quartz",
@@ -6380,7 +6474,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "baked_potato",
@@ -6560,7 +6656,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "gold_ore",
@@ -6596,7 +6694,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "flint",
@@ -6668,7 +6768,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "diamond_shovel",
@@ -6722,7 +6824,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "hay_block",
@@ -6758,7 +6862,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "comparator",
@@ -6812,7 +6918,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "torch",
@@ -6848,7 +6956,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "diamond_hoe",
@@ -6902,7 +7012,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "banner",
@@ -6938,7 +7050,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "command_block_minecart",
@@ -7046,7 +7160,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "string",
@@ -7154,7 +7270,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "gold_ingot",
@@ -7208,7 +7326,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "potato",
@@ -7280,7 +7400,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "coal",
@@ -7501,7 +7623,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "rotten_flesh",
@@ -7591,7 +7715,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "lapis_block",
@@ -7627,7 +7753,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "cookie",
@@ -7699,7 +7827,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "wool",
@@ -7735,7 +7865,9 @@
       "clothMaterial": true,
       "hasDirection": false,
       "hasColour": true,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "spruce_door",
@@ -7807,7 +7939,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "end_stone",
@@ -7843,7 +7977,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "golden_boots",
@@ -7895,9 +8031,19 @@
       "ironMaterial": false,
       "glassyMaterial": false,
       "clothMaterial": false,
+      "variant": [
+        "oak",
+        "spruce",
+        "birch",
+        "jungle",
+        "acacia",
+        "dark_oak"
+      ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": true,
+      "hasHalf": false
     },
     {
       "type": "compass",
@@ -7969,7 +8115,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "log",
@@ -8011,7 +8159,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "record_13",
@@ -8195,7 +8345,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "orange_shulker_box",
@@ -8231,7 +8383,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "grass_path",
@@ -8267,7 +8421,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "quartz_stairs",
@@ -8303,7 +8459,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "stonebrick",
@@ -8345,7 +8503,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "potion",
@@ -8399,7 +8559,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "gray_shulker_box",
@@ -8435,7 +8597,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "redstone",
@@ -8489,7 +8653,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_block",
@@ -8525,7 +8691,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "golden_leggings",
@@ -8579,7 +8747,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "item_frame",
@@ -8633,7 +8803,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "spectral_arrow",
@@ -8705,7 +8877,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "acacia_fence_gate",
@@ -8741,7 +8915,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "experience_bottle",
@@ -8795,7 +8971,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "wooden_shovel",
@@ -8849,7 +9027,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "waterlily",
@@ -8885,7 +9065,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "piston",
@@ -8921,7 +9103,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "bow",
@@ -8975,7 +9159,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_hoe",
@@ -9029,7 +9215,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "chorus_flower",
@@ -9065,7 +9253,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "diamond_helmet",
@@ -9137,7 +9327,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "snowball",
@@ -9191,7 +9383,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "daylight_detector",
@@ -9227,7 +9421,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "stone_pressure_plate",
@@ -9263,7 +9459,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "gravel",
@@ -9299,7 +9497,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "acacia_door",
@@ -9371,7 +9571,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "barrier",
@@ -9407,7 +9609,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "tnt_minecart",
@@ -9461,7 +9665,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "birch_boat",
@@ -9515,7 +9721,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "wooden_pressure_plate",
@@ -9551,7 +9759,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "rabbit_stew",
@@ -9677,7 +9887,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "cooked_porkchop",
@@ -9731,7 +9943,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "bowl",
@@ -9785,7 +9999,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "stone_slab2",
@@ -9824,7 +10040,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "netherrack",
@@ -9860,7 +10078,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "wooden_sword",
@@ -9932,7 +10152,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "redstone_torch",
@@ -9968,7 +10190,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "spider_eye",
@@ -10040,7 +10264,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "sandstone_stairs",
@@ -10076,7 +10302,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "nether_wart_block",
@@ -10112,7 +10340,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "red_sandstone",
@@ -10146,9 +10376,16 @@
       "ironMaterial": false,
       "glassyMaterial": false,
       "clothMaterial": false,
+      "variant": [
+        "red_sandstone",
+        "chiseled_red_sandstone",
+        "smooth_red_sandstone"
+      ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": true,
+      "hasHalf": false
     },
     {
       "type": "beacon",
@@ -10184,7 +10421,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "diamond_axe",
@@ -10256,7 +10495,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "glowstone",
@@ -10292,7 +10533,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "deadbush",
@@ -10328,7 +10571,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "brick_stairs",
@@ -10364,7 +10609,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "arrow",
@@ -10433,7 +10680,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "shield",
@@ -10487,7 +10736,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "anvil",
@@ -10523,7 +10774,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_leggings",
@@ -10577,7 +10830,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "jukebox",
@@ -10613,7 +10868,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "observer",
@@ -10649,7 +10906,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "spruce_fence",
@@ -10685,7 +10944,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "birch_door",
@@ -10757,7 +11018,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "record_blocks",
@@ -10829,7 +11092,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_shovel",
@@ -10883,7 +11148,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "armor_stand",
@@ -10937,7 +11204,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "feather",
@@ -11017,7 +11286,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "record_mellohi",
@@ -11071,7 +11342,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "magma_cream",
@@ -11151,7 +11424,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "iron_ore",
@@ -11187,7 +11462,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "dark_oak_fence_gate",
@@ -11223,7 +11500,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "jungle_boat",
@@ -11313,7 +11592,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "redstone_block",
@@ -11349,7 +11630,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "wooden_door",
@@ -11403,7 +11686,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "yellow_flower",
@@ -11437,9 +11722,14 @@
       "ironMaterial": false,
       "glassyMaterial": false,
       "clothMaterial": false,
+      "variant": [
+        "dandelion"
+      ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": true,
+      "hasHalf": false
     },
     {
       "type": "rabbit_hide",
@@ -11493,7 +11783,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "bone_block",
@@ -11529,7 +11821,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "written_book",
@@ -11637,7 +11931,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "sticky_piston",
@@ -11673,7 +11969,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "record_strad",
@@ -11727,7 +12025,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "leaves2",
@@ -11767,7 +12067,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "end_portal_frame",
@@ -11803,7 +12105,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "trapdoor",
@@ -11839,7 +12143,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "pumpkin_seeds",
@@ -11893,7 +12199,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "diamond_horse_armor",
@@ -11953,7 +12261,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "sea_lantern",
@@ -11989,7 +12299,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "chainmail_helmet",
@@ -12097,7 +12409,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "carrot_on_a_stick",
@@ -12169,7 +12483,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": true,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "skull",
@@ -12246,7 +12562,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "emerald_ore",
@@ -12282,7 +12600,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "chorus_fruit",
@@ -12344,7 +12664,9 @@
       ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "trapped_chest",
@@ -12380,7 +12702,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "egg",
@@ -12560,7 +12884,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "sponge",
@@ -12596,7 +12922,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_axe",
@@ -12650,7 +12978,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "crafting_table",
@@ -12686,7 +13016,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "clock",
@@ -12740,7 +13072,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_pickaxe",
@@ -12794,7 +13128,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "blaze_rod",
@@ -12866,7 +13202,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "sandstone",
@@ -12900,9 +13238,16 @@
       "ironMaterial": false,
       "glassyMaterial": false,
       "clothMaterial": false,
+      "variant": [
+        "sandstone",
+        "chiseled_sandstone",
+        "smooth_sandstone"
+      ],
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": true,
+      "hasHalf": false
     },
     {
       "type": "dragon_egg",
@@ -12938,7 +13283,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "furnace_minecart",
@@ -13010,7 +13357,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "fire_charge",
@@ -13064,7 +13413,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "lead",
@@ -13154,7 +13505,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "cyan_shulker_box",
@@ -13190,7 +13543,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "green_shulker_box",
@@ -13226,7 +13581,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "stone_sword",
@@ -13280,7 +13637,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "bed",
@@ -13334,7 +13693,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "mushroom_stew",
@@ -13424,7 +13785,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "repeating_command_block",
@@ -13460,7 +13823,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_trapdoor",
@@ -13496,7 +13861,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "chest",
@@ -13532,7 +13899,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "iron_helmet",
@@ -13658,7 +14027,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "hopper_minecart",
@@ -13838,7 +14209,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "air",
@@ -13910,7 +14283,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "melon_block",
@@ -13946,7 +14321,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "prismarine_crystals",
@@ -14000,7 +14377,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "lever",
@@ -14036,7 +14415,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "paper",
@@ -14090,7 +14471,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "record_chirp",
@@ -14162,7 +14545,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "white_shulker_box",
@@ -14198,7 +14583,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "wooden_pickaxe",
@@ -14260,7 +14647,9 @@
       ],
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": true
+      "hasVariant": true,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "pumpkin",
@@ -14296,7 +14685,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "wheat_seeds",
@@ -14368,7 +14759,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": true
     },
     {
       "type": "glass",
@@ -14404,7 +14797,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "fence",
@@ -14440,7 +14835,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "pink_shulker_box",
@@ -14476,7 +14873,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "dark_oak_fence",
@@ -14512,7 +14911,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "tripwire_hook",
@@ -14548,7 +14949,9 @@
       "clothMaterial": false,
       "hasDirection": true,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "golden_axe",
@@ -14602,7 +15005,9 @@
       "clothMaterial": false,
       "hasDirection": false,
       "hasColour": false,
-      "hasVariant": false
+      "hasVariant": false,
+      "hasType": false,
+      "hasHalf": false
     },
     {
       "type": "golden_sword",
@@ -25435,1706 +25840,12 @@
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.jungle_fence",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "jungle_fence"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.torch",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "torch"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.sign",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "sign"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.fence_gate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "fence_gate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_brick_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_brick_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.jungle_door",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "jungle_door"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cooked_beef",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cooked_beef"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.heavy_weighted_pressure_plate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "heavy_weighted_pressure_plate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.birch_door",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "birch_door"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.purpur_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "purpur_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_hoe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_hoe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_sword",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_sword"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.chest_minecart",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "chest_minecart"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.coal",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "coal"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.daylight_detector",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "daylight_detector"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stick",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stick"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_apple",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_apple"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.wooden_door",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "wooden_door"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.lead",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "lead"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.fermented_spider_eye",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "fermented_spider_eye"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_bars",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_bars"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.acacia_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "acacia_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.red_nether_brick",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "red_nether_brick"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.jungle_boat",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "jungle_boat"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.acacia_door",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "acacia_door"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dark_oak_fence_gate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dark_oak_fence_gate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.netherbrick",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "netherbrick"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dark_oak_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dark_oak_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.writable_book",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "writable_book"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_ingot",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_ingot"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.jukebox",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "jukebox"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_shovel",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_shovel"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.mossy_cobblestone",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "mossy_cobblestone"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.fence",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "fence"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.brewing_stand",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "brewing_stand"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.glass",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "glass"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.leather_chestplate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "leather_chestplate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.carrot_on_a_stick",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "carrot_on_a_stick"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.glowstone",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "glowstone"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.emerald_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "emerald_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_trapdoor",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_trapdoor"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.tnt_minecart",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "tnt_minecart"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.gold_ingot",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "gold_ingot"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.sticky_piston",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "sticky_piston"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.clock",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "clock"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.nether_brick",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "nether_brick"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cobblestone_wall",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cobblestone_wall"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_sword",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_sword"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.comparator",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "comparator"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.flower_pot",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "flower_pot"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.paper",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "paper"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.spruce_boat",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "spruce_boat"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.furnace_minecart",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "furnace_minecart"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.shield",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "shield"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.beacon",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "beacon"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.bow",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "bow"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.bookshelf",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "bookshelf"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_slab2",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_slab2"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_shovel",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_shovel"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_leggings",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_leggings"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.spectral_arrow",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "spectral_arrow"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stained_glass_pane",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stained_glass_pane"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.spruce_door",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "spruce_door"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.magma_cream",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "magma_cream"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_chestplate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_chestplate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cooked_fish",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cooked_fish"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dropper",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dropper"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.tripwire_hook",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "tripwire_hook"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.baked_potato",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "baked_potato"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_sword",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_sword"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.quartz_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "quartz_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.boat",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "boat"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_button",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_button"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.oak_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "oak_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.fire_charge",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "fire_charge"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
       "statID": "stat.craftItem.minecraft.acacia_fence",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
         "acacia_fence"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.planks",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "planks"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_sword",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_sword"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dark_oak_door",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dark_oak_door"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.shears",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "shears"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stained_hardened_clay",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stained_hardened_clay"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.glass_pane",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "glass_pane"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cauldron",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cauldron"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.speckled_melon",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "speckled_melon"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.clay",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "clay"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.rail",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "rail"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.enchanting_table",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "enchanting_table"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.mushroom_stew",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "mushroom_stew"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.sandstone_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "sandstone_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_carrot",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_carrot"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dispenser",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dispenser"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_shovel",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_shovel"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.lit_pumpkin",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "lit_pumpkin"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_pickaxe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_pickaxe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_hoe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_hoe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.brick_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "brick_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.purpur_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "purpur_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.slime",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "slime"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.rabbit_stew",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "rabbit_stew"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dirt",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dirt"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.nether_brick_fence",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "nether_brick_fence"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stonebrick",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stonebrick"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.magma",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "magma"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.leather",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "leather"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.carpet",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "carpet"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.leather_boots",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "leather_boots"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_helmet",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_helmet"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.pumpkin_seeds",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "pumpkin_seeds"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.repeater",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "repeater"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.detector_rail",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "detector_rail"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.ender_chest",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "ender_chest"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.birch_fence_gate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "birch_fence_gate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_hoe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_hoe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.brick_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "brick_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_axe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_axe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cooked_mutton",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cooked_mutton"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.wooden_axe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "wooden_axe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.pumpkin_pie",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "pumpkin_pie"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.glass_bottle",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "glass_bottle"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.wooden_pickaxe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "wooden_pickaxe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.snow_layer",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "snow_layer"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_chestplate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_chestplate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.light_weighted_pressure_plate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "light_weighted_pressure_plate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.wheat",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "wheat"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cake",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cake"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.redstone",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "redstone"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_hoe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_hoe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.emerald",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "emerald"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.item_frame",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "item_frame"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.piston",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "piston"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.red_sandstone",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "red_sandstone"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.gold_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "gold_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.gold_nugget",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "gold_nugget"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.jungle_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "jungle_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.tnt",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "tnt"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.melon_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "melon_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.bed",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "bed"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_helmet",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_helmet"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.minecart",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "minecart"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.end_rod",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "end_rod"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.noteblock",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "noteblock"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.purpur_pillar",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "purpur_pillar"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.birch_boat",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "birch_boat"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_boots",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_boots"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.wooden_pressure_plate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "wooden_pressure_plate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.bone_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "bone_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_helmet",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_helmet"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.hopper_minecart",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "hopper_minecart"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.coal_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "coal_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.banner",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "banner"
       ],
       "isIndependent": false,
       "isAchievement": false
@@ -27151,397 +25862,34 @@
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.wooden_button",
+      "statID": "stat.craftItem.minecraft.item_frame",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
-        "wooden_button"
+        "item_frame"
       ],
       "isIndependent": false,
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.golden_rail",
+      "statID": "stat.craftItem.minecraft.birch_fence_gate",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
-        "golden_rail"
+        "birch_fence_gate"
       ],
       "isIndependent": false,
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.leather_helmet",
+      "statID": "stat.craftItem.minecraft.dark_oak_door",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
-        "leather_helmet"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.book",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "book"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.fishing_rod",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "fishing_rod"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.trapped_chest",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "trapped_chest"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stained_glass",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stained_glass"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.hopper",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "hopper"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.wooden_shovel",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "wooden_shovel"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.birch_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "birch_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.spruce_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "spruce_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.sugar",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "sugar"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.spruce_fence",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "spruce_fence"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.sponge",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "sponge"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_boots",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_boots"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.lever",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "lever"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_chestplate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_chestplate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.jungle_fence_gate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "jungle_fence_gate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.arrow",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "arrow"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.hay_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "hay_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.end_bricks",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "end_bricks"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cookie",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cookie"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.anvil",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "anvil"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.painting",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "painting"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.flint_and_steel",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "flint_and_steel"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.melon_seeds",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "melon_seeds"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_pickaxe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_pickaxe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.wooden_hoe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "wooden_hoe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_door",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_door"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.trapdoor",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "trapdoor"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cooked_rabbit",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cooked_rabbit"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.acacia_fence_gate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "acacia_fence_gate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.acacia_boat",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "acacia_boat"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.ladder",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "ladder"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dark_oak_fence",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dark_oak_fence"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.quartz_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "quartz_block"
+        "dark_oak_door"
       ],
       "isIndependent": false,
       "isAchievement": false
@@ -27558,435 +25906,6 @@
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.brick",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "brick"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.purple_shulker_box",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "purple_shulker_box"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.lapis_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "lapis_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.activator_rail",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "activator_rail"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.armor_stand",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "armor_stand"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_boots",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_boots"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.ender_eye",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "ender_eye"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_pickaxe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_pickaxe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.nether_brick_stairs",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "nether_brick_stairs"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.compass",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "compass"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.end_crystal",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "end_crystal"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.chest",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "chest"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.crafting_table",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "crafting_table"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.map",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "map"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.spruce_fence_gate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "spruce_fence_gate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.chorus_fruit_popped",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "chorus_fruit_popped"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.cooked_chicken",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "cooked_chicken"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dye",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dye"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.bucket",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "bucket"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_leggings",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_leggings"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.nether_wart_block",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "nether_wart_block"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.birch_fence",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "birch_fence"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.wooden_sword",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "wooden_sword"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_leggings",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_leggings"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.prismarine",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "prismarine"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.dark_oak_boat",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "dark_oak_boat"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.sandstone",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "sandstone"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.golden_axe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "golden_axe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.bowl",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "bowl"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.hardened_clay",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "hardened_clay"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.bread",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "bread"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_shovel",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_shovel"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.leather_leggings",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "leather_leggings"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.stone_pressure_plate",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "stone_pressure_plate"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.observer",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "observer"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_nugget",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_nugget"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.diamond_axe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "diamond_axe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.iron_axe",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "iron_axe"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
-      "statID": "stat.craftItem.minecraft.snow",
-      "minerl_keys": [
-        "stat",
-        "craft_item",
-        "minecraft",
-        "snow"
-      ],
-      "isIndependent": false,
-      "isAchievement": false
-    },
-    {
       "statID": "stat.craftItem.minecraft.wool",
       "minerl_keys": [
         "stat",
@@ -27998,12 +25917,23 @@
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.red_sandstone_stairs",
+      "statID": "stat.craftItem.minecraft.acacia_door",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
-        "red_sandstone_stairs"
+        "acacia_door"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.purpur_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "purpur_stairs"
       ],
       "isIndependent": false,
       "isAchievement": false
@@ -28020,6 +25950,259 @@
       "isAchievement": false
     },
     {
+      "statID": "stat.craftItem.minecraft.diamond_hoe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_hoe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.bucket",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "bucket"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.purpur_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "purpur_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_ingot",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_ingot"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.mushroom_stew",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "mushroom_stew"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.shears",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "shears"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.dye",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "dye"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.rail",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "rail"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.ladder",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "ladder"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.dispenser",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "dispenser"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.nether_wart_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "nether_wart_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.speckled_melon",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "speckled_melon"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.magma_cream",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "magma_cream"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.melon_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "melon_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.lead",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "lead"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.leather_chestplate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "leather_chestplate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stained_glass",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stained_glass"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.slime",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "slime"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.end_rod",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "end_rod"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.dark_oak_boat",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "dark_oak_boat"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.painting",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "painting"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.coal",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "coal"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
       "statID": "stat.craftItem.minecraft.cooked_porkchop",
       "minerl_keys": [
         "stat",
@@ -28031,34 +26214,276 @@
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.sea_lantern",
+      "statID": "stat.craftItem.minecraft.leather",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
-        "sea_lantern"
+        "leather"
       ],
       "isIndependent": false,
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.purpur_slab",
+      "statID": "stat.craftItem.minecraft.brick_stairs",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
-        "purpur_slab"
+        "brick_stairs"
       ],
       "isIndependent": false,
       "isAchievement": false
     },
     {
-      "statID": "stat.craftItem.minecraft.blaze_powder",
+      "statID": "stat.craftItem.minecraft.tnt_minecart",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
-        "blaze_powder"
+        "tnt_minecart"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.chorus_fruit_popped",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "chorus_fruit_popped"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.sign",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "sign"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.end_bricks",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "end_bricks"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.arrow",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "arrow"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.spruce_fence",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "spruce_fence"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wooden_hoe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wooden_hoe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_axe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_axe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.torch",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "torch"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.birch_fence",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "birch_fence"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.minecart",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "minecart"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_shovel",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_shovel"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_pressure_plate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_pressure_plate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.lapis_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "lapis_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.leather_boots",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "leather_boots"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.brick",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "brick"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.spruce_boat",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "spruce_boat"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.trapdoor",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "trapdoor"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.birch_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "birch_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.carpet",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "carpet"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.nether_brick_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "nether_brick_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.tnt",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "tnt"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wooden_shovel",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wooden_shovel"
       ],
       "isIndependent": false,
       "isAchievement": false
@@ -28075,12 +26500,1992 @@
       "isAchievement": false
     },
     {
+      "statID": "stat.craftItem.minecraft.prismarine",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "prismarine"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.lit_pumpkin",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "lit_pumpkin"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.book",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "book"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.jungle_boat",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "jungle_boat"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.crafting_table",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "crafting_table"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cobblestone_wall",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cobblestone_wall"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_pickaxe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_pickaxe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_helmet",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_helmet"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cauldron",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cauldron"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.jungle_door",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "jungle_door"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.baked_potato",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "baked_potato"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.spectral_arrow",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "spectral_arrow"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.gold_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "gold_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_boots",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_boots"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.redstone",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "redstone"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.spruce_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "spruce_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_pickaxe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_pickaxe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.end_crystal",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "end_crystal"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.writable_book",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "writable_book"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.compass",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "compass"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.spruce_door",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "spruce_door"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.dropper",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "dropper"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cooked_fish",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cooked_fish"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.gold_ingot",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "gold_ingot"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.snow_layer",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "snow_layer"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.glass",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "glass"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.nether_brick_fence",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "nether_brick_fence"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.magma",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "magma"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_apple",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_apple"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.repeater",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "repeater"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_pickaxe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_pickaxe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.pumpkin_seeds",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "pumpkin_seeds"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_trapdoor",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_trapdoor"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.fence",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "fence"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.lever",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "lever"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_shovel",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_shovel"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.ender_chest",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "ender_chest"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_axe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_axe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.red_sandstone",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "red_sandstone"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.leather_helmet",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "leather_helmet"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stick",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stick"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.enchanting_table",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "enchanting_table"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.red_nether_brick",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "red_nether_brick"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stonebrick",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stonebrick"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.coal_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "coal_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.sea_lantern",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "sea_lantern"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_leggings",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_leggings"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.jukebox",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "jukebox"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.sandstone",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "sandstone"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.purpur_pillar",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "purpur_pillar"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.map",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "map"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.fire_charge",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "fire_charge"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
       "statID": "stat.craftItem.minecraft.slime_ball",
       "minerl_keys": [
         "stat",
         "craft_item",
         "minecraft",
         "slime_ball"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.sandstone_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "sandstone_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.sticky_piston",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "sticky_piston"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.comparator",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "comparator"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.emerald_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "emerald_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_chestplate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_chestplate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.dark_oak_fence_gate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "dark_oak_fence_gate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.bookshelf",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "bookshelf"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.pumpkin_pie",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "pumpkin_pie"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_shovel",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_shovel"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_shovel",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_shovel"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.carrot_on_a_stick",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "carrot_on_a_stick"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.shield",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "shield"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_nugget",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_nugget"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.fermented_spider_eye",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "fermented_spider_eye"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.snow",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "snow"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_sword",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_sword"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wooden_door",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wooden_door"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_boots",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_boots"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.trapped_chest",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "trapped_chest"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.daylight_detector",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "daylight_detector"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cooked_rabbit",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cooked_rabbit"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.bow",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "bow"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_hoe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_hoe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.flower_pot",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "flower_pot"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.rabbit_stew",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "rabbit_stew"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_slab2",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_slab2"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.anvil",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "anvil"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.beacon",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "beacon"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.mossy_cobblestone",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "mossy_cobblestone"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.fence_gate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "fence_gate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cookie",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cookie"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.brick_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "brick_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.planks",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "planks"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.sponge",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "sponge"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_leggings",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_leggings"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.melon_seeds",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "melon_seeds"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.glass_pane",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "glass_pane"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.detector_rail",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "detector_rail"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.purpur_slab",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "purpur_slab"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.armor_stand",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "armor_stand"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.acacia_boat",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "acacia_boat"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_leggings",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_leggings"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.observer",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "observer"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.nether_brick",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "nether_brick"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cake",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cake"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.bed",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "bed"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.acacia_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "acacia_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.spruce_fence_gate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "spruce_fence_gate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.leather_leggings",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "leather_leggings"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.chest_minecart",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "chest_minecart"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_sword",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_sword"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.heavy_weighted_pressure_plate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "heavy_weighted_pressure_plate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_hoe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_hoe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.quartz_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "quartz_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wooden_axe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wooden_axe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.jungle_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "jungle_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.dark_oak_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "dark_oak_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.banner",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "banner"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.clock",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "clock"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.bread",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "bread"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.jungle_fence",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "jungle_fence"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wheat",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wheat"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_carrot",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_carrot"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_chestplate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_chestplate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wooden_pressure_plate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wooden_pressure_plate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_boots",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_boots"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cooked_chicken",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cooked_chicken"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.acacia_fence_gate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "acacia_fence_gate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.hardened_clay",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "hardened_clay"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.light_weighted_pressure_plate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "light_weighted_pressure_plate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_bars",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_bars"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cooked_beef",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cooked_beef"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_sword",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_sword"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.blaze_powder",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "blaze_powder"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.boat",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "boat"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_hoe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_hoe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.piston",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "piston"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stained_glass_pane",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stained_glass_pane"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.glass_bottle",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "glass_bottle"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_brick_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_brick_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.paper",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "paper"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.emerald",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "emerald"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.activator_rail",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "activator_rail"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.hopper",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "hopper"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_button",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_button"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.tripwire_hook",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "tripwire_hook"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wooden_button",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wooden_button"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.birch_boat",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "birch_boat"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stained_hardened_clay",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stained_hardened_clay"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.purple_shulker_box",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "purple_shulker_box"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_chestplate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_chestplate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wooden_sword",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wooden_sword"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_axe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_axe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.dirt",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "dirt"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_sword",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_sword"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.hay_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "hay_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.birch_door",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "birch_door"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.glowstone",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "glowstone"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.chest",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "chest"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.jungle_fence_gate",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "jungle_fence_gate"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.quartz_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "quartz_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.sugar",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "sugar"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.flint_and_steel",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "flint_and_steel"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.bone_block",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "bone_block"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.wooden_pickaxe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "wooden_pickaxe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.dark_oak_fence",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "dark_oak_fence"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.diamond_helmet",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "diamond_helmet"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.golden_rail",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "golden_rail"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_door",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_door"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.stone_axe",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "stone_axe"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.netherbrick",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "netherbrick"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.iron_helmet",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "iron_helmet"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.ender_eye",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "ender_eye"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.noteblock",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "noteblock"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.bowl",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "bowl"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.clay",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "clay"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.oak_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "oak_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.brewing_stand",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "brewing_stand"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.hopper_minecart",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "hopper_minecart"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.gold_nugget",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "gold_nugget"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.fishing_rod",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "fishing_rod"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.red_sandstone_stairs",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "red_sandstone_stairs"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.furnace_minecart",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "furnace_minecart"
+      ],
+      "isIndependent": false,
+      "isAchievement": false
+    },
+    {
+      "statID": "stat.craftItem.minecraft.cooked_mutton",
+      "minerl_keys": [
+        "stat",
+        "craft_item",
+        "minecraft",
+        "cooked_mutton"
       ],
       "isIndependent": false,
       "isAchievement": false
