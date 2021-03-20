@@ -289,3 +289,6 @@ minerl/Malmo/Minecraft/*.launch
 caches/
 native/
 wrapper/
+
+# gradle
+minerl/Malmo/Minecraft/run/gradle/
