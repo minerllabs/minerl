@@ -138,7 +138,10 @@ class FlatInventoryVariantObservation(FlatInventoryObservation):
             if 'variant' in stack:
                 assert 'type' in stack and 'quantity' in stack
                 variant_item_name = f"{stack['type']}_{stack['variant']}"
-                item_dict[variant_item_name] += stack['quantity']
+                # "half" types end up in stack['variant'] and we don't care
+                # about them (example: double_plant_lower, door_lower)
+                if variant_item_name in item_dict:
+                    item_dict[variant_item_name] += stack['quantity']
 
         return item_dict
 
