@@ -33,6 +33,8 @@ import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation
 import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockPlanks;
+import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -692,20 +694,35 @@ public class CraftingHelper {
                     boolean hasDirection = false;
                     boolean hasColour = false;
                     boolean hasVariant = false;
+                    boolean hasType = false;
+                    boolean hasHalf = false;
                     for (IProperty prop : bs.getProperties().keySet()) {
                         System.out.println(Item.REGISTRY.getNameForObject(item).toString() + " -- " + prop);
                         if (prop instanceof PropertyDirection)
                             hasDirection = true;
                         if (prop instanceof PropertyEnum && prop.getName().equals("color"))
                             hasColour = true;
-                        if (prop instanceof PropertyEnum && prop.getName().equals("variant")) {
-                            hasVariant = true;
-                            json.addProperty("variant", bs.getValue(prop).toString());
+                        if (prop instanceof PropertyEnum && prop.getName().equals("half"))
+                            hasHalf = true;
+                        if (prop instanceof PropertyEnum && (prop.getName().equals("variant") || prop.getName().equals("type"))) {
+                            if (prop.getName().equals("variant")) {
+                                hasVariant = true;
+                            } else {
+                                hasType = true;
+                            }
+                            // we record both variants and types as "variant"
+                            JsonArray arr = new JsonArray();
+                            for (Object variant_type : ((PropertyEnum)prop).getAllowedValues()) {
+                                arr.add(new JsonPrimitive(variant_type.toString()));
+                            }
+                            json.add("variant", arr);
                         }
                     }
                     json.addProperty("hasDirection", hasDirection);
                     json.addProperty("hasColour", hasColour);
                     json.addProperty("hasVariant", hasVariant);
+                    json.addProperty("hasType", hasType);
+                    json.addProperty("hasHalf", hasHalf);
                 }
                 items.add(json);
             }
