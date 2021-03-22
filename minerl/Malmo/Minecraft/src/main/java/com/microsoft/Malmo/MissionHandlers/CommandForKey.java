@@ -26,9 +26,6 @@ import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.KeyBindingMap;
 
-import com.microsoft.Malmo.Client.FakeKeyboard;
-import com.microsoft.Malmo.Client.FakeMouse;
-import com.microsoft.Malmo.Client.FakeKeyboard.FakeKeyEvent;
 import com.microsoft.Malmo.Schemas.MissionInit;
 
 /** KeyBinding subclass which opens up the Minecraft keyhandling to external agents for a particular key.<br>
@@ -89,7 +86,6 @@ public class CommandForKey extends CommandBase
         public void release()
         {
             this.isDown = false;
-            FakeKeyboard.add(new FakeKeyEvent(' ', this.getKeyCode(), false));
         }
 
         /**
@@ -277,7 +273,6 @@ public class CommandForKey extends CommandBase
         // Attempt to find the keybinding that matches the description we were given,
         // and replace it with our own KeyHook object:
         GameSettings settings = Minecraft.getMinecraft().gameSettings;
-
         boolean createdHook = false;
         // GameSettings contains both a field for each KeyBinding (eg keyBindAttack), and an array of KeyBindings with a pointer to
         // each field. We want to make sure we replace both pointers, otherwise Minecraft will end up using our object for some things, and
@@ -298,7 +293,7 @@ public class CommandForKey extends CommandBase
                         this.originalBinding = kb;
                         this.keyHook = create(this.originalBinding);
                         createdHook = true;
-                        // f.set(settings, this.keyHook);
+                        f.set(settings, this.keyHook);
                     }
                 }
                 catch (IllegalArgumentException e)
@@ -321,10 +316,9 @@ public class CommandForKey extends CommandBase
                 {
                     this.originalBinding = settings.keyBindings[i];
                     this.keyHook = create(this.originalBinding);
-                    setOverriding(false);
                     createdHook = true;
                 }
-                // settings.keyBindings[i] = this.keyHook;
+                settings.keyBindings[i] = this.keyHook;
             }
         }
         // And possibly in the hotbar array too:
@@ -337,42 +331,41 @@ public class CommandForKey extends CommandBase
                 {
                     this.originalBinding = settings.keyBindsHotbar[i];
                     this.keyHook = create(this.originalBinding);
-                    setOverriding(false);
                     createdHook = true;
                 }
-                // settings.keyBindsHotbar[i] = this.keyHook;
+                settings.keyBindsHotbar[i] = this.keyHook;
             }
         }
         // Newer versions of MC have changed the way they map from key value to KeyBinding, so we
         // *also* need to fiddle with the static KeyBinding HASH map:_
-//        Field[] kbfields = KeyBinding.class.getDeclaredFields();
-//        for (Field f : kbfields)
-//        {
-//            if (f.getType() == KeyBindingMap.class)
-//            {
-//                net.minecraftforge.client.settings.KeyBindingMap kbp;
-//                try
-//                {
-//                    f.setAccessible(true);
-//                    kbp = (KeyBindingMap) (f.get(null));
-//                    // Our new keybinding should already have been added;
-//                    // just need to remove the original one.
-//                    while (kbp.lookupAll(this.keyHook.getKeyCode()).size() > 1)
-//                        // kbp.removeKey(this.originalBinding);
-//                    return;
-//                }
-//                catch (IllegalArgumentException e)
-//                {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
-//                catch (IllegalAccessException e)
-//                {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
+        Field[] kbfields = KeyBinding.class.getDeclaredFields();
+        for (Field f : kbfields)
+        {
+            if (f.getType() == KeyBindingMap.class)
+            {
+                net.minecraftforge.client.settings.KeyBindingMap kbp;
+                try
+                {
+                    f.setAccessible(true);
+                    kbp = (KeyBindingMap) (f.get(null));
+                    // Our new keybinding should already have been added;
+                    // just need to remove the original one.
+                    while (kbp.lookupAll(this.keyHook.getKeyCode()).size() > 1)
+                        kbp.removeKey(this.originalBinding);
+                    return;
+                }
+                catch (IllegalArgumentException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                catch (IllegalAccessException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
@@ -386,42 +379,8 @@ public class CommandForKey extends CommandBase
     @Override
     public boolean onExecute(String verb, String parameter, MissionInit missionInit)
     {
-        // The keyboard-related actions are now injected via FakeKeyboard class
-        // Rationale - injection can happen in any phase of the game (including the parts where normal minecraft
-        // bindings are bypassed, like in GUI
-        // TODO clean up unused code (e.g. currently the keyHooks are only used for storing the bindings)
-        // return (this.keyHook != null) ? this.keyHook.execute(verb, parameter) : false;
-
-        if (verb != null && verb.equalsIgnoreCase(keyHook.getCommandString())) {
-            if (verb.equals("attack")) {
-                // imitate right mouse button click
-                if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING)) {
-                    FakeMouse.pressButton(0);
-                } else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING)) {
-                    FakeMouse.releaseButton(0);
-                } else {
-                    return false;
-                }
-            } else if (verb.equals("use")) {
-                // imitate right mouse button click
-                if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING)) {
-                    FakeMouse.pressButton(1);
-                } else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING)) {
-                    FakeMouse.releaseButton(1);
-                } else {
-                    return false;
-                }
-            } 
-            if (parameter != null && parameter.equalsIgnoreCase(DOWN_COMMAND_STRING)) {
-                FakeKeyboard.press(keyHook.getKeyCode());
-            } else if (parameter != null && parameter.equalsIgnoreCase(UP_COMMAND_STRING)) {
-                FakeKeyboard.release(keyHook.getKeyCode());
-            } else {
-                return false;
-            }
-            return true;
-        }
-        return false;
+        // Our keyhook does all the work:
+        return (this.keyHook != null) ? this.keyHook.execute(verb, parameter) : false;
     }
     
     /** Return the KeyBinding object we are using.<br>
