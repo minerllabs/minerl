@@ -52,7 +52,6 @@ public class MissionBehaviour
     public IWorldGenerator worldGenerator = null;
     public IPerformanceProducer performanceProducer = null;
     public IWantToQuit quitProducer = null;
-    public boolean lowLevelInputs = false;
 
     private String failedHandlers = "";
     
@@ -117,9 +116,6 @@ public class MissionBehaviour
         List<AgentSection> agents = missionInit.getMission().getAgentSection();
         if (agents != null && agents.size() > 1)
             addHandler(new RewardFromTeamImplementation());
-        // TODO hack - low level inputs are read from first agent. Ideally they should be either agent-specific,
-        // or mission-level
-        lowLevelInputs = agents.get(0).getAgentStart().isLowLevelInputs() != null && agents.get(0).getAgentStart().isLowLevelInputs();
     }
 
     public boolean addExtraHandlers(List<Object> handlers)

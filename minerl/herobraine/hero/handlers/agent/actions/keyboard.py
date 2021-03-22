@@ -61,7 +61,7 @@ class KeybasedCommandAction(Action):
         self.keys = keys
 
     def from_universal(self, x):
-        actions_mapped = set(str(k) for k in x['custom_action']['actions']['keys'])
+        actions_mapped = list(x['custom_action']['actions'].keys())
 
         offset = self.space.begin if isinstance(self.space, spaces.DiscreteRange) else 0
         default = 0
@@ -98,7 +98,7 @@ class KeybasedCommandAction(Action):
 #         return "keyboard"
 
 #     def __init__(self, keymap : typing.Dict[str, str]):
-#         """Initializes the keyboard action object with a keymap
+#         """Initializes the keyboard action object with a keymap between
 #         Anvil rendered keypress ID's and Malmo command actions corresponding to the human level commands object.
 
 #         Args:
