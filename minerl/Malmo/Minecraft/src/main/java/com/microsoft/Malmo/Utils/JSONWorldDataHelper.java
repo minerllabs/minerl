@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -246,6 +247,16 @@ public class JSONWorldDataHelper
      * Blocks are returned as a 1D array, in order
      * along the x, then z, then y axes.<br>
      * Data will be returned in an array called "Cells"
+     * Blocks are bit-packed into 32 bit int, see @getBlockInfo
+     * [0-11] block ID
+     * [12-15] block variant/meta
+     * [16] isCollidable
+     * [17] isToolNotRequired
+     * [18] blocksMovement
+     * [19] isLiquid
+     * [20] isSolid
+     * [21] getCanBurn
+     * [22] blocksLight
      * @param json a JSON object into which the info for the object under the mouse will be added.
      * @param environmentDimensions object which specifies the required dimensions of the grid to be returned.
      * @param jsonName name to use for identifying the returned JSON array.
@@ -257,8 +268,7 @@ public class JSONWorldDataHelper
 
         JsonArray arr = new JsonArray();
         BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-        // TODO peterz implement projection in any direction, not only down in y
-        // direction
+        // TODO peterz implement projection in any direction, not only down in y direction
         if (environmentDimensions.projectDown)
         {
             for (int z = environmentDimensions.zMin; z <= environmentDimensions.zMax; z++)
@@ -271,15 +281,10 @@ public class JSONWorldDataHelper
                             p = new BlockPos(x, y, z);
                         else
                             p = pos.add(x, y, z);
-                        String name = "";
                         IBlockState state = player.world.getBlockState(p);
-                        Object blockName = Block.REGISTRY.getNameForObject(state.getBlock());
-                        if (blockName instanceof ResourceLocation) {
-                            name = ((ResourceLocation) blockName).getResourcePath();
-                        }
-                        if (name.equals("air"))
+                        if (state.getMaterial() != Material.AIR)
                             continue;
-                        JsonElement element = new JsonPrimitive(name);
+                        JsonElement element = new JsonPrimitive(getBlockInfo(state));
                         arr.add(element);
                         break;
                     }
@@ -295,18 +300,40 @@ public class JSONWorldDataHelper
                             p = new BlockPos(x, y, z);
                         else
                             p = pos.add(x, y, z);
-                        String name = "";
                         IBlockState state = player.world.getBlockState(p);
-                        Object blockName = Block.REGISTRY.getNameForObject(state.getBlock());
-                        if (blockName instanceof ResourceLocation) {
-                            name = ((ResourceLocation) blockName).getResourcePath();
-                        }
-                        JsonElement element = new JsonPrimitive(name);
+                        JsonElement element = new JsonPrimitive(getBlockInfo(state));
                         arr.add(element);
                     }
                 }
             }
         }
         json.add(jsonName, arr);
+    }
+
+    /**
+    *      * Blocks are bit-packed into 32 bit int, see @getBlockInfo
+    *      * [0-11] block ID
+    *      * [12-15] block variant/meta
+    *      * [16] isCollidable
+    *      * [17] isToolNotRequired
+    *      * [18] blocksMovement
+    *      * [19] isLiquid
+    *      * [20] isSolid
+    *      * [21] getCanBurn
+    *      * [22] blocksLight
+     * @param IBlockState state
+     * @return byte-packed int representing this block state
+     */
+    public static int getBlockInfo(IBlockState state) {
+        Block block = state.getBlock();
+        return Block.getIdFromBlock(block) // 12 bits
+                + (block.getMetaFromState(state) << 12) // 4 bits
+                + ((block.isCollidable() ?  0 : 1) << 16)
+                + ((state.getMaterial().isToolNotRequired() ?  0 : 1) << 17)
+                + ((state.getMaterial().blocksMovement() ? 0 : 1) << 18)
+                + ((state.getMaterial().isLiquid() ? 0 : 1) << 19)
+                + ((state.getMaterial().isSolid() ? 0 : 1) << 20)
+                + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
+                + ((state.getMaterial().blocksLight() ? 0 : 1) << 22);
     }
 }

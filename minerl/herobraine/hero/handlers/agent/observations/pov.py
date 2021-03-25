@@ -68,3 +68,56 @@ class POVObservation(KeymapTranslationHandler):
             return POVObservation(self.video_resolution, include_depth=self.include_depth)
         else:
             raise ValueError("Incompatible observables!")
+
+class VoxelObservation(KeymapTranslationHandler):
+    """
+    Handles voxel observations.
+    """
+
+    def to_hero(self, x) -> str:
+        pass
+
+    def to_string(self):
+        return 'voxels'
+
+    def xml_template(self) -> str:
+        return str("""
+            <ObservationFromGrid>                      
+                <Grid name="voxels">                        
+                    <min x="{{xmin}}" y="{{ymin}}" z="{{zmin}}"/>                        
+                    <max x="{{xmax}}" y="{{ymax}}" z="{{zmax}}"/>                      
+                </Grid>                  
+            </ObservationFromGrid>""")
+
+    def __init__(self, limits=((-3,3), (-1,3), (-3,3))):
+        self.xmin = limits[0][0]
+        self.ymin = limits[1][0]
+        self.zmin = limits[2][0]
+        self.xmax = limits[0][1]
+        self.ymax = limits[1][1]
+        self.zmax = limits[2][1]
+        self.grid_size = [1 + b - a for a, b in limits]
+
+        space = spaces.Box(0, 1<<22, self.grid_size, dtype=np.uint32)
+
+        super().__init__(
+            hero_keys=["voxels"],
+            univ_keys=["voxels"], space=space)
+
+    def from_hero(self, obs):
+        voxels_arr = super().from_hero(obs, dtype=np.int32)
+
+        voxels = voxels_arr.reshape(self.grid_size)
+
+        return voxels
+
+    def __or__(self, other):
+        """
+        Combines two voxel observations into one. If all of the properties match return self
+        otherwise raise an exception.
+        """
+        if isinstance(other, VoxelObservation) and self.grid_min == other.grid_min and \
+                self.grid_max == other.grid_max:
+            return self
+        else:
+            raise ValueError("Incompatible observables!")
