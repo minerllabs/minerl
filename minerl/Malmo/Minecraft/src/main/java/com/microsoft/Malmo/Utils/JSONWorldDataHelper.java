@@ -347,6 +347,6 @@ public class JSONWorldDataHelper
                 + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
                 + ((state.getMaterial().blocksLight() ? 0 : 1) << 22)
                 + ((cosDist > 0 ? 0 : 1) << 23
-                + ((int)(Math.abs(cosDist) * (1 << 8)) << 24);
+                + ((int)(Math.abs(cosDist) * (1 << 8)) << 24)
     }
 }
