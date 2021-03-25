@@ -290,9 +290,7 @@ public class JSONWorldDataHelper
                         if (state.getMaterial() != Material.AIR)
                             continue;
                         Vec3i blockVec = p.subtract(pos);
-                        Vec3d lookVec = player.getLookVec();
-
-                        JsonElement element = new JsonPrimitive(getBlockInfo(state, blockVec, lookVec));
+                        JsonElement element = new JsonPrimitive(getBlockInfo(state, blockVec, player.getLookVec()));
                         arr.add(element);
                         break;
                     }
@@ -309,7 +307,8 @@ public class JSONWorldDataHelper
                         else
                             p = pos.add(x, y, z);
                         IBlockState state = player.world.getBlockState(p);
-                        JsonElement element = new JsonPrimitive(getBlockInfo(state));
+                        Vec3i blockVec = p.subtract(pos);
+                        JsonElement element = new JsonPrimitive(getBlockInfo(state, blockVec, player.getLookVec()));
                         arr.add(element);
                     }
                 }
@@ -336,7 +335,7 @@ public class JSONWorldDataHelper
      */
     public static int getBlockInfo(IBlockState state, Vec3i blockVec, Vec3d lookVec) {
         Block block = state.getBlock();
-        float cosDist = (float) ((blockVec.getX() * lookVec.getX() + blockVec.getY() * lookVec.getY() + blockVec.getZ() * lookVec.getZ()) / blockVec.distanceSq(Vec3i.NULL_VECTOR) * lookVec.squareDistanceTo(Vec3d.ZERO));
+        float cosDist = (float) ((blockVec.getX() * lookVec.xCoord + blockVec.getY() * lookVec.yCoord + blockVec.getZ() * lookVec.zCoord) / blockVec.distanceSq(Vec3i.NULL_VECTOR) * lookVec.squareDistanceTo(Vec3d.ZERO));
         return Block.getIdFromBlock(block) // 12 bits
                 + (block.getMetaFromState(state) << 12) // 4 bits
                 + ((block.isCollidable() ?  0 : 1) << 16)
@@ -346,7 +345,7 @@ public class JSONWorldDataHelper
                 + ((state.getMaterial().isSolid() ? 0 : 1) << 20)
                 + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
                 + ((state.getMaterial().blocksLight() ? 0 : 1) << 22)
-                + ((cosDist > 0 ? 0 : 1) << 23
-                + ((int)(Math.abs(cosDist) * (1 << 8)) << 24)
+                + ((cosDist > 0 ? 0 : 1) << 23)
+                + ((int)(Math.abs(cosDist) * (1 << 8)) << 24);
     }
 }
