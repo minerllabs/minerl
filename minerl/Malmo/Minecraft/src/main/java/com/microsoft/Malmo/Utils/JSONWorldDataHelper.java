@@ -39,6 +39,8 @@ import net.minecraft.util.ResourceLocation;
 
 import net.minecraft.stats.StatList;
 import net.minecraft.stats.StatisticsManagerServer;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.biome.Biome;
 
 import javax.lang.model.element.Element;
@@ -267,6 +269,9 @@ public class JSONWorldDataHelper
             return;
 
         JsonArray arr = new JsonArray();
+        //TODO cosine dist in voxels
+
+        //TODO can we encode entity ≠+≠
         BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
         // TODO peterz implement projection in any direction, not only down in y direction
         if (environmentDimensions.projectDown)
@@ -284,7 +289,10 @@ public class JSONWorldDataHelper
                         IBlockState state = player.world.getBlockState(p);
                         if (state.getMaterial() != Material.AIR)
                             continue;
-                        JsonElement element = new JsonPrimitive(getBlockInfo(state));
+                        Vec3i blockVec = p.subtract(pos);
+                        Vec3d lookVec = player.getLookVec();
+
+                        JsonElement element = new JsonPrimitive(getBlockInfo(state, blockVec, lookVec));
                         arr.add(element);
                         break;
                     }
@@ -321,11 +329,14 @@ public class JSONWorldDataHelper
     *      * [20] isSolid
     *      * [21] getCanBurn
     *      * [22] blocksLight
+     *     * [23] sign(cosDist) between player look and block
+     *     * [24-31] 8 bits of abs(cosDist)
      * @param IBlockState state
      * @return byte-packed int representing this block state
      */
-    public static int getBlockInfo(IBlockState state) {
+    public static int getBlockInfo(IBlockState state, Vec3i blockVec, Vec3d lookVec) {
         Block block = state.getBlock();
+        float cosDist = (float) ((blockVec.getX() * lookVec.getX() + blockVec.getY() * lookVec.getY() + blockVec.getZ() * lookVec.getZ()) / blockVec.distanceSq(Vec3i.NULL_VECTOR) * lookVec.squareDistanceTo(Vec3d.ZERO));
         return Block.getIdFromBlock(block) // 12 bits
                 + (block.getMetaFromState(state) << 12) // 4 bits
                 + ((block.isCollidable() ?  0 : 1) << 16)
@@ -334,6 +345,8 @@ public class JSONWorldDataHelper
                 + ((state.getMaterial().isLiquid() ? 0 : 1) << 19)
                 + ((state.getMaterial().isSolid() ? 0 : 1) << 20)
                 + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
-                + ((state.getMaterial().blocksLight() ? 0 : 1) << 22);
+                + ((state.getMaterial().blocksLight() ? 0 : 1) << 22)
+                + ((cosDist > 0 ? 0 : 1) << 23
+                + ((int)(Math.abs(cosDist) * (1 << 8)) << 24);
     }
 }
