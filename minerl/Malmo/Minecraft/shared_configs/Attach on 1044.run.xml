@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Attach on 1044" type="Remote">
+  <configuration name="Attach on 1044" type="Remote">
     <module name="Minecraft" />
     <option name="USE_SOCKET_TRANSPORT" value="true" />
     <option name="SERVER_MODE" value="false" />
@@ -11,6 +11,8 @@
       <option name="DEBUG_PORT" value="1044" />
       <option name="LOCAL" value="false" />
     </RunnerSettings>
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Wait For Port" run_configuration_type="ShConfigurationType" />
+    </method>
   </configuration>
 </component>

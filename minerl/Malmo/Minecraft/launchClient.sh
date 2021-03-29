@@ -102,7 +102,7 @@ echo $MINERL_FORCE_BUILD
 
 if [ ! -e build/libs/MalmoMod-0.37.0-fat.jar ] || [ "$MINERL_FORCE_BUILD" == "1" ]; then
     echo "HELLO"
-    cmd="./gradlew runClient --stacktrace -PrunDir=$runDir"
+    cmd="./gradlew runClient --stacktrace -Penable_debugger -PrunDir=$runDir"
 else
 
     export GRADLE_USER_HOME=${runDir}/gradle
