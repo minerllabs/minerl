@@ -219,7 +219,7 @@ class _MultiAgentEnv(gym.Env):
         if isinstance(self.task, EnvWrapper):
             obs_dict = self.task.wrap_observation(obs_dict)
 
-        self._last_pov[actor_name] = obs_dict['pov']
+        self._last_pov[actor_name] = obs_dict['pov'] if 'pov' in obs_dict else None
         self._last_obs[actor_name] = obs_dict
 
         # Process all of the monotors (aux info) using THIS env spec.
@@ -637,7 +637,7 @@ class _MultiAgentEnv(gym.Env):
                 done, = struct.unpack('!b', reply)
                 self.has_finished[actor_name] = self.has_finished[actor_name] or done
                 multi_done = multi_done and done == 1
-                if obs is None or len(obs) == 0:
+                if obs is None:
                     if time.time() - start_time > MAX_WAIT:
                         instance.client_socket.close()
                         instance.client_socket = None

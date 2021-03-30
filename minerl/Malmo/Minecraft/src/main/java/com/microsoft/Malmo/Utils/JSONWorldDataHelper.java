@@ -1,15 +1,15 @@
 // --------------------------------------------------------------------------------------------------
 //  Copyright (c) 2016 Microsoft Corporation
-//  
+//
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 //  associated documentation files (the "Software"), to deal in the Software without restriction,
 //  including without limitation the rights to use, copy, modify, merge, publish, distribute,
 //  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 //  furnished to do so, subject to the following conditions:
-//  
+//
 //  The above copyright notice and this permission notice shall be included in all copies or
 //  substantial portions of the Software.
-//  
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 //  NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 //  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -30,26 +30,19 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.stats.*;
-import net.minecraft.util.Tuple;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.ResourceLocation;
 
 import net.minecraft.stats.StatList;
-import net.minecraft.stats.StatisticsManagerServer;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.biome.Biome;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.UnknownElementException;
-import javax.swing.*;
 import java.util.*;
-import java.util.function.Function;
-
-import static net.minecraft.stats.StatList.*;
 
 /**
  * Helper class for building the "World data" to be passed from Minecraft back to the agent.<br>
@@ -116,6 +109,48 @@ public class JSONWorldDataHelper
         }
     };
 
+    /**
+     * Simple class to hold parameters of the rich lidar observation
+     * Min and max define an inclusive range, where the player's feet are situated at (0,0,0) if absoluteCoords=false.
+     */
+    static public class LidarParameters {
+        private final List<Vec3d> rays;
+        public float maxRayDistance = 10.0F;
+        public boolean rich;
+        public boolean projectDown;
+
+        public static LidarParameters createLidarParameters() {
+            return new LidarParameters();
+        }
+
+        public List<Vec3d> getDirectedRays(Vec3d playerLookVec) {
+            List<Vec3d> directedRays = new ArrayList<>();
+            for (Vec3d ray : rays) {
+                directedRays.add(ray.add(playerLookVec));
+            }
+            return directedRays;
+        }
+
+        private LidarParameters() {
+            super();
+            List<Vec3d> vec3ds = Collections.singletonList(new Vec3d(1.0, 1.0, 1.0));
+            this.rays = new ArrayList<Vec3d>(
+                    vec3ds
+            );
+        }
+
+        public LidarParameters(List<Vec3d> rays) {
+            this(rays, 10);
+        }
+
+        public LidarParameters(final List<Vec3d> rays, float maxRayDistance){
+            this.maxRayDistance = maxRayDistance;
+            this.rays = rays;
+        }
+
+
+    };
+
     /** Builds the basic achievement world data to be used as observation signals by the listener.
      * @param json a JSON object into which the achievement stats will be added.
      */
@@ -124,20 +159,20 @@ public class JSONWorldDataHelper
         StatisticsManager statisticsManager = player.getStatFileWriter();
 
         json.addProperty("distance_travelled_cm",
-            statisticsManager.readStat(StatList.WALK_ONE_CM)
-            + statisticsManager.readStat(StatList.CROUCH_ONE_CM)
-            + statisticsManager.readStat(StatList.SPRINT_ONE_CM)
-            + statisticsManager.readStat(StatList.SWIM_ONE_CM)
-            + statisticsManager.readStat(StatList.FALL_ONE_CM)
-            + statisticsManager.readStat(StatList.CLIMB_ONE_CM)
-            + statisticsManager.readStat(StatList.FLY_ONE_CM)
-            + statisticsManager.readStat(StatList.DIVE_ONE_CM)
-            + statisticsManager.readStat(StatList.MINECART_ONE_CM)
-            + statisticsManager.readStat(StatList.BOAT_ONE_CM)
-            + statisticsManager.readStat(StatList.PIG_ONE_CM)
-            + statisticsManager.readStat(StatList.HORSE_ONE_CM)
-            + statisticsManager.readStat(StatList.AVIATE_ONE_CM)
-            );
+                statisticsManager.readStat(StatList.WALK_ONE_CM)
+                        + statisticsManager.readStat(StatList.CROUCH_ONE_CM)
+                        + statisticsManager.readStat(StatList.SPRINT_ONE_CM)
+                        + statisticsManager.readStat(StatList.SWIM_ONE_CM)
+                        + statisticsManager.readStat(StatList.FALL_ONE_CM)
+                        + statisticsManager.readStat(StatList.CLIMB_ONE_CM)
+                        + statisticsManager.readStat(StatList.FLY_ONE_CM)
+                        + statisticsManager.readStat(StatList.DIVE_ONE_CM)
+                        + statisticsManager.readStat(StatList.MINECART_ONE_CM)
+                        + statisticsManager.readStat(StatList.BOAT_ONE_CM)
+                        + statisticsManager.readStat(StatList.PIG_ONE_CM)
+                        + statisticsManager.readStat(StatList.HORSE_ONE_CM)
+                        + statisticsManager.readStat(StatList.AVIATE_ONE_CM)
+        );
 
         for(StatBase stat : StatList.ALL_STATS) {
             // For MineRL, split over . and convert all camelCase to snake_case
@@ -269,10 +304,10 @@ public class JSONWorldDataHelper
             return;
 
         JsonArray arr = new JsonArray();
-        //TODO cosine dist in voxels
 
-        //TODO can we encode entity ≠+≠
         BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
+        Vec3d head_pos = new Vec3d(player.posX, player.posY + (double)player.getEyeHeight(), player.posZ);
+
         // TODO peterz implement projection in any direction, not only down in y direction
         if (environmentDimensions.projectDown)
         {
@@ -289,9 +324,9 @@ public class JSONWorldDataHelper
                         IBlockState state = player.world.getBlockState(p);
                         if (state.getMaterial() != Material.AIR)
                             continue;
-                        Vec3i blockVec = p.subtract(pos);
-                        JsonElement element = new JsonPrimitive(getBlockInfo(state, blockVec, player.getLookVec()));
-                        arr.add(element);
+                        Vec3d blockPos = new Vec3d(p.getX(), p.getY(), p.getZ());
+                        float cosDist = (float) blockPos.subtract(head_pos).normalize().dotProduct(player.getLookVec().normalize());
+                        writeBlockInfo(arr, state, cosDist);
                         break;
                     }
                 }
@@ -307,9 +342,10 @@ public class JSONWorldDataHelper
                         else
                             p = pos.add(x, y, z);
                         IBlockState state = player.world.getBlockState(p);
-                        Vec3i blockVec = p.subtract(pos);
-                        JsonElement element = new JsonPrimitive(getBlockInfo(state, blockVec, player.getLookVec()));
-                        arr.add(element);
+                        Vec3d blockPos = new Vec3d(p.getX(), p.getY(), p.getZ());
+                        float cosDist = (float) blockPos.subtract(head_pos).normalize().dotProduct(player.getLookVec().normalize());
+                        writeBlockInfo(arr, state, cosDist);
+
                     }
                 }
             }
@@ -317,35 +353,129 @@ public class JSONWorldDataHelper
         json.add(jsonName, arr);
     }
 
+
+    public static void buildRichLidarData(JsonObject json, LidarParameters lidarParameters, EntityPlayerMP player)
+    {
+        if (player == null || json == null)
+            return;
+
+        JsonArray arr = new JsonArray();
+
+        float partialTicks = 1.0f; // Ideally use Minecraft.timer.renderPartialTicks - but we don't need sub-tick resolution.
+        float depth = 50;   // Hard-coded for now - in future will be parameterised via the XML.
+        Vec3d eyePos = player.getPositionEyes(partialTicks);
+        Vec3d lookVec = player.getLook(partialTicks);
+
+        for (Vec3d ray : lidarParameters.getDirectedRays(eyePos)) {
+            RayTraceResult rayTraceResult = Minecraft.getMinecraft().world.rayTraceBlocks(eyePos, ray, true);
+            if (rayTraceResult == null)
+                rayTraceResult = new RayTraceResult(lookVec, EnumFacing.getFacingFromVector((float)ray.xCoord, (float)ray.yCoord, (float)ray.zCoord), new BlockPos(eyePos.add(ray)));
+            writeRayInfo(arr, rayTraceResult, eyePos);
+        }
+    }
+
     /**
-    *      * Blocks are bit-packed into 32 bit int, see @getBlockInfo
-    *      * [0-11] block ID
-    *      * [12-15] block variant/meta
-    *      * [16] isCollidable
-    *      * [17] isToolNotRequired
-    *      * [18] blocksMovement
-    *      * [19] isLiquid
-    *      * [20] isSolid
-    *      * [21] getCanBurn
-    *      * [22] blocksLight
+     *      * Blocks are bit-packed into 32 bit int, see @getBlockInfo
+     *      * [0-11] block ID
+     *      * [12-15] block variant/meta
+     *      * [16] isCollidable
+     *      * [17] isToolNotRequired
+     *      * [18] blocksMovement
+     *      * [19] isLiquid
+     *      * [20] isSolid
+     *      * [21] getCanBurn
+     *      * [22] blocksLight
      *     * [23] sign(cosDist) between player look and block
      *     * [24-31] 8 bits of abs(cosDist)
-     * @param IBlockState state
-     * @return byte-packed int representing this block state
      */
-    public static int getBlockInfo(IBlockState state, Vec3i blockVec, Vec3d lookVec) {
+    public static void writeBlockInfo(JsonArray arr, IBlockState state, Vec3d blockVec, Vec3d lookVec) {
         Block block = state.getBlock();
-        float cosDist = (float) ((blockVec.getX() * lookVec.xCoord + blockVec.getY() * lookVec.yCoord + blockVec.getZ() * lookVec.zCoord) / blockVec.distanceSq(Vec3i.NULL_VECTOR) * lookVec.squareDistanceTo(Vec3d.ZERO));
-        return Block.getIdFromBlock(block) // 12 bits
-                + (block.getMetaFromState(state) << 12) // 4 bits
-                + ((block.isCollidable() ?  0 : 1) << 16)
-                + ((state.getMaterial().isToolNotRequired() ?  0 : 1) << 17)
-                + ((state.getMaterial().blocksMovement() ? 0 : 1) << 18)
-                + ((state.getMaterial().isLiquid() ? 0 : 1) << 19)
-                + ((state.getMaterial().isSolid() ? 0 : 1) << 20)
-                + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
-                + ((state.getMaterial().blocksLight() ? 0 : 1) << 22)
-                + ((cosDist > 0 ? 0 : 1) << 23)
-                + ((int)(Math.abs(cosDist) * (1 << 8)) << 24);
+        float cosDist = (float) blockVec.normalize().dotProduct(lookVec.normalize());
+        JsonElement element = new JsonPrimitive(
+                Block.getIdFromBlock(block) // 12 bits
+                        + (block.getMetaFromState(state) << 12) // 4 bits
+                        + ((block.isCollidable() ?  0 : 1) << 16)
+                        + ((state.getMaterial().isToolNotRequired() ?  0 : 1) << 17)
+                        + ((state.getMaterial().blocksMovement() ? 0 : 1) << 18)
+                        + ((state.getMaterial().isLiquid() ? 0 : 1) << 19)
+                        + ((state.getMaterial().isSolid() ? 0 : 1) << 20)
+                        + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
+                        + ((state.getMaterial().blocksLight() ? 0 : 1) << 22)
+                        + ((cosDist > 0 ? 0 : 1) << 23)
+                        + ((int)(Math.abs(cosDist) * (1 << 8)) << 24)
+        );
+        arr.add(element);
     }
+
+    /**
+     * Blocks are bit-packed into 32 bit int, see @getBlockInfo
+     * [0-11] block ID
+     * [12-15] block variant/meta
+     * [16] isCollidable
+     * [17] isToolNotRequired
+     * [18] blocksMovement
+     * [19] isLiquid
+     * [20] isSolid
+     * [21] getCanBurn
+     * [22] blocksLight
+     * [23] sign(cosDist) between player look and block
+     * [24-31] 8 bits of abs(cosDist)
+     */
+    public static void writeBlockInfo(JsonArray arr, IBlockState state, float dist) {
+        Block block = state.getBlock();
+        JsonElement element = new JsonPrimitive(
+                Block.getIdFromBlock(block) // 12 bits
+                        + (block.getMetaFromState(state) << 12) // 4 bits
+                        + ((block.isCollidable() ? 0 : 1) << 16)
+                        + ((state.getMaterial().isToolNotRequired() ? 0 : 1) << 17)
+                        + ((state.getMaterial().blocksMovement() ? 0 : 1) << 18)
+                        + ((state.getMaterial().isLiquid() ? 0 : 1) << 19)
+                        + ((state.getMaterial().isSolid() ? 0 : 1) << 20)
+                        + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
+                        + ((state.getMaterial().blocksLight() ? 0 : 1) << 22)
+                        + (((dist > 0) ? 0 : 1) << 23)
+                        + ((int) (Math.abs(dist) * (1 << 8)) << 24)
+        );
+        arr.add(element);
+    }
+
+    public static void writeRayInfo(JsonArray arr, RayTraceResult rayTraceResult, Vec3d headPos){
+        int typeOfHit = rayTraceResult.typeOfHit.ordinal();
+        float distance = (float) rayTraceResult.hitVec.subtract(headPos).lengthVector();
+        IBlockState blockState = Minecraft.getMinecraft().world.getBlockState(rayTraceResult.getBlockPos());
+        Block block = blockState.getBlock();
+
+        // Block information
+        int blockID = Block.getIdFromBlock(block);
+        int meta = block.getMetaFromState(blockState);
+        boolean isCollidable = block.isCollidable();
+        boolean isToolRequired = blockState.getMaterial().isToolNotRequired();
+        boolean blocksMovement = blockState.getMaterial().blocksMovement();
+        boolean isLiquid = blockState.getMaterial().isLiquid();
+        boolean isSolid = blockState.getMaterial().isSolid();
+        boolean canBurn = blockState.getMaterial().getCanBurn();
+        boolean blocksLight = blockState.getMaterial().blocksLight();
+
+        // Entity information
+        int registryID = EntityList.getID(rayTraceResult.entityHit.getClass()); // Tells us the registry ID of non-player entities
+        int uuid = rayTraceResult.entityHit instanceof EntityPlayer ? (int)((EntityPlayer) rayTraceResult.entityHit).getUniqueID().getLeastSignificantBits() : -1;
+
+        arr.add(new JsonPrimitive(typeOfHit));
+        arr.add(new JsonPrimitive(distance));
+        arr.add(new JsonPrimitive(blockID));
+        arr.add(new JsonPrimitive(meta));
+        arr.add(new JsonPrimitive(isCollidable));
+        arr.add(new JsonPrimitive(isToolRequired));
+        arr.add(new JsonPrimitive(blocksMovement));
+        arr.add(new JsonPrimitive(isLiquid));
+        arr.add(new JsonPrimitive(isSolid));
+        arr.add(new JsonPrimitive(canBurn));
+        arr.add(new JsonPrimitive(blocksLight));
+        arr.add(new JsonPrimitive(registryID));
+        arr.add(new JsonPrimitive(uuid));
+
+
+
+    }
+
 }

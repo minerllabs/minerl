@@ -177,9 +177,9 @@ public abstract class MixinMinecraftGameloop {
         if (!this.skipRenderWorld)
         {
             net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickStart(this.timer.renderPartialTicks);
-            this.mcProfiler.endStartSection("gameRenderer");
-            this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks, i);
-            this.mcProfiler.endSection();
+//            this.mcProfiler.endStartSection("gameRenderer");
+//            this.entityRenderer.updateCameraAndRender(this.timer.renderPartialTicks, i);
+//            this.mcProfiler.endSection();
             net.minecraftforge.fml.common.FMLCommonHandler.instance().onRenderTickEnd(this.timer.renderPartialTicks);
         }
 
