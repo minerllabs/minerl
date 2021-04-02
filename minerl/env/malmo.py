@@ -638,7 +638,7 @@ class MinecraftInstance(object):
         if self._seed:
             cmd += ['-seed', ",".join([str(x) for x in self._seed])]
 
-        # check whether debugging is required
+        # add jdwp port if any set
         if self.jdwp_port:
             cmd += ['-jvm_debug_port', str(self.jdwp_port)]
 

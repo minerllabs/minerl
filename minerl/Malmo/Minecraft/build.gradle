@@ -109,6 +109,7 @@ exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx
 exec.args(["--tweakClass", "com.microsoft.Malmo.Launcher.tweakers.CoremodTweaker"])
 // exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
 
+// If we have a jvm_debug_port defined and valid (>0), then set it for JDWP debugging.
 if (project.hasProperty("jvm_debug_port")) {
     def jvm_debug_port = project.getProperty("jvm_debug_port").toInteger()
     if (jvm_debug_port > 0) {
