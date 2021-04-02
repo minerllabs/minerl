@@ -15,4 +15,4 @@ while true; do
 done
 
 # add an extra sleep because we may be too fast detecting the port, and JVM crashes
-sleep 2
+sleep 3

@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="RunClient + Auto-Debugger" type="Multirun" separateTabs="false" reuseTabsWithFailures="false" startOneByOne="true" markFailedProcess="true" hideSuccessProcess="false" delayTime="1.0">
-    <runConfiguration name="RunClient With Debug" type="Shell Script" />
-    <runConfiguration name="Attach on 1044" type="Remote JVM Debug" />
-    <method v="2" />
-  </configuration>
-</component>
