@@ -111,7 +111,8 @@ class InstanceManager:
     _seed_type = SeedType.NONE
     _seed_generator = None
 
-    # this lock allows operating on the instance manager from instances (which run in different worker threads)
+    # this lock allows operating on the instance manager from instances (which
+    # run in different worker threads)
     _im_lock: threading.Lock = threading.Lock()
 
     @classmethod
@@ -215,7 +216,7 @@ class InstanceManager:
                 if len(dup_ports) > 0:
                     # raise exception so we can identify the issue if it happens in experiments
                     raise RuntimeError(
-                        f"There are instances with duplicated ports {dup_ports} vs {inst.uuid}. Will exit.")
+                        f"There are instances with duplicated ports {dup_ports} vs {inst.uuid}")
 
                 cls._instance_pool.append(inst)
                 inst._acquire_lock(pid)
@@ -334,19 +335,21 @@ class InstanceManager:
     @classmethod
     def set_valid_jdwp_port_for_instance(cls, instance) -> None:
         """
-        Find a valid port for JDWP (Java Debug Wire Protocol), so that the instance can be debugged with an
-        attached debugger. The port is set in the instance, so that other instances can check whether the port
-        is reserved.
+        Find a valid port for JDWP (Java Debug Wire Protocol), so that the instance can be debugged
+        with an attached debugger. The port is set in the instance, so that other instances can
+        check whether the port is reserved.
         :param instance: Instance to find and port for, and where we will set the jdwp port.
         """
-        # since we need to check whether other instances have ports claimed, we should find ports for
-        # instances already in the pool
-        assert instance in cls._instance_pool, "Attempted to find jdwp port for instance not in the pool."
+        # since we need to check whether other instances have ports claimed, we should find ports
+        # for instances already in the pool
+        assert instance in cls._instance_pool, \
+            "Attempted to find jdwp port for instance not in the pool."
 
         port = cls._jdwp_base_port
         last_port_to_check = port + 256  # do not try forever
 
-        # this needs to be atomic, otherwise other threads checking for ports might grab the same port
+        # this needs to be atomic, otherwise other threads checking for ports might grab the same
+        # port
         with cls._im_lock:
 
             # find a port
@@ -580,14 +583,16 @@ class MinecraftInstance(object):
     @property
     def jdwp_port(self):
         """
-        JDWP (Java Debug Wire Protocol) port, if any, so the instance can be debugged with an attached debugger.
+        JDWP (Java Debug Wire Protocol) port, if any, so the instance can be debugged with an
+        attached debugger.
         """
         return self._jdwp
 
     @jdwp_port.setter
     def jdwp_port(self, port):
         """
-        JDWP (Java Debug Wire Protocol) port, if any, so the instance can be debugged with an attached debugger.
+        JDWP (Java Debug Wire Protocol) port, if any, so the instance can be debugged with an
+        attached debugger.
         :param port: Port to set (0 or None to disable remote debugging).
         """
         self._jdwp = port
