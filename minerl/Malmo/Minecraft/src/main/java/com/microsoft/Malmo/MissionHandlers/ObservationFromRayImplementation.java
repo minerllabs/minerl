@@ -198,7 +198,7 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
         json.add("LineOfSight", jsonMop);
     }
 
-    static RayTraceResult findEntity(Vec3d eyePos, Vec3d lookVec, double depth, RayTraceResult mop, boolean includeTiles)
+    public static RayTraceResult findEntity(Vec3d eyePos, Vec3d lookVec, double depth, RayTraceResult mop, boolean includeTiles)
     {
         // Based on code in EntityRenderer.getMouseOver()
         if (mop != null)

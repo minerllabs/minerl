@@ -44,6 +44,8 @@ import net.minecraft.world.biome.Biome;
 
 import java.util.*;
 
+import static com.microsoft.Malmo.MissionHandlers.ObservationFromRayImplementation.findEntity;
+
 /**
  * Helper class for building the "World data" to be passed from Minecraft back to the agent.<br>
  * This class contains helper methods to build up a JSON tree of useful information, such as health, XP, food levels, distance travelled, etc.etc.<br>
@@ -116,8 +118,6 @@ public class JSONWorldDataHelper
     static public class LidarParameters {
         private final List<Vec3d> rays;
         public float maxRayDistance = 10.0F;
-        public boolean rich;
-        public boolean projectDown;
 
         public static LidarParameters createLidarParameters() {
             return new LidarParameters();
@@ -131,7 +131,7 @@ public class JSONWorldDataHelper
             return directedRays;
         }
 
-        private LidarParameters() {
+        public LidarParameters() {
             super();
             List<Vec3d> vec3ds = Collections.singletonList(new Vec3d(1.0, 1.0, 1.0));
             this.rays = new ArrayList<Vec3d>(
@@ -367,10 +367,12 @@ public class JSONWorldDataHelper
         Vec3d lookVec = player.getLook(partialTicks);
 
         for (Vec3d ray : lidarParameters.getDirectedRays(eyePos)) {
-            RayTraceResult rayTraceResult = Minecraft.getMinecraft().world.rayTraceBlocks(eyePos, ray, true);
-            if (rayTraceResult == null)
-                rayTraceResult = new RayTraceResult(lookVec, EnumFacing.getFacingFromVector((float)ray.xCoord, (float)ray.yCoord, (float)ray.zCoord), new BlockPos(eyePos.add(ray)));
-            writeRayInfo(arr, rayTraceResult, eyePos);
+            RayTraceResult rayTraceBlock = Minecraft.getMinecraft().world.rayTraceBlocks(eyePos, ray, true);
+            if (rayTraceBlock == null)
+                rayTraceBlock = new RayTraceResult(lookVec, EnumFacing.getFacingFromVector((float)ray.xCoord, (float)ray.yCoord, (float)ray.zCoord), new BlockPos(eyePos.add(ray)));
+            RayTraceResult rayTraceEntity = findEntity(eyePos, lookVec, depth, rayTraceBlock, true);
+
+            writeRayInfo(arr, rayTraceBlock, rayTraceEntity, eyePos, ray);
         }
     }
 
@@ -439,10 +441,9 @@ public class JSONWorldDataHelper
         arr.add(element);
     }
 
-    public static void writeRayInfo(JsonArray arr, RayTraceResult rayTraceResult, Vec3d headPos){
-        int typeOfHit = rayTraceResult.typeOfHit.ordinal();
-        float distance = (float) rayTraceResult.hitVec.subtract(headPos).lengthVector();
-        IBlockState blockState = Minecraft.getMinecraft().world.getBlockState(rayTraceResult.getBlockPos());
+    public static void writeRayInfo(JsonArray arr, RayTraceResult rayTraceBlock, RayTraceResult rayTraceEntity, Vec3d headPos, Vec3d ray){
+        float blockDistance = (float) rayTraceBlock.hitVec.subtract(headPos).lengthVector();
+        IBlockState blockState = Minecraft.getMinecraft().world.getBlockState(rayTraceBlock.getBlockPos());
         Block block = blockState.getBlock();
 
         // Block information
@@ -454,14 +455,13 @@ public class JSONWorldDataHelper
         boolean isLiquid = blockState.getMaterial().isLiquid();
         boolean isSolid = blockState.getMaterial().isSolid();
         boolean canBurn = blockState.getMaterial().getCanBurn();
-        boolean blocksLight = blockState.getMaterial().blocksLight();
 
         // Entity information
-        int registryID = EntityList.getID(rayTraceResult.entityHit.getClass()); // Tells us the registry ID of non-player entities
-        int uuid = rayTraceResult.entityHit instanceof EntityPlayer ? (int)((EntityPlayer) rayTraceResult.entityHit).getUniqueID().getLeastSignificantBits() : -1;
+        float entityDistance = rayTraceEntity != null ? (float) rayTraceEntity.hitVec.subtract(headPos).lengthVector() : (float) ray.lengthVector();
+        int registryID = rayTraceEntity != null ? EntityList.getID(rayTraceEntity.entityHit.getClass()) : -1; // Tells us the registry ID of non-player entities
+        int uuid = rayTraceEntity != null && rayTraceEntity.entityHit instanceof EntityPlayer ? (int)(rayTraceEntity.entityHit).getUniqueID().getLeastSignificantBits() : -1;
 
-        arr.add(new JsonPrimitive(typeOfHit));
-        arr.add(new JsonPrimitive(distance));
+        arr.add(new JsonPrimitive(blockDistance));
         arr.add(new JsonPrimitive(blockID));
         arr.add(new JsonPrimitive(meta));
         arr.add(new JsonPrimitive(isCollidable));
@@ -470,12 +470,10 @@ public class JSONWorldDataHelper
         arr.add(new JsonPrimitive(isLiquid));
         arr.add(new JsonPrimitive(isSolid));
         arr.add(new JsonPrimitive(canBurn));
-        arr.add(new JsonPrimitive(blocksLight));
+
+        arr.add(new JsonPrimitive(entityDistance));
         arr.add(new JsonPrimitive(registryID));
         arr.add(new JsonPrimitive(uuid));
-
-
-
     }
 
 }

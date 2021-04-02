@@ -105,7 +105,8 @@ jar {
 
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
 JavaExec exec = project.getTasks().getByName("runClient") as JavaExec
-exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G", "-Xdebug", "-Dmixin.debug=true"])
+//exec.jvmArgs(["-Xmx2G", "-Xdebug", "-Dmixin.debug=true"])
+exec.jvmArgs(["-Xmx2G"])
 // ForgeGradle automatically sets the runClient task's outputs to be the runDir above (eg "run"). This
 // means that gradle will helpfully try to take a snapshot of the complete contents of the run folder in order
 // to carry out up-to-date checks for any tasks that depend on runClient.

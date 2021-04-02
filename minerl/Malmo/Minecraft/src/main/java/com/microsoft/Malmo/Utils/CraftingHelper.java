@@ -899,4 +899,24 @@ public class CraftingHelper {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Utility method to auto-generate item, block, and recipe lists as individual json arrays
+     *
+     * @param filename location to save the dumped json file.
+     */
+    public static void dumpRichLidarObs(String filename) {
+        JsonObject obs = new JsonObject();
+        JSONWorldDataHelper.LidarParameters lidarParameters = new JSONWorldDataHelper.LidarParameters();
+        JSONWorldDataHelper.buildRichLidarData(obs, lidarParameters, Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerByUUID(Minecraft.getMinecraft().player.getUniqueID()));
+        try {
+            Writer writer = new FileWriter(filename);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(obs, writer);
+            System.out.println("Wrote json to " + System.getProperty("user.dir") + filename);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

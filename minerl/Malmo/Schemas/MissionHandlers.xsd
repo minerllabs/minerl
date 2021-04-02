@@ -2435,6 +2435,36 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:complexType name="Ray">
+        <xs:annotation>
+            <xs:documentation>
+                An directional ray
+            </xs:documentation>
+        </xs:annotation>
+        <xs:attribute name="x" type="xs:decimal" use="required"/>
+        <xs:attribute name="y" type="xs:decimal" use="required"/>
+        <xs:attribute name="z" type="xs:decimal" use="required"/>
+    </xs:complexType>
+
+
+    <xs:element name="ObservationFromRichLidar">
+        <xs:annotation>
+            <xs:documentation>
+                When present, the Mod will return rich information on what each specified ray reflects off of.
+                Rays are traced both at the block layer and the entity layer meaning two individual distances are returned
+
+                For each {{{ Ray }}} entry, an additional rich LIDAR observation will be appended to the json element
+                Rich LIDAR observations are 12 consecutive numbers corresponding to distances and properties of the hit
+                entities and blocks
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Ray" type="Ray"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
     <xs:complexType name="RangeDefinition">
         <xs:annotation>
             <xs:documentation>

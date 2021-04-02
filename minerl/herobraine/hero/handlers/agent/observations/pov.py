@@ -121,3 +121,82 @@ class VoxelObservation(KeymapTranslationHandler):
             return self
         else:
             raise ValueError("Incompatible observables!")
+
+class RichLidarObservation(KeymapTranslationHandler):
+    """
+    Handles rich LIDAR observations.
+    """
+
+    def to_hero(self, x) -> str:
+        pass
+
+    def to_string(self):
+        return 'rays'
+
+    def xml_template(self) -> str:
+        return str("""
+            <ObservationFromRichLidar>                      
+                {% for ray in rays %}
+                    <Ray x={{ray[0]}} y={{ray[1]}} z={{ray[2]}}/> 
+                {% endfor %}                    
+            </ObservationFromGrid>""")
+
+    def xml(self) -> str:
+        """Gets the XML representation of Handler by templating
+        acccording to the xml_template class.
+
+
+        Returns:
+            str: the XML representation of the handler.
+        """
+        var_dict = {}
+        for attr_name in dir(self):
+            if 'xml' not in attr_name:
+                var_dict[attr_name] = getattr(self, attr_name)
+        try:
+            env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+            template = env.from_string(self.xml_template())
+            return template.render(self.__dict__)
+        except jinja2.UndefinedError as e:
+            # print the exception with traceback
+            message = e.message + "\nOccurred in {}".format(self)
+            raise jinja2.UndefinedError(message=message)
+            pass
+
+    def __init__(self, rays=None):
+        # Note rays use camera coordinate system:
+        # The z-axis points forward
+        # The y-axis points down
+        # The x-axis points to the right
+
+        if rays is None:
+            rays = [(0.0, 0.0, 10.0),]
+        self.rays = rays
+        self.num_rays = len(rays)
+        self.num_components = 12 # TODO get this from java
+        self.shape = (self.num_rays, self.num_components)
+
+        space = spaces.Box(0, 1 << 31, self.shape, dtype=np.uint32)
+
+        super().__init__(
+            hero_keys=["rays"],
+            univ_keys=["rays"],
+            space=space,
+            xml_keys={"rays": self.rays})
+
+    def from_hero(self, obs):
+        raw_rays = super().from_hero(obs, dtype=np.int32)
+
+        rays = raw_rays.reshape(self.shape)
+
+        return rays
+
+    def __or__(self, other):
+        """
+        Combines two rich lidar observations into one.
+        """
+        if isinstance(other, RichLidarObservation):
+            all_rays = self.rays + other.rays
+            return RichLidarObservation(rays=all_rays)
+        else:
+            raise ValueError("Incompatible observables!")

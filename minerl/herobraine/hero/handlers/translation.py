@@ -20,6 +20,7 @@ class TranslationHandler(Handler):
     """
 
     def __init__(self, space: MineRLSpace, **other_kwargs):
+        super().__init__()
         self.space = space
 
     def from_hero(self, x: typing.Dict[str, Any]):
@@ -49,7 +50,9 @@ class KeymapTranslationHandler(TranslationHandler):
     def __init__(self,
                  hero_keys: typing.List[str],
                  univ_keys: typing.List[str],
-                 space: MineRLSpace, default_if_missing=None,
+                 space: MineRLSpace,
+                 xml_keys=None,
+                 default_if_missing=None,
                  to_string: str = None):
         """
         Wrapper for simple observations which just remaps keys.

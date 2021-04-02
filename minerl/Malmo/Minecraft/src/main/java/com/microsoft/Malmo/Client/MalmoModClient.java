@@ -200,7 +200,7 @@ public class MalmoModClient
                 // TODO (R): This is a really janky way of extracting constants. This should 
                 // just happen from the command line. -_-
                 // Use this if you want to test some code with a handy key press
-                CraftingHelper.dumpMinecraftObjectRules("../../../herobraine/hero/mc_constants.json");
+                CraftingHelper.dumpRichLidarObs("../../../herobraine/hero/mc_constants.json");
             }
         });
         this.keyManager = new KeyManager(settings, extraKeys);
