@@ -108,6 +108,17 @@ JavaExec exec = project.getTasks().getByName("runClient") as JavaExec
 exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G", "-Xdebug", "-Dmixin.debug=true"])
 exec.args(["--tweakClass", "com.microsoft.Malmo.Launcher.tweakers.CoremodTweaker"])
 // exec.jvmArgs(["-Dfml.coreMods.load=com.microsoft.Malmo.OverclockingPlugin","-Xmx2G"])
+
+// If we have a jvm_debug_port defined and valid (>0), then set it for JDWP debugging.
+if (project.hasProperty("jvm_debug_port")) {
+    def jvm_debug_port = project.getProperty("jvm_debug_port").toInteger()
+    if (jvm_debug_port > 0) {
+        def config_str = "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=${jvm_debug_port}"
+        exec.jvmArgs([config_str])
+        println "JDWP configured at port '${jvm_debug_port}'"
+    }
+}
+
 // ForgeGradle automatically sets the runClient task's outputs to be the runDir above (eg "run"). This
 // means that gradle will helpfully try to take a snapshot of the complete contents of the run folder in order
 // to carry out up-to-date checks for any tasks that depend on runClient.
