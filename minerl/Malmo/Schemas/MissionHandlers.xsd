@@ -2435,15 +2435,15 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:complexType name="Ray">
+    <xs:complexType name="RayOffset">
         <xs:annotation>
             <xs:documentation>
-                An directional ray
+                An offset with 3 degrees of freedom for specifying offsets from PlayerLookVec for raytracing
             </xs:documentation>
         </xs:annotation>
-        <xs:attribute name="x" type="xs:decimal" use="required"/>
-        <xs:attribute name="y" type="xs:decimal" use="required"/>
-        <xs:attribute name="z" type="xs:decimal" use="required"/>
+        <xs:attribute name="pitch" type="xs:float" use="required"/>
+        <xs:attribute name="yaw" type="xs:float" use="required"/>
+        <xs:attribute name="distance" type="xs:float" use="required"/>
     </xs:complexType>
 
 
@@ -2460,7 +2460,7 @@
         </xs:annotation>
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Ray" type="Ray"/>
+                <xs:element name="RayOffset" type="RayOffset" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

@@ -135,39 +135,18 @@ class RichLidarObservation(KeymapTranslationHandler):
 
     def xml_template(self) -> str:
         return str("""
-            <ObservationFromRichLidar>                      
+            <ObservationFromRichLidar>
                 {% for ray in rays %}
-                    <Ray x={{ray[0]}} y={{ray[1]}} z={{ray[2]}}/> 
-                {% endfor %}                    
-            </ObservationFromGrid>""")
-
-    def xml(self) -> str:
-        """Gets the XML representation of Handler by templating
-        acccording to the xml_template class.
-
-
-        Returns:
-            str: the XML representation of the handler.
-        """
-        var_dict = {}
-        for attr_name in dir(self):
-            if 'xml' not in attr_name:
-                var_dict[attr_name] = getattr(self, attr_name)
-        try:
-            env = jinja2.Environment(undefined=jinja2.StrictUndefined)
-            template = env.from_string(self.xml_template())
-            return template.render(self.__dict__)
-        except jinja2.UndefinedError as e:
-            # print the exception with traceback
-            message = e.message + "\nOccurred in {}".format(self)
-            raise jinja2.UndefinedError(message=message)
-            pass
+                    <RayOffset pitch="{{ray[0]}}" yaw="{{ray[1]}}" distance="{{ray[2]}}"/>
+                {% endfor %}
+            </ObservationFromRichLidar>
+        """)
 
     def __init__(self, rays=None):
-        # Note rays use camera coordinate system:
-        # The z-axis points forward
-        # The y-axis points down
-        # The x-axis points to the right
+        # Note rays use [pitch, yaw, distance]:
+        # The pitch (in radians) is relative to lookVec
+        # The yaw (in radians) is relative to lookVec
+        # The distance (in meters) is the maximum distance for the ray from eyePos
 
         if rays is None:
             rays = [(0.0, 0.0, 10.0),]

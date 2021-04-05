@@ -32,6 +32,7 @@ import com.google.gson.*;
 import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
 import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
 
+import com.microsoft.Malmo.Schemas.RayOffset;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockWall;
@@ -900,6 +901,14 @@ public class CraftingHelper {
         }
     }
 
+    private static RayOffset makeOffset(float pitch, float yaw, float magnitude){
+        RayOffset offset = new RayOffset();
+        offset.setPitch(pitch);
+        offset.setYaw(yaw);
+        offset.setDistance(magnitude);
+        return offset;
+    }
+
     /**
      * Utility method to auto-generate item, block, and recipe lists as individual json arrays
      *
@@ -907,8 +916,14 @@ public class CraftingHelper {
      */
     public static void dumpRichLidarObs(String filename) {
         JsonObject obs = new JsonObject();
-        JSONWorldDataHelper.LidarParameters lidarParameters = new JSONWorldDataHelper.LidarParameters();
-        JSONWorldDataHelper.buildRichLidarData(obs, lidarParameters, Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerByUUID(Minecraft.getMinecraft().player.getUniqueID()));
+        List<RayOffset> rayOffsets = new ArrayList<RayOffset>(){{
+                add(makeOffset(0, 0, 10));
+                add(makeOffset(1.13f, 0, 10));
+                add(makeOffset(-1.13f, 0, 10));
+                add(makeOffset(0, 1.13f, 10));
+                add(makeOffset(0, -1.13f, 10));
+        }};
+        JSONWorldDataHelper.buildRichLidarData(obs, rayOffsets, Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerByUUID(Minecraft.getMinecraft().player.getUniqueID()));
         try {
             Writer writer = new FileWriter(filename);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();

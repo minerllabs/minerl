@@ -25,6 +25,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import com.microsoft.Malmo.Schemas.ObservationFromRichLidar;
+import com.microsoft.Malmo.Schemas.RayOffset;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -109,47 +111,8 @@ public class JSONWorldDataHelper
             this.absoluteCoords = false;
             this.projectDown = false;
         }
-    };
+    }
 
-    /**
-     * Simple class to hold parameters of the rich lidar observation
-     * Min and max define an inclusive range, where the player's feet are situated at (0,0,0) if absoluteCoords=false.
-     */
-    static public class LidarParameters {
-        private final List<Vec3d> rays;
-        public float maxRayDistance = 10.0F;
-
-        public static LidarParameters createLidarParameters() {
-            return new LidarParameters();
-        }
-
-        public List<Vec3d> getDirectedRays(Vec3d playerLookVec) {
-            List<Vec3d> directedRays = new ArrayList<>();
-            for (Vec3d ray : rays) {
-                directedRays.add(ray.add(playerLookVec));
-            }
-            return directedRays;
-        }
-
-        public LidarParameters() {
-            super();
-            List<Vec3d> vec3ds = Collections.singletonList(new Vec3d(1.0, 1.0, 1.0));
-            this.rays = new ArrayList<Vec3d>(
-                    vec3ds
-            );
-        }
-
-        public LidarParameters(List<Vec3d> rays) {
-            this(rays, 10);
-        }
-
-        public LidarParameters(final List<Vec3d> rays, float maxRayDistance){
-            this.maxRayDistance = maxRayDistance;
-            this.rays = rays;
-        }
-
-
-    };
 
     /** Builds the basic achievement world data to be used as observation signals by the listener.
      * @param json a JSON object into which the achievement stats will be added.
@@ -354,7 +317,7 @@ public class JSONWorldDataHelper
     }
 
 
-    public static void buildRichLidarData(JsonObject json, LidarParameters lidarParameters, EntityPlayerMP player)
+    public static void buildRichLidarData(JsonObject json, List<RayOffset> rays, EntityPlayer player)
     {
         if (player == null || json == null)
             return;
@@ -362,18 +325,19 @@ public class JSONWorldDataHelper
         JsonArray arr = new JsonArray();
 
         float partialTicks = 1.0f; // Ideally use Minecraft.timer.renderPartialTicks - but we don't need sub-tick resolution.
-        float depth = 50;   // Hard-coded for now - in future will be parameterised via the XML.
         Vec3d eyePos = player.getPositionEyes(partialTicks);
         Vec3d lookVec = player.getLook(partialTicks);
 
-        for (Vec3d ray : lidarParameters.getDirectedRays(eyePos)) {
-            RayTraceResult rayTraceBlock = Minecraft.getMinecraft().world.rayTraceBlocks(eyePos, ray, true);
+        for (Vec3d ray : getDirectedRays(rays, lookVec)) {
+            RayTraceResult rayTraceBlock = Minecraft.getMinecraft().world.rayTraceBlocks(eyePos, eyePos.add(ray), true);
             if (rayTraceBlock == null)
-                rayTraceBlock = new RayTraceResult(lookVec, EnumFacing.getFacingFromVector((float)ray.xCoord, (float)ray.yCoord, (float)ray.zCoord), new BlockPos(eyePos.add(ray)));
-            RayTraceResult rayTraceEntity = findEntity(eyePos, lookVec, depth, rayTraceBlock, true);
+                rayTraceBlock = new RayTraceResult(ray, EnumFacing.getFacingFromVector((float)ray.xCoord, (float)ray.yCoord, (float)ray.zCoord), new BlockPos(eyePos.add(ray)));
+            RayTraceResult rayTraceEntity = findEntity(eyePos, ray, ray.lengthVector(), rayTraceBlock, true);
 
             writeRayInfo(arr, rayTraceBlock, rayTraceEntity, eyePos, ray);
         }
+
+        json.add("rays", arr);
     }
 
     /**
@@ -441,6 +405,17 @@ public class JSONWorldDataHelper
         arr.add(element);
     }
 
+    public static List<Vec3d> getDirectedRays(List<RayOffset> rays, Vec3d playerLookVec) {
+        List<Vec3d> directedRays = new ArrayList<>();
+        for (RayOffset ray : rays) {
+            directedRays.add(playerLookVec
+                    .rotatePitch(ray.getPitch())
+                    .rotateYaw(ray.getYaw())
+                    .scale(ray.getDistance()));
+        }
+        return directedRays;
+    }
+
     public static void writeRayInfo(JsonArray arr, RayTraceResult rayTraceBlock, RayTraceResult rayTraceEntity, Vec3d headPos, Vec3d ray){
         float blockDistance = (float) rayTraceBlock.hitVec.subtract(headPos).lengthVector();
         IBlockState blockState = Minecraft.getMinecraft().world.getBlockState(rayTraceBlock.getBlockPos());
@@ -449,6 +424,7 @@ public class JSONWorldDataHelper
         // Block information
         int blockID = Block.getIdFromBlock(block);
         int meta = block.getMetaFromState(blockState);
+        int harvestLevel = block.getHarvestLevel(blockState);
         boolean isCollidable = block.isCollidable();
         boolean isToolRequired = blockState.getMaterial().isToolNotRequired();
         boolean blocksMovement = blockState.getMaterial().blocksMovement();
@@ -457,23 +433,27 @@ public class JSONWorldDataHelper
         boolean canBurn = blockState.getMaterial().getCanBurn();
 
         // Entity information
-        float entityDistance = rayTraceEntity != null ? (float) rayTraceEntity.hitVec.subtract(headPos).lengthVector() : (float) ray.lengthVector();
+        float entityDistance = rayTraceEntity != null ? (float) rayTraceEntity.hitVec.subtract(headPos).lengthVector() : blockDistance;
         int registryID = rayTraceEntity != null ? EntityList.getID(rayTraceEntity.entityHit.getClass()) : -1; // Tells us the registry ID of non-player entities
         int uuid = rayTraceEntity != null && rayTraceEntity.entityHit instanceof EntityPlayer ? (int)(rayTraceEntity.entityHit).getUniqueID().getLeastSignificantBits() : -1;
 
-        arr.add(new JsonPrimitive(blockDistance));
+        arr.add(new JsonPrimitive((int) (blockDistance * 10)));
         arr.add(new JsonPrimitive(blockID));
         arr.add(new JsonPrimitive(meta));
-        arr.add(new JsonPrimitive(isCollidable));
+        arr.add(new JsonPrimitive(harvestLevel));
         arr.add(new JsonPrimitive(isToolRequired));
         arr.add(new JsonPrimitive(blocksMovement));
         arr.add(new JsonPrimitive(isLiquid));
         arr.add(new JsonPrimitive(isSolid));
         arr.add(new JsonPrimitive(canBurn));
 
-        arr.add(new JsonPrimitive(entityDistance));
+        arr.add(new JsonPrimitive((int) (entityDistance * 10)));
         arr.add(new JsonPrimitive(registryID));
         arr.add(new JsonPrimitive(uuid));
+
+//        arr.add(new JsonPrimitive(rayTraceBlock.toString()));
+//        arr.add(new JsonPrimitive(rayTraceBlock.getBlockPos().toString()));
+//        arr.add(new JsonPrimitive(block.toString()));
     }
 
 }

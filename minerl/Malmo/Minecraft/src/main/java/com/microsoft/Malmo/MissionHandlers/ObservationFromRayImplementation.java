@@ -201,49 +201,43 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
     public static RayTraceResult findEntity(Vec3d eyePos, Vec3d lookVec, double depth, RayTraceResult mop, boolean includeTiles)
     {
         // Based on code in EntityRenderer.getMouseOver()
+
+        // Don't return entities through other blocks!
         if (mop != null)
             depth = mop.hitVec.distanceTo(eyePos);
-        Vec3d searchVec = eyePos.addVector(lookVec.xCoord * depth, lookVec.yCoord * depth, lookVec.zCoord * depth);
+
+        // Scale lookVec by the depth and don't assume it has been normalized
+        lookVec = lookVec.scale(depth / lookVec.lengthVector());
+
+        Vec3d searchVec = eyePos.add(lookVec);
         Entity pointedEntity = null;
 
         Vec3d hitVec = null;
         Entity viewer = Minecraft.getMinecraft().player;
-        List<?> list = Minecraft.getMinecraft().world.getEntitiesWithinAABBExcludingEntity(viewer, viewer.getEntityBoundingBox().addCoord(lookVec.xCoord * depth, lookVec.yCoord * depth, lookVec.zCoord * depth).expand(1.0, 1.0, 1.0));
+        List<Entity> list = Minecraft.getMinecraft().world.getEntitiesWithinAABBExcludingEntity(viewer, viewer.getEntityBoundingBox().addCoord(lookVec.xCoord, lookVec.yCoord, lookVec.zCoord).expand(1.0, 1.0, 1.0));
         double distance = depth;
 
-        for (int i = 0; i < list.size(); ++i)
-        {
-            Entity entity = (Entity)list.get(i);
-            if (entity.canBeCollidedWith() || includeTiles)
-            {
+        for (Entity entity : list) {
+            if (entity.canBeCollidedWith() || includeTiles) {
                 float border = entity.getCollisionBorderSize();
-                AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox().expand((double)border, (double)border, (double)border);
+                AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox().expand((double) border, (double) border, (double) border);
                 RayTraceResult movingobjectposition = axisalignedbb.calculateIntercept(eyePos, searchVec);
-                if (axisalignedbb.isVecInside(eyePos))
-                {
+                if (axisalignedbb.isVecInside(eyePos)) {
                     // If entity is right inside our head?
-                    if (distance >= 0)
-                    {
+                    if (distance >= 0) {
                         pointedEntity = entity;
                         hitVec = (movingobjectposition == null) ? eyePos : mop.hitVec;
                         distance = 0.0D;
                     }
-                }
-                else if (movingobjectposition != null)
-                {
+                } else if (movingobjectposition != null) {
                     double distToEnt = eyePos.distanceTo(movingobjectposition.hitVec);
-                    if (distToEnt < distance || distance == 0.0D)
-                    {
-                        if (entity == entity.getRidingEntity() && !entity.canRiderInteract())
-                        {
-                            if (distance == 0.0D)
-                            {
+                    if (distToEnt < distance || distance == 0.0D) {
+                        if (entity == entity.getRidingEntity() && !entity.canRiderInteract()) {
+                            if (distance == 0.0D) {
                                 pointedEntity = entity;
                                 hitVec = movingobjectposition.hitVec;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             pointedEntity = entity;
                             hitVec = movingobjectposition.hitVec;
                             distance = distToEnt;
