@@ -54,4 +54,4 @@ class HumanControlEnvSpec(EnvSpec, ABC):
         return []  # No monitors by default!o
 
     def create_agent_start(self) -> List[Handler]:
-        return [handlers.LowLevelInputsAgentStart()]
+        return [handlers.LowLevelInputsAgentStart(), handlers.GuiScale(5)]
