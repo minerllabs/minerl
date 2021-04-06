@@ -84,6 +84,7 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
             entitiesInRange.add(new ArrayList<Entity>());
 
         // Populate all our lists according to which entities are in range:
+        // TODO this needs to filter for observable entities
         for (Object obj : entities)
         {
             if (obj instanceof Entity)
@@ -144,6 +145,9 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                         jsent.addProperty("life", el.getHealth());
                     }
                     jsent.addProperty("name", name);
+                    jsent.addProperty("playerDeltaX", e.posX - player.posX);
+                    jsent.addProperty("playerDeltaY", e.posY - player.posY);
+                    jsent.addProperty("playerDeltaZ", e.posZ - player.posZ);
                     arr.add(jsent);
                 }
                 json.add(this.oneparams.getRange().get(index).getName(), arr);
