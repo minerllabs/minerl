@@ -9,3 +9,4 @@ from .guicontainer import *
 from .inventory import *
 from .lifestats import *
 from .pov import *
+from .nearby_entity import *
