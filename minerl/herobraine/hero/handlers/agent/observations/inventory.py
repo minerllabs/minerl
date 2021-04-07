@@ -114,3 +114,51 @@ class FlatInventoryObservation(TranslationHandler):
     def __eq__(self, other):
         return isinstance(other, FlatInventoryObservation) and \
                (self.items) == (other.items)
+
+
+class FlatInventoryVariantObservation(FlatInventoryObservation):
+    """
+    Handles GUI Container Observations for selected items
+    """
+
+    def to_string(self):
+        return 'inventory_variant'
+
+    logger = logging.getLogger(__name__ + ".FlatInventoryVariantObservation")
+
+    def from_hero(self, info):
+        """
+        Converts the Hero observation into a one-hot of the inventory items
+        for a given inventory container. Ignores variant / color
+        :param obs:
+        :return:
+        """
+        item_dict = self.space.no_op()
+        for stack in info['inventory']:
+            if 'variant' in stack:
+                assert 'type' in stack and 'quantity' in stack
+                variant_item_name = f"{stack['type']}_{stack['variant']}"
+                # "half" types end up in stack['variant'] and we don't care
+                # about them (example: double_plant_lower, door_lower)
+                if variant_item_name in item_dict:
+                    item_dict[variant_item_name] += stack['quantity']
+
+        return item_dict
+
+    def from_universal(self, obs):
+        # This comes from minerl; this should break loudly when we attempt to
+        # produce a new dataset, and we'll know to supply these features then
+        raise NotImplementedError
+
+    def __or__(self, other):
+        """
+        Combines two flat inventory observations into one by taking the
+        union of their items.
+        Asserts that other is also a flat observation.
+        """
+        assert isinstance(other, FlatInventoryVariantObservation)
+        return FlatInventoryVariantObservation(list(set(self.items) | (set(other.items))))
+
+    def __eq__(self, other):
+        return isinstance(other, FlatInventoryVariantObservation) and \
+               (self.items) == (other.items)

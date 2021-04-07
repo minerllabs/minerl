@@ -4,6 +4,7 @@
   "mixins": [
     "MixinEntityRandom",
     "MixinLargeInventory",
+    "MixinLargeInventorySlots",
     "MixinMinecraftGameloop",
     "MixinMinecraftServerRun",
     "MixinNoGuiInteract",
