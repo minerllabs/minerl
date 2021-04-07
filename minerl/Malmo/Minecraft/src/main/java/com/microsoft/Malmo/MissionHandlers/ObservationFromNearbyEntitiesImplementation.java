@@ -37,6 +37,7 @@ import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ObservationFromNearbyEntities;
 import com.microsoft.Malmo.Schemas.RangeDefinition;
 import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+import net.minecraft.util.math.Vec3d;
 
 public class ObservationFromNearbyEntitiesImplementation extends HandlerBase implements IObservationProducer
 {
@@ -61,6 +62,7 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
         this.tickCount++;
 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
+        Vec3d lookVec = player.getLookVec();
 
         // Get all the currently loaded entities:
         List<?> entities = Minecraft.getMinecraft().world.getLoadedEntityList();
@@ -145,9 +147,11 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                         jsent.addProperty("life", el.getHealth());
                     }
                     jsent.addProperty("name", name);
-                    jsent.addProperty("playerDeltaX", e.posX - player.posX);
-                    jsent.addProperty("playerDeltaY", e.posY - player.posY);
-                    jsent.addProperty("playerDeltaZ", e.posZ - player.posZ);
+                    Vec3d playerDelta = new Vec3d(e.posX - player.posX, e.posY - player.posY, e.posZ - player.posZ);
+                    jsent.addProperty("playerDeltaX", playerDelta.xCoord);
+                    jsent.addProperty("playerDeltaY", playerDelta.yCoord);
+                    jsent.addProperty("playerDeltaZ", playerDelta.zCoord);
+                    jsent.addProperty("lookVecDotProduct", lookVec.dotProduct(playerDelta));
                     arr.add(jsent);
                 }
                 json.add(this.oneparams.getRange().get(index).getName(), arr);
