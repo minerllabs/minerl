@@ -1,0 +1,9 @@
+steps:
+  - label: build private minerl fork
+    command:
+        - pip install -e .
+        - pytest -n 2 .
+     
+    timeout_in_minutes: 60
+    agents:
+        queue: multi-agent-cpu-v25
