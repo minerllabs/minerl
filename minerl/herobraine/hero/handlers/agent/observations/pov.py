@@ -142,6 +142,8 @@ class RichLidarObservation(KeymapTranslationHandler):
             </ObservationFromRichLidar>
         """)
 
+    num_components = 15  # TODO get this from java
+
     def __init__(self, rays=None):
         # Note rays use [pitch, yaw, distance]:
         # The pitch (in radians) is relative to lookVec
@@ -152,7 +154,6 @@ class RichLidarObservation(KeymapTranslationHandler):
             rays = [(0.0, 0.0, 10.0),]
         self.rays = rays
         self.num_rays = len(rays)
-        self.num_components = 15 # TODO get this from java
         self.shape = (self.num_rays, self.num_components)
 
         space = spaces.Box(0, 1024, self.shape, dtype=np.float)
