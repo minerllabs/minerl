@@ -4,6 +4,8 @@ steps:
         - pip install -e .
         - pytest -n 2 .
      
+    env:
+        JAVA_HOME: /opt/conda
     timeout_in_minutes: 60
     agents:
         queue: multi-agent-cpu-v25
