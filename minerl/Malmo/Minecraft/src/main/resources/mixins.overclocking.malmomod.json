@@ -10,7 +10,8 @@
     "MixinNoGuiInteract",
     "MixinRandomSkinTexture",
     "MixinSyncClientStats",
-    "MixinWorldProviderSpawn"
+    "MixinWorldProviderSpawn",
+    "MixinMergeStatsFix"
   ],
   "server": [
   ],
