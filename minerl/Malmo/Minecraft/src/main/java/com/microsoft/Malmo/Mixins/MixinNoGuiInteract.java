@@ -1,7 +1,5 @@
 package com.microsoft.Malmo.Mixins;
 
-import com.microsoft.Malmo.Client.MalmoModClient;
-import com.microsoft.Malmo.MalmoMod;
 import net.minecraft.block.*;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
@@ -36,9 +34,6 @@ import java.util.logging.Logger;
 @Mixin(PlayerControllerMP.class)
 public abstract class MixinNoGuiInteract {
     private void catchGuiEntity(Entity target, CallbackInfoReturnable<EnumActionResult> cir) {
-        if (MalmoMod.isLowLevelInput()) {
-            return;
-        }
         if (target instanceof EntityVillager
                 || target instanceof EntityMinecartContainer
                 || target instanceof EntityMinecartFurnace
@@ -49,9 +44,6 @@ public abstract class MixinNoGuiInteract {
     }
 
     private void catchGuiItem(Item target, CallbackInfoReturnable<EnumActionResult> cir) {
-        if (MalmoMod.isLowLevelInput()) {
-            return;
-        }
         if (target instanceof ItemSign
             || target instanceof ItemBook) {
             cir.setReturnValue(EnumActionResult.PASS);
@@ -80,9 +72,6 @@ public abstract class MixinNoGuiInteract {
 
     @Inject(method = "processRightClickBlock", at = @At("HEAD"), cancellable = true)
     private void onProcessRightClickBlock(EntityPlayerSP player, WorldClient worldIn, BlockPos stack, EnumFacing pos, Vec3d facing, EnumHand vec, CallbackInfoReturnable<EnumActionResult> cir) {
-        if (MalmoMod.isLowLevelInput()) {
-            return;
-        }
         Block block = worldIn.getBlockState(stack).getBlock();
         if (block instanceof BlockContainer
         || block instanceof BlockAnvil
@@ -97,4 +86,6 @@ public abstract class MixinNoGuiInteract {
     private void onProcessRightClick(EntityPlayer player, World worldIn, EnumHand stack, CallbackInfoReturnable<EnumActionResult> cir) {
         catchGuiItem(player.getHeldItem(stack).getItem(), cir);
     }
+
+
 }

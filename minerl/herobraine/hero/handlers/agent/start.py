@@ -4,7 +4,6 @@
 """Defines the agent start conditions"""
 from minerl.herobraine.hero.handler import Handler
 from typing import Dict, List, Union
-import random
 
 import jinja2
 
@@ -86,9 +85,7 @@ class RandomInventoryAgentStart(InventoryAgentStart):
     """
     def __init__(self, inventory: Dict[str, Union[str, int]], use_hotbar: bool = False):
         """ Creates an inventory where items are placed in random positions
-
         For example:
-
             rias =  RandomInventoryAgentStart({'dirt': 10, 'planks': 5})
         """
         self.inventory = inventory
@@ -101,7 +98,6 @@ class RandomInventoryAgentStart(InventoryAgentStart):
             lines.append(f'<InventoryObject slot="{slot}" type="{item}" quantity="{quantity}"/>')
         lines.append('</Inventory>')
         return '\n'.join(lines)
-
 
 class AgentStartBreakSpeedMultiplier(Handler):
     def to_string(self) -> str:
@@ -210,11 +206,3 @@ class StartingFoodAgentStart(Handler):
         """
         self.food = food
         self.food_saturation = food_saturation
-
-
-class LowLevelInputsAgentStart(Handler):
-    def to_string(self) -> str:
-        return "low_level_inputs"
-
-    def xml_template(self) -> str:
-        return "<LowLevelInputs>true</LowLevelInputs>"
