@@ -10,6 +10,7 @@ import com.microsoft.Malmo.Utils.TimeHelper;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.glu.GLU;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import akka.actor.FSM.TimeoutMarker;
@@ -78,6 +79,9 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public abstract boolean isFramerateLimitBelowMax();
     private  int numTicksPassed = 0;
 
+    @Shadow public boolean inGameHasFocus;
+    @Shadow private int leftClickCounter;
+    @Shadow public abstract void displayGuiScreen(GuiScreen guiScreen);
 
     private void runGameLoop() throws IOException
     {
@@ -263,5 +267,15 @@ public abstract class MixinMinecraftGameloop {
         }
 
         this.mcProfiler.endSection(); //root
+    }
+    
+    @Overwrite
+    public void setIngameFocus()
+    {
+        if (!this.inGameHasFocus) {
+            this.inGameHasFocus = true;
+            this.displayGuiScreen((GuiScreen) null);
+            this.leftClickCounter = 0;
+        }
     }
 }
