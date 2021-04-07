@@ -98,7 +98,7 @@ class RandomInventoryAgentStart(InventoryAgentStart):
             lines.append(f'<InventoryObject slot="{slot}" type="{item}" quantity="{quantity}"/>')
         lines.append('</Inventory>')
         return '\n'.join(lines)
-        
+
 class AgentStartBreakSpeedMultiplier(Handler):
     def to_string(self) -> str:
         return f"agent_start_break_speed_multiplier({self.multiplier})"
