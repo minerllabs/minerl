@@ -90,21 +90,58 @@ class EntityObservation(TranslationHandler):
         return self.items == other.items and self.idx == other.idx
 
     def from_hero(self, obs):
-        # Example input:
-        #
-        # [{'yaw': -54.0, 'x': -80.95586051126129, 'y': 80.17675927506424, 'z': 191.36564594298798, 'pitch': 6.0, 'id': 'dbdbc990-b55b-31ee-a5e0-8b26ffa9a1ae', 'motionX': 0.07562785839444941, 'motionY': -0.15233518685055708, 'motionZ': 0.03299904674152276, 'life': 16.0, 'name': 'MineRLAgent1', 'playerDeltaX': 0.0, 'playerDeltaY': 0.0, 'playerDeltaZ': 0.0}, {'yaw': 146.25, 'x': -80.96685039870985, 'y': 77.70749819972261, 'z': 194.81005356662737, 'pitch': 0.0, 'id': '79631974-1b7b-4bab-b221-9abd25f9d6d8', 'motionX': 0.07181885258824576, 'motionY': -0.48115283512326734, 'motionZ': 0.19435422823880838, 'quantity': 1, 'name': 'light_weighted_pressure_plate', 'playerDeltaX': -0.010989887448559443, 'playerDeltaY': -2.4692610753416346, 'playerDeltaZ': 3.4444076236393926}, {'yaw': 170.15625, 'x': -80.98313560996334, 'y': 81.59273425467973, 'z': 191.4164198857723, 'pitch': 0.0, 'id': '4d622d8f-2ea0-4719-b7a7-483aaf8d8f82', 'motionX': 0.23103500449657438, 'motionY': 0.10449250290989878, 'motionZ': 0.18313750356435776, 'quantity': 1, 'name': 'heavy_weighted_pressure_plate', 'playerDeltaX': -0.027275098702048695, 'playerDeltaY': 1.4159749796154841, 'playerDeltaZ': 0.050773942784331894}]
+        """
+        Example input:
+
+        [{'yaw': -54.0,
+          'x': -80.95586051126129,
+          'y': 80.17675927506424,
+          'z': 191.36564594298798,
+          'pitch': 6.0,
+          'id': 'dbdbc990-b55b-31ee-a5e0-8b26ffa9a1ae',
+          'motionX': 0.07562785839444941,
+          'motionY': -0.15233518685055708,
+          'motionZ': 0.03299904674152276,
+          'life': 16.0,
+          'name': 'MineRLAgent1',
+          'lookVecDotProduct': 1.0,
+          'playerDeltaX': 0.0,
+          'playerDeltaY': 0.0,
+          'playerDeltaZ': 0.0},
+         {'yaw': 146.25,
+          'x': -80.96685039870985,
+          'y': 77.70749819972261,
+          'z': 194.81005356662737,
+          'pitch': 0.0,
+          'id': '79631974-1b7b-4bab-b221-9abd25f9d6d8',
+          'motionX': 0.07181885258824576,
+          'motionY': -0.48115283512326734,
+          'motionZ': 0.19435422823880838,
+          'quantity': 1,
+          'name': 'light_weighted_pressure_plate',
+          'lookVecDotProduct': -1.0,
+          'playerDeltaX': -0.010989887448559443,
+          'playerDeltaY': -2.4692610753416346,
+          'playerDeltaZ': 3.4444076236393926}]
+        """
 
         out = self.space.no_op()
+        valid_entity = False
         if self.idx < len(obs["entities"]):
             entity_list = sorted(obs["entities"], key=lambda x: x["playerDeltaX"] ** 2 + x["playerDeltaY"] ** 2 + x["playerDeltaZ"] ** 2)
             entity = entity_list[self.idx]
-            out["type"] = entity["name"] if entity["name"] in self.items else self._other
-            out["player_delta"] = (entity["playerDeltaX"], entity["playerDeltaY"], entity["playerDeltaZ"])
-            out["motion"] = (entity["motionX"], entity["motionY"], entity["motionZ"])
-            out["quantity"] = entity.get("quantity", 0)
-            out["life"] = entity.get("life", 0)
-            out["valid"] = 1
-        else:
+            # hide things that are behind us
+            # TODO make this respect occlusions.
+            if entity["lookVecDotProduct"] > 0:
+                valid_entity = True
+                out["type"] = entity["name"] if entity["name"] in self.items else self._other
+                out["player_delta"] = (entity["playerDeltaX"], entity["playerDeltaY"], entity["playerDeltaZ"])
+                out["motion"] = (entity["motionX"], entity["motionY"], entity["motionZ"])
+                out["quantity"] = entity.get("quantity", 0)
+                out["life"] = entity.get("life", 0)
+                out["valid"] = 1
+
+        if not valid_entity:
             out["type"] = self._other
             out["player_delta"] = 0, 0, 0
             out["motion"] = 0, 0, 0
