@@ -12,6 +12,7 @@ env=0
 seed="NONE"
 performanceDir="NONE"
 runDir="run"
+jvm_debug_port=0
 
 while [ $# -gt 0 ]
 do
@@ -23,8 +24,9 @@ do
         -env) env=1;;
         -runDir) runDir="$2"; shift;;
         -performanceDir) performanceDir="$2"; shift;;
+        -jvm_debug_port) jvm_debug_port="$2"; shift;;
         *) echo >&2 \
-            "usage: $0 [-replaceable] [-port 10000] [-seed 123123] [-scorepolicy 0123] [-env] [-runDir /home/asdasd] [-performanceDir /home/asdasd]"
+            "usage: $0 [-replaceable] [-port 10000] [-seed 123123] [-scorepolicy 0123] [-env] [-runDir /home/asdasd] [-performanceDir /home/asdasd] [-jvm_debug_port 1044]"
             exit 1;;
     esac
     shift
@@ -46,6 +48,21 @@ if ! [[ $scorepolicy =~ ^-?[0-9]+$ ]]; then
     exit 1
 fi
 
+# - - - - - - - - - - - - - - - - - -
+# Validate jvm port (if any)
+# - - - - - - - - - - - - - - - - - -
+if ! [[ $jvm_debug_port =~ ^-?[0-9]+$ ]]; then
+    echo "Port value should be numeric"
+    exit 1
+fi
+
+
+if [ \( $jvm_debug_port -lt 0 \) -o \( $port -gt 65535 \) ]; then
+    echo "Port value out of range 0-65535"
+    exit 1
+fi
+
+# - - - - - - - - - - - - - - - - - -
 
 configDir="$runDir/config"
 
@@ -102,7 +119,7 @@ echo $MINERL_FORCE_BUILD
 
 if [ ! -e build/libs/MalmoMod-0.37.0-fat.jar ] || [ "$MINERL_FORCE_BUILD" == "1" ]; then
     echo "HELLO"
-    cmd="./gradlew runClient --stacktrace -PrunDir=$runDir"
+    cmd="./gradlew runClient --stacktrace -Pjvm_debug_port=$jvm_debug_port -PrunDir=$runDir"
 else
 
     export GRADLE_USER_HOME=${runDir}/gradle
