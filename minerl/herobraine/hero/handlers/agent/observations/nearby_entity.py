@@ -132,7 +132,7 @@ class EntityObservation(TranslationHandler):
             entity = entity_list[self.idx]
             # hide things that are behind us
             # TODO make this respect occlusions.
-            if entity["lookVecDotProduct"] > 0:
+            if entity["lookVecDotProduct"] >= 0:
                 valid_entity = True
                 out["type"] = entity["name"] if entity["name"] in self.items else self._other
                 out["player_delta"] = (entity["playerDeltaX"], entity["playerDeltaY"], entity["playerDeltaZ"])
