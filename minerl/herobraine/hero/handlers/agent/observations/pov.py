@@ -152,10 +152,10 @@ class RichLidarObservation(KeymapTranslationHandler):
             rays = [(0.0, 0.0, 10.0),]
         self.rays = rays
         self.num_rays = len(rays)
-        self.num_components = 12 # TODO get this from java
+        self.num_components = 15 # TODO get this from java
         self.shape = (self.num_rays, self.num_components)
 
-        space = spaces.Box(0, 1 << 31, self.shape, dtype=np.uint32)
+        space = spaces.Box(0, 1024, self.shape, dtype=np.float)
 
         super().__init__(
             hero_keys=["rays"],

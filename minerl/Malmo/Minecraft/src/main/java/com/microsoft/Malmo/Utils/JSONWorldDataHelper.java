@@ -37,6 +37,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.stats.*;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 
 import net.minecraft.stats.StatList;
@@ -328,13 +329,14 @@ public class JSONWorldDataHelper
         Vec3d eyePos = player.getPositionEyes(partialTicks);
         Vec3d lookVec = player.getLook(partialTicks);
 
-        for (Vec3d ray : getDirectedRays(rays, lookVec)) {
+        for (Tuple<RayOffset, Vec3d> tuple : getDirectedRays(rays, lookVec)) {
+            Vec3d ray = tuple.getSecond();
             RayTraceResult rayTraceBlock = Minecraft.getMinecraft().world.rayTraceBlocks(eyePos, eyePos.add(ray), true);
             if (rayTraceBlock == null)
                 rayTraceBlock = new RayTraceResult(ray, EnumFacing.getFacingFromVector((float)ray.xCoord, (float)ray.yCoord, (float)ray.zCoord), new BlockPos(eyePos.add(ray)));
             RayTraceResult rayTraceEntity = findEntity(eyePos, ray, ray.lengthVector(), rayTraceBlock, true);
 
-            writeRayInfo(arr, rayTraceBlock, rayTraceEntity, eyePos, ray);
+            writeRayInfo(arr, rayTraceBlock, rayTraceEntity, eyePos, tuple);
         }
 
         json.add("rays", arr);
@@ -405,18 +407,18 @@ public class JSONWorldDataHelper
         arr.add(element);
     }
 
-    public static List<Vec3d> getDirectedRays(List<RayOffset> rays, Vec3d playerLookVec) {
-        List<Vec3d> directedRays = new ArrayList<>();
+    public static List<Tuple<RayOffset, Vec3d>> getDirectedRays(List<RayOffset> rays, Vec3d playerLookVec) {
+        List<Tuple<RayOffset, Vec3d>> directedRays = new ArrayList<>();
         for (RayOffset ray : rays) {
-            directedRays.add(playerLookVec
+            directedRays.add(new Tuple<>(ray, playerLookVec
                     .rotatePitch(ray.getPitch())
                     .rotateYaw(ray.getYaw())
-                    .scale(ray.getDistance()));
+                    .scale(ray.getDistance())));
         }
         return directedRays;
     }
 
-    public static void writeRayInfo(JsonArray arr, RayTraceResult rayTraceBlock, RayTraceResult rayTraceEntity, Vec3d headPos, Vec3d ray){
+    public static void writeRayInfo(JsonArray arr, RayTraceResult rayTraceBlock, RayTraceResult rayTraceEntity, Vec3d headPos, Tuple<RayOffset, Vec3d> ray){
         float blockDistance = (float) rayTraceBlock.hitVec.subtract(headPos).lengthVector();
         IBlockState blockState = Minecraft.getMinecraft().world.getBlockState(rayTraceBlock.getBlockPos());
         Block block = blockState.getBlock();
@@ -437,7 +439,8 @@ public class JSONWorldDataHelper
         int registryID = rayTraceEntity != null ? EntityList.getID(rayTraceEntity.entityHit.getClass()) : -1; // Tells us the registry ID of non-player entities
         int uuid = rayTraceEntity != null && rayTraceEntity.entityHit instanceof EntityPlayer ? (int)(rayTraceEntity.entityHit).getUniqueID().getLeastSignificantBits() : -1;
 
-        arr.add(new JsonPrimitive((int) (blockDistance * 10)));
+        // 0-8
+        arr.add(new JsonPrimitive(blockDistance));
         arr.add(new JsonPrimitive(blockID));
         arr.add(new JsonPrimitive(meta));
         arr.add(new JsonPrimitive(harvestLevel));
@@ -447,9 +450,15 @@ public class JSONWorldDataHelper
         arr.add(new JsonPrimitive(isSolid));
         arr.add(new JsonPrimitive(canBurn));
 
-        arr.add(new JsonPrimitive((int) (entityDistance * 10)));
+        // 9-11
+        arr.add(new JsonPrimitive(entityDistance));
         arr.add(new JsonPrimitive(registryID));
         arr.add(new JsonPrimitive(uuid));
+
+        // 12-14
+        arr.add(new JsonPrimitive(ray.getFirst().getPitch()));
+        arr.add(new JsonPrimitive(ray.getFirst().getYaw()));
+        arr.add(new JsonPrimitive(Math.abs(ray.getFirst().getYaw()) + Math.abs(ray.getFirst().getPitch())));
 
 //        arr.add(new JsonPrimitive(rayTraceBlock.toString()));
 //        arr.add(new JsonPrimitive(rayTraceBlock.getBlockPos().toString()));
