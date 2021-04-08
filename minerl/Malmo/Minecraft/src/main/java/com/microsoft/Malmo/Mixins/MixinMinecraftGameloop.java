@@ -10,6 +10,7 @@ import com.microsoft.Malmo.Utils.TimeHelper;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.glu.GLU;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 import akka.actor.FSM.TimeoutMarker;
