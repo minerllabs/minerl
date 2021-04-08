@@ -321,7 +321,7 @@ class EnvSpec(abc.ABC):
         # Various smoke-tests.
         ep_return = sum(npz_data['reward'])
         if ep_return == 1024.0 and 'Obtain' in self.name and 'SimonSays' not in self.name:
-            return f"ep_return={ep_return} in non-Obtain/SimonSays env was unexpectedly 1024"
+            return f"ep_return={ep_return} in non-SimonSays Obtain env was unexpectedly 1024"
 
         if ep_return < 64 and ('Obtain' not in self.name):
             return f"ep_return={ep_return} in non-Obtain env was unexpectedly low (<64)"

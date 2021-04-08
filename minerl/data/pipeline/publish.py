@@ -352,19 +352,6 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                 raise e
 
 
-            # All Envs auto-blacklist by default if
-            # if action${attack,forward} exist and are never used.
-            # if reward is 0
-            #
-            #
-            # "Obtain" EnvSpecs also auto-blacklist if reward is less than 64.
-            #
-            # non-"Obtain", non-"SimonSays" environments auto-blacklist if reward == 1024.
-            #
-            # Survival EnvSpecs never blacklist.
-            # Obfuscated EnvSpecs never blacklist.
-            # Do these even get processed by the pipeline?
-
             reason = env_spec.auto_blacklist_demo(published)
             if reason is not None:
                 assert len(reason) > 0, "reason needs to be non-empty str or None"
