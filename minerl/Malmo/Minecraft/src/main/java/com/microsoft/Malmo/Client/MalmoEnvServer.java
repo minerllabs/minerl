@@ -690,7 +690,7 @@ public class MalmoEnvServer implements IWantToQuit {
     public byte[] getObservation(boolean done)  {
         byte[] obs = envState.obs;
         if (obs == null){
-            
+            return new byte[0];
         }
         return obs;
     }

@@ -438,6 +438,7 @@
             <xs:element ref="ObservationFromFullInventory" minOccurs="0"/>
             <xs:element ref="ObservationFromFullStats" minOccurs="0"/>
             <xs:element ref="ObservationFromGrid" minOccurs="0"/>
+            <xs:element ref="ObservationFromRichLidar" minOccurs="0"/>
             <xs:element ref="ObservationFromHotBar" minOccurs="0"/>
             <xs:element ref="ObservationFromHuman" minOccurs="0"/>
             <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
