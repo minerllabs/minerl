@@ -396,7 +396,8 @@ class MineRLEnv(gym.Env):
                 if np.issubdtype(type(action_in[act]), np.integer):
                     action_in[act] = bottom_env_spec.action_space.spaces[act].values[action_in[act]]
                 else:
-                    assert isinstance(action_in[act], str), "Enum action {} must be str or int".format(act)
+                    assert isinstance(
+                        action_in[act], str), "Enum action {} must be str or int".format(act)
                     assert action_in[act] in bottom_env_spec.action_space.spaces[
                         act].values, "Invalid value for enum action {}, {}".format(
                         act, action_in[act])
