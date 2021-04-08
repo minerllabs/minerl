@@ -105,6 +105,7 @@ jar {
 
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
 JavaExec exec = project.getTasks().getByName("runClient") as JavaExec
+
 exec.jvmArgs(["-Xmx2G", "-Xdebug", "-Dmixin.debug=true"])
 
 // If we have a jvm_debug_port defined and valid (>0), then set it for JDWP debugging.

@@ -23,20 +23,16 @@ import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
+import java.util.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.CaseFormat;
 import com.google.gson.*;
 import com.microsoft.Malmo.MissionHandlers.RewardForCollectingItemImplementation;
 import com.microsoft.Malmo.MissionHandlers.RewardForDiscardingItemImplementation;
 
+import com.microsoft.Malmo.Schemas.RayOffset;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
 import net.minecraft.block.BlockWall;
@@ -46,6 +42,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.creativetab.CreativeTabs;
 
@@ -685,6 +682,7 @@ public class CraftingHelper {
                     Material mat = bs.getMaterial();
                     json.addProperty("canBurn", mat.getCanBurn());
                     json.addProperty("isLiquid", mat.isLiquid());
+                    json.addProperty("isSolid", mat.isSolid());
                     json.addProperty("blocksMovement", mat.blocksMovement());
                     json.addProperty("needsNoTool", mat.isToolNotRequired());
                     json.addProperty("isReplaceable", mat.isReplaceable());
@@ -876,6 +874,60 @@ public class CraftingHelper {
             Writer writer = new FileWriter(filename);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             gson.toJson(allRecipes, writer);
+            System.out.println("Wrote json to " + System.getProperty("user.dir") + filename);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Utility method to auto-generate item, block, and recipe lists as individual json arrays
+     *
+     * @param filename location to save the dumped json file.
+     */
+    public static void dumpVoxelObs(String filename) {
+        JsonObject obs = new JsonObject();
+        JSONWorldDataHelper.GridDimensions gridDimensions = new JSONWorldDataHelper.GridDimensions(3, 3, 3);
+        JSONWorldDataHelper.buildGridData(obs, gridDimensions, Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerByUUID(Minecraft.getMinecraft().player.getUniqueID()), "voxels");
+        try {
+            Writer writer = new FileWriter(filename);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(obs, writer);
+            System.out.println("Wrote json to " + System.getProperty("user.dir") + filename);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static RayOffset makeOffset(float pitch, float yaw, float magnitude){
+        RayOffset offset = new RayOffset();
+        offset.setPitch(pitch);
+        offset.setYaw(yaw);
+        offset.setDistance(magnitude);
+        return offset;
+    }
+
+    /**
+     * Utility method to auto-generate item, block, and recipe lists as individual json arrays
+     *
+     * @param filename location to save the dumped json file.
+     */
+    public static void dumpRichLidarObs(String filename) {
+        JsonObject obs = new JsonObject();
+        List<RayOffset> rayOffsets = new ArrayList<RayOffset>(){{
+                add(makeOffset(0, 0, 10));
+                add(makeOffset(1.13f, 0, 10));
+                add(makeOffset(-1.13f, 0, 10));
+                add(makeOffset(0, 1.13f, 10));
+                add(makeOffset(0, -1.13f, 10));
+        }};
+        JSONWorldDataHelper.buildRichLidarData(obs, rayOffsets, Objects.requireNonNull(Minecraft.getMinecraft().getIntegratedServer()).getPlayerList().getPlayerByUUID(Minecraft.getMinecraft().player.getUniqueID()));
+        try {
+            Writer writer = new FileWriter(filename);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(obs, writer);
             System.out.println("Wrote json to " + System.getProperty("user.dir") + filename);
             writer.close();
         } catch (IOException e) {

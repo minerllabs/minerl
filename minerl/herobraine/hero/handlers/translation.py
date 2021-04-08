@@ -20,6 +20,7 @@ class TranslationHandler(Handler):
     """
 
     def __init__(self, space: MineRLSpace, **other_kwargs):
+        super().__init__()
         self.space = space
 
     def from_hero(self, x: typing.Dict[str, Any]):
@@ -49,7 +50,9 @@ class KeymapTranslationHandler(TranslationHandler):
     def __init__(self,
                  hero_keys: typing.List[str],
                  univ_keys: typing.List[str],
-                 space: MineRLSpace, default_if_missing=None,
+                 space: MineRLSpace,
+                 xml_keys=None,
+                 default_if_missing=None,
                  to_string: str = None):
         """
         Wrapper for simple observations which just remaps keys.
@@ -65,7 +68,7 @@ class KeymapTranslationHandler(TranslationHandler):
         # TODO (R): UNIFY THE LOGGING FRAMEWORK FOR MINERL
         self.logger = logging.getLogger(f'{__name__}.{self.to_string()}')
 
-    def walk_dict(self, d, keys):
+    def walk_dict(self, d, keys, dtype=None):
         for key in keys:
             if key in d:
                 d = d[key]
@@ -73,10 +76,10 @@ class KeymapTranslationHandler(TranslationHandler):
                 if self.default_if_missing is not None:
                     self.logger.error(f"No {keys[-1]} observation! Yielding default value "
                                       f"{self.default_if_missing} for {'/'.join(keys)}")
-                    return np.array(self.default_if_missing)
+                    return np.array(self.default_if_missing, dtype=dtype)
                 else:
                     raise KeyError()
-        return np.array(d)
+        return np.array(d, dtype=dtype)
 
     def to_hero(self, x) -> str:
         """What does it mean to do a keymap translation here?
@@ -85,8 +88,8 @@ class KeymapTranslationHandler(TranslationHandler):
         """
         raise NotImplementedError()
 
-    def from_hero(self, hero_dict):
-        return self.walk_dict(hero_dict, self.hero_keys)
+    def from_hero(self, hero_dict, dtype=None):
+        return self.walk_dict(hero_dict, self.hero_keys, dtype=dtype)
 
     def from_universal(self, univ_dict):
         return self.walk_dict(univ_dict, self.univ_keys)

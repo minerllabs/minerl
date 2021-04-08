@@ -1,15 +1,15 @@
 // --------------------------------------------------------------------------------------------------
 //  Copyright (c) 2016 Microsoft Corporation
-//  
+//
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 //  associated documentation files (the "Software"), to deal in the Software without restriction,
 //  including without limitation the rights to use, copy, modify, merge, publish, distribute,
 //  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 //  furnished to do so, subject to the following conditions:
-//  
+//
 //  The above copyright notice and this permission notice shall be included in all copies or
 //  substantial portions of the Software.
-//  
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 //  NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 //  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -25,28 +25,29 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import com.microsoft.Malmo.Schemas.ObservationFromRichLidar;
+import com.microsoft.Malmo.Schemas.RayOffset;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.stats.*;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.ResourceLocation;
 
 import net.minecraft.stats.StatList;
-import net.minecraft.stats.StatisticsManagerServer;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.biome.Biome;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.element.UnknownElementException;
-import javax.swing.*;
 import java.util.*;
-import java.util.function.Function;
 
-import static net.minecraft.stats.StatList.*;
+import static com.microsoft.Malmo.MissionHandlers.ObservationFromRayImplementation.findEntity;
 
 /**
  * Helper class for building the "World data" to be passed from Minecraft back to the agent.<br>
@@ -111,7 +112,8 @@ public class JSONWorldDataHelper
             this.absoluteCoords = false;
             this.projectDown = false;
         }
-    };
+    }
+
 
     /** Builds the basic achievement world data to be used as observation signals by the listener.
      * @param json a JSON object into which the achievement stats will be added.
@@ -121,20 +123,20 @@ public class JSONWorldDataHelper
         StatisticsManager statisticsManager = player.getStatFileWriter();
 
         json.addProperty("distance_travelled_cm",
-            statisticsManager.readStat(StatList.WALK_ONE_CM)
-            + statisticsManager.readStat(StatList.CROUCH_ONE_CM)
-            + statisticsManager.readStat(StatList.SPRINT_ONE_CM)
-            + statisticsManager.readStat(StatList.SWIM_ONE_CM)
-            + statisticsManager.readStat(StatList.FALL_ONE_CM)
-            + statisticsManager.readStat(StatList.CLIMB_ONE_CM)
-            + statisticsManager.readStat(StatList.FLY_ONE_CM)
-            + statisticsManager.readStat(StatList.DIVE_ONE_CM)
-            + statisticsManager.readStat(StatList.MINECART_ONE_CM)
-            + statisticsManager.readStat(StatList.BOAT_ONE_CM)
-            + statisticsManager.readStat(StatList.PIG_ONE_CM)
-            + statisticsManager.readStat(StatList.HORSE_ONE_CM)
-            + statisticsManager.readStat(StatList.AVIATE_ONE_CM)
-            );
+                statisticsManager.readStat(StatList.WALK_ONE_CM)
+                        + statisticsManager.readStat(StatList.CROUCH_ONE_CM)
+                        + statisticsManager.readStat(StatList.SPRINT_ONE_CM)
+                        + statisticsManager.readStat(StatList.SWIM_ONE_CM)
+                        + statisticsManager.readStat(StatList.FALL_ONE_CM)
+                        + statisticsManager.readStat(StatList.CLIMB_ONE_CM)
+                        + statisticsManager.readStat(StatList.FLY_ONE_CM)
+                        + statisticsManager.readStat(StatList.DIVE_ONE_CM)
+                        + statisticsManager.readStat(StatList.MINECART_ONE_CM)
+                        + statisticsManager.readStat(StatList.BOAT_ONE_CM)
+                        + statisticsManager.readStat(StatList.PIG_ONE_CM)
+                        + statisticsManager.readStat(StatList.HORSE_ONE_CM)
+                        + statisticsManager.readStat(StatList.AVIATE_ONE_CM)
+        );
 
         for(StatBase stat : StatList.ALL_STATS) {
             // For MineRL, split over . and convert all camelCase to snake_case
@@ -246,6 +248,16 @@ public class JSONWorldDataHelper
      * Blocks are returned as a 1D array, in order
      * along the x, then z, then y axes.<br>
      * Data will be returned in an array called "Cells"
+     * Blocks are bit-packed into 32 bit int, see @getBlockInfo
+     * [0-11] block ID
+     * [12-15] block variant/meta
+     * [16] isCollidable
+     * [17] isToolNotRequired
+     * [18] blocksMovement
+     * [19] isLiquid
+     * [20] isSolid
+     * [21] getCanBurn
+     * [22] blocksLight
      * @param json a JSON object into which the info for the object under the mouse will be added.
      * @param environmentDimensions object which specifies the required dimensions of the grid to be returned.
      * @param jsonName name to use for identifying the returned JSON array.
@@ -256,9 +268,11 @@ public class JSONWorldDataHelper
             return;
 
         JsonArray arr = new JsonArray();
+
         BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-        // TODO peterz implement projection in any direction, not only down in y
-        // direction
+        Vec3d head_pos = new Vec3d(player.posX, player.posY + (double)player.getEyeHeight(), player.posZ);
+
+        // TODO peterz implement projection in any direction, not only down in y direction
         if (environmentDimensions.projectDown)
         {
             for (int z = environmentDimensions.zMin; z <= environmentDimensions.zMax; z++)
@@ -271,16 +285,12 @@ public class JSONWorldDataHelper
                             p = new BlockPos(x, y, z);
                         else
                             p = pos.add(x, y, z);
-                        String name = "";
                         IBlockState state = player.world.getBlockState(p);
-                        Object blockName = Block.REGISTRY.getNameForObject(state.getBlock());
-                        if (blockName instanceof ResourceLocation) {
-                            name = ((ResourceLocation) blockName).getResourcePath();
-                        }
-                        if (name.equals("air"))
+                        if (state.getMaterial() != Material.AIR)
                             continue;
-                        JsonElement element = new JsonPrimitive(name);
-                        arr.add(element);
+                        Vec3d blockPos = new Vec3d(p.getX(), p.getY(), p.getZ());
+                        float cosDist = (float) blockPos.subtract(head_pos).normalize().dotProduct(player.getLookVec().normalize());
+                        writeBlockInfo(arr, state, cosDist);
                         break;
                     }
                 }
@@ -295,18 +305,164 @@ public class JSONWorldDataHelper
                             p = new BlockPos(x, y, z);
                         else
                             p = pos.add(x, y, z);
-                        String name = "";
                         IBlockState state = player.world.getBlockState(p);
-                        Object blockName = Block.REGISTRY.getNameForObject(state.getBlock());
-                        if (blockName instanceof ResourceLocation) {
-                            name = ((ResourceLocation) blockName).getResourcePath();
-                        }
-                        JsonElement element = new JsonPrimitive(name);
-                        arr.add(element);
+                        Vec3d blockPos = new Vec3d(p.getX(), p.getY(), p.getZ());
+                        float cosDist = (float) blockPos.subtract(head_pos).normalize().dotProduct(player.getLookVec().normalize());
+                        writeBlockInfo(arr, state, cosDist);
+
                     }
                 }
             }
         }
         json.add(jsonName, arr);
     }
+
+
+    public static void buildRichLidarData(JsonObject json, List<RayOffset> rays, EntityPlayer player)
+    {
+        if (player == null || json == null)
+            return;
+
+        JsonArray arr = new JsonArray();
+
+        float partialTicks = 1.0f; // Ideally use Minecraft.timer.renderPartialTicks - but we don't need sub-tick resolution.
+        Vec3d eyePos = player.getPositionEyes(partialTicks);
+        Vec3d lookVec = player.getLook(partialTicks);
+
+        for (Tuple<RayOffset, Vec3d> tuple : getDirectedRays(rays, lookVec)) {
+            Vec3d ray = tuple.getSecond();
+            RayTraceResult rayTraceBlock = Minecraft.getMinecraft().world.rayTraceBlocks(eyePos, eyePos.add(ray), true);
+            if (rayTraceBlock == null)
+                rayTraceBlock = new RayTraceResult(ray, EnumFacing.getFacingFromVector((float)ray.xCoord, (float)ray.yCoord, (float)ray.zCoord), new BlockPos(eyePos.add(ray)));
+            RayTraceResult rayTraceEntity = findEntity(eyePos, ray, ray.lengthVector(), rayTraceBlock, true);
+
+            writeRayInfo(arr, rayTraceBlock, rayTraceEntity, eyePos, tuple);
+        }
+
+        json.add("rays", arr);
+    }
+
+    /**
+     *      * Blocks are bit-packed into 32 bit int, see @getBlockInfo
+     *      * [0-11] block ID
+     *      * [12-15] block variant/meta
+     *      * [16] isCollidable
+     *      * [17] isToolNotRequired
+     *      * [18] blocksMovement
+     *      * [19] isLiquid
+     *      * [20] isSolid
+     *      * [21] getCanBurn
+     *      * [22] blocksLight
+     *     * [23] sign(cosDist) between player look and block
+     *     * [24-31] 8 bits of abs(cosDist)
+     */
+    public static void writeBlockInfo(JsonArray arr, IBlockState state, Vec3d blockVec, Vec3d lookVec) {
+        Block block = state.getBlock();
+        float cosDist = (float) blockVec.normalize().dotProduct(lookVec.normalize());
+        JsonElement element = new JsonPrimitive(
+                Block.getIdFromBlock(block) // 12 bits
+                        + (block.getMetaFromState(state) << 12) // 4 bits
+                        + ((block.isCollidable() ?  0 : 1) << 16)
+                        + ((state.getMaterial().isToolNotRequired() ?  0 : 1) << 17)
+                        + ((state.getMaterial().blocksMovement() ? 0 : 1) << 18)
+                        + ((state.getMaterial().isLiquid() ? 0 : 1) << 19)
+                        + ((state.getMaterial().isSolid() ? 0 : 1) << 20)
+                        + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
+                        + ((state.getMaterial().blocksLight() ? 0 : 1) << 22)
+                        + ((cosDist > 0 ? 0 : 1) << 23)
+                        + ((int)(Math.abs(cosDist) * (1 << 8)) << 24)
+        );
+        arr.add(element);
+    }
+
+    /**
+     * Blocks are bit-packed into 32 bit int, see @getBlockInfo
+     * [0-11] block ID
+     * [12-15] block variant/meta
+     * [16] isCollidable
+     * [17] isToolNotRequired
+     * [18] blocksMovement
+     * [19] isLiquid
+     * [20] isSolid
+     * [21] getCanBurn
+     * [22] blocksLight
+     * [23] sign(cosDist) between player look and block
+     * [24-31] 8 bits of abs(cosDist)
+     */
+    public static void writeBlockInfo(JsonArray arr, IBlockState state, float dist) {
+        Block block = state.getBlock();
+        JsonElement element = new JsonPrimitive(
+                Block.getIdFromBlock(block) // 12 bits
+                        + (block.getMetaFromState(state) << 12) // 4 bits
+                        + ((block.isCollidable() ? 0 : 1) << 16)
+                        + ((state.getMaterial().isToolNotRequired() ? 0 : 1) << 17)
+                        + ((state.getMaterial().blocksMovement() ? 0 : 1) << 18)
+                        + ((state.getMaterial().isLiquid() ? 0 : 1) << 19)
+                        + ((state.getMaterial().isSolid() ? 0 : 1) << 20)
+                        + ((state.getMaterial().getCanBurn() ? 0 : 1) << 21)
+                        + ((state.getMaterial().blocksLight() ? 0 : 1) << 22)
+                        + (((dist > 0) ? 0 : 1) << 23)
+                        + ((int) (Math.abs(dist) * (1 << 8)) << 24)
+        );
+        arr.add(element);
+    }
+
+    public static List<Tuple<RayOffset, Vec3d>> getDirectedRays(List<RayOffset> rays, Vec3d playerLookVec) {
+        List<Tuple<RayOffset, Vec3d>> directedRays = new ArrayList<>();
+        for (RayOffset ray : rays) {
+            directedRays.add(new Tuple<>(ray, playerLookVec
+                    .rotatePitch(ray.getPitch())
+                    .rotateYaw(ray.getYaw())
+                    .scale(ray.getDistance())));
+        }
+        return directedRays;
+    }
+
+    public static void writeRayInfo(JsonArray arr, RayTraceResult rayTraceBlock, RayTraceResult rayTraceEntity, Vec3d headPos, Tuple<RayOffset, Vec3d> ray){
+        float blockDistance = (float) rayTraceBlock.hitVec.subtract(headPos).lengthVector();
+        IBlockState blockState = Minecraft.getMinecraft().world.getBlockState(rayTraceBlock.getBlockPos());
+        Block block = blockState.getBlock();
+
+        // Block information
+        int blockID = Block.getIdFromBlock(block);
+        int meta = block.getMetaFromState(blockState);
+        int harvestLevel = block.getHarvestLevel(blockState);
+        boolean isCollidable = block.isCollidable();
+        boolean isToolRequired = blockState.getMaterial().isToolNotRequired();
+        boolean blocksMovement = blockState.getMaterial().blocksMovement();
+        boolean isLiquid = blockState.getMaterial().isLiquid();
+        boolean isSolid = blockState.getMaterial().isSolid();
+        boolean canBurn = blockState.getMaterial().getCanBurn();
+
+        // Entity information
+        float entityDistance = rayTraceEntity != null ? (float) rayTraceEntity.hitVec.subtract(headPos).lengthVector() : blockDistance;
+        int registryID = rayTraceEntity != null ? EntityList.getID(rayTraceEntity.entityHit.getClass()) : -1; // Tells us the registry ID of non-player entities
+        int uuid = rayTraceEntity != null && rayTraceEntity.entityHit instanceof EntityPlayer ? (int)(rayTraceEntity.entityHit).getUniqueID().getLeastSignificantBits() : -1;
+
+        // 0-8
+        arr.add(new JsonPrimitive((int) blockDistance * 10));
+        arr.add(new JsonPrimitive(blockID));
+        arr.add(new JsonPrimitive(meta));
+        arr.add(new JsonPrimitive(harvestLevel));
+        arr.add(new JsonPrimitive(isToolRequired));
+        arr.add(new JsonPrimitive(blocksMovement));
+        arr.add(new JsonPrimitive(isLiquid));
+        arr.add(new JsonPrimitive(isSolid));
+        arr.add(new JsonPrimitive(canBurn));
+
+        // 9-11
+        arr.add(new JsonPrimitive((int) entityDistance * 10));
+        arr.add(new JsonPrimitive(registryID));
+        arr.add(new JsonPrimitive(uuid));
+
+        // 12-14
+        arr.add(new JsonPrimitive(ray.getFirst().getPitch()));
+        arr.add(new JsonPrimitive(ray.getFirst().getYaw()));
+        arr.add(new JsonPrimitive(Math.abs(ray.getFirst().getYaw()) + Math.abs(ray.getFirst().getPitch())));
+
+//        arr.add(new JsonPrimitive(rayTraceBlock.toString()));
+//        arr.add(new JsonPrimitive(rayTraceBlock.getBlockPos().toString()));
+//        arr.add(new JsonPrimitive(block.toString()));
+    }
+
 }

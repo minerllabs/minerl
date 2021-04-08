@@ -6,14 +6,24 @@ import logging
 import time
 import numpy as np
 
-coloredlogs.install(level=logging.DEBUG)
+from typing import List
 
+from herobraine.env_specs.treechop_specs import Treechop
+from herobraine.hero.handlers import TranslationHandler, POVObservation
+
+# coloredlogs.install(level=logging.DEBUG)
+
+class TreechopNoRender(Treechop):
+
+    def create_observables(self) -> List[TranslationHandler]:
+        obs = super().create_observables()
+        return [] # [ o for o in obs if not isinstance(o, POVObservation)]
 
 def run_episode(thr_num, *args):
-    env = gym.make('MineRLTreechop-v0')
-    env.make_interactive(port=5656, realtime=True)
+    env = TreechopNoRender().make()
+    # env.make_interactive(port=5656, realtime=True)
     env.seed(17)
-    for _ in range(1000):
+    for _ in range(10000):
         env.reset()
         done = False
         timings = []
@@ -24,7 +34,7 @@ def run_episode(thr_num, *args):
             act['jump'] = 1
             act['attack'] = 1
             _, _, done, _ = env.step(act)
-            env.render()
+            # env.render()
             timings.append(time.time() - t0)
             if len(timings) % 1000 == 0 or done:
                 print(thr_num, ": ", 1 / np.mean(timings))

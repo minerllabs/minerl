@@ -18,8 +18,8 @@ class KeybasedCommandAction(Action):
 
     Combinations of KeybasedCommandActions yield acitons like:
     {
-			“move” : 1,
-			“jump”: 1 
+            “move” : 1,
+            “jump”: 1
     } 
     where move and jump are hte commands, which correspond to keys like 'W', 'SPACE', etc.
 
@@ -61,6 +61,7 @@ class KeybasedCommandAction(Action):
         self.keys = keys
 
     def from_universal(self, x):
+
         actions_mapped = set(str(k) for k in x['custom_action']['actions']['keys'])
 
         offset = self.space.begin if isinstance(self.space, spaces.DiscreteRange) else 0
