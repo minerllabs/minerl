@@ -10,6 +10,7 @@ from minerl.herobraine.env_specs.treechop_specs import Treechop
 from minerl.herobraine.env_specs.navigate_specs import Navigate
 from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, \
     ObtainDiamondDebug
+from minerl.herobraine.env_specs import basalt_specs
 from minerl.herobraine.wrappers import Obfuscated, Vectorized
 import minerl.data.version
 import os
@@ -90,6 +91,9 @@ MINERL_OBTAIN_TEST_DENSE_V0 = ObtainDiamondDebug(dense=True)
 MINERL_OBTAIN_TEST_DENSE_VEC_V0 = Vectorized(MINERL_OBTAIN_TEST_DENSE_V0)
 # MINERL_OBTAIN_TEST_DENSE_OBF_V0 = Obfuscated(MINERL_OBTAIN_TEST_DENSE_VEC_V0)
 
+MINERL_BASALT_FIND_CAVES_ENV_SPEC = basalt_specs.FindCavesEnvSpec()
+MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec()
+MINERL_BASALT_PEN_ANIMALS_ENV_SPEC = basalt_specs.PenAnimalsEnvSpec()
 
 # Register the envs.
 ENVS = [env for env in locals().values() if isinstance(env, EnvSpec)]
