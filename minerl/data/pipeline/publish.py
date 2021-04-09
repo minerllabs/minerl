@@ -255,7 +255,8 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
         universal = remove_initial_frames(universal)
 
         for env_spec in filtered_environments:
-            dest_folder = J(output_root, env_spec.name, 'v{}_{}'.format(PUBLISHER_VERSION, segment_str))
+            dest_folder = J(output_root, env_spec.name, 'v{}_{}'
+                            .format(PUBLISHER_VERSION, segment_str))
             recording_dest = J(dest_folder, 'recording.mp4')
             rendered_dest = J(dest_folder, 'rendered.npz')
             metadata_dest = J(dest_folder, 'metadata.json')
@@ -271,7 +272,8 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
             env_spec.reset()
 
             # Load relevant handlers
-            info_handlers = [obs for obs in env_spec.observables if not isinstance(obs, handlers.POVObservation)]
+            info_handlers = [obs for obs in env_spec.observables
+                             if not isinstance(obs, handlers.POVObservation)]
             reward_handlers = env_spec.rewardables
             # TODO (R): Support done handlers.
             # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
@@ -351,7 +353,6 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         continue
                 raise e
 
-
             reason = env_spec.auto_blacklist_demo(published)
             if reason is not None:
                 assert len(reason) > 0, "reason needs to be non-empty str or None"
@@ -377,12 +378,14 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                 with open(metadata_source, 'r') as meta_file:
                     source = json.load(meta_file)
                     metadata_out = {}
-                    metadata_out['success'] = bool(env_spec.determine_success_from_rewards(published['reward']))
+                    metadata_out['success'] = bool(
+                        env_spec.determine_success_from_rewards(published['reward']))
                     metadata_out['duration_ms'] = len(
                         published['reward']) * 50  # source['end_time'] - source['start_time']
                     metadata_out['duration_steps'] = len(published['reward'])
                     metadata_out['total_reward'] = sum(published['reward'])
-                    metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
+                    metadata_out['stream_name'] = 'v{}{}'.format(
+                        PUBLISHER_VERSION, recording_dir[len('g1'):])
                     metadata_out['true_video_frame_count'] = calculate_frame_count(recording_dest)
                     with open(metadata_dest, 'w') as meta_file_out:
                         json.dump(metadata_out, meta_file_out)
