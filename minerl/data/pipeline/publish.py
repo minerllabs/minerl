@@ -310,7 +310,8 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         # Perhaps we can wrap here
                         if isinstance(env_spec, EnvWrapper):
                             if _prefix == OBSERVABLE_KEY:
-                                tick_data[_prefix]['pov'] = env_spec.observation_space['pov'].no_op()
+                                tick_data[_prefix]['pov'] = (
+                                    env_spec.observation_space['pov'].no_op())
                                 tick_data[_prefix] = env_spec.wrap_observation(tick_data[_prefix])
                                 del tick_data[_prefix]['pov']
                             elif _prefix == ACTIONABLE_KEY:
