@@ -11,6 +11,8 @@ from minerl.herobraine.hero.handlers.translation import (
     KeymapTranslationHandler,
     TranslationHandlerGroup,
 )
+from minerl.herobraine.hero.mc import UNBREAKABLE_BLOCKS
+
 
 __all__ = ["ObservationFromRay"]
 
@@ -49,7 +51,11 @@ class _BlockIdObservation(KeymapTranslationHandler):
         if "LineOfSight" not in info:
             return -1
         los = info["LineOfSight"]
-        if los["hitType"] == "block" and los["inRange"]:
+        if (
+            los["hitType"] == "block"
+            and los["inRange"]
+            and los["type"] not in UNBREAKABLE_BLOCKS
+        ):
             block_desc = (
                 int(los["x"]),
                 int(los["y"]),
