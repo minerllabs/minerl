@@ -556,6 +556,9 @@ ITEMS_BY_CATEGORY = {
 use_times = {item['maxUseDuration'] for item in all_data['items'] if item['useAction'] in {'EAT', 'DRINK'}}
 assert len(use_times) == 1, "Edible items with multiple different eating times."
 EDIBLE_USE_TICKS = use_times.pop()
+UNBREAKABLE_BLOCKS = set(
+    e["type"] for e in all_data["items"] if e["block"] and e["hardness"] < 0
+)
 
 
 def recursive_dict_eq(d1, d2):
