@@ -263,8 +263,12 @@ class _MultiAgentEnv(gym.Env):
         # TODO (R): Move this to env_spec in some reasonable way.
         return action in env_spec.action_space[actor_name]
 
-    def step(self, actions) -> Tuple[
+    def step(self, actions, skip_render: bool = False) -> Tuple[
         Dict[str, Dict[str, Any]], Dict[str, float], Dict[str, bool], Dict[str, Dict[str, Any]]]:
+        """
+        :param skip_render: If True, request that rendering is skipped (in Minecraft). This means
+        that visual observations should be discarded, since they are either stale, fake or null.
+        """
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
 
@@ -280,7 +284,8 @@ class _MultiAgentEnv(gym.Env):
 
                     if not self.has_finished[actor_name]:
                         malmo_command = self._process_action(actor_name, actions[actor_name])
-                        step_message = "<StepClient" + str(STEP_OPTIONS) + ">" + \
+                        skip_render_arg = " skip_render=True" if skip_render else ""
+                        step_message = "<StepClient" + str(STEP_OPTIONS) + skip_render_arg + ">" + \
                                        malmo_command + \
                                        "</StepClient" + str(STEP_OPTIONS) + " >"
 
@@ -302,7 +307,18 @@ class _MultiAgentEnv(gym.Env):
                         _malmo_json = comms.recv_message(instance.client_socket).decode("utf-8")
 
                         # Process the observation and done state.
-                        out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
+                        if not skip_render or done:
+                            out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
+
+                            # if we skipped the render, the observations should not be used. We
+                            # still processed them so that monitor info is generated. (Note
+                            # we could split obs and monitor processing so that we don't
+                            # unnecessarily process obs)
+                            if skip_render:
+                                out_obs = None
+                        else:
+                            out_obs, monitor = None, {}
+
                     else:
                         # IF THIS PARTICULAR AGENT IS DONE THEN:
                         reward = 0.0

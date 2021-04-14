@@ -50,6 +50,7 @@ import com.microsoft.Malmo.Schemas.MissionDiagnostics.VideoData;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TCPSocketChannel;
 import com.microsoft.Malmo.Utils.TextureHelper;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
@@ -253,6 +254,35 @@ public class VideoHook {
         {
             // this is here in case the user has resized the window during a mission
             resizeIfNeeded();
+        }
+    }
+
+    public void generateFakeFrameObs() {
+        if (observer != null)
+            observer.frameProduced();
+
+        try
+        {
+            int size = this.videoProducer.getRequiredBufferSize();
+
+            if (AddressHelper.getMissionControlPort() == 0) {
+                if (envServer != null) {
+                    // Write the obs data into a newly allocated buffer:
+                    byte[] data = new byte[size];
+                    envServer.addFrame(data);
+                }
+            } else {
+                // this path is used in postRender, but I'm not sure if it runs in our experiments. Set exception to
+                // capture if that's the case.
+                throw new NotImplementedException();
+            }
+
+            // TODO What else do we need?
+        }
+        catch (Exception e)
+        {
+            System.out.println(e);
+            e.printStackTrace();
         }
     }
 

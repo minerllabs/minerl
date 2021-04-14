@@ -2192,6 +2192,20 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         private void sendData(boolean done, boolean worldstillExists)
         {
+            // don't waste time for skipped frames
+            if (Minecraft.getMinecraft().skipRenderWorld) {
+
+                // if it's the last one though, generate a fake frame and allow to continue
+                if (done) {
+                    for (VideoHook hook : this.videoHooks) {
+                        hook.generateFakeFrameObs();
+                    }
+                }
+                else {
+                    return;
+                }
+            }
+
             TCPUtils.LogSection ls = new TCPUtils.LogSection("Sending data");
 
             Minecraft.getMinecraft().mcProfiler.startSection("malmoSendData");
