@@ -62,7 +62,7 @@ class EndAfterSnowballThrowWrapper(gym.Wrapper):
     def step(self, action: dict):
         observation, reward, done, info = super().step(action)
         if self._steps_till_done is None:  # Snowball throw hasn't yet been detected.
-            if (observation["equipped_items.mainhand.type"] == "snowball"
+            if (observation["equipped_items"]["mainhand"]["type"] == "snowball"
                     and action["use"] == 1):
                 self._steps_till_done = self.episode_end_delay
         else:  # Snowball throw was detected. We will end episode soon.
