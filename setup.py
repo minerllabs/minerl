@@ -74,7 +74,7 @@ def package_files(directory):
             and not "Malmo/MalmoEnv" in path
             and not "Malmo/ALE_ROMS" in path
             and not "Malmo/scripts" in path):
-            
+
             paths.append((path, [os.path.join(path, f) for f in filenames if not isdir(f)]))
 
     return paths
@@ -84,11 +84,12 @@ data_files = []
 data_files += package_files('minerl/env/missions')
 data_files += package_files('minerl/herobraine/env_specs')
 data_files += package_files('minerl/data/assets')
+data_files += package_files('minerl/env/Malmo')
 
 
 setuptools.setup(
       name='minerl',
-      version='0.3.6',
+      version='0.3.7',
       description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
       long_description=markdown,
       long_description_content_type="text/markdown",
