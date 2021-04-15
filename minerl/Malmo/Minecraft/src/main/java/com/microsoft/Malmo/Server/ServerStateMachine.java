@@ -224,27 +224,6 @@ public class ServerStateMachine extends StateMachine
         updateState();
     }
 
-    @SubscribeEvent
-    public void onGetBreakSpeed(BreakSpeed bs)
-    {
-        String agentname = bs.getEntityPlayer().getName();
-        if (currentMissionInit() != null && currentMissionInit().getMission() != null) {
-            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
-            if (agents != null)
-            {
-                for (AgentSection ascandidate : agents)
-                {
-                    if (ascandidate.getName().equals(agentname)) {
-                        Float mul = ascandidate.getAgentStart().getBreakSpeedMultiplier();
-                        if (mul != null) {
-                            bs.setNewSpeed(bs.getNewSpeed() * mul);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     /** Called by Forge - call setCanceled(true) to prevent spawning in our world.*/
     @SubscribeEvent
     public void onGetPotentialSpawns(PotentialSpawns ps)
