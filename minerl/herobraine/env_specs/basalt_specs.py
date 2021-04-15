@@ -259,6 +259,5 @@ class PenAnimalsEnvSpec(BasaltBaseEnvSpec):
         ]
         return [handlers.SimpleInventoryAgentStart(inventory)]
 
-
     def create_server_world_generators(self) -> List[handlers.Handler]:
         return [handlers.BiomeGenerator("plains")]
