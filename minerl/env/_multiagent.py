@@ -310,12 +310,10 @@ class _MultiAgentEnv(gym.Env):
                         if not skip_render or done:
                             out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
 
-                            # if we skipped the render, the observations should not be used. We
-                            # still processed them so that monitor info is generated. (Note
-                            # we could split obs and monitor processing so that we don't
-                            # unnecessarily process obs)
+                            # if we skipped the render, the pov observation should not be trusted,
+                            # remove it now
                             if skip_render:
-                                out_obs = None
+                                out_obs['pov'] = None
                         else:
                             out_obs, monitor = None, {}
 
