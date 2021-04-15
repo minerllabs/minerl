@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 import gym
-from minerl.env import _singleagent
+from minerl.env import _fake, _singleagent
 from minerl.herobraine.env_spec import EnvSpec
 
 from minerl.herobraine.hero import handlers, mc
@@ -80,7 +80,10 @@ def _basalt_gym_entrypoint(
         end_after_snowball_throw: bool = True,
 ) -> _singleagent._SingleAgentEnv:
     """Used as entrypoint for `gym.make`."""
-    env = env_spec.make(fake=fake)
+    if fake:
+        env = _fake._FakeSingleAgentEnv(env_spec=env_spec)
+    else:
+        env = _singleagent._SingleAgentEnv(env_spec=env_spec)
     if end_after_snowball_throw:
         env = EndAfterSnowballThrowWrapper(env)
     return env
