@@ -86,7 +86,7 @@ def _basalt_gym_entrypoint(
     return env
 
 
-BASALT_GYM_ENTRY_POINT = "realistic_benchmarks.envs.env_specs:_basalt_gym_entrypoint"
+BASALT_GYM_ENTRY_POINT = "minerl.herobraine.env_specs.basalt_specs:_basalt_gym_entrypoint"
 
 
 class BasaltBaseEnvSpec(EnvSpec):
@@ -106,9 +106,8 @@ class BasaltBaseEnvSpec(EnvSpec):
         return folder == self.demo_server_experiment_name
 
     def _entry_point(self, fake: bool) -> str:
-        if not fake:
-            return BASALT_GYM_ENTRY_POINT
-        return super()._entry_point(fake)
+        # Assuming here that `fake` argument gets passed along to entrypoint fn.
+        return BASALT_GYM_ENTRY_POINT
 
     def create_observables(self):
         return DEFAULT_OBS_HANDLERS
@@ -163,6 +162,14 @@ class BasaltBaseEnvSpec(EnvSpec):
         return "BasaltEnv never threw a snowball"
 
     def create_mission_handlers(self):
+        # Implements abstractmethod
+        return ()
+
+    def create_monitors(self):
+        # Implements abstractmethod
+        return ()
+
+    def create_rewardables(self):
         # Implements abstractmethod
         return ()
 
