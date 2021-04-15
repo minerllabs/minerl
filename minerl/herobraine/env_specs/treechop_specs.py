@@ -22,7 +22,7 @@ TREECHOP_DOC = """
 .. image:: ../assets/treechop4.mp4.gif
   :scale: 100 %
   :alt: 
-In treechop, the agent must collect 64 `minercaft:log`. This replicates a common scenario in Minecraft, as logs are necessary to craft a large amount of items in the game, and are a key resource in Minecraft.
+In treechop, the agent must collect 64 `minecraft:log`. This replicates a common scenario in Minecraft, as logs are necessary to craft a large amount of items in the game, and are a key resource in Minecraft.
 
 The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.
 """
