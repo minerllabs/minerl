@@ -12,7 +12,7 @@ def test_gym_spec_ok(env_name):
     gym.spec(env_name)
 
 
-# @pytest.mark.skip(reason='suspected as slow, > 5min. TODO (peterz) fix')
+@pytest.mark.skip(reason='suspected as slow, > 5min. TODO (peterz) fix')
 @pytest.mark.parametrize("env_name", ENV_NAMES)
 def test_envs_step_smoke(env_name):
     with gym.make(env_name) as env:
