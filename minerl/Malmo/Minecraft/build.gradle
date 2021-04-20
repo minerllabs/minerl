@@ -62,7 +62,7 @@ archivesBaseName = "MalmoMod"
 
 
 minecraft {
-    version = "1.11.2-13.20.0.2228"
+    version = "1.11.2-13.20.1.2588"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.
