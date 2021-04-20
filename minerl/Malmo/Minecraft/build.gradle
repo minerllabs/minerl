@@ -4,9 +4,8 @@ buildscript {
 
         maven { url 'https://jitpack.io' }
         jcenter()
-        maven { url = 'https://libraries.minecraft.net/' }
-        mavenCentral()
         maven { url = 'https://maven.minecraftforge.net/' }
+        mavenCentral()
         maven {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
@@ -28,11 +27,15 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
-// For versions >= 1.8
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
-// For versions < 1.8
-// apply plugin: 'forge'
+
+repositories {
+    maven { url = 'https://libraries.minecraft.net/' }
+    mavenCentral()
+    maven { url = 'https://maven.minecraftforge.net/' }
+}
+
 
 apply plugin: 'java'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
