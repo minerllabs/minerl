@@ -4,10 +4,9 @@ buildscript {
 
         maven { url 'https://jitpack.io' }
         jcenter()
+        maven { url = 'https://libraries.minecraft.net/' }
         mavenCentral()
-        maven {
-            url = "https://files.minecraftforge.net/maven"
-        }
+        maven { url = 'https://maven.minecraftforge.net/' }
         maven {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
