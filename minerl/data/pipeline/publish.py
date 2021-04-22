@@ -255,8 +255,9 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
 
         universal = remove_initial_frames(universal)
 
-        for environment in filtered_environments:
-            dest_folder = J(output_root, environment.name, 'v{}_{}'.format(PUBLISHER_VERSION, segment_str))
+        for env_spec in filtered_environments:
+            dest_folder = J(output_root, env_spec.name, 'v{}_{}'
+                            .format(PUBLISHER_VERSION, segment_str))
             recording_dest = J(dest_folder, 'recording.mp4')
             rendered_dest = J(dest_folder, 'rendered.npz')
             metadata_dest = J(dest_folder, 'metadata.json')
@@ -269,15 +270,16 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
             if E(rendered_dest):
                 continue
 
-            environment.reset()
+            env_spec.reset()
 
             # Load relevant handlers
-            info_handlers = [obs for obs in environment.observables if not isinstance(obs, handlers.POVObservation)]
-            reward_handlers = environment.rewardables
+            info_handlers = [obs for obs in env_spec.observables
+                             if not isinstance(obs, handlers.POVObservation)]
+            reward_handlers = env_spec.rewardables
             # TODO (R): Support done handlers.
             # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
-            action_handlers = environment.actionables
-            monitor_handlers = environment.monitors
+            action_handlers = env_spec.actionables
+            monitor_handlers = env_spec.monitors
 
             all_handlers = [hdl for sublist in [info_handlers, reward_handlers, action_handlers] for hdl in sublist]
 
@@ -313,13 +315,14 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                             tick_data[_prefix][handler.to_string()] = val
 
                         # Perhaps we can wrap here
-                        if isinstance(environment, EnvWrapper):
+                        if isinstance(env_spec, EnvWrapper):
                             if _prefix == OBSERVABLE_KEY:
-                                tick_data[_prefix]['pov'] = environment.observation_space['pov'].no_op()
-                                tick_data[_prefix] = environment.wrap_observation(tick_data[_prefix])
+                                tick_data[_prefix]['pov'] = (
+                                    env_spec.observation_space['pov'].no_op())
+                                tick_data[_prefix] = env_spec.wrap_observation(tick_data[_prefix])
                                 del tick_data[_prefix]['pov']
                             elif _prefix == ACTIONABLE_KEY:
-                                tick_data[_prefix] = environment.wrap_action(tick_data[_prefix])
+                                tick_data[_prefix] = env_spec.wrap_action(tick_data[_prefix])
 
                     tick_data = flatten(tick_data, sep=HANDLER_TYPE_SEPERATOR)
                     for k, v in tick_data.items():
@@ -334,7 +337,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         published[k] = published[k][1:]
 
             except NotImplementedError as err:
-                print('Exception:', str(err), 'found with environment:', environment.name)
+                print('Exception:', str(err), 'found with environment:', env_spec.name)
                 raise err
             except KeyError as err:
                 print("Key error in file - check from_universal for handlers")
@@ -358,18 +361,12 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         continue
                 raise e
 
-            # Don't release ones with 1024 reward (they are bad streams) and other smoke-tests
-            if 'Survival' not in environment.name and not isinstance(environment, Obfuscated):
-                # TODO these could be handlers instead!
-                if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name \
-                        and ('SimonSays' not in environment.name) \
-                        or sum(published['reward']) < 64 and ('Obtain' not in environment.name) \
-                        or sum(published['reward']) == 0.0 \
-                        or sum(published['action$forward']) == 0 \
-                        or sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
-                    black_list.add(segment_str)
-                    print('Hey we should have blacklisted {} tyvm'.format(segment_str))
-                    return 0
+            reason = env_spec.auto_blacklist_demo(published)
+            if reason is not None:
+                assert len(reason) > 0, "reason needs to be non-empty str or None"
+                print(f"Blacklisting {env_spec.name} demonstration {segment_str}")
+                black_list.add(segment_str)
+                return 0
 
             # Setup destination root
             if not E(dest_folder):
@@ -389,12 +386,14 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                 with open(metadata_source, 'r') as meta_file:
                     source = json.load(meta_file)
                     metadata_out = {}
-                    metadata_out['success'] = bool(environment.determine_success_from_rewards(published['reward']))
+                    metadata_out['success'] = bool(
+                        env_spec.determine_success_from_rewards(published['reward']))
                     metadata_out['duration_ms'] = len(
                         published['reward']) * 50  # source['end_time'] - source['start_time']
                     metadata_out['duration_steps'] = len(published['reward'])
                     metadata_out['total_reward'] = sum(published['reward'])
-                    metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
+                    metadata_out['stream_name'] = 'v{}{}'.format(
+                        PUBLISHER_VERSION, recording_dir[len('g1'):])
                     metadata_out['true_video_frame_count'] = calculate_frame_count(recording_dest)
                     with open(metadata_dest, 'w') as meta_file_out:
                         json.dump(metadata_out, meta_file_out)

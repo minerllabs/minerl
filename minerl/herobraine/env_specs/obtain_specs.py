@@ -7,7 +7,7 @@ from minerl.herobraine.hero.mc import MS_PER_STEP, STEPS_PER_MS
 from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
 from minerl.herobraine.hero.handler import Handler
 from minerl.herobraine.hero import handlers
-from typing import List, Union, Dict
+from typing import Dict, List, Optional, Union
 from gym import spaces
 
 none = 'none'
