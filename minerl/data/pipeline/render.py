@@ -8,25 +8,27 @@ render.py
 # 2) Running the action_rendering scripts
 # 3) Running the video_rendering scripts
 """
+import datetime
 import functools
 import multiprocessing
+import re
+import json
 import os
+from pathlib import Path
+import psutil
 import random
 import shutil
+from shutil import copyfile
+import time
+import traceback
+from typing import Optional
+import subprocess
 import sys
 import glob
+import zipfile
+
 import numpy as np
 import tqdm
-import zipfile
-import subprocess
-import json
-import time
-import shutil
-import psutil
-import traceback
-from pathlib import Path
-import re
-from shutil import copyfile
 
 from minerl.data.util.constants import (
     OUTPUT_DIR as WORKING_DIR,
@@ -327,6 +329,43 @@ def _render_videos(manager, file, debug=True):
     return ret
 
 
+def _get_error_dir(log_line: str, debug=False) -> Optional[str]:
+    if re.search(r"EOFException:", log_line):
+        if debug:
+            print("\tfound java.io.EOFException")
+        return EOF_EXCEP_DIR
+    elif re.search(r"Adding time keyframe at \d+ time -\d+", log_line):
+        if debug:
+            print("\tfound 0 length file")
+        return ZEROLEN_DIR
+    elif re.search(r"NullPointerException", log_line):
+        if not re.search(r'exceptionCaught', log_line):
+            if debug:
+                print("\tNullPointerException")
+            return NULL_PTR_EXCEP_DIR
+    elif re.search(r"zip error", log_line) or re.search(r"zip file close", log_line):
+        if debug:
+            print('ZIP file error')
+        return ZIP_ERROR_DIR
+    elif re.search(r'connect to X11 window server', log_line):
+        if debug:
+            print("X11 error")
+        return X11_ERROR_DIR
+    elif re.search(r'no lwjgl64 in java', log_line):
+        if debug:
+            print("missing lwjgl.")
+        return OTHER_ERROR_DIR
+    else:
+        return None
+
+    # elif re.search(r"Exception", logLine):
+    #   if debug:
+    #       print("Unknown exception!!!")
+    #   error_dir = OTHER_ERROR_DIR
+
+RENDER_NO_LOGS_TIMEOUT = datetime.timedelta(hours=2)
+
+
 def render_videos(render: tuple, index=0, debug=False):
     """
     For every render directory, we render the videos.
@@ -391,18 +430,15 @@ def render_videos(render: tuple, index=0, debug=False):
         p = launchMC(index)
 
         # Wait for completion (it creates a finished.txt file)
-        video_path = None
         notFound = True
-        errorDir = None
+        time_last_log = datetime.datetime.now()
+
         while notFound:
             if os.path.exists(FINISHED_FILE[index]) or p.poll() is not None:
                 if os.path.exists(FINISHED_FILE[index]):
                     os.remove(FINISHED_FILE[index])
-
                     notFound = False
                     numSuccessfulRenders += 1
-                else:
-                    notFound = True
 
                 try:
                     if debug:
@@ -411,7 +447,7 @@ def render_videos(render: tuple, index=0, debug=False):
                     if debug:
                         print("Minecraft closed")
                 except TimeoutError:
-                    tqdm.tqdm.write("Timeout")
+                    tqdm.tqdm.write("Minecraft close Timeout")
                     p.kill()
                     # killMC(p)
                 except:
@@ -425,55 +461,24 @@ def render_videos(render: tuple, index=0, debug=False):
                 #     p = launchMC()
                 break
             else:
-                logLine = logFile.readline()
-                if len(logLine) > 0:
+                log_line = logFile.readline()
+                if len(log_line) > 0:
+                    time_last_log = datetime.datetime.now()
                     lineCounter += 1
-                    if re.search(r"EOFException:", logLine):
+                    error_dir = _get_error_dir(log_line)
+                    if error_dir:
                         if debug:
-                            print("\tfound java.io.EOFException")
-                        errorDir = EOF_EXCEP_DIR
-
-                    elif re.search(r"Adding time keyframe at \d+ time -\d+", logLine):
-                        if debug:
-                            print("\tfound 0 length file")
-                        errorDir = ZEROLEN_DIR
-
-                    elif re.search(r"NullPointerException", logLine):
-                        if not re.search(r'exceptionCaught', logLine):
-                            if debug:
-                                print("\tNullPointerException")
-                            errorDir = NULL_PTR_EXCEP_DIR
-
-                    elif re.search(r"zip error", logLine) or re.search(r"zip file close", logLine):
-                        if debug:
-                            print('ZIP file error')
-                        errorDir = ZIP_ERROR_DIR
-
-                    elif re.search(r'connect to X11 window server', logLine):
-                        if debug:
-                            print("X11 error")
-                        errorDir = X11_ERROR_DIR
-                    elif re.search(r'no lwjgl64 in java', logLine):
-                        if debug:
-                            print("missing lwjgl.")
-                        errorDir = OTHER_ERROR_DIR
-
-                    # elif re.search(r"Exception", logLine):
-                    # if debug:
-                    #     print("Unknown exception!!!")
-                    # error_dir = OTHER_ERROR_DIR
-
-                    if errorDir:
-                        if debug:
-                            print("\tline {}: {}".format(lineCounter, logLine))
+                            print("\tline {}: {}".format(lineCounter, log_line))
+                        print(error_dir)
+                        logError(error_dir, recording_name, skip_path, index)
                         break
-                        # p = relaunchMC(p, errorDir, recording_name, skip_path)
+                elif datetime.datetime.now() - time_last_log > RENDER_NO_LOGS_TIMEOUT:
+                        tqdm.tqdm.write(
+                            f"Rendering timed out ({RENDER_NO_LOGS_TIMEOUT} time without logs)")
+                        break
 
         time.sleep(1)
         logFile.close()
-        if errorDir:
-            print(errorDir)
-            logError(errorDir, recording_name, skip_path, index)
         if notFound:
             try:
                 os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
@@ -518,7 +523,7 @@ def render_videos(render: tuple, index=0, debug=False):
                     print("\tskipping out of date markers.json")
                 marker_path = None
 
-        if not video_path is None and not log_path is None and not marker_path is None:
+        if video_path is not None and log_path is not None and marker_path is not None:
             if debug:
                 print("\tCopying file", video_path, '==>\n\t',
                       render_path, 'created', os.path.getmtime(video_path))
