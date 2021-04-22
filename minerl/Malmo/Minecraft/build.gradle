@@ -349,7 +349,7 @@ task copyModToServer(type: Copy) {
 // Interesting. We've packaged forge gradle into the full jar and use gradle inherently??
 shadowJar {
     classifier = 'fat'
-    configurations = [project.configurations.all]
+    configurations = [project.configurations.all.findAll {it.canBeResolved}] as List<Configuration>
     manifest {
         attributes "Main-Class": "com.microsoft.Malmo.Launcher.GradleStart"
     }
