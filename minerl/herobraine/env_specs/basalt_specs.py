@@ -1,9 +1,9 @@
 from typing import List, Optional
 
 import gym
+
 from minerl.env import _fake, _singleagent
 from minerl.herobraine.env_spec import EnvSpec
-
 from minerl.herobraine.hero import handlers, mc
 
 BUTTON_ACTIONS = {"forward", "back", "left", "right", "jump", "sneak", "sprint", "attack", "use"}
@@ -28,8 +28,8 @@ DEFAULT_ITEMS = (
 DEFAULT_EQUIP_ITEMS = ('none', 'air', ) + DEFAULT_ITEMS + ('other', )
 
 obs_handler_pov = handlers.POVObservation((64, 64))
-obs_handler_inventory = handlers.FlatInventoryObservation(DEFAULT_ITEMS)
-obs_handler_equip = handlers.EquippedItemObservation(DEFAULT_EQUIP_ITEMS)
+obs_handler_inventory = handlers.FlatInventoryObservation(list(DEFAULT_ITEMS))
+obs_handler_equip = handlers.EquippedItemObservation(list(DEFAULT_EQUIP_ITEMS))
 
 DEFAULT_OBS_HANDLERS = (obs_handler_pov, obs_handler_inventory, obs_handler_equip)
 
@@ -42,7 +42,7 @@ def _get_keyboard_act_handler(k):
 act_handlers_keyboard = tuple(
     _get_keyboard_act_handler(k) for k in BUTTON_ACTIONS)
 act_handler_camera = handlers.CameraAction()
-act_handler_equip = handlers.EquipAction(DEFAULT_EQUIP_ITEMS)
+act_handler_equip = handlers.EquipAction(list(DEFAULT_EQUIP_ITEMS))
 
 DEFAULT_ACT_HANDLERS = act_handlers_keyboard + (act_handler_camera, act_handler_equip)
 
@@ -70,7 +70,7 @@ class EndAfterSnowballThrowWrapper(gym.Wrapper):
                 done = True
                 self._steps_till_done = None
             else:
-                self._steps_till_done -= 1
+                self._steps_till_done -= 1  # pytype: disable=unsupported-operands
         return observation, reward, done, info
 
 

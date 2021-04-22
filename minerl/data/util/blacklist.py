@@ -2,13 +2,17 @@
 # Author: William H. Guss, Brandon Houghton
 
 import os
+import pathlib
 from minerl.data.util.constants import touch
+
+MODULE_PATH = pathlib.Path(__file__).parent.absolute()
+BLACKLIST_DIR_PATH = MODULE_PATH / 'assets' / 'blacklist'
 
 
 class Blacklist:
 
-    def __init__(self):
-        self.file_name = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'assets', 'blacklist'))
+    def __init__(self, blacklist_dir=BLACKLIST_DIR_PATH):
+        self.file_name = blacklist_dir
         os.makedirs(self.file_name, exist_ok=True)
 
     def add(self, other):

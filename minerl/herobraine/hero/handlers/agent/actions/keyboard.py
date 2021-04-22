@@ -61,8 +61,14 @@ class KeybasedCommandAction(Action):
         self.keys = keys
 
     def from_universal(self, x):
-        actions_mapped = set(str(k) for k in x['custom_action']['actions']['keys'])
+        actions = x['custom_action']['actions']
+        if "keys" in actions:
+            keys = actions["keys"]
+        else:
+            keys = actions.keys()
 
+        # actions_mapped is just the raw key codes.
+        actions_mapped = set(str(k) for k in keys)
         offset = self.space.begin if isinstance(self.space, spaces.DiscreteRange) else 0
         default = 0
 

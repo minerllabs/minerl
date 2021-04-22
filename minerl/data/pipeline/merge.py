@@ -1,7 +1,17 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
+"""
+Merges similar trajectories (by stream name) into compressed zip archives.
+Uses 7z, which has the best compression ratios on the market, for zipping.
 
+Requirements:
+    * 7z: You can install `7z` on Ubuntu with `sudo apt install p7zip`.
+    * Run `download2.sh` first to get the trajectories to compress.
+"""
+
+import contextlib
 import os
+import pathlib
 import shutil
 import tqdm
 import glob
@@ -10,14 +20,11 @@ import tempfile
 import struct
 import time
 import multiprocessing
-from shutil import copyfile
 import numpy as np
 import io
-import json
-import re
 import argparse
 
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import STDOUT
 
 from minerl.data.util.constants import (
     MERGED_DIR,
@@ -28,7 +35,6 @@ from minerl.data.util.constants import (
     BLOCK_SIZE,
     ACTION_FILE,
     RECORDING_FILE,
-    TEMP_FILE,
     GLOB_STR_BASE
 )
 
@@ -135,9 +141,11 @@ def processFile(path, writeResult=True):
     return True
 
 
-def touch(fname, times=None):
-    with open(fname, 'a'):
-        os.utime(fname, times)
+def touch(fname):
+    path = pathlib.Path(fname)
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.touch()
 
 
 def concat(infiles, outfile):
@@ -183,10 +191,10 @@ def merge_stream(stream_name):
     # 1. Concatenate files.
     # 2. Merge files.
     # 3. 7z files
-    # 4. Place ifles
-    try:
+    # 4. Place files
+    os.makedirs(TEMP_ROOT, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=TEMP_ROOT) as tempdir:
         target_name = J(MERGED_DIR, "{}.mcpr".format(stream_name))
-        tempdir = tempfile.mkdtemp(dir=TEMP_ROOT)
         bin_name = J(tempdir, "{}.bin".format(stream_name))
         # Concatenate
         shards = sorted(glob.glob(J(GLOB_STR_BASE, "{}-*".format(stream_name))))
@@ -203,9 +211,7 @@ def merge_stream(stream_name):
         parse_success = (proc.wait() == 0)
 
         if parse_success:
-
             if processFile(results_dir):
-
                 zip_file = "{}.zip".format(stream_name)
                 mcpr_file = "{}.mcpr".format(stream_name)
                 proc = subprocess.Popen(
@@ -226,26 +232,22 @@ def merge_stream(stream_name):
         else:
             print("FAILED_TO_PARSE {}".format(stream_name))
             return "FAILED TO PARSE", stream_name
-    finally:
-        shutil.rmtree(tempdir)
 
 
-def main():
-    parser = argparse.ArgumentParser('Merge Script')
-    parser.add_argument('num_workers', type=int, help='Number of parallel workers.')
-    opts = parser.parse_args()
-
-    assert E(WORKING_DIR), "No output directory created! {}".format(WORKING_DIR)
+def main(n_workers: int = 1, parallel: bool = True):
+    """
+    Args:
+        parallel: If True, then use true multiprocessing to parallelize jobs. Otherwise,
+            use multithreading which allows breakpoints and other debugging tools, but
+            is slower.
+    """
     assert E(DOWNLOADED_DIR), "No download directory! Be sure to have the downloaded files prepared:\n\t{}".format(
         DOWNLOADED_DIR)
 
-    if not E(BLACKLIST_TXT):
-        touch(BLACKLIST_TXT)
-        blacklist = []
-    else:
-        with open(BLACKLIST_TXT, 'r') as f:
-            blacklist = f.readlines()
-            blacklist = [x.strip() for x in blacklist if x.strip()]
+    touch(BLACKLIST_TXT)
+    with open(BLACKLIST_TXT, 'r') as f:
+        blacklist = f.readlines()
+        blacklist = [x.strip() for x in blacklist if x.strip()]
 
     files_to_merge = get_files_to_merge(blacklist)
 
@@ -260,7 +262,12 @@ def main():
     if not files_to_merge:
         return
 
-    with multiprocessing.Pool(max(opts.num_workers, 1), tqdm.tqdm.set_lock,
+    if parallel:
+        import multiprocessing
+    else:
+        import multiprocessing.dummy as multiprocessing
+
+    with multiprocessing.Pool(n_workers, tqdm.tqdm.set_lock,
                               initargs=(multiprocessing.RLock(),)) as pool:
         timings = list(tqdm.tqdm(
             pool.imap_unordered(merge_stream, files_to_merge),
@@ -283,5 +290,13 @@ def main():
         print("\t Average time: {}".format(times.mean()))
 
 
+def main_console():
+    """Like main, except it also reads arguments from stdin."""
+    parser = argparse.ArgumentParser('Merge Script')
+    parser.add_argument('num_workers', type=int, help='Number of parallel workers.')
+    opts = parser.parse_args()
+    main(n_workers=opts["num_workers"])
+
+
 if __name__ == "__main__":
-    main()
+    main_console()
