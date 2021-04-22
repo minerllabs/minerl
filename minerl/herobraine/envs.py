@@ -2,7 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 
 import collections
-from typing import List
+from typing import Dict, List
 
 import gym
 
@@ -97,8 +97,10 @@ MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec()
 MINERL_BASALT_PEN_ANIMALS_ENV_SPEC = basalt_specs.PenAnimalsEnvSpec()
 
 # Register the envs.
-ENVS: List[EnvSpec] = [env for env in locals().values() if isinstance(env, EnvSpec)]
-for env in ENVS:
-    if env.name not in gym.envs.registry.env_specs:
-        env.register()
+ENV_SPECS: List[EnvSpec] = [env for env in locals().values() if isinstance(env, EnvSpec)]
+ENV_SPEC_MAPPINGS: Dict[str, EnvSpec] = {}
+for env_spec in ENV_SPECS:
+    if env_spec.name not in gym.envs.registry.env_specs:
+        env_spec.register()
+        ENV_SPEC_MAPPINGS[env_spec.name] = env_spec
         # env.register(fake=True)

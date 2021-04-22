@@ -243,7 +243,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
     # Gather all renderable environments for this experiment directory
     rendered_envs = 0
     filtered_environments = [
-        env_spec for env_spec in envs.ENVS if env_spec.is_from_folder(experiment_folder)]
+        env_spec for env_spec in envs.ENV_SPECS if env_spec.is_from_folder(experiment_folder)]
     # Don't render if files are missing
     if not E(source_folder) or not E(recording_source) or not E(universal_source) or not E(metadata_source):
         black_list.add(segment_str)

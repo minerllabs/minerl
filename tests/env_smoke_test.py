@@ -4,7 +4,7 @@ import pytest
 import minerl
 from minerl.herobraine import envs
 
-ENV_NAMES = [env_spec.name for env_spec in envs.ENVS]
+ENV_NAMES = [env_spec.name for env_spec in envs.ENV_SPECS]
 
 
 @pytest.mark.parametrize("env_name", ENV_NAMES)
