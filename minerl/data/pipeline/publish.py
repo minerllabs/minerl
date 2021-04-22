@@ -429,7 +429,8 @@ def publish(n_workers=56, parallel=True):
             import multiprocessing.dummy as multiprocessing
 
         multiprocessing.freeze_support()
-        with multiprocessing.Pool(n_workers, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
+        with multiprocessing.Pool(n_workers, initializer=tqdm.tqdm.set_lock,
+                                  initargs=(multiprocessing.RLock(),)) as pool:
             manager = ThreadManager(multiprocessing.Manager(), n_workers, 1, 1)
             func = functools.partial(_render_data, DATA_DIR, manager, parallel=parallel)
             num_segments = list(
