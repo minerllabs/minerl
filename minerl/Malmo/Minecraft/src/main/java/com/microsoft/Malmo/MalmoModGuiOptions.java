@@ -117,6 +117,15 @@ public class MalmoModGuiOptions implements IModGuiFactory
     {
     }
 
+    @java.lang.Override
+    public boolean hasConfigGui() {
+        return false;
+    }
+
+    @Override
+    public GuiScreen createConfigGui(GuiScreen var1){return var1;}
+
+
     @Override
     public Class<? extends GuiScreen> mainConfigGuiClass()
     {

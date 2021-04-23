@@ -436,11 +436,11 @@ public class JSONWorldDataHelper
 
         // Entity information
         float entityDistance = rayTraceEntity != null ? (float) rayTraceEntity.hitVec.subtract(headPos).lengthVector() : blockDistance;
-        int registryID = rayTraceEntity != null ? EntityList.getID(rayTraceEntity.entityHit.getClass()) : -1; // Tells us the registry ID of non-player entities
-        int uuid = rayTraceEntity != null && rayTraceEntity.entityHit instanceof EntityPlayer ? (int)(rayTraceEntity.entityHit).getUniqueID().getLeastSignificantBits() : -1;
+        int registryID = rayTraceEntity != null ? EntityList.getID(rayTraceEntity.entityHit.getClass()) : 0; // Tells us the registry ID of non-player entities
+        int uuid = rayTraceEntity != null && rayTraceEntity.entityHit instanceof EntityPlayer ? (int)(rayTraceEntity.entityHit).getUniqueID().getLeastSignificantBits() : 0;
 
         // 0-8
-        arr.add(new JsonPrimitive((int) blockDistance * 10));
+        arr.add(new JsonPrimitive(blockDistance));
         arr.add(new JsonPrimitive(blockID));
         arr.add(new JsonPrimitive(meta));
         arr.add(new JsonPrimitive(harvestLevel));
@@ -451,7 +451,7 @@ public class JSONWorldDataHelper
         arr.add(new JsonPrimitive(canBurn));
 
         // 9-11
-        arr.add(new JsonPrimitive((int) entityDistance * 10));
+        arr.add(new JsonPrimitive(entityDistance));
         arr.add(new JsonPrimitive(registryID));
         arr.add(new JsonPrimitive(uuid));
 

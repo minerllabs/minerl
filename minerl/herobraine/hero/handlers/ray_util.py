@@ -137,14 +137,15 @@ def get_spiral_of_points_reverse(num_points=8, max_distance=DEFAULT_DISTANCE_M):
         points.append((x, y, max_distance))
     return points
 
-def get_4_spirals_of_points(num_points=8, max_distance=DEFAULT_DISTANCE_M):
+def get_4_spirals_of_points(num_points=8, step_size=None, max_distance=DEFAULT_DISTANCE_M):
     """
     Define a spiral function to generate a spiral of points from the origin
     going clockwise.
     Must use trigonometric functions to generate x and y values
     """
     points = []
-    step = MIN_STEP_SIZE * math.pi / 180
+    step = MIN_STEP_SIZE if step_size is None else step_size
+    step *= math.pi / 180
     for i in range(num_points):
         r = i * step
         x = -r * math.cos(2 * math.pi * i / num_points)
