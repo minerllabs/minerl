@@ -578,8 +578,12 @@ public class MalmoEnvServer implements IWantToQuit {
         // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Lock released. Writing observation, info, done.");
 
         profiler.startSection("writeObs");
-        dout.writeInt(obs.length);
-        dout.write(obs);
+        if (obs != null) {
+            dout.writeInt(obs.length);
+            dout.write(obs);
+        } else {
+            dout.writeInt(0);
+        }
 
         dout.writeInt(BYTES_DOUBLE + 2);
         dout.writeDouble(reward);

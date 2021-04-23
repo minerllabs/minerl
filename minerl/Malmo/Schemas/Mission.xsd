@@ -55,19 +55,6 @@
                         </xs:restriction>
                     </xs:simpleType>
                 </xs:element>
-                <xs:element name="FrameSkip" minOccurs="0" maxOccurs="1">
-                    <xs:annotation>
-                        <xs:documentation>
-                            Use this to overclock syncronous mode Minecraft - to make Minecraft run more than one tick
-                            per env step.
-                        </xs:documentation>
-                    </xs:annotation>
-                    <xs:simpleType>
-                        <xs:restriction base="xs:int">
-                            <xs:minInclusive value="1"/>
-                        </xs:restriction>
-                    </xs:simpleType>
-                </xs:element>
                 <xs:element name="PrioritiseOffscreenRendering" type="xs:boolean" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>

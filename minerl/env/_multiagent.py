@@ -5,7 +5,7 @@ from copy import deepcopy
 import json
 import logging
 from minerl.env.comms import retry
-from minerl.env.exceptions import MissionInitException
+from minerl.env.exceptions import MissionInitException, BadObservationException
 import os
 from minerl.herobraine.wrapper import EnvWrapper
 import struct
@@ -19,6 +19,7 @@ from lxml import etree
 from minerl.env import comms
 import xmltodict
 from concurrent.futures import ThreadPoolExecutor
+import numpy as np
 
 from minerl.herobraine.env_spec import EnvSpec
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -92,6 +93,14 @@ class _MultiAgentEnv(gym.Env):
         self._init_interactive()
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
+
+    ############ PROPERTIES ##########
+
+    @property
+    def frameskip(self):
+        """Return the frameskip defined in the EnvSpec. Consult EnvSpec for information on the
+        meaning of frameskip."""
+        return self.task.frameskip
 
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
@@ -263,11 +272,57 @@ class _MultiAgentEnv(gym.Env):
         # TODO (R): Move this to env_spec in some reasonable way.
         return action in env_spec.action_space[actor_name]
 
-    def step(self, actions, skip_render: bool = False) -> Tuple[
-        Dict[str, Dict[str, Any]], Dict[str, float], Dict[str, bool], Dict[str, Dict[str, Any]]]:
+    def step(self, actions) -> Tuple[
+        Dict[str, Dict[str, Any]], Dict[str, float], bool, Dict[str, Dict[str, Any]]]:
         """
-        :param skip_render: If True, request that rendering is skipped (in Minecraft). This means
-        that visual observations should be discarded, since they are either stale, fake or null.
+        Tick each of the agent instances and then the server, collecting the appropriate
+        observations and reward for each agent. For all ticks in the step except the last one,
+        request that rendering is not performed in Minecraft, since we do not need that observation.
+        """
+        final_obs = None
+        final_reward = {agent_name: 0 for agent_name in actions}
+        everyone_is_done = True
+        final_infos = {agent_name: {} for agent_name in actions}
+
+        # tick the specified number of ticks for this step
+        for frame_idx in range(self.frameskip):
+            # skip render for all frames except the last one, whose visual obs matters
+            skip_render = frame_idx != (self.frameskip - 1)
+
+            # tick all instances and server now
+            tick_obs, tick_reward, everyone_is_done, tick_info = self.tick_all_agents(
+                actions=actions, skip_render=skip_render)
+
+            # we always override the final observation (unlike rewards and infos, that accumulate)
+            final_obs = tick_obs
+
+            for agent_name in actions:
+                # add rewards every ticks
+                final_reward[agent_name] += tick_reward[agent_name]
+                # update info every tick
+                final_infos[agent_name].update(tick_info[agent_name])
+
+                # When frame-skip was implemented in Malmo, these action would only trigger once.
+                # As such, we only execute them once.
+                actions[agent_name]["place"] = "none"
+                actions[agent_name]["craft"] = "none"
+                actions[agent_name]["equip"] = "none"
+                actions[agent_name]["nearbyCraft"] = "none"
+                actions[agent_name]["nearbySmelt"] = "none"
+                actions[agent_name]["camera"] = np.zeros_like(
+                    actions[agent_name]["camera"]
+                )
+
+            # done if everyone is done
+            if everyone_is_done:
+                break
+
+        return final_obs, final_reward, everyone_is_done, final_infos
+
+    def tick_all_agents(self, actions, skip_render: bool) -> Tuple[
+        Dict[str, Dict[str, Any]], Dict[str, float], bool, Dict[str, Dict[str, Any]]]:
+        """
+        Tick once the Minecraft instances and then the server.
         """
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
@@ -308,12 +363,25 @@ class _MultiAgentEnv(gym.Env):
 
                         # Process the observation and done state.
                         if not skip_render or done:
+                            # if we skipped the render, the pov observation should not be trusted,
+                            # remove it now. Since many places may rely on this observation being
+                            # present, instead of nulling it out, replace with last
+                            if skip_render:
+                                obs = self._last_obs[actor_name]
+
+                            # empirically, when agent1 finishes but agent0 has not, there are
+                            # situations in which the agent 1 will not send info. Why?
+                            if "inventory" not in _malmo_json or obs == b'':
+                                info = json.loads(_malmo_json)
+                                debug_msg = "\n"
+                                debug_msg += f" | - pov  : {len(obs)}\n"
+                                debug_msg += f" | - info : {info.keys()}\n"
+                                debug_msg += f" | - reply: {reply}\n"
+                                debug_msg += f" | - done : {done}\n"
+                                raise BadObservationException(f"Bad observation {debug_msg}")
+
                             out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
 
-                            # if we skipped the render, the pov observation should not be trusted,
-                            # remove it now
-                            if skip_render:
-                                out_obs['pov'] = None
                         else:
                             out_obs, monitor = None, {}
 
@@ -659,6 +727,19 @@ class _MultiAgentEnv(gym.Env):
                             'too long waiting for first observation')
                     time.sleep(0.1)
                     # FIXME - shouldn't we error or retry here?
+
+                # Empirically, when we crash in _process_observation, it is due to not having
+                # received information here. This happens when java timeouts, which makes it
+                # call OnMissionEnd, which replies with an empty info dictionary. When that
+                # happens, the flag for being done is true, which is unexpected here, since we
+                # are just resetting the environment.
+                if done:
+                    debug_msg = "\n"
+                    debug_msg += f" | - pov  : {len(obs)}\n"
+                    debug_msg += f" | - info : {info.keys()}\n"
+                    debug_msg += f" | - reply: {reply}\n"
+                    debug_msg += f" | - done : {done}\n"
+                    raise MissionInitException(f"Failed to peek clients: {debug_msg}")
 
                 multi_obs[actor_name], _ = self._process_observation(actor_name, obs, info)
             self.done = multi_done

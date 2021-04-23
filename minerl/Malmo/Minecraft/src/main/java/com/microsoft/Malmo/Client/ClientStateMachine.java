@@ -1953,8 +1953,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                 TimeHelper.setMinecraftClientClockSpeed(1000 / modsettings.getMsPerTick());
                 if (modsettings.isPrioritiseOffscreenRendering() == Boolean.TRUE)
                 TimeHelper.displayGranularityMs = 1000;
-                if (modsettings.getFrameSkip() != null)
-                    TimeHelper.frameSkip = modsettings.getFrameSkip();
             }
             TimeHelper.unpause();
 
@@ -2249,18 +2247,9 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
 
         private void sendData(boolean done, boolean worldstillExists)
         {
-            // don't waste time for skipped frames
-            if (Minecraft.getMinecraft().skipRenderWorld) {
-
-                // if it's the last one though, generate a fake frame and allow to continue
-                if (done) {
-                    for (VideoHook hook : this.videoHooks) {
-                        hook.generateFakeFrameObs();
-                    }
-                }
-                else {
-                    return;
-                }
+            // don't waste time for skipped frames, unless it's the last one, in which case we need the info
+            if (Minecraft.getMinecraft().skipRenderWorld && !done) {
+                return;
             }
 
             TCPUtils.LogSection ls = new TCPUtils.LogSection("Sending data");

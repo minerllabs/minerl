@@ -49,9 +49,14 @@ class POVObservation(KeymapTranslationHandler):
 
     def from_hero(self, obs):
         byte_array = super().from_hero(obs)
-        pov = np.frombuffer(byte_array, dtype=np.uint8)
 
-        if pov is None or len(pov) == 0:
+        # byte_array.dtype == object is required because from_buffer creates an array if the
+        # byte_buffer is array(None, dtype='object'), which happens when the observation is None.
+        if byte_array.dtype == object:
+            return None
+
+        pov = np.frombuffer(byte_array, dtype=np.uint8)
+        if pov is None or len(pov) == 0:  # note from raul: I don't this if can happen
             pov = np.zeros((self.video_height, self.video_width, self.video_depth), dtype=np.uint8)
         else:
             pov = pov.reshape((self.video_height, self.video_width, self.video_depth))[::-1, :, :]

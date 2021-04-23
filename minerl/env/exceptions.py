@@ -18,3 +18,12 @@ class MissionInitException(Exception):
 
     def __init__(self, message):
         super(MissionInitException, self).__init__(message)
+
+
+class BadObservationException(Exception):
+    """
+    Exception thrown when observations received from java are malformed and can't be processed.
+    """
+
+    def __init__(self, message):
+        super(BadObservationException, self).__init__(message)

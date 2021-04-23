@@ -22,7 +22,8 @@ class EnvWrapper(EnvSpec):
 
         super().__init__(self._update_name(env_to_wrap.name),
                          max_episode_steps=env_to_wrap.max_episode_steps,
-                         reward_threshold=env_to_wrap.reward_threshold)
+                         reward_threshold=env_to_wrap.reward_threshold,
+                         frameskip=env_to_wrap.frameskip)
 
     @abc.abstractmethod
     def _update_name(self, name: str) -> str:
