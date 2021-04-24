@@ -437,7 +437,13 @@ public class JSONWorldDataHelper
         // Entity information
         float entityDistance = rayTraceEntity != null ? (float) rayTraceEntity.hitVec.subtract(headPos).lengthVector() : blockDistance;
         int registryID = rayTraceEntity != null ? EntityList.getID(rayTraceEntity.entityHit.getClass()) : 0; // Tells us the registry ID of non-player entities
+        if (registryID < 0) {
+            registryID = 0;
+        }
         int uuid = rayTraceEntity != null && rayTraceEntity.entityHit instanceof EntityPlayer ? (int)(rayTraceEntity.entityHit).getUniqueID().getLeastSignificantBits() : 0;
+        if (uuid < 0) {
+            uuid = 0;
+        }
 
         // 0-8
         arr.add(new JsonPrimitive(blockDistance));
