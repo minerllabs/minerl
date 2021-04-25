@@ -35,6 +35,7 @@ import gym
 import gym.envs.registration
 import gym.spaces
 import numpy as np
+from filelock import FileLock
 from lxml import etree
 from minerl.env import comms
 from minerl.env.comms import retry
@@ -46,6 +47,8 @@ from minerl.herobraine.wrapper import EnvWrapper
 logger = logging.getLogger(__name__)
 
 missions_dir = os.path.join(os.path.dirname(__file__), 'missions')
+
+launch_instance_lock = FileLock(os.path.join(os.path.dirname(__file__), 'env.lock'))
 
 
 class EnvException(Exception):
@@ -156,7 +159,8 @@ class MineRLEnv(gym.Env):
         if InstanceManager.is_remote():
             launch_queue_logger_thread(instance, self.is_closed)
 
-        instance.launch()
+        with launch_instance_lock:
+            instance.launch()
         return instance
 
     def init(self):
