@@ -249,6 +249,7 @@ class Enum(Discrete, MineRLSpace):
         super().__init__(len(values))
         self.values = np.array(sorted(values))
         self.value_map = dict(zip(self.values, range(len(values))))
+        self.dtype = np.int
 
     def sample(self, bs=None) -> int:
         """Samples a random index for one of the enum types.
