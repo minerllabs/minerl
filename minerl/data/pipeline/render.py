@@ -7,6 +7,12 @@ render.py
 #    containing meta data.
 # 2) Running the action_rendering scripts
 # 3) Running the video_rendering scripts
+
+
+By default, this generates low-res videos of dimensions 64x64.
+To generate videos of a different resolution, set or `export` the
+MINERL_RENDER_WIDTH and MINERL_RENDER_HEIGHT environment variables.
+(e.g.: `export MINERL_RENDER_WIDTH=1920 MINERL_RENDER_HEIGHT=1080`).
 """
 import functools
 import multiprocessing
@@ -245,8 +251,10 @@ def render_actions(renders: list):
                 assert not os.stat(action_mcbr).st_size == 0
 
                 # Run the actual parse action and make sure that its actually of length 0.
-                p = subprocess.Popen(["python3", "parse_action.py", os.path.abspath(
-                    action_mcbr)], cwd='action_rendering')
+                p = subprocess.Popen(
+                    ["python3", "parse_action.py", os.path.abspath(action_mcbr)],
+                    cwd='action_rendering',
+                )
                 returncode = (p.wait())
                 assert returncode == 0
 

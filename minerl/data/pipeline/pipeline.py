@@ -2,6 +2,11 @@
 
 The merge stage makes sure to compile a MineRL parser program first, and the final
   publishing stage makes sure to write the necessary version file first.
+
+By default the render stage, generates low-res videos of dimensions 64x64.
+To generate videos of a different resolution, set or `export` the
+MINERL_RENDER_WIDTH and MINERL_RENDER_HEIGHT environment variables.
+(e.g.: `export MINERL_RENDER_WIDTH=1920 MINERL_RENDER_HEIGHT=1080`).
 """
 
 import argparse
