@@ -2,12 +2,42 @@
 # Author: William H. Guss, Brandon Houghton
 
 import logging
+from typing import List, Optional
 
 import jinja2
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 import numpy as np
 from minerl.herobraine.hero import spaces
 import minerl.herobraine.hero.mc as mc
+
+
+def _univ_obs_get_inventory_slots(obs: dict) -> Optional[List[dict]]:
+    """
+    Observations in univ.json contain "slot dicts" containing info about
+    items held in player or container inventories. This function processes an obs dict
+    from univ.json, and returns
+    the list of "slot" dictionaries, where every non-empty dictionary corresponds to
+    an item stack.
+
+    See the following link for an example format:
+    https://gist.github.com/shwang/9c8815e952eb2a4c308aea09f112cd6a#file-univ-head-json-L162
+    """
+    # If these keys don't exist, then we should KeyError.
+    gui_type = obs['slots']['gui']['type']
+    gui_slots = obs['slots']['gui']['slots']
+
+    if gui_type in ('class net.minecraft.inventory.ContainerPlayer',
+                    'class net.minecraft.inventory.ContainerWorkbench'):
+        slots = gui_slots[1:]
+    elif gui_type == 'class net.minecraft.inventory.ContainerFurnace':
+        slots = gui_slots[0:2] + gui_slots[3:]
+    else:
+        slots = gui_slots
+
+    # Add in the cursor item tracking only if present.
+    cursor_item = gui_slots.get('cursor_item')
+    if cursor_item is not None:
+        slots.append(cursor_item)
 
 
 class FlatInventoryObservation(TranslationHandler):
@@ -50,18 +80,14 @@ class FlatInventoryObservation(TranslationHandler):
         for stack in info['inventory']:
             if 'type' in stack and 'quantity' in stack:
                 type_name = stack['type']
-                if type_name == 'log2':
+                if type_name == 'log2' and 'log2' not in self.items:
                     type_name = 'log'
-
-                # This sets the nubmer of air to correspond to the number of empty slots :)
-                try:
+                if type_name in item_dict:
+                    # This sets the number of air to correspond to the number of empty slots :)
                     if type_name == "air":
                         item_dict[type_name] += 1
                     else:
                         item_dict[type_name] += stack["quantity"]
-                except KeyError:
-                    # We only care to observe what was specified in the space.
-                    continue
 
         return item_dict
 
@@ -69,19 +95,7 @@ class FlatInventoryObservation(TranslationHandler):
         item_dict = self.space.no_op()
 
         try:
-            if obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerPlayer' or \
-                    obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerWorkbench':
-                slots = obs['slots']['gui']['slots'][1:]
-            elif obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerFurnace':
-                slots = obs['slots']['gui']['slots'][0:2] + obs['slots']['gui']['slots'][3:]
-            else:
-                slots = obs['slots']['gui']['slots']
-
-            # Add in the cursor item tracking if present
-            try:
-                slots.append(obs['slots']['gui']['cursor_item'])
-            except KeyError:
-                pass
+            slots = _univ_obs_get_inventory_slots(obs)
 
             # Add from all slots
             for stack in slots:
@@ -116,6 +130,10 @@ class FlatInventoryObservation(TranslationHandler):
                (self.items) == (other.items)
 
 
+def _get_variant_item_name(item_type: str, variant: str) -> str:
+    return f"{item_type}_{variant}"
+
+
 class FlatInventoryVariantObservation(FlatInventoryObservation):
     """
     Handles GUI Container Observations for selected items
@@ -136,8 +154,9 @@ class FlatInventoryVariantObservation(FlatInventoryObservation):
         item_dict = self.space.no_op()
         for stack in info['inventory']:
             if 'variant' in stack:
-                assert 'type' in stack and 'quantity' in stack
-                variant_item_name = f"{stack['type']}_{stack['variant']}"
+                assert 'name' in stack and 'quantity' in stack
+                variant_item_name = _get_variant_item_name(
+                    stack['type'], stack['variant'])
                 # "half" types end up in stack['variant'] and we don't care
                 # about them (example: double_plant_lower, door_lower)
                 if variant_item_name in item_dict:
@@ -146,9 +165,20 @@ class FlatInventoryVariantObservation(FlatInventoryObservation):
         return item_dict
 
     def from_universal(self, obs):
-        # This comes from minerl; this should break loudly when we attempt to
-        # produce a new dataset, and we'll know to supply these features then
-        raise NotImplementedError
+        item_dict = self.space.no_op()
+        slots = _univ_obs_get_inventory_slots(obs)
+        expected_stack_keys = ['type', 'variant', 'quantity']
+        for stack in slots:
+            for key in expected_stack_keys:
+                if key not in stack:
+                    continue
+            item_type = mc.strip_item_prefix(stack['name'])
+            variant = stack['variant']
+            quantity = stack['quantity']
+            variant_item_name = _get_variant_item_name(item_type, variant)
+            if variant_item_name in item_dict:
+                item_dict[variant_item_name] += quantity
+        return item_dict
 
     def __or__(self, other):
         """
