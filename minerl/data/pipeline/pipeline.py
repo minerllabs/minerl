@@ -52,7 +52,7 @@ def _render_make_minecrafts(n_workers):
         make_minecrafts.main(n_workers)
 
 
-def render_function(n_workers, parallel):
+def render_fn(n_workers, parallel):
     _render_make_minecrafts(n_workers)
     render.main(parallel=parallel, n_workers=n_workers)
 
@@ -91,7 +91,7 @@ noninteractive_stages = collections.OrderedDict(
         ("Run the merge.py script", merge_fn),
 
         # TODO: Consider automatically running make_minecraft.py if necessary?
-        ("Run the render.py script", render.main),
+        ("Run the render.py script", render_fn),
         ("Run the generate.py script", generate.main),
         ("Run the publish.py script", publish_fn),
     ],
@@ -184,7 +184,7 @@ def main() -> None:
     single_stage_mapping = collections.OrderedDict(
         [
             ("download", download_fn),
-            ("render", render.main),
+            ("render", render_fn),
             ("merge", merge_fn),
             ("generate", generate.main),
             ("publish", publish_fn),

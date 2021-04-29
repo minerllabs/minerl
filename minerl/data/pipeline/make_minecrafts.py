@@ -139,7 +139,7 @@ def download(url, file_name):
 
 
 def get_minecraft_dir(i) -> str:
-    target_mc_name = os.path.abspath(J(BASE_DIR, 'minecraft_{}'.format(i)))
+    return os.path.abspath(J(BASE_DIR, 'minecraft_{}'.format(i)))
 
 
 def check_installed(n_minecrafts=NUM_MINECRAFTS):
