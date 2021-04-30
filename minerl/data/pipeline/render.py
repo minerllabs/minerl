@@ -251,8 +251,10 @@ def render_actions(renders: list):
                 assert not os.stat(action_mcbr).st_size == 0
 
                 # Run the actual parse action and make sure that its actually of length 0.
+
+                python_exec_path = sys.executable or "python3"
                 p = subprocess.Popen(
-                    ["python3", "parse_action.py", os.path.abspath(action_mcbr)],
+                    [python_exec_path, "parse_action.py", os.path.abspath(action_mcbr)],
                     cwd='action_rendering',
                 )
                 returncode = (p.wait())
@@ -354,6 +356,12 @@ def render_videos(render: tuple, index=0, debug=False):
         os.remove(FINISHED_FILE[index])
     except FileNotFoundError:
         pass
+
+    if not os.path.isdir(MINECRAFT_DIR[index]):
+        raise RuntimeError(f"{MINECRAFT_DIR[index]} doesn't exist")
+
+    # Ensure that recording_path exists.
+    os.makedirs(RECORDING_PATH[index], exist_ok=True)
 
     # Clear recording directory to protect against crash messages
     for messyFile in glob.glob(J(RECORDING_PATH[index], '*')):
