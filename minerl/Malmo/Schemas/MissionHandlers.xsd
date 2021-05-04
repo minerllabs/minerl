@@ -1689,6 +1689,22 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="TradeCommand">
+        <xs:annotation>
+            <xs:documentation>
+                A command for trading items with another player:
+                
+                "{{{ trade 1 golden_pickaxe:1 iron_ore:-10}}}" will give the player issuing the command 1 golden_pickaxe,
+                and the player issuing the command will lose 10 iron ore. The target player (player 1 here) will lose
+                1 golden pickaxe and gain 10 iron ore. If either player does not have enough items to trade, the command
+                will fail silently. An arbitrary number of items can be passed to the command.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="trade"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:simpleType name="ChatCommand">
         <xs:annotation>
             <xs:documentation>
@@ -2122,6 +2138,30 @@
                             <xs:restriction base="CommandListModifier">
                                 <xs:choice maxOccurs="unbounded">
                                     <xs:element name="command" type="HumanLevelCommand" minOccurs="0"
+                                                maxOccurs="unbounded"/>
+                                </xs:choice>
+                            </xs:restriction>
+                        </xs:complexContent>
+                    </xs:complexType>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="TradeCommands">
+        <xs:annotation>
+            <xs:documentation>
+                When present, the Mod will accept trading commands.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="ModifierList" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:complexContent>
+                            <xs:restriction base="CommandListModifier">
+                                <xs:choice maxOccurs="unbounded">
+                                    <xs:element name="command" type="TradeCommand" minOccurs="0"
                                                 maxOccurs="unbounded"/>
                                 </xs:choice>
                             </xs:restriction>

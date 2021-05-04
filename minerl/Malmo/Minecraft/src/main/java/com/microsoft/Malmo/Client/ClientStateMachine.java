@@ -37,6 +37,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiDisconnected;
+import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.GuiIngameMenu;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
@@ -46,6 +47,7 @@ import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -62,8 +64,10 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
@@ -1832,6 +1836,84 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             this.frameTimestamp = System.currentTimeMillis();
         }
 
+        private GuiScreen lastGuiScreen = null;
+        @SubscribeEvent
+        public void GuiOpenEvent(GuiScreenEvent event)
+        {
+            if(event.getGui() instanceof GuiGameOver && this.isRespawnEnabled())
+            {
+                if(event.getGui() != lastGuiScreen){
+                //     // TODO this code should respect agent start handlers such as starting inventory ect.
+                    EntityPlayer player = Minecraft.getMinecraft().player;
+                    player.respawnPlayer();
+                    Thread thread = new Thread(){
+                        public void run(){
+                            Minecraft.getMinecraft().addScheduledTask(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    Minecraft.getMinecraft().displayGuiScreen((GuiScreen)null);
+                                    Minecraft.getMinecraft().setIngameFocus();
+                                }
+                            });
+                        }
+                    };
+
+                    thread.start();
+                }
+
+            }
+            lastGuiScreen = event.getGui();
+        }
+
+        private boolean isRespawnEnabled() {
+            if (currentMissionInit() == null || currentMissionInit().getMission() == null) {
+                return false;
+            }
+            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+            if (agents == null || agents.size() <= currentMissionInit().getClientRole()) {
+                // Not erroring out because this could conceivably happen and be fine (e.g. if you're going with 100%
+                // defaults), but it is kind of weird.
+                TCPUtils.Log(Level.WARNING, "Agent list does not contain agent " + String.valueOf(currentMissionInit().getClientRole()));
+                return false;
+            }
+            AgentSection as = agents.get(currentMissionInit().getClientRole());
+            if (as == null) {
+                return false;
+            }
+            AgentStart startsection = as.getAgentStart();
+            if (startsection == null) {
+                return false;
+            }
+            Boolean respawnEnabled = startsection.isRespawnOnDeath();
+            if (respawnEnabled == null) {
+                return false;
+            }
+            return respawnEnabled;
+        }
+
+        @SubscribeEvent
+        public void onGetBreakSpeed(PlayerEvent.BreakSpeed bs)
+        {
+            String agentname = bs.getEntityPlayer().getName();
+            if (currentMissionInit() != null && currentMissionInit().getMission() != null) {
+                List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
+                if (agents != null)
+                {
+                    for (AgentSection ascandidate : agents)
+                    {
+                        if (ascandidate.getName().equals(agentname)) {
+                            Float mul = ascandidate.getAgentStart().getBreakSpeedMultiplier();
+                            if (mul != null) {
+                                bs.setNewSpeed(bs.getNewSpeed() * mul);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         protected void onMissionStarted()
         {
             frameTimestamp = 0;
@@ -1994,6 +2076,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
         @Override
         protected void execute()
         {
+            MinecraftForge.EVENT_BUS.register(this);
             onMissionStarted();
         }
 
@@ -2080,11 +2163,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             
             }
             // Check here to see whether the player has died or not:
-            if (!this.playerDied && Minecraft.getMinecraft().player.isDead)
-            {
-                this.playerDied = true;
-                this.quitCode = MalmoMod.AGENT_DEAD_QUIT_CODE;
-            }
+             if (!this.playerDied && Minecraft.getMinecraft().player.isDead && !this.isRespawnEnabled())
+             {
+                 this.playerDied = true;
+                 this.quitCode = MalmoMod.AGENT_DEAD_QUIT_CODE;
+             }
 
             // Although we only arrive in this episode once the server has determined that all clients are ready to go,
             // the server itself waits for all clients to begin running before it enters the running state itself.

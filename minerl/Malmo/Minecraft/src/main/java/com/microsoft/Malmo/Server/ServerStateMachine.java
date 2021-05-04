@@ -224,28 +224,13 @@ public class ServerStateMachine extends StateMachine
         updateState();
     }
 
-    @SubscribeEvent
-    public void onGetBreakSpeed(BreakSpeed bs)
-    {
-        String agentname = bs.getEntityPlayer().getName();
-        if (currentMissionInit() != null && currentMissionInit().getMission() != null) {
-            List<AgentSection> agents = currentMissionInit().getMission().getAgentSection();
-            if (agents != null)
-            {
-                for (AgentSection ascandidate : agents)
-                {
-                    if (ascandidate.getName().equals(agentname)) {
-                        Float mul = ascandidate.getAgentStart().getBreakSpeedMultiplier();
-                        if (mul != null) {
-                            bs.setNewSpeed(bs.getNewSpeed() * mul);
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    @SubscribeEvent
+//    public void onPlayerRespawnEvent(PlayerRespawnEvent respawnEvent)
+//    {
+//
+//    }
 
-    /** Called by Forge - call setCanceled(true) to prevent spawning in our world.*/
+        /** Called by Forge - call setCanceled(true) to prevent spawning in our world.*/
     @SubscribeEvent
     public void onGetPotentialSpawns(PotentialSpawns ps)
     {
@@ -795,13 +780,7 @@ public class ServerStateMachine extends StateMachine
                         EntityPlayerMP player = getPlayerFromUsername(username);
                         if (player != null && as != null)
                         {
-                            // Set their initial position and speed:
-                            PosAndDirection pos = as.getAgentStart().getPlacement();
-                            if (pos != null) {
-                                player.posX = pos.getX().doubleValue();
-                                player.posY = pos.getY().doubleValue();
-                                player.posZ = pos.getZ().doubleValue();
-                            }
+                            setPlayerPositionFromSection(as, player);
                             // And set their game type back now:
                             player.setGameType(GameType.getByName(as.getMode().name().toLowerCase()));
                             // Also make sure we haven't accidentally left the player flying:
@@ -891,7 +870,7 @@ public class ServerStateMachine extends StateMachine
                     }
                 }
                 player.maxHurtResistantTime = 1; // Set this to a low value so that lava will kill the player straight away.
-                disablePlayerGracePeriod(player);   // Otherwise player will be invulnerable for the first 60 ticks.
+//                disablePlayerGracePeriod(player);   // Otherwise player will be invulnerable for the first 60 ticks.
                 player.extinguish();	// In case the player was left burning.
 
 
@@ -907,25 +886,34 @@ public class ServerStateMachine extends StateMachine
                 player.setGameType(GameType.ADVENTURE);
                 player.onUpdateEntity();
 
-                
-                // Set their initial position and speed:
-                PosAndDirection pos = as.getAgentStart().getPlacement();
-                NearPlayer nearPlayer = as.getAgentStart().getNearPlayer();
-
-                if (pos != null) {
-                    if (nearPlayer != null) {
-                        throw new RuntimeException(
-                                "Either absolute starting position or NearAgent can be specified, but not both!");
-                    }
-                    setPlayerAbsolutePosition(player, pos);
-                } else if (nearPlayer != null) {
-                    setPlayerNearPlayer(player, nearPlayer);
-                }
-                player.setVelocity(0, 0, 0);	// Minimise chance of drift!
-                player.onUpdateEntity();
+                setPlayerPositionFromSection(as, player);
             }
         }
-        
+
+        private void setPlayerPositionFromSection(AgentSection as, EntityPlayerMP player) throws RuntimeException {
+            // Set their initial position and speed:
+            PosAndDirection pos = as.getAgentStart().getPlacement();
+            NearPlayer nearPlayer = as.getAgentStart().getNearPlayer();
+
+            if (pos != null) {
+                if (nearPlayer != null) {
+                    throw new RuntimeException(
+                            "Either absolute starting position or NearAgent can be specified, but not both!");
+                }
+                setPlayerAbsolutePosition(player, pos);
+            } else if (nearPlayer != null) {
+                setPlayerNearPlayer(player, nearPlayer);
+            }
+            player.setVelocity(0, 0, 0);	// Minimise chance of drift!
+            BlockPos spawnPoint = new BlockPos(player.posX, player.posY, player.posZ);
+            player.setSpawnPoint(spawnPoint, true);
+            // Note: we set the spawn point for each player so normally the world spawn point should
+            // never be used, but this guarantees that if ever turns out to be used anyway, it will
+            // at least be where one of the players initially spawned.
+            Minecraft.getMinecraft().world.setSpawnPoint(spawnPoint);
+            player.onUpdateEntity();
+        }
+
         private void setPlayerAbsolutePosition(EntityPlayerMP player, PosAndDirection pos) {
             player.rotationYaw = pos.getYaw().floatValue();
             player.rotationPitch = pos.getPitch().floatValue();

@@ -99,6 +99,7 @@ class RandomInventoryAgentStart(InventoryAgentStart):
         lines.append('</Inventory>')
         return '\n'.join(lines)
 
+
 class AgentStartBreakSpeedMultiplier(Handler):
     def to_string(self) -> str:
         return f"agent_start_break_speed_multiplier({self.multiplier})"
@@ -110,6 +111,19 @@ class AgentStartBreakSpeedMultiplier(Handler):
 
     def __init__(self, multiplier=1.0):
         self.multiplier = multiplier
+
+
+class AgentStartRespawnOnDeath(Handler):
+    def to_string(self) -> str:
+        return f"agent_start_respawn_on_death({self.respawn})"
+
+    def xml_template(self) -> str:
+        return str(
+            """<RespawnOnDeath>{{respawn}}</RespawnOnDeath>"""
+        )
+
+    def __init__(self, respawn=True):
+        self.respawn = str(bool(respawn)).lower()
 
 
 class AgentStartPlacement(Handler):

@@ -153,7 +153,13 @@
                     <xs:annotation>
                         <xs:documentation>
                             Multiply the agent break speed by this amount (greater is faster).
-                            TODO: should this really be in the AgentStart?
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="RespawnOnDeath" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            If set to true, the agent will respawn after they die.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -479,6 +485,7 @@
             <xs:element ref="SimpleCraftCommands" minOccurs="0"/>
             <xs:element ref="NearbyCraftCommands" minOccurs="0"/>
             <xs:element ref="NearbySmeltCommands" minOccurs="0"/>
+            <xs:element ref="TradeCommands" minOccurs="0"/>
             <xs:element ref="PlaceCommands" minOccurs="0"/>
             <xs:element ref="EquipCommands" minOccurs="0"/>
             <xs:element ref="MissionQuitCommands" minOccurs="0"/>

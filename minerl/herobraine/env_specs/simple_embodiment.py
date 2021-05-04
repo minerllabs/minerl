@@ -49,6 +49,5 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
                ] + [
                    handlers.CameraAction()
                ]
-
     def create_monitors(self) -> List[TranslationHandler]:
         return []  # No monitors by default!
