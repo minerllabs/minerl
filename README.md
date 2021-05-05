@@ -1,7 +1,7 @@
 # The [MineRL](http://minerl.io) Python Package
 
-[![Build Status](https://travis-ci.com/minerllabs/minerl.svg?branch=master)](https://travis-ci.com/minerllabs/minerl)
-[![Dev Build status](https://badge.buildkite.com/0717cd35b9a708f0b4ac0b2858eec9ca7d08f6768868d3ac08.svg)](https://buildkite.com/openai-mono/minerl-public-dev)
+[![Build Status](https://travis-ci.com/minerllabs/minerl.svg?branch=dev)](https://travis-ci.com/minerllabs/minerl)
+[![Dev Build status](https://badge.buildkite.com/0717cd35b9a708f0b4ac0b2858eec9ca7d08f6768868d3ac08.svg?branch=dev)](https://buildkite.com/openai-mono/minerl-public-dev)
 [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
 [![PyPI version](https://badge.fury.io/py/minerl.svg)](https://badge.fury.io/py/minerl)
 [!["Open Issues"](https://img.shields.io/github/issues-raw/minerllabs/minerl.svg)](https://github.com/minerllabs/minerl/issues)
