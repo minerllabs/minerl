@@ -2,26 +2,27 @@
 buildscript {
     repositories {
 
-        maven { url 'https://jitpack.io' }
-        jcenter()
-        mavenCentral()
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Configure our proxies first
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         maven {
-            name = "forge"
-            url = "https://maven.minecraftforge.net/"
+            name = "openai-owl"
+            url = "http://openai-proxies-0.rcall.raul.svc.owl.sci.openai.org:8081/repository/openai-all-proxies/"
         }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
+
+//        maven {
+//            name = "openai-quail"
+//            url = "http://openai-proxies-quail-0.rcall.raul.svc.quail.sci.openai.org:8081/repository/openai-all-proxies/"
+//        }
+
     }
     dependencies {
         classpath 'org.ow2.asm:asm:6.0'
-        classpath('com.github.SpongePowered:MixinGradle:dcfaf61'){ // 0.6
-            // Because forgegradle requires 6.0 (not -debug-all) while mixingradle depends on 5.0
-            // and putting mixin right here will place it before forge in the class loader
-            exclude group: 'org.ow2.asm', module: 'asm-debug-all'
-        }
 
+        classpath('org.spongepowered:mixingradle:0.6-SNAPSHOT')
+        classpath('org.spongepowered:mixin:0.7.5-SNAPSHOT')
+
+        // this is the patch to point to maven.mcf instead of files.mcf
         classpath 'com.github.brandonhoughton:ForgeGradle:FG_2.2_patched-SNAPSHOT'
     }
 }
@@ -31,8 +32,21 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Re-configure repositories outside buildscript, since we rely on proxies for all steps of the build
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+repositories {
+
+    maven {
+        name = "openai-owl"
+        url = "http://openai-proxies-0.rcall.raul.svc.owl.sci.openai.org:8081/repository/openai-all-proxies/"
+    }
+
+}
+
 dependencies {
-    implementation 'com.github.brandonhoughton:forgegradle:FG_2.2_patched-SNAPSHOT'
+    implementation 'com.github.brandonhoughton:ForgeGradle:FG_2.2_patched-SNAPSHOT'
+    compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -74,14 +88,6 @@ runClient {
     if (project.hasProperty("runDir")) {
         minecraft.runDir = project.getProperty("runDir")
     }
-}
-
-repositories {
-    maven {
-        name = "SpongePowered Repo"
-        url = "https://repo.spongepowered.org/maven/"
-    }
-    maven { url 'https://jitpack.io' }
 }
 
 // Add the overclocking plugin to the manifest so that it is loaded when running in a non-dev environment (eg from the launcher)
@@ -127,10 +133,6 @@ if (project.hasProperty("jvm_debug_port")) {
 
 // We also force the up-to-date check to return false, since the user will ALWAYS want runClient to run.
 exec.getOutputs().upToDateWhen( { return false } )
-
-dependencies {
-    compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
-}
 
 processResources
 {
