@@ -3,17 +3,20 @@ buildscript {
     repositories {
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        // Configure our proxies first
+        // Configure a custom proxy
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-        maven {
-            name = "openai-owl"
-            url = "http://openai-proxies-0.rcall.raul.svc.owl.sci.openai.org:8081/repository/openai-all-proxies/"
+        def RAPID_CLUSTER = "$System.env.RAPID_CLUSTER"
+        if (RAPID_CLUSTER == "owl" || RAPID_CLUSTER == "null") {
+            maven {
+                name = "openai-owl"
+                url = "http://openai-proxies-0.rcall.raul.svc.owl.sci.openai.org:8081/repository/openai-all-proxies/"
+            }
+        } else if(RAPID_CLUSTER == "quail") {
+            maven {
+                name = "openai-quail"
+                url = "http://openai-proxies-quail-0.rcall.raul.svc.quail.sci.openai.org:8081/repository/openai-all-proxies/"
+            }
         }
-
-//        maven {
-//            name = "openai-quail"
-//            url = "http://openai-proxies-quail-0.rcall.raul.svc.quail.sci.openai.org:8081/repository/openai-all-proxies/"
-//        }
 
     }
     dependencies {
@@ -37,12 +40,28 @@ plugins {
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 repositories {
 
-    maven {
-        name = "openai-owl"
-        url = "http://openai-proxies-0.rcall.raul.svc.owl.sci.openai.org:8081/repository/openai-all-proxies/"
+    def RAPID_CLUSTER = "$System.env.RAPID_CLUSTER"
+    if (RAPID_CLUSTER == "owl" || RAPID_CLUSTER == "null") {
+        maven {
+            name = "openai-owl"
+            url = "http://openai-proxies-0.rcall.raul.svc.owl.sci.openai.org:8081/repository/openai-all-proxies/"
+        }
+    } else if(RAPID_CLUSTER == "quail") {
+        maven {
+            name = "openai-quail"
+            url = "http://openai-proxies-quail-0.rcall.raul.svc.quail.sci.openai.org:8081/repository/openai-all-proxies/"
+        }
     }
 
 }
+
+task listrepos {
+    doLast {
+        println "Repositories:"
+        project.repositories.each { println "Name: " + it.name + ";" }
+    }
+}
+
 
 dependencies {
     implementation 'com.github.brandonhoughton:ForgeGradle:FG_2.2_patched-SNAPSHOT'
