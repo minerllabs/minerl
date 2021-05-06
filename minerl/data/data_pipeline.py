@@ -13,8 +13,10 @@ from collections import OrderedDict
 from queue import PriorityQueue, Empty
 from typing import List, Tuple, Any
 from itertools import cycle, islice
+from minerl.herobraine import envs
 import minerl.herobraine.env_spec
 from minerl.herobraine.hero import spaces
+import traceback
 
 import cv2
 import os
@@ -77,10 +79,7 @@ class DataPipeline:
         self.worker_batch_size = worker_batch_size
         self.size_to_dequeue = min_size_to_dequeue
         self.processing_pool = multiprocessing.Pool(self.number_of_workers)
-
-        self._env_spec = gym.envs.registration.spec(self.environment)._kwargs['env_spec']
-        self._action_space = gym.envs.registration.spec(self.environment)._kwargs['action_space']
-        self._observation_space = gym.envs.registration.spec(self.environment)._kwargs['observation_space']
+        self._env_spec = envs.ENV_SPEC_MAPPINGS[self.environment]
 
     @property
     def spec(self) -> minerl.herobraine.env_spec.EnvSpec:
@@ -91,16 +90,14 @@ class DataPipeline:
         """
         Returns: action space of current MineRL environment
         """
-        return self._action_space
+        return self._env_spec.action_space
 
     @property
     def observation_space(self):
         """
         Returns: action space of current MineRL environment
         """
-        return self._observation_space
-
-        # return result
+        return self._env_spec.observation_space
 
     def load_data(self, stream_name: str, skip_interval=0, include_metadata=False, include_monitor_data=False):
         """Iterates over an individual trajectory named stream_name.
@@ -133,7 +130,7 @@ class DataPipeline:
 
         # make a copty  
         gym_spec = gym.envs.registration.spec(self.environment)
-        target_space = copy.deepcopy(gym_spec._kwargs['observation_space'])
+        target_space = copy.deepcopy(self.observation_space)
 
         x = list(target_space.spaces.items())
         target_space.spaces = collections.OrderedDict(
@@ -338,12 +335,12 @@ class DataPipeline:
                 current_observation_data = unflatten(current_observation_data)[OBSERVABLE_KEY]
                 action_data = unflatten(action_data)[ACTIONABLE_KEY]
                 next_observation_data = unflatten(next_observation_data)[OBSERVABLE_KEY]
-                monitor_data = unflatten(monitor_data)[MONITOR_KEY]
 
                 batches = [current_observation_data, action_data, reward_data, next_observation_data,
                            np.array(done_data, dtype=np.bool)]
 
                 if include_monitor_data:
+                    monitor_data = unflatten(monitor_data)[MONITOR_KEY]
                     batches += [monitor_data]
 
                 if include_metadata:
@@ -371,6 +368,7 @@ class DataPipeline:
         except Exception as e:
             logger.error("Exception caught on file \"{}\" by a worker of the data pipeline.".format(file_dir))
             logger.error(repr(e))
+            traceback.print_exc()
             return None
 
     def batch_iter(self,

@@ -213,8 +213,9 @@ def construct_data_dirs(black_list):
     return data_dirs
 
 
-def _render_data(output_root, manager, input_tuple):
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
+def _render_data(output_root, manager, input_tuple, parallel: bool = True):
+    if parallel:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
     n = manager.get_index()
     recording_dir, experiment_folder = input_tuple
     black_list = Blacklist()
@@ -242,7 +243,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
     # Gather all renderable environments for this experiment directory
     rendered_envs = 0
     filtered_environments = [
-        env_spec for env_spec in envs.ENVS if env_spec.is_from_folder(experiment_folder)]
+        env_spec for env_spec in envs.ENV_SPECS if env_spec.is_from_folder(experiment_folder)]
     # Don't render if files are missing
     if not E(source_folder) or not E(recording_source) or not E(universal_source) or not E(metadata_source):
         black_list.add(segment_str)
@@ -302,7 +303,13 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
 
                         for handler in hdlrs:
                             # Apply the handler from_universal to the universal[tick]
-                            val = handler.from_universal(universal[tick])
+                            try:
+                                val = handler.from_universal(universal[tick])
+                            except KeyError:
+                                import traceback
+                                traceback.print_exc()
+                                print("KeyError:", recording_dir, environment.name)
+                                raise
                             assert val in handler.space, \
                                 "{} is not in {} for handler {}".format(val, handler.space, handler.to_string)
                             tick_data[_prefix][handler.to_string()] = val
@@ -334,7 +341,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                 raise err
             except KeyError as err:
                 print("Key error in file - check from_universal for handlers")
-                print((err))
+                print(err)
                 continue
             except AssertionError as e:
                 # Warn the user if some of the observatiosn or actions don't fall in the gym.space 
@@ -354,7 +361,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         continue
                 raise e
 
-            reason = env_spec.auto_blacklist_demo(published)
+            reason = env_spec.get_blacklist_reason(published)
             if reason is not None:
                 assert len(reason) > 0, "reason needs to be non-empty str or None"
                 print(f"Blacklisting {env_spec.name} demonstration {segment_str}")
@@ -400,12 +407,10 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
     return rendered_envs
 
 
-def publish():
+def publish(n_workers=56, parallel=True):
     """
     The main render script.
     """
-    num_w = 56
-
     black_list = Blacklist()
     valid_data = construct_data_dirs(black_list)
     print(valid_data)
@@ -415,10 +420,19 @@ def publish():
     if E('errors.txt'):
         os.remove('errors.txt')
     try:
+        if parallel:
+            import multiprocessing
+            multiprocessing.freeze_support()
+        else:
+            # Fake multiprocessing -- uses threads instead of processes for
+            # easier debugging and PDB-compatibility.
+            import multiprocessing.dummy as multiprocessing
+
         multiprocessing.freeze_support()
-        with multiprocessing.Pool(num_w, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
-            manager = ThreadManager(multiprocessing.Manager(), num_w, 1, 1)
-            func = functools.partial(_render_data, DATA_DIR, manager)
+        with multiprocessing.Pool(n_workers, initializer=tqdm.tqdm.set_lock,
+                                  initargs=(multiprocessing.RLock(),)) as pool:
+            manager = ThreadManager(multiprocessing.Manager(), n_workers, 1, 1)
+            func = functools.partial(_render_data, DATA_DIR, manager, parallel=parallel)
             num_segments = list(
                 tqdm.tqdm(pool.imap_unordered(func, valid_data), total=len(valid_data), desc='Files', miniters=1,
                           position=0, maxinterval=1))
@@ -430,14 +444,12 @@ def publish():
             pool.terminate()
             pool.join()
             raise e
-        print('\n' * num_w)
         print("Exception in pool: ", type(e), e)
         print('Vectorized {} files in total!'.format(sum(num_segments)))
         raise e
 
     num_segments_rendered = sum(num_segments)
 
-    print('\n' * num_w)
     print('Vectorized {} files in total!'.format(num_segments_rendered))
     if E('errors.txt'):
         print('Errors:')
@@ -474,7 +486,7 @@ def package(out_dir=DATA_DIR):
         archive.add('VERSION')
         random.seed(minerl.data.DATA_VERSION)
         for folder in exp_folders:
-            for _ in range(5):
+            for _ in range(2):
                 archive.add(J(folder, random.choice(os.listdir(J(DATA_DIR, folder)))))
 
     # Generate individual tar files
@@ -500,6 +512,11 @@ def package(out_dir=DATA_DIR):
             md5_file.write('{} {}\n'.format(hashlib.md5(open(archive_dir, 'rb').read()).hexdigest(), archive))
             sha1_file.write('{} {}\n'.format(hashlib.sha1(open(archive_dir, 'rb').read()).hexdigest(), archive))
             sha256_file.write('{} {}\n'.format(hashlib.sha256(open(archive_dir, 'rb').read()).hexdigest(), archive))
+
+
+def main(parallel=True, n_workers=56):
+    publish(parallel=parallel, n_workers=n_workers)
+    package()
 
 
 if __name__ == "__main__":

@@ -301,7 +301,7 @@ class EnvSpec(abc.ABC):
         return [etree.tostring(t, pretty_print=True).decode('utf-8')
                 for t in consolidated_trees]
 
-    def auto_blacklist_demo(self, npz_data: dict) -> Optional[str]:
+    def get_blacklist_reason(self, npz_data: dict) -> Optional[str]:
         """Return a non-empty str if `publish.py` should blacklist a demonstration.
 
         We can't catch all cases of bad demonstrations automatically, but overriding this
