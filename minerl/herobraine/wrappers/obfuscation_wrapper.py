@@ -138,6 +138,6 @@ class Obfuscated(EnvWrapper):
         # TODO fix this
         return super().get_docstring()
 
-    def auto_blacklist_demo(self, demo_npz_data: dict) -> Optional[str]:
+    def get_blacklist_reason(self, npz_data: dict) -> Optional[str]:
         # Obfuscated demonstrations are never blacklisted.
         return None

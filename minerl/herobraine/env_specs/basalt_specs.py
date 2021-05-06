@@ -142,7 +142,7 @@ class BasaltBaseEnvSpec(EnvSpec):
             )
         ]
 
-    def auto_blacklist(self, npz_data: dict) -> Optional[str]:
+    def get_blacklist_reason(self, npz_data: dict) -> Optional[str]:
         """
         Some saved demonstrations are bogus -- they only contain lobby frames.
 
