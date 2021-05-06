@@ -65,7 +65,7 @@ class Navigate(SimpleEmbodimentEnvSpec):
         if self.extreme:
             return [
                 handlers.BiomeGenerator(
-                    biome_id=3,
+                    biome=3,
                     force_reset=True
                 )
             ]

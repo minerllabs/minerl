@@ -213,8 +213,9 @@ def construct_data_dirs(black_list):
     return data_dirs
 
 
-def _render_data(output_root, manager, input_tuple):
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
+def _render_data(output_root, manager, input_tuple, parallel: bool = True):
+    if parallel:
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
     n = manager.get_index()
     recording_dir, experiment_folder = input_tuple
     black_list = Blacklist()
@@ -242,7 +243,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
     # Gather all renderable environments for this experiment directory
     rendered_envs = 0
     filtered_environments = [
-        env_spec for env_spec in envs.ENVS if env_spec.is_from_folder(experiment_folder)]
+        env_spec for env_spec in envs.ENV_SPECS if env_spec.is_from_folder(experiment_folder)]
     # Don't render if files are missing
     if not E(source_folder) or not E(recording_source) or not E(universal_source) or not E(metadata_source):
         black_list.add(segment_str)
@@ -254,8 +255,9 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
 
         universal = remove_initial_frames(universal)
 
-        for environment in filtered_environments:
-            dest_folder = J(output_root, environment.name, 'v{}_{}'.format(PUBLISHER_VERSION, segment_str))
+        for env_spec in filtered_environments:
+            dest_folder = J(output_root, env_spec.name, 'v{}_{}'
+                            .format(PUBLISHER_VERSION, segment_str))
             recording_dest = J(dest_folder, 'recording.mp4')
             rendered_dest = J(dest_folder, 'rendered.npz')
             metadata_dest = J(dest_folder, 'metadata.json')
@@ -268,15 +270,16 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
             if E(rendered_dest):
                 continue
 
-            environment.reset()
+            env_spec.reset()
 
             # Load relevant handlers
-            info_handlers = [obs for obs in environment.observables if not isinstance(obs, handlers.POVObservation)]
-            reward_handlers = environment.rewardables
+            info_handlers = [obs for obs in env_spec.observables
+                             if not isinstance(obs, handlers.POVObservation)]
+            reward_handlers = env_spec.rewardables
             # TODO (R): Support done handlers.
             # done_handlers = [hdl for hdl in task.create_mission_handlers() if isinstance(hdl, handlers.QuitHandler)]
-            action_handlers = environment.actionables
-            monitor_handlers = environment.monitors
+            action_handlers = env_spec.actionables
+            monitor_handlers = env_spec.monitors
 
             all_handlers = [hdl for sublist in [info_handlers, reward_handlers, action_handlers] for hdl in sublist]
 
@@ -300,19 +303,26 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
 
                         for handler in hdlrs:
                             # Apply the handler from_universal to the universal[tick]
-                            val = handler.from_universal(universal[tick])
+                            try:
+                                val = handler.from_universal(universal[tick])
+                            except KeyError:
+                                import traceback
+                                traceback.print_exc()
+                                print("KeyError:", recording_dir, environment.name)
+                                raise
                             assert val in handler.space, \
                                 "{} is not in {} for handler {}".format(val, handler.space, handler.to_string)
                             tick_data[_prefix][handler.to_string()] = val
 
                         # Perhaps we can wrap here
-                        if isinstance(environment, EnvWrapper):
+                        if isinstance(env_spec, EnvWrapper):
                             if _prefix == OBSERVABLE_KEY:
-                                tick_data[_prefix]['pov'] = environment.observation_space['pov'].no_op()
-                                tick_data[_prefix] = environment.wrap_observation(tick_data[_prefix])
+                                tick_data[_prefix]['pov'] = (
+                                    env_spec.observation_space['pov'].no_op())
+                                tick_data[_prefix] = env_spec.wrap_observation(tick_data[_prefix])
                                 del tick_data[_prefix]['pov']
                             elif _prefix == ACTIONABLE_KEY:
-                                tick_data[_prefix] = environment.wrap_action(tick_data[_prefix])
+                                tick_data[_prefix] = env_spec.wrap_action(tick_data[_prefix])
 
                     tick_data = flatten(tick_data, sep=HANDLER_TYPE_SEPERATOR)
                     for k, v in tick_data.items():
@@ -327,11 +337,11 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         published[k] = published[k][1:]
 
             except NotImplementedError as err:
-                print('Exception:', str(err), 'found with environment:', environment.name)
+                print('Exception:', str(err), 'found with environment:', env_spec.name)
                 raise err
             except KeyError as err:
                 print("Key error in file - check from_universal for handlers")
-                print((err))
+                print(err)
                 continue
             except AssertionError as e:
                 # Warn the user if some of the observatiosn or actions don't fall in the gym.space 
@@ -351,18 +361,12 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         continue
                 raise e
 
-            # Don't release ones with 1024 reward (they are bad streams) and other smoke-tests
-            if 'Survival' not in environment.name and not isinstance(environment, Obfuscated):
-                # TODO these could be handlers instead!
-                if sum(published['reward']) == 1024.0 and 'Obtain' in environment.name \
-                        and ('SimonSays' not in environment.name) \
-                        or sum(published['reward']) < 64 and ('Obtain' not in environment.name) \
-                        or sum(published['reward']) == 0.0 \
-                        or sum(published['action$forward']) == 0 \
-                        or sum(published['action$attack']) == 0 and 'Navigate' not in environment.name:
-                    black_list.add(segment_str)
-                    print('Hey we should have blacklisted {} tyvm'.format(segment_str))
-                    return 0
+            reason = env_spec.get_blacklist_reason(published)
+            if reason is not None:
+                assert len(reason) > 0, "reason needs to be non-empty str or None"
+                print(f"Blacklisting {env_spec.name} demonstration {segment_str}")
+                black_list.add(segment_str)
+                return 0
 
             # Setup destination root
             if not E(dest_folder):
@@ -382,12 +386,14 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                 with open(metadata_source, 'r') as meta_file:
                     source = json.load(meta_file)
                     metadata_out = {}
-                    metadata_out['success'] = bool(environment.determine_success_from_rewards(published['reward']))
+                    metadata_out['success'] = bool(
+                        env_spec.determine_success_from_rewards(published['reward']))
                     metadata_out['duration_ms'] = len(
                         published['reward']) * 50  # source['end_time'] - source['start_time']
                     metadata_out['duration_steps'] = len(published['reward'])
                     metadata_out['total_reward'] = sum(published['reward'])
-                    metadata_out['stream_name'] = 'v{}{}'.format(PUBLISHER_VERSION, recording_dir[len('g1'):])
+                    metadata_out['stream_name'] = 'v{}{}'.format(
+                        PUBLISHER_VERSION, recording_dir[len('g1'):])
                     metadata_out['true_video_frame_count'] = calculate_frame_count(recording_dest)
                     with open(metadata_dest, 'w') as meta_file_out:
                         json.dump(metadata_out, meta_file_out)
@@ -401,12 +407,10 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
     return rendered_envs
 
 
-def publish():
+def publish(n_workers=56, parallel=True):
     """
     The main render script.
     """
-    num_w = 56
-
     black_list = Blacklist()
     valid_data = construct_data_dirs(black_list)
     print(valid_data)
@@ -416,10 +420,19 @@ def publish():
     if E('errors.txt'):
         os.remove('errors.txt')
     try:
+        if parallel:
+            import multiprocessing
+            multiprocessing.freeze_support()
+        else:
+            # Fake multiprocessing -- uses threads instead of processes for
+            # easier debugging and PDB-compatibility.
+            import multiprocessing.dummy as multiprocessing
+
         multiprocessing.freeze_support()
-        with multiprocessing.Pool(num_w, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
-            manager = ThreadManager(multiprocessing.Manager(), num_w, 1, 1)
-            func = functools.partial(_render_data, DATA_DIR, manager)
+        with multiprocessing.Pool(n_workers, initializer=tqdm.tqdm.set_lock,
+                                  initargs=(multiprocessing.RLock(),)) as pool:
+            manager = ThreadManager(multiprocessing.Manager(), n_workers, 1, 1)
+            func = functools.partial(_render_data, DATA_DIR, manager, parallel=parallel)
             num_segments = list(
                 tqdm.tqdm(pool.imap_unordered(func, valid_data), total=len(valid_data), desc='Files', miniters=1,
                           position=0, maxinterval=1))
@@ -431,14 +444,12 @@ def publish():
             pool.terminate()
             pool.join()
             raise e
-        print('\n' * num_w)
         print("Exception in pool: ", type(e), e)
         print('Vectorized {} files in total!'.format(sum(num_segments)))
         raise e
 
     num_segments_rendered = sum(num_segments)
 
-    print('\n' * num_w)
     print('Vectorized {} files in total!'.format(num_segments_rendered))
     if E('errors.txt'):
         print('Errors:')
@@ -475,7 +486,7 @@ def package(out_dir=DATA_DIR):
         archive.add('VERSION')
         random.seed(minerl.data.DATA_VERSION)
         for folder in exp_folders:
-            for _ in range(5):
+            for _ in range(2):
                 archive.add(J(folder, random.choice(os.listdir(J(DATA_DIR, folder)))))
 
     # Generate individual tar files
@@ -501,6 +512,11 @@ def package(out_dir=DATA_DIR):
             md5_file.write('{} {}\n'.format(hashlib.md5(open(archive_dir, 'rb').read()).hexdigest(), archive))
             sha1_file.write('{} {}\n'.format(hashlib.sha1(open(archive_dir, 'rb').read()).hexdigest(), archive))
             sha256_file.write('{} {}\n'.format(hashlib.sha256(open(archive_dir, 'rb').read()).hexdigest(), archive))
+
+
+def main(parallel=True, n_workers=56):
+    publish(parallel=parallel, n_workers=n_workers)
+    package()
 
 
 if __name__ == "__main__":

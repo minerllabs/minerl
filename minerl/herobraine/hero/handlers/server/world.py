@@ -3,7 +3,8 @@
 
 """Handlers relating to world generation."""
 
-import jinja2
+from typing import Union
+from minerl.herobraine.hero import mc
 from minerl.herobraine.hero.handler import Handler
 
 
@@ -83,8 +84,10 @@ class BiomeGenerator(Handler):
             """
         )
 
-    def __init__(self, biome_id: int, force_reset: bool = True):
-        self.biome_id = biome_id
+    def __init__(self, biome: Union[int, str], force_reset: bool = True):
+        if isinstance(biome, str):
+            biome = mc.BIOMES_MAP[biome]
+        self.biome_id = biome
         self.force_reset = force_reset
 
 

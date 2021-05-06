@@ -2,7 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 from collections import OrderedDict
@@ -137,3 +137,7 @@ class Obfuscated(EnvWrapper):
     def get_docstring(self):
         # TODO fix this
         return super().get_docstring()
+
+    def get_blacklist_reason(self, npz_data: dict) -> Optional[str]:
+        # Obfuscated demonstrations are never blacklisted.
+        return None

@@ -5,6 +5,7 @@ import os
 import shutil
 import stat
 import urllib.request
+import zipfile
 
 from os.path import join as J, exists as E
 
@@ -42,10 +43,18 @@ def download(url, file_name):
     out_file.close()
 
 
-import zipfile
+def get_minecraft_dir(i) -> str:
+    return os.path.abspath(J(BASE_DIR, 'minecraft_{}'.format(i)))
 
-if __name__ == "__main__":
-    print("Downloading mincraft assets and binaries.")
+
+def check_installed(n_minecrafts=NUM_MINECRAFTS):
+    for i in range(n_minecrafts):
+        if not os.path.exists(get_minecraft_dir(i)):
+            return False
+    return True
+
+
+def main(n_minecrafts=NUM_MINECRAFTS):
     with open(LAUNCH_SH_TEMPLATE_PATH, "r") as f:
         launch_sh_template = f.read()
 
@@ -67,8 +76,8 @@ if __name__ == "__main__":
         with zipfile.ZipFile(libs_zip, 'r') as zip_ref:
             zip_ref.extractall(cracked_libs)
 
-    for i, mc in enumerate(range(NUM_MINECRAFTS)):
-        target_mc_name = os.path.abspath(J(BASE_DIR, 'minecraft_{}'.format(mc)))
+    for i in range(n_minecrafts):
+        target_mc_name = get_minecraft_dir(i)
         if os.path.exists(target_mc_name):
             shutil.rmtree(target_mc_name)
         shutil.copytree(MINECRAFT_TEMPLATE, target_mc_name)
@@ -85,3 +94,7 @@ if __name__ == "__main__":
         file = (os.path.join(target_mc_name, 'launch.sh'))
         st = os.stat(file)
         os.chmod(file, st.st_mode | stat.S_IEXEC)
+
+
+if __name__ == "__main__":
+    main()

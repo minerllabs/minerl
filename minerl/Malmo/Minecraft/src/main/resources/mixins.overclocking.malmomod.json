@@ -11,7 +11,8 @@
     "MixinRandomSkinTexture",
     "MixinSyncClientStats",
     "MixinWorldProviderSpawn",
-    "MixinMergeStatsFix"
+    "MixinMergeStatsFix",
+    "MixinForgeHookStatsFix"
   ],
   "server": [
   ],

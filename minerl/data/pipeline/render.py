@@ -174,8 +174,8 @@ def render_metadata(renders: list):
                     with open(J(render_path, 'metaData.json'), 'r') as f:
                         # print(render_path)
                         jbos = json.load(f)
-                        # assert (ile["duration"] > 60000 or jbos["duration"] == 0)
-                        assert (jbos["duration"] > 300000)
+                        # BAH TODO duration seems to be broken
+                        # assert (jobs["duration"] > 60000 or jbos["duration"] == 0)
 
                         # go through and check if we got the experiments.
 
@@ -574,7 +574,7 @@ def clean_render_dirs():
     pass
 
 
-def main():
+def main(n_workers=NUM_MINECRAFT_DIR, parallel=True):
     """
     The main render script.
     """
@@ -603,10 +603,15 @@ def main():
     print("Rendering videos: ")
     clean_render_dirs()
 
+    if parallel:
+        import multiprocessing
+    else:
+        import multiprocessing.dummy as multiprocessing
+
     # Render videos in multiprocessing queue
     multiprocessing.freeze_support()
     with multiprocessing.Pool(
-            NUM_MINECRAFT_DIR, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
+            n_workers, initializer=tqdm.tqdm.set_lock, initargs=(multiprocessing.RLock(),)) as pool:
         manager = ThreadManager(multiprocessing.Manager(), NUM_MINECRAFT_DIR, 0, 1)
         func = functools.partial(_render_videos, manager)
         num_rendered = list(
