@@ -486,7 +486,7 @@ def package(out_dir=DATA_DIR):
         archive.add('VERSION')
         random.seed(minerl.data.DATA_VERSION)
         for folder in exp_folders:
-            for _ in range(5):
+            for _ in range(2):
                 archive.add(J(folder, random.choice(os.listdir(J(DATA_DIR, folder)))))
 
     # Generate individual tar files
