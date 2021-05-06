@@ -4,9 +4,10 @@ import gym
 
 from minerl.env import _fake, _singleagent
 from minerl.herobraine.env_spec import EnvSpec
+from minerl.herobraine.env_specs import simple_embodiment
 from minerl.herobraine.hero import handlers, mc
 
-BUTTON_ACTIONS = {"forward", "back", "left", "right", "jump", "sneak", "sprint", "attack", "use"}
+BUTTON_ACTIONS = set(simple_embodiment.SIMPLE_KEYBOARD_ACTION + ["use"])
 
 DEFAULT_ITEMS = (
     "stone_shovel",
