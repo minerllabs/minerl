@@ -109,7 +109,8 @@ class BasaltBaseEnvSpec(EnvSpec):
         return folder == self.demo_server_experiment_name
 
     def _entry_point(self, fake: bool) -> str:
-        # Assuming here that `fake` argument gets passed along to entrypoint fn.
+        # Don't need to inspect `fake` argument here because it is also passed to the
+        # entrypoint function.
         return BASALT_GYM_ENTRY_POINT
 
     def create_observables(self):
