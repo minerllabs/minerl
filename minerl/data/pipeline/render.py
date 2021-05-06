@@ -393,7 +393,7 @@ def render_videos(render: tuple, index=0, debug=False):
         except IsADirectoryError:
             shutil.rmtree(messyFile)
 
-    p = None
+    p: subprocess.Popen = None
     try:
         recording_name, render_path = render
 
