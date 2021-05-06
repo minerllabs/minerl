@@ -51,7 +51,7 @@ def non_interactive_download():
     print("Download complete.")
 
 
-def count_keys(prefix: str, max_keys: int = 1000) -> int:
+def count_keys(prefix: str, max_keys: int = 1000) -> int: 
     """Count the number of keys in the S3 bucket, returning a
     number between 0 and max_keys, inclusive. If the return value
     is max_keys, then that means there are at least `max_keys` keys.
