@@ -6,13 +6,20 @@ import collections
 import gym
 
 from minerl.herobraine.env_spec import EnvSpec
+from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
 from minerl.herobraine.env_specs.treechop_specs import Treechop
 from minerl.herobraine.env_specs.navigate_specs import Navigate
-from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, \
-    ObtainDiamondDebug
+from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, \
+    ObtainIronPickaxe, ObtainDiamondDebug
 from minerl.herobraine.wrappers import Obfuscated, Vectorized
 import minerl.data.version
+
+
 import os
+import sys
+import inspect
+import itertools
+from copy import deepcopy
 
 # Must load non-obfuscated envs first!
 # Publish.py depends on this order for black-listing streams
@@ -28,6 +35,42 @@ MINERL_OBTAIN_DIAMOND_DENSE_V0 = ObtainDiamond(dense=True)
 
 MINERL_OBTAIN_IRON_PICKAXE_V0 = ObtainIronPickaxe(dense=False)
 MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0 = ObtainIronPickaxe(dense=True)
+
+
+for name, obj in inspect.getmembers(sys.modules[__name__]):
+    if inspect.isclass(obj) and \
+            issubclass(obj, SimpleEmbodimentEnvSpec) and \
+            not inspect.isabstract(obj):
+        # Get all envs we're going to use
+        #   but exclude those that don't make sense to be instantiated
+
+        print(name, obj)
+        obtain_args = [{'dense': x} for x in (True, False)]
+        nav_args = [{'dense': b[0], 'extreme': b[1]}
+                    for b in itertools.product((True, False), repeat=2)]
+
+        class TempHighResEnvSpec(obj):
+            RESOLUTION = (512, 512)
+
+            def __init__(self, *args, **kwargs):
+                # breakpoint()
+                print(kwargs)
+                super().__init__(*args, resolution=self.RESOLUTION, **kwargs)
+                self.name = "HighRes" + self.name
+
+        if name == "Navigate":
+            for kwargs in nav_args:
+                env = TempHighResEnvSpec(**kwargs)
+                print(env.name)
+                env.register()
+        elif name.startswith("Obtain"):
+            for kwargs in obtain_args:
+                env = TempHighResEnvSpec(**kwargs)
+                env.register()
+        else:
+            env = TempHighResEnvSpec()
+            env.register()
+
 
 # # prototype envs
 # # TODO: Actually make these work and correct, it'll be good to release these.

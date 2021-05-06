@@ -295,17 +295,17 @@ item is given here::
 
 # TODO: Deal with this boy.
 class ObtainDiamondSurvival(ObtainDiamond):
-    def __init__(self, dense):
-        super(ObtainDiamondSurvival, self).__init__(dense)
-        self.name = "MineRLObtainDiamondSurvival-v0"
+    def __init__(self, dense, *args, **kwargs):
+        super(ObtainDiamondSurvival, self).__init__(dense, *args, **kwargs)
+        self.name = "MineRLObtainDiamondSurvival{}-v0".format('' if not dense else 'Dense')
 
     def is_from_folder(self, folder: str):
         return folder == 'none'
 
 
 class ObtainDiamondDebug(ObtainDiamond):
-    def __init__(self, dense):
-        super().__init__(dense=dense)
+    def __init__(self, dense, *args, **kwargs):
+        super().__init__(dense=dense, *args, **kwargs)
 
         self.name = "MineRLObtainTest{}-v0".format('' if not dense else 'Dense')
 
