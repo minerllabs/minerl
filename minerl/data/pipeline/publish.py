@@ -361,7 +361,7 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
                         continue
                 raise e
 
-            reason = env_spec.auto_blacklist_demo(published)
+            reason = env_spec.get_blacklist_reason(published)
             if reason is not None:
                 assert len(reason) > 0, "reason needs to be non-empty str or None"
                 print(f"Blacklisting {env_spec.name} demonstration {segment_str}")
@@ -486,7 +486,7 @@ def package(out_dir=DATA_DIR):
         archive.add('VERSION')
         random.seed(minerl.data.DATA_VERSION)
         for folder in exp_folders:
-            for _ in range(5):
+            for _ in range(2):
                 archive.add(J(folder, random.choice(os.listdir(J(DATA_DIR, folder)))))
 
     # Generate individual tar files

@@ -180,8 +180,8 @@ def render_metadata(renders: list):
                     with open(J(render_path, 'metaData.json'), 'r') as f:
                         # print(render_path)
                         jbos = json.load(f)
-                        # assert (ile["duration"] > 60000 or jbos["duration"] == 0)
-                        # assert (jbos["duration"] > 300000)
+                        # BAH TODO duration seems to be broken
+                        # assert (jobs["duration"] > 60000 or jbos["duration"] == 0)
 
                         # go through and check if we got the experiments.
 
