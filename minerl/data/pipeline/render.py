@@ -16,13 +16,11 @@ MINERL_RENDER_WIDTH and MINERL_RENDER_HEIGHT environment variables.
 """
 from datetime import datetime, timezone, timedelta
 import functools
-import multiprocessing
 import re
 import json
 import os
 from pathlib import Path
 import psutil
-import random
 import shutil
 from shutil import copyfile
 import time
@@ -169,8 +167,7 @@ def render_metadata(renders: list):
                     recording = get_recording_archive(recording_name)
 
                     def extract(fname):
-                        return recording.extract(
-                            fname, render_path)
+                        return recording.extract(fname, render_path)
 
                     # If everything is good extract the metadata.
                     for mfile in METADATA_FILES:
@@ -498,6 +495,8 @@ def render_videos(render: tuple, index=0, debug=False):
 
         # Wait for completion (it creates a finished.txt file)
         notFound = True
+        NO_RENDER_UPDATE_TIMEOUT = timedelta(minutes=10)
+        timeout_datetime: datetime = datetime.now(tz=timezone.utc) + NO_RENDER_UPDATE_TIMEOUT
 
         while notFound:
             if os.path.exists(FINISHED_FILE[index]) or p.poll() is not None:
@@ -514,8 +513,7 @@ def render_videos(render: tuple, index=0, debug=False):
                         print("Minecraft closed")
                 except TimeoutError:
                     tqdm.tqdm.write("Minecraft close Timeout")
-                    p.kill()
-                    # killMC(p)
+                    killMC(p)
                 except:
                     tqdm.tqdm.write("Error stopping")
                 # p = launchMC(index)
@@ -538,17 +536,12 @@ def render_videos(render: tuple, index=0, debug=False):
                         logError(error_dir, recording_name, skip_path, index)
                         break
 
-                # Initialized to timeout_mtime + NO_RENDER_UPDATE_TIMEOUT at job start
-                NO_RENDER_UPDATE_TIMEOUT = timedelta(minutes=10)
-                timeout_datetime: datetime = datetime.now(
-                    tz=timezone.utc) + NO_RENDER_UPDATE_TIMEOUT
                 artifact_paths = [
                     _get_most_recent_file(RENDERED_VIDEO_PATH[index], ".mp4"),
                     _get_most_recent_file(RENDERED_LOG_PATH[index], ".json"),
                     _get_most_recent_file(RENDERED_VIDEO_PATH[index], ".json"),
                 ]
                 artifact_paths = [x for x in artifact_paths if x is not None]
-
 
                 if len(artifact_paths) > 0:
                     # mtime is when the contents of the file was most recently updated,
@@ -561,18 +554,17 @@ def render_videos(render: tuple, index=0, debug=False):
                     possible_new_timeout = most_recent_datetime + NO_RENDER_UPDATE_TIMEOUT
 
                     # Extend timeout if an artifact file was updated recently.
-                    # By this metric, these files are updated surprisingly infrequently?
+                    # Under normal run conditions, this extension fires off almost every time.
                     if possible_new_timeout > timeout_datetime:
                         timeout_datetime = possible_new_timeout
-                        if debug:
-                            time_left = timeout_datetime - datetime.now(tz=timezone.utc)
-                            print(f"{recording_name}: extending timeout. ({time_left} time left)")
 
                 # Timeout if no artifact files have been created or modified within
                 # the last `NO_RENDER_UPDATE_TIMEOUT` amount of time.
                 if datetime.now(tz=timezone.utc) > timeout_datetime:
                     tqdm.tqdm.write(
-                        f"Rendering timed out ({NO_RENDER_UPDATE_TIMEOUT} time without logs)")
+                        f"Rendering timed out ({NO_RENDER_UPDATE_TIMEOUT} "
+                        "time without artifact write)"
+                    )
                     break
 
                 time.sleep(1)  # Sleep to limit unnecessary polling.
@@ -580,10 +572,7 @@ def render_videos(render: tuple, index=0, debug=False):
         time.sleep(1)
         logFile.close()
         if notFound:
-            try:
-                os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
-            except:
-                pass
+            remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
             return 0
         else:
             print("file found!")
@@ -593,12 +582,12 @@ def render_videos(render: tuple, index=0, debug=False):
             RENDERED_VIDEO_PATH[index], ".mp4", copy_time, "rendered video")
 
         # GET UNIVERSAL ACTION FORMAT
-        log_path = _get_most_recent_file(RENDERED_LOG_PATH[index], ".json",
-                                         copy_time, "action/univ json")
+        log_path = _get_most_recent_file(
+            RENDERED_LOG_PATH[index], ".json", copy_time, "action/univ json")
 
         # GET new markers.json
-        marker_path = _get_most_recent_file(RENDERED_VIDEO_PATH[index], ".json",
-                                            copy_time, "markers.json")
+        marker_path = _get_most_recent_file(
+            RENDERED_VIDEO_PATH[index], ".json", copy_time, "markers.json")
 
         if video_path and log_path and marker_path:
             if debug:
@@ -627,23 +616,18 @@ def render_videos(render: tuple, index=0, debug=False):
                 print("\tSkipping this file in the future")
                 print("\t{} {} {}".format(video_path, marker_path, log_path))
             logError(MISSING_RENDER_OUTPUT, recording_name, skip_path, index)
-            try:
-                os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
-            except:
-                pass
+            remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
             return 0
 
         # Remove mcpr file from dir
-        try:
-            os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
-        except:
-            pass
+        remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
     finally:
         if p is not None:
+            # Didn't finish
             try:
-                p.wait(400)
+                p.wait(4)  # 4 seconds
             except (TimeoutError, subprocess.TimeoutExpired):
-                p.kill()
+                killMC(p)
             time.sleep(10)
     return 1
 
@@ -651,12 +635,15 @@ def render_videos(render: tuple, index=0, debug=False):
 def clean_render_dirs():
     paths_to_clear = []
 
-    for dir in [RENDERED_VIDEO_PATH, RECORDING_PATH, RENDERED_LOG_PATH]:
-        paths_to_clear.extend(glob.glob(J(dir, '*')))
+    for dir_list in [RENDERED_VIDEO_PATH, RECORDING_PATH, RENDERED_LOG_PATH]:
+        for d in dir_list:
+            paths_to_clear.extend(glob.glob(J(d, '*')))
 
     paths_to_clear.extend(LOG_FILE)
     paths_to_clear.extend(FINISHED_FILE)
-    breakpoint()
+
+    for path in paths_to_clear:
+        remove(path)
 
 
 def main(n_workers=NUM_MINECRAFT_DIR, parallel=True):

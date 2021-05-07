@@ -102,10 +102,7 @@ def touch(path):
 
 def remove(path):
     if E(path):
-        print(f"removing {path}")
         os.remove(path)
-    else:
-        print(f"Not removing {path} because it doesn't exist.")
 
 
 class ThreadManager(object):
