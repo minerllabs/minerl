@@ -393,6 +393,10 @@ def _get_error_dir(log_line: str, debug=False) -> Optional[str]:
         if debug:
             print("X11 error")
         return X11_ERROR_DIR
+    elif re.search(r'Xvfb failed to start', log_line):
+        if debug:
+            print("X11 error -- `apt install x11vnc`?")
+        return X11_ERROR_DIR
     elif re.search(r'no lwjgl64 in java', log_line):
         if debug:
             print("missing lwjgl.")
@@ -496,7 +500,6 @@ def render_videos(render: tuple, index=0, debug=False):
         notFound = True
 
         while notFound:
-
             if os.path.exists(FINISHED_FILE[index]) or p.poll() is not None:
                 if os.path.exists(FINISHED_FILE[index]):
                     os.remove(FINISHED_FILE[index])
@@ -582,6 +585,8 @@ def render_videos(render: tuple, index=0, debug=False):
             except:
                 pass
             return 0
+        else:
+            print("file found!")
 
         # GET RECORDING
         video_path = _get_most_recent_file(
@@ -644,10 +649,14 @@ def render_videos(render: tuple, index=0, debug=False):
 
 
 def clean_render_dirs():
-    paths_to_clear = [RENDERED_VIDEO_PATH, RECORDING_PATH, RENDERED_LOG_PATH]
-    for p in paths_to_clear:
-        map(remove, [glob.glob(J(x, '*')) for x in p])
-    pass
+    paths_to_clear = []
+
+    for dir in [RENDERED_VIDEO_PATH, RECORDING_PATH, RENDERED_LOG_PATH]:
+        paths_to_clear.extend(glob.glob(J(dir, '*')))
+
+    paths_to_clear.extend(LOG_FILE)
+    paths_to_clear.extend(FINISHED_FILE)
+    breakpoint()
 
 
 def main(n_workers=NUM_MINECRAFT_DIR, parallel=True):

@@ -48,7 +48,6 @@ TEMP_FILE = 'tmp.tmcpr'
 GLOB_STR_BASE = J(DOWNLOAD_DIR, "*", "*", "*", "*")
 
 #### RENDERING
-
 RENDER_DIR = J(OUTPUT_DIR, "rendered")
 MINECRAFT_DIR = [J(RENDERERS_DIR, 'minecraft_{}'.format(i)) for i in range(NUM_MINECRAFTS)]
 RECORDING_PATH = [J(d, 'replay_recordings') for d in MINECRAFT_DIR]
@@ -103,7 +102,10 @@ def touch(path):
 
 def remove(path):
     if E(path):
+        print(f"removing {path}")
         os.remove(path)
+    else:
+        print(f"Not removing {path} because it doesn't exist.")
 
 
 class ThreadManager(object):
