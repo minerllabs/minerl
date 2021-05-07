@@ -416,7 +416,7 @@ class DataPipeline:
                         # List length changes...
                         meta_index = 4 + include_metadata + include_monitor_data
                         yield_dict["meta"] = yields[meta_index]
-                    return yield_dict
+                    yield yield_dict
 
             jobs = [(f, -1, None) for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
