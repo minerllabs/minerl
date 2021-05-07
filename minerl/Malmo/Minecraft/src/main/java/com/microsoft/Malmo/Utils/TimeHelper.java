@@ -52,7 +52,7 @@ public class TimeHelper
     public static long displayGranularityMs = 50;  // How quickly we allow the Minecraft window to update.
     private static long lastUpdateTimeMs;
     public static int frameSkip = 1; // Note: Not fully implemented
-
+    public static Boolean isWindows = System.getProperty("os.name").startsWith("Windows");
 
     static public class FlushableStateMachine {
         // We should really just use locks.
@@ -314,7 +314,14 @@ public class TimeHelper
         if(lastUpdateTimeMs == -1)
             lastUpdateTimeMs = timeNow;
         
-        if (timeNow - lastUpdateTimeMs > displayGranularityMs)
+        // Do not update display on Windows at all.
+        // Doing so will reset the observation data we get (camera is zeros),
+        // and also blinks the Minecraft window between visible frame and black image.
+
+        // This has the side-effect of Minecraft window being blank and
+        // reported as "not responding".
+        // TODO what is the real cause behind the issues
+        if (!isWindows && timeNow - lastUpdateTimeMs > displayGranularityMs)
         {
             Minecraft.getMinecraft().updateDisplay();
             lastUpdateTimeMs = timeNow;
