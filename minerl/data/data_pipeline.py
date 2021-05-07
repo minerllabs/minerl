@@ -391,7 +391,7 @@ class DataPipeline:
             preload_buffer_size (int, optional): Increase to IMPROVE PERFORMANCE. The data iterator uses a queue to prevent blocking, the queue size is the number of trajectories to load into the buffer. Adjust based on memory constraints. Defaults to 32.
             seed (int, optional): [int]. NOT IMPLEMENTED Defaults to None.
             include_metadata (bool, optional): Include metadata on the source trajectory. Defaults to False.
-            include_monitor_data (bool, optional): Include monitor data (info dict) on the source trajectory. Defaults
+            include_monitor_data (bool, optional): Include monitor data (info dict) on the source trajectory. Defaults to False
 
         Returns:
             Generator: A generator that yields (sarsd) batches
@@ -402,21 +402,26 @@ class DataPipeline:
 
             def traj_iter():
                 for _ in jobs:
-                    s, a, r, sp1, d, monitor, meta = trajectory_queue.get()
-                    yield dict(
-                        obs=s,
-                        act=a,
-                        reward=r,
-                        next_obs=sp1,
-                        done=d,
-                        monitor=monitor,
-                        meta=meta
+                    yields = trajectory_queue.get()
+                    yield_dict = dict(
+                        obs=yields[0],
+                        act=yields[1],
+                        reward=yields[2],
+                        next_obs=yields[3],
+                        done=yields[4],
                     )
+                    if include_monitor_data:
+                        yield_dict["monitor"] = yields[5]
+                    if include_metadata:
+                        # List length changes...
+                        meta_index = 4 + include_metadata + include_monitor_data
+                        yield_dict["meta"] = yields[meta_index]
+                    return yield_dict
 
             jobs = [(f, -1, None) for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
             trajectory_loader = minerl.data.util.OrderedJobStreamer(
-                job,
+                functools.partial(job, include_metadata=include_metadata, include_monitor_data=include_monitor_data),
                 jobs,
                 trajectory_queue,
                 # executor=concurrent.futures.ThreadPoolExecutor,
@@ -516,5 +521,5 @@ class DataPipeline:
             "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
 
-def job(arg):
-    return DataPipeline._load_data_pyfunc(*arg, include_metadata=True, include_monitor_data=True)
+def job(arg, include_metadata=True, include_monitor_data=True):
+    return DataPipeline._load_data_pyfunc(*arg, include_metadata=include_metadata, include_monitor_data=include_monitor_data)
