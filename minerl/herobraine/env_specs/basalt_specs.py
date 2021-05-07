@@ -4,9 +4,10 @@ import gym
 
 from minerl.env import _fake, _singleagent
 from minerl.herobraine.env_spec import EnvSpec
+from minerl.herobraine.env_specs import simple_embodiment
 from minerl.herobraine.hero import handlers, mc
 
-BUTTON_ACTIONS = {"forward", "back", "left", "right", "jump", "sneak", "sprint", "attack", "use"}
+BUTTON_ACTIONS = set(simple_embodiment.SIMPLE_KEYBOARD_ACTION + ["use"])
 
 DEFAULT_ITEMS = (
     "stone_shovel",
@@ -109,7 +110,8 @@ class BasaltBaseEnvSpec(EnvSpec):
         return folder == self.demo_server_experiment_name
 
     def _entry_point(self, fake: bool) -> str:
-        # Assuming here that `fake` argument gets passed along to entrypoint fn.
+        # Don't need to inspect `fake` argument here because it is also passed to the
+        # entrypoint function.
         return BASALT_GYM_ENTRY_POINT
 
     def create_observables(self):
@@ -141,7 +143,7 @@ class BasaltBaseEnvSpec(EnvSpec):
             )
         ]
 
-    def auto_blacklist(self, npz_data: dict) -> Optional[str]:
+    def get_blacklist_reason(self, npz_data: dict) -> Optional[str]:
         """
         Some saved demonstrations are bogus -- they only contain lobby frames.
 
