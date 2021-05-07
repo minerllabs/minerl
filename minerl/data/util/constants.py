@@ -67,6 +67,7 @@ ZIP_ERROR_DIR = J(ERROR_PARENT_DIR, 'zip_file')
 MISSING_RENDER_OUTPUT = J(ERROR_PARENT_DIR, 'missing_output')
 OTHER_ERROR_DIR = J(ERROR_PARENT_DIR, 'other')
 X11_ERROR_DIR = J(ERROR_PARENT_DIR, 'x11_error')
+RENDER_TIMEOUT_ERROR_DIR = J(ERROR_PARENT_DIR, 'render_timeout_error')
 
 # metadata decomp
 

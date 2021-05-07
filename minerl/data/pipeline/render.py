@@ -72,7 +72,8 @@ from minerl.data.util.constants import (
     ZIP_ERROR_DIR,
     MISSING_RENDER_OUTPUT,
     OTHER_ERROR_DIR,
-    X11_ERROR_DIR
+    X11_ERROR_DIR,
+    RENDER_TIMEOUT_ERROR_DIR,
 )
 
 from minerl.data.util.constants import (BLACKLIST_TXT as BLACKLIST_PATH)
@@ -119,7 +120,9 @@ def construct_render_dirs(blacklist):
             NULL_PTR_EXCEP_DIR,
             ZIP_ERROR_DIR,
             MISSING_RENDER_OUTPUT,
-            X11_ERROR_DIR]
+            X11_ERROR_DIR,
+            RENDER_TIMEOUT_ERROR_DIR,
+            ]
 
     for dir in dirs:
         if not E(dir):
@@ -565,6 +568,7 @@ def render_videos(render: tuple, index=0, debug=False):
                         f"Rendering timed out ({NO_RENDER_UPDATE_TIMEOUT} "
                         "time without artifact write)"
                     )
+                    logError(RENDER_TIMEOUT_ERROR_DIR, recording_name, skip_path, index)
                     break
 
                 time.sleep(1)  # Sleep to limit unnecessary polling.
