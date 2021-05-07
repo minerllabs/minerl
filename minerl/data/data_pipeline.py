@@ -33,7 +33,6 @@ import queue
 import minerl.data.util
 from minerl.data.util import forever, minibatch_gen
 import concurrent
-
 if os.name != "nt":
     class WindowsError(OSError):
         pass
@@ -399,11 +398,11 @@ class DataPipeline:
         # Todo: Not implemented/
         input_queue = multiprocessing.Queue()
         trajectory_queue = multiprocessing.Queue(maxsize=preload_buffer_size)
-
         workers = []
+
         args = (input_queue, trajectory_queue)
         for _ in range(self.number_of_workers):
-            workers.append(multiprocessing.Process(target=loader_func, args=args))
+            workers.append(multiprocessing.Process(target=loader_func, args=args, daemon=True))
             workers[-1].start()
 
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
@@ -444,11 +443,10 @@ class DataPipeline:
                       ] + (
                               (seg_batch['monitor'] if include_monitor_data else []) +
                               (seg_batch['meta'] if include_metadata else [])
-                      )
-        
+                            )
+
         for _ in range(self.number_of_workers):
             input_queue.put(("SHUTDOWN",))
-
         for w in workers:
             w.join()
 
