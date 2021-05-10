@@ -14,7 +14,7 @@ buildscript {
         } else if(RAPID_CLUSTER == "quail") {
             maven {
                 name = "openai-quail"
-                url = "http://openai-proxies-quail-0.rcall.raul.svc.quail.sci.openai.org:8081/repository/openai-all-proxies/"
+                url = "http://openai-proxies-0.rcall.raul.svc.quail.sci.openai.org:8081/repository/openai-all-proxies/"
             }
         }
 
