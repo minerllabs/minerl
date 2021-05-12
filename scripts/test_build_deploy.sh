@@ -5,9 +5,6 @@ set -ex
 export PATH=$JAVA_HOME/bin:$PATH
 # env variables controlling the build version and location in GCS
 export MINERL_VERSION_NUMBER=0.3.7
-#temp="$(date +%Y%m%d-%H%M)"
-#export DATE_SHORT=$temp
-#export MINERL_BUILD_VERSION=${MINERL_VERSION_NUMBER}+openai.git.${BUILDKITE_COMMIT:0:7}.date.${DATE_SHORT}
 export MINERL_BUILD_VERSION="$BUILDKITE_COMMIT"
 
 # Adding a single head directly to the init.sh to avoid zombificiaiton from xvfb-run.
