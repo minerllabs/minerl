@@ -45,5 +45,5 @@ cd "$cur_dir"
 # Finally, if this is not a cron build, we deploy the wheel
 # TODO This may fail on subsequent builds with the same commit ID
 if [ "$BUILDKITE_SOURCE" != "schedule" ]; then
-    az storage copy --subscription sci -s dist/* -d "$AZ_UPLOAD_LOCATION"/"$BUILDKITE_BRANCH"/
+    az storage copy --subscription sci -s dist/* -d "$AZ_UPLOAD_LOCATION"/
 fi
