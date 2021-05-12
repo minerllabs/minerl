@@ -10,6 +10,7 @@ import logging
 import psutil
 import subprocess
 import os
+import sys
 import signal
 from daemoniker import daemonize
 
@@ -48,7 +49,7 @@ def launch(parent_pid, child_pid, *temp_dirs):
     """
     logger.info("Launhing process watcher daemonizer.")
     subprocess.check_call([
-                              'python', '-m', 'minerl.utils.process_watcher',
+                              sys.executable, '-m', 'minerl.utils.process_watcher',
                               str(parent_pid), str(child_pid),
                               '--{}'.format(CHILD_DIR_ARG)] + list(temp_dirs))
     logger.info("Process watcher daemonizer launched successfully.")
