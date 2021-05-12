@@ -1241,6 +1241,18 @@
         </xs:complexType>
     </xs:element>
 
+    <xs:element name="VillageSpawnDecorator">
+        <xs:annotation>
+            <xs:documentation>
+                Spawns the player in a village, assuming the spawn point is in a valid biome for a village (plains, savannah, taiga, desert). In the absence of a way to modify the agent spawn, also spawns the agent at (0, 0).
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:attribute name="test" type="xs:string" use="optional" default=""/>
+        </xs:complexType>
+    </xs:element>
+
+
     <!--============================================== QUIT PRODUCERS ===============================================-->
 
     <xs:element name="ServerQuitFromTimeUp">

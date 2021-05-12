@@ -70,7 +70,6 @@ class FlatWorldGenerator(Handler):
         self.generatorString = generatorString
 
 
-
 #  <BiomeGenerator forceReset="true" biome="3"/>
 class BiomeGenerator(Handler):
     def to_string(self) -> str:
@@ -101,3 +100,12 @@ class DrawingDecorator(Handler):
 
     def to_string(self) -> str:
         return "drawing_decorator"
+
+
+class VillageSpawnDecorator(Handler):
+    def xml_template(self) -> str:
+        tmp = """<VillageSpawnDecorator />"""
+        return tmp
+
+    def to_string(self) -> str:
+        return "village_spawn"
