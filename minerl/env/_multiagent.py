@@ -708,7 +708,6 @@ class _MultiAgentEnv(gym.Env):
         Cleans the conenction with a given instance.
         """
         try:
-            #if instance.client_socket:
             if instance.has_client_socket():
                 # Try to disconnect gracefully.
                 try:
@@ -738,14 +737,8 @@ class _MultiAgentEnv(gym.Env):
         try:
             logger.debug("Creating socket connection {instance}".format(instance=instance))
             instance.create_multiagent_instance_socket(socktime=SOCKTIME)
-            #sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            #sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            #sock.settimeout(SOCKTIME)
-            #sock.connect((instance.host, instance.port))
             logger.debug("Saying hello for client: {instance}".format(instance=instance))
             self._TO_MOVE_hello(instance)
-
-            #instance.client_socket = sock
         except (socket.timeout, socket.error, ConnectionRefusedError) as e:
             instance.had_to_clean = True
             logger.error("Failed to reset (socket error), trying again!")
@@ -795,7 +788,6 @@ class _MultiAgentEnv(gym.Env):
 
     @staticmethod
     def _TO_MOVE_hello(instance):
-        print(("<MalmoEnv" + malmo_version + "/>").encode())
         instance.client_socket_send_message(("<MalmoEnv" + malmo_version + "/>").encode())
 
     def _get_new_instance(self, port=None, instance_id=None):

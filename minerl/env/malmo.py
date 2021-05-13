@@ -468,11 +468,6 @@ class MinecraftInstance(object):
     def has_client_socket(self):
         return self.client_socket is not None
     
-    @client_socket.setter
-    def client_socket(self, value):
-        # No Pyro4 expose as serializing sockets does not make sense
-        self._client_socket = value
-
     @property
     def actor_name(self):
         return f"actor{self.role}"
