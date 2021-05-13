@@ -43,7 +43,8 @@ import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 public abstract class RewardForItemBase extends RewardBase
 {
     List<ItemRewardMatcher> rewardMatchers = new ArrayList<ItemRewardMatcher>();
-    
+
+    // TODO(shwang): We should replace this.
     public static class ItemMatcher
     {
         List<String> allowedItemTypes = new ArrayList<String>();
@@ -61,6 +62,14 @@ public abstract class RewardForItemBase extends RewardBase
             }
         }
 
+        // TODO(shwang): Brandon assumes we implement matches in the helper function.
+        // Our utility will have `boolean matches(ItemStack stack1, ItemStack stack2)`.
+
+        // This matches two Minecraft ItemStacks that might be different in Minecraft, but
+        // the same here, projected onto the schema.
+
+        // Existing schema has multiple fields, let's add getMetadata. If you don't specify
+        // the metadata then you match all items. Otherwise, you specify the metadata.
         boolean matches(ItemStack stack)
         {
             String item = stack.getItem().getUnlocalizedName();

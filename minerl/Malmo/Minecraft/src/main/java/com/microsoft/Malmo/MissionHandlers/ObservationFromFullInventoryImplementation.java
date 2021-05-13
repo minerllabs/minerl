@@ -203,11 +203,15 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
         for (int i = 0; i < nSlots; i++)
         {
             ItemStack is = inventory.getStackInSlot(i);
+            // TODO(shwang): Use is.getItemDamage() to return metadata
+            // Brandon says it might be a good choice to make this function part of the helper class.
             if (is != null)
             {
                 json.addProperty(prefix + i + "_size", is.getCount());
                 DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
                 String name = di.getType();
+                // TODO(shwang): Get rid of colour and variant keys. Get rid of using DrawItem
+                // as general.
                 if (di.getColour() != null)
                     json.addProperty(prefix + i + "_colour",  di.getColour().value());
                 if (di.getVariant() != null)

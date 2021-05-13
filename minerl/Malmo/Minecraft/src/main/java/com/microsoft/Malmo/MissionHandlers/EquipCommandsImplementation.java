@@ -115,6 +115,8 @@ public class EquipCommandsImplementation extends CommandBase {
         if (!verb.equalsIgnoreCase("equip"))
             return false;
 
+        // TODO(shwang): Change this code to also get in the metadata
+        // This helper function also parses the hash or whatever delimiter.
         Item item = Item.getByNameOrId(parameter);
         if (item != null && item.getRegistryName() != null && !parameter.equalsIgnoreCase("none")) {
             MalmoMod.network.sendToServer(new EquipMessage(parameter));
