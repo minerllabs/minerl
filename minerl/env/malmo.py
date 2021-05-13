@@ -393,7 +393,7 @@ class MinecraftInstance(object):
         self.watcher_process = None
         self.xml = None
         self.role = None
-        self.client_socket = None
+        self._client_socket = None
         self._port = port
         self._jdwp = None
         self._host = InstanceManager.DEFAULT_IP
@@ -404,6 +404,7 @@ class MinecraftInstance(object):
         self.instance_dir = None
         self._status_dir = status_dir
         self.owner = None
+        self._had_to_clean = False
 
         self.instance_id = instance_id
 
@@ -418,6 +419,59 @@ class MinecraftInstance(object):
 
         self._setup_logging()
         self._target_port = port
+    
+    # class-wide Pyro4 exposes are not encouraged as of new versions
+    @Pyro4.expose
+    @property
+    def had_to_clean(self):
+        return self._had_to_clean
+    
+    @Pyro4.expose
+    @had_to_clean.setter
+    def had_to_clean(self, value):
+        self._had_to_clean = value
+
+    @Pyro4.expose
+    @property
+    def client_socket(self):
+        return self._client_socket
+    
+    @Pyro4.expose
+    @client_socket.setter
+    def client_socket(self, value):
+        # Not ideal as you should not be trying to serialize
+        # sockets. However the code does set the socket to
+        # Nones at times, so lets allow it.
+        self._client_socket = value
+    
+    def create_multiagent_instance_socket(self, socktime):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        sock.settimeout(socktime)
+        sock.connect((self.host, self.port))
+        self.client_socket = sock
+    
+    def client_socket_send_message(self, msg):
+        comms.send_message(self.client_socket, msg)
+    
+    def client_socket_recv_message(self):
+        return comms.recv_message(self.client_socket)
+    
+    def client_socket_close(self):
+        self.client_socket.close()
+        self.client_socket = None
+
+    def client_socket_shutdown(self, param):
+        self.client_socket.shutdown(param)
+        self.client_socket = None
+
+    def has_client_socket(self):
+        return self.client_socket is not None
+    
+    @client_socket.setter
+    def client_socket(self, value):
+        # No Pyro4 expose as serializing sockets does not make sense
+        self._client_socket = value
 
     @property
     def actor_name(self):
