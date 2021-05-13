@@ -285,15 +285,12 @@ class _MultiAgentEnv(gym.Env):
                                        "</StepClient" + str(STEP_OPTIONS) + " >"
 
                         # Send Actions.
-                        #comms.send_message(instance.client_socket, step_message.encode())
                         instance.client_socket_send_message(step_message.encode())
 
                         # Receive the observation.
-                        #obs = comms.recv_message(instance.client_socket)
                         obs = instance.client_socket_recv_message()
 
                         # Receive reward done and sent.
-                        #reply = comms.recv_message(instance.client_socket)
                         reply = instance.client_socket_recv_message()
                         reward, done, sent = struct.unpack("!dbb", reply)
                         # TODO: REFACTOR TO USE REWARD HANDLERS INSTEAD OF MALMO REWARD.
@@ -302,7 +299,6 @@ class _MultiAgentEnv(gym.Env):
                         self.has_finished[actor_name] = self.has_finished[actor_name] or done
 
                         # Receive info from the environment.
-                        #_malmo_json = comms.recv_message(instance.client_socket).decode("utf-8")
                         _malmo_json = instance.client_socket_recv_message().decode("utf-8")
 
                         # Process the observation and done state.
@@ -345,7 +341,6 @@ class _MultiAgentEnv(gym.Env):
                 step_message = "<StepServer></StepServer>"
 
                 # Send Actions.
-                #comms.send_message(instance.client_socket, step_message.encode())
                 instance.client_socket_send_message(step_message.encode())
 
             except (socket.timeout, socket.error, TypeError) as e:
@@ -612,12 +607,9 @@ class _MultiAgentEnv(gym.Env):
             if self._seed is not None:
                 token += ":{}".format(self._seed)
             token = token.encode()
-            #comms.send_message(instance.client_socket, mission_xml)
             instance.client_socket_send_message(mission_xml)
-            #comms.send_message(instance.client_socket, token)
             instance.client_socket_send_message(token)
 
-            #reply = comms.recv_message(instance.client_socket)
             reply = instance.client_socket_recv_message()
             ok, = struct.unpack("!I", reply)
             if ok != 1:
@@ -637,14 +629,10 @@ class _MultiAgentEnv(gym.Env):
             multi_done = True
             for actor_name, instance in zip(self.task.agent_names, self.instances):
                 start_time = time.time()
-                #comms.send_message(instance.client_socket, peek_message.encode())
                 instance.client_socket_send_message(peek_message.encode())
-                #obs = comms.recv_message(instance.client_socket)
                 obs = instance.client_socket_recv_message()
-                #info = comms.recv_message(instance.client_socket).decode('utf-8')
                 info = instance.client_socket_recv_message().decode('utf-8')
 
-                #reply = comms.recv_message(instance.client_socket)
                 reply = instance.client_socket_recv_message()
                 done, = struct.unpack('!b', reply)
                 self.has_finished[actor_name] = self.has_finished[actor_name] or done
@@ -652,8 +640,6 @@ class _MultiAgentEnv(gym.Env):
                 if obs is None or len(obs) == 0:
                     if time.time() - start_time > MAX_WAIT:
                         instance.client_socket_close()
-                        #instance.client_socket.close()
-                        #instance.client_socket = None
                         raise MissionInitException(
                             'too long waiting for first observation')
                     time.sleep(0.1)
@@ -726,13 +712,10 @@ class _MultiAgentEnv(gym.Env):
             if instance.has_client_socket():
                 # Try to disconnect gracefully.
                 try:
-                    #comms.send_message(instance.client_socket, "<Disconnect/>".encode())
                     instance.client_socket_send_message("<Disconnect/>".encode())
                 except:
                     pass
                 instance.client_socket_shutdown(socket.SHUT_RDWR)
-                #instance.client_socket.shutdown(socket.SHUT_RDWR)
-                #instance.client_socket.close()
         except (BrokenPipeError, OSError, socket.error):
             # There is no connection left!
             pass
@@ -776,9 +759,7 @@ class _MultiAgentEnv(gym.Env):
 
         logger.info("Attempting to quit: {instance}".format(instance=instance))
         # while not has_quit:
-        #comms.send_message(instance.client_socket, "<Quit/>".encode())
         instance.client_socket_send_message("<Quit/>".encode())
-        #reply = comms.recv_message(instance.client_socket)
         reply = instance.client_socket_recv_message()
         ok, = struct.unpack('!I', reply)
         has_quit = not (ok == 0)
@@ -814,7 +795,6 @@ class _MultiAgentEnv(gym.Env):
 
     @staticmethod
     def _TO_MOVE_hello(instance):
-        #comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
         print(("<MalmoEnv" + malmo_version + "/>").encode())
         instance.client_socket_send_message(("<MalmoEnv" + malmo_version + "/>").encode())
 
