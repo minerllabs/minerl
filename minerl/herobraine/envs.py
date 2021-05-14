@@ -12,7 +12,7 @@ from minerl.herobraine.env_specs.navigate_specs import Navigate
 from minerl.herobraine.env_specs.obtain_specs import ObtainDiamond, ObtainDiamondSurvival, ObtainIronPickaxe, Obtain, \
     ObtainDiamondDebug
 from minerl.herobraine.env_specs import basalt_specs
-from minerl.herobraine.wrappers import Obfuscated, Vectorized
+from minerl.herobraine.wrappers import Obfuscated, Vectorized, HighRes
 import minerl.data.version
 import os
 
@@ -95,6 +95,10 @@ MINERL_OBTAIN_TEST_DENSE_VEC_V0 = Vectorized(MINERL_OBTAIN_TEST_DENSE_V0)
 MINERL_BASALT_FIND_CAVES_ENV_SPEC = basalt_specs.FindCavesEnvSpec()
 MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec()
 MINERL_BASALT_PEN_ANIMALS_ENV_SPEC = basalt_specs.PenAnimalsEnvSpec()
+
+MINERL_BASALT_FIND_CAVES_HIGH_RES_ENV_SPEC = HighRes(MINERL_BASALT_FIND_CAVES_ENV_SPEC)
+MINERL_BASALT_MAKE_WATERFALL_HIGH_RES_ENV_SPEC = HighRes(MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC)
+MINERL_BASALT_PEN_ANIMALS_HIGH_RES_ENV_SPEC = HighRes(MINERL_BASALT_PEN_ANIMALS_ENV_SPEC)
 
 # Register the envs.
 ENV_SPECS: List[EnvSpec] = [env for env in locals().values() if isinstance(env, EnvSpec)]
