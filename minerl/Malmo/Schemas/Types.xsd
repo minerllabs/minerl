@@ -852,12 +852,11 @@
                 Custom type for MineRL. The metadata for the item -- could mean the variant, damage, and/or facing of
                 the item.
             </xs:documentation>
-            <xs:restriction base="xs:integer">
-                <xs:minInclusive value="0"/>
-                <xs:maxInclusive value="15"/>
-            </xs:restriction>
         </xs:annotation>
-
+        <xs:restriction base="xs:integer">
+            <xs:minInclusive value="0"/>
+            <xs:maxInclusive value="15"/>
+        </xs:restriction>
     </xs:simpleType>
 
 </xs:schema>
