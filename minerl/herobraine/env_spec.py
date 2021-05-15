@@ -27,13 +27,23 @@ class EnvSpec(abc.ABC):
     U_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._singleagent:_SingleAgentEnv'
     U_FAKE_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeSingleAgentEnv'
 
-    def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=None):
+    def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=None,
+                 frameskip: int = 1):
+        """
+        :param frameskip: The number of times we should 'tick' Minecraft for each 'step' of the
+        environment. It is expected that the observations during intermediate ticks will be
+        discarded, and that only the last tick in each step is required to send back observations.
+        If Minecraft finishes (for example on player death) during an intermediate tick, all
+        observations except for the visual one are expected to be provided. This allows intermediate
+        steps to not render (visual observations).
+        """
         self.name = name
         self.max_episode_steps = max_episode_steps
         self.reward_threshold = reward_threshold
         self.agent_count = 1 if agent_count is None else agent_count
         self.is_single_agent = agent_count is None
         self.agent_names = ["agent_{role}".format(role=role) for role in range(self.agent_count)]
+        self.frameskip = frameskip
 
         self.reset()
 

@@ -47,7 +47,7 @@ class _FullStatsObservation(KeymapTranslationHandler):
             if 'achievement' == key_list[0]:
                 space = spaces.Box(low=0, high=1, shape=(), dtype=np.int)
             else:
-                space = spaces.Box(low=0, high=np.inf, shape=(), dtype=np.int)
+                space = spaces.Box(low=0, high=spaces.MAX_INT, shape=(), dtype=np.int)
         if default_if_missing is None:
             default_if_missing = np.zeros((), dtype=np.float)
 

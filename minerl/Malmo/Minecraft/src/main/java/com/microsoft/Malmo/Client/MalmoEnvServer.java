@@ -37,6 +37,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -47,6 +48,7 @@ import java.util.logging.Level;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 
 /**
@@ -432,14 +434,37 @@ public class MalmoEnvServer implements IWantToQuit {
 
     }
 
-    private static final int stepClientTagLength = "<StepClient_>".length(); // Step with option code.
-    private synchronized void stepClientSync(String command, Socket socket, DataInputStream din) throws IOException
+    /**
+     * This method is called when the game is running in synchronous mode (MalmoEnvServer ticks each client and server),
+     * so that we execute the client actions.
+     * @param command Malmo env command received that triggered the tick, with the actions to perform.
+     * @param socket ?
+     * @param din ?
+     * @throws IOException
+     * @throws ParseException If we fail to parse the command.
+     */
+    private synchronized void stepClientSync(String command, Socket socket, DataInputStream din)
+            throws IOException, ParseException
     {
         profiler.startSection("rootClient");
         // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <StepClient_> Entering synchronous step.");
 
         profiler.startSection("commandProcessing");
-        String actions = command.substring(stepClientTagLength, command.length() - (stepClientTagLength + 2));
+
+        // Find the end of the xml start-tag, and the start of the xml end-tag, and extract the substring inside. This
+        // substring will be the actions.
+        final int start_tag_closes = command.indexOf('>');
+        final int end_tag_opens = command.lastIndexOf('<');
+        final String actions = command.substring(start_tag_closes + 1, end_tag_opens);
+        if (actions.contains("<") || actions.contains(">")) {
+            throw new ParseException("Could not parse command. Found multiple xml tags: " + actions, -1);
+        }
+        // Also, check whether the start-tag has an attribute for skip_render.
+        // TODO Arguably we should use an xml parser here if the attributes are more complex than this
+        // TODO Parse the value of the attribute instead of assuming that its presence means "True"
+        final String skip_render_attribute = "skip_render";
+        final boolean skip_render = command.contains(skip_render_attribute);
+
         nsteps += 1;
         int options =  Character.getNumericValue(command.charAt(stepServerTagLength - 2));
         boolean withInfo = options == 0 || options == 2;
@@ -460,6 +485,9 @@ public class MalmoEnvServer implements IWantToQuit {
 
             done = envState.done;
             // TODO Handle when the environment is done.
+
+            // propagate skip_render by setting the value in the Minecraft instance.
+            Minecraft.getMinecraft().skipRenderWorld = skip_render;
 
             // Process the actions.
             if (actions.contains("\n")) {
@@ -550,8 +578,12 @@ public class MalmoEnvServer implements IWantToQuit {
         // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] <STEP> Lock released. Writing observation, info, done.");
 
         profiler.startSection("writeObs");
-        dout.writeInt(obs.length);
-        dout.write(obs);
+        if (obs != null) {
+            dout.writeInt(obs.length);
+            dout.write(obs);
+        } else {
+            dout.writeInt(0);
+        }
 
         dout.writeInt(BYTES_DOUBLE + 2);
         dout.writeDouble(reward);
@@ -603,7 +635,7 @@ public class MalmoEnvServer implements IWantToQuit {
     }
 
     // Handler for <StepClient_> messages. Single digit option code after _ specifies if turnkey and info are included in message.
-    private void stepClient(String command, Socket socket, DataInputStream din) throws IOException {
+    private void stepClient(String command, Socket socket, DataInputStream din) throws IOException, ParseException {
         if(envState.synchronous){
             stepClientSync(command, socket, din);
         }
@@ -690,7 +722,7 @@ public class MalmoEnvServer implements IWantToQuit {
     public byte[] getObservation(boolean done)  {
         byte[] obs = envState.obs;
         if (obs == null){
-            
+            return new byte[0];
         }
         return obs;
     }

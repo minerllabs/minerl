@@ -79,6 +79,7 @@ class SimpleInventoryAgentStart(InventoryAgentStart):
         })
 
 
+
 class RandomInventoryAgentStart(InventoryAgentStart):
     """ An inventory agentstart specification which
     that fills

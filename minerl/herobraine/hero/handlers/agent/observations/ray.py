@@ -36,7 +36,7 @@ class _BlockPseudoIdObservation(KeymapTranslationHandler):
 
         The block pseudo-id is -1 when the agent is not looking at a block, and increments each
         time the agent looks at a different block than the timestep before. For instance, if
-        the agent is looking at block A, the pseudo-id might be 0. If it moves to block B, the 
+        the agent is looking at block A, the pseudo-id might be 0. If it moves to block B, the
         pseudo-id will be 1. If it moves back to block A, the pseudo-id will be 2 (NOT 0).
 
         """
@@ -44,7 +44,7 @@ class _BlockPseudoIdObservation(KeymapTranslationHandler):
         super().__init__(
             hero_keys=keys,
             univ_keys=keys,
-            space=spaces.Box(low=-1, high=np.inf, shape=(), dtype=np.int),
+            space=spaces.Box(low=-1, high=spaces.MAX_INT, shape=(), dtype=np.int),
             default_if_missing=-1,
         )
         self.cur_block = defaultdict(lambda: None)

@@ -1,15 +1,15 @@
 // --------------------------------------------------------------------------------------------------
 //  Copyright (c) 2016 Microsoft Corporation
-//  
+//
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 //  associated documentation files (the "Software"), to deal in the Software without restriction,
 //  including without limitation the rights to use, copy, modify, merge, publish, distribute,
 //  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 //  furnished to do so, subject to the following conditions:
-//  
+//
 //  The above copyright notice and this permission notice shall be included in all copies or
 //  substantial portions of the Software.
-//  
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 //  NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 //  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -104,7 +104,7 @@ public class ServerStateMachine extends StateMachine
     private MissionInit queuedMissionInit = null;		// The MissionInit requested from elsewhere - dormant episode will check for its presence.
     private MissionBehaviour missionHandlers = null;	// The Mission handlers for the mission currently being loaded/run.
     protected String quitCode = "";						// Code detailing the reason for quitting this mission.
-    
+
     // agentConnectionWatchList is used to keep track of the clients in a multi-agent mission. If, at any point, a username appears in
     // this list, but can't be found in the MinecraftServer.getServer().getAllUsernames(), that constitutes an error, and the mission will exit.
     private ArrayList<String> userConnectionWatchList = new ArrayList<String>();
@@ -114,7 +114,7 @@ public class ServerStateMachine extends StateMachine
     {
         this.userConnectionWatchList.clear();
     }
-    
+
     protected void clearUserTurnSchedule()
     {
         this.userTurnSchedule.clear();
@@ -637,7 +637,7 @@ public class ServerStateMachine extends StateMachine
                     MalmoMod.safeSendToAll(MalmoMessageType.SERVER_MISSIONOVER);
                     episodeHasCompleted(ServerState.CLEAN_UP);
                 }
-            } 
+            }
         }
 
         @Override
@@ -646,7 +646,7 @@ public class ServerStateMachine extends StateMachine
             super.cleanup();
             MalmoMod.MalmoMessageHandler.deregisterForMessage(this, MalmoMessageType.CLIENT_AGENTSTOPPED);
         }
-        
+
         @Override
         protected void onServerTick(ServerTickEvent ev)
         {
@@ -685,7 +685,7 @@ public class ServerStateMachine extends StateMachine
             super(machine);
             MalmoMod.MalmoMessageHandler.registerForMessage(this,  MalmoMessageType.CLIENT_AGENTREADY);
             MalmoMod.MalmoMessageHandler.registerForMessage(this,  MalmoMessageType.CLIENT_AGENTRUNNING);
-            
+
             ServerStateMachine.this.clearUserConnectionWatchList(); // We will build this up as agents join us.
             ServerStateMachine.this.clearUserTurnSchedule();        // We will build this up too, if needed.
         }
@@ -836,7 +836,7 @@ public class ServerStateMachine extends StateMachine
             AgentSection as = getAgentSectionFromAgentName(agentname);
             EntityPlayerMP player = getPlayerFromUsername(username);
 
-            if (player != null && as != null) 
+            if (player != null && as != null)
             {
                 if ((player.getHealth() <= 0 || player.isDead || !player.isEntityAlive()))
                 {
@@ -1280,7 +1280,7 @@ public class ServerStateMachine extends StateMachine
             if (modsettings != null && modsettings.getMsPerTick() != null)
                 TimeHelper.serverTickLength = (long)(modsettings.getMsPerTick());
             // TimeHelper.serverTickLength = 5;
-                
+
             if (getHandlers().quitProducer != null)
                 getHandlers().quitProducer.prepare(currentMissionInit());
 
@@ -1312,25 +1312,12 @@ public class ServerStateMachine extends StateMachine
         {
             if (this.missionHasEnded)
                 return;	// In case we get in here after deciding the mission is over.
-            
+
             if (!ServerStateMachine.this.checkWatchList())
                 onError(null);  // We've lost a connection - abort the mission.
 
             if (ev.phase == Phase.START)
             {
-                // Measure our performance - especially useful if we've been overclocked.
-                if (this.secondStartTimeMs == 0)
-                    this.secondStartTimeMs = System.currentTimeMillis();
-
-                long timeNow = System.currentTimeMillis();
-                if (timeNow - this.secondStartTimeMs > 1000)
-                {
-                    long targetTicks = 1000 / TimeHelper.serverTickLength;
-                    if (this.tickCount < targetTicks)
-                        System.out.println("Warning: managed " + this.tickCount + "/" + targetTicks + " ticks this second.");
-                    this.secondStartTimeMs = timeNow;
-                    this.tickCount = 0;
-                }
                 this.tickCount++;
             }
 
@@ -1383,7 +1370,7 @@ public class ServerStateMachine extends StateMachine
                 episodeHasCompleted(ServerState.WAITING_FOR_AGENTS_TO_QUIT);
             }
         }
-        
+
         @Override
         protected void onError(Map<String, String> errorData)
         {
@@ -1426,7 +1413,7 @@ public class ServerStateMachine extends StateMachine
             // Put in all cleanup code here.
             MinecraftForge.EVENT_BUS.unregister(ServerStateMachine.this);
             ServerStateMachine.this.currentMissionInit = null;
-            
+
             // TODO (R): Kick all of the clients out?
 
             episodeHasCompleted(ServerState.DORMANT);

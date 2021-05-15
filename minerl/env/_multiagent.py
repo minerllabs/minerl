@@ -1,11 +1,11 @@
 # # Copyright (c) 2020 All Rights Reserved
 # # Author: William H. Guss, Brandon Houghton
 
-from copy import deepcopy
+from copy import deepcopy, copy
 import json
 import logging
 from minerl.env.comms import retry
-from minerl.env.exceptions import MissionInitException
+from minerl.env.exceptions import MissionInitException, BadObservationException
 import os
 from minerl.herobraine.wrapper import EnvWrapper
 import struct
@@ -19,6 +19,7 @@ from lxml import etree
 from minerl.env import comms
 import xmltodict
 from concurrent.futures import ThreadPoolExecutor
+import numpy as np
 
 from minerl.herobraine.env_spec import EnvSpec
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -56,7 +57,7 @@ class _MultiAgentEnv(gym.Env):
 
                 # Alternatively:
                 env = gym.make('MineRLTreechop-v0') # makes a default treechop environment (with treechop-specific action and observation spaces)
-    
+
     """
 
     metadata = {'render.modes': ['human']}
@@ -70,7 +71,7 @@ class _MultiAgentEnv(gym.Env):
                  ):
         """
         Constructor of MineRLEnv.
-        
+
         :param env_spec: The environment specification object.
         :param instances: A list of prelaunched Minecraft instances..
         :param is_fault_tolerant: If the instance is fault tolerant.
@@ -92,6 +93,14 @@ class _MultiAgentEnv(gym.Env):
         self._init_interactive()
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
+
+    ############ PROPERTIES ##########
+
+    @property
+    def frameskip(self):
+        """Return the frameskip defined in the EnvSpec. Consult EnvSpec for information on the
+        meaning of frameskip."""
+        return self.task.frameskip
 
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
@@ -133,7 +142,7 @@ class _MultiAgentEnv(gym.Env):
 
         Note:
         THIS MUST BE CALLED BEFORE :code:`env.reset()`
-        
+
         Args:
             seed (long, optional):  Defaults to 42.
             seed_spaces (bool, option): If the observation space and action space shoud be seeded. Defaults to True.
@@ -219,7 +228,7 @@ class _MultiAgentEnv(gym.Env):
         if isinstance(self.task, EnvWrapper):
             obs_dict = self.task.wrap_observation(obs_dict)
 
-        self._last_pov[actor_name] = obs_dict['pov']
+        self._last_pov[actor_name] = obs_dict.get(None,'pov')
         self._last_obs[actor_name] = obs_dict
 
         # Process all of the monotors (aux info) using THIS env spec.
@@ -264,7 +273,67 @@ class _MultiAgentEnv(gym.Env):
         return action in env_spec.action_space[actor_name]
 
     def step(self, actions) -> Tuple[
-        Dict[str, Dict[str, Any]], Dict[str, float], Dict[str, bool], Dict[str, Dict[str, Any]]]:
+        Dict[str, Dict[str, Any]], Dict[str, float], bool, Dict[str, Dict[str, Any]]]:
+        """
+        Tick each of the agent instances and then the server, collecting the appropriate
+        observations and reward for each agent. For all ticks in the step except the last one,
+        request that rendering is not performed in Minecraft, since we do not need that observation.
+        """
+        actions = copy(actions)
+
+        final_obs = None
+        final_reward = {agent_name: 0 for agent_name in actions}
+        everyone_is_done = True
+        final_infos = {agent_name: {} for agent_name in actions}
+
+        # tick the specified number of ticks for this step
+        for frame_idx in range(self.frameskip):
+            # skip render for all frames except the last one, whose visual obs matters
+            skip_render = frame_idx != (self.frameskip - 1)
+
+            # tick all instances and server now
+            tick_obs, tick_reward, everyone_is_done, tick_info = self.tick_all_agents(
+                actions=actions, skip_render=skip_render)
+
+            # we always override the final observation (unlike rewards and infos, that accumulate)
+            final_obs = tick_obs
+
+            for agent_name in actions:
+                # add rewards every ticks
+                final_reward[agent_name] += tick_reward[agent_name]
+                # update info every tick
+                final_infos[agent_name].update(tick_info[agent_name])
+
+                # When frame-skip was implemented in Malmo, these action would only trigger once.
+                # As such, we only execute them once.
+                actions[agent_name]["place"] = "none"
+                actions[agent_name]["craft"] = "none"
+                actions[agent_name]["equip"] = "none"
+                actions[agent_name]["nearbyCraft"] = "none"
+                actions[agent_name]["nearbySmelt"] = "none"
+                actions[agent_name]["camera"] = np.zeros_like(
+                    actions[agent_name]["camera"]
+                )
+
+                if "drop" in actions[agent_name]:
+                    # XXXX(jie 5/12/21) this should maybe be "none"
+                    actions[agent_name]["drop"] = np.zeros_like(
+                        actions[agent_name]["drop"]
+                    )
+                if "trade" in actions[agent_name]:
+                    del actions[agent_name]["trade"]
+
+            # done if everyone is done
+            if everyone_is_done:
+                break
+
+        return final_obs, final_reward, everyone_is_done, final_infos
+
+    def tick_all_agents(self, actions, skip_render: bool) -> Tuple[
+        Dict[str, Dict[str, Any]], Dict[str, float], bool, Dict[str, Dict[str, Any]]]:
+        """
+        Tick once the Minecraft instances and then the server.
+        """
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
 
@@ -280,7 +349,8 @@ class _MultiAgentEnv(gym.Env):
 
                     if not self.has_finished[actor_name]:
                         malmo_command = self._process_action(actor_name, actions[actor_name])
-                        step_message = "<StepClient" + str(STEP_OPTIONS) + ">" + \
+                        skip_render_arg = " skip_render=True" if skip_render else ""
+                        step_message = "<StepClient" + str(STEP_OPTIONS) + skip_render_arg + ">" + \
                                        malmo_command + \
                                        "</StepClient" + str(STEP_OPTIONS) + " >"
 
@@ -288,7 +358,7 @@ class _MultiAgentEnv(gym.Env):
                         comms.send_message(instance.client_socket, step_message.encode())
 
                         # Receive the observation.
-                        obs = comms.recv_message(instance.client_socket)
+                        pov = comms.recv_message(instance.client_socket)
 
                         # Receive reward done and sent.
                         reply = comms.recv_message(instance.client_socket)
@@ -302,7 +372,30 @@ class _MultiAgentEnv(gym.Env):
                         _malmo_json = comms.recv_message(instance.client_socket).decode("utf-8")
 
                         # Process the observation and done state.
-                        out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
+                        if not skip_render or done:
+                            # If we skipped render, the only way we can get
+                            # here is if done=True, meaning the episode ended on
+                            # a skipped frame where we have no POV.
+                            # We use the last cached pov (usually used only for rendering)
+                            if skip_render:
+                                pov = self._last_pov[actor_name]
+
+                            # empirically, when agent1 finishes but agent0 has not, there are
+                            # situations in which the agent 1 will not send info. Why?
+                            if "inventory" not in _malmo_json or pov == b'':
+                                info = json.loads(_malmo_json)
+                                debug_msg = "\n"
+                                debug_msg += f" | - pov  : {len(pov)}\n"
+                                debug_msg += f" | - info : {info.keys()}\n"
+                                debug_msg += f" | - reply: {reply}\n"
+                                debug_msg += f" | - done : {done}\n"
+                                raise BadObservationException(f"Bad observation {debug_msg}")
+
+                            out_obs, monitor = self._process_observation(actor_name, pov, _malmo_json)
+
+                        else:
+                            out_obs, monitor = None, {}
+
                     else:
                         # IF THIS PARTICULAR AGENT IS DONE THEN:
                         reward = 0.0
@@ -435,7 +528,7 @@ class _MultiAgentEnv(gym.Env):
         Sets-up the Env from its specification (called everytime the env is reset.)
 
         Returns:
-            The first observation of the environment. 
+            The first observation of the environment.
         """
         try:
             # First reset the env spec and its handlers
@@ -444,7 +537,7 @@ class _MultiAgentEnv(gym.Env):
             # Then reset the obs and act spaces from the env spec.
             self._setup_spaces()
 
-            # Get a new episode UID and produce Mission XML's for the agents 
+            # Get a new episode UID and produce Mission XML's for the agents
             # without the element for the slave -> master connection (for multiagent.)
             ep_uid = str(uuid.uuid4())
             agent_xmls = self._setup_agent_xmls(ep_uid)
@@ -456,7 +549,7 @@ class _MultiAgentEnv(gym.Env):
             self.done = False
             self.has_finished = {agent: False for agent in self.task.agent_names}
 
-            # Start the Mission/Task, by sending the master mission XML over 
+            # Start the Mission/Task, by sending the master mission XML over
             # the pipe to these instances, and  update the agent xmls to get
             # the port/ip of the master agent send the remaining XMLS.
 
@@ -524,7 +617,7 @@ class _MultiAgentEnv(gym.Env):
             agent_xml_etree.insert(0, agent_xml)
 
             if self._is_interacting and role == 0:
-                # TODO: CONVERT THIS TO A SERVER HANDLER 
+                # TODO: CONVERT THIS TO A SERVER HANDLER
                 hi = etree.fromstring("""
                     <HumanInteraction>
                         <Port>{}</Port>
@@ -544,7 +637,7 @@ class _MultiAgentEnv(gym.Env):
         return agent_xmls
 
     def _setup_instances(self) -> None:
-        """Sets up the instances for the environment 
+        """Sets up the instances for the environment
         """
         num_instances_to_start = self.task.agent_count - len(self.instances)
         instance_futures = []
@@ -637,7 +730,7 @@ class _MultiAgentEnv(gym.Env):
                 done, = struct.unpack('!b', reply)
                 self.has_finished[actor_name] = self.has_finished[actor_name] or done
                 multi_done = multi_done and done == 1
-                if obs is None or len(obs) == 0:
+                if obs is None:
                     if time.time() - start_time > MAX_WAIT:
                         instance.client_socket.close()
                         instance.client_socket = None
@@ -645,6 +738,19 @@ class _MultiAgentEnv(gym.Env):
                             'too long waiting for first observation')
                     time.sleep(0.1)
                     # FIXME - shouldn't we error or retry here?
+
+                # Empirically, when we crash in _process_observation, it is due to not having
+                # received information here. This happens when java timeouts, which makes it
+                # call OnMissionEnd, which replies with an empty info dictionary. When that
+                # happens, the flag for being done is true, which is unexpected here, since we
+                # are just resetting the environment.
+                if done:
+                    debug_msg = "\n"
+                    debug_msg += f" | - pov  : {len(obs)}\n"
+                    debug_msg += f" | - info : {info.keys()}\n"
+                    debug_msg += f" | - reply: {reply}\n"
+                    debug_msg += f" | - done : {done}\n"
+                    raise MissionInitException(f"Failed to peek clients: {debug_msg}")
 
                 multi_obs[actor_name], _ = self._process_observation(actor_name, obs, info)
             self.done = multi_done
@@ -766,7 +872,7 @@ class _MultiAgentEnv(gym.Env):
         has_quit = not (ok == 0)
         # TODO: Get this to work properly
 
-        # time.sleep(0.1) 
+        # time.sleep(0.1)
 
     def _TO_MOVE_find_ip_and_port(self, instance: MinecraftInstance, token: str) -> Tuple[str, str]:
         # calling Find on the master client to get the server port
@@ -800,7 +906,7 @@ class _MultiAgentEnv(gym.Env):
 
     def _get_new_instance(self, port=None, instance_id=None):
         """
-        Gets a new instance and sets up a logger if need be. 
+        Gets a new instance and sets up a logger if need be.
         """
 
         if port is not None:
