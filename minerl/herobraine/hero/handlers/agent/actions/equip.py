@@ -2,8 +2,6 @@
 # Author: William H. Guss, Brandon Houghton
 
 from minerl.herobraine.hero.handlers.agent.action import ItemListAction
-import jinja2
-import minerl.herobraine.hero.spaces as spaces
 
 
 class EquipAction(ItemListAction):
@@ -26,6 +24,22 @@ class EquipAction(ItemListAction):
         self._command = 'equip'
         super().__init__(self._command, self._items, _default=_default, _other=_other),
         self.previous = self._default
+
+    def to_hero(self, x):
+        assert isinstance(x, str)
+
+        # Add a delimiter if necessary and check for problem cases
+        n_delimiter = x.count('#')
+        if n_delimiter == 1:
+            # Validate "adjective" and then send proceed.
+            item_type, metadata_str = x.split('#')
+            assert len(item_type) > 0
+            assert int(metadata_str) in range(16)
+            return super().to_hero(x)
+        elif n_delimiter == 0:
+            return self.to_hero(f"{x}#0")
+        else:
+            raise ValueError(f"Too many delimiters '#' in x='{x}'.")
 
     def from_universal(self, obs):
         try:

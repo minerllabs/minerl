@@ -25,7 +25,6 @@ public class AgentQuitFromCollectingItemImplementation extends HandlerBase imple
     {
         String description;
 
-        // TODO(shwang): Make sure this schema does the correct thing.
         ItemQuitMatcher(BlockOrItemSpecWithDescription spec)
         {
             super(spec);

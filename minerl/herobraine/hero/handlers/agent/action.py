@@ -48,8 +48,7 @@ class Action(TranslationHandler):
             adjective = " ".join([str(y) for y in x])
         else:
             adjective = str(x)
-        cmd += "{} {}".format(
-            verb, adjective)
+        cmd += "{} {}".format(verb, adjective)
 
         return cmd
 
@@ -77,8 +76,6 @@ class ItemListAction(Action):
         Initializes the space of the handler with a gym.spaces.Dict
         of all of the spaces for each individual command.
         """
-
-        # TODO must check that the first element is 'none' and last elem is 'other'
         self._command = command
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]
@@ -86,6 +83,9 @@ class ItemListAction(Action):
             print(self._items)
             print(_default)
             print(_other)
+        for default_key in [_default, _other]:
+            for key in items:
+            assert key not in self._items
         assert _default in self._items
         assert _other in self._items
         self._default = _default
