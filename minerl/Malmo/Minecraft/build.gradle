@@ -1,6 +1,10 @@
 // For those who want the bleeding edge
 buildscript {
+    // TODO Proxy Gradle Central Plugin Repository
+    // Plugins are also resolved from Gradle Central Plugin Repository instead of the openAI proxy at the moment.
     repositories {
+
+        mavenLocal() // use local repo if available
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Configure a custom proxy
@@ -35,10 +39,27 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
+dependencies {
+    implementation 'com.github.brandonhoughton:ForgeGradle:FG_2.2_patched-SNAPSHOT'
+    compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Plugins
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'org.spongepowered.mixin'
+
+apply plugin: 'java'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Re-configure repositories outside buildscript, since we rely on proxies for all steps of the build
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+project.repositories.clear();
 repositories {
+    mavenLocal() // use local repo if available
 
     def RAPID_CLUSTER = "$System.env.RAPID_CLUSTER"
     if (RAPID_CLUSTER == "owl" || RAPID_CLUSTER == "null") {
@@ -55,25 +76,104 @@ repositories {
 
 }
 
-task listrepos {
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// verifyRepos: Task that auto-runs before each other task and checks whether there are rogue repositories added
+// somewhere else in the code or by plugins.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+task verifyRepos {
     doLast {
-        println "Repositories:"
-        project.repositories.each { println "Name: " + it.name + ";" }
+        def allReposOk = true;
+
+        // -- CHECK BUILD SCRIPT REPOS
+        /*
+        Note it is actually too late here to check the build script repos, since buildScript executes and applies
+        plugins immediately without having a hook in between to check for the repositories.
+            >> only buildscript {} and other plugins {} script blocks are allowed before plugins {} blocks, no
+            >> other statements are allowed.
+        However, we can still fail the build so that the user changes the configuration after 1 build that
+        leaked repositories during buildScript phase.
+         */
+        println "Checking BuildScript Repositories:"
+        project.buildscript.repositories.each {
+            if (it.name.contains("Gradle Central Plugin Repository")) {
+                // gradle plugins is ok
+                println " | - [ OK ]: " + it.name + " -> (Plugins)";
+                return
+            } else if (it instanceof MavenArtifactRepository) {
+                if (it.url.toString().contains("openai.org")) {
+                    // openai proxy is ok
+                    println " | - [ OK ]: " + it.name + " -> " + it.url;
+                    return
+                } else if (it.url.toString().startsWith("file:")) { // maybe there's a better way to check for file URI
+                    // maven repo pointing to local file
+                    println " | - [ OK ]: " + it.name + " -> " + it.url;
+                    return
+                }
+            }
+
+            // if we get here, this is not an accepted repository
+            if (it instanceof MavenArtifactRepository) {
+                println " | - [FAIL]: " + it.name + " -> " + it.url;
+            } else if (it instanceof FlatDirectoryArtifactRepository)
+                println " | - [FAIL]: " + it.name + " -> " + it.dirs;
+            else {
+                println " | - [FAIL]: " + it.name + "?" + it.class
+            }
+            allReposOk = false
+        }
+
+        // -- CHECK PROJECT REPOS
+        /*
+        If this task is executed first (default), the code here prevents accidentally adding a new repository either in
+        code or with plugins instead of adding it to the OpenAI proxies.
+         */
+        println "Checking Project Repositories:"
+        project.repositories.each {
+            if (it instanceof MavenArtifactRepository) {
+                if (it.url.toString().contains("openai.org")) {
+                    // openai proxy is ok
+                    println " | - [ OK ]: " + it.name + " -> " + it.url;
+                    return
+                } else if (it.url.toString().startsWith("file:")) { // maybe there's a better way to check for file URI
+                    // maven repo pointing to local file
+                    println " | - [ OK ]: " + it.name + " -> " + it.url;
+                    return
+                }
+            } else if (it instanceof FlatDirectoryArtifactRepository) {
+                // directories are ok
+                println " | - [ OK ]: " + it.name + " -> " + it.dirs;
+                return
+            }
+
+            // if we get here, this is not an accepted repository
+            if (it instanceof MavenArtifactRepository) {
+                println " | - [FAIL]: " + it.name + " -> " + it.url;
+            } else {
+                println " | - [FAIL]: " + it.name + " ? " + it.class;
+            }
+            allReposOk = false
+        }
+
+        if (!allReposOk) {
+            // Instructions: if you hit this exception it probably means that you added another repository to the
+            // buildScript or the project. We are expecting here to add new repositories to OpenAI proxies
+            // instead. Please contact #multi-agent-foundations if you need information on how to add a new
+            // repository.
+            throw new GradleException("Some repositories were not accepted. This typically means you bypassed the proxy.")
+        }
     }
 }
 
-
-dependencies {
-    implementation 'com.github.brandonhoughton:ForgeGradle:FG_2.2_patched-SNAPSHOT'
-    compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
+// add `verifyRepos` as a dependency for all other tasks, so that it always executes first
+project.tasks.each {
+    if (it != verifyRepos) {
+        it.dependsOn(verifyRepos)
+    }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
-
-
-apply plugin: 'java'
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // Read the version number from the Mod's version properties file.
 if (!file('src/main/resources/version.properties').exists()) {
