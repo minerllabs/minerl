@@ -29,7 +29,12 @@ class InventoryAgentStart(Handler):
         return str(
             """<Inventory>
             {% for  slot in inventory %}
-                <InventoryObject slot="{{ slot }}" type="{{ inventory[slot]['type'] }}" quantity="{{ inventory[slot]['quantity'] }}"/>
+                <InventoryObject
+                    slot="{{ slot }}"
+                    type="{{ inventory[slot]['type'] }}"
+                    quantity="{{ inventory[slot]['quantity'] }}"
+                    variant="{{ inventory[slot].get('variant', 0) }}"
+                    />
             {% endfor %}
             </Inventory>
             """
@@ -44,7 +49,7 @@ class InventoryAgentStart(Handler):
             ias = InventoryAgentStart(
             {
                 0: {'type':'dirt', 'quantity':10},
-                1: {'type':'planks', 'quantity':5},
+                1: {'type':'planks', 'quantity':5, 'variant': 2},
                 5: {'type':'log', 'quantity':1},
                 6: {'type':'log', 'quantity':2},
                 32: {'type':'iron_ore', 'quantity':4}
