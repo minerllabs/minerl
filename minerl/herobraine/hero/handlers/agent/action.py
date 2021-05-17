@@ -1,7 +1,9 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
+import collections
 import typing
-from typing import Any
+from abc import ABC
+from typing import Any, Dict, Optional, Set, Sequence, Tuple
 
 import numpy as np
 from minerl.herobraine.hero import spaces
@@ -64,13 +66,6 @@ class ItemListAction(Action):
     An action handler based on a list of items
     The action space is determined by the length of the list plus one
     """
-
-    def from_hero(self, x: typing.Dict[str, Any]):
-        pass
-
-    def xml_template(self) -> str:
-        pass
-
     def __init__(self, command: str, items: list, _default='none', _other='other'):
         """
         Initializes the space of the handler with a gym.spaces.Dict
@@ -83,9 +78,6 @@ class ItemListAction(Action):
             print(self._items)
             print(_default)
             print(_other)
-        for default_key in [_default, _other]:
-            for key in items:
-            assert key not in self._items
         assert _default in self._items
         assert _other in self._items
         self._default = _default
@@ -93,6 +85,12 @@ class ItemListAction(Action):
         super().__init__(
             self._command,
             spaces.Enum(*self._items, default=self._default))
+
+    def from_hero(self, x: typing.Dict[str, Any]):
+        pass
+
+    def xml_template(self) -> str:
+        pass
 
     @property
     def items(self):
@@ -142,3 +140,65 @@ class ItemListAction(Action):
             return False
 
         return True
+
+
+def decode_item_maybe_with_metadata(s: str) -> Tuple[str, Optional[int]]:
+    assert len(s) > 0
+    if '#' in s:
+        item_type, metadata_str = s.split('#')
+        assert len(item_type) > 0
+        if metadata_str == '?':
+            return item_type, None
+        else:
+            metadata = int(metadata_str)
+            assert metadata in range(16)
+            return item_type, int(metadata_str)
+    return s, None
+
+
+def encode_item_with_metadata(item_type: str, metadata: Optional[int]) -> str:
+    assert len(item_type) > 0
+    if metadata is None:
+        return f"{item_type}#?"
+    else:
+        return f"{item_type}#{metadata}"
+
+
+def error_on_malformed_item_list(items: Sequence[str], special_items: Sequence[str]):
+    map_type_to_metadata: Dict[str, Set[Optional[int]]] = collections.defaultdict(set)
+    for s in items:
+        item_type, metadata = decode_item_maybe_with_metadata(s)
+        if item_type in special_items and metadata is not None:
+            raise ValueError(
+                f"Non-None metadata={metadata} is not allowed for special item type '{item_type}'")
+
+        metadata_set = map_type_to_metadata[item_type]
+        if metadata in metadata_set:
+            raise ValueError(f"Duplicate item entry for item '{s}'")
+        map_type_to_metadata[item_type].add(metadata)
+
+    for item_type, metadata_set in map_type_to_metadata.items():
+        if None in metadata_set and len(metadata_set) != 1:
+            raise ValueError(
+                f"Item list overlaps for item_type={item_type}. This item list includes "
+                "both the wildcard metadata option and at least one specific metadata: "
+                f"{[n for n in metadata_set if n is not None]}"
+            )
+
+
+class ItemWithMetadataListAction(ItemListAction, ABC):
+    """
+    Overrides ItemListAction.to_hero() to process item parameters with metadata.
+
+    Validates item list to confirm that items are non-overlapping.
+    """
+
+    def __init__(self, command, items, **kwargs):
+        super().__init__(command, items, **kwargs)
+        error_on_malformed_item_list(items, [self._other, self._default])
+
+    def to_hero(self, x):
+        assert isinstance(x, str)
+        # Validate item type and metadata, and appends #? if necessary.
+        item_type, metadata = decode_item_maybe_with_metadata(x)
+        return super().to_hero(encode_item_with_metadata(item_type, metadata))
