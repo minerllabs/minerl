@@ -1,55 +1,80 @@
 import os
+import pathlib
 
 import numpy as np
 from gym import Wrapper
 import cv2
 
 
+class _VideoWriter:
+    """Helper class for writing MineRL images into mp4 video via `cv2`."""
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+    def __init__(self, video_width, video_height, fps=20.0):
+        self.video_width = video_width
+        self.video_height = video_height
+        self.fps = fps
+        self.out = None
+
+    def is_open(self):
+        return self.out is not None
+
+    def open(self, path):
+        if self.is_open():
+            raise ValueError("Call close() first.")
+        self.out = cv2.VideoWriter(
+            str(path),
+            self.fourcc,
+            self.fps,
+            (self.video_height, self.video_width),
+        )
+
+    def write_rgb_image(self, img: np.ndarray):
+        assert img.ndim == 3
+        self.out.write(np.flip(img, axis=-1))
+
+    def close(self):
+        if self.out is not None:
+            self.out.release()
+            self.out = None
+
+
 class VideoRecordingWrapper(Wrapper):
-    def __init__(self, env, outfile=None, outdir=None):
-        """
+    """Writes obs['pov'] frames to an mp4 file inside `video_directory`, numbered
+    by the episode number."""
 
-        """
+    def __init__(self, env, video_directory):
         super().__init__(env)
-        assert outfile or outdir, "Must include somewhere to save the video."
-        assert not (outfile and outdir), "Can only choose one way to save videos."
-        self.outfile = outfile
-        self.outdir = outdir
-        # Used for directory saving.
-        self.current_index = 0
+        self.video_directory = pathlib.Path(video_directory)
+        self.video_directory.mkdir(parents=True, exist_ok=True)
+        self.video_num = 0  # Used for directory saving.
 
-        self.images = []
+        video_dims = self.observation_space.spaces["pov"].shape
+        self.video_writer = _VideoWriter(
+            video_width=video_dims[0],
+            video_height=video_dims[1],
+            fps=20.0,
+        )
 
     def step(self, action):
-        """ Saves the full image and returns a downscaled image. """
         obs, rew, done, info = super().step(action)
-        self.images.append(obs['pov'])
+        self.video_writer.write_rgb_image(obs['pov'])
         return obs, rew, done, info
 
     def reset(self):
-        if self.images:
-            self.save_video()
-            self.images = []
-        return super().reset()
+        """Closes the previous video stream, if one exists, and starts a new video stream."""
+        if self.video_writer.is_open():
+            self.video_writer.close()
+        self.video_writer.open(self.get_video_out_path())
+        self.video_num += 1
 
-    def save_video(self):
-        if self.outfile:
-            write_mp4(self.images, self.outfile)
-            self.outfile = None
-        elif self.outdir:
-            if not os.path.exists(self.outdir):
-                os.makedirs(self.outdir)
-            target_file = os.path.join(self.outdir, str(self.current_index) + ".mp4")
-            self.current_index += 1
-            write_mp4(self.images, self.outfile)
+        obs = super().reset()
+        self.video_writer.write_rgb_image(obs['pov'])
+        return obs
 
+    def get_video_out_path(self) -> pathlib.Path:
+        result = self.video_directory / f"{self.video_num}.mp4"
+        return result
 
-def write_mp4(images, target_file):
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    # Need to change the order of the input dimensions for CV2
-    out = cv2.VideoWriter(target_file, fourcc, 20.0, (images[0].shape[1], images[0].shape[0]))
-
-    for image in images:
-        out.write(np.flip(image, axis=-1))  # cv2 uses BGR
-    out.release()
-    cv2.destroyAllWindows()
+    def close(self):
+        return self.video_writer.close()

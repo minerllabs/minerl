@@ -8,7 +8,7 @@ class HighRes(EnvWrapper):
     """
         Replaces all POV observation with a different (presumably higher) resolution.
     """
-    def __init__(self, env_to_wrap, resolution=(256, 256)):
+    def __init__(self, env_to_wrap, resolution=(1024, 1024)):
         self.resolution = resolution
         super().__init__(env_to_wrap)
 
@@ -19,7 +19,17 @@ class HighRes(EnvWrapper):
     def create_observables(self):
         observables = super().create_observables()
         new_pov = handlers.POVObservation(self.resolution)
-        return [new_pov if type(obs) == handlers.POVObservation else obs for obs in observables]
+        result = []
+        found = False
+        for handler in observables:
+            if isinstance(handler, handlers.POVObservation):
+                assert not found
+                found = True
+                result.append(new_pov)
+            else:
+                result.append(handler)
+        assert found
+        return result
 
     def _wrap_action(self, act: OrderedDict) -> OrderedDict:
         return act

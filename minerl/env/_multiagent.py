@@ -205,14 +205,10 @@ class _MultiAgentEnv(gym.Env):
 
         info['pov'] = pov
 
-        bottom_env_spec = self.task
-        while isinstance(bottom_env_spec, EnvWrapper):
-            bottom_env_spec = bottom_env_spec.env_to_wrap
-
         # Process all of the observations using handlers.
         obs_dict = {}
         monitor_dict = {}
-        for h in bottom_env_spec.observables:
+        for h in self.task.observables:
             obs_dict[h.to_string()] = h.from_hero(info)
 
         # Now we wrap

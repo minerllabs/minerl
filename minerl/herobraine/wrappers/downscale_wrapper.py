@@ -13,11 +13,8 @@ class DownscaleWrapper(ObservationWrapper):
         self.downscale_res = downscale_res
 
         obs_space = env.observation_space
-
-        obs_dict = {key: obs_space[key] for key in obs_space}
-        # This is specifically tailored for the MineRL observations...
-        obs_dict['pov'] = Box(0, 255, downscale_res + (3,),
-                              dtype=np.uint8)
+        obs_dict = {key: obs_space[key] for key in obs_space.spaces.keys()}
+        obs_dict['pov'] = Box(0, 255, downscale_res + (3,), dtype=np.uint8)
         self.observation_space = Dict(obs_dict)
 
     def observation(self, obs):
