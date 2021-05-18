@@ -8,6 +8,7 @@ from minerl.herobraine.hero.handlers.translation import TranslationHandler
 import numpy as np
 from minerl.herobraine.hero import spaces
 import minerl.herobraine.hero.mc as mc
+from minerl.herobraine.hero.handlers.agent import action
 
 
 def _univ_obs_get_inventory_slots(obs: dict) -> Optional[List[dict]]:
@@ -93,20 +94,34 @@ class FlatInventoryObservation(TranslationHandler):
     def from_universal(self, obs):
         item_dict = self.space.no_op()
 
+        # Precondition -- we already checked that item metadata are not overlapping.
+        #       But we'll make this function agnostic to overlapping item metadata.
+        # Two cases:
+        # (1) Non-variant item.
+        # (2) variant item.
+
         try:
             slots = _univ_obs_get_inventory_slots(obs)
 
             # Add from all slots
             for stack in slots:
-                try:
-                    name = mc.strip_item_prefix(stack['name'])
-                    name = 'log' if name == 'log2' else name
-                    if name == "air":
-                        item_dict[name] += 1
-                    else:
-                        item_dict[name] += stack['count']
-                except (KeyError, ValueError):
-                    continue
+                item_type = mc.strip_item_prefix(stack['name'])
+                if item_type == 'log2' and 'log2' not in self.items:
+                    item_type = 'log'
+
+                if item_type == "air":
+                    if "air" in item_dict:
+                        item_dict["air"] += 1
+                else:
+                    # Case (1): Add count for item type with wildcard metadata
+                    if item_type in item_dict:
+                        item_dict[item_type] += stack['count']
+
+                    # Case (2): Add count item type with specific metadata.
+                    variant = stack['variant']
+                    type_with_metadata = action.encode_item_with_metadata(item_type, variant)
+                    if type_with_metadata in item_dict:
+                        item_dict[type_with_metadata] += stack['count']
 
         except KeyError as e:
             self.logger.warning("KeyError found in universal observation! Yielding empty inventory.")

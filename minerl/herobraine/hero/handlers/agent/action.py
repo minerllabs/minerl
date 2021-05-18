@@ -195,7 +195,7 @@ class ItemWithMetadataListAction(ItemListAction, ABC):
 
     def __init__(self, command, items, **kwargs):
         super().__init__(command, items, **kwargs)
-        error_on_malformed_item_list(items, [self._other, self._default])
+        error_on_malformed_item_list(items, [self._other, self._default, "air"])
 
     def to_hero(self, x):
         assert isinstance(x, str)
