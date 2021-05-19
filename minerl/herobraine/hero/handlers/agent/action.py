@@ -71,6 +71,7 @@ class ItemListAction(Action):
         Initializes the space of the handler with a gym.spaces.Dict
         of all of the spaces for each individual command.
         """
+        # TODO must check that the first elemtn is 'none' and last elem is 'other'
         self._command = command
         self._items = items
         self._univ_items = ['minecraft:' + item for item in items]

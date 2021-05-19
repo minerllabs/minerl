@@ -96,8 +96,12 @@ public class MineRLTypeHelper {
             assert parts[0].length() > 0;
 
             // TODO(shwang): Support null value for metadata via something like `parameters = "metadata#~"`.
-            metadata = Integer.parseInt(parts[1]);
-            assert metadata >= 0 && metadata < 16;
+            if ("?".equals(parts[1])) {
+                metadata = null; // Wildcard metadata
+            } else {
+                metadata = Integer.parseInt(parts[1]);
+                assert metadata >= 0 && metadata < 16;
+            }
         }
 
         public String getItemType() {
