@@ -25,6 +25,46 @@ DEFAULT_ITEMS = (
 )
 
 
+# Herobraine log Reference: https://gist.github.com/shwang/329b417d9acf25f1ff861f98724efd45
+# (old) univ.json reference: https://gist.github.com/shwang/c8a6e78bb95b0f3c7fd13b1b752b3ba5
+# Malmo schema reference: https://microsoft.github.io/malmo/0.14.0/Schemas/Types.html#type_ItemType
+MAKE_HOUSE_VILLAGE_ITEMS = [
+    dict(type="stone_shovel", quantity=1),
+    dict(type="stone_pickaxe", quantity=1),
+    dict(type="cobblestone", quantity=64),
+    dict(type="stone_stairs", quantity=64),
+    dict(type="fence", quantity=64),
+    dict(type="spruce_fence", quantity=64),
+    dict(type="acacia_fence", quantity=64),
+    dict(type="glass", quantity=64),
+    dict(type="ladder", quantity=64),
+    dict(type="torch", quantity=64),
+    dict(type="planks", quantity=64),
+    dict(type="planks", quantity=64, metadata=1),
+    dict(type="planks", quantity=64, metadata=2),
+    dict(type="log", quantity=64),  # oak
+    dict(type="log", quantity=64, metadata=1),  # redwood
+    dict(type="log2", quantity=64),  # acacia
+    # TODO(shwang): Deal with this overlap... I should make sure that the handlers
+    # don't inappropriately clobber log and log2.
+
+    dict(type="sandstone", quantity=64),
+    dict(type="sandstone", quantity=64, metadata=2),
+    dict(type="sandstone_stairs", quantity=64),
+    dict(type="wooden_door", quantity=64),
+    dict(type="acacia_door", quantity=64),
+    dict(type="spruce_door", quantity=64),
+    dict(type="wooden_pressure_plate", quantity=64),
+    dict(type="glass", quantity=64),
+    dict(type="sand", quantity=64),
+    dict(type="dirt", quantity=64),
+    dict(type="red_flower", quantity=64),
+    dict(type="flower_pot", quantity=64),
+    dict(type="snowball", quantity=3),
+]
+
+MAKE_HOUSE_VILLAGE_ITEM_NAMES = [x["type"] for x in MAKE_HOUSE_VILLAGE_ITEMS]
+
 # TypeObservation claims that item list needs to begin with 'none' and end with 'other'.
 DEFAULT_EQUIP_ITEMS = ('none', 'air', ) + DEFAULT_ITEMS + ('other', )
 
