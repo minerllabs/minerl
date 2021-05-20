@@ -57,7 +57,7 @@ class FlatInventoryObservation(TranslationHandler):
 
     def __init__(self, item_list: Sequence[str], _other='other'):
         item_list = sorted(item_list)
-        util.error_on_malformed_item_list(item_list)
+        util.error_on_malformed_item_list(item_list, [_other])
         super().__init__(spaces.Dict(spaces={
             k: spaces.Box(low=0, high=2304,
                           shape=(), dtype=np.int32, normalizer_scale='log')

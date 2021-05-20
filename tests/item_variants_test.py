@@ -5,6 +5,7 @@ import pytest
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.env_specs import basalt_specs
 from minerl.herobraine.hero import handlers
+from minerl.herobraine.hero.handlers import util
 
 
 def inventory_spec_to_item_ids(inv_spec: Sequence[dict]) -> List[str]:
@@ -12,7 +13,7 @@ def inventory_spec_to_item_ids(inv_spec: Sequence[dict]) -> List[str]:
     for d in inv_spec:
         item_type = d.get("type")
         metadata = d.get("metadata")
-        item_id = utils.encode_item_with_metadata(item_type, metadata)
+        item_id = util.encode_item_with_metadata(item_type, metadata)
         result.append(item_id)
     return result
 
@@ -46,8 +47,8 @@ class VariantsTestEnvSpec(EnvSpec):
             equip_act_item_ids = inferred_item_ids
         if equip_obs_item_ids is None:
             equip_obs_item_ids = inferred_item_ids
-        if inventory_obs_spec is None:
-            inventory_obs_spec = inferred_item_ids
+        if inventory_obs_item_ids is None:
+            inventory_obs_item_ids = inferred_item_ids
         self.equip_act_item_ids = equip_act_item_ids
         self.equip_obs_item_ids = equip_obs_item_ids
         self.inventory_obs_item_ids = inventory_obs_item_ids
@@ -100,8 +101,8 @@ VILLAGE_ENV_SPEC = VariantsTestEnvSpec(basalt_specs.MAKE_HOUSE_VILLAGE_ITEMS)
 
 def test_smoke_make_village_variants_env():
     def check_inventory(inv_obs):
-        assert inv_obs.shape = (len(basalt_spec.MAKE_HOUSE_VILLAGE_ITEMS),)
-        for i, d in enumerate(basalt_spec.MAKE_HOUSE_VILLAGE_ITEMS):
+        assert inv_obs.shape == (len(basalt_specs.MAKE_HOUSE_VILLAGE_ITEMS),)
+        for i, d in enumerate(basalt_specs.MAKE_HOUSE_VILLAGE_ITEMS):
             item_id = util.encode_item_with_metadata(
                 d["type"], d.get("metadata"))
             quantity = d["quantity"]
@@ -114,10 +115,8 @@ def test_smoke_make_village_variants_env():
 def test_equip_obs_handler():
     pass
 
-
 def test_equip_act_handler():
     pass
-
 
 def test_inventory_obs_handler():
     pass
