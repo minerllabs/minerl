@@ -68,7 +68,7 @@ class VideoRecordingWrapper(Wrapper):
         self.video_writer.open(self.get_video_out_path())
         self.video_num += 1
 
-        obs = super().reset()
+        obs = self.env.reset()
         self.video_writer.write_rgb_image(obs['pov'])
         return obs
 
@@ -77,4 +77,5 @@ class VideoRecordingWrapper(Wrapper):
         return result
 
     def close(self):
-        return self.video_writer.close()
+        self.video_writer.close()
+        self.env.close()
