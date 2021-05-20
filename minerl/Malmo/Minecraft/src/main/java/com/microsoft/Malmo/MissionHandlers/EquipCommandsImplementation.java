@@ -53,7 +53,7 @@ public class EquipCommandsImplementation extends CommandBase {
 
             if (matchIdx != null) {
                 // Swap current hotbar item with found inventory item (if not the same)
-                int hotbarIdx = player.inventory.currentItem;
+                int hotbarIdx = inv.currentItem;
                 System.out.println("got hotbar idx" + hotbarIdx);
                 System.out.println("got slot " + matchIdx);
 
@@ -84,7 +84,7 @@ public class EquipCommandsImplementation extends CommandBase {
         if (!(params instanceof EquipCommands))
             return false;
 
-            EquipCommands pParams = (EquipCommands) params;
+        EquipCommands pParams = (EquipCommands) params;
         // Todo: Implement allow and deny lists.
         // setUpAllowAndDenyLists(pParams.getModifierList());
         return true;

@@ -130,7 +130,7 @@ public class NearbySmeltCommandsImplementation extends CommandBase {
         if (msg.validateItemType()) {
             MalmoMod.network.sendToServer(msg);
         }
-        return false;
+        return true;  // Packet is captured by smelt handler
     }
 
     @Override

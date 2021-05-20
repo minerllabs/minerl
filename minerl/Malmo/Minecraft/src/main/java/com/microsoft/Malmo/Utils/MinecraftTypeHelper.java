@@ -480,10 +480,6 @@ public class MinecraftTypeHelper
             IBlockState block = MinecraftTypeHelper.ParseBlockType(i.getType());
             if (block != null)
             {
-                // TODO(shwang): Oh Sweat, looks like applyModifications will teach me how to blit metadata into a
-                // block. Prediction -- they will use setDamage() or constructor
-                // Oh interesting, they directly set properties via IProperty etc.
-                // We will be writing directly to Damage >:)
                 block = BlockDrawingHelper.applyModifications(block, i.getColour(), i.getFace(), i.getVariant());
                 // And try to return as an item:
                 if (block != null && block.getBlock() != null && Item.getItemFromBlock(block.getBlock()) != null)

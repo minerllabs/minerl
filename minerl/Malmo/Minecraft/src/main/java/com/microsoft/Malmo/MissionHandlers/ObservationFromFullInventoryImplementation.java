@@ -177,7 +177,8 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
         for (int i = 0; i < inventory.getSizeInventory(); i++)
         {
             ItemStack is = inventory.getStackInSlot(i);
-            JsonObject jobj = MineRLTypeHelper.jsonFromItemStack(is);
+            JsonObject jobj = new JsonObject();
+            MineRLTypeHelper.writeItemStackToJson(is, jobj);
             jobj.addProperty("index", i);
             jobj.addProperty("inventory", getInventoryName(inventory));
             arr.add(jobj);
@@ -190,17 +191,8 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
         for (int i = 0; i < nSlots; i++)
         {
             ItemStack is = inventory.getStackInSlot(i);
-            // DEBUG conditional
-            if (is == null) {
-                throw new RuntimeException(
-                        String.format("Unexpected null in inventory at index %d.", i));
-            }
-
-            if (is != null)
-            {
-                json.addProperty(prefix + i + "_size", is.getCount());
-                json.addProperty(prefix + i + "_item", MineRLTypeHelper.getItemType(is.getItem()));
-            }
+            json.addProperty(prefix + i + "_size", is.getCount());
+            json.addProperty(prefix + i + "_item", MineRLTypeHelper.getItemType(is.getItem()));
         }
     }
 

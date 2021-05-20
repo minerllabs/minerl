@@ -8,7 +8,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MineRLTypeHelper {
@@ -27,21 +26,18 @@ public class MineRLTypeHelper {
         }
     }
 
-    @NotNull
-    public static JsonObject jsonFromItemStack(ItemStack stack) {
-        JsonObject jobj = new JsonObject();
-        writeItemStackToJson(stack, jobj);
-        return jobj;
-    }
-
     public static void writeItemStackToJson(ItemStack stack, JsonObject jsonObject) {
         int metadata = stack.getMetadata();
-        if (metadata < 0 || metadata > 15) {
-            throw new RuntimeException(String.format("Unexpected metadata value %d.", metadata));
-        }
+        validateMetadata(metadata);
         jsonObject.addProperty("type", MineRLTypeHelper.getItemType(stack.getItem()));
         jsonObject.addProperty("metadata", metadata);
         jsonObject.addProperty("quantity", stack.getCount());
+    }
+
+    private static void validateMetadata(int metadata) {
+        if (metadata < 0 || metadata > 15) {
+            throw new RuntimeException(String.format("Unexpected metadata value %d.", metadata));
+        }
     }
 
     /**
@@ -57,11 +53,14 @@ public class MineRLTypeHelper {
             throw new IllegalArgumentException(itemType);
         ResourceLocation targetRegName = parsedItem.getRegistryName();
 
+        if (metadata != null) {
+            validateMetadata(metadata);
+        }
+
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             ItemStack stack = inventory.getStackInSlot(i);
             ResourceLocation regName = stack.getItem().getRegistryName();
             if (regName == null) {
-                // 80% confident this will be AIR if the slot is empty, rather than null.
                 throw new RuntimeException(String.format("null RegistryName at inventory index %d", i));
             }
 
@@ -95,12 +94,11 @@ public class MineRLTypeHelper {
             itemType = parts[0];
             assert parts[0].length() > 0;
 
-            // TODO(shwang): Support null value for metadata via something like `parameters = "metadata#~"`.
             if ("?".equals(parts[1])) {
                 metadata = null; // Wildcard metadata
             } else {
                 metadata = Integer.parseInt(parts[1]);
-                assert metadata >= 0 && metadata < 16;
+                validateMetadata(metadata);
             }
         }
 
