@@ -96,6 +96,12 @@ class EnvWrapper(EnvSpec):
     def determine_success_from_rewards(self, rewards: list) -> bool:
         return self.env_to_wrap.determine_success_from_rewards(rewards)
 
+    def create_observation_space(self):
+        return self.env_to_wrap.observation_space
+
+    def create_action_space(self):
+        return self.env_to_wrap.action_space
+
     def get_docstring(self):
         return self.env_to_wrap.get_docstring()
 
