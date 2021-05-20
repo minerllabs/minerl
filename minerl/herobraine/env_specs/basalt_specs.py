@@ -113,7 +113,7 @@ class BasaltBaseEnvSpec(EnvSpec):
             demo_server_experiment_name += "-highres"
         self.demo_server_experiment_name = demo_server_experiment_name
         self.high_res = high_res
-        self.pov_size = self.LOW_RES_SIZE if high_res else self.HIGH_RES_SIZE
+        self.pov_size = self.HIGH_RES_SIZE if high_res else self.LOW_RES_SIZE
         super().__init__(name=name, max_episode_steps=max_episode_steps)
 
 
