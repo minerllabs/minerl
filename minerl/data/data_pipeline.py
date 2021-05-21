@@ -33,7 +33,6 @@ import queue
 import minerl.data.util
 from minerl.data.util import forever, minibatch_gen
 import concurrent
-
 if os.name != "nt":
     class WindowsError(OSError):
         pass
@@ -391,38 +390,48 @@ class DataPipeline:
             preload_buffer_size (int, optional): Increase to IMPROVE PERFORMANCE. The data iterator uses a queue to prevent blocking, the queue size is the number of trajectories to load into the buffer. Adjust based on memory constraints. Defaults to 32.
             seed (int, optional): [int]. NOT IMPLEMENTED Defaults to None.
             include_metadata (bool, optional): Include metadata on the source trajectory. Defaults to False.
-            include_monitor_data (bool, optional): Include monitor data (info dict) on the source trajectory. Defaults
+            include_monitor_data (bool, optional): Include monitor data (info dict) on the source trajectory. Defaults to False
 
         Returns:
             Generator: A generator that yields (sarsd) batches
         """
         # Todo: Not implemented/
+        input_queue = multiprocessing.Queue()
+        trajectory_queue = multiprocessing.Queue(maxsize=preload_buffer_size)
+        workers = []
+
+        args = (input_queue, trajectory_queue)
+        for _ in range(self.number_of_workers):
+            workers.append(multiprocessing.Process(target=loader_func, args=args, daemon=True))
+            workers[-1].start()
+
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
-            trajectory_queue = queue.Queue(maxsize=preload_buffer_size)
 
             def traj_iter():
                 for _ in jobs:
-                    s, a, r, sp1, d, monitor, meta = trajectory_queue.get()
-                    yield dict(
-                        obs=s,
-                        act=a,
-                        reward=r,
-                        next_obs=sp1,
-                        done=d,
-                        monitor=monitor,
-                        meta=meta
+                    yields = trajectory_queue.get()
+                    if yields is None:
+                        continue
+                    yield_dict = dict(
+                        obs=yields[0],
+                        act=yields[1],
+                        reward=yields[2],
+                        next_obs=yields[3],
+                        done=yields[4],
                     )
+                    if include_monitor_data:
+                        yield_dict["monitor"] = yields[5]
+                    if include_metadata:
+                        # List length changes...
+                        meta_index = 4 + include_metadata + include_monitor_data
+                        yield_dict["meta"] = yields[meta_index]
+                    yield yield_dict
 
-            jobs = [(f, -1, None) for f in self._get_all_valid_recordings(self.data_dir)]
+            # Careful with the ordering here
+            jobs = [(f, -1, None, include_monitor_data, include_metadata) for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
-            trajectory_loader = minerl.data.util.OrderedJobStreamer(
-                job,
-                jobs,
-                trajectory_queue,
-                # executor=concurrent.futures.ThreadPoolExecutor,
-                max_workers=preload_buffer_size
-            )
-            trajectory_loader.start()
+            for job in jobs:
+                input_queue.put(job)
 
             for seg_batch in minibatch_gen(traj_iter(), batch_size=batch_size, nsteps=seq_len):
                 yield [
@@ -434,9 +443,12 @@ class DataPipeline:
                       ] + (
                               (seg_batch['monitor'] if include_monitor_data else []) +
                               (seg_batch['meta'] if include_metadata else [])
-                      )
+                            )
 
-            trajectory_loader.shutdown()
+        for _ in range(self.number_of_workers):
+            input_queue.put(("SHUTDOWN",))
+        for w in workers:
+            w.join()
 
     @staticmethod
     def _is_blacklisted(path):
@@ -515,6 +527,10 @@ class DataPipeline:
         raise DeprecationWarning(
             "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
 
-
-def job(arg):
-    return DataPipeline._load_data_pyfunc(*arg, include_metadata=True, include_monitor_data=True)
+def loader_func(input_queue, output_queue):
+    while True:
+        arg = input_queue.get()
+        if arg[0] == "SHUTDOWN":
+            break
+        output = DataPipeline._load_data_pyfunc(*arg)
+        output_queue.put(output)

@@ -2,9 +2,6 @@
 # Author: William H. Guss, Brandon Houghton
 
 
-import logging
-
-import jinja2
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler
 from minerl.herobraine.hero import spaces
 from typing import Tuple
@@ -18,6 +15,14 @@ class POVObservation(KeymapTranslationHandler):
 
     def to_string(self):
         return 'pov'
+
+    def __repr__(self):
+        result = f'POVObservation(video_resolution={self.video_resolution}'
+        if self.include_depth:
+            result += ', include_depth=True'
+        result += ')'
+        result = f'{result}:{self.to_string()}'
+        return result
 
     def xml_template(self) -> str:
         return str("""

@@ -48,7 +48,6 @@ TEMP_FILE = 'tmp.tmcpr'
 GLOB_STR_BASE = J(DOWNLOAD_DIR, "*", "*", "*", "*")
 
 #### RENDERING
-
 RENDER_DIR = J(OUTPUT_DIR, "rendered")
 MINECRAFT_DIR = [J(RENDERERS_DIR, 'minecraft_{}'.format(i)) for i in range(NUM_MINECRAFTS)]
 RECORDING_PATH = [J(d, 'replay_recordings') for d in MINECRAFT_DIR]
@@ -68,6 +67,7 @@ ZIP_ERROR_DIR = J(ERROR_PARENT_DIR, 'zip_file')
 MISSING_RENDER_OUTPUT = J(ERROR_PARENT_DIR, 'missing_output')
 OTHER_ERROR_DIR = J(ERROR_PARENT_DIR, 'other')
 X11_ERROR_DIR = J(ERROR_PARENT_DIR, 'x11_error')
+RENDER_TIMEOUT_ERROR_DIR = J(ERROR_PARENT_DIR, 'render_timeout_error')
 
 # metadata decomp
 

@@ -364,7 +364,9 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
             reason = env_spec.get_blacklist_reason(published)
             if reason is not None:
                 assert len(reason) > 0, "reason needs to be non-empty str or None"
-                print(f"Blacklisting {env_spec.name} demonstration {segment_str}")
+                print(f"Blacklisting {env_spec.name} demonstration {segment_str} "
+                      f"because: '{reason}'."
+                      )
                 black_list.add(segment_str)
                 return 0
 
