@@ -95,8 +95,7 @@ BASALT_GYM_ENTRY_POINT = "minerl.herobraine.env_specs.basalt_specs:_basalt_gym_e
 class BasaltBaseEnvSpec(EnvSpec):
 
     LOW_RES_SIZE = 64
-    # HIGH_RES_SIZE = 1024
-    HIGH_RES_SIZE = LOW_RES_SIZE * 15
+    HIGH_RES_SIZE = 1024
 
     def __init__(
             self,
