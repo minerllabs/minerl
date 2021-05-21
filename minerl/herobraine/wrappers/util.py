@@ -5,6 +5,7 @@ import collections
 from minerl.herobraine.hero.handler import Handler
 import numpy as np
 from functools import reduce
+import gym
 
 from typing import List, Tuple
 
@@ -51,3 +52,14 @@ def flatten_spaces(hdls: List[Handler]) -> Tuple[list, List[Tuple[str, MineRLSpa
     return [hdl.space.flattened for hdl in hdls if hdl.space.is_flattenable()], \
            [(hdl.to_string(), hdl.space) for hdl in hdls if
             not hdl.space.is_flattenable()]
+
+
+def apply_record_and_downscale_wrappers(
+        env: gym.Env,
+        video_save_dir: str,
+        downscale_resolution=(64, 64)
+) -> gym.Wrapper:
+    from minerl.herobraine.wrappers import video_recording_wrapper, downscale_wrapper
+    env = video_recording_wrapper.VideoRecordingWrapper(env, video_save_dir)
+    env = downscale_wrapper.DownscaleWrapper(env, downscale_res=downscale_resolution)
+    return env

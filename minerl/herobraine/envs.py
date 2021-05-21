@@ -1,7 +1,6 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
-import collections
 from typing import Dict, List
 
 import gym
@@ -92,9 +91,13 @@ MINERL_OBTAIN_TEST_DENSE_V0 = ObtainDiamondDebug(dense=True)
 MINERL_OBTAIN_TEST_DENSE_VEC_V0 = Vectorized(MINERL_OBTAIN_TEST_DENSE_V0)
 # MINERL_OBTAIN_TEST_DENSE_OBF_V0 = Obfuscated(MINERL_OBTAIN_TEST_DENSE_VEC_V0)
 
-MINERL_BASALT_FIND_CAVES_ENV_SPEC = basalt_specs.FindCavesEnvSpec()
-MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec()
-MINERL_BASALT_PEN_ANIMALS_ENV_SPEC = basalt_specs.PenAnimalsEnvSpec()
+MINERL_BASALT_FIND_CAVES_ENV_SPEC = basalt_specs.FindCavesEnvSpec(high_res=False)
+MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec(high_res=False)
+MINERL_BASALT_PEN_ANIMALS_ENV_SPEC = basalt_specs.PenAnimalsEnvSpec(high_res=False)
+
+MINERL_BASALT_FIND_CAVES_HIGH_RES_ENV_SPEC = basalt_specs.FindCavesEnvSpec(high_res=True)
+MINERL_BASALT_MAKE_WATERFALL_HIGH_RES_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec(high_res=True)
+MINERL_BASALT_PEN_ANIMALS_HIGH_RES_ENV_SPEC = basalt_specs.PenAnimalsEnvSpec(high_res=True)
 
 # Register the envs.
 ENV_SPECS: List[EnvSpec] = [env for env in locals().values() if isinstance(env, EnvSpec)]
