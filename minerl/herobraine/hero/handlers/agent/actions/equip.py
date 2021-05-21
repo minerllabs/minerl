@@ -29,7 +29,7 @@ class EquipAction(action.ItemWithMetadataListAction):
     def reset(self):
         self.previous = self._default
 
-    def from_universal(self, obs):
+    def from_universal(self, obs) -> str:
         slots_gui_type = obs['slots']['gui']['type']
         if slots_gui_type == 'class net.minecraft.inventory.ContainerPlayer':
             hotbar_index = int(obs['hotbar'])
@@ -45,4 +45,5 @@ class EquipAction(action.ItemWithMetadataListAction):
             self.logger.warning(f"Unexpected slots_gui_type={slots_gui_type}, "
                                 f"Abandoning processing and simply returning {self._default}"
                                 )
+
         return self._default

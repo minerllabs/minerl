@@ -81,6 +81,7 @@ def get_unique_matching_item_list_id(
             behavior could be adding a special type "log*" type which matches both "log"
             and "log2".
     """
+    assert metadata is not None
     # TODO(shwang): Add tests for `clobber_logs`.
     if clobber_logs and item_type == "log2":
         log_start = [x for x in item_list if x.startswith("log")]
@@ -93,11 +94,10 @@ def get_unique_matching_item_list_id(
         result = item_type
         matches += 1
 
-    if metadata is not None:
-        key = encode_item_with_metadata(item_type, metadata)
-        if key in item_list:
-            result = key
-            matches += 1
+    key = encode_item_with_metadata(item_type, metadata)
+    if key in item_list:
+        result = key
+        matches += 1
 
     if matches > 1:
         raise ValueError(f"Multiple item identifiers match with {(item_type, metadata)}")

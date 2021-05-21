@@ -38,8 +38,8 @@ public class ObservationFromEquippedItemImplementation extends HandlerBase imple
             if (itemToAdd != null && !itemToAdd.isEmpty())
             {
                 String type = MineRLTypeHelper.getItemType(itemToAdd.getItem());
-                jobj.addProperty("metadata", itemToAdd.getMetadata());
                 jobj.addProperty("type", type);
+                jobj.addProperty("metadata", itemToAdd.getMetadata());
                 jobj.addProperty("quantity", itemToAdd.getCount());
                 if(itemToAdd.isItemStackDamageable()){
                     jobj.addProperty("currentDamage", itemToAdd.getItemDamage());

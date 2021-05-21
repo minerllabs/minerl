@@ -81,15 +81,15 @@ class FlatInventoryObservation(TranslationHandler):
         # TODO: RE-ADDRESS THIS DUCK TYPED INVENTORY DATA FORMAT WHEN MOVING TO STRONG TYPING
         for stack in obs['inventory']:
             type_name = stack['type']
-            if type_name == "air":
+            if type_name == "air" and "air" in item_dict:
                 item_dict[type_name] += 1
                 continue
 
             # "half" types end up in stack['variant'] and we don't care
             # about them (example: double_plant_lower, door_lower)
-            if 'metadata' not in stack:
-                breakpoint()
             key = util.get_unique_matching_item_list_id(self.items, type_name, stack['metadata'])
+            assert stack["quantity"] >= 0
+            assert stack["metadata"] in range(16)
             if key is not None:
                 item_dict[key] += stack["quantity"]
 
@@ -104,12 +104,8 @@ class FlatInventoryObservation(TranslationHandler):
             # Add from all slots
             for stack in slots:
                 item_type = mc.strip_item_prefix(stack['name'])
-                if item_type == 'log2' and 'log2' not in self.items:
-                    item_type = 'log'
-
-                if item_type == "air":
-                    if "air" in item_dict:
-                        item_dict["air"] += 1
+                if item_type == "air" and "air" in item_dict:
+                    item_dict["air"] += 1
                 else:
                     id = util.get_unique_matching_item_list_id(
                         self.items, item_type, stack['variant'])

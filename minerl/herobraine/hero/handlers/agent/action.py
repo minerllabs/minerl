@@ -66,7 +66,7 @@ class BaseItemListAction(Action):
     def __init__(
             self,
             command: str,
-            items: Sequence[str]],
+            items: Sequence[str],
             _default='none',
             _other='other',
     ):

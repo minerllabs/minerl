@@ -291,8 +291,7 @@ class PenAnimalsEnvSpec(BasaltBaseEnvSpec):
     """
     Surround two or more animals of the same type in a fenced area (a pen).
 
-    You can't have more than one type of animal in your
-    enclosed area.
+    You can't have more than one type of animal in your enclosed area.
 
     Allowed animals are chickens, sheep, cows, and pigs.
     """

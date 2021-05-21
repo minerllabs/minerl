@@ -10,8 +10,9 @@ from typing import List
 
 import jinja2
 
-from minerl.herobraine.hero.mc import EQUIPMENT_SLOTS
+from minerl.herobraine.hero import mc
 from minerl.herobraine.hero import spaces
+from minerl.herobraine.hero.handlers import util
 from minerl.herobraine.hero.handlers.translation import TranslationHandler, TranslationHandlerGroup
 import numpy as np
 
@@ -59,7 +60,8 @@ class EquippedItemObservation(TranslationHandlerGroup):
                 _EquippedItemObservation(['offhand'], self._items, _default=_default, _other=_other))
         if armor:
             handlers.extend([
-                _EquippedItemObservation([slot], self._items, _default=_default, _other=_other) for slot in EQUIPMENT_SLOTS if slot not in ["mainhand", "offhand"]
+                _EquippedItemObservation([slot], self._items, _default=_default, _other=_other)
+                for slot in mc.EQUIPMENT_SLOTS if slot not in ["mainhand", "offhand"]
             ])
         super().__init__(handlers)
 
@@ -116,6 +118,7 @@ class _TypeObservation(TranslationHandler):
         of all of the spaces for each individual command.
         """
         self._items = sorted(items)
+        util.error_on_malformed_item_list(self._items, [_default, _other])
         self._keys = keys
         self._univ_items = ['minecraft:' + item for item in items]
         self._default = _default
@@ -138,8 +141,15 @@ class _TypeObservation(TranslationHandler):
             head = obs_dict['equipped_items']
             for key in self._keys:
                 head = head[key]
-            item = head['type']
-            return (self._other if item not in self._items else item)
+            item_type = head['type']
+            metadata = head['metadata']
+            item_id = util.get_unique_matching_item_list_id(self._items, item_type, metadata)
+            # OK, so I'm returning a number here. But it's actually a string?
+            # Enum space confuses me...
+            if item_id is None:
+                return self._other
+            else:
+                return item_id
         except KeyError:
             return self._default
 
@@ -151,14 +161,18 @@ class _TypeObservation(TranslationHandler):
                 if obs['slots']['gui']['type'] == 'class net.minecraft.inventory.ContainerPlayer':
                     offset -= 1
 
-                item_name = (
-                    obs['slots']['gui']['slots'][offset + hotbar_index]['name'].split("minecraft:")[-1])
-                if not item_name in self._items:
-                    raise ValueError()
-                if item_name == 'air':
-                    raise KeyError()
+                equip_slot = obs['slots']['gui']['slots'][offset + hotbar_index]
+                item_type = mc.strip_item_prefix(equip_slot['name'])
+                metadata = equip_slot['variant']
+                if item_type == 'air':
+                    return self._default
 
-                return item_name
+                item_id = util.get_unique_matching_item_list_id(
+                    self._items, item_type, metadata)
+                if item_id is None:
+                    return self._other
+                else:
+                    return item_id
             else:
                 raise NotImplementedError('type not implemented for hand type' + str(self._keys))
         except KeyError:
