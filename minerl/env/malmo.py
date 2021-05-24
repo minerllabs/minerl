@@ -483,7 +483,7 @@ class MinecraftInstance(object):
             self.instance_dir = tempfile.mkdtemp()
             self.minecraft_dir = os.path.join(self.instance_dir, 'Minecraft')
             shutil.copytree(os.path.join(InstanceManager.MINECRAFT_DIR), self.minecraft_dir,
-                            ignore=shutil.ignore_patterns('cache.properties.lock'))
+                            ignore=shutil.ignore_patterns('**.lock'))
             shutil.copytree(os.path.join(InstanceManager.SCHEMAS_DIR), os.path.join(self.instance_dir, 'Schemas'))
 
             # 0. Get PID of launcher.

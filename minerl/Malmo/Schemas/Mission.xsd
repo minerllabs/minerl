@@ -565,6 +565,7 @@
                     <xs:element ref="MarkingDecorator"/>
                     <xs:element ref="NavigationDecorator"/>
                     <xs:element ref="RandomizedStartDecorator"/>
+                    <xs:element ref="VillageSpawnDecorator"/>
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>
