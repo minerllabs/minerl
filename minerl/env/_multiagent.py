@@ -228,7 +228,7 @@ class _MultiAgentEnv(gym.Env):
         if isinstance(self.task, EnvWrapper):
             obs_dict = self.task.wrap_observation(obs_dict)
 
-        self._last_pov[actor_name] = obs_dict.get(None,'pov')
+        self._last_pov[actor_name] = obs_dict.get('pov', None)
         self._last_obs[actor_name] = obs_dict
 
         # Process all of the monotors (aux info) using THIS env spec.
