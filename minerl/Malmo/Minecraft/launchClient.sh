@@ -130,7 +130,11 @@ fi
 
 # TODO (R): Decide if this dependency on xvfb-run is deserved. Maybe this should go externally!
 if [ $(uname) == 'Linux' ]; then
-   xvfb-run -a -s "-screen 0 1024x768x24" $cmd
+  if [ "$MINERL_HEADLESS" = true ]; then
+    xvfb-run -a -s "-screen 0 1024x768x24" $cmd 
+  else
+    $cmd
+  fi
 else
   $cmd
 fi
