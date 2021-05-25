@@ -23,8 +23,10 @@ from minerl.herobraine.hero import spaces
 
 class EnvSpec(abc.ABC):
     U_MULTI_AGENT_ENTRYPOINT = 'minerl.env._multiagent:_MultiAgentEnv'
+    U_PRE_RECORDED_MULTI_AGENT_ENTRYPOINT = 'minerl.env._fake:_PreRecordedMultiAgentEnv'
     U_FAKE_MULTI_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeMultiAgentEnv'
     U_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._singleagent:_SingleAgentEnv'
+    U_PRE_RECORDED_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._fake:_PreRecordedSingleAgentEnv'
     U_FAKE_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeSingleAgentEnv'
 
     def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=None,
@@ -218,22 +220,29 @@ class EnvSpec(abc.ABC):
     def get_docstring(self):
         return NotImplemented
 
-    def make(self, fake=False, **additonal_kwargs):
+    def make(self, pre_recorded=False, fake=False, **additonal_kwargs):
         """Turns the env_spec into a MineRLEnv
 
         Args:
-            fake (bool, optional): Whether or not the env created should be fake.
+            pre_recorded (bool, optional): Whether or not the env created should be pre-recorded.
+            Defaults to False.
+            fake (bool, optional): Whether or not the env created should be pre-recorded.
             Defaults to False.
         """
-        entry_point = self._entry_point(fake)
+        entry_point = self._entry_point(pre_recorded, fake)
         module = importlib.import_module(entry_point.split(':')[0])
         class_ = getattr(module, entry_point.split(':')[-1])
         return class_(**self._env_kwargs(), **additonal_kwargs)
 
-    def register(self, fake=False):
+    def register(self, pre_recorded=False, fake=False):
+        prefix = ""
+        if pre_recorded:
+            prefix = "PreRecorded"
+        elif fake:
+            prefix = "Fake"
         reg_spec = dict(
-            id=("Fake" if fake else "") + self.name,
-            entry_point=self._entry_point(fake),
+            id=prefix + self.name,
+            entry_point=self._entry_point(pre_recorded, fake),
             kwargs=self._env_kwargs(),
             max_episode_steps=self.max_episode_steps,
         )
@@ -242,15 +251,20 @@ class EnvSpec(abc.ABC):
 
         gym.register(**reg_spec)
 
-    def _entry_point(self, fake: bool) -> str:
-        if fake:
+    def _entry_point(self, pre_recorded: bool, fake: bool) -> str:
+        assert not (pre_recorded and fake), "Pre-recorded and fake envs are mutually exclusive"
+        if pre_recorded:
+            return (
+                EnvSpec.U_PRE_RECORDED_SINGLE_AGENT_ENTRYPOINT if self.is_single_agent
+                else EnvSpec.U_PRE_RECORDED_MULTI_AGENT_ENTRYPOINT)
+        elif fake:
             return (
                 EnvSpec.U_FAKE_SINGLE_AGENT_ENTRYPOINT if self.is_single_agent
                 else EnvSpec.U_FAKE_MULTI_AGENT_ENTRYPOINT)
         else:
-           return (
-               EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.is_single_agent
-               else EnvSpec.U_MULTI_AGENT_ENTRYPOINT)
+            return (
+                EnvSpec.U_SINGLE_AGENT_ENTRYPOINT if self.is_single_agent
+                else EnvSpec.U_MULTI_AGENT_ENTRYPOINT)
 
     def _env_kwargs(self) -> typing.Dict[str, typing.Any]:
         return {

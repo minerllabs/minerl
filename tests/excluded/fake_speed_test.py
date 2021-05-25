@@ -23,7 +23,7 @@ def main():
     """
     Test fake speed test
     """
-    env = gym.make('FakeMineRLNavigateDense-v0')
+    env = gym.make('PreRecordedMineRLNavigateDense-v0')
 
     random_act = env.action_space.noop()
     random_act['camera'] = [0, 0.1]

@@ -21,7 +21,7 @@ class NavigateWithDistanceMonitor(Navigate):
 
 def _test_fake_env(env_spec, should_render=False):
     # Make the env.
-    fake_env = env_spec.make(fake=True)
+    fake_env = env_spec.make(pre_recorded=True)
 
     assert fake_env.action_space == fake_env.task.action_space
     assert fake_env.observation_space == fake_env.observation_space
@@ -50,7 +50,7 @@ def test_fake_navigate():
 
 def test_fake_navigate_with_distance_monitor():
     task = NavigateWithDistanceMonitor(dense=True, extreme=False)
-    fake_env = task.make(fake=True)
+    fake_env = task.make(pre_recorded=True)
     _ = fake_env.reset()
 
     for _ in range(100):
