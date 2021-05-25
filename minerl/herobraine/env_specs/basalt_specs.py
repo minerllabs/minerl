@@ -14,7 +14,6 @@ DEFAULT_ITEMS = (
     "stone_pickaxe",
     "snowball",
     "cobblestone",
-    "stone_pickaxe",
     "water_bucket",
     "bucket",
     "fence",
@@ -39,23 +38,22 @@ MAKE_HOUSE_VILLAGE_ITEMS = [
     dict(type="glass", quantity=64),
     dict(type="ladder", quantity=64),
     dict(type="torch", quantity=64),
-    dict(type="planks", quantity=64),
+    dict(type="planks", quantity=64, metadata=0),
     dict(type="planks", quantity=64, metadata=1),
     dict(type="planks", quantity=64, metadata=2),
-    dict(type="log", quantity=64),  # oak
+    dict(type="log", quantity=64, metadata=0),  # oak
     dict(type="log", quantity=64, metadata=1),  # redwood
     dict(type="log2", quantity=64),  # acacia
     # TODO(shwang): Deal with this overlap... I should make sure that the handlers
     # don't inappropriately clobber log and log2.
 
-    dict(type="sandstone", quantity=64),
+    dict(type="sandstone", quantity=64, metadata=0),
     dict(type="sandstone", quantity=64, metadata=2),
     dict(type="sandstone_stairs", quantity=64),
     dict(type="wooden_door", quantity=64),
     dict(type="acacia_door", quantity=64),
     dict(type="spruce_door", quantity=64),
     dict(type="wooden_pressure_plate", quantity=64),
-    dict(type="glass", quantity=64),
     dict(type="sand", quantity=64),
     dict(type="dirt", quantity=64),
     dict(type="red_flower", quantity=64),
@@ -63,6 +61,8 @@ MAKE_HOUSE_VILLAGE_ITEMS = [
     dict(type="snowball", quantity=3),
 ]
 
+# TODO(shwang): Highly annoying that action types will use #? suffix and observation types
+# ignore #? suffix. Might as well fix this now...
 MAKE_HOUSE_VILLAGE_ITEM_NAMES = [x["type"] for x in MAKE_HOUSE_VILLAGE_ITEMS]
 
 # TypeObservation claims that item list needs to begin with 'none' and end with 'other'.

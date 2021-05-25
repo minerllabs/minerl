@@ -239,21 +239,20 @@ public class MalmoEnvServer implements IWantToQuit {
                             TCPUtils.Log(Level.SEVERE, "MalmoEnv socket error: " + ioe + " (can be on disconnect)");
                             
                             // TimeHelper.SyncManager.debugLog("[MALMO_ENV_SERVER] MalmoEnv socket error");
-                            try {
-                                if (running) {
-                                    TCPUtils.Log(Level.INFO,"Want to quit on disconnect.");
+                            if (running) {
+                                TCPUtils.Log(Level.INFO,"Want to quit on disconnect.");
 
-                                    System.out.println( "[LOGTOPY] " + "Want to quit on disconnect.");
-                                    setWantToQuit();
-                                }
-                                socket.close();
-                            } catch (IOException ioe2) {
+                                System.out.println( "[LOGTOPY] " + "Want to quit on disconnect.");
+                                setWantToQuit();
                             }
                         } catch (Exception e) {
-                            LogHelper.error("Error while processing commands", e);
-                            try {
-                                socket.close();
-                            } catch (IOException ioe2) {
+                            LogHelper.error("Error while processing commands inside EnvServerSocketHandler", e);
+                        } finally {
+                            if (!socket.isClosed()) {
+                                try {
+                                    socket.close();
+                                } catch (IOException ioe) {
+                                }
                             }
                         }
                     }
@@ -264,6 +263,7 @@ public class MalmoEnvServer implements IWantToQuit {
                 LogHelper.error("IO Error while processing commands", ioe);
             } catch (Exception e) {
                 LogHelper.error("Error while processing commands", e);
+                e.printStackTrace();
             }
         }
     }
@@ -690,7 +690,7 @@ public class MalmoEnvServer implements IWantToQuit {
     public byte[] getObservation(boolean done)  {
         byte[] obs = envState.obs;
         if (obs == null){
-            
+
         }
         return obs;
     }
@@ -942,6 +942,7 @@ public class MalmoEnvServer implements IWantToQuit {
 
     public void addFrame(byte[] frame) {
         // lock.lock();
+        System.out.println("Add frame. :)");
         try {
             envState.obs = frame; // Replaces current.
             // System.out.println("[ERROR] ADD FRAME, " + (frame == null) + ", sync " + TimeHelper.SyncManager.isSynchronous() );

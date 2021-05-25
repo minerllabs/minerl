@@ -1,25 +1,24 @@
 import collections
-from typing import Tuple, Optional, Sequence, Dict, Set
+from typing import Tuple, Optional, Sequence, Dict, Set, List
 
 
 def decode_item_maybe_with_metadata(s: str) -> Tuple[str, Optional[int]]:
     assert len(s) > 0
     if '#' in s:
         item_type, metadata_str = s.split('#')
-        assert len(item_type) > 0
-        if metadata_str == '?':
-            return item_type, None
-        else:
-            metadata = int(metadata_str)
-            assert metadata in range(16)
-            return item_type, int(metadata_str)
+        if len(item_type) == 0:
+            raise ValueError(f"invalid item_type '{item_type}' in '{s}'")
+        metadata = int(metadata_str)
+        if metadata not in range(16):
+            raise ValueError(f"invalid metadata {metadata} in '{s}'")
+        return item_type, int(metadata_str)
     return s, None
 
 
 def encode_item_with_metadata(item_type: str, metadata: Optional[int]) -> str:
     assert len(item_type) > 0
     if metadata is None:
-        return f"{item_type}#?"
+        return item_type
     else:
         assert isinstance(metadata, int)
         return f"{item_type}#{metadata}"
@@ -49,6 +48,19 @@ def error_on_malformed_item_list(item_list: Sequence[str], special_items: Sequen
                 "both the wildcard metadata option and at least one specific metadata: "
                 f"{[n for n in metadata_set if n is not None]}"
             )
+
+
+def item_list_contains(
+        item_list: Sequence[str],
+        item_type: str,
+        metadata: Optional[str]
+):
+    # log clobber not supported here. (Only used by handlers without log clobber so far).
+    if metadata is None:
+        return item_type in item_list
+    else:
+        return encode_item_with_metadata(item_type, metadata) in item_list
+
 
 
 def get_unique_matching_item_list_id(
@@ -82,7 +94,6 @@ def get_unique_matching_item_list_id(
             and "log2".
     """
     assert metadata is not None
-    # TODO(shwang): Add tests for `clobber_logs`.
     if clobber_logs and item_type == "log2":
         log_start = [x for x in item_list if x.startswith("log")]
         if len(log_start) == 1 and log_start[0] == "log":
@@ -102,4 +113,20 @@ def get_unique_matching_item_list_id(
     if matches > 1:
         raise ValueError(f"Multiple item identifiers match with {(item_type, metadata)}")
 
+    return result
+
+
+def inventory_start_spec_to_item_ids(inv_spec: Sequence[dict]) -> List[str]:
+    """Converts the argument of SimpleInventoryAgentStart into a list of equivalent
+    item ids suitable for passing into other handlers, like FlatInventoryObservation and
+    EquipAction.
+
+    [dict(type=planks, metadata=2, quantity=3), ...] => ["planks#2", "wooden_pickaxe", ...]
+    """
+    result = []
+    for d in inv_spec:
+        item_type = d["type"]
+        metadata = d.get("metadata")
+        item_id = encode_item_with_metadata(item_type, metadata)
+        result.append(item_id)
     return result

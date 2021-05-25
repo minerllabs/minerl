@@ -37,13 +37,23 @@ class EquipAction(action.ItemWithMetadataListAction):
 
             item_type = mc.strip_item_prefix(hotbar_slot['name'])
             metadata = hotbar_slot['variant']
-            id = util.get_unique_matching_item_list_id(self.items, item_type, metadata)
-            if id != self.previous:
+            id = util.get_unique_matching_item_list_id(self.items, item_type, metadata,
+                                                       clobber_logs=False)
+            if id is None:
+                id = "other"
+
+            # TODO(shwang): Tell Brandon that this is a change in behavior (probably ok?)
+            #   Consecutive "other" now results in "none". It used to be the case that
+            #   "other" would always be returned regardless of repetition and whether
+            #   ground-truth-"other" equipped items were being changed. This behavior
+            #   was different from the behavior of other keys.
+            if id == self.previous:
+                return self._default
+            else:
                 self.previous = id
                 return id
         else:
             self.logger.warning(f"Unexpected slots_gui_type={slots_gui_type}, "
                                 f"Abandoning processing and simply returning {self._default}"
                                 )
-
-        return self._default
+            return self._default

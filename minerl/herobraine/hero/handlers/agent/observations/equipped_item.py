@@ -6,9 +6,7 @@
 Not very proud of the code reuse in this module -- @wguss
 """
 
-from typing import List
-
-import jinja2
+from typing import List, Sequence
 
 from minerl.herobraine.hero import mc
 from minerl.herobraine.hero import spaces
@@ -34,7 +32,7 @@ class EquippedItemObservation(TranslationHandlerGroup):
             """<ObservationFromEquippedItem/>""")
 
     def __init__(self,
-                 items: List[str],
+                 items: Sequence[str],
                  mainhand: bool = True,
                  offhand: bool = False,
                  armor: bool = False,
@@ -43,7 +41,7 @@ class EquippedItemObservation(TranslationHandlerGroup):
         self.mainhand = mainhand
         self.offhand = offhand
         self.armor = armor
-        self._items = items
+        self._items = list(items)
         self._other = _other
         self._default = _default
         if self._other not in self._items:
@@ -120,7 +118,6 @@ class _TypeObservation(TranslationHandler):
         self._items = sorted(items)
         util.error_on_malformed_item_list(self._items, [_default, _other])
         self._keys = keys
-        self._univ_items = ['minecraft:' + item for item in items]
         self._default = _default
         self._other = _other
         if _other not in self._items or _default not in self._items:
@@ -153,7 +150,7 @@ class _TypeObservation(TranslationHandler):
         except KeyError:
             return self._default
 
-    def from_universal(self, obs):
+    def from_universal(self, obs) -> str:
         try:
             if self._keys[0] == 'mainhand' and len(self._keys) == 1:
                 offset = -9

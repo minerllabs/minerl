@@ -83,15 +83,12 @@ class BaseItemListAction(Action):
                 be passed in. In the case of dictionaries, the "type" key is
                 unpacked to get the item ID.
         """
-        # TODO must check that the first elemtn is 'none' and last elem is 'other'
         self._items = list(items)
         self._univ_items = ['minecraft:' + item for item in items]
-        if _other not in self._items or _default not in self._items:
-            print(self._items)
-            print(_default)
-            print(_other)
-        assert _default in self._items
-        assert _other in self._items
+        if _other not in self._items:
+            self._items.append(_other)
+        if _default not in self._items:
+            self._items.append(_default)
         self._default = _default
         self._other = _other
         super().__init__(
@@ -168,17 +165,6 @@ class ItemListAction(BaseItemListAction):
         super().__init__(command, items, **kwargs)
 
 
-def _preprocess_item_id(item_id: str) -> str:
-    """
-    Validate item type and metadata (i.e. errors if item_id is malformed), and
-    returns an item_id in canonical form. The return value should be the same as the
-    argument unless the item has no metadata constraint, in which case "#?" will be
-    appended to the argument.
-    """
-    item_type, metadata = util.decode_item_maybe_with_metadata(item_id)  # Also validates item_id.
-    return util.encode_item_with_metadata(item_type, metadata)
-
-
 class ItemWithMetadataListAction(BaseItemListAction):
     """
     An action handler based on a list of item IDs with metadata constraints.
@@ -189,6 +175,20 @@ class ItemWithMetadataListAction(BaseItemListAction):
         super().__init__(command, items, **kwargs)
         util.error_on_malformed_item_list(items, [self._other, self._default, "air"])
 
+    def _preprocess_item_id(self, item_id: str) -> str:
+        """
+        Validate item type and metadata (i.e. errors if item_id is malformed), and
+        returns an item_id in canonical form. The return value should be the same as the
+        argument unless the item has no metadata constraint, in which case "#?" will be
+        appended to the argument.
+        """
+        item_type, metadata = util.decode_item_maybe_with_metadata(item_id)  # Also validates item_id.
+        if not util.item_list_contains(self.items, item_type, metadata):
+            raise ValueError(f"{item_id} is not found in {self.items}")
+        return util.encode_item_with_metadata(item_type, metadata)
+
     def to_hero(self, x):
-        canonical_item_id = _preprocess_item_id(x)
+        canonical_item_id = self._preprocess_item_id(x)
         return super().to_hero(canonical_item_id)
+
+

@@ -1127,7 +1127,8 @@ public class ServerStateMachine extends StateMachine
             if (item == null) {
                 throw new RuntimeException(String.format("Could not parse item type '%s'", obj.getType()));
             }
-            return new ItemStack(item, obj.getQuantity(), obj.getMetadata());
+            ItemStack result = new ItemStack(item, obj.getQuantity(), obj.getMetadata());
+            return result;
         }
 
         private void initialiseInventory(EntityPlayerMP player, Inventory inventory)
@@ -1139,9 +1140,10 @@ public class ServerStateMachine extends StateMachine
                 player.updateHeldItem();
 
             // Now add specified items:
-            for (JAXBElement<? extends InventoryObjectTypeItemStack stack => el : inventory.getInventoryObject())
+            for (JAXBElement<? extends InventoryObjectType> el : inventory.getInventoryObject())
             {
                 InventoryObjectType obj = el.getValue();
+                if (obj == null) throw new RuntimeException();
                 ItemStack stack = itemStackFromInventoryObject(obj);
                 player.inventory.setInventorySlotContents(obj.getSlot(), stack);
             }

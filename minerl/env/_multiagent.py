@@ -472,9 +472,12 @@ class _MultiAgentEnv(gym.Env):
 
             # Finally, peek all of the observations.
             return self._peek_obs()
+        except:
+            # Give the underlying thread a chance to print out the stack trace.
+            # Without this, the logs will not show the error!
+            time.sleep(2)
 
         finally:
-
             # We don't force the same seed every episode, you gotta send it yourself queen.
             # TODO: THIS IS PERHAPS THE WRONG WAY TO DO THIS.
             # perhaps the first seed sets the seed of the random engine which then seeds
@@ -631,6 +634,7 @@ class _MultiAgentEnv(gym.Env):
                 start_time = time.time()
                 comms.send_message(instance.client_socket, peek_message.encode())
                 obs = comms.recv_message(instance.client_socket)
+                time.sleep(3)  ## DEBUG -- try to get more logs out..
                 info = comms.recv_message(instance.client_socket).decode('utf-8')
 
                 reply = comms.recv_message(instance.client_socket)

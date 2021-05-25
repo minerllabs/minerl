@@ -351,7 +351,7 @@
             </xs:simpleType>
         </xs:attribute>
         <xs:attribute name="type" use="required" type="BlockOrItem"/>
-        <xs:attribute name="metadata" use="optional" type="Metadata"/>
+        <xs:attribute name="metadata" use="required" type="Metadata"/>
         <xs:attribute name="variant" use="optional" type="Variation"/>
         <xs:attribute name="colour" use="optional" type="Colour"/>
         <xs:attribute name="quantity" default="1">

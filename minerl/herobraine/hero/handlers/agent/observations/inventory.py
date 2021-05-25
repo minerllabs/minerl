@@ -35,7 +35,7 @@ def _univ_obs_get_all_inventory_slots(obs: dict) -> List[dict]:
         slots = gui_slots
 
     # Add in the cursor item tracking only if present.
-    cursor_item = gui_slots.get('cursor_item')
+    cursor_item = obs['slots']['gui'].get('cursor_item')
     if cursor_item is not None:
         slots.append(cursor_item)
     return slots

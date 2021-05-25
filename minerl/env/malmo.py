@@ -436,6 +436,7 @@ class MinecraftInstance(object):
             shutil.copytree(os.path.join(InstanceManager.MINECRAFT_DIR), self.minecraft_dir,
                             ignore=shutil.ignore_patterns('cache.properties.lock'))
             shutil.copytree(os.path.join(InstanceManager.SCHEMAS_DIR), os.path.join(self.instance_dir, 'Schemas'))
+            print(f"minecraft_dir={self.minecraft_dir}")
 
             # 0. Get PID of launcher.
             parent_pid = os.getpid()
@@ -477,6 +478,7 @@ class MinecraftInstance(object):
                         error_str + "\n\nMinecraft process finished unexpectedly. There was an error with Malmo.")
 
                 lines.append(line)
+                print(line)
                 self._log_heuristic("\n".join(line.split("\n")[:-1]))
 
                 MALMOENVPORTSTR = "***** Start MalmoEnvServer on port "
@@ -511,6 +513,7 @@ class MinecraftInstance(object):
                 file_path = os.path.join(logdir, 'logs', 'mc_{}.log'.format(self._target_port - 9000))
 
                 logger.info("Logging output of Minecraft to {}".format(file_path))
+                print("Logging output of Minecraft to {}".format(file_path))
 
                 mine_log = open(file_path, 'wb+')
                 mine_log.truncate(0)
@@ -519,6 +522,7 @@ class MinecraftInstance(object):
                 try:
                     while self.running:
                         line = self.minecraft_process.stdout.readline()
+                        print(line)
                         if not line:
                             break
 
@@ -539,7 +543,8 @@ class MinecraftInstance(object):
                     mine_log.close()
 
             logdir = os.environ.get('MALMO_MINECRAFT_OUTPUT_LOGDIR', '.')
-            self._logger_thread = threading.Thread(target=functools.partial(log_to_file, logdir=logdir))
+            self._logger_thread = threading.Thread(target=functools.partial(log_to_file, logdir=logdir),
+                                                   )
             self._logger_thread.setDaemon(True)
             self._logger_thread.start()
 

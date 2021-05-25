@@ -88,17 +88,15 @@ public class MineRLTypeHelper {
         private void setParameters(String parameters) {
             this.parameters = parameters;
             String[] parts = parameters.split("#");
-            if (parts.length != 2) {
-                throw new IllegalArgumentException(String.format("Bad parameter: '%s'", parameters));
-            }
-            itemType = parts[0];
-            assert parts[0].length() > 0;
-
-            if ("?".equals(parts[1])) {
-                metadata = null; // Wildcard metadata
-            } else {
+            if (parts.length == 1) {
+                metadata = null;
+            } else if (parts.length == 2) {
+                itemType = parts[0];
+                assert parts[0].length() > 0;
                 metadata = Integer.parseInt(parts[1]);
                 validateMetadata(metadata);
+            } else {
+                throw new IllegalArgumentException(String.format("Bad parameter: '%s'", parameters));
             }
         }
 

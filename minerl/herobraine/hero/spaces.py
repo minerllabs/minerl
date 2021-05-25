@@ -300,6 +300,9 @@ class Enum(Discrete, MineRLSpace):
     def __str__(self):
         return "Enum(" + ','.join(self.values) + ")"
 
+    def __repr__(self):
+        return str(self)
+
     def __len__(self):
         return len(self.values)
 
