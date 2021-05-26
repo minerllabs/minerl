@@ -92,18 +92,6 @@ class VariantsTestEnvSpec(EnvSpec):
     def get_docstring(self):
         return "Test EnvSpec"
 
-    def check_starting_inventory(self):
-        with self.make() as env:
-            obs = env.reset()
-            inv_obs = obs["inventory"]
-            actual_keys = inv_obs.keys()
-            expected_keys = util.inventory_start_spec_to_item_ids(self.inventory_start_spec)
-            assert sorted(actual_keys) == sorted(expected_keys)
-            for i, d in enumerate(self.inventory_start_spec):
-                item_id = util.encode_item_with_metadata(d["type"], d.get("metadata"))
-                quantity = d["quantity"]
-                assert inv_obs[item_id] == quantity
-
     def check_observation_space(self):
         obs_spaces = self.create_observation_space().spaces
 
@@ -123,26 +111,6 @@ class VariantsTestEnvSpec(EnvSpec):
         equip_expected_keys = sorted(set(self.equip_act_item_ids) | {'none', 'other'})
         assert equip_actual_keys == equip_expected_keys
 
-    def check_randomized_equip(self, n_steps):
-        with self.make() as env:
-            env.reset()
-
-            # Choose equip from all items except special items 'none' and 'other'
-            equip_choices = list(
-                set(env.action_space['equip'].values).difference({'none', 'other'}))
-
-            act = env.action_space.sample()
-            for step in range(n_steps):
-                choice = equip_choices[np.random.randint(len(equip_choices))]
-                act["equip"] = choice
-                _ = env.step(act)
-                obs, rew, done, _ = env.step(act)
-                import time
-                time.sleep(3)
-                assert obs['equipped_items']['mainhand']['type'] == choice
-                if done:
-                    env.reset()
-
 
 SIMPLE_ENV_SPEC = VariantsTestEnvSpec(
     [
@@ -152,8 +120,8 @@ SIMPLE_ENV_SPEC = VariantsTestEnvSpec(
 )
 VILLAGE_ENV_SPEC = VariantsTestEnvSpec(basalt_specs.MAKE_HOUSE_VILLAGE_ITEMS)
 
-# SPECS = [SIMPLE_ENV_SPEC, VILLAGE_ENV_SPEC]
-SPECS = [VILLAGE_ENV_SPEC]
+SPECS = [SIMPLE_ENV_SPEC, VILLAGE_ENV_SPEC]
+
 
 @pytest.mark.parametrize("spec", SPECS)
 class TestVariantEnvs:
@@ -161,10 +129,39 @@ class TestVariantEnvs:
         spec.check_observation_space()
         spec.check_action_space()
 
-    def test_starting_inventory(self, spec: VariantsTestEnvSpec):
-        spec.check_starting_inventory()
+    def test_starting_inventory(self, spec):
+        with spec.make() as env:
+            obs = env.reset()
+            inv_obs = obs["inventory"]
+            actual_keys = inv_obs.keys()
+            expected_keys = util.inventory_start_spec_to_item_ids(spec.inventory_start_spec)
+            assert sorted(actual_keys) == sorted(expected_keys)
+            for i, d in enumerate(spec.inventory_start_spec):
+                item_id = util.encode_item_with_metadata(d["type"], d.get("metadata"))
+                quantity = d["quantity"]
+                assert inv_obs[item_id] == quantity
 
-    N_EQUIP_STEPS = 20
+    def test_randomized_equips(self, spec, n_steps):
+        with spec.make() as env:
+            env.reset()
 
-    def test_randomized_equips(self, spec: VariantsTestEnvSpec):
-        spec.check_randomized_equip(self.N_EQUIP_STEPS)
+            # Choose equip from all items except special items 'none' and 'other'
+            equip_choices = list(
+                set(env.action_space['equip'].values).difference({'none', 'other'}))
+            act = env.action_space.sample()
+            for step in range(self.N_EQUIP_STEPS):
+                choice = equip_choices[np.random.randint(len(equip_choices))]
+                act["equip"] = choice
+                _ = env.step(act)
+
+                # Equip action doesn't trigger for a few ticks, so run a few no-ops first.
+                # If we looked at the observation returned by the call to step that
+                # actually equips things, then we'd see that the observed mainhand item
+                # has not actually been changed yet.
+                for _ in range(3):
+                    obs, rew, done, _ = env.step(env.action_space.no_op())
+
+                mainhand_obs = obs['equipped_items']['mainhand']
+                assert mainhand_obs['type'] == choice
+                if done:
+                    env.reset()

@@ -119,7 +119,7 @@ class BaseItemListAction(Action):
             return False
         if self._command != other._command:
             return False
-        if sorted(self._items) == sorted(other._items):
+        if sorted(self._items) != sorted(other._items):
             return False
 
         return True
@@ -163,6 +163,10 @@ class ItemListAction(BaseItemListAction):
         for item in items:
             assert '#' not in item
         super().__init__(command, items, **kwargs)
+
+    def __repr__(self):
+        return (f"{self.__class__.__name__}"
+                f"(command={self.command}, items={self.items})")
 
 
 class ItemWithMetadataListAction(BaseItemListAction):

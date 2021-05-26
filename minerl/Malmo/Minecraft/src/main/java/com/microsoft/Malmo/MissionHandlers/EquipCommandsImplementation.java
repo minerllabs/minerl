@@ -53,26 +53,22 @@ public class EquipCommandsImplementation extends CommandBase {
                     message.getItemType(), message.getMetadata()
                     );
             Integer matchIdx = MineRLTypeHelper.inventoryIndexOf(inv, message.getItemType(), message.getMetadata());
-            System.out.printf("Equip: Found match index: %s%n", matchIdx);
 
             if (matchIdx != null) {
                 // Swap current hotbar item with found inventory item (if not the same)
                 int hotbarIdx = inv.currentItem;
-                System.out.println("got hotbar idx" + hotbarIdx);
-                System.out.println("got slot " + matchIdx);
+                // System.out.println("got hotbar idx" + hotbarIdx);
+                // System.out.println("got slot " + matchIdx);
 
                 ItemStack prevEquip = inv.getStackInSlot(hotbarIdx).copy();
                 ItemStack matchingStack = inv.getStackInSlot(matchIdx).copy();
-                ObservationFromEquippedItemImplementation.printEquipmentJSON();
                 System.out.printf("Equip: prevEquip=%s, to be swapped with newEquip=%s%n", prevEquip, matchingStack);
                 inv.setInventorySlotContents(hotbarIdx, matchingStack);
                 inv.setInventorySlotContents(matchIdx, prevEquip);
 
-                System.out.printf("Equip: Now, hotbar_idx=%s is holding: %s%n",
+                System.out.printf("Equip: own-view stack=%s is holding: %s%n",
                         hotbarIdx, inv.getStackInSlot(hotbarIdx));
-                ObservationFromEquippedItemImplementation.printEquipmentJSON();
-                System.out.printf("Equip: (double-check) Now, hotbar_idx=%s is holding: %s%n",
-                        hotbarIdx, player.inventory.getStackInSlot(hotbarIdx));
+                System.out.printf("Equip: Actual stack=%s%n", player.inventory.getStackInSlot(hotbarIdx));
             }
 
             return null;
@@ -81,32 +77,21 @@ public class EquipCommandsImplementation extends CommandBase {
 
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
-        System.out.printf("equip: enter onExecute verb=%s parameter=%s%n", verb, parameter);
-        System.out.println("basalt ballast #1");
-        System.out.println("basalt ballast #2");
-        System.out.println("basalt ballast #3");
         if (!verb.equalsIgnoreCase("equip")) {
-            System.out.printf("equip: rejecting verb=%s%n", verb);
             return false;
         }
-        System.out.printf("equip: accepting verb=%s%n", verb);
 
         MineRLTypeHelper.ItemTypeMetadataMessage msg = new MineRLTypeHelper.ItemTypeMetadataMessage(parameter);
-        System.out.printf("equip: validateItemType %s%n", msg.validateItemType());
         if (msg.validateItemType()) {
             MalmoMod.network.sendToServer(msg);
-        } else {
-            System.out.printf("equip: rejecting due to validateItemType %s%n", msg.validateItemType());
         }
         return true;  // Packet is captured by equip handler
     }
 
     @Override
     public boolean parseParameters(Object params) {
-        System.out.printf("equip: enter parse parameters to process %s%n", params);
         if (!(params instanceof EquipCommands))
             return false;
-        System.out.printf("equip: parse parameters ACCEPTS %s%n", params);
 
         EquipCommands pParams = (EquipCommands) params;
         // Todo: Implement allow and deny lists.

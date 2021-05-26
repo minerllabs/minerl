@@ -97,17 +97,15 @@ class _EquippedItemObservation(TranslationHandlerGroup):
         self.keys = dict_keys
 
         super().__init__(handlers=[
-            _TypeObservation(self.keys, items, _default=_default, _other=_other),
+            _ItemIDObservation(self.keys, items, _default=_default, _other=_other),
             _DamageObservation(self.keys, type_str="damage"),
             _DamageObservation(self.keys, type_str="maxDamage")
         ])
 
 
-class _TypeObservation(TranslationHandler):
+class _ItemIDObservation(TranslationHandler):
     """
-    Returns the item list index  of the tool in the given hand
-    List must start with 'none' as 0th element and end with 'other' as wildcard element
-    # TODO (R): Update this dcoumentation
+    Returns the item list string of the tool in the given hand.
     """
 
     def __init__(self, keys: List[str], items: list, _default: str, _other: str):
@@ -132,6 +130,9 @@ class _TypeObservation(TranslationHandler):
 
     def to_string(self):
         return 'type'
+        # TODO(shwang): Maybe rename this to 'item_id'?
+        #   This field can contain more than just the type now -- also it can contain
+        #   the metadata. (For example, it can be "sandstone" or "sandstone#2").
 
     def from_hero(self, obs_dict):
         try:
@@ -182,9 +183,9 @@ class _TypeObservation(TranslationHandler):
         Combines two TypeObservation's (self and other) into one by 
         taking the union of self.items and other.items
         """
-        if isinstance(other, _TypeObservation):
-            return _TypeObservation(self._keys, list(set(self._items + other._items)),
-                                    _other=self._other, _default=self._default)
+        if isinstance(other, _ItemIDObservation):
+            return _ItemIDObservation(self._keys, list(set(self._items + other._items)),
+                                      _other=self._other, _default=self._default)
         else:
             raise TypeError('Operands have to be of type TypeObservation')
 

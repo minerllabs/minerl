@@ -9,7 +9,7 @@ def make_hero_obs(item_type: str, metadata: int):
 
 
 def test_from_hero():
-    handler = equipped_item._TypeObservation(
+    handler = equipped_item._ItemIDObservation(
         ["mainhand"],
         items=["none", "other", "planks#0", "planks#1"],
         _default="none", _other="other",
@@ -21,7 +21,7 @@ def test_from_hero():
     assert handler.from_hero(make_hero_obs("planks", 1)) == "planks#1"
     assert handler.from_hero(make_hero_obs("planks", 15)) == "other"
 
-    handler = equipped_item._TypeObservation(
+    handler = equipped_item._ItemIDObservation(
         ["mainhand"],
         items=["none", "other", "sandstone"],
         _default="none", _other="other",
@@ -40,7 +40,7 @@ def make_univ_hotbar(item_type: str, metadata: int):
 
 
 def test_from_univ():
-    handler = equipped_item._TypeObservation(
+    handler = equipped_item._ItemIDObservation(
         ["mainhand"],
         items=["none", "other", "planks#0", "planks#1"],
         _default="none", _other="other",
@@ -51,7 +51,7 @@ def test_from_univ():
     assert handler.from_universal(make_univ_hotbar(item_type="planks", metadata=1)) == "planks#1"
     assert handler.from_universal(make_univ_hotbar(item_type="planks", metadata=2)) == "other"
 
-    handler = equipped_item._TypeObservation(
+    handler = equipped_item._ItemIDObservation(
         ["mainhand"],
         items=["none", "other", "sandstone"],
         _default="none", _other="other",
