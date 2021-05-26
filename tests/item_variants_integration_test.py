@@ -141,7 +141,7 @@ class TestVariantEnvs:
                 quantity = d["quantity"]
                 assert inv_obs[item_id] == quantity
 
-    def test_randomized_equips(self, spec, n_steps):
+    def test_randomized_equips(self, spec):
         with spec.make() as env:
             env.reset()
 
@@ -149,7 +149,7 @@ class TestVariantEnvs:
             equip_choices = list(
                 set(env.action_space['equip'].values).difference({'none', 'other'}))
             act = env.action_space.sample()
-            for step in range(self.N_EQUIP_STEPS):
+            for step in range(20):
                 choice = equip_choices[np.random.randint(len(equip_choices))]
                 act["equip"] = choice
                 _ = env.step(act)

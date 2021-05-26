@@ -472,10 +472,6 @@ class _MultiAgentEnv(gym.Env):
 
             # Finally, peek all of the observations.
             return self._peek_obs()
-        except:
-            # Give the underlying thread a chance to print out the stack trace.
-            # Without this, the logs will not show the error!
-            time.sleep(2)
 
         finally:
             # We don't force the same seed every episode, you gotta send it yourself queen.

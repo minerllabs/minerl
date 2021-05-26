@@ -31,6 +31,11 @@ class _FakeEnvMixin(object):
         self._fake_malmo_data = np.load(
             os.path.join(os.path.abspath(os.path.dirname(__file__)), 'info.npz'),
             allow_pickle=True)['arr_0'].tolist()
+        # Patch data to add in the new metadata fields -- otherwise `env.reset()` will
+        # crash.
+        for stack in self._fake_malmo_data["inventory"]:
+            stack['metadata'] = 0
+
 
     def _setup_instances(self) -> None:
         self.instances = [NotImplemented for _ in range(self.task.agent_count)]
