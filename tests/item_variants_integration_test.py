@@ -128,13 +128,17 @@ class VariantsTestEnvSpec(EnvSpec):
             env.reset()
 
             # Choose equip from all items except special items 'none' and 'other'
-            equip_choices = set(env.action_space['equip'].values).difference({'none', 'other'})
+            equip_choices = list(
+                set(env.action_space['equip'].values).difference({'none', 'other'}))
 
             act = env.action_space.sample()
-            for _ in range(n_steps):
-                choice = np.random.choice(equip_choices)
+            for step in range(n_steps):
+                choice = equip_choices[np.random.randint(len(equip_choices))]
                 act["equip"] = choice
+                _ = env.step(act)
                 obs, rew, done, _ = env.step(act)
+                import time
+                time.sleep(3)
                 assert obs['equipped_items']['mainhand']['type'] == choice
                 if done:
                     env.reset()
@@ -148,7 +152,8 @@ SIMPLE_ENV_SPEC = VariantsTestEnvSpec(
 )
 VILLAGE_ENV_SPEC = VariantsTestEnvSpec(basalt_specs.MAKE_HOUSE_VILLAGE_ITEMS)
 
-SPECS = [SIMPLE_ENV_SPEC, VILLAGE_ENV_SPEC]
+# SPECS = [SIMPLE_ENV_SPEC, VILLAGE_ENV_SPEC]
+SPECS = [VILLAGE_ENV_SPEC]
 
 @pytest.mark.parametrize("spec", SPECS)
 class TestVariantEnvs:

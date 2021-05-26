@@ -34,7 +34,10 @@ public class MineRLTypeHelper {
         jsonObject.addProperty("quantity", stack.getCount());
     }
 
-    private static void validateMetadata(int metadata) {
+    private static void validateMetadata(Integer metadata) {
+        if (metadata == null) {
+            return;
+        }
         if (metadata < 0 || metadata > 15) {
             throw new RuntimeException(String.format("Unexpected metadata value %d.", metadata));
         }
@@ -87,24 +90,31 @@ public class MineRLTypeHelper {
 
         private void setParameters(String parameters) {
             this.parameters = parameters;
+
+            System.out.printf("ItemTypeMetadataMsg: Parsing '%s'%n", parameters);
             String[] parts = parameters.split("#");
             if (parts.length == 1) {
+                itemType = parts[0];
                 metadata = null;
             } else if (parts.length == 2) {
                 itemType = parts[0];
                 assert parts[0].length() > 0;
                 metadata = Integer.parseInt(parts[1]);
-                validateMetadata(metadata);
             } else {
                 throw new IllegalArgumentException(String.format("Bad parameter: '%s'", parameters));
             }
+            validateMetadata(metadata);
+
+            System.out.printf("ItemTypeMetadataMsg: Parsed <item_type=%s, metadata=%s>%n",
+                    getItemType(), getMetadata()
+            );
         }
 
         public String getItemType() {
             return itemType;
         }
 
-        public int getMetadata() {
+        public Integer getMetadata() {
             return metadata;
         }
 

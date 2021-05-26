@@ -141,8 +141,6 @@ class _TypeObservation(TranslationHandler):
             item_type = head['type']
             metadata = head['metadata']
             item_id = util.get_unique_matching_item_list_id(self._items, item_type, metadata)
-            # OK, so I'm returning a number here. But it's actually a string?
-            # Enum space confuses me...
             if item_id is None:
                 return self._other
             else:

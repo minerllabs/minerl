@@ -135,10 +135,12 @@ public class NearbySmeltCommandsImplementation extends CommandBase {
 
     @Override
     public boolean parseParameters(Object params) {
+        System.out.printf("smelt: enter parse parameters to process %s%n", params);
         furnaces = new ArrayList<BlockPos>();
 
         if (!(params instanceof NearbySmeltCommands))
             return false;
+        System.out.printf("smelt: parse parameters ACCEPTS %s%n", params);
 
         NearbySmeltCommands cParams = (NearbySmeltCommands) params;
         setUpAllowAndDenyLists(cParams.getModifierList());

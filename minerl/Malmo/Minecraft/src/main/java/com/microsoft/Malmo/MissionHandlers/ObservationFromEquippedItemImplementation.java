@@ -1,5 +1,7 @@
 package com.microsoft.Malmo.MissionHandlers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.microsoft.Malmo.Utils.MineRLTypeHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -25,12 +27,22 @@ public class ObservationFromEquippedItemImplementation extends HandlerBase imple
 	@Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
+        json.add("equipped_items", getEquipmentJSON());
+    }
+
+    public static JsonObject getEquipmentJSON() {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         JsonObject equipment = new JsonObject();
         for(EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-            equipment.add(slot.getName(), getInventoryJson(player.getItemStackFromSlot(slot)));
+            equipment.add(slot.getName(), getInventoryJson(player.inventory.getStackInSlot(slot.getSlotIndex())));
         }
-        json.add("equipped_items", equipment);
+        return equipment;
+    }
+
+    public static void printEquipmentJSON() {
+        JsonObject json = getEquipmentJSON();
+        // Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        System.out.println(json);
     }
 
     public static JsonObject getInventoryJson(@Nullable ItemStack itemToAdd){
