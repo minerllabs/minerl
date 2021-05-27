@@ -129,4 +129,4 @@ def inventory_start_spec_to_item_ids(inv_spec: Sequence[dict]) -> List[str]:
         metadata = d.get("metadata")
         item_id = encode_item_with_metadata(item_type, metadata)
         result.append(item_id)
-    return result
+    return list(set(result))

@@ -118,7 +118,7 @@ SIMPLE_ENV_SPEC = VariantsTestEnvSpec(
         dict(type="planks", metadata=1, quantity=1),
     ]
 )
-VILLAGE_ENV_SPEC = VariantsTestEnvSpec(basalt_specs.MAKE_HOUSE_VILLAGE_ITEMS)
+VILLAGE_ENV_SPEC = VariantsTestEnvSpec(basalt_specs.MAKE_HOUSE_VILLAGE_INVENTORY)
 
 SPECS = [SIMPLE_ENV_SPEC, VILLAGE_ENV_SPEC]
 
