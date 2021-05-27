@@ -61,15 +61,6 @@ public abstract class RewardForItemBase extends RewardBase
             }
         }
 
-        // TODO(shwang): Brandon assumes we implement matches as a helper function inside MineRLTypeHelper.
-        //  Our utility will have the signature `boolean matches(BlockOrItemSpec spec, ItemStack stack)`.
-        // (not critical to observing and equipping BASALT variant items or handlers used by BASALT Envs)
-
-        // This matches two Minecraft ItemStacks that might be different in Minecraft, but
-        // the same here, projected onto the schema.
-
-        // Existing schema has multiple fields, let's add getMetadata. If you don't specify
-        // the metadata then you match all items. Otherwise, you specify the metadata.
         boolean matches(ItemStack stack)
         {
             String item = stack.getItem().getUnlocalizedName();
@@ -82,7 +73,6 @@ public abstract class RewardForItemBase extends RewardBase
 
             // Our item type matches, but we may need to compare block attributes too:
             DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(stack);
-
             if (this.matchSpec.getColour() != null && !this.matchSpec.getColour().isEmpty()) // We have a colour list, so check colour matches:
             {
                 if (di.getColour() == null)
@@ -101,9 +91,6 @@ public abstract class RewardForItemBase extends RewardBase
                 }
                 return false;   // The item we are matching against is the wrong variant.
             }
-            // TODO: Make use of the metadata field for matching, and probably get rid of the colour
-            //   and variant fields from above.
-            // if (matchSpec.getMetadata() != null &&)
 
             return true;
         }

@@ -64,7 +64,8 @@ public class MineRLTypeHelper {
             ItemStack stack = inventory.getStackInSlot(i);
             ResourceLocation regName = stack.getItem().getRegistryName();
             if (regName == null) {
-                throw new RuntimeException(String.format("null RegistryName at inventory index %d", i));
+                System.out.printf("null RegistryName at inventory index %d%n", i);
+                return null;
             }
 
             boolean flagItemTypeMatches = regName.equals(targetRegName);
@@ -91,7 +92,6 @@ public class MineRLTypeHelper {
         private void setParameters(String parameters) {
             this.parameters = parameters;
 
-            System.out.printf("ItemTypeMetadataMsg: Parsing '%s'%n", parameters);
             String[] parts = parameters.split("#");
             if (parts.length == 1) {
                 itemType = parts[0];
@@ -104,10 +104,6 @@ public class MineRLTypeHelper {
                 throw new IllegalArgumentException(String.format("Bad parameter: '%s'", parameters));
             }
             validateMetadata(metadata);
-
-            System.out.printf("ItemTypeMetadataMsg: Parsed <item_type=%s, metadata=%s>%n",
-                    getItemType(), getMetadata()
-            );
         }
 
         public String getItemType() {

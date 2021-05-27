@@ -49,26 +49,18 @@ public class EquipCommandsImplementation extends CommandBase {
                 return null;
 
             InventoryPlayer inv = player.inventory;
-            System.out.printf("Equip: Should be switching to <item_type=%s, metadata=%s>%n",
-                    message.getItemType(), message.getMetadata()
-                    );
             Integer matchIdx = MineRLTypeHelper.inventoryIndexOf(inv, message.getItemType(), message.getMetadata());
 
             if (matchIdx != null) {
                 // Swap current hotbar item with found inventory item (if not the same)
                 int hotbarIdx = inv.currentItem;
-                // System.out.println("got hotbar idx" + hotbarIdx);
-                // System.out.println("got slot " + matchIdx);
+                System.out.println("got hotbar idx" + hotbarIdx);
+                System.out.println("got slot " + matchIdx);
 
                 ItemStack prevEquip = inv.getStackInSlot(hotbarIdx).copy();
                 ItemStack matchingStack = inv.getStackInSlot(matchIdx).copy();
-                System.out.printf("Equip: prevEquip=%s, to be swapped with newEquip=%s%n", prevEquip, matchingStack);
                 inv.setInventorySlotContents(hotbarIdx, matchingStack);
                 inv.setInventorySlotContents(matchIdx, prevEquip);
-
-                System.out.printf("Equip: own-view stack=%s is holding: %s%n",
-                        hotbarIdx, inv.getStackInSlot(hotbarIdx));
-                System.out.printf("Equip: Actual stack=%s%n", player.inventory.getStackInSlot(hotbarIdx));
             }
 
             return null;
