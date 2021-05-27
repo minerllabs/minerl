@@ -12,7 +12,8 @@ def make_univ_hotbar(item_type: str, metadata: int):
 
 
 def test_from_univ():
-    mk_handler = lambda: handlers.EquipAction(["planks#0", "sandstone#12", "log", "none", "other"])
+    def mk_handler():  # Need to generate new handler every time because from_universal is stateful.
+        return handlers.EquipAction(["planks#0", "sandstone#12", "log", "none", "other"])
     assert mk_handler().from_universal(make_univ_hotbar("planks", 0)) == "planks#0"
     assert mk_handler().from_universal(make_univ_hotbar("planks", 1)) == "other"
     assert mk_handler().from_universal(make_univ_hotbar("sandstone", 0)) == "other"
@@ -24,7 +25,8 @@ def test_from_univ():
 
 
 def test_from_univ_no_clobber_logs():
-    mk_handler = lambda: handlers.EquipAction(["log", "none", "other"])
+    def mk_handler():
+        return handlers.EquipAction(["log", "none", "other"])
     assert mk_handler().from_universal(make_univ_hotbar("log", 0)) == "log"
     assert mk_handler().from_universal(make_univ_hotbar("log", 1)) == "log"
     assert mk_handler().from_universal(make_univ_hotbar("log2", 0)) == "other"

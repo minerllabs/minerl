@@ -16,7 +16,7 @@ class VariantsTestEnvSpec(EnvSpec):
             equip_act_item_ids: Optional[Sequence[dict]] = None,
             equip_obs_item_ids: Optional[Sequence[dict]] = None,
             inventory_obs_item_ids: Optional[Sequence[dict]] = None,
-            name: str ="VariantsTestEnvSpec",
+            name: str = "VariantsTestEnvSpec",
     ):
         """
         Args:

@@ -34,9 +34,9 @@ def make_univ_hotbar(item_type: str, metadata: int):
     return dict(
         hotbar=11,
         slots=dict(gui={
-        'type': 'class net.minecraft.inventory.ContainerPlayer',
-        'slots': ["IGNORED_ELEMENT", dict(name=item_type, variant=metadata)],
-    }))
+            'type': 'class net.minecraft.inventory.ContainerPlayer',
+            'slots': ["IGNORED_ELEMENT", dict(name=item_type, variant=metadata)],
+        }))
 
 
 def test_from_univ():
@@ -59,4 +59,5 @@ def test_from_univ():
     assert handler.from_universal(make_univ_hotbar(item_type="air", metadata=0)) == "none"
     assert handler.from_universal(make_univ_hotbar(item_type="log", metadata=0)) == "other"
     assert handler.from_universal(make_univ_hotbar(item_type="planks", metadata=0)) == "other"
-    assert handler.from_universal(make_univ_hotbar(item_type="sandstone", metadata=2)) == "sandstone"
+    assert handler.from_universal(make_univ_hotbar(item_type="sandstone", metadata=2)
+                                  ) == "sandstone"

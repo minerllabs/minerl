@@ -100,7 +100,8 @@ MINERL_BASALT_VILLAGE_HOUSE_ENV_SPEC = basalt_specs.VillageMakeHouseEnvSpec(high
 
 MINERL_BASALT_FIND_CAVES_HIGH_RES_ENV_SPEC = basalt_specs.FindCaveEnvSpec(high_res=True)
 MINERL_BASALT_MAKE_WATERFALL_HIGH_RES_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec(high_res=True)
-MINERL_BASALT_PEN_ANIMALS_PLAINS_HIGH_RES_ENV_SPEC = basalt_specs.PenAnimalsPlainsEnvSpec(high_res=True)
+MINERL_BASALT_PEN_ANIMALS_PLAINS_HIGH_RES_ENV_SPEC = basalt_specs.PenAnimalsPlainsEnvSpec(
+    high_res=True)
 MINERL_BASALT_PEN_ANIMALS_VILLAGE_HIGH_RES_ENV_SPEC = basalt_specs.PenAnimalsVillageEnvSpec(
     high_res=True)
 MINERL_BASALT_VILLAGE_HOUSE_HIGH_RES_ENV_SPEC = basalt_specs.VillageMakeHouseEnvSpec(high_res=True)

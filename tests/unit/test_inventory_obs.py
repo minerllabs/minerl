@@ -83,7 +83,6 @@ def test_from_hero_simple_quantity_change_mixed_metadata():
                 }
 
 
-
 def make_univ_obs(slots: list) -> dict:
     return dict(slots=dict(gui={
         'type': 'class net.minecraft.inventory.ContainerPlayer',
@@ -131,6 +130,7 @@ def test_from_universal_logs_clobber():
         "log": 20,
         "planks": 0,
     }
+
 
 def test_from_universal_logs_complex():
     handler = handlers.FlatInventoryObservation(

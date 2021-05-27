@@ -186,7 +186,9 @@ class ItemWithMetadataListAction(BaseItemListAction):
         argument unless the item has no metadata constraint, in which case "#?" will be
         appended to the argument.
         """
-        item_type, metadata = util.decode_item_maybe_with_metadata(item_id)  # Also validates item_id.
+        # Also validates item_id.
+        item_type, metadata = util.decode_item_maybe_with_metadata(item_id)
+
         if not util.item_list_contains(self.items, item_type, metadata):
             raise ValueError(f"{item_id} is not found in {self.items}")
         return util.encode_item_with_metadata(item_type, metadata)
@@ -194,5 +196,3 @@ class ItemWithMetadataListAction(BaseItemListAction):
     def to_hero(self, x):
         canonical_item_id = self._preprocess_item_id(x)
         return super().to_hero(canonical_item_id)
-
-

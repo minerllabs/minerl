@@ -62,7 +62,6 @@ def item_list_contains(
         return encode_item_with_metadata(item_type, metadata) in item_list
 
 
-
 def get_unique_matching_item_list_id(
         item_list: Sequence[str],
         item_type: str,
