@@ -10,9 +10,6 @@ import minerl
 
 
 class EnvWrapper(EnvSpec):
-    """
-
-    """
 
     def __init__(self, env_to_wrap: EnvSpec):
         self.env_to_wrap = env_to_wrap

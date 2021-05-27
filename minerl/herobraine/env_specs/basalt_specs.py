@@ -25,9 +25,6 @@ DEFAULT_ITEMS = (
 )
 
 
-# Herobraine log Reference: https://gist.github.com/shwang/329b417d9acf25f1ff861f98724efd45
-# (old) univ.json reference: https://gist.github.com/shwang/c8a6e78bb95b0f3c7fd13b1b752b3ba5
-# Malmo schema reference: https://microsoft.github.io/malmo/0.14.0/Schemas/Types.html#type_ItemType
 MAKE_HOUSE_VILLAGE_INVENTORY = [
     dict(type="stone_shovel", quantity=1),
     dict(type="stone_pickaxe", quantity=1),

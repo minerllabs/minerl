@@ -630,7 +630,6 @@ class _MultiAgentEnv(gym.Env):
                 start_time = time.time()
                 comms.send_message(instance.client_socket, peek_message.encode())
                 obs = comms.recv_message(instance.client_socket)
-                time.sleep(3)  ## DEBUG -- try to get more logs out..
                 info = comms.recv_message(instance.client_socket).decode('utf-8')
 
                 reply = comms.recv_message(instance.client_socket)
