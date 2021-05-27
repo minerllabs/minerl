@@ -19,7 +19,7 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
-import com.microsoft.Malmo.Utils.MineRLTypeHelper;
+import io.netty.buffer.ByteBuf;
 
 import java.util.ArrayList;
 
@@ -27,18 +27,30 @@ import net.minecraft.block.BlockFurnace;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import java.util.Map;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockFurnace;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import com.microsoft.Malmo.MalmoMod;
 import com.microsoft.Malmo.Schemas.MissionInit;
+import com.microsoft.Malmo.Schemas.NearbySmeltCommand;
 import com.microsoft.Malmo.Schemas.NearbySmeltCommands;
 import com.microsoft.Malmo.Utils.CraftingHelper;
 
@@ -46,12 +58,30 @@ import com.microsoft.Malmo.Utils.CraftingHelper;
  * @author Cayden Codel, Carnegie Mellon University
  * <p>
  * Extends the functionality of the SimpleCraftCommands by requiring a furnace close-by. Only handles smelting, no crafting.
- * Can only detect furnaces that were placed nearby -- so furnaces that were spawned at the start of the game inside
- * villages will not be considered.
  */
 public class NearbySmeltCommandsImplementation extends CommandBase {
     private boolean isOverriding;
     private static ArrayList<BlockPos> furnaces;
+
+    public static class SmeltNearbyMessage implements IMessage {
+        String parameters;
+
+        public SmeltNearbyMessage(){}
+
+        public SmeltNearbyMessage(String parameters) {
+            this.parameters = parameters;
+        }
+
+        @Override
+        public void fromBytes(ByteBuf buf) {
+            this.parameters = ByteBufUtils.readUTF8String(buf);
+        }
+
+        @Override
+        public void toBytes(ByteBuf buf) {
+            ByteBufUtils.writeUTF8String(buf, this.parameters);
+        }
+    }
 
     @SubscribeEvent
     public void onBlockPlace(BlockEvent.PlaceEvent event) {
@@ -67,70 +97,68 @@ public class NearbySmeltCommandsImplementation extends CommandBase {
                     furnaces.remove(i);
     }
 
-    public static boolean closeToFurnace(EntityPlayerMP player) {
-        Vec3d headPos = new Vec3d(player.posX, player.posY + 1.6, player.posZ);
-        // Location checking
-        boolean closeFurnace = false;
-        for (BlockPos furnace : furnaces) {
-            Vec3d blockVec = new Vec3d(furnace.getX() + 0.5, furnace.getY() + 0.5, furnace.getZ() + 0.5);
+    public static class SmeltNearbyMessageHandler implements IMessageHandler<SmeltNearbyMessage, IMessage> {
+        @Override
+        public IMessage onMessage(SmeltNearbyMessage message, MessageContext ctx) {
+            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+            Vec3d headPos = new Vec3d(player.posX, player.posY + 1.6, player.posZ);
 
-            if (headPos.squareDistanceTo(blockVec) <= 25.0) {
-                // Within a reasonable FOV?
-                // Lots of trig, let's go
-                double fov = Minecraft.getMinecraft().gameSettings.fovSetting;
-                double height = Minecraft.getMinecraft().displayHeight;
-                double width = Minecraft.getMinecraft().displayWidth;
-                Vec3d lookVec = player.getLookVec();
-                Vec3d toBlock = blockVec.subtract(headPos);
+            // Location checking
+            boolean closeFurnace = false;
+            for (BlockPos furnace : furnaces) {
+                Vec3d blockVec = new Vec3d(furnace.getX() + 0.5, furnace.getY() + 0.5, furnace.getZ() + 0.5);
 
-                // Projection of block onto player look vector - if greater than 0, then in front of us
-                double scalarProjection = lookVec.dotProduct(toBlock) / lookVec.lengthVector();
-                if (scalarProjection > 0) {
-                    Vec3d yUnit = new Vec3d(0, 1.0, 0);
-                    Vec3d lookCross = lookVec.crossProduct(yUnit);
-                    Vec3d blockProjectedOntoCross = lookCross.scale(lookCross.dotProduct(toBlock) / lookCross.lengthVector());
-                    Vec3d blockProjectedOntoPlayerPlane = toBlock.subtract(blockProjectedOntoCross);
-                    double xyDot = lookVec.dotProduct(blockProjectedOntoPlayerPlane);
-                    double pitchTheta = Math.acos(xyDot / (lookVec.lengthVector() * blockProjectedOntoPlayerPlane.lengthVector()));
+                if (headPos.squareDistanceTo(blockVec) <= 25.0) {
+                    // Within a reasonable FOV?
+                    // Lots of trig, let's go
+                    double fov = Minecraft.getMinecraft().gameSettings.fovSetting;
+                    double height = Minecraft.getMinecraft().displayHeight;
+                    double width = Minecraft.getMinecraft().displayWidth;
+                    Vec3d lookVec = player.getLookVec();
+                    Vec3d toBlock = blockVec.subtract(headPos);
 
-                    Vec3d playerY = lookCross.crossProduct(lookVec);
-                    Vec3d blockProjectedOntoPlayerY = playerY.scale(playerY.dotProduct(toBlock) / playerY.lengthVector());
-                    Vec3d blockProjectedOntoYawPlane = toBlock.subtract(blockProjectedOntoPlayerY);
-                    double xzDot = lookVec.dotProduct(blockProjectedOntoYawPlane);
-                    double yawTheta = Math.acos(xzDot / (lookVec.lengthVector() * blockProjectedOntoYawPlane.lengthVector()));
+                    // Projection of block onto player look vector - if greater than 0, then in front of us
+                    double scalarProjection = lookVec.dotProduct(toBlock) / lookVec.lengthVector();
+                    if (scalarProjection > 0) {
+                        Vec3d yUnit = new Vec3d(0, 1.0, 0);
+                        Vec3d lookCross = lookVec.crossProduct(yUnit);
+                        Vec3d blockProjectedOntoCross = lookCross.scale(lookCross.dotProduct(toBlock) / lookCross.lengthVector());
+                        Vec3d blockProjectedOntoPlayerPlane = toBlock.subtract(blockProjectedOntoCross);
+                        double xyDot = lookVec.dotProduct(blockProjectedOntoPlayerPlane);
+                        double pitchTheta = Math.acos(xyDot / (lookVec.lengthVector() * blockProjectedOntoPlayerPlane.lengthVector()));
 
-                    if (Math.abs(Math.toDegrees(yawTheta)) <= Math.min(1, width / height) * (fov / 2.0) && Math.abs(Math.toDegrees(pitchTheta)) <= Math.min(1, height / width) * (fov / 2.0))
-                        closeFurnace = true;
+                        Vec3d playerY = lookCross.crossProduct(lookVec);
+                        Vec3d blockProjectedOntoPlayerY = playerY.scale(playerY.dotProduct(toBlock) / playerY.lengthVector());
+                        Vec3d blockProjectedOntoYawPlane = toBlock.subtract(blockProjectedOntoPlayerY);
+                        double xzDot = lookVec.dotProduct(blockProjectedOntoYawPlane);
+                        double yawTheta = Math.acos(xzDot / (lookVec.lengthVector() * blockProjectedOntoYawPlane.lengthVector()));
+
+                        if (Math.abs(Math.toDegrees(yawTheta)) <= Math.min(1, width / height) * (fov / 2.0) && Math.abs(Math.toDegrees(pitchTheta)) <= Math.min(1, height / width) * (fov / 2.0))
+                            closeFurnace = true;
+                    }
                 }
             }
-        }
-        return closeFurnace;
-    }
 
-    public static class SmeltNearbyMessageHandler implements IMessageHandler<MineRLTypeHelper.ItemTypeMetadataMessage, IMessage> {
-        @Override
-        public IMessage onMessage(MineRLTypeHelper.ItemTypeMetadataMessage message, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            if (closeToFurnace(player)) {
-                // TODO: Does metadata matter for constructing the smelting recipe?
-                ItemStack recipe = CraftingHelper.getSmeltingRecipeForRequestedOutput(message.getItemType(), player);
-                if (recipe != null)
-                    CraftingHelper.attemptSmelting(player, recipe);
+            if (closeFurnace) {
+                ItemStack input = CraftingHelper.getSmeltingRecipeForRequestedOutput(message.parameters, player);
+                if (input != null)
+                    if (CraftingHelper.attemptSmelting(player, input))
+                        return null;
             }
+
             return null;
         }
     }
 
+
+
     @Override
     protected boolean onExecute(String verb, String parameter, MissionInit missionInit) {
-        if (!verb.equalsIgnoreCase("smeltNearby"))
-            return false;
-
-        MineRLTypeHelper.ItemTypeMetadataMessage msg = new MineRLTypeHelper.ItemTypeMetadataMessage(parameter);
-        if (msg.validateItemType()) {
-            MalmoMod.network.sendToServer(msg);
+        if (verb.equalsIgnoreCase("smeltNearby") && !parameter.equalsIgnoreCase("none")) {
+            MalmoMod.network.sendToServer(new SmeltNearbyMessage(parameter));
+            return true;
         }
-        return true;  // Packet is captured by smelt handler
+        return false;
     }
 
     @Override
