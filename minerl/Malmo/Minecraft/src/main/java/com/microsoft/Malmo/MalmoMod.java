@@ -148,6 +148,8 @@ public class MalmoMod
         network.registerMessage(EquipCommandsImplementation.EquipMessageHandler.class, EquipCommandsImplementation.EquipMessage.class, 15, Side.SERVER);
         network.registerMessage(PlaceCommandsImplementation.PlaceMessageHandler.class, PlaceCommandsImplementation.PlaceMessage.class, 16, Side.SERVER);
         network.registerMessage(TradeCommandsImplementation.TradeMessageHandler.class, TradeCommandsImplementation.TradeMessage.class, 17, Side.SERVER);
+        network.registerMessage(NearbyCraftCommandsImplementation.CraftingTableMessageHandler.class, NearbyCraftCommandsImplementation.CraftingTableMessage.class, 18, Side.CLIENT);
+        network.registerMessage(NearbySmeltCommandsImplementation.FurnaceMessageHandler.class, NearbySmeltCommandsImplementation.FurnaceMessage.class, 19, Side.CLIENT);
     }
 
     @EventHandler

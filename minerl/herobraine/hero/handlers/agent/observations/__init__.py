@@ -11,3 +11,4 @@ from .lifestats import *
 from .pov import *
 from .nearby_entity import *
 from .ray import *
+from .can_craft import *

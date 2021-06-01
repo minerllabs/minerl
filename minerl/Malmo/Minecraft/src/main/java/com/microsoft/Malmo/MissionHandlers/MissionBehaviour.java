@@ -164,26 +164,46 @@ public class MissionBehaviour
         if (handler == null)
             return;
 
-        if (handler instanceof IVideoProducer)
+        boolean recognizedHandler = false;
+        if (handler instanceof IVideoProducer) {
             addVideoProducer((IVideoProducer)handler);
-        else if (handler instanceof IAudioProducer)
+            recognizedHandler = true;
+        }
+        if (handler instanceof IAudioProducer) {
             addAudioProducer((IAudioProducer)handler);
-        else if (handler instanceof IPerformanceProducer)
+            recognizedHandler = true;
+        }
+        if (handler instanceof IPerformanceProducer) {
             addPerformanceProducer((IPerformanceProducer)handler);
-        else if (handler instanceof ICommandHandler)
+            recognizedHandler = true;
+        }
+        if (handler instanceof ICommandHandler) {
             addCommandHandler((ICommandHandler)handler);
-        else if (handler instanceof IObservationProducer)
+            recognizedHandler = true;
+        }
+        if (handler instanceof IObservationProducer) {
             addObservationProducer((IObservationProducer)handler);
-        else if (handler instanceof IRewardProducer)
+            recognizedHandler = true;
+        }
+        if (handler instanceof IRewardProducer) {
             addRewardProducer((IRewardProducer)handler);
-        else if (handler instanceof IWorldGenerator)
+            recognizedHandler = true;
+        }
+        if (handler instanceof IWorldGenerator) {
             addWorldGenerator((IWorldGenerator)handler);
-        else if (handler instanceof IWorldDecorator)
+            recognizedHandler = true;
+        }
+        if (handler instanceof IWorldDecorator) {
             addWorldDecorator((IWorldDecorator)handler);
-        else if (handler instanceof IWantToQuit)
+            recognizedHandler = true;
+        }
+        if (handler instanceof IWantToQuit) {
             addQuitProducer((IWantToQuit)handler);
-        else
+            recognizedHandler = true;
+        }
+        if (!recognizedHandler) {
             this.failedHandlers += handler.getClass().getSimpleName() + " isn't of a recognised handler type.\n";
+        }
     }
     
     private void addVideoProducer(IVideoProducer handler)
