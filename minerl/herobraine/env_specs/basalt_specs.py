@@ -77,13 +77,19 @@ class EndAfterSnowballThrowWrapper(gym.Wrapper):
 def _basalt_gym_entrypoint(
         env_spec: "BasaltBaseEnvSpec",
         fake: bool = False,
-        end_after_snowball_throw: bool = True,
+        video_record_path: Optional[str] = None,
+        end_after_snowball_throw: bool = True
 ) -> _singleagent._SingleAgentEnv:
     """Used as entrypoint for `gym.make`."""
     if fake:
         env = _fake._FakeSingleAgentEnv(env_spec=env_spec)
     else:
-        env = _singleagent._SingleAgentEnv(env_spec=env_spec)
+        if video_record_path is not None:
+            env = _singleagent._SingleAgentEnv(env_spec=env_spec,
+                                               record_agents=[0],
+                                               video_record_path=video_record_path )
+        else:
+            env = _singleagent._SingleAgentEnv(env_spec=env_spec)
     if end_after_snowball_throw:
         env = EndAfterSnowballThrowWrapper(env)
     return env

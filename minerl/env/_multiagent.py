@@ -4,10 +4,12 @@
 from copy import deepcopy
 import json
 import logging
+import pathlib
 from minerl.env.comms import retry
 from minerl.env.exceptions import MissionInitException
 import os
 from minerl.herobraine.wrapper import EnvWrapper
+from minerl.herobraine.wrappers.video_recording_wrapper import _VideoWriter
 import struct
 from minerl.env.malmo import InstanceManager, MinecraftInstance, launch_queue_logger_thread, malmo_version
 import uuid
@@ -67,6 +69,8 @@ class _MultiAgentEnv(gym.Env):
                  is_fault_tolerant: bool = True,
                  verbose: bool = False,
                  _xml_mutator_to_be_deprecated: Optional[Callable] = None,
+                 record_agents: Optional[List[int]] = None,
+                 video_record_path: Optional[str] = None
                  ):
         """
         Constructor of MineRLEnv.
@@ -76,9 +80,27 @@ class _MultiAgentEnv(gym.Env):
         :param is_fault_tolerant: If the instance is fault tolerant.
         :param verbose: If the MineRL env is verbose.
         :param _xml_mutator_to_be_deprecated: A function which mutates the mission XML when called.
+        :param record_agents: If this is None, that indicates that no agents are to be recorded. Otherwise, it is
+        a list of integers, indicating which agents in this multi-agent environment should have videos of their
+        POV trajectories saved out.
+
         """
         self.task = env_spec
         self.instances = instances if instances is not None else []  # type: List[MinecraftInstance]
+        self.record_agents = record_agents
+        if self.record_agents is not None:
+            assert video_record_path is not None
+            self.video_directory = pathlib.Path(video_record_path)
+            # We intentionally error if the directory exists to avoid overwrites
+            self.video_directory.mkdir(parents=True)
+            video_dims = self.observation_space.spaces["pov"].shape
+            self.video_writers = {agent_ind: _VideoWriter(video_width=video_dims[0],
+                                                          video_height=video_dims[1],
+                                                          fps=20.0,)
+                                  for agent_ind in self.record_agents}
+        else:
+            # It's easier to null-iterate over an empty list than check for a None later
+            self.record_agents = []
 
         # TO DEPRECATE (FOR ENV_SPECS)
         self._xml_mutator_to_be_deprecated = _xml_mutator_to_be_deprecated or (lambda x: x)
@@ -129,7 +151,7 @@ class _MultiAgentEnv(gym.Env):
     def seed(self, seed=None, seed_spaces=True):
         """Seeds the environment!
 
-        This also seeds the aciton_space and observation_space sampling.
+        This also seeds the action_space and observation_space sampling.
 
         Note:
         THIS MUST BE CALLED BEFORE :code:`env.reset()`
@@ -222,7 +244,7 @@ class _MultiAgentEnv(gym.Env):
         self._last_pov[actor_name] = obs_dict['pov']
         self._last_obs[actor_name] = obs_dict
 
-        # Process all of the monotors (aux info) using THIS env spec.
+        # Process all of the monitors (aux info) using THIS env spec.
         for m in self.task.monitors:
             monitor_dict[m.to_string()] = m.from_hero(info)
 
@@ -290,6 +312,7 @@ class _MultiAgentEnv(gym.Env):
                         # Receive the observation.
                         obs = comms.recv_message(instance.client_socket)
 
+
                         # Receive reward done and sent.
                         reply = comms.recv_message(instance.client_socket)
                         reward, done, sent = struct.unpack("!dbb", reply)
@@ -303,6 +326,8 @@ class _MultiAgentEnv(gym.Env):
 
                         # Process the observation and done state.
                         out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
+                        if role in self.record_agents:
+                            self.video_writers[role].write_rgb_image(out_obs['pov'])
                     else:
                         # IF THIS PARTICULAR AGENT IS DONE THEN:
                         reward = 0.0
@@ -464,7 +489,7 @@ class _MultiAgentEnv(gym.Env):
             if self.task.agent_count > 1:
                 mc_server_ip, mc_server_port = self._TO_MOVE_find_ip_and_port(self.instances[0],
                                                                               self._get_token(1, ep_uid))
-                # update slave instnaces xmls with the server port and IP and setup their missions.
+                # update slave instances xmls with the server port and IP and setup their missions.
                 for slave_instance, slave_xml, role in list(zip(
                         self.instances, agent_xmls, range(1, self.task.agent_count + 1)))[1:]:
                     self._setup_slave_master_connection_info(slave_xml, mc_server_ip, mc_server_port)
@@ -480,6 +505,14 @@ class _MultiAgentEnv(gym.Env):
             # perhaps the first seed sets the seed of the random engine which then seeds
             # the episode in a cascading fashion
             self._seed = None
+
+    def _reset_video_recorders(self, obs, agent_ind):
+        # TODO figure out what other metadata we might want saved?
+        video_path = self.video_directory / f"{agent_ind}_{self._seed}_{round(time.time())}_.mp4"
+        if self.video_writers[agent_ind].is_open():
+            self.video_writers[agent_ind].close()
+        self.video_writers[agent_ind].open(video_path)
+        self.video_writers[agent_ind].write_rgb_image(obs['pov'])
 
     def _setup_spaces(self) -> None:
         self.observation_space = self.task.observation_space
@@ -627,7 +660,7 @@ class _MultiAgentEnv(gym.Env):
             logger.debug("Peeking the clients.")
             peek_message = "<Peek/>"
             multi_done = True
-            for actor_name, instance in zip(self.task.agent_names, self.instances):
+            for actor_index, (actor_name, instance) in enumerate(zip(self.task.agent_names, self.instances)):
                 start_time = time.time()
                 comms.send_message(instance.client_socket, peek_message.encode())
                 obs = comms.recv_message(instance.client_socket)
@@ -645,7 +678,7 @@ class _MultiAgentEnv(gym.Env):
                             'too long waiting for first observation')
                     time.sleep(0.1)
                     # FIXME - shouldn't we error or retry here?
-
+                self._reset_video_recorders(obs, actor_index)
                 multi_obs[actor_name], _ = self._process_observation(actor_name, obs, info)
             self.done = multi_done
             if self.done:
