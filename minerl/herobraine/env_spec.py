@@ -207,7 +207,7 @@ class EnvSpec(abc.ABC):
     def get_docstring(self):
         return NotImplemented
 
-    def make(self, fake=False, **additonal_kwargs):
+    def make(self, fake=False, **additional_kwargs):
         """Turns the env_spec into a MineRLEnv
 
         Args:
@@ -217,7 +217,7 @@ class EnvSpec(abc.ABC):
         entry_point = self._entry_point(fake)
         module = importlib.import_module(entry_point.split(':')[0])
         class_ = getattr(module, entry_point.split(':')[-1])
-        return class_(**self._env_kwargs(), **additonal_kwargs)
+        return class_(**self._env_kwargs(), **additional_kwargs)
 
     def register(self, fake=False):
         reg_spec = dict(

@@ -88,19 +88,7 @@ class _MultiAgentEnv(gym.Env):
         self.task = env_spec
         self.instances = instances if instances is not None else []  # type: List[MinecraftInstance]
         self.record_agents = record_agents
-        if self.record_agents is not None:
-            assert video_record_path is not None
-            self.video_directory = pathlib.Path(video_record_path)
-            # We intentionally error if the directory exists to avoid overwrites
-            self.video_directory.mkdir(parents=True)
-            video_dims = self.observation_space.spaces["pov"].shape
-            self.video_writers = {agent_ind: _VideoWriter(video_width=video_dims[0],
-                                                          video_height=video_dims[1],
-                                                          fps=20.0,)
-                                  for agent_ind in self.record_agents}
-        else:
-            # It's easier to null-iterate over an empty list than check for a None later
-            self.record_agents = []
+
 
         # TO DEPRECATE (FOR ENV_SPECS)
         self._xml_mutator_to_be_deprecated = _xml_mutator_to_be_deprecated or (lambda x: x)
@@ -114,6 +102,20 @@ class _MultiAgentEnv(gym.Env):
         self._init_interactive()
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
+
+        if self.record_agents is not None:
+            assert video_record_path is not None
+            self.video_directory = pathlib.Path(video_record_path)
+            # We intentionally error if the directory exists to avoid overwrites
+            self.video_directory.mkdir(parents=True)
+            video_dims = self.observation_space.spaces["pov"].shape
+            self.video_writers = {agent_ind: _VideoWriter(video_width=video_dims[0],
+                                                          video_height=video_dims[1],
+                                                          fps=20.0,)
+                                  for agent_ind in self.record_agents}
+        else:
+            # It's easier to null-iterate over an empty list than check for a None later
+            self.record_agents = []
 
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
@@ -508,7 +510,7 @@ class _MultiAgentEnv(gym.Env):
 
     def _reset_video_recorders(self, obs, agent_ind):
         # TODO figure out what other metadata we might want saved?
-        video_path = self.video_directory / f"{agent_ind}_{self._seed}_{round(time.time())}_.mp4"
+        video_path = self.video_directory / f"{agent_ind}_{self._seed}_{round(time.time())}.mp4"
         if self.video_writers[agent_ind].is_open():
             self.video_writers[agent_ind].close()
         self.video_writers[agent_ind].open(video_path)
@@ -678,8 +680,8 @@ class _MultiAgentEnv(gym.Env):
                             'too long waiting for first observation')
                     time.sleep(0.1)
                     # FIXME - shouldn't we error or retry here?
-                self._reset_video_recorders(obs, actor_index)
                 multi_obs[actor_name], _ = self._process_observation(actor_name, obs, info)
+                self._reset_video_recorders(multi_obs[actor_name], actor_index)
             self.done = multi_done
             if self.done:
                 raise RuntimeError(

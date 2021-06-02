@@ -87,7 +87,7 @@ def _basalt_gym_entrypoint(
         if video_record_path is not None:
             env = _singleagent._SingleAgentEnv(env_spec=env_spec,
                                                record_agents=[0],
-                                               video_record_path=video_record_path )
+                                               video_record_path=video_record_path)
         else:
             env = _singleagent._SingleAgentEnv(env_spec=env_spec)
     if end_after_snowball_throw:
