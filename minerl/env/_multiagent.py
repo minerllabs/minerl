@@ -24,12 +24,21 @@ import numpy as np
 from minerl.herobraine.env_spec import EnvSpec
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+from minerl.env.exceptions import SlowOperationException
+
 NS = "{http://ProjectMalmo.microsoft.com}"
 STEP_OPTIONS = 0
 
 MAX_WAIT = 600  # Time to wait before raising an exception (high value because some operations we wait on are very slow)
 SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
 TICK_LENGTH = 0.05
+
+# If we take longer than STEP_ELAPSED_WARNING_SECS and TICK_ELAPSED_WARNING_SECS to step() the env
+# or tick() the minecraft instances, then we warn (log or exception, see implementation.) The
+# default timeout in Minecraft is 30 seconds, so we set something close to that here, although we
+# should consider whether a few seconds is bad enough to trigger this.
+STEP_ELAPSED_WARNING_SECS = 25.0
+TICK_ELAPSED_WARNING_SECS = STEP_ELAPSED_WARNING_SECS
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +102,11 @@ class _MultiAgentEnv(gym.Env):
         self._init_interactive()
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
+
+        # _last_step_start_time and _last_tick_start_per_actor are used to warn when we are
+        # too slow ticking the java instances, which can cause timeouts.
+        self._last_step_start_time = None  # last time we started step()
+        self._last_tick_start_per_actor = {}  # last time we called tick() for an actor
 
     ############ PROPERTIES ##########
 
@@ -272,6 +286,25 @@ class _MultiAgentEnv(gym.Env):
         # TODO (R): Move this to env_spec in some reasonable way.
         return action in env_spec.action_space[actor_name]
 
+    def verify_step_time_constraint(self) -> None:
+        """Check whether the last time we called this method it was not too long ago, according to
+        the constant STEP_ELAPSED_WARNING_SECS. If it was, fire an exception since the Minecraft
+        instances expect to be called within a certain time limit before their sockets time out. It
+        is expected that the timer is not present the first time we call this method after an
+        environment reset.
+
+        :raise SlowOperationException: If we called this method too long ago (excluding after an
+        environment reset).
+        """
+        step_time = time.time()
+        if self._last_step_start_time is not None:
+            elapsed_since_last = step_time - self._last_step_start_time
+            if elapsed_since_last > STEP_ELAPSED_WARNING_SECS:
+                msg = f"You are stepping the environment too slowly! This can cause java socket " \
+                      f"timeouts: {elapsed_since_last}s > {STEP_ELAPSED_WARNING_SECS}s."
+                raise SlowOperationException(message=msg)
+        self._last_step_start_time = step_time
+
     def step(self, actions) -> Tuple[
         Dict[str, Dict[str, Any]], Dict[str, float], bool, Dict[str, Dict[str, Any]]]:
         """
@@ -280,6 +313,11 @@ class _MultiAgentEnv(gym.Env):
         request that rendering is not performed in Minecraft, since we do not need that observation.
         """
         actions = copy(actions)
+
+        # verify that we are not stepping the environment too late, which will result in java
+        # timeouts in the minecraft instances, and can cause failures in different callstacks,
+        # depending on when the timeout happens.
+        self.verify_step_time_constraint()
 
         final_obs = None
         final_reward = {agent_name: 0 for agent_name in actions}
@@ -293,7 +331,7 @@ class _MultiAgentEnv(gym.Env):
 
             # tick all instances and server now
             tick_obs, tick_reward, everyone_is_done, tick_info = self.tick_all_agents(
-                actions=actions, skip_render=skip_render)
+                actions=actions, skip_render=skip_render, frame_idx=frame_idx)
 
             # we always override the final observation (unlike rewards and infos, that accumulate)
             final_obs = tick_obs
@@ -329,10 +367,41 @@ class _MultiAgentEnv(gym.Env):
 
         return final_obs, final_reward, everyone_is_done, final_infos
 
-    def tick_all_agents(self, actions, skip_render: bool) -> Tuple[
-        Dict[str, Dict[str, Any]], Dict[str, float], bool, Dict[str, Dict[str, Any]]]:
+    def verify_agent_tick_time_constraint(self, actor_name: str, frame_idx: int) -> None:
+        """Check whether the last time that we called this method it was not too long ago,
+        according to the warning constant `TICK_ELAPSED_WARNING_SECS`. If it was, fire an exception
+        since the Minecraft instances expect to be called within a certain time limit before
+        their sockets time out. It is expected that the timer is not present the first time
+        we call this method after an environment reset.
+
+        :param actor_name: Actor name for which we are checking their tick timer.
+        :param frame_idx: Index of the frame/stick we are checking its timer against (for debugging
+        purposes).
+        :raise SlowOperationException: If we called this method too long ago (excluding after an
+        environment reset).
         """
-        Tick once the Minecraft instances and then the server.
+        tick_time = time.time()
+        last_tick_time = self._last_tick_start_per_actor.get(actor_name, None)
+        if last_tick_time is not None:
+            elapsed_since_last = tick_time - last_tick_time
+            if elapsed_since_last > TICK_ELAPSED_WARNING_SECS:
+                msg = f"You are ticking an actor too slowly! This can cause java " \
+                      f"socket timeouts: {elapsed_since_last}s > " \
+                      f"{TICK_ELAPSED_WARNING_SECS}s, for {actor_name}, tick {frame_idx}."
+                raise SlowOperationException(message=msg)
+        self._last_tick_start_per_actor[actor_name] = tick_time
+
+    def tick_all_agents(self, actions, skip_render: bool, frame_idx: int) -> Tuple[
+        Dict[str, Dict[str, Any]], Dict[str, float], bool, Dict[str, Dict[str, Any]]]:
+        """Tick once the Minecraft instances and then the server.
+
+        :param actions: Actions to perform in this frame/tick for each agent.
+        :param skip_render: Whether we should ask minecraft to skip rendering the frame, since
+        we will not use that pov observation.
+        :param frame_idx: Index of the frame we are ticking.
+        :return: A tuple of a dictionary with observations per agent, a dictionary of rewards per
+        agent, a boolean on whether every agent wants to finish the environment, and a dictionary
+        of monitor information per agent.
         """
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
@@ -353,6 +422,10 @@ class _MultiAgentEnv(gym.Env):
                         step_message = "<StepClient" + str(STEP_OPTIONS) + skip_render_arg + ">" + \
                                        malmo_command + \
                                        "</StepClient" + str(STEP_OPTIONS) + " >"
+
+                        # make sure that we did not take too long before ticking the agent
+                        self.verify_agent_tick_time_constraint(actor_name=actor_name,
+                                                               frame_idx=frame_idx)
 
                         # Send Actions.
                         comms.send_message(instance.client_socket, step_message.encode())
@@ -548,6 +621,10 @@ class _MultiAgentEnv(gym.Env):
             # Episodic state variables
             self.done = False
             self.has_finished = {agent: False for agent in self.task.agent_names}
+
+            # other bookkeeping vars
+            self._last_step_start_time = None
+            self._last_tick_start_per_actor = {}
 
             # Start the Mission/Task, by sending the master mission XML over
             # the pipe to these instances, and  update the agent xmls to get

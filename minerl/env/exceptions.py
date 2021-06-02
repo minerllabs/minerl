@@ -20,6 +20,15 @@ class MissionInitException(Exception):
         super(MissionInitException, self).__init__(message)
 
 
+class SlowOperationException(Exception):
+    """
+    Exception thrown when we step the environment too slowly, which can cause java timeouts.
+    """
+
+    def __init__(self, message):
+        super(SlowOperationException, self).__init__(message)
+
+
 class BadObservationException(Exception):
     """
     Exception thrown when observations received from java are malformed and can't be processed.
