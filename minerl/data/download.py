@@ -24,8 +24,8 @@ import coloredlogs
 logger = logging.getLogger(__name__)
 
 
-def download(directory=None, resolution='low', texture_pack=0, update_environment_variables=True, disable_cache=False,
-             experiment=None, minimal=False):
+def download(directory=None, resolution='low', competition='diamond', texture_pack=0, update_environment_variables=True,
+             disable_cache=False, experiment=None, minimal=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
@@ -82,7 +82,7 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
 
     if experiment is None:
         min_str = '_minimal' if minimal else ''
-        filename = "v{}/data_texture_{}_{}_res{}.tar".format(DATA_VERSION, texture_pack, resolution, min_str)
+        filename = "v{}/{}_data_texture_{}_{}_res{}.tar".format(competition, DATA_VERSION, texture_pack, resolution, min_str)
         urls = [mirror + filename for mirror in mirrors]
 
     else:
