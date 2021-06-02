@@ -51,8 +51,8 @@ MAKE_HOUSE_VILLAGE_INVENTORY = [
     dict(type="wooden_pressure_plate", quantity=64),
     dict(type="sand", quantity=64),
     dict(type="dirt", quantity=64),
-    dict(type="red_flower", quantity=4),
-    dict(type="flower_pot", quantity=4),
+    dict(type="red_flower", quantity=3),
+    dict(type="flower_pot", quantity=3),
     dict(type="cactus", quantity=3),
     dict(type="snowball", quantity=1),
 ]
@@ -246,7 +246,7 @@ class FindCaveEnvSpec(BasaltBaseEnvSpec):
         super().__init__(
             name="MineRLBasaltFindCave-v0",
             demo_server_experiment_name="findcave",
-            max_episode_steps=2 * MINUTE,
+            max_episode_steps=3*MINUTE,
             high_res=high_res,
         )
 
@@ -267,7 +267,7 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
         super().__init__(
             name="MineRLBasaltMakeWaterfall-v0",
             demo_server_experiment_name="waterfall",
-            max_episode_steps=6000,  # TODO(shwang): Find better episode end times
+            max_episode_steps=5*MINUTE,
             high_res=high_res,
         )
 
@@ -298,7 +298,7 @@ class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
         super().__init__(
             name="MineRLBasaltCreateAnimalPenPlains-v0",
             demo_server_experiment_name="pen_animals",
-            max_episode_steps=6000,
+            max_episode_steps=5*MINUTE,
             high_res=high_res,
         )
 
@@ -330,7 +330,7 @@ class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
         super().__init__(
             name="MineRLBasaltCreateAnimalPenVillage-v0",
             demo_server_experiment_name="village_pen_animals",
-            max_episode_steps=6000,
+            max_episode_steps=5*MINUTE,
             high_res=high_res,
         )
 
@@ -357,7 +357,7 @@ class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
         super().__init__(
             name="MineRLBasaltBuildVillageHouse-v0",
             demo_server_experiment_name="village_make_house",
-            max_episode_steps=12000,
+            max_episode_steps=12*MINUTE,
             high_res=high_res,
         )
 

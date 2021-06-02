@@ -120,7 +120,8 @@ def inventory_start_spec_to_item_ids(inv_spec: Sequence[dict]) -> List[str]:
     item ids suitable for passing into other handlers, like FlatInventoryObservation and
     EquipAction.
 
-    [dict(type=planks, metadata=2, quantity=3), ...] => ["planks#2", "wooden_pickaxe", ...]
+    [dict(type=planks, metadata=2, quantity=3),
+     dict(type=wooden_pickaxe, quantity=1), ...] => ["planks#2", "wooden_pickaxe", ...]
     """
     result = []
     for d in inv_spec:
