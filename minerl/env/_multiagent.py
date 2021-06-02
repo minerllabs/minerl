@@ -336,6 +336,7 @@ class _MultiAgentEnv(gym.Env):
                         out_obs = self._last_obs[actor_name]
                         done = True
                         monitor = {}
+                        self.video_writers[role].close()
 
                     # concatenate multi-agent obs, rew, done
                     multi_obs[actor_name] = out_obs

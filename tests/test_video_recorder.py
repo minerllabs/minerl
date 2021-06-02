@@ -15,6 +15,7 @@ def test_video_saves():
         assert obs in env.observation_space
         for _ in range(10):
             obs, rew, done, info = env.step(env.action_space.sample())
+        _ = env.reset()
         dir_contents = os.listdir(os.path.join(tmpdir, 'video'))
         assert len(dir_contents) > 0
         assert 'mp4' in dir_contents[0]
