@@ -39,12 +39,27 @@ def test_from_univ_ignore_repeat():
     assert handler.from_universal(make_univ_hotbar("planks", 1)) == "none"
     assert handler.from_universal(make_univ_hotbar("planks", 2)) == "none"
     assert handler.from_universal(make_univ_hotbar("planks", 3)) == "none"
-    assert handler.from_universal(make_univ_hotbar("sandstone", 0)) == "other"
-    assert handler.from_universal(make_univ_hotbar("log", 0)) == "none"  # repeated other
+    assert handler.from_universal(make_univ_hotbar("log", 0)) == "other"
     assert handler.from_universal(make_univ_hotbar("log", 0)) == "none"
     assert handler.from_universal(make_univ_hotbar("planks", 3)) == "planks"
     assert handler.from_universal(make_univ_hotbar("sandstone", 12)) == "sandstone#12"
     assert handler.from_universal(make_univ_hotbar("sandstone", 12)) == "none"
+
+
+def test_from_univ_other_repeats_selective_ignore():
+    # Should ignore repeats of the same "other" item, but not changes between "other" items.
+    handler = handlers.EquipAction(["planks", "sandstone#12", "none", "other"])
+    assert handler.from_universal(make_univ_hotbar("sandstone", 0)) == "other"
+    for _ in range(5):
+        assert handler.from_universal(make_univ_hotbar("sandstone", 0)) == "none"
+    for _ in range(5):
+        assert handler.from_universal(make_univ_hotbar("sandstone", 1)) == "other"
+        assert handler.from_universal(make_univ_hotbar("sandstone", 0)) == "other"
+
+    assert handler.from_universal(make_univ_hotbar("planks", 0)) == "planks"
+    assert handler.from_universal(make_univ_hotbar("stone_axe", 0)) == "other"
+    assert handler.from_universal(make_univ_hotbar("stone_axe", 0)) == "none"
+    assert handler.from_universal(make_univ_hotbar("stone_axe", 0)) == "none"
 
 
 def test_to_hero_simple():

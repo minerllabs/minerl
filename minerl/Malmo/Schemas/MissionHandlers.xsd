@@ -603,7 +603,6 @@
 
     <xs:complexType name="ContainedObjectType">
         <xs:attribute name="type" use="required" type="BlockOrItem"/>
-        <xs:attribute name="metadata" type="Metadata" use="optional"/>
         <xs:attribute name="variant" use="optional" type="Variation"/>
         <xs:attribute name="colour" use="optional" type="Colour"/>
         <xs:attribute name="quantity" type="xs:int" use="optional" default="1"/>

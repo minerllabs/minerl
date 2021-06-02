@@ -21,13 +21,15 @@ class EquipAction(action.ItemWithMetadataListAction):
         default no-craft action
         """
         super().__init__("equip", items, _default=_default, _other=_other)
-        self.previous = self._default
+        self._previous_id = self._default
+        self._previous_type = None
+        self._previous_metadata = None
 
     def xml_template(self) -> str:
         return str("<EquipCommands/>")
 
     def reset(self):
-        self.previous = self._default
+        self._previous_id = self._default
 
     def from_universal(self, obs) -> str:
         slots_gui_type = obs['slots']['gui']['type']
@@ -35,23 +37,33 @@ class EquipAction(action.ItemWithMetadataListAction):
             hotbar_index = int(obs['hotbar'])
             hotbar_slot = obs['slots']['gui']['slots'][-10 + hotbar_index]
 
+            if len(hotbar_slot.keys()) == 0:
+                # Really we should be returning air, and requiring that it exists in `self.items`?
+                return self._default
+
             item_type = mc.strip_item_prefix(hotbar_slot['name'])
             metadata = hotbar_slot['variant']
             id = util.get_unique_matching_item_list_id(self.items, item_type, metadata,
                                                        clobber_logs=False)
             if id is None:
-                id = "other"
-
-            # TODO(shwang): Tell Brandon that this is a change in behavior (probably ok?)
-            #   Consecutive "other" now results in "none". It used to be the case that
-            #   "other" would always be returned regardless of repetition and whether
-            #   ground-truth-"other" equipped items were being changed. This behavior
-            #   was different from the behavior of other keys.
-            if id == self.previous:
-                return self._default
+                # Matching item ID not found because item_type + metadata is outside of item list.
+                # Return "other" if this combination
+                # of item_type + metadata is different than the previous item step. (New other item
+                # equipped.)
+                # Otherwise, return "none" to indicate that the equipped item stack has not changed.
+                if self._previous_type == item_type and self._previous_metadata == metadata:
+                    result = self._default
+                else:
+                    result = self._other
+            elif id == self._previous_id:
+                result = self._default
             else:
-                self.previous = id
-                return id
+                result = id
+
+            self._previous_id = id
+            self._previous_type = item_type
+            self._previous_metadata = metadata
+            return result
         else:
             self.logger.warning(f"Unexpected slots_gui_type={slots_gui_type}, "
                                 f"Abandoning processing and simply returning {self._default}"

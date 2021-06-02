@@ -16,8 +16,10 @@ def _univ_obs_get_all_inventory_slots(obs: dict) -> List[dict]:
     Observations in univ.json contain "slot dicts" containing info about
     items held in player or container inventories. This function processes an obs dict
     from univ.json, and returns
-    the list of "slot" dictionaries, where every non-empty dictionary corresponds to
-    an item stack.
+    the list of "slot" dictionaries, where every dictionary corresponds to
+    an item stack. Non-empty dictionaries have "type", "metadata", and "quantity" keys.
+    Empty dictionaries represent empty inventory slots, corresponding to stacks of type
+    "air".
 
     See the following link for an example format:
     https://gist.github.com/shwang/9c8815e952eb2a4c308aea09f112cd6a#file-univ-head-json-L162
@@ -103,7 +105,17 @@ class FlatInventoryObservation(TranslationHandler):
 
             # Add from all slots
             for stack in slots:
+                if len(stack.keys()) == 0:
+                    # Skip this slot to maintain same behavior as pre-variant/metadata code.
+                    #
+                    # But really, this empty dict represents an "air" slot, and the
+                    # "air" if-statement a few lines down is never triggered.
+                    # See https://gist.github.com/shwang/3c3a5431f868a73e288d4a828e50d1c3
+                    # for an example univ.json, where all of the "air" slots are empty dicts
+                    # instead of dicts where `slot["name"] == "air"`.
+                    continue
                 item_type = mc.strip_item_prefix(stack['name'])
+
                 if item_type == "air" and "air" in item_dict:
                     item_dict["air"] += 1
                 else:

@@ -158,6 +158,9 @@ class _ItemIDObservation(TranslationHandler):
                     offset -= 1
 
                 equip_slot = obs['slots']['gui']['slots'][offset + hotbar_index]
+                if len(equip_slot.keys()) == 0:
+                    return self._default
+
                 item_type = mc.strip_item_prefix(equip_slot['name'])
                 metadata = equip_slot['variant']
                 if item_type == 'air':
@@ -166,6 +169,7 @@ class _ItemIDObservation(TranslationHandler):
                 item_id = util.get_unique_matching_item_list_id(
                     self._items, item_type, metadata)
                 if item_id is None:
+                    print(f"Unknown item: '{item_type}#{metadata}'")
                     return self._other
                 else:
                     return item_id
@@ -175,8 +179,6 @@ class _ItemIDObservation(TranslationHandler):
             # No item in hotbar slot - return 'none'
             # This looks wierd, but this will happen if the obs doesn't show up in the univ json.
             return self._default
-        except ValueError:
-            return self._other
 
     def __or__(self, other):
         """
