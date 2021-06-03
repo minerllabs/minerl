@@ -130,6 +130,7 @@ exec.getOutputs().upToDateWhen( { return false } )
 
 dependencies {
     compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
+    compile 'org.jetbrains:annotations:16.0.2'
 }
 
 processResources

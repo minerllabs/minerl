@@ -2,9 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 from typing import Optional
 
-from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
-import jinja2
-import minerl.herobraine.hero.spaces as spaces
+from minerl.herobraine.hero.handlers.agent.action import ItemListAction
 
 
 class CraftAction(ItemListAction):
@@ -35,8 +33,7 @@ class CraftAction(ItemListAction):
             kwargs['_other'] = _other
         if _default is not None:
             kwargs['_default'] = _default
-        super().__init__(
-            self._command, items, **kwargs)
+        super().__init__(self._command, items, **kwargs)
 
     def from_universal(self, obs):
         if 'diff' in obs and 'crafted' in obs['diff'] and len(obs['diff']['crafted']) > 0:

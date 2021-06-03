@@ -6,6 +6,7 @@ from minerl.env import _fake, _singleagent
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.env_specs import simple_embodiment
 from minerl.herobraine.hero import handlers, mc
+from minerl.herobraine.hero.handlers import util
 
 BUTTON_ACTIONS = set(simple_embodiment.SIMPLE_KEYBOARD_ACTION + ["use"])
 
@@ -14,7 +15,6 @@ DEFAULT_ITEMS = (
     "stone_pickaxe",
     "snowball",
     "cobblestone",
-    "stone_pickaxe",
     "water_bucket",
     "bucket",
     "fence",
@@ -24,6 +24,41 @@ DEFAULT_ITEMS = (
     "wheat",
 )
 
+
+MAKE_HOUSE_VILLAGE_INVENTORY = [
+    dict(type="stone_pickaxe", quantity=1),
+    dict(type="stone_axe", quantity=1),
+    dict(type="cobblestone", quantity=64),
+    dict(type="stone_stairs", quantity=64),
+    dict(type="fence", quantity=64),
+    dict(type="spruce_fence", quantity=64),
+    dict(type="acacia_fence", quantity=64),
+    dict(type="glass", quantity=64),
+    dict(type="ladder", quantity=64),
+    dict(type="torch", quantity=64),
+    dict(type="planks", quantity=64, metadata=0),
+    dict(type="planks", quantity=64, metadata=1),
+    dict(type="planks", quantity=64, metadata=4),
+    dict(type="log", quantity=64, metadata=0),  # oak
+    dict(type="log", quantity=64, metadata=1),  # redwood
+    dict(type="log2", quantity=64),  # acacia
+    dict(type="sandstone", quantity=64, metadata=0),
+    dict(type="sandstone", quantity=64, metadata=2),
+    dict(type="sandstone_stairs", quantity=64),
+    dict(type="wooden_door", quantity=64),
+    dict(type="acacia_door", quantity=64),
+    dict(type="spruce_door", quantity=64),
+    dict(type="wooden_pressure_plate", quantity=64),
+    dict(type="sand", quantity=64),
+    dict(type="dirt", quantity=64),
+    dict(type="red_flower", quantity=3),
+    dict(type="flower_pot", quantity=3),
+    dict(type="cactus", quantity=3),
+    dict(type="snowball", quantity=1),
+]
+
+MAKE_HOUSE_VILLAGE_ITEM_IDS = util.inventory_start_spec_to_item_ids(
+    MAKE_HOUSE_VILLAGE_INVENTORY)
 
 # TypeObservation claims that item list needs to begin with 'none' and end with 'other'.
 DEFAULT_EQUIP_ITEMS = ('none', 'air', ) + DEFAULT_ITEMS + ('other', )
@@ -164,11 +199,11 @@ class BasaltBaseEnvSpec(EnvSpec):
         """
         # TODO(shwang): Waterfall demos should also check for water_bucket use.
         #               AnimalPen demos should also check for fencepost or fence gate use.
-        equip = npz_data.get("observation$equipped_items.mainhand.type")
+        equip = npz_data.get("observation$equipped_items$mainhand$type")
         use = npz_data.get("action$use")
         if equip is None:
             return f"Missing equip observation. Available keys: {list(npz_data.keys())}"
-        elif use is None:
+        if use is None:
             return f"Missing use action. Available keys: {list(npz_data.keys())}"
 
         assert len(equip) == len(use) + 1, (len(equip), len(use))
@@ -201,14 +236,17 @@ class BasaltBaseEnvSpec(EnvSpec):
         return self.__class__.__doc__
 
 
-class FindCavesEnvSpec(BasaltBaseEnvSpec):
+MINUTE = 20 * 60
+
+
+class FindCaveEnvSpec(BasaltBaseEnvSpec):
     """Find a Cave, and then throw a snowball to end episode."""
 
-    def __init__(self, high_res=False):
+    def __init__(self, high_res: bool):
         super().__init__(
-            name="MineRLBasaltFindCaves-v0",
-            demo_server_experiment_name="findcaves",
-            max_episode_steps=2400,
+            name="MineRLBasaltFindCave-v0",
+            demo_server_experiment_name="findcave",
+            max_episode_steps=3*MINUTE,
             high_res=high_res,
         )
 
@@ -225,11 +263,11 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
     Make an waterfall and then take an aesthetic picture of it.
     """
 
-    def __init__(self, high_res):
+    def __init__(self, high_res: bool):
         super().__init__(
             name="MineRLBasaltMakeWaterfall-v0",
             demo_server_experiment_name="waterfall",
-            max_episode_steps=12000,
+            max_episode_steps=5*MINUTE,
             high_res=high_res,
         )
 
@@ -247,21 +285,20 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
         return [handlers.BiomeGenerator("extreme_hills")]
 
 
-class PenAnimalsEnvSpec(BasaltBaseEnvSpec):
+class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
     """
     Surround two or more animals of the same type in a fenced area (a pen).
 
-    You can't have more than one type of animal in your
-    enclosed area.
+    You can't have more than one type of animal in your enclosed area.
 
     Allowed animals are chickens, sheep, cows, and pigs.
     """
 
-    def __init__(self, high_res):
+    def __init__(self, high_res: bool):
         super().__init__(
-            name="MineRLBasaltPenAnimals-v0",
+            name="MineRLBasaltCreateAnimalPenPlains-v0",
             demo_server_experiment_name="pen_animals",
-            max_episode_steps=12000,
+            max_episode_steps=5*MINUTE,
             high_res=high_res,
         )
 
@@ -278,3 +315,83 @@ class PenAnimalsEnvSpec(BasaltBaseEnvSpec):
 
     def create_server_world_generators(self) -> List[handlers.Handler]:
         return [handlers.BiomeGenerator("plains")]
+
+
+class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
+    """
+    Surround two or more animals of the same type in a fenced area (a pen).
+
+    You can't have more than one type of animal in your enclosed area.
+
+    Allowed animals are chickens, sheep, cows, and pigs.
+    """
+
+    def __init__(self, high_res: bool):
+        super().__init__(
+            name="MineRLBasaltCreateAnimalPenVillage-v0",
+            demo_server_experiment_name="village_pen_animals",
+            max_episode_steps=5*MINUTE,
+            high_res=high_res,
+        )
+
+    def create_agent_start(self) -> List[handlers.Handler]:
+        inventory = [
+            dict(type="fence", quantity=64),
+            dict(type="fence_gate", quantity=64),
+            dict(type="carrot", quantity=1),
+            dict(type="wheat_seeds", quantity=1),
+            dict(type="wheat", quantity=1),
+            dict(type="snowball", quantity=1),
+        ]
+        return [handlers.SimpleInventoryAgentStart(inventory)]
+
+    def create_server_world_generators(self) -> List[handlers.Handler]:
+        return [handlers.BiomeGenerator("plains")]
+
+    def create_server_decorators(self) -> List[handlers.Handler]:
+        return [handlers.VillageSpawnDecorator()]
+
+
+class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
+    def __init__(self, high_res: bool):
+        super().__init__(
+            name="MineRLBasaltBuildVillageHouse-v0",
+            demo_server_experiment_name="village_make_house",
+            max_episode_steps=12*MINUTE,
+            high_res=high_res,
+        )
+
+    def create_agent_start(self) -> List[handlers.Handler]:
+        return [handlers.SimpleInventoryAgentStart(MAKE_HOUSE_VILLAGE_INVENTORY)]
+
+    def create_server_world_generators(self) -> List[handlers.Handler]:
+        return [handlers.DefaultWorldGenerator()]
+
+    def create_server_decorators(self) -> List[handlers.Handler]:
+        return [handlers.VillageSpawnDecorator()]
+
+    def create_observables(self):
+        observables = [
+            x for x in super().create_observables()
+            if not isinstance(x, (
+                handlers.FlatInventoryObservation,
+                handlers.EquippedItemObservation,
+            ))
+        ]
+        observables.append(
+            handlers.FlatInventoryObservation(MAKE_HOUSE_VILLAGE_ITEM_IDS))
+        observables.append(
+            handlers.EquippedItemObservation(MAKE_HOUSE_VILLAGE_ITEM_IDS))
+        return observables
+
+    def create_actionables(self):
+        actionables = [
+            x for x in super().create_actionables()
+            if not isinstance(x, (
+                handlers.EquipAction,
+            ))
+        ]
+        actionables.append(
+            handlers.EquipAction(MAKE_HOUSE_VILLAGE_ITEM_IDS),
+        )
+        return actionables
