@@ -21,6 +21,7 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.microsoft.Malmo.Utils.MineRLTypeHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
@@ -127,16 +128,7 @@ public class ObservationFromNearbyEntitiesImplementation extends HandlerBase imp
                     if (e instanceof EntityItem)
                     {
                         ItemStack is = ((EntityItem)e).getEntityItem();
-                        DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
-                        if (di != null)
-                        {
-                            name = di.getType();
-                            if (di.getColour() != null)
-                                jsent.addProperty("colour", di.getColour().value());
-                            if (di.getVariant() != null)
-                                jsent.addProperty("variation",  di.getVariant().getValue());
-                        }
-                        jsent.addProperty("quantity", is.getCount());
+                        MineRLTypeHelper.writeItemStackToJson(is, jsent);
                     }
                     else if (e instanceof EntityLivingBase)
                     {
