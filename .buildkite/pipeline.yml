@@ -1,8 +1,6 @@
 steps:
   - label: build private minerl fork
     command:
-        - pip install -e .
-        - pip install pytest-xdist
         - ./scripts/test_build_deploy.sh
      
     env:

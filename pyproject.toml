@@ -1,0 +1,22 @@
+[tool.black]
+# Exclude everything by default, to make sure that configuration that automatically run black won't modify files.
+force-exclude = '''
+(
+  /(
+      minerl
+    | \.buildkite
+    | \.git
+    | \.github
+    | \.idea
+    | docs
+    | minerl
+    | minerl\.egg-info
+    | scripts
+    | tests
+  )/
+  | setup.py
+)
+'''
+# Older versions of black do not have the force-exclude option. 
+# Passing "check = 1" effectively disables black as well.
+check = 1

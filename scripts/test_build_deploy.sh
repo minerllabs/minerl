@@ -15,6 +15,9 @@ Xvfb :0 -screen 0 1024x768x24 &
 set -ex
 mkdir -p $MINERL_DATA_ROOT
 
+pip uninstall typing -y
+pip install pytest-xdist
+
 # First, we run the tests in the repo
 pip install -e .
 #az storage copy -s $AZ_MINERL_DATA -d $MINERL_DATA_ROOT --recursive --subscription sci
