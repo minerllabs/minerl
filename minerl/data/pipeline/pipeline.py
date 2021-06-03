@@ -81,7 +81,7 @@ def _publish_generate_version_file():
     path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(path, "w") as f:
-        f.write("4")
+        f.write("3")
     print(f"Wrote to {path}.")
 
 
