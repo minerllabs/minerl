@@ -80,9 +80,9 @@ class _MultiAgentEnv(gym.Env):
         :param is_fault_tolerant: If the instance is fault tolerant.
         :param verbose: If the MineRL env is verbose.
         :param _xml_mutator_to_be_deprecated: A function which mutates the mission XML when called.
-        :param record_agents: If this is None, that indicates that no agents are to be recorded. Otherwise, it is
-        a list of integers, indicating which agents in this multi-agent environment should have videos of their
-        POV trajectories saved out.
+        :param record_agents: If this is None, that indicates that no agents are to be recorded.
+         Otherwise, it is a list of integers, indicating which agents in this multi-agent
+         environment should have videos of their POV trajectories saved out.
 
         """
         self.task = env_spec
@@ -376,9 +376,10 @@ class _MultiAgentEnv(gym.Env):
                 self._clean_connection()
                 self.done = True
                 logger.error(
-                    "Failed to take a step (timeout or error). Terminating episode and sending random "
-                    "observation, be aware. To account for this failure case in your code check to see if `'error' "
-                    "in info` where info is the info dictionary returned by the step function.")
+                    "Failed to take a step (timeout or error). Terminating episode and "
+                    "sending random observation, be aware. To account for this failure"
+                    " case in your code check to see if `'error' in info` where"
+                    " info is the info dictionary returned by the step function.")
                 # return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
             # synchronize with real time
