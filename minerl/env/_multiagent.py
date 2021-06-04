@@ -376,9 +376,9 @@ class _MultiAgentEnv(gym.Env):
                 self._clean_connection()
                 self.done = True
                 logger.error(
-                    "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
-                    "To account for this failure case in your code check to see if `'error' in info` where info is "
-                    "the info dictionary returned by the step function.")
+                    "Failed to take a step (timeout or error). Terminating episode and sending random "
+                    "observation, be aware. To account for this failure case in your code check to see if `'error' "
+                    "in info` where info is the info dictionary returned by the step function.")
                 # return self.observation_space.sample(), 0, self.done, {"error": "Connection timed out!"}
 
             # synchronize with real time
@@ -663,7 +663,8 @@ class _MultiAgentEnv(gym.Env):
             logger.debug("Peeking the clients.")
             peek_message = "<Peek/>"
             multi_done = True
-            for actor_index, (actor_name, instance) in enumerate(zip(self.task.agent_names, self.instances)):
+            for actor_index, (actor_name, instance) in enumerate(zip(self.task.agent_names,
+                                                                     self.instances)):
                 start_time = time.time()
                 comms.send_message(instance.client_socket, peek_message.encode())
                 obs = comms.recv_message(instance.client_socket)

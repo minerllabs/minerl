@@ -4,7 +4,8 @@ import pytest
 from tempfile import TemporaryDirectory
 import os
 
-#@pytest.mark.slow
+
+@pytest.mark.slow
 def test_video_saves():
     print("Registered envs")
     print(gym.envs.registration.registry.env_specs.copy())
@@ -19,6 +20,7 @@ def test_video_saves():
         dir_contents = os.listdir(os.path.join(tmpdir, 'video'))
         assert len(dir_contents) > 0
         assert 'mp4' in dir_contents[0]
+
 
 if __name__ == "__main__":
     test_video_saves()
