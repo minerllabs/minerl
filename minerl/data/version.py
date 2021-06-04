@@ -5,24 +5,24 @@ import re
 import glob
 
 DATA_VERSION = 3
-FILE_PREFIX = "v{}_".format(DATA_VERSION) # Seems like this isn't used?
+FILE_PREFIX = "v{}_".format(DATA_VERSION) # Seems like this isn't used except for in visualizing a single trajectory?
 VERSION_FILE_NAME = "VERSION"
-ALLOWED_VERSIONS = (3, 4)
-# TODO figure out logic for figuring out how to get the version we actually load in the `download` script
-# Previously we had just used DATA_VERSION because it was forced to be identical with what was on disk
-# Idea: have assert_version either raise an error, or else return the current on-disk version for `download` to use
 
-def get_version_violations(found_version):
-    if found_version in ALLOWED_VERSIONS:
+# NOTE if you chnage ALLOWED_VERSIONS, update tests/test_dataset_version accordingly
+ALLOWED_VERSIONS = (3, 4)
+
+
+def get_version_violations(found_version, allowed=ALLOWED_VERSIONS):
+    if found_version in allowed:
         return None
-    if found_version < min(ALLOWED_VERSIONS):
+    if found_version < min(allowed):
         return "more"
-    if found_version > max(ALLOWED_VERSIONS):
+    if found_version > max(allowed):
         return "less"
 
 
-def assert_version(data_directory):
-    version_file = os.path.join(data_directory, VERSION_FILE_NAME)
+def assert_version(data_directory, version_fname=VERSION_FILE_NAME):
+    version_file = os.path.join(data_directory, version_fname)
 
     if os.path.exists(version_file):
         with open(version_file, 'r') as f:
@@ -37,14 +37,14 @@ def assert_version(data_directory):
         version_violations = get_version_violations(current_version)
         if version_violations is not None:
             _raise_error(version_violations, data_directory)
+        return current_version
     else:
         assert os.path.exists(data_directory), "MineRL data root: {} not found!".format(data_directory)
         for exp in os.listdir(data_directory):
             if 'MineRL' in exp:
                 exp_dir = os.path.join(data_directory, exp)
                 for f in os.listdir(exp_dir):
-                    assert_prefix(os.path.join(exp_dir, f))
-
+                    return assert_prefix(os.path.join(exp_dir, f))
 
 
 def assert_prefix(tail):
@@ -62,6 +62,7 @@ def assert_prefix(tail):
     version_violations = get_version_violations(ver)
     if version_violations is not None:
         _raise_error(version_violations)
+    return ver
 
 
 def _raise_error(exception, directory=None):
