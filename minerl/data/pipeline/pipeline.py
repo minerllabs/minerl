@@ -23,7 +23,6 @@ from typing import Mapping, Optional, Sequence
 
 import bullet
 
-from minerl import data
 from minerl.data.pipeline import download2, generate, make_minecrafts, merge, publish, render
 
 
@@ -72,17 +71,12 @@ VERSION_PATH = pathlib.Path("~/minerl.data/output/data/VERSION").expanduser()
 
 
 def _publish_generate_version_file():
-    """Publish requires this text file as as an internal versioning sanity check.
-
-    None of the provided scripts builds this for us, and it would probably go against
-    the point of the sanity check for their scripts to auto-generate it, so we write
-    it ourselves via this function.
-    """
+    """Publish requires this text file as as an internal versioning sanity check."""
     path = VERSION_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(path, "w") as f:
-        f.write(data.DATA_VERSION)
+        f.write("4")
     print(f"Wrote to {path}.")
 
 
