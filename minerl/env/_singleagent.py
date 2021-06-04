@@ -4,7 +4,6 @@
 
 from typing import Any, Dict, Tuple
 from minerl.env._multiagent import _MultiAgentEnv
-from collections import Iterable
 
 
 class _SingleAgentEnv(_MultiAgentEnv):
