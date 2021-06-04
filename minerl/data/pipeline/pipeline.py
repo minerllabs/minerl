@@ -23,6 +23,7 @@ from typing import Mapping, Optional, Sequence
 
 import bullet
 
+from minerl import data
 from minerl.data.pipeline import download2, generate, make_minecrafts, merge, publish, render
 
 
@@ -81,7 +82,7 @@ def _publish_generate_version_file():
     path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(path, "w") as f:
-        f.write("3")
+        f.write(data.DATA_VERSION)
     print(f"Wrote to {path}.")
 
 
