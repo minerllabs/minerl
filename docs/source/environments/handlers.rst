@@ -24,7 +24,7 @@ dictionaries are comprised of individual fields we call *handlers*.
 
 
 .. toctree::
-    
+
     handlers
 
 .. inclusion-marker-do-not-remove
@@ -57,7 +57,7 @@ Visual Observations - :code:`pov`, :code:`third-persion`
 
 .. function:: third-person : Box(width, height, nchannels)
 
-    An RGB image observation of the agent's third-person perspective. 
+    An RGB image observation of the agent's third-person perspective.
 
     .. warning::
         This observation is not yet supported by any environment.
@@ -70,9 +70,9 @@ Visual Observations - :code:`pov`, :code:`third-persion`
 
     The current position of the `minecraft:compass` object from 0 (behind agent left) to
     0.5 in front of agent to 1 (behind agent right)
-    
+
     .. note::
-        This observation uses the default Minecraft game logic which includes compass needle momentum. 
+        This observation uses the default Minecraft game logic which includes compass needle momentum.
         As such it may change even when the agent has stoped moving!
 
 
@@ -89,7 +89,7 @@ Camera Control - :code:`camera`
 .. function:: camera : Box(2) [delta_pitch, delta_yaw]
 
     This action changes the orientation  of the agent's head by the corresponding number of degrees.
-    When the :code:`pov` observation is available, the 
+    When the :code:`pov` observation is available, the
     camera changes its orientation pitch by the first component
     and its yaw by the second component. Both :code:`delta_pitch` and :code:`delta_yaw` are limited to [-180, 180]
     inclusive

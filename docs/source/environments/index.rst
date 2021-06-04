@@ -11,7 +11,7 @@ environment!
 
 
 
-.. caution:: 
+.. caution::
     In the MineRL Competition, many environments are provided for training,
     however competition agents will only
     be evaluated in :code:`MineRLObtainDiamondVectorObf-v0` which has **sparse** rewards. See `MineRLObtainDiamondVectorObf-v0`_.
