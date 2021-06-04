@@ -5,10 +5,12 @@ import re
 import glob
 
 DATA_VERSION = 3
-FILE_PREFIX = "v{}_".format(DATA_VERSION) # Seems like this isn't used except for in visualizing a single trajectory?
+# Seems like this isn't used except for in visualizing a single trajectory?
+# Perhaps we should remove it
+FILE_PREFIX = "v{}_".format(DATA_VERSION)
 VERSION_FILE_NAME = "VERSION"
 
-# NOTE if you chnage ALLOWED_VERSIONS, update tests/test_dataset_version accordingly
+# NOTE if you change ALLOWED_VERSIONS, update tests/test_dataset_version accordingly
 ALLOWED_VERSIONS = (3, 4)
 
 
@@ -39,7 +41,8 @@ def assert_version(data_directory, version_fname=VERSION_FILE_NAME):
             _raise_error(version_violations, data_directory)
         return current_version
     else:
-        assert os.path.exists(data_directory), "MineRL data root: {} not found!".format(data_directory)
+        assert os.path.exists(data_directory), "MineRL data root: " \
+                                               "{} not found!".format(data_directory)
         for exp in os.listdir(data_directory):
             if 'MineRL' in exp:
                 exp_dir = os.path.join(data_directory, exp)
@@ -73,7 +76,8 @@ def _raise_error(exception, directory=None):
         else:
             dir_str = os.environ['MINERL_DATA_ROOT']
         e = RuntimeError(
-            "YOUR DATASET IS OUT OF DATE! The lowest supported version is v{} but yours is lower!\n\n"
+            "YOUR DATASET IS OUT OF DATE! The lowest supported version is v{} "
+            "but yours is lower!\n\n"
             "\tRe-download the data using `minerl.data.download({})`".format(
                 min(ALLOWED_VERSIONS), dir_str) +
             "\n\n CONFIGURED MINERL_DATA_DIR = {}".format(dir_str))
