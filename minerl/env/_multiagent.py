@@ -474,7 +474,6 @@ class _MultiAgentEnv(gym.Env):
             return self._peek_obs()
 
         finally:
-
             # We don't force the same seed every episode, you gotta send it yourself queen.
             # TODO: THIS IS PERHAPS THE WRONG WAY TO DO THIS.
             # perhaps the first seed sets the seed of the random engine which then seeds

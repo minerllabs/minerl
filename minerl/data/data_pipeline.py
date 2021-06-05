@@ -395,6 +395,7 @@ class DataPipeline:
             include_monitor_data (bool, optional): Include monitor data (info dict)
                 on the source trajectory. Defaults to False
 
+
         Returns:
             Generator: A generator that yields (sarsd) batches
         """

@@ -7,6 +7,7 @@ import glob
 DATA_VERSION = 3
 # Seems like this isn't used except for in visualizing a single trajectory?
 # Perhaps we should remove it
+
 FILE_PREFIX = "v{}_".format(DATA_VERSION)
 VERSION_FILE_NAME = "VERSION"
 

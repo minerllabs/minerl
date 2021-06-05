@@ -21,10 +21,9 @@ package com.microsoft.Malmo.MissionHandlers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ObservationFromFullInventory;
-import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+import com.microsoft.Malmo.Utils.MineRLTypeHelper;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -39,6 +38,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import org.jetbrains.annotations.NotNull;
 
 /** Simple IObservationProducer class that returns a list of the full inventory, including the armour.
  */
@@ -126,8 +126,7 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
                 json.add("inventory", arr);
             }
 
-            // We should nest this a bit a deepter actually.
-            // Also add an entry for each type of inventory available.
+            // Generate "inventories_available", an array containing entries for each type of inventory available.
             JsonArray arrInvs = new JsonArray();
             JsonObject jobjPlayer = new JsonObject();
             jobjPlayer.addProperty("name", getInventoryName(player.inventory));
@@ -141,7 +140,8 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
                 arrInvs.add(jobjTell);
             }
             json.add("inventories_available", arrInvs);
-            // Also add a field to show which slot in the hotbar is currently selected.
+
+            // Add a field to show which slot in the hotbar is currently selected.
             json.addProperty("current_item_index", player.inventory.currentItem);
         }
 
@@ -175,45 +175,25 @@ public class ObservationFromFullInventoryImplementation extends ObservationFromS
 
     public static void getInventoryJSON(JsonArray arr, IInventory inventory)
     {
-        String invName = getInventoryName(inventory);
         for (int i = 0; i < inventory.getSizeInventory(); i++)
         {
             ItemStack is = inventory.getStackInSlot(i);
-            if (is != null)
-            {
-                JsonObject jobj = new JsonObject();
-                DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
-                String name = di.getType();
-                if (di.getColour() != null)
-                    jobj.addProperty("colour", di.getColour().value());
-                if (di.getVariant() != null)
-                    jobj.addProperty("variant", di.getVariant().getValue());
-                jobj.addProperty("type", name);
-                jobj.addProperty("index", i);
-                jobj.addProperty("quantity", is.getCount());
-                jobj.addProperty("inventory", invName);
-                arr.add(jobj);
-            }
+            JsonObject jobj = new JsonObject();
+            MineRLTypeHelper.writeItemStackToJson(is, jobj);
+            jobj.addProperty("index", i);
+            jobj.addProperty("inventory", getInventoryName(inventory));
+            arr.add(jobj);
         }
     }
 
-    public static void getInventoryJSON(JsonObject json, String prefix, IInventory inventory, int maxSlot)
+    public static void getInventoryJSON(JsonObject json, String prefix, @NotNull IInventory inventory, int maxSlot)
     {
         int nSlots = Math.min(inventory.getSizeInventory(), maxSlot);
         for (int i = 0; i < nSlots; i++)
         {
             ItemStack is = inventory.getStackInSlot(i);
-            if (is != null)
-            {
-                json.addProperty(prefix + i + "_size", is.getCount());
-                DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(is);
-                String name = di.getType();
-                if (di.getColour() != null)
-                    json.addProperty(prefix + i + "_colour",  di.getColour().value());
-                if (di.getVariant() != null)
-                    json.addProperty(prefix + i + "_variant", di.getVariant().getValue());
-                json.addProperty(prefix + i + "_item", name);
-            }
+            json.addProperty(prefix + i + "_size", is.getCount());
+            json.addProperty(prefix + i + "_item", MineRLTypeHelper.getItemType(is.getItem()));
         }
     }
 

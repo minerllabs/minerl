@@ -181,6 +181,29 @@ def get_tick(ticks, ms):
     raise IndexError
 
 
+def _repair_marker(marker: dict) -> None:
+    position = marker['value']['position']
+    x, y, z = position['x'], position['y'], position['z']
+
+    meta = marker['value']['metadata']
+    expMetadata = marker['value']['metadata']['expMetadata']
+    if "EXPERIMENT" in expMetadata:
+        # If we are within EPISILON of the pre_lobby spawn point, then
+        # force a "stop recording" event.
+        # Sometimes this is mislabelled on the Herobraine plugin side for an unknown
+        # reason.
+
+        # Example prelobby marker locations: (0.5, 199.9, 0.5), (0.54, 200.0, 4.34)
+        pre_lobby_spawn_dist = abs(x - 0.5) + abs(y - 200) + abs(z - 0.5)
+        EPSILON = 10
+        if pre_lobby_spawn_dist < EPSILON:
+            meta['startRecording'] = False
+            meta['stopRecording'] = True
+    elif "LOBBY" in expMetadata:
+        meta['startRecording'] = False
+        meta['stopRecording'] = True
+
+
 # 3. generate sarsa pairs
 def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=False):
     # Script to to pair actions with video recording
@@ -394,6 +417,8 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
 
             else:
                 continue
+
+        _repair_marker(marker)
 
         if 'startRecording' in meta and meta['startRecording'] and 'tick' in meta:
             # If we encounter a start marker after a start marker there is an error and we should throw away this

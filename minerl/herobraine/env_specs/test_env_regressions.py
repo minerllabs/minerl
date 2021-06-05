@@ -7,6 +7,7 @@ from minerl.herobraine.hero.test_spaces import assert_equal_recursive
 import numpy as np
 import gym
 import xmltodict
+import pytest
 
 missions_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test')
 old_envs = []
@@ -416,6 +417,11 @@ def test_env_space_regressions():
         new_env_xml = newspec._kwargs['env_spec'].to_xml()
         old_xml_dict = xmltodict.parse(old_env_xml)
         new_xml_dict = xmltodict.parse(new_env_xml)
+
+        old_agent_start = old_xml_dict['Mission']['AgentSection']['AgentStart']
+        if old_agent_start is not None and 'Inventory' in old_agent_start:
+            old_agent_start['Inventory']['InventoryObject']['@metadata'] = '0'
+
         assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions', 'Name', 'About'])
 
 

@@ -82,7 +82,7 @@ def get_mirror(urls) -> requests.Response:
                 if request.status_code == 200:
                     return request
                 else:
-                    logging.warning('Mirror {} returned status code {}'.format(request.url, request.status_code))
+                    logging.warning('Unused mirror {} returned status code {}'.format(request.url, request.status_code))
             raise HTTPError(first_request.url, first_request.status_code, "resource not found", first_request.headers,
                             None)
 

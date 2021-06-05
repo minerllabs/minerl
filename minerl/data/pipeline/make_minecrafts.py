@@ -48,6 +48,11 @@ def get_minecraft_dir(i) -> str:
 
 
 def check_installed(n_minecrafts=NUM_MINECRAFTS):
+    if n_minecrafts > NUM_MINECRAFTS:
+        raise NotImplementedError(
+            f"Cannot use n_minecrafts > {NUM_MINECRAFTS} because "
+            "several constants in constants.py depend on NUM_MINECRAFT."
+        )
     for i in range(n_minecrafts):
         if not os.path.exists(get_minecraft_dir(i)):
             return False
@@ -82,14 +87,15 @@ def main(n_minecrafts=NUM_MINECRAFTS):
             shutil.rmtree(target_mc_name)
         shutil.copytree(MINECRAFT_TEMPLATE, target_mc_name)
         xauth = os.path.join(target_mc_name, 'xauth')
+        launch_sh_content = launch_sh_template.format(
+            dotminecraft=DOTMINECRAFT,
+            cracked_libs=cracked_libs,
+            target_mc_name=target_mc_name,
+            index=(i + 20),
+            xauth=xauth,
+        )
         with open(os.path.join(target_mc_name, 'launch.sh'), 'w') as f:
-            f.write(launch_sh_template.format(
-                dotminecraft=DOTMINECRAFT,
-                cracked_libs=cracked_libs,
-                target_mc_name=target_mc_name,
-                index=(i + 20),
-                xauth=xauth,
-            ))
+            f.write(launch_sh_content)
 
         file = (os.path.join(target_mc_name, 'launch.sh'))
         st = os.stat(file)
