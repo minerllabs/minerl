@@ -7,7 +7,7 @@ import numpy as np
 from minerl.herobraine.hero import spaces
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 
-from collections import Iterable
+from collections.abc import Iterable
 
 from minerl.herobraine.hero.handlers import util
 
