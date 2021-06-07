@@ -90,4 +90,4 @@ python3 -m minerl.viewer MineRLObtainDiamondDense-v0
 ```
 
 ## MineRL Competition
-If you're here for the MineRL competition. Please check [the main competition website here](https://www.aicrowd.com/challenges/neurips-2020-minerl-competition).
+If you're here for the MineRL competition. Please check [the main competition website here](https://www.aicrowd.com/challenges/neurips-2021-minerl-competition).

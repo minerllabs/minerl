@@ -748,7 +748,7 @@ class MinecraftInstance(object):
         ):
             self._logger.error(msg)
         elif 'WARN' in msg:
-            self._logger.warn(msg)
+            self._logger.warning(msg)
         elif 'LOGTOPY' in msg:
             self._logger.info(msg)
         else:

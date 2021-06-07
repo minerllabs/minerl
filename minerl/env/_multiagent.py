@@ -263,8 +263,7 @@ class _MultiAgentEnv(gym.Env):
         # TODO (R): Move this to env_spec in some reasonable way.
         return action in env_spec.action_space[actor_name]
 
-    def step(self, actions) -> Tuple[
-        Dict[str, Dict[str, Any]], Dict[str, float], Dict[str, bool], Dict[str, Dict[str, Any]]]:
+    def step(self, actions) -> Tuple[dict, dict, bool, dict]:
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
 
