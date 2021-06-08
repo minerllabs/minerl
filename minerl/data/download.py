@@ -33,6 +33,7 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
         directory (os.path): destination root for downloading MineRLv0 datasets
         resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ]
             respectively (note: high resolution is not currently supported). Defaults to 'low'.
+        competition(str): One of ['diamond', 'basalt', 'all']
         texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults
             to 0.
         update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment
@@ -54,7 +55,7 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
     if experiment is not None:
         logger.info("Downloading experiment {} to {}".format(experiment, directory))
     else:
-        logger.info("Downloading dataset to {}".format(directory))
+        logger.info("Downloading dataset for competition(s) {} to {}".format(competition, directory))
 
     if os.path.exists(directory):
         try:
@@ -81,8 +82,14 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
         "https://minerl-europe.s3.amazonaws.com/"]
 
     if experiment is None:
+        assert competition in ('diamond', 'basalt', 'all'), "competition has unsupported value {}".format(competition)
         min_str = '_minimal' if minimal else ''
-        filename = "v{}/{}_data_texture_{}_{}_res{}.tar".format(competition, DATA_VERSION, texture_pack, resolution, min_str)
+        if competition in ('diamond', 'basalt'):
+            competition_string = competition + '_'
+            assert min_str == '', 'Minimal datasets are currently only supported for the full dataset'
+        else:
+            competition_string = ''
+        filename = "v{}/{}data_texture_{}_{}_res{}.tar".format(DATA_VERSION, competition_string, texture_pack, resolution, min_str)
         urls = [mirror + filename for mirror in mirrors]
 
     else:
