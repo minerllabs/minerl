@@ -44,5 +44,13 @@ Competition Environments
 
     from minerl.utils import docs
     for env_spec in docs.COMPETITION_ENV_SPECS:
-        docs.print_actions_for_id(env_spec)
+        docs.print_env_spec_sphinx(env_spec)
 
+Basalt Competition Environments
+=======================================
+
+.. exec::
+
+    from minerl.utils import docs
+    for env_spec in docs.BASALT_COMPETITION_ENV_SPECS:
+        docs.print_env_spec_sphinx(env_spec)

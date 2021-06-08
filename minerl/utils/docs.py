@@ -1,26 +1,29 @@
 import json
 
 import gym
+from typing import Union
 
 from minerl.herobraine import envs
 from minerl.herobraine.env_spec import EnvSpec
+from minerl.herobraine.env_specs import basalt_specs
+from minerl.herobraine.hero.handlers import util
 
 
-def _prep_space(space: gym.Space) -> gym.Space:
+def _gym_space_to_dict(space: Union[dict, gym.Space]) -> dict:
     if isinstance(space, gym.spaces.Dict):
         dct = {}
         for k in space.spaces:
-            dct[k] = _prep_space(space.spaces[k])
+            dct[k] = _gym_space_to_dict(space.spaces[k])
         return dct
     else:
         return space
 
 
-def _print_json(arg: dict) -> None:
+def _format_dict(arg: dict) -> str:
     arg = {":ref:`{} <{}>`".format(k, k): arg[k] for k in arg}
     json_obj = json.dumps(arg, sort_keys=True, indent=8, default=lambda o: str(o))
     json_obj = json_obj[:-1] + "    })"
-    print('.. parsed-literal:: \n\n    Dict(%s\n\n\n' % json_obj)
+    return f'.. parsed-literal:: \n\n    Dict({json_obj}\n\n\n'
 
 
 BASIC_ENV_SPECS = [
@@ -47,29 +50,46 @@ COMPETITION_ENV_SPECS = [
     envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0,
 ]
 
+BASALT_COMPETITION_ENV_SPECS = [
+    envs.MINERL_BASALT_FIND_CAVES_ENV_SPEC,
+    envs.MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC,
+    envs.MINERL_BASALT_PEN_ANIMALS_VILLAGE_ENV_SPEC,
+    envs.MINERL_BASALT_VILLAGE_HOUSE_ENV_SPEC,
+]
 
-def print_actions_for_id(env_spec: EnvSpec) -> None:
-    print("______________")
+
+def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
+    print("_" * len(env_spec.name))
     print(f"{env_spec.name}")
-    print("______________")
+    print("_" * len(env_spec.name))
     print(env_spec.get_docstring())
 
-    action_space = _prep_space(env_spec.action_space)
-    state_space = _prep_space(env_spec.observation_space)
+    action_space = _gym_space_to_dict(env_spec.action_space)
+    state_space = _gym_space_to_dict(env_spec.observation_space)
 
-    print(".......")
+    print(".................")
     print("Observation Space")
-    print(".......")
-    _print_json(state_space)
+    print(".................")
+    print(_format_dict(state_space))
 
-    print(".......")
+    print("............")
     print("Action Space")
-    print(".......")
-    _print_json(action_space)
+    print("............")
+    print(_format_dict(action_space))
 
-    print(".......")
+    if isinstance(env_spec, basalt_specs.BasaltBaseEnvSpec):
+        print("..................")
+        print("Starting Inventory")
+        print("..................")
+        starting_inv_canonical = {}
+        for stack in env_spec.inventory:
+            item_id = util.encode_item_with_metadata(stack["type"], stack.get("metadata"))
+            starting_inv_canonical[item_id] = stack["quantity"]
+        print(_format_dict(starting_inv_canonical))
+
+    print(".....")
     print("Usage")
-    print(".......")
+    print(".....")
 
     usage_str = f'''.. code-block:: python
 

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 import gym
 
@@ -138,6 +138,7 @@ class BasaltBaseEnvSpec(EnvSpec):
             demo_server_experiment_name,
             high_res: bool,
             max_episode_steps=2400,
+            inventory: Sequence[dict] = (),
     ):
         assert "/" not in demo_server_experiment_name
         if high_res:
@@ -148,8 +149,8 @@ class BasaltBaseEnvSpec(EnvSpec):
         self.demo_server_experiment_name = demo_server_experiment_name
         self.high_res = high_res
         self.pov_size = self.HIGH_RES_SIZE if high_res else self.LOW_RES_SIZE
+        self.inventory = inventory  # Used by minerl.util.docs to construct Sphinx docs.
         super().__init__(name=name, max_episode_steps=max_episode_steps)
-
 
     def is_from_folder(self, folder: str) -> bool:
         # Implements abstractmethod.
@@ -166,6 +167,9 @@ class BasaltBaseEnvSpec(EnvSpec):
 
     def create_actionables(self):
         return DEFAULT_ACT_HANDLERS
+
+    def create_agent_start(self) -> List[handlers.Handler]:
+        return [handlers.SimpleInventoryAgentStart(self.inventory)]
 
     def create_agent_handlers(self) -> List[handlers.Handler]:
         return []
@@ -232,7 +236,6 @@ class BasaltBaseEnvSpec(EnvSpec):
         return False
 
     def get_docstring(self):
-        # Implements abstractmethod
         return self.__class__.__doc__
 
 
@@ -240,7 +243,26 @@ MINUTE = 20 * 60
 
 
 class FindCaveEnvSpec(BasaltBaseEnvSpec):
-    """Find a Cave, and then throw a snowball to end episode."""
+    """
+.. image:: ../assets/basalt/caves1_0:05.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/caves3_0:30.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/caves4_0:30.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/caves5_0:30.gif
+  :scale: 100 %
+  :alt:
+
+After spawning in a plains biome, explore and find a cave. When inside a cave, throw a
+snowball to end episode.
+"""
 
     def __init__(self, high_res: bool):
         super().__init__(
@@ -248,6 +270,13 @@ class FindCaveEnvSpec(BasaltBaseEnvSpec):
             demo_server_experiment_name="findcaves",
             max_episode_steps=3*MINUTE,
             high_res=high_res,
+            inventory=[
+                dict(type="water_bucket", quantity=1),
+                dict(type="cobblestone", quantity=20),
+                dict(type="stone_shovel", quantity=1),
+                dict(type="stone_pickaxe", quantity=1),
+                dict(type="snowball", quantity=1),
+            ],
         )
 
     def create_agent_start(self) -> List[handlers.Handler]:
@@ -260,7 +289,25 @@ class FindCaveEnvSpec(BasaltBaseEnvSpec):
 
 class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
     """
-    Make an waterfall and then take an aesthetic picture of it.
+.. image:: ../assets/basalt/waterfall0_0:05.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/waterfall2_0:30.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/waterfall6_0:30.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/waterfall8_0:30.gif
+  :scale: 100 %
+  :alt:
+
+After spawning in an extreme hills biome, use your waterbucket to make an beautiful waterfall.
+Then take an aesthetic "picture" of it by choosing a moving to a positioning the player's camera
+to have a nice view of the waterfall and throwing a snowball.
     """
 
     def __init__(self, high_res: bool):
@@ -269,17 +316,14 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
             demo_server_experiment_name="waterfall",
             max_episode_steps=5*MINUTE,
             high_res=high_res,
+            inventory=[
+                dict(type="water_bucket", quantity=1),
+                dict(type="cobblestone", quantity=20),
+                dict(type="stone_shovel", quantity=1),
+                dict(type="stone_pickaxe", quantity=1),
+                dict(type="snowball", quantity=1),
+            ],
         )
-
-    def create_agent_start(self) -> List[handlers.Handler]:
-        inventory = [
-            dict(type="water_bucket", quantity=1),
-            dict(type="cobblestone", quantity=20),
-            dict(type="stone_shovel", quantity=1),
-            dict(type="stone_pickaxe", quantity=1),
-            dict(type="snowball", quantity=1),
-        ]
-        return [handlers.SimpleInventoryAgentStart(inventory)]
 
     def create_server_world_generators(self) -> List[handlers.Handler]:
         return [handlers.BiomeGenerator("extreme_hills")]
@@ -287,12 +331,26 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
 
 class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
     """
-    Surround two or more animals of the same type in a fenced area (a pen).
+.. image:: ../assets/basalt/animal_pen_plains2_0:30.gif
+  :scale: 100 %
+  :alt:
 
-    You can't have more than one type of animal in your enclosed area.
+.. image:: ../assets/basalt/animal_pen_plains3_0:30.gif
+  :scale: 100 %
+  :alt:
 
-    Allowed animals are chickens, sheep, cows, and pigs.
-    """
+.. image:: ../assets/basalt/animal_pen_plains_4_0:05.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/animal_pen_plains_4_0:30.gif
+  :scale: 100 %
+  :alt:
+
+Surround two or more animals of the same type in a fenced area (a pen).
+You can't have more than one type of animal in your enclosed area.
+Allowed animals are chickens, sheep, cows, and pigs.
+"""
 
     def __init__(self, high_res: bool):
         super().__init__(
@@ -300,18 +358,15 @@ class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
             demo_server_experiment_name="pen_animals",
             max_episode_steps=5*MINUTE,
             high_res=high_res,
+            inventory=[
+                dict(type="fence", quantity=64),
+                dict(type="fence_gate", quantity=64),
+                dict(type="carrot", quantity=1),
+                dict(type="wheat_seeds", quantity=1),
+                dict(type="wheat", quantity=1),
+                dict(type="snowball", quantity=1),
+            ],
         )
-
-    def create_agent_start(self) -> List[handlers.Handler]:
-        inventory = [
-            dict(type="fence", quantity=64),
-            dict(type="fence_gate", quantity=64),
-            dict(type="carrot", quantity=1),
-            dict(type="wheat_seeds", quantity=1),
-            dict(type="wheat", quantity=1),
-            dict(type="snowball", quantity=1),
-        ]
-        return [handlers.SimpleInventoryAgentStart(inventory)]
 
     def create_server_world_generators(self) -> List[handlers.Handler]:
         return [handlers.BiomeGenerator("plains")]
@@ -319,12 +374,29 @@ class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
 
 class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
     """
-    Surround two or more animals of the same type in a fenced area (a pen).
+.. image:: ../assets/basalt/animal_pen_village1_1:00.gif
+  :scale: 100 %
+  :alt:
 
-    You can't have more than one type of animal in your enclosed area.
+.. image:: ../assets/basalt/animal_pen_village3_0:30.gif
+  :scale: 100 %
+  :alt:
 
-    Allowed animals are chickens, sheep, cows, and pigs.
-    """
+.. image:: ../assets/basalt/animal_pen_village4_0:05.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/animal_pen_village4_1:00.gif
+  :scale: 100 %
+  :alt:
+
+After spawning in a plains village, surround two or more animals of the same type in a
+fenced area (a pen), constructed near the house.
+You can't have more than one type of animal in your enclosed area.
+Allowed animals are chickens, sheep, cows, and pigs.
+
+Do not harm villagers or existing village structures in the process.
+"""
 
     def __init__(self, high_res: bool):
         super().__init__(
@@ -332,18 +404,15 @@ class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
             demo_server_experiment_name="village_pen_animals",
             max_episode_steps=5*MINUTE,
             high_res=high_res,
+            inventory=[
+                dict(type="fence", quantity=64),
+                dict(type="fence_gate", quantity=64),
+                dict(type="carrot", quantity=1),
+                dict(type="wheat_seeds", quantity=1),
+                dict(type="wheat", quantity=1),
+                dict(type="snowball", quantity=1),
+            ],
         )
-
-    def create_agent_start(self) -> List[handlers.Handler]:
-        inventory = [
-            dict(type="fence", quantity=64),
-            dict(type="fence_gate", quantity=64),
-            dict(type="carrot", quantity=1),
-            dict(type="wheat_seeds", quantity=1),
-            dict(type="wheat", quantity=1),
-            dict(type="snowball", quantity=1),
-        ]
-        return [handlers.SimpleInventoryAgentStart(inventory)]
 
     def create_server_world_generators(self) -> List[handlers.Handler]:
         return [handlers.BiomeGenerator("plains")]
@@ -353,16 +422,33 @@ class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
 
 
 class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
+    f"""
+.. image:: ../assets/basalt/house_0_0:05.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/house_1_0:30.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/house_3_1:00.gif
+  :scale: 100 %
+  :alt:
+
+.. image:: ../assets/basalt/house_long_7:00.gif
+  :scale: 100 %
+  :alt:
+
+Build a house in the style of village without damaging the village.
+"""
     def __init__(self, high_res: bool):
         super().__init__(
             name="MineRLBasaltBuildVillageHouse-v0",
             demo_server_experiment_name="village_make_house",
             max_episode_steps=12*MINUTE,
             high_res=high_res,
+            inventory=MAKE_HOUSE_VILLAGE_INVENTORY,
         )
-
-    def create_agent_start(self) -> List[handlers.Handler]:
-        return [handlers.SimpleInventoryAgentStart(MAKE_HOUSE_VILLAGE_INVENTORY)]
 
     def create_server_world_generators(self) -> List[handlers.Handler]:
         return [handlers.DefaultWorldGenerator()]
