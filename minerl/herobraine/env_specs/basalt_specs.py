@@ -244,19 +244,19 @@ MINUTE = 20 * 60
 
 class FindCaveEnvSpec(BasaltBaseEnvSpec):
     """
-.. image:: ../assets/basalt/caves1_0:05.gif
+.. image:: ../assets/basalt/caves1_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/caves3_0:30.gif
+.. image:: ../assets/basalt/caves3_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/caves4_0:30.gif
+.. image:: ../assets/basalt/caves4_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/caves5_0:30.gif
+.. image:: ../assets/basalt/caves5_0-30.gif
   :scale: 100 %
   :alt:
 
@@ -289,19 +289,19 @@ snowball to end episode.
 
 class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
     """
-.. image:: ../assets/basalt/waterfall0_0:05.gif
+.. image:: ../assets/basalt/waterfall0_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/waterfall2_0:30.gif
+.. image:: ../assets/basalt/waterfall2_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/waterfall6_0:30.gif
+.. image:: ../assets/basalt/waterfall6_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/waterfall8_0:30.gif
+.. image:: ../assets/basalt/waterfall8_0-30.gif
   :scale: 100 %
   :alt:
 
@@ -331,19 +331,19 @@ to have a nice view of the waterfall and throwing a snowball.
 
 class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
     """
-.. image:: ../assets/basalt/animal_pen_plains2_0:30.gif
+.. image:: ../assets/basalt/animal_pen_plains2_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_plains3_0:30.gif
+.. image:: ../assets/basalt/animal_pen_plains3_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_plains_4_0:05.gif
+.. image:: ../assets/basalt/animal_pen_plains_4_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_plains_4_0:30.gif
+.. image:: ../assets/basalt/animal_pen_plains_4_0-30.gif
   :scale: 100 %
   :alt:
 
@@ -374,19 +374,19 @@ Allowed animals are chickens, sheep, cows, and pigs.
 
 class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
     """
-.. image:: ../assets/basalt/animal_pen_village1_1:00.gif
+.. image:: ../assets/basalt/animal_pen_village1_1-00.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_village3_0:30.gif
+.. image:: ../assets/basalt/animal_pen_village3_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_village4_0:05.gif
+.. image:: ../assets/basalt/animal_pen_village4_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_village4_1:00.gif
+.. image:: ../assets/basalt/animal_pen_village4_1-00.gif
   :scale: 100 %
   :alt:
 
@@ -423,19 +423,19 @@ Do not harm villagers or existing village structures in the process.
 
 class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
     f"""
-.. image:: ../assets/basalt/house_0_0:05.gif
+.. image:: ../assets/basalt/house_0_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/house_1_0:30.gif
+.. image:: ../assets/basalt/house_1_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/house_3_1:00.gif
+.. image:: ../assets/basalt/house_3_1-00.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/house_long_7:00.gif
+.. image:: ../assets/basalt/house_long_7-00.gif
   :scale: 100 %
   :alt:
 
