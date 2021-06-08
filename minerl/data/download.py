@@ -24,8 +24,8 @@ import coloredlogs
 logger = logging.getLogger(__name__)
 
 
-def download(directory=None, resolution='low', competition='diamond', texture_pack=0, update_environment_variables=True,
-             disable_cache=False, experiment=None, minimal=False):
+def download(directory=None, resolution='low', competition='diamond', texture_pack=0,
+             update_environment_variables=True, disable_cache=False, experiment=None, minimal=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
@@ -55,7 +55,8 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
     if experiment is not None:
         logger.info("Downloading experiment {} to {}".format(experiment, directory))
     else:
-        logger.info("Downloading dataset for competition(s) {} to {}".format(competition, directory))
+        logger.info("Downloading dataset for competition(s) {} to {}".format(competition,
+                                                                             directory))
 
     if os.path.exists(directory):
         try:
@@ -75,21 +76,27 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
             except:
                 pass
 
-    download_path = os.path.join(directory, 'download') if not disable_cache else tempfile.mkdtemp()
+    download_path = os.path.join(directory,
+                                 'download') if not disable_cache else tempfile.mkdtemp()
     mirrors = [
         "https://minerl.s3.amazonaws.com/",
         "https://minerl-asia.s3.amazonaws.com/",
         "https://minerl-europe.s3.amazonaws.com/"]
 
     if experiment is None:
-        assert competition in ('diamond', 'basalt', 'all'), "competition has unsupported value {}".format(competition)
+        assert competition in ('diamond', 'basalt', 'all'), "competition has " \
+                                                            "unsupported value" \
+                                                            " {}".format(competition)
         min_str = '_minimal' if minimal else ''
         if competition in ('diamond', 'basalt'):
-            competition_string = competition + '_'
-            assert min_str == '', 'Minimal datasets are currently only supported for the full dataset'
-        else:
-            competition_string = ''
-        filename = "v{}/{}data_texture_{}_{}_res{}.tar".format(DATA_VERSION, competition_string, texture_pack, resolution, min_str)
+            assert min_str == '', 'Minimal datasets are currently only ' \
+                                  'supported for the full dataset'
+        competition_string = competition + '_'
+        filename = "v{}/{}data_texture_{}_{}_res{}.tar".format(DATA_VERSION,
+                                                               competition_string,
+                                                               texture_pack,
+                                                               resolution,
+                                                               min_str)
         urls = [mirror + filename for mirror in mirrors]
 
     else:
