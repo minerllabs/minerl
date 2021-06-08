@@ -422,7 +422,7 @@ Do not harm villagers or existing village structures in the process.
 
 
 class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
-    f"""
+    """
 .. image:: ../assets/basalt/house_0_0-05.gif
   :scale: 100 %
   :alt:
