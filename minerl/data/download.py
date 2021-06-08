@@ -32,7 +32,7 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
     
     Args:
         directory (os.path): destination root for downloading MineRLv0 datasets
-        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 1024x1024 ]
+        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64,1024x1024 ]
             respectively (note: high resolution is not currently supported). Defaults to 'low'.
         competition(str): One of ['diamond', 'basalt', 'all']
         texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults
