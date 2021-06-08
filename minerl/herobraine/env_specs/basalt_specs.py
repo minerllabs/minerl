@@ -245,7 +245,7 @@ class FindCaveEnvSpec(BasaltBaseEnvSpec):
     def __init__(self, high_res: bool):
         super().__init__(
             name="MineRLBasaltFindCave-v0",
-            demo_server_experiment_name="findcave",
+            demo_server_experiment_name="findcaves",
             max_episode_steps=3*MINUTE,
             high_res=high_res,
         )
