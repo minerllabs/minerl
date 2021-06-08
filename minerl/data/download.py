@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 def download(directory=None, resolution='low', competition='diamond', texture_pack=0,
-             update_environment_variables=True, disable_cache=False, experiment=None, minimal=False):
+             update_environment_variables=True, disable_cache=False,
+             experiment=None, minimal=False):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
