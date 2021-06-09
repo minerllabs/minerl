@@ -1,6 +1,7 @@
 import filelock
 import pytest
 
+
 @pytest.fixture(autouse=True)
 def block_on_serial_mark(request):
     """Use file lock to force sequential run of tests decorated with
