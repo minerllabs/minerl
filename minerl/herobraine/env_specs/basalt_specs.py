@@ -40,8 +40,8 @@ MAKE_HOUSE_VILLAGE_INVENTORY = [
     dict(type="planks", quantity=64, metadata=1),
     dict(type="planks", quantity=64, metadata=4),
     dict(type="log", quantity=64, metadata=0),  # oak
-    dict(type="log", quantity=64, metadata=1),  # redwood
-    dict(type="log2", quantity=64),  # acacia
+    dict(type="log", quantity=64, metadata=1),  # spruce
+    dict(type="log2", quantity=64, metadata=0),  # acacia
     dict(type="sandstone", quantity=64, metadata=0),
     dict(type="sandstone", quantity=64, metadata=2),
     dict(type="sandstone_stairs", quantity=64),
@@ -244,19 +244,19 @@ MINUTE = 20 * 60
 
 class FindCaveEnvSpec(BasaltBaseEnvSpec):
     """
-.. image:: ../assets/basalt/caves1_0:05.gif
+.. image:: ../assets/basalt/caves1_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/caves3_0:30.gif
+.. image:: ../assets/basalt/caves3_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/caves4_0:30.gif
+.. image:: ../assets/basalt/caves4_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/caves5_0:30.gif
+.. image:: ../assets/basalt/caves5_0-30.gif
   :scale: 100 %
   :alt:
 
@@ -289,26 +289,27 @@ snowball to end episode.
 
 class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
     """
-.. image:: ../assets/basalt/waterfall0_0:05.gif
+.. image:: ../assets/basalt/waterfall0_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/waterfall2_0:30.gif
+.. image:: ../assets/basalt/waterfall2_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/waterfall6_0:30.gif
+.. image:: ../assets/basalt/waterfall6_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/waterfall8_0:30.gif
+.. image:: ../assets/basalt/waterfall8_0-30.gif
   :scale: 100 %
   :alt:
 
 After spawning in an extreme hills biome, use your waterbucket to make an beautiful waterfall.
 Then take an aesthetic "picture" of it by choosing a moving to a positioning the player's camera
-to have a nice view of the waterfall and throwing a snowball.
-    """
+to have a nice view of the waterfall and throwing a snowball. Throwing the snowball
+ends the episode.
+"""
 
     def __init__(self, high_res: bool):
         super().__init__(
@@ -331,25 +332,27 @@ to have a nice view of the waterfall and throwing a snowball.
 
 class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
     """
-.. image:: ../assets/basalt/animal_pen_plains2_0:30.gif
+.. image:: ../assets/basalt/animal_pen_plains2_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_plains3_0:30.gif
+.. image:: ../assets/basalt/animal_pen_plains3_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_plains_4_0:05.gif
+.. image:: ../assets/basalt/animal_pen_plains_4_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_plains_4_0:30.gif
+.. image:: ../assets/basalt/animal_pen_plains_4_0-30.gif
   :scale: 100 %
   :alt:
 
 Surround two or more animals of the same type in a fenced area (a pen).
 You can't have more than one type of animal in your enclosed area.
 Allowed animals are chickens, sheep, cows, and pigs.
+
+Throw a snowball to end the episode.
 """
 
     def __init__(self, high_res: bool):
@@ -374,19 +377,19 @@ Allowed animals are chickens, sheep, cows, and pigs.
 
 class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
     """
-.. image:: ../assets/basalt/animal_pen_village1_1:00.gif
+.. image:: ../assets/basalt/animal_pen_village1_1-00.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_village3_0:30.gif
+.. image:: ../assets/basalt/animal_pen_village3_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_village4_0:05.gif
+.. image:: ../assets/basalt/animal_pen_village4_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/animal_pen_village4_1:00.gif
+.. image:: ../assets/basalt/animal_pen_village4_1-00.gif
   :scale: 100 %
   :alt:
 
@@ -396,6 +399,8 @@ You can't have more than one type of animal in your enclosed area.
 Allowed animals are chickens, sheep, cows, and pigs.
 
 Do not harm villagers or existing village structures in the process.
+
+Throw a snowball to end the episode.
 """
 
     def __init__(self, high_res: bool):
@@ -422,24 +427,44 @@ Do not harm villagers or existing village structures in the process.
 
 
 class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
-    f"""
-.. image:: ../assets/basalt/house_0_0:05.gif
+    """
+.. image:: ../assets/basalt/house_0_0-05.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/house_1_0:30.gif
+.. image:: ../assets/basalt/house_1_0-30.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/house_3_1:00.gif
+.. image:: ../assets/basalt/house_3_1-00.gif
   :scale: 100 %
   :alt:
 
-.. image:: ../assets/basalt/house_long_7:00.gif
+.. image:: ../assets/basalt/house_long_7-00.gif
   :scale: 100 %
   :alt:
 
-Build a house in the style of village without damaging the village.
+Build a house in the style of the village without damaging the village. Give a tour of
+the house and then throw a snowball to end the episode.
+
+.. note::
+  In the observation and action spaces, the following (internal Minecraft) item IDs can be
+  interpreted as follows:
+
+    - ``log#0`` is oak logs.
+    - ``log#1`` is spruce logs.
+    - ``log2#0`` is acacia logs.
+    - ``planks#0`` is oak planks.
+    - ``planks#1`` is spruce planks.
+    - ``planks#4`` is acacia planks.
+    - ``sandstone#0`` is cracked sandstone.
+    - ``sandstone#2`` is smooth sandstone.
+
+.. tip::
+  You can find detailed information on which materials are used in each biome-specific
+  village (plains, savannah, taiga, desert) here:
+  https://minecraft.fandom.com/wiki/Village/Structure_(old)/Blueprints#Village_generation
+
 """
     def __init__(self, high_res: bool):
         super().__init__(
