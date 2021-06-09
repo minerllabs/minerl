@@ -9,6 +9,7 @@ import logging
 import tqdm
 import time
 import numpy as np
+import itertools
 
 from urllib.error import HTTPError
 
@@ -224,14 +225,28 @@ class OrderedJobStreamer(threading.Thread):
 
 
 def cat(*args):
-    return np.concatenate(args)
+    # Support non-numpy stuff too
+    if isinstance(args[0], np.ndarray):
+        return np.concatenate(args)
+    else:
+        # Assume list
+        return list(itertools.chain(*args))
 
 
 def stack(*args):
-    return np.stack(args)
+    if isinstance(args[0], np.ndarray):
+        return np.stack(args)
+    else:
+        return list(args)
+
+def ensure_iterable(arg):
+    # Note: supposed to be used with multimap but with only single-leaf nodes
+    if not (isinstance(arg, np.ndarray) or isinstance(arg, list)):
+        return [arg]
+    return arg
 
 
-def minibatch_gen(traj_iter, batch_size, nsteps):
+def minibatch_gen(traj_iter, batch_size, nsteps, metadata_keys=None):
     """
     generate ordered sequence of minibatches from trajectories.
     That is, minibatches start at the beginnging of trajectory and 
@@ -247,27 +262,37 @@ def minibatch_gen(traj_iter, batch_size, nsteps):
     (in the example, the trajectories are ordered for clarity, but 
     they don't have to be)
     Used for behavior cloning with stateful models.
-    This is roughly a batched version of minerl sarsd_iter
+    This is roughly a batched version of minerl sarsd_iter.
+
+    This iterator yields minibatches (stacked_batch, batch_metadata),
+    where batch_metadata contains non-stacked custom information per trajectory
+    like trajectory metadata.
     
     Arguments:
-        traj_iter  : iterator that generates one full trajectory at a time
-        batch_size : int, size of the minibatch (number of parallel trajectories in the batch)
-        nsteps     : int, number of timesteps in the minibatch
+        traj_iter     : iterator that generates one full trajectory at a time
+        batch_size    : int, size of the minibatch (number of parallel trajectories in the batch)
+        nsteps        : int, number of timesteps in the minibatch
+        metadata_keys : Iterable or None. If given, dictionary keys listed here will not be stacked.
     
     Returns:
         iterator that generates minibatches as described above
     """
+    # Iterables as default args is not encouraged
     try:
         # A rolling buffer of trajectories.
         trajs = [next(iter(traj_iter)) for _ in range(batch_size)]
         while True:
             rettraj = []
             for i, t in enumerate(trajs):
+                # Ensure that everything is a list or numpy array
+                t = multimap(ensure_iterable, t)
+
                 # Flatten and condense trajectories
                 while len(t['obs']['pov']) < nsteps:
-                    trajs[i] = t = multimap(cat, *[t, next(traj_iter)])
+                    trajs[i] = t = multimap(cat, *[t, multimap(ensure_iterable, next(traj_iter))])
+
                 # Truncate trajectory to the nsteps.
-                outtraj = (multimap(lambda x: x[:nsteps], t))
+                outtraj = multimap(lambda x: x[:nsteps], t)
 
                 # Shorten the trajectory.
                 trajs[i] = multimap(lambda x: x[nsteps:], t)

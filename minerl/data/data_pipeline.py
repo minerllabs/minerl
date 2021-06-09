@@ -379,9 +379,7 @@ class DataPipeline:
                    include_metadata: bool = False,
                    include_monitor_data: bool = False):
         """Returns batches of sequences length SEQ_LEN of the data of size BATCH_SIZE.
-        The iterator produces batches sequentially. If an element of a batch reaches the
-        end of its 
-
+        The iterator produces batches sequentially.
 
         Args:
             batch_size (int): The batch size.
@@ -393,7 +391,7 @@ class DataPipeline:
             include_monitor_data (bool, optional): Include monitor data (info dict) on the source trajectory. Defaults to False
 
         Returns:
-            Generator: A generator that yields (sarsd) batches
+            Generator: A generator that yields (sarsd[monitor][meta]) tuples, where s=state, a=action, r=reward, s=(next) state, d=done, meta=metainfo and monitor=monitor data.
         """
         # Todo: Not implemented/
         input_queue = multiprocessing.Queue()
@@ -428,25 +426,25 @@ class DataPipeline:
                     yield yield_dict
 
             # Careful with the ordering here
-            jobs = [(f, -1, None, include_monitor_data, include_metadata) for f in self._get_all_valid_recordings(self.data_dir)]
+            jobs = [dict(file_dir=f, max_seq_len=-1, data_queue=None, include_monitor_data=include_monitor_data, include_metadata=include_metadata) for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
             for job in jobs:
                 input_queue.put(job)
 
-            for seg_batch in minibatch_gen(traj_iter(), batch_size=batch_size, nsteps=seq_len):
+            for seg_batch in minibatch_gen(traj_iter(), batch_size=batch_size, nsteps=seq_len, metadata_keys=("meta", "monitor")):
                 yield [
-                          seg_batch['obs'],
-                          seg_batch['act'],
-                          seg_batch['reward'],
-                          seg_batch['next_obs'],
-                          seg_batch['done'],
-                      ] + (
-                              (seg_batch['monitor'] if include_monitor_data else []) +
-                              (seg_batch['meta'] if include_metadata else [])
-                            )
+                    seg_batch['obs'],
+                    seg_batch['act'],
+                    seg_batch['reward'],
+                    seg_batch['next_obs'],
+                    seg_batch['done'],
+                ] + [
+                    ([seg_batch['monitor']] if include_monitor_data else []) +
+                    ([seg_batch['meta']] if include_metadata else [])
+                ]
 
         for _ in range(self.number_of_workers):
-            input_queue.put(("SHUTDOWN",))
+            input_queue.put("SHUTDOWN")
         for w in workers:
             w.join()
 
@@ -529,8 +527,8 @@ class DataPipeline:
 
 def loader_func(input_queue, output_queue):
     while True:
-        arg = input_queue.get()
-        if arg[0] == "SHUTDOWN":
+        kwarg = input_queue.get()
+        if isinstance(kwarg, str) and kwarg == "SHUTDOWN":
             break
-        output = DataPipeline._load_data_pyfunc(*arg)
+        output = DataPipeline._load_data_pyfunc(**kwarg)
         output_queue.put(output)
