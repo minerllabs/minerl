@@ -40,8 +40,8 @@ MAKE_HOUSE_VILLAGE_INVENTORY = [
     dict(type="planks", quantity=64, metadata=1),
     dict(type="planks", quantity=64, metadata=4),
     dict(type="log", quantity=64, metadata=0),  # oak
-    dict(type="log", quantity=64, metadata=1),  # redwood
-    dict(type="log2", quantity=64),  # acacia
+    dict(type="log", quantity=64, metadata=1),  # spruce
+    dict(type="log2#0", quantity=64),  # acacia
     dict(type="sandstone", quantity=64, metadata=0),
     dict(type="sandstone", quantity=64, metadata=2),
     dict(type="sandstone_stairs", quantity=64),
@@ -453,7 +453,7 @@ the house and then throw a snowball to end the episode.
 
     - ``log#0`` is oak logs.
     - ``log#1`` is spruce logs.
-    - ``log2`` is acacia logs.
+    - ``log2#0`` is acacia logs.
     - ``planks#0`` is oak planks.
     - ``planks#1`` is spruce planks.
     - ``planks#4`` is acacia planks.
