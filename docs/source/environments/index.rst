@@ -30,9 +30,10 @@ Basic Environments
 
 .. warning::
 
-    The following basic environments are NOT part of the 2021 MineRL Diamond and BASALT competitions!
-    Feel free to use them for exploration but note that MineRL Diamond competition agents may only
-    be trained on `MineRL Diamond Competition environments`_.
+    The following Basic Environments are NOT part of the MineRL Diamond and BASALT competitions!
+
+    Feel free to use them for personal exploration, but note that competitions agents may only
+    be trained on their corresponding competition environments.
 
 .. exec::
 
