@@ -1,5 +1,6 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
+import argparse
 import os
 from urllib.error import URLError
 from urllib.error import HTTPError
@@ -159,5 +160,9 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--experiment", help="Specify a particular environment")
+    parser.add_argument("--competition", help="Explicitly download environments from either Diamond or BASALT")
+    args = parser.parse_args()
     coloredlogs.install(logging.DEBUG)
-    download(experiment=(sys.argv[1] if len(sys.argv) > 1 else None))
+    download(experiment=args.experiment, competition=args.competition)
