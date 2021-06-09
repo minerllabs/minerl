@@ -20,24 +20,26 @@ environment!
     All environments offer a default no-op action via :code:`env.action_space.no_op()`
     and a random action via :code:`env.action_space.sample()`.
 
+
 .. include:: handlers.rst
     :end-before: inclusion-marker-do-not-remove
+
 
 Basic Environments
 =======================================
 
 .. warning::
 
-    The following basic environments are NOT part of the 2020 MineRL Competition! Feel free to use them for exploration
-    but agents may only be trained on `MineRL competition environments`_!
+    The following basic environments are NOT part of the 2021 MineRL Competition! Feel free to use them for exploration
+    but MineRL Diamond competition agents may only be trained on `MineRL Diamond Competition environments`_.
 
 .. exec::
 
     from minerl.utils import docs
     for env_spec in docs.BASIC_ENV_SPECS:
-        docs.print_actions_for_id(env_spec)
+        docs.print_env_spec_sphinx(env_spec)
 
-Competition Environments
+MineRL Diamond Competition Environments
 =======================================
 
 .. exec::
@@ -46,7 +48,7 @@ Competition Environments
     for env_spec in docs.COMPETITION_ENV_SPECS:
         docs.print_env_spec_sphinx(env_spec)
 
-Basalt Competition Environments
+MineRL BASALT Competition Environments
 =======================================
 
 .. exec::

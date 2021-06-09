@@ -307,8 +307,9 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
 
 After spawning in an extreme hills biome, use your waterbucket to make an beautiful waterfall.
 Then take an aesthetic "picture" of it by choosing a moving to a positioning the player's camera
-to have a nice view of the waterfall and throwing a snowball.
-    """
+to have a nice view of the waterfall and throwing a snowball. Throwing the snowball
+ends the episode.
+"""
 
     def __init__(self, high_res: bool):
         super().__init__(
@@ -350,6 +351,8 @@ class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
 Surround two or more animals of the same type in a fenced area (a pen).
 You can't have more than one type of animal in your enclosed area.
 Allowed animals are chickens, sheep, cows, and pigs.
+
+Throw a snowball to end the episode.
 """
 
     def __init__(self, high_res: bool):
@@ -396,6 +399,8 @@ You can't have more than one type of animal in your enclosed area.
 Allowed animals are chickens, sheep, cows, and pigs.
 
 Do not harm villagers or existing village structures in the process.
+
+Throw a snowball to end the episode.
 """
 
     def __init__(self, high_res: bool):
@@ -439,7 +444,27 @@ class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-Build a house in the style of village without damaging the village.
+Build a house in the style of the village without damaging the village. Give a tour of
+the house and then throw a snowball to end the episode.
+
+.. note::
+  In the observation and action spaces, the following (internal Minecraft) item IDs can be
+  interpreted as follows:
+
+    - ``log#0`` is oak logs.
+    - ``log#1`` is spruce logs.
+    - ``log2`` is acacia logs.
+    - ``planks#0`` is oak planks.
+    - ``planks#1`` is spruce planks.
+    - ``planks#4`` is acacia planks.
+    - ``sandstone#0`` is cracked sandstone.
+    - ``sandstone#2`` is smooth sandstone.
+
+.. tip::
+  You can find detailed information on which materials are used in each biome-specific
+  village (plains, savannah, taiga, desert) here:
+  https://minecraft.fandom.com/wiki/Village/Structure_(old)/Blueprints#Village_generation
+
 """
     def __init__(self, high_res: bool):
         super().__init__(

@@ -29,11 +29,6 @@ dictionaries are comprised of individual fields we call *handlers*.
 
 .. inclusion-marker-do-not-remove
 
-.. include:: observations.rst
-
-
-
-
 
 Observations
 =====================================
@@ -107,23 +102,36 @@ Camera Control - :code:`camera`
     :shape: [1]
 
 
-Tool Control - :code:`camera`
--------------------------------
-
+Tool Control - ``equip`` and ``use``
+------------------------------------
 
 .. _equip:
 
-.. function:: equip : Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'))
+.. function:: equip : Enum('none', 'air', ..., 'other'))
 
     This action equips the first instance of the specified item from the agents inventory to the main hand if the
-    specified item is present, otherwise does nothing. :code:`none` is never a valid item and functions as a no-op
-    action. :code:`air` matches any empty slot in an agent's inventory and functions as an un-equip action.
+    specified item is present, otherwise does nothing.
+    :code:`air` matches any empty slot in an agent's inventory and functions as an un-equip action.
 
     :type: :code:`np.int64`
     :shape: [1]
 
+    .. tip::
+        Agents may unequip items by performing the :code:`equip 'air'` action.
+
     .. note::
-        Agents may un-equip items by performing the :code:`equip air` action.
+        :code:`equip 'none'` and ``equip 'other'`` are both no-op actions. In otherwords, they leave
+        the currently equipped item unchanged. However, in the MineRL dataset, ``other`` takes on a
+        special meaning. ``other`` is the wildcard equip action that is recorded in the dataset
+        whenever a player equipped an item that wasn't included in this action space's Enum.
 
+.. _use:
 
+.. function:: use : Discrete(1) [use]
 
+    This action is equivalent to right-clicking in Minecraft. It causes the agent to use the
+    item it is holding, or to open doors or gates when it is facing an applicable Minecraft
+    structure.
+
+    :type: :code:`np.int64`
+    :shape: [1]
