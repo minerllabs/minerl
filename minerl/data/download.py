@@ -33,7 +33,7 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
     
     Args:
         directory (os.path): destination root for downloading MineRLv0 datasets
-        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64, 256,128 ]
+        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64,1024x1024 ]
             respectively (note: high resolution is not currently supported). Defaults to 'low'.
         competition(str): One of ['diamond', 'basalt', 'all']
         texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults
@@ -93,6 +93,7 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
         if competition in ('diamond', 'basalt'):
             assert min_str == '', 'Minimal datasets are currently only ' \
                                   'supported for the full dataset'
+        logger.info("Downloading experiment set for {} competition(s)".format(competition))
         competition_string = competition + '_'
         filename = "v{}/{}data_texture_{}_{}_res{}.tar".format(DATA_VERSION,
                                                                competition_string,
@@ -111,7 +112,7 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
     try:
         logger.info("Fetching download hash ...")
         # obj.fetch_hash_sums() 
-        # TODO: Add hashing
+        # TODO: Add flag to verify hash
         logger.warning("As of MineRL 0.3.0 automatic hash checking has been disabled.")
         logger.info("Starting download ...")
         dest_file = os.path.join(download_path, filename)
