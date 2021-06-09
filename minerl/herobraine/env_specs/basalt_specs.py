@@ -41,7 +41,7 @@ MAKE_HOUSE_VILLAGE_INVENTORY = [
     dict(type="planks", quantity=64, metadata=4),
     dict(type="log", quantity=64, metadata=0),  # oak
     dict(type="log", quantity=64, metadata=1),  # spruce
-    dict(type="log2#0", quantity=64),  # acacia
+    dict(type="log2", quantity=64, metadata=0),  # acacia
     dict(type="sandstone", quantity=64, metadata=0),
     dict(type="sandstone", quantity=64, metadata=2),
     dict(type="sandstone_stairs", quantity=64),
