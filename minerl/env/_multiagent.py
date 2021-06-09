@@ -69,8 +69,8 @@ class _MultiAgentEnv(gym.Env):
                  is_fault_tolerant: bool = True,
                  verbose: bool = False,
                  _xml_mutator_to_be_deprecated: Optional[Callable] = None,
-                 record_agents: Optional[List[int]] = None,
-                 video_record_path: Optional[str] = None
+                 video_record_path: Optional[str] = None,
+                 record_agents: Optional[List[int]] = None
                  ):
         """
         Constructor of MineRLEnv.
@@ -80,15 +80,16 @@ class _MultiAgentEnv(gym.Env):
         :param is_fault_tolerant: If the instance is fault tolerant.
         :param verbose: If the MineRL env is verbose.
         :param _xml_mutator_to_be_deprecated: A function which mutates the mission XML when called.
-        :param record_agents: If this is None, that indicates that no agents are to be recorded.
-         Otherwise, it is a list of integers, indicating which agents in this multi-agent
-         environment should have videos of their POV trajectories saved out.
+        :param video_record_path: A string indicating where videos are to be saved. If it is None,
+        indicates no recording should be done
+        :param record_agents: A list of integers, indicating which agents in this multi-agent
+         environment should have videos of their POV trajectories saved out. If set to None
+         but video_recording_path is not None, will record all agents.
 
         """
         self.task = env_spec
         self.instances = instances if instances is not None else []  # type: List[MinecraftInstance]
         self.record_agents = record_agents
-
 
         # TO DEPRECATE (FOR ENV_SPECS)
         self._xml_mutator_to_be_deprecated = _xml_mutator_to_be_deprecated or (lambda x: x)
@@ -103,8 +104,9 @@ class _MultiAgentEnv(gym.Env):
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
 
-        if self.record_agents is not None:
-            assert video_record_path is not None
+        if video_record_path is not None:
+            if self.record_agents is None:
+                self.record_agents = [ind for ind in range(self.task.agent_count)]
             self.video_directory = pathlib.Path(video_record_path)
             # We intentionally error if the directory exists to avoid overwrites
             self.video_directory.mkdir(parents=True)
@@ -336,7 +338,8 @@ class _MultiAgentEnv(gym.Env):
                         out_obs = self._last_obs[actor_name]
                         done = True
                         monitor = {}
-                        self.video_writers[role].close()
+                        if role in self.record_agents:
+                            self.video_writers[role].close()
 
                     # concatenate multi-agent obs, rew, done
                     multi_obs[actor_name] = out_obs
@@ -684,7 +687,8 @@ class _MultiAgentEnv(gym.Env):
                     time.sleep(0.1)
                     # FIXME - shouldn't we error or retry here?
                 multi_obs[actor_name], _ = self._process_observation(actor_name, obs, info)
-                self._reset_video_recorders(multi_obs[actor_name], actor_index)
+                if actor_index in self.record_agents:
+                    self._reset_video_recorders(multi_obs[actor_name], actor_index)
             self.done = multi_done
             if self.done:
                 raise RuntimeError(
