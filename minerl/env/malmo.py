@@ -461,6 +461,10 @@ class MinecraftInstance(object):
                 mine_log_encoding = locale.getpreferredencoding(False)
                 line = self.minecraft_process.stdout.readline().decode(mine_log_encoding)
 
+                if os.environ.get("MINERL_DEBUG_LOG", False):
+                    # Print Java logs to console
+                    print(line.strip("\n"))
+
                 # Check for failures and print useful messages!
                 _check_for_launch_errors(line)
 
@@ -528,6 +532,11 @@ class MinecraftInstance(object):
                             mine_log_encoding = locale.getpreferredencoding(False)
                             logger.error("UnicodeDecodeError, switching to default encoding")
                             linestr = line.decode(mine_log_encoding)
+
+                        if os.environ.get("MINERL_DEBUG_LOG", False):
+                            # Print Java logs to console
+                            print(linestr.strip("\n"))
+
                         linestr = "\n".join(linestr.split("\n")[:-1])
                         # some heuristics to figure out which messages
                         # need to be elevated in logging level
