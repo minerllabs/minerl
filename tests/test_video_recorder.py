@@ -6,19 +6,13 @@ import os
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize("env_name,save_video", [("MineRLBasaltFindCaves-v0", True),
-                                            ("MineRLObtainDiamondDense-v0", True),
-                                            ("MineRLBasaltFindCaves-v0", False),
-                                            ("MineRLObtainDiamondDense-v0", False),
-                                            ])
-def test_video_saves(env_name, save_video):
+@pytest.mark.parametrize("env_name", ["MineRLBasaltFindCaves-v0", "MineRLObtainDiamondDense-v0"])
+def test_video_saves(env_name):
     print("Registered envs")
     print(gym.envs.registration.registry.env_specs.copy())
     with TemporaryDirectory() as tmpdir:
-        if save_video:
-            env = gym.make(env_name, video_record_path=os.path.join(tmpdir, 'video'))
-        else:
-            env = gym.make(env_name)
+        os.environ['VIDEO_RECORD_PATH'] = os.path.join(tmpdir, 'video')
+        env = gym.make(env_name)
         env.seed(63)
         obs = env.reset()
         assert obs in env.observation_space
@@ -28,13 +22,11 @@ def test_video_saves(env_name, save_video):
         env.close()
         video_path = os.path.join(tmpdir, 'video')
 
-        if save_video:
-            assert os.path.exists(video_path)
-            dir_contents = os.listdir(video_path)
-            assert len(dir_contents) > 0
-            assert 'mp4' in dir_contents[0]
-        else:
-            assert not os.path.exists(video_path)
+        assert os.path.exists(video_path)
+        dir_contents = os.listdir(video_path)
+        assert len(dir_contents) > 0
+        assert 'mp4' in dir_contents[0]
+
 
 
 if __name__ == "__main__":

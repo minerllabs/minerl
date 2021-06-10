@@ -68,9 +68,7 @@ class _MultiAgentEnv(gym.Env):
                  instances: Optional[List[MinecraftInstance]] = None,
                  is_fault_tolerant: bool = True,
                  verbose: bool = False,
-                 _xml_mutator_to_be_deprecated: Optional[Callable] = None,
-                 video_record_path: Optional[str] = None,
-                 record_agents: Optional[List[int]] = None
+                 _xml_mutator_to_be_deprecated: Optional[Callable] = None
                  ):
         """
         Constructor of MineRLEnv.
@@ -89,7 +87,6 @@ class _MultiAgentEnv(gym.Env):
         """
         self.task = env_spec
         self.instances = instances if instances is not None else []  # type: List[MinecraftInstance]
-        self.record_agents = record_agents
 
         # TO DEPRECATE (FOR ENV_SPECS)
         self._xml_mutator_to_be_deprecated = _xml_mutator_to_be_deprecated or (lambda x: x)
@@ -104,20 +101,17 @@ class _MultiAgentEnv(gym.Env):
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
 
-        if video_record_path is not None:
-            if self.record_agents is None:
-                self.record_agents = [ind for ind in range(self.task.agent_count)]
-            self.video_directory = pathlib.Path(video_record_path)
-            # We intentionally error if the directory exists to avoid overwrites
-            self.video_directory.mkdir(parents=True)
-            video_dims = self.observation_space.spaces["pov"].shape
-            self.video_writers = {agent_ind: _VideoWriter(video_width=video_dims[0],
-                                                          video_height=video_dims[1],
-                                                          fps=20.0,)
-                                  for agent_ind in self.record_agents}
-        else:
-            # It's easier to null-iterate over an empty list than check for a None later
-            self.record_agents = []
+        video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos/{}'.format(env_spec.name))
+        self.record_agents = [ind for ind in range(self.task.agent_count)]
+        self.video_directory = pathlib.Path(video_record_path)
+        # We intentionally error if the directory exists to avoid overwrites
+        self.video_directory.mkdir(parents=True)
+        video_dims = self.observation_space.spaces["pov"].shape
+        self.video_writers = {agent_ind: _VideoWriter(video_width=video_dims[0],
+                                                      video_height=video_dims[1],
+                                                      fps=20.0,)
+                              for agent_ind in self.record_agents}
+
 
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
