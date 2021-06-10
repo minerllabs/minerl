@@ -460,7 +460,7 @@ def publish(n_workers=56, parallel=True):
 
 def _make_tar(output_tar_path: str, folders: List[str]) -> None:
     with tarfile.open(output_tar_path, "w") as archive:
-        logging.info('Generating archive {}'.format('data_texture_0_low_res.tar'))
+        logging.info(f'Generating archive {output_tar_path}')
         archive.add('VERSION')
         for folder in folders:
             archive.add(folder)
