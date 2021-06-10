@@ -509,9 +509,7 @@ def package(out_dir=DATA_DIR):
             archive.add(folder)
 
     # Generate hash files
-    # logging.info('Generating hashes for all files')
-    # subprocess.run(['md5sum', '*.tar.gz', '>', J(out_dir, 'MD5SUMS')], cwd=out_dir)
-    # subprocess.run(['sha1sum', 'MineRL*.tar.gz', '|', 'SHA1SUMS '])
+    logging.info('Generating hashes for all files')
 
     archives = [a for a in os.listdir(out_dir) if a.endswith('.tar')]
 
