@@ -54,8 +54,6 @@ public class EquipCommandsImplementation extends CommandBase {
             if (matchIdx != null) {
                 // Swap current hotbar item with found inventory item (if not the same)
                 int hotbarIdx = inv.currentItem;
-                System.out.println("got hotbar idx" + hotbarIdx);
-                System.out.println("got slot " + matchIdx);
 
                 ItemStack prevEquip = inv.getStackInSlot(hotbarIdx).copy();
                 ItemStack matchingStack = inv.getStackInSlot(matchIdx).copy();
