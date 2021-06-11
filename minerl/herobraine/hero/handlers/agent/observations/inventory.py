@@ -2,11 +2,14 @@
 # Author: William H. Guss, Brandon Houghton
 
 import logging
+
+import numpy as np
+
 from typing import List, Sequence
+from collections import defaultdict
 
 from minerl.herobraine.hero.handlers import util
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
-import numpy as np
 from minerl.herobraine.hero import spaces
 import minerl.herobraine.hero.mc as mc
 
@@ -79,11 +82,11 @@ class FlatInventoryObservation(TranslationHandler):
         :param obs:
         :return:
         """
-        item_dict = self.space.no_op()
+        item_dict = defaultdict(str)
         # TODO: RE-ADDRESS THIS DUCK TYPED INVENTORY DATA FORMAT WHEN MOVING TO STRONG TYPING
         for stack in obs['inventory']:
             type_name = stack['type']
-            if type_name == "air" and "air" in item_dict:
+            if type_name == "air" and self.space.contains("air"):
                 item_dict[type_name] += 1
                 continue
 
@@ -92,14 +95,13 @@ class FlatInventoryObservation(TranslationHandler):
             key = util.get_unique_matching_item_list_id(self.items, type_name, stack['metadata'])
             assert stack["quantity"] >= 0
             assert stack["metadata"] in range(16)
-            if key is not None:
+            if key is not None and self.space.contains(key):
                 item_dict[key] += stack["quantity"]
 
         return item_dict
 
     def from_universal(self, obs):
-        item_dict = self.space.no_op()
-
+        item_dict = defaultdict(str)
         try:
             slots = _univ_obs_get_all_inventory_slots(obs)
 
@@ -116,12 +118,12 @@ class FlatInventoryObservation(TranslationHandler):
                     continue
                 item_type = mc.strip_item_prefix(stack['name'])
 
-                if item_type == "air" and "air" in item_dict:
+                if item_type == "air" and self.space.contains("air"):
                     item_dict["air"] += 1
                 else:
                     id = util.get_unique_matching_item_list_id(
                         self.items, item_type, stack['variant'])
-                    if id is not None:
+                    if id is not None and self.space.contains(id):
                         item_dict[id] += stack['count']
         except KeyError as e:
             self.logger.warning("KeyError found in universal observation! Yielding empty inventory.")
