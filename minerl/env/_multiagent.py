@@ -283,8 +283,7 @@ class _MultiAgentEnv(gym.Env):
         # TODO (R): Move this to env_spec in some reasonable way.
         return action in env_spec.action_space[actor_name]
 
-    def step(self, actions) -> Tuple[
-        Dict[str, Dict[str, Any]], Dict[str, float], Dict[str, bool], Dict[str, Dict[str, Any]]]:
+    def step(self, actions) -> Tuple[dict, dict, bool, dict]:
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
 
@@ -305,14 +304,14 @@ class _MultiAgentEnv(gym.Env):
                                        "</StepClient" + str(STEP_OPTIONS) + " >"
 
                         # Send Actions.
-                        comms.send_message(instance.client_socket, step_message.encode())
+                        instance.client_socket_send_message(step_message.encode())
 
                         # Receive the observation.
-                        obs = comms.recv_message(instance.client_socket)
+                        obs = instance.client_socket_recv_message()
 
 
                         # Receive reward done and sent.
-                        reply = comms.recv_message(instance.client_socket)
+                        reply = instance.client_socket_recv_message()
                         reward, done, sent = struct.unpack("!dbb", reply)
                         # TODO: REFACTOR TO USE REWARD HANDLERS INSTEAD OF MALMO REWARD.
                         done = (done == 1)
@@ -320,7 +319,7 @@ class _MultiAgentEnv(gym.Env):
                         self.has_finished[actor_name] = self.has_finished[actor_name] or done
 
                         # Receive info from the environment.
-                        _malmo_json = comms.recv_message(instance.client_socket).decode("utf-8")
+                        _malmo_json = instance.client_socket_recv_message().decode("utf-8")
 
                         # Process the observation and done state.
                         out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
@@ -366,7 +365,7 @@ class _MultiAgentEnv(gym.Env):
                 step_message = "<StepServer></StepServer>"
 
                 # Send Actions.
-                comms.send_message(instance.client_socket, step_message.encode())
+                instance.client_socket_send_message(step_message.encode())
 
             except (socket.timeout, socket.error, TypeError) as e:
                 # If the socket times out some how! We need to catch this and reset the environment.
@@ -500,7 +499,6 @@ class _MultiAgentEnv(gym.Env):
             return self._peek_obs()
 
         finally:
-
             # We don't force the same seed every episode, you gotta send it yourself queen.
             # TODO: THIS IS PERHAPS THE WRONG WAY TO DO THIS.
             # perhaps the first seed sets the seed of the random engine which then seeds
@@ -641,10 +639,10 @@ class _MultiAgentEnv(gym.Env):
             if self._seed is not None:
                 token += ":{}".format(self._seed)
             token = token.encode()
-            comms.send_message(instance.client_socket, mission_xml)
-            comms.send_message(instance.client_socket, token)
+            instance.client_socket_send_message(mission_xml)
+            instance.client_socket_send_message(token)
 
-            reply = comms.recv_message(instance.client_socket)
+            reply = instance.client_socket_recv_message()
             ok, = struct.unpack("!I", reply)
             if ok != 1:
                 num_retries += 1
@@ -664,18 +662,17 @@ class _MultiAgentEnv(gym.Env):
             for actor_index, (actor_name, instance) in enumerate(zip(self.task.agent_names,
                                                                      self.instances)):
                 start_time = time.time()
-                comms.send_message(instance.client_socket, peek_message.encode())
-                obs = comms.recv_message(instance.client_socket)
-                info = comms.recv_message(instance.client_socket).decode('utf-8')
+                instance.client_socket_send_message(peek_message.encode())
+                obs = instance.client_socket_recv_message()
+                info = instance.client_socket_recv_message().decode('utf-8')
 
-                reply = comms.recv_message(instance.client_socket)
+                reply = instance.client_socket_recv_message()
                 done, = struct.unpack('!b', reply)
                 self.has_finished[actor_name] = self.has_finished[actor_name] or done
                 multi_done = multi_done and done == 1
                 if obs is None or len(obs) == 0:
                     if time.time() - start_time > MAX_WAIT:
-                        instance.client_socket.close()
-                        instance.client_socket = None
+                        instance.client_socket_close()
                         raise MissionInitException(
                             'too long waiting for first observation')
                     time.sleep(0.1)
@@ -745,18 +742,16 @@ class _MultiAgentEnv(gym.Env):
         Cleans the conenction with a given instance.
         """
         try:
-            if instance.client_socket:
+            if instance.has_client_socket():
                 # Try to disconnect gracefully.
                 try:
-                    comms.send_message(instance.client_socket, "<Disconnect/>".encode())
+                    instance.client_socket_send_message("<Disconnect/>".encode())
                 except:
                     pass
-                instance.client_socket.shutdown(socket.SHUT_RDWR)
-                instance.client_socket.close()
+                instance.client_socket_shutdown(socket.SHUT_RDWR)
         except (BrokenPipeError, OSError, socket.error):
             # There is no connection left!
             pass
-
             instance.client_socket = None
 
     def _TO_MOVE_handle_frozen_minecraft(self, instance):
@@ -775,14 +770,9 @@ class _MultiAgentEnv(gym.Env):
     def _TO_MOVE_create_connection(self, instance: MinecraftInstance) -> None:
         try:
             logger.debug("Creating socket connection {instance}".format(instance=instance))
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            sock.settimeout(SOCKTIME)
-            sock.connect((instance.host, instance.port))
+            instance.create_multiagent_instance_socket(socktime=SOCKTIME)
             logger.debug("Saying hello for client: {instance}".format(instance=instance))
-            self._TO_MOVE_hello(sock)
-
-            instance.client_socket = sock
+            self._TO_MOVE_hello(instance)
         except (socket.timeout, socket.error, ConnectionRefusedError) as e:
             instance.had_to_clean = True
             logger.error("Failed to reset (socket error), trying again!")
@@ -796,8 +786,8 @@ class _MultiAgentEnv(gym.Env):
 
         logger.info("Attempting to quit: {instance}".format(instance=instance))
         # while not has_quit:
-        comms.send_message(instance.client_socket, "<Quit/>".encode())
-        reply = comms.recv_message(instance.client_socket)
+        instance.client_socket_send_message("<Quit/>".encode())
+        reply = instance.client_socket_recv_message()
         ok, = struct.unpack('!I', reply)
         has_quit = not (ok == 0)
         # TODO: Get this to work properly
@@ -831,8 +821,8 @@ class _MultiAgentEnv(gym.Env):
         return instance.host, str(port)
 
     @staticmethod
-    def _TO_MOVE_hello(sock):
-        comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
+    def _TO_MOVE_hello(instance):
+        instance.client_socket_send_message(("<MalmoEnv" + malmo_version + "/>").encode())
 
     def _get_new_instance(self, port=None, instance_id=None):
         """

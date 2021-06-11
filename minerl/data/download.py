@@ -118,6 +118,9 @@ def download(directory=None, resolution='low', texture_pack=0, update_environmen
         logger.error("IO error encountered when downloading - please try again")
         logger.error(e.errno)
         return None
+    except KeyboardInterrupt as e:
+        logger.error("Download canceled by user")
+        return None
 
     logging.info('Success - downloaded {}'.format(dest_file))
 

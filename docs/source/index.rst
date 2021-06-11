@@ -8,25 +8,25 @@
 
 
 ==================================
-MineRL: Towards AI in Minecraft 
+MineRL: Towards AI in Minecraft
 ==================================
 
 
 .. image:: assets/survival1.mp4.gif
   :scale: 100 %
-  :alt: 
+  :alt:
 .. image:: assets/survival2.mp4.gif
   :scale: 100 %
-  :alt: 
+  :alt:
 .. image:: assets/survival3.mp4.gif
   :scale: 100 %
-  :alt: 
+  :alt:
 .. image:: assets/survival4.mp4.gif
   :scale: 100 %
-  :alt: 
+  :alt:
 .. image:: assets/survival6.mp4.gif
   :scale: 100 %
-  :alt: 
+  :alt:
 .. image:: assets/orion1.mp4.gif
   :scale: 100 %
   :alt:
@@ -35,12 +35,12 @@ MineRL: Towards AI in Minecraft
 
 |biohazard| :raw-html:`<br/><br/>`
 Welcome to documentation for the MineRL_
-project and its related repositories and components! 
+project and its related repositories and components!
 
 
 .. image:: assets/demo.gif
   :scale: 100 %
-  :alt: 
+  :alt:
 
 
 
@@ -70,7 +70,7 @@ components:
   - :code:`minerl.env` -- A growing set of OpenAI Gym environments
     in Minecraft. These environments leverage a **synchronous**, **stable**,
     and **fast** fork of Microsoft Malmo called *MineRLEnv*.
-  - :code:`minerl.data` -- The main python module for ext with the *MineRL-v0* dataset 
+  - :code:`minerl.data` -- The main python module for ext with the *MineRL-v0* dataset
 
 .. _please consider supporting us on Patreon: https://www.patreon.com/wguss_imushroom
 

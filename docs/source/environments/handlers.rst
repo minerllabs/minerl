@@ -24,15 +24,10 @@ dictionaries are comprised of individual fields we call *handlers*.
 
 
 .. toctree::
-    
+
     handlers
 
 .. inclusion-marker-do-not-remove
-
-.. include:: observations.rst
-
-
-
 
 
 Observations
@@ -57,7 +52,7 @@ Visual Observations - :code:`pov`, :code:`third-persion`
 
 .. function:: third-person : Box(width, height, nchannels)
 
-    An RGB image observation of the agent's third-person perspective. 
+    An RGB image observation of the agent's third-person perspective.
 
     .. warning::
         This observation is not yet supported by any environment.
@@ -70,9 +65,9 @@ Visual Observations - :code:`pov`, :code:`third-persion`
 
     The current position of the `minecraft:compass` object from 0 (behind agent left) to
     0.5 in front of agent to 1 (behind agent right)
-    
+
     .. note::
-        This observation uses the default Minecraft game logic which includes compass needle momentum. 
+        This observation uses the default Minecraft game logic which includes compass needle momentum.
         As such it may change even when the agent has stoped moving!
 
 
@@ -89,7 +84,7 @@ Camera Control - :code:`camera`
 .. function:: camera : Box(2) [delta_pitch, delta_yaw]
 
     This action changes the orientation  of the agent's head by the corresponding number of degrees.
-    When the :code:`pov` observation is available, the 
+    When the :code:`pov` observation is available, the
     camera changes its orientation pitch by the first component
     and its yaw by the second component. Both :code:`delta_pitch` and :code:`delta_yaw` are limited to [-180, 180]
     inclusive
@@ -107,23 +102,36 @@ Camera Control - :code:`camera`
     :shape: [1]
 
 
-Tool Control - :code:`camera`
--------------------------------
-
+Tool Control - ``equip`` and ``use``
+------------------------------------
 
 .. _equip:
 
-.. function:: equip : Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'))
+.. function:: equip : Enum('none', 'air', ..., 'other'))
 
     This action equips the first instance of the specified item from the agents inventory to the main hand if the
-    specified item is present, otherwise does nothing. :code:`none` is never a valid item and functions as a no-op
-    action. :code:`air` matches any empty slot in an agent's inventory and functions as an un-equip action.
+    specified item is present, otherwise does nothing.
+    :code:`air` matches any empty slot in an agent's inventory and functions as an un-equip action.
 
     :type: :code:`np.int64`
     :shape: [1]
 
+    .. tip::
+        Agents may unequip items by performing the :code:`equip 'air'` action.
+
     .. note::
-        Agents may un-equip items by performing the :code:`equip air` action.
+        :code:`equip 'none'` and ``equip 'other'`` are both no-op actions. In otherwords, they leave
+        the currently equipped item unchanged. However, in the MineRL dataset, ``other`` takes on a
+        special meaning. ``other`` is the wildcard equip action that is recorded in the dataset
+        whenever a player equipped an item that wasn't included in this action space's Enum.
 
+.. _use:
 
+.. function:: use : Discrete(1) [use]
 
+    This action is equivalent to right-clicking in Minecraft. It causes the agent to use the
+    item it is holding, or to open doors or gates when it is facing an applicable Minecraft
+    structure.
+
+    :type: :code:`np.int64`
+    :shape: [1]
