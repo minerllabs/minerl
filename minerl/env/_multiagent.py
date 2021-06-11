@@ -104,8 +104,8 @@ class _MultiAgentEnv(gym.Env):
         video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos/{}'.format(env_spec.name))
         self.record_agents = [ind for ind in range(self.task.agent_count)]
         self.video_directory = pathlib.Path(video_record_path)
-        # We intentionally error if the directory exists to avoid overwrites
-        self.video_directory.mkdir(parents=True)
+        self.video_directory.mkdir(parents=True, exist_ok=True)
+        self.done_recording = False
         video_dims = self.observation_space.spaces["pov"].shape
         self.video_writers = {agent_ind: _VideoWriter(video_width=video_dims[0],
                                                       video_height=video_dims[1],
@@ -507,11 +507,15 @@ class _MultiAgentEnv(gym.Env):
 
     def _reset_video_recorders(self, obs, agent_ind):
         # TODO figure out what other metadata we might want saved?
-        video_path = self.video_directory / f"{agent_ind}_{self._seed}_{round(time.time())}.mp4"
         if self.video_writers[agent_ind].is_open():
             self.video_writers[agent_ind].close()
-        self.video_writers[agent_ind].open(video_path)
-        self.video_writers[agent_ind].write_rgb_image(obs['pov'])
+            # Remove video writer (only record one game)
+            _ = self.video_writers.pop(agent_ind)
+            self.done_recording = True
+        if not self.done_recording:
+            video_path = self.video_directory / f"{agent_ind}_{self._seed}_{round(time.time())}.mp4"
+            self.video_writers[agent_ind].open(video_path)
+            self.video_writers[agent_ind].write_rgb_image(obs['pov'])
 
     def _setup_spaces(self) -> None:
         self.observation_space = self.task.observation_space
