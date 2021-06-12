@@ -25,6 +25,8 @@ from concurrent.futures import ThreadPoolExecutor
 from minerl.herobraine.env_spec import EnvSpec
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
+from threading import Lock
+
 NS = "{http://ProjectMalmo.microsoft.com}"
 STEP_OPTIONS = 0
 
@@ -60,6 +62,8 @@ class _MultiAgentEnv(gym.Env):
                 env = gym.make('MineRLTreechop-v0') # makes a default treechop environment (with treechop-specific action and observation spaces)
     
     """
+    video_file_lock = Lock()
+    adhoc_env_counter = 0
 
     metadata = {'render.modes': ['human']}
 
@@ -101,8 +105,12 @@ class _MultiAgentEnv(gym.Env):
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
 
-        video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos/{}'.format(env_spec.name))
-        self.record_agents = [ind for ind in range(self.task.agent_count)]
+        with _MultiAgentEnv.video_file_lock:
+            self.env_id = _MultiAgentEnv.adhoc_env_counter
+            _MultiAgentEnv.adhoc_env_counter += 1
+
+        video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos')
+        self.record_agents = [ind for ind in range(self.task.agent_count)] if self.env_id == 0 else []
         self.video_directory = pathlib.Path(video_record_path)
         self.video_directory.mkdir(parents=True, exist_ok=True)
         self.done_recording = False
@@ -111,7 +119,6 @@ class _MultiAgentEnv(gym.Env):
                                                       video_height=video_dims[1],
                                                       fps=20.0,)
                               for agent_ind in self.record_agents}
-
 
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
@@ -506,14 +513,14 @@ class _MultiAgentEnv(gym.Env):
             self._seed = None
 
     def _reset_video_recorders(self, obs, agent_ind):
-        # TODO figure out what other metadata we might want saved?
         if self.video_writers[agent_ind].is_open():
             self.video_writers[agent_ind].close()
             # Remove video writer (only record one game)
             _ = self.video_writers.pop(agent_ind)
+            self.record_agents.remove(agent_ind)
             self.done_recording = True
-        if not self.done_recording:
-            video_path = self.video_directory / f"{agent_ind}_{self._seed}_{round(time.time())}.mp4"
+        if not self.done_recording and self.env_id == 0:
+            video_path = self.video_directory / "video.mp4"
             self.video_writers[agent_ind].open(video_path)
             self.video_writers[agent_ind].write_rgb_image(obs['pov'])
 
