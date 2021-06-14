@@ -82,7 +82,7 @@ class FlatInventoryObservation(TranslationHandler):
         :param obs:
         :return:
         """
-        item_dict = defaultdict(str)
+        item_dict = {item_id: 0 for item_id in self.item_list}  # Much faster than Dict.no_op()
         # TODO: RE-ADDRESS THIS DUCK TYPED INVENTORY DATA FORMAT WHEN MOVING TO STRONG TYPING
         for stack in obs['inventory']:
             type_name = stack['type']
@@ -95,13 +95,13 @@ class FlatInventoryObservation(TranslationHandler):
             key = util.get_unique_matching_item_list_id(self.items, type_name, stack['metadata'])
             assert stack["quantity"] >= 0
             assert stack["metadata"] in range(16)
-            if key is not None and self.space.contains(key):
+            if key is not None and key in self.item_list:
                 item_dict[key] += stack["quantity"]
 
         return item_dict
 
     def from_universal(self, obs):
-        item_dict = defaultdict(str)
+        item_dict = {item_id: 0 for item_id in self.item_list}  # Much faster than Dict.no_op()
         try:
             slots = _univ_obs_get_all_inventory_slots(obs)
 
@@ -123,7 +123,7 @@ class FlatInventoryObservation(TranslationHandler):
                 else:
                     id = util.get_unique_matching_item_list_id(
                         self.items, item_type, stack['variant'])
-                    if id is not None and self.space.contains(id):
+                    if id is not None and id in self.item_list:
                         item_dict[id] += stack['count']
         except KeyError as e:
             self.logger.warning("KeyError found in universal observation! Yielding empty inventory.")
