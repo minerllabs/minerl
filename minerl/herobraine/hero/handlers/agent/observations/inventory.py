@@ -96,12 +96,12 @@ class FlatInventoryObservation(TranslationHandler):
             unique = util.get_unique_matching_item_list_id(self.items, type_name, stack['metadata'])
             assert stack["quantity"] >= 0
             assert stack["metadata"] in range(16)
-            if unique is None:
-                if self._other in self.items:
-                    unique = self._other
-                else:
-                    continue
-            item_dict[unique] += stack["quantity"]
+
+            # Unique should be none iff the item is not in self.items
+            if unique is not None:
+                item_dict[unique] += stack["quantity"]
+            elif self._other in self.items:
+                item_dict[self._other] += stack["quantity"]
 
         return item_dict
 
@@ -115,16 +115,16 @@ class FlatInventoryObservation(TranslationHandler):
                 item_type = mc.strip_item_prefix(stack['name']) if len(stack.keys()) != 0 else "air"
 
                 if item_type == "air" and item_type in self.items:
-                    item_dict["air"] += 1  # This lets us count empty slots -non default MC behavior
+                    item_dict[item_type] += 1  # This lets us count empty slots -non default MC behavior
                 else:
                     unique = util.get_unique_matching_item_list_id(
                         self.items, item_type, stack['variant'])
-                    if unique is None:
-                        if self._other in self.items:
-                            unique = self._other
-                        else:
-                            continue
-                    item_dict[unique] += stack['count']
+
+                    # Unique should be none iff the item is not in self.items
+                    if unique is not None:
+                        item_dict[unique] += stack["count"]
+                    elif self._other in self.items:
+                        item_dict[self._other] += stack["count"]
         except KeyError as e:
             self.logger.warning("KeyError found in universal observation! Yielding empty inventory.")
             self.logger.error(e)
