@@ -3,6 +3,8 @@ import json
 import signal
 import tarfile
 
+import pytest
+
 import minerl.herobraine.env_specs as envs
 
 import gym
@@ -10,8 +12,8 @@ import gym
 from minerl.data.util.constants import DATA_DIR
 
 
+@pytest.skip
 def test_render_data():
-    return True
     # Obfuscated Treechop Environment Spec
     env = 'MineRLTreechopVector-v0'
 

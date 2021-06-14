@@ -93,13 +93,12 @@ class FlatInventoryObservation(TranslationHandler):
 
             # "half" types end up in stack['variant'] and we don't care
             # about them (example: double_plant_lower, door_lower)
-            key = util.get_unique_matching_item_list_id(self.items, type_name, stack['metadata'])
+            unique = util.get_unique_matching_item_list_id(self.items, type_name, stack['metadata'])
             assert stack["quantity"] >= 0
             assert stack["metadata"] in range(16)
-            if key is not None:
-                if key not in self.items:
-                    key = self._other
-                item_dict[key] += stack["quantity"]
+            if unique is None:
+                unique = self._other
+            item_dict[unique] += stack["quantity"]
 
         return item_dict
 
@@ -115,12 +114,11 @@ class FlatInventoryObservation(TranslationHandler):
                 if item_type == "air" and item_type in self.items:
                     item_dict["air"] += 1  # This lets us count empty slots -non default MC behavior
                 else:
-                    id = util.get_unique_matching_item_list_id(
+                    unique = util.get_unique_matching_item_list_id(
                         self.items, item_type, stack['variant'])
-                    if id is not None:
-                        if id not in self.items:
-                            id = self._other
-                        item_dict[id] += stack['count']
+                    if unique is None:
+                        unique = self._other
+                    item_dict[unique] += stack['count']
         except KeyError as e:
             self.logger.warning("KeyError found in universal observation! Yielding empty inventory.")
             self.logger.error(e)
