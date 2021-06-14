@@ -82,11 +82,11 @@ class FlatInventoryObservation(TranslationHandler):
         :param obs:
         :return:
         """
-        item_dict = {item_id: 0 for item_id in self.item_list}  # Much faster than Dict.no_op()
+        item_dict = {item_id: 0 for item_id in self.items}  # Much faster than Dict.no_op()
         # TODO: RE-ADDRESS THIS DUCK TYPED INVENTORY DATA FORMAT WHEN MOVING TO STRONG TYPING
         for stack in obs['inventory']:
             type_name = stack['type']
-            if type_name == "air" and self.space.contains("air"):
+            if type_name == "air" and type_name in self.items:
                 item_dict[type_name] += 1
                 continue
 
@@ -95,35 +95,30 @@ class FlatInventoryObservation(TranslationHandler):
             key = util.get_unique_matching_item_list_id(self.items, type_name, stack['metadata'])
             assert stack["quantity"] >= 0
             assert stack["metadata"] in range(16)
-            if key is not None and key in self.item_list:
+            if key is not None:
+                if key not in self.items:
+                    key = self._other
                 item_dict[key] += stack["quantity"]
 
         return item_dict
 
     def from_universal(self, obs):
-        item_dict = {item_id: 0 for item_id in self.item_list}  # Much faster than Dict.no_op()
+        item_dict = {item_id: 0 for item_id in self.items}  # Much faster than Dict.no_op()
         try:
             slots = _univ_obs_get_all_inventory_slots(obs)
 
             # Add from all slots
             for stack in slots:
-                if len(stack.keys()) == 0:
-                    # Skip this slot to maintain same behavior as pre-variant/metadata code.
-                    #
-                    # But really, this empty dict represents an "air" slot, and the
-                    # "air" if-statement a few lines down is never triggered.
-                    # See https://gist.github.com/shwang/3c3a5431f868a73e288d4a828e50d1c3
-                    # for an example univ.json, where all of the "air" slots are empty dicts
-                    # instead of dicts where `slot["name"] == "air"`.
-                    continue
-                item_type = mc.strip_item_prefix(stack['name'])
+                item_type = mc.strip_item_prefix(stack['name']) if len(stack.keys()) != 0 else "air"
 
-                if item_type == "air" and self.space.contains("air"):
-                    item_dict["air"] += 1
+                if item_type == "air" and item_type in self.itmes:
+                    item_dict["air"] += 1 # This lets us count empty slots - non default MC behavior
                 else:
                     id = util.get_unique_matching_item_list_id(
                         self.items, item_type, stack['variant'])
-                    if id is not None and id in self.item_list:
+                    if id is not None:
+                        if id not in self.items:
+                            id = self._other
                         item_dict[id] += stack['count']
         except KeyError as e:
             self.logger.warning("KeyError found in universal observation! Yielding empty inventory.")
