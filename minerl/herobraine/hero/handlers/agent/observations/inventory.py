@@ -111,7 +111,7 @@ class FlatInventoryObservation(TranslationHandler):
             for stack in slots:
                 item_type = mc.strip_item_prefix(stack['name']) if len(stack.keys()) != 0 else "air"
 
-                if item_type == "air" and item_type in self.itmes:
+                if item_type == "air" and item_type in self.items:
                     item_dict["air"] += 1  # This lets us count empty slots -non default MC behavior
                 else:
                     id = util.get_unique_matching_item_list_id(
