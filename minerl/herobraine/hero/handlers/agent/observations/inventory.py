@@ -97,7 +97,10 @@ class FlatInventoryObservation(TranslationHandler):
             assert stack["quantity"] >= 0
             assert stack["metadata"] in range(16)
             if unique is None:
-                unique = self._other
+                if self._other in self.items:
+                    unique = self._other
+                else:
+                    continue
             item_dict[unique] += stack["quantity"]
 
         return item_dict
@@ -117,7 +120,10 @@ class FlatInventoryObservation(TranslationHandler):
                     unique = util.get_unique_matching_item_list_id(
                         self.items, item_type, stack['variant'])
                     if unique is None:
-                        unique = self._other
+                        if self._other in self.items:
+                            unique = self._other
+                        else:
+                            continue
                     item_dict[unique] += stack['count']
         except KeyError as e:
             self.logger.warning("KeyError found in universal observation! Yielding empty inventory.")

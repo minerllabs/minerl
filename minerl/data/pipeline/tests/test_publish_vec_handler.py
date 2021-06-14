@@ -12,7 +12,7 @@ import gym
 from minerl.data.util.constants import DATA_DIR
 
 
-@pytest.skip
+@pytest.mark.skip
 def test_render_data():
     # Obfuscated Treechop Environment Spec
     env = 'MineRLTreechopVector-v0'
