@@ -113,7 +113,7 @@ class _MultiAgentEnv(gym.Env):
 
         # TODO this needs to be updated to not be done during training phase
         video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos')
-        self.record_agents = [ind for ind in range(self.task.agent_count)]
+        self.record_agents = [ind for ind in range(self.task.agent_count)] if self.env_id == 0 else []
         self.video_directory = pathlib.Path(video_record_path)
         self.video_directory.mkdir(parents=True, exist_ok=True)
         self.num_recordings = 0
@@ -524,13 +524,10 @@ class _MultiAgentEnv(gym.Env):
         if self.video_writers[agent_ind].is_open():
             self.video_writers[agent_ind].close()
             self.num_recordings += 1
-        #if not self.done_recording and self.env_id == 0:
-        if self.recording_seed_hashes is None:
-            self.recording_seed_hashes = self.instances[agent_ind].get_hashed_seeds()
-        seed_hash = self.recording_seed_hashes[self.num_recordings]
-        video_path = self.video_directory / f"{seed_hash}.mp4"
-        self.video_writers[agent_ind].open(video_path)
-        self.video_writers[agent_ind].write_rgb_image(obs['pov'])
+        if self.env_id == 0 and self.num_recordings == 0:
+            video_path = self.video_directory / "video.mp4"
+            self.video_writers[agent_ind].open(video_path)
+            self.video_writers[agent_ind].write_rgb_image(obs['pov'])
 
     def _setup_spaces(self) -> None:
         self.observation_space = self.task.observation_space
@@ -711,7 +708,7 @@ class _MultiAgentEnv(gym.Env):
         """gym api close"""
         logger.debug("Closing MineRL env...")
 
-        for actor_index, instance in enumerate(self.instances):
+        for actor_index in range(len(self.instances)):
             if actor_index in self.record_agents and self.video_writers[actor_index].is_open():
                 self.video_writers[actor_index].close()
 
@@ -726,7 +723,6 @@ class _MultiAgentEnv(gym.Env):
         try:
             for instance in self.instances:
                 self._TO_MOVE_clean_connection(instance)
-
                 if instance.running:
                     instance.kill()
         except AttributeError:
