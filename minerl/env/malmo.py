@@ -51,7 +51,6 @@ logger = logging.getLogger(__name__)
 
 malmo_version = "0.37.0"
 
-
 class SeedType(IntEnum):
     """The seed type for an instance manager.
 
@@ -443,6 +442,12 @@ class MinecraftInstance(object):
         # sockets. However the code does set the socket to
         # Nones at times, so lets allow it.
         self._client_socket = value
+
+    def get_hashed_seeds(self):
+        import hashlib
+        salt = str(os.getenv("SEED_HASH_SALT", ""))
+        hashes = [hashlib.sha256(bytes((str(seed) + salt).encode())).hexdigest() for seed in self._seed]
+        return hashes
 
     def create_multiagent_instance_socket(self, socktime):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

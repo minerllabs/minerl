@@ -101,17 +101,18 @@ class _MultiAgentEnv(gym.Env):
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
 
+        # TODO this needs to be updated to not be done during training phase
         video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos/{}'.format(env_spec.name))
         self.record_agents = [ind for ind in range(self.task.agent_count)]
         self.video_directory = pathlib.Path(video_record_path)
-        # We intentionally error if the directory exists to avoid overwrites
-        self.video_directory.mkdir(parents=True)
+        self.video_directory.mkdir(parents=True, exist_ok=True)
+        self.num_recordings = 0
+        self.recording_seed_hashes = None
         video_dims = self.observation_space.spaces["pov"].shape
         self.video_writers = {agent_ind: _VideoWriter(video_width=video_dims[0],
                                                       video_height=video_dims[1],
                                                       fps=20.0,)
                               for agent_ind in self.record_agents}
-
 
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
@@ -325,6 +326,9 @@ class _MultiAgentEnv(gym.Env):
                         out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
                         if role in self.record_agents:
                             self.video_writers[role].write_rgb_image(out_obs['pov'])
+                            if done:
+                                self.video_writers[role].close()
+                                self.num_recordings += 1
                     else:
                         # IF THIS PARTICULAR AGENT IS DONE THEN:
                         reward = 0.0
@@ -333,6 +337,7 @@ class _MultiAgentEnv(gym.Env):
                         monitor = {}
                         if role in self.record_agents:
                             self.video_writers[role].close()
+                            self.num_recordings += 1
 
                     # concatenate multi-agent obs, rew, done
                     multi_obs[actor_name] = out_obs
@@ -506,10 +511,14 @@ class _MultiAgentEnv(gym.Env):
             self._seed = None
 
     def _reset_video_recorders(self, obs, agent_ind):
-        # TODO figure out what other metadata we might want saved?
-        video_path = self.video_directory / f"{agent_ind}_{self._seed}_{round(time.time())}.mp4"
         if self.video_writers[agent_ind].is_open():
             self.video_writers[agent_ind].close()
+            self.num_recordings += 1
+        #if not self.done_recording and self.env_id == 0:
+        if self.recording_seed_hashes is None:
+            self.recording_seed_hashes = self.instances[agent_ind].get_hashed_seeds()
+        seed_hash = self.recording_seed_hashes[self.num_recordings]
+        video_path = self.video_directory / f"{seed_hash}.mp4"
         self.video_writers[agent_ind].open(video_path)
         self.video_writers[agent_ind].write_rgb_image(obs['pov'])
 
@@ -692,6 +701,10 @@ class _MultiAgentEnv(gym.Env):
         """gym api close"""
         logger.debug("Closing MineRL env...")
 
+        for actor_index in range(len(self.instances)):
+            if actor_index in self.record_agents and self.video_writers[actor_index].is_open():
+                self.video_writers[actor_index].close()
+
         if self.viewers is not None:
             [viewer.close() for viewer in self.viewers]
             self.viewers = None
@@ -699,11 +712,14 @@ class _MultiAgentEnv(gym.Env):
         if self._already_closed:
             return
 
-        for instance in self.instances:
-            self._TO_MOVE_clean_connection(instance)
-
-            if instance.running:
-                instance.kill()
+        # If doing evaluation, this will not work
+        try:
+            for instance in self.instances:
+                self._TO_MOVE_clean_connection(instance)
+                if instance.running:
+                    instance.kill()
+        except AttributeError:
+            logger.debug("Could not kill instances (ok if in testing phase)")
 
         self._already_closed = True
 
