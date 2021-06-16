@@ -445,8 +445,8 @@ class MinecraftInstance(object):
 
     def get_hashed_seeds(self):
         import hashlib
-        salt = int(os.getenv("SEED_HASH_SALT", 0))
-        hashes = [hashlib.sha256(bytes([int(seed) + salt])).hexdigest() for seed in self._seed]
+        salt = str(os.getenv("SEED_HASH_SALT", ""))
+        hashes = [hashlib.sha256(bytes((str(seed) + salt).encode())).hexdigest() for seed in self._seed]
         return hashes
 
     def create_multiagent_instance_socket(self, socktime):

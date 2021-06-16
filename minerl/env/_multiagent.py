@@ -105,10 +105,13 @@ class _MultiAgentEnv(gym.Env):
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
 
+        # Designed to work with test_framework.py code to track which of the evaluation
+        # instances is the first one
         with _MultiAgentEnv.video_file_lock:
             self.env_id = _MultiAgentEnv.adhoc_env_counter
             _MultiAgentEnv.adhoc_env_counter += 1
 
+        # TODO this needs to be updated to not be done during training phase
         video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos')
         self.record_agents = [ind for ind in range(self.task.agent_count)]
         self.video_directory = pathlib.Path(video_record_path)
@@ -708,6 +711,10 @@ class _MultiAgentEnv(gym.Env):
         """gym api close"""
         logger.debug("Closing MineRL env...")
 
+        for actor_index, instance in enumerate(self.instances):
+            if actor_index in self.record_agents and self.video_writers[actor_index].is_open():
+                self.video_writers[actor_index].close()
+
         if self.viewers is not None:
             [viewer.close() for viewer in self.viewers]
             self.viewers = None
@@ -715,11 +722,15 @@ class _MultiAgentEnv(gym.Env):
         if self._already_closed:
             return
 
-        for instance in self.instances:
-            self._TO_MOVE_clean_connection(instance)
+        # If doing evaluation, this will not work
+        try:
+            for instance in self.instances:
+                self._TO_MOVE_clean_connection(instance)
 
-            if instance.running:
-                instance.kill()
+                if instance.running:
+                    instance.kill()
+        except AttributeError:
+            logger.debug("Could not kill instances (ok if in testing phase)")
 
         self._already_closed = True
 
