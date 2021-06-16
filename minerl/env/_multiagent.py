@@ -110,10 +110,11 @@ class _MultiAgentEnv(gym.Env):
             _MultiAgentEnv.adhoc_env_counter += 1
 
         video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos')
-        self.record_agents = [ind for ind in range(self.task.agent_count)] if self.env_id == 0 else []
+        self.record_agents = [ind for ind in range(self.task.agent_count)]
         self.video_directory = pathlib.Path(video_record_path)
         self.video_directory.mkdir(parents=True, exist_ok=True)
-        self.done_recording = False
+        self.num_recordings = 0
+        self.recording_seed_hashes = None
         video_dims = self.observation_space.spaces["pov"].shape
         self.video_writers = {agent_ind: _VideoWriter(video_width=video_dims[0],
                                                       video_height=video_dims[1],
@@ -332,6 +333,9 @@ class _MultiAgentEnv(gym.Env):
                         out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
                         if role in self.record_agents:
                             self.video_writers[role].write_rgb_image(out_obs['pov'])
+                            if done:
+                                self.video_writers[role].close()
+                                self.num_recordings += 1
                     else:
                         # IF THIS PARTICULAR AGENT IS DONE THEN:
                         reward = 0.0
@@ -340,6 +344,7 @@ class _MultiAgentEnv(gym.Env):
                         monitor = {}
                         if role in self.record_agents:
                             self.video_writers[role].close()
+                            self.num_recordings += 1
 
                     # concatenate multi-agent obs, rew, done
                     multi_obs[actor_name] = out_obs
@@ -515,14 +520,14 @@ class _MultiAgentEnv(gym.Env):
     def _reset_video_recorders(self, obs, agent_ind):
         if self.video_writers[agent_ind].is_open():
             self.video_writers[agent_ind].close()
-            # Remove video writer (only record one game)
-            _ = self.video_writers.pop(agent_ind)
-            self.record_agents.remove(agent_ind)
-            self.done_recording = True
-        if not self.done_recording and self.env_id == 0:
-            video_path = self.video_directory / "video.mp4"
-            self.video_writers[agent_ind].open(video_path)
-            self.video_writers[agent_ind].write_rgb_image(obs['pov'])
+            self.num_recordings += 1
+        #if not self.done_recording and self.env_id == 0:
+        if self.recording_seed_hashes is None:
+            self.recording_seed_hashes = self.instances[agent_ind].get_hashed_seeds()
+        seed_hash = self.recording_seed_hashes[self.num_recordings]
+        video_path = self.video_directory / f"{seed_hash}.mp4"
+        self.video_writers[agent_ind].open(video_path)
+        self.video_writers[agent_ind].write_rgb_image(obs['pov'])
 
     def _setup_spaces(self) -> None:
         self.observation_space = self.task.observation_space
