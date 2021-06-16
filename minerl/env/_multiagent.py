@@ -514,7 +514,6 @@ class _MultiAgentEnv(gym.Env):
         if self.video_writers[agent_ind].is_open():
             self.video_writers[agent_ind].close()
             self.num_recordings += 1
-        #if not self.done_recording and self.env_id == 0:
         if self.recording_seed_hashes is None:
             self.recording_seed_hashes = self.instances[agent_ind].get_hashed_seeds()
         seed_hash = self.recording_seed_hashes[self.num_recordings]
