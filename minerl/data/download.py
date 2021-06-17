@@ -25,9 +25,9 @@ import coloredlogs
 logger = logging.getLogger(__name__)
 
 
-def download(directory=None, resolution='low', competition='diamond', texture_pack=0,
+def download(directory=None, resolution='low', competition='minimal_all', texture_pack=0,
              update_environment_variables=True, disable_cache=False,
-             experiment=None, minimal=False):
+             experiment=None):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
@@ -35,7 +35,7 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
         directory (os.path): destination root for downloading MineRLv0 datasets
         resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64,1024x1024 ]
             respectively (note: high resolution is not currently supported). Defaults to 'low'.
-        competition(str): One of ['diamond', 'basalt', 'all']
+        competition(str): One of ['diamond', 'basalt', 'all'], default is minimal_all
         texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults
             to 0.
         update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment
@@ -43,7 +43,6 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
         disable_cache (bool, optional): downloads temporary files to local directory. Defaults to False
         experiment (str, optional): specify the desired experiment to download. Will only download data for this
             experiment. Note there is no hash verification for individual experiments
-        minimal (bool, optional): download a minimal version of the dataset
     """
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
@@ -86,15 +85,15 @@ def download(directory=None, resolution='low', competition='diamond', texture_pa
         "https://minerl-europe.s3.amazonaws.com/"]
 
     if experiment is None:
-        assert competition in ('diamond', 'basalt', 'all'), "competition has " \
+        assert competition in ('diamond', 'basalt', 'minimal_all'), "competition has " \
                                                             "unsupported value" \
                                                             " {}".format(competition)
-        min_str = '_minimal' if minimal else ''
-        if competition in ('diamond', 'basalt'):
-            assert min_str == '', 'Minimal datasets are currently only ' \
-                                  'supported for the full dataset'
         logger.info("Downloading experiment set for {} competition(s)".format(competition))
         competition_string = competition + '_'
+        if competition == 'minimal_all':
+            min_str = '_minimal'
+        else:
+            min_str = ''
         filename = "v{}/{}data_texture_{}_{}_res{}.tar".format(DATA_VERSION,
                                                                competition_string,
                                                                texture_pack,
