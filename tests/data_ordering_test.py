@@ -64,11 +64,11 @@ def _assert_matching_nested_keys(d1: dict, d2: dict) -> None:
     assert dummy1 == dummy2
 
 
-def _check_space(key, space, observation, correct_len):
+def _check_space_shapes(key, space, observation, correct_len):
     print('checking key {}'.format(key))
     if isinstance(space, spaces.Dict):
         for k, s in space.spaces.items():
-            _check_space(k, s, observation[key], correct_len)
+            _check_space_shapes(k, s, observation[key], correct_len)
     else:
         allowed_spaces = (
             spaces.MultiDiscrete,
@@ -89,7 +89,7 @@ def _get_single_batch(env_name):
 ENV_SPECS_BY_NAME = {env_spec.name: env_spec for env_spec in envs.HAS_DATASET_ENV_SPECS}
 
 # We parametrize indirectly over `env_name` (and get inspect via ENV_SPECS_BY_NAME[env_name])
-# rather directly parameterizing over `env_spec` because causes pytest to output failures
+# rather directly parametrizing over `env_spec` because this lets pytest output failures
 # that look like (A) rather than (B).
 # (A) FAILED tests/data_ordering_test.py::test_first_batch_match_obs_keys[MineRLNavigate-v0]
 # (B) FAILED tests/data_ordering_test.py::test_first_batch_match_obs_keys[env_spec6]
@@ -121,6 +121,6 @@ class TestFirstBatches:
         obs, act, rew, _, _ = _get_single_batch(env_spec.name)
         correct_len = len(rew)
         for key, space in env_spec.observation_space.spaces.items():
-            _check_space(key, space, obs, correct_len)
+            _check_space_shapes(key, space, obs, correct_len)
         for key, space in env_spec.action_space.spaces.items():
-            _check_space(key, space, act, correct_len)
+            _check_space_shapes(key, space, act, correct_len)
