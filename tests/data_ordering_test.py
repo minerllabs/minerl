@@ -97,7 +97,6 @@ ENV_SPECS_BY_NAME = {env_spec.name: env_spec for env_spec in envs.HAS_DATASET_EN
 # Also, now we can select filter tests by name like
 # `pytest test/data_ordering_test.py -k MineRLNavigate`
 @pytest.mark.parametrize("env_name", ENV_SPECS_BY_NAME.keys())
-# @pytest.mark.repeat(5)
 class TestFirstBatches:
     @pytest.fixture
     def env_spec(self, env_name):
