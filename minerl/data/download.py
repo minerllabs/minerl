@@ -25,7 +25,7 @@ import coloredlogs
 logger = logging.getLogger(__name__)
 
 
-def download(directory=None, resolution='low', competition='minimal_all', texture_pack=0,
+def download(directory=None, resolution='low', competition=None, texture_pack=0,
              update_environment_variables=True, disable_cache=False,
              experiment=None):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
@@ -56,8 +56,12 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
     if experiment is not None:
         logger.info("Downloading experiment {} to {}".format(experiment, directory))
     else:
+        if competition is None:
+            competition = 'minimal_all'
+
         logger.info("Downloading dataset for competition(s) {} to {}".format(competition,
                                                                              directory))
+
 
     if os.path.exists(directory):
         try:
@@ -92,6 +96,7 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
         competition_string = competition + '_'
         if competition == 'minimal_all':
             min_str = '_minimal'
+            competition_string = ''
         else:
             min_str = ''
         filename = "v{}/{}data_texture_{}_{}_res{}.tar".format(DATA_VERSION,
