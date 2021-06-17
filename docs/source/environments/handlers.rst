@@ -30,12 +30,38 @@ dictionaries are comprised of individual fields we call *handlers*.
 .. inclusion-marker-do-not-remove
 
 
+Spaces
+===========
+
+
+.. _enum_spaces:
+
+Enum Spaces
+-----------
+
+Some observation and action spaces are ``Enum`` types. Examples include the
+:ref:`equip action<equip>` and equip observation.
+
+Observation and action spaces that are ``Enum`` are encoded as strings by default (e.g. "none",
+"log", and "sandstone#2") when they are returned from ``env.step()`` and ``env.reset()``, or
+yielded from :meth:`minerl.data.DataPipeline.batch_iter`.
+
+When building an action to pass into ``env.step(act)``, the Enum component of the action dict can
+be encoded as either a string or an integer.
+
+.. tip::
+    The Enum integer value that corresponds to each Enum string value can be accessed via
+    ``Enum.values_map[string_value]``. For example, to get the integer value corresponding to the
+    equip action "dirt" in ``MineRLObtainDiamond`` or ``MineRLBasaltBuildVillageHouse``, you can
+    call ``env.action_space.spaces["equip"].values_map["dirt"]``.
+
+
 Observations
 =====================================
 
 
-Visual Observations - :code:`pov`, :code:`third-persion`
----------------------------------------------------------
+Visual Observations - :code:`pov`, :code:`third-person`
+-------------------------------------------------------
 
 
 .. _pov:
@@ -70,6 +96,22 @@ Visual Observations - :code:`pov`, :code:`third-persion`
         This observation uses the default Minecraft game logic which includes compass needle momentum.
         As such it may change even when the agent has stoped moving!
 
+
+Equip Observations - :code:`equipped_items`
+-------------------------------------------
+
+.. _equipped_items:
+
+.. function:: equipped_items.mainhand.type : Enum('none', 'air', ..., 'other'))
+
+    This observation is an Enum type. See :ref:`enum_spaces` for more information.
+
+    The type of the item that the player has equipped in the mainhand slot. If the mainhand slot
+    is empty then the value is 'air'. If the mainhand slot contains an item not inside this
+    observation space, then the value is 'other'.
+
+    :type: :code:`np.int64`
+    :shape: [1]
 
 
 Actions
@@ -109,6 +151,8 @@ Tool Control - ``equip`` and ``use``
 
 .. function:: equip : Enum('none', 'air', ..., 'other'))
 
+    This is action is an Enum type. See :ref:`enum_spaces` for more information.
+
     This action equips the first instance of the specified item from the agents inventory to the main hand if the
     specified item is present, otherwise does nothing.
     :code:`air` matches any empty slot in an agent's inventory and functions as an un-equip action.
@@ -120,17 +164,16 @@ Tool Control - ``equip`` and ``use``
         Agents may unequip items by performing the :code:`equip 'air'` action.
 
     .. note::
-        :code:`equip 'none'` and ``equip 'other'`` are both no-op actions. In otherwords, they leave
+        :code:`equip 'none'` and ``equip 'other'`` are both no-op actions. In other words, they leave
         the currently equipped item unchanged. However, in the MineRL dataset, ``other`` takes on a
         special meaning. ``other`` is the wildcard equip action that is recorded in the dataset
         whenever a player equipped an item that wasn't included in this action space's Enum.
 
 .. _use:
-
 .. function:: use : Discrete(1) [use]
 
     This action is equivalent to right-clicking in Minecraft. It causes the agent to use the
-    item it is holding, or to open doors or gates when it is facing an applicable Minecraft
+    item it is holding in the :ref:`mainhand slot<equipped_items>`, or to open doors or gates when it is facing an applicable Minecraft
     structure.
 
     :type: :code:`np.int64`
