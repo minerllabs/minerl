@@ -306,9 +306,9 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
   :alt:
 
 After spawning in an extreme hills biome, use your waterbucket to make an beautiful waterfall.
-Then take an aesthetic "picture" of it by choosing a moving to a positioning the player's camera
-to have a nice view of the waterfall and throwing a snowball. Throwing the snowball
-ends the episode.
+Then take an aesthetic "picture" of it by moving to a good location, positioning
+player's camera to have a nice view of the waterfall, and throwing a snowball. Throwing
+the snowball ends the episode.
 """
 
     def __init__(self, high_res: bool):
