@@ -20,7 +20,8 @@ pip install .
 # Copy data to the ci machines if needed for tests
 #az storage copy -s $AZ_MINERL_DATA -d $MINERL_DATA_ROOT --recursive --subscription sci
 
-pytest . -n 1
+# Note tests that lauch Minecraft MUST be marked serial via the "@pytest.mark.serial" annotation
+pytest . -n 4
 pip uninstall -y minerl
 
 pip list
