@@ -324,7 +324,7 @@ class _MultiAgentEnv(gym.Env):
 
                         # Process the observation and done state.
                         out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
-                        if role in self.record_agents:
+                        if role in self.record_agents and self.video_writers[role].is_open():
                             self.video_writers[role].write_rgb_image(out_obs['pov'])
                             if done:
                                 self.video_writers[role].close()
@@ -335,7 +335,7 @@ class _MultiAgentEnv(gym.Env):
                         out_obs = self._last_obs[actor_name]
                         done = True
                         monitor = {}
-                        if role in self.record_agents:
+                        if role in self.record_agents and self.video_writers[role].is_open():
                             self.video_writers[role].close()
                             self.num_recordings += 1
 
