@@ -80,7 +80,7 @@ def _raise_error(exception, directory=None):
             "YOUR DATASET IS OUT OF DATE! The lowest supported version is v{} "
             "but yours is lower!\n\n"
             "\tRe-download the data using `minerl.data.download({})`".format(
-                min(ALLOWED_VERSIONS), dir_str) +
+                max(ALLOWED_VERSIONS), dir_str) +
             "\n\n CONFIGURED MINERL_DATA_DIR = {}".format(dir_str))
         e.comparison = comparison
         raise e
