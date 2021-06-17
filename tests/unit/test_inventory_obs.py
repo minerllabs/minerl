@@ -55,14 +55,17 @@ def test_from_hero_simple_quantity_change_mixed_metadata():
                 hero_obs = dict(
                     inventory=[
                         dict(type='a', quantity=quantity_a, metadata=0),
+
                         dict(type='b', quantity=quantity_b_0, metadata=0),
 
                         # Should add together these two stacks.
                         dict(type='b', quantity=quantity_b_1, metadata=1),
                         dict(type='b', quantity=quantity_b_1, metadata=1),
 
-                        # Should be ignored since not in item_list.
-                        dict(type='d', quantity=12, metadata=1),
+                        # Should be grouped together as other
+                        dict(type='apple', quantity=quantity_a, metadata=0),
+                        dict(type='banana', quantity=quantity_b_0, metadata=0),
+                        dict(type='banana', quantity=quantity_b_1, metadata=1),
                     ],
                 )
 
@@ -72,14 +75,18 @@ def test_from_hero_simple_quantity_change_mixed_metadata():
                     'b#0': quantity_b_0,
                     'b#1': quantity_b_1 * 2,
                     'b#2': 0,
-                    'other': 0,
+                    'other': quantity_a
+                             + quantity_b_0
+                             + quantity_b_1,
                 }
 
                 obs_flat = handler_flat.from_hero(hero_obs)
                 assert obs_flat == {
                     'a': quantity_a,
                     'b': quantity_b_0 + quantity_b_1 * 2,
-                    'other': 0,
+                    'other': quantity_a
+                             + quantity_b_0
+                             + quantity_b_1,
                 }
 
 
@@ -146,7 +153,7 @@ def test_from_universal_logs_complex():
         dict(name='sandstone', variant=2, count=3),
         dict(name='sandstone', variant=2, count=3),
         dict(name='air', variant=0, count=10),
-        dict(name='air', variant=0, count=10),
+        {}
         ])
     assert handler.from_universal(univ_obs) == {
         'log#0': 5,

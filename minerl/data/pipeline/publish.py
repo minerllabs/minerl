@@ -13,10 +13,10 @@ render.py
 import logging
 import functools
 import hashlib
-import multiprocessing
 import os
 import random
 import sys
+from typing import List
 
 import cv2
 import tqdm
@@ -458,6 +458,14 @@ def publish(n_workers=56, parallel=True):
         print(open('errors.txt', 'r').read())
 
 
+def _make_tar(output_tar_path: str, folders: List[str]) -> None:
+    with tarfile.open(output_tar_path, "w") as archive:
+        logging.info(f'Generating archive {output_tar_path}')
+        archive.add('VERSION')
+        for folder in folders:
+            archive.add(folder)
+
+
 def package(out_dir=DATA_DIR):
     # Verify version
     if DATA_DIR is None:
@@ -474,15 +482,17 @@ def package(out_dir=DATA_DIR):
 
     # Collect experiment folders
     exp_folders = [f for f in os.listdir(DATA_DIR) if f.startswith('MineRL') and '.' not in f]
+    basalt_folders = [f for f in exp_folders if "basalt" in f.lower()]
+    diamond_folders = [f for f in exp_folders if f not in basalt_folders]
+
+    os.chdir(out_dir)
 
     # Generate tar archives
-    os.chdir(DATA_DIR)
-    with tarfile.open(os.path.join(out_dir, 'data_texture_0_low_res.tar'), "w") as archive:
-        logging.info('Generating archive {}'.format('data_texture_0_low_res.tar'))
-        archive.add('VERSION')
-        for folder in exp_folders:
-            archive.add(folder)
+    _make_tar(os.path.join(out_dir, 'data_texture_0_low_res.tar'), exp_folders)
+    _make_tar(os.path.join(out_dir, 'basalt_data_texture_0_low_res.tar'), basalt_folders)
+    _make_tar(os.path.join(out_dir, 'diamond_data_texture_0_low_res.tar'), diamond_folders)
 
+    # Generate minimal tar archives using random subset from all experiment demos
     with tarfile.open(os.path.join(out_dir, 'data_texture_0_low_res_minimal.tar'), "w") as archive:
         logging.info('Generating archive {}'.format('data_texture_0_low_res_minimal.tar'))
         archive.add('VERSION')
@@ -499,9 +509,7 @@ def package(out_dir=DATA_DIR):
             archive.add(folder)
 
     # Generate hash files
-    # logging.info('Generating hashes for all files')
-    # subprocess.run(['md5sum', '*.tar.gz', '>', J(out_dir, 'MD5SUMS')], cwd=out_dir)
-    # subprocess.run(['sha1sum', 'MineRL*.tar.gz', '|', 'SHA1SUMS '])
+    logging.info('Generating hashes for all files')
 
     archives = [a for a in os.listdir(out_dir) if a.endswith('.tar')]
 

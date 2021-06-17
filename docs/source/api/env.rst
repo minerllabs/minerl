@@ -11,12 +11,12 @@ simulator Malmo which enables **synchronous**, **stable**, and
 
 MineRLEnv
 ===========
-    
+
 .. automodule:: minerl.env.core
     :members: MineRLEnv
     :undoc-members:
     :show-inheritance:
-    
+
 
 
 InstanceManager

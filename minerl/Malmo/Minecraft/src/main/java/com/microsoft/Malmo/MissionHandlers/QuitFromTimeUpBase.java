@@ -60,7 +60,9 @@ public abstract class QuitFromTimeUpBase extends HandlerBase implements IWantToQ
 	    if (timeRemainingInSeconds != this.countdownSeconds)
 	    {
 	        this.countdownSeconds = timeRemainingInSeconds;
-	        drawCountDown(this.countdownSeconds);
+	        if (timeRemainingInSeconds < 30) {
+	            drawCountDown(this.countdownSeconds);
+		}
 	    }
 	    if (timeRemainingInMs <= 0)
 	    	return true;

@@ -201,7 +201,11 @@ def merge_stream(stream_name):
 
         # print(shards)
         t0 = time.time()
-        concat(shards, bin_name)
+        try:
+            concat(shards, bin_name)
+        except OSError:
+            print(f"FAILED_TO_CONCAT {stream_name}")
+            return "Failed to concat", stream_name
 
         # Parse
         results_dir = J(tempdir, 'result')
@@ -275,7 +279,7 @@ def main(n_workers: int = 1, parallel: bool = True):
         failed_streams = [x[1] for x in timings if isinstance(x, tuple)]
         times = np.array([x for x in timings if not isinstance(x, tuple)])
 
-    # Write blacklist    
+    # Write blacklist
     for f in (failed_streams):
         if f not in blacklist:
             blacklist.append(f)

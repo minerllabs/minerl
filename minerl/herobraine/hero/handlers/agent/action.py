@@ -1,15 +1,17 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 import typing
-from typing import Any, List, Sequence, Union
 
 import numpy as np
+
+from typing import Any, Sequence
+
 from minerl.herobraine.hero import spaces
+from minerl.herobraine.hero.handlers import util
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 
-from collections import Iterable
+from collections.abc import Iterable
 
-from minerl.herobraine.hero.handlers import util
 
 
 class Action(TranslationHandler):
