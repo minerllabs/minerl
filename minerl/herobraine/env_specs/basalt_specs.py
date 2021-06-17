@@ -357,7 +357,7 @@ Throw a snowball to end the episode.
 
     def __init__(self, high_res: bool):
         super().__init__(
-            name="MineRLBasaltCreateAnimalPenPlains-v0",
+            name="MineRLBasaltCreatePlainsAnimalPen-v0",
             demo_server_experiment_name="pen_animals",
             max_episode_steps=5*MINUTE,
             high_res=high_res,
@@ -405,7 +405,7 @@ Throw a snowball to end the episode.
 
     def __init__(self, high_res: bool):
         super().__init__(
-            name="MineRLBasaltCreateAnimalPenVillage-v0",
+            name="MineRLBasaltCreateVillageAnimalPen-v0",
             demo_server_experiment_name="village_pen_animals",
             max_episode_steps=5*MINUTE,
             high_res=high_res,
