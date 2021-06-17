@@ -101,7 +101,6 @@ class _MultiAgentEnv(gym.Env):
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
 
-        # TODO this needs to be updated to not be done during training phase
         do_recording = os.getenv('EVALUATION_STAGE', '') == 'testing'
         video_record_path = os.getenv('VIDEO_RECORD_PATH', 'videos/{}'.format(env_spec.name))
         self.record_agents = [ind for ind in range(self.task.agent_count)] if do_recording else []
