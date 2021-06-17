@@ -117,10 +117,10 @@ class TestFirstBatches:
             _replace_nested_gym_dicts_with_dicts(env_spec.action_space.spaces),
         )
 
-    # def test_first_batch_space_shapes(self, env_spec):
-    #     obs, act, rew, _, _ = _get_single_batch(env_spec.name)[0]
-    #     correct_len = len(rew)
-    #     for key, space in env_spec.observation_space.spaces.items():
-    #         _check_space(key, space, obs, correct_len)
-    #     for key, space in env_spec.action_space.spaces.items():
-    #         _check_space(key, space, act, correct_len)
+    def test_first_batch_space_shapes(self, env_spec):
+        obs, act, rew, _, _ = _get_single_batch(env_spec.name)
+        correct_len = len(rew)
+        for key, space in env_spec.observation_space.spaces.items():
+            _check_space(key, space, obs, correct_len)
+        for key, space in env_spec.action_space.spaces.items():
+            _check_space(key, space, act, correct_len)
