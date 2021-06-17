@@ -88,6 +88,7 @@ def _get_single_batch(env_name):
 
 ENV_SPECS_BY_NAME = {env_spec.name: env_spec for env_spec in envs.HAS_DATASET_ENV_SPECS}
 
+
 # We parametrize indirectly over `env_name` (and get inspect via ENV_SPECS_BY_NAME[env_name])
 # rather directly parametrizing over `env_spec` because this lets pytest output failures
 # that look like (A) rather than (B).
