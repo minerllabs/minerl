@@ -13,12 +13,12 @@ buildscript {
         if (RAPID_CLUSTER == "owl" || RAPID_CLUSTER == "null") {
             maven {
                 name = "openai-owl"
-                url = "http://openai-repository-manager-0.nexus.ci.svc.owl.sci.openai.org:8081/repository/openai-all-repositories"
+                url = "http://openai-repository-manager-0.nexus.ci.svc.owl.sci.openai.org:8081/repository/openai-all-repositories/"
             }
         } else if(RAPID_CLUSTER == "quail") {
             maven {
                 name = "openai-quail"
-                url = "http://openai-repository-manager-0.nexus.ci.svc.quail.sci.openai.org:8081/repository/openai-all-repositories"
+                url = "http://openai-repository-manager-0.nexus.ci.svc.quail.sci.openai.org:8081/repository/openai-all-repositories/"
             }
         }
 
@@ -65,12 +65,12 @@ repositories {
     if (RAPID_CLUSTER == "owl" || RAPID_CLUSTER == "null") {
         maven {
             name = "openai-owl"
-            url = "http://openai-repository-manager-0.nexus.ci.svc.owl.sci.openai.org:8081/repository/openai-all-repositories"
+            url = "http://openai-repository-manager-0.nexus.ci.svc.owl.sci.openai.org:8081/repository/openai-all-repositories/"
         }
     } else if(RAPID_CLUSTER == "quail") {
         maven {
             name = "openai-quail"
-            url = "http://openai-repository-manager-0.nexus.ci.svc.quail.sci.openai.org:8081/repository/openai-all-repositories"
+            url = "http://openai-repository-manager-0.nexus.ci.svc.quail.sci.openai.org:8081/repository/openai-all-repositories/"
         }
     }
 
