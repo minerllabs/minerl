@@ -139,7 +139,7 @@ public class NearbySmeltCommandsImplementation extends CommandBase implements IO
     public void sendFurnaceMessage(BlockPos pos, boolean isAdd) {
         MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
         for (Object player : server.getPlayerList().getPlayers()) {
-            if (player != null && player instanceof EntityPlayerMP) {
+            if (player instanceof EntityPlayerMP) {
                 MalmoMod.network.sendTo(new FurnaceMessage(pos, isAdd), (EntityPlayerMP) player);
             }
         }
