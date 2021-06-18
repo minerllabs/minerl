@@ -86,7 +86,7 @@ public class TradeCommandsImplementation extends CommandGroup
         {
             final EntityPlayerMP source = ctx.getServerHandler().playerEntity;
             IThreadListener mainThread = (WorldServer)ctx.getServerHandler().playerEntity.world;
-            // TODO: does this really need to run on the main thread or???
+            // TODO: does this really need to run on the main thread or??? yesss
             mainThread.addScheduledTask(new Runnable() {
                 @Override
                 public void run() {

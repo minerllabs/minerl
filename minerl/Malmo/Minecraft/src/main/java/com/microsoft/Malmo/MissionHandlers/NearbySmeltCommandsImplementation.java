@@ -19,12 +19,15 @@
 
 package com.microsoft.Malmo.MissionHandlers;
 
+import com.microsoft.Malmo.Utils.RunLater;
+import com.microsoft.Malmo.Utils.SafeIMessageHandler;
 import io.netty.buffer.ByteBuf;
 
 import java.util.ArrayList;
 
 import com.google.gson.JsonObject;
 
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -37,8 +40,10 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.FurnaceRecipes;
+import net.minecraft.util.IThreadListener;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -55,6 +60,7 @@ import com.microsoft.Malmo.Schemas.NearbySmeltCommand;
 import com.microsoft.Malmo.Schemas.NearbySmeltCommands;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
 import com.microsoft.Malmo.Utils.CraftingHelper;
+import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * @author Cayden Codel, Carnegie Mellon University
@@ -64,6 +70,7 @@ import com.microsoft.Malmo.Utils.CraftingHelper;
 public class NearbySmeltCommandsImplementation extends CommandBase implements IObservationProducer {
     private boolean isOverriding;
     private static ArrayList<BlockPos> furnaces;
+    private static ObjectSets.SynchronizedSet<BlockPos> nonono;
 
     public static class SmeltNearbyMessage implements IMessage {
         String parameters;
@@ -87,7 +94,7 @@ public class NearbySmeltCommandsImplementation extends CommandBase implements IO
 
     public static class FurnaceMessage implements IMessage {
         BlockPos pos;
-        boolean isAdd;
+        boolean isAdd; // Maybe add or remove flag
 
         public FurnaceMessage(){}
 
@@ -111,15 +118,15 @@ public class NearbySmeltCommandsImplementation extends CommandBase implements IO
         }
     }
 
-    public static class FurnaceMessageHandler implements IMessageHandler<FurnaceMessage, IMessage> {
-        @Override
-        public IMessage onMessage(FurnaceMessage message, MessageContext ctx) {
-            // This ensures there won't be duplicates in the list even if we are adding
-            maybeRemoveAtPos(furnaces, message.pos);
-            if (message.isAdd) {
-                furnaces.add(message.pos);
-            }
-            return null;
+    public static class FurnaceMessageHandler extends SafeIMessageHandler<FurnaceMessage, IMessage> {
+        public Runnable toRunOnMessage(FurnaceMessage message, MessageContext ctx) {
+            return () -> {
+                // This ensures there won't be duplicates in the list even if we are adding
+                maybeRemoveAtPos(furnaces, message.pos);
+                if (message.isAdd) {
+                    furnaces.add(message.pos);
+                }
+            };
         }
     }
 
@@ -141,7 +148,12 @@ public class NearbySmeltCommandsImplementation extends CommandBase implements IO
     @SubscribeEvent
     public void onBlockPlace(BlockEvent.PlaceEvent event) {
         if (!event.isCanceled() && event.getPlacedBlock().getBlock() instanceof BlockFurnace) {
-            furnaces.add(event.getPos());
+            RunLater.ToRunLater(new Runnable() {
+                @Override
+                public void run() {
+                    furnaces.add(event.getPos());
+                }
+            });
             if (event.getPlayer() instanceof EntityPlayerMP) {
                 // This means this is a server-side message, propagate it to each player.
                 sendFurnaceMessage(event.getPos(), true);
@@ -152,7 +164,12 @@ public class NearbySmeltCommandsImplementation extends CommandBase implements IO
     @SubscribeEvent
     public void onBlockDestroy(BlockEvent.BreakEvent event) {
         if (!event.isCanceled() && event.getState().getBlock() instanceof BlockFurnace) {
-            maybeRemoveAtPos(furnaces, event.getPos());
+            RunLater.ToRunLater(new Runnable() {
+                @Override
+                public void run() {
+                    maybeRemoveAtPos(furnaces, event.getPos());
+                }
+            });
             if (event.getPlayer() instanceof EntityPlayerMP) {
                 // This means this is a server-side message, propagate it to each player.
                 sendFurnaceMessage(event.getPos(), false);
@@ -201,23 +218,19 @@ public class NearbySmeltCommandsImplementation extends CommandBase implements IO
         return closeFurnace;
     }
 
-    public static class SmeltNearbyMessageHandler implements IMessageHandler<SmeltNearbyMessage, IMessage> {
-        @Override
-        public IMessage onMessage(SmeltNearbyMessage message, MessageContext ctx) {
-            EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            boolean closeFurnace = hasNearbyFurnace(player, furnaces);
-
-            if (closeFurnace) {
-                ItemStack input = CraftingHelper.getSmeltingRecipeForRequestedOutput(message.parameters, player);
-                if (input != null)
-                    if (CraftingHelper.attemptSmelting(player, input))
-                        return null;
-            }
-
-            return null;
+    public static class SmeltNearbyMessageHandler extends SafeIMessageHandler<SmeltNearbyMessage, IMessage> {
+        public Runnable toRunOnMessage(SmeltNearbyMessage message, MessageContext ctx) {
+            return () -> {
+                EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+                boolean closeFurnace = hasNearbyFurnace(player, furnaces);
+                if (closeFurnace) {
+                    ItemStack input = CraftingHelper.getSmeltingRecipeForRequestedOutput(message.parameters, player);
+                    if (input != null)
+                        CraftingHelper.attemptSmelting(player, input);
+                }
+            };
         }
     }
-
 
 
     @Override

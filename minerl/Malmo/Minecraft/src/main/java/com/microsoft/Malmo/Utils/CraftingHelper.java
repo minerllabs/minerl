@@ -605,7 +605,7 @@ public class CraftingHelper {
      * @param input  the raw ingredients we want to cook.
      * @return true if cooking was successful.
      */
-    public static boolean attemptSmelting(EntityPlayerMP player, ItemStack input) {
+    public synchronized static boolean attemptSmelting(EntityPlayerMP player, ItemStack input) {
         if (player == null || input == null)
             return false;
         List<ItemStack> ingredients = new ArrayList<ItemStack>();
