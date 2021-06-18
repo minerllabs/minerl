@@ -39,8 +39,10 @@ Spaces
 Enum Spaces
 -----------
 
-Some observation and action spaces are ``Enum`` types. Examples include the
-:ref:`equip action<equip>` and equip observation.
+Some observation and action spaces are ``Enum`` types. Examples include
+the :ref:`equip observation<equipped_items>`
+and
+the :ref:`equip action<equip>`.
 
 Observation and action spaces that are ``Enum`` are encoded as strings by default (e.g. "none",
 "log", and "sandstone#2") when they are returned from ``env.step()`` and ``env.reset()``, or
@@ -155,19 +157,24 @@ Tool Control - ``equip`` and ``use``
 
     This action equips the first instance of the specified item from the agents inventory to the main hand if the
     specified item is present, otherwise does nothing.
-    :code:`air` matches any empty slot in an agent's inventory and functions as an un-equip action.
+    :code:`air` matches any empty slot in an agent's inventory and functions as an un-equip, or equip-nothing action.
 
     :type: :code:`np.int64`
     :shape: [1]
 
-    .. tip::
-        Agents may unequip items by performing the :code:`equip 'air'` action.
-
     .. note::
+
         :code:`equip 'none'` and ``equip 'other'`` are both no-op actions. In other words, they leave
         the currently equipped item unchanged. However, in the MineRL dataset, ``other`` takes on a
         special meaning. ``other`` is the wildcard equip action that is recorded in the dataset
         whenever a player equipped an item that wasn't included in this action space's Enum.
+
+    .. warning::
+
+        `env.step(act)` typically will not process the equip action for two ticks (i.e., you will not
+        see the observation value :ref:`equipped_items` change until two more calls to `env.step`.)
+
+        This is due to a limitation with the current version of Malmo, our Minecraft backend.
 
 .. _use:
 .. function:: use : Discrete(1) [use]
