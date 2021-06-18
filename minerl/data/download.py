@@ -79,7 +79,7 @@ def download(directory=None, resolution='low', texture_pack=0,
         competition = 'minimal_all'
 
     if competition is not None:
-        logger.info("Downloading experiment set for {} competition(s)".format(competition))
+        logger.info("Downloading dataset for {} competition(s)".format(competition))
         competition_string = competition + '_'
         if competition == 'minimal_all':
             min_str = '_minimal'
@@ -161,7 +161,7 @@ if __name__ == '__main__':
         description=description,
     )
 
-    # Error if both --experiment and --competition provided
+    # Error if both --environment and --competition provided
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--environment",

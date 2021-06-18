@@ -1,4 +1,4 @@
-.. _MineRL competition environments: http://minerl.io/docs/environments/index.html#competition-environments
+.. _environments:
 
 General Information
 ================================

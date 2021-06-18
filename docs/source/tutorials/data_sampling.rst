@@ -5,8 +5,6 @@
 Downloading and Sampling The Dataset
 ====================================
 
-.. _check out the environment documentation: http://minerl.io/docs/environments/index.html#competition-environments
-
 .. role:: python(code)
    :language: python
 
@@ -53,18 +51,23 @@ To download the minimal dataset into ``MINERL_DATA_ROOT``, run the command:
 .. note::
 
     The full dataset for a particular environment, or for a particular competition (Diamond or Basalt)
-    can be downloaded using the ``--experiment EXPERIMENT`` and ``--competition COMPETITION`` flags.
+    can be downloaded using the ``--environment ENV_NAME`` and ``--competition COMPETITION`` flags.
+
+    ``ENV_NAME`` is any Gym environment name from the
+    :ref:`documented environments <environments>`.
+
+    ``COMPETITION`` is ``basalt`` or ``diamond``.
+
     For more information, run ``python3 -m minerl.data.download --help``.
 
     As an example, to download the full dataset for "MineRLObtainDiamond-v0", you can run
 
     .. code-block:: bash
 
-        python3 -m minerl.data.download --experiment "MineRLObtainDiamond-v0"
+        python3 -m minerl.data.download --environment "MineRLObtainDiamond-v0"
 
 
 
-For a complete list of published experiments, `check out the environment documentation`_.
 
 
 Sampling the Dataset with :code:`batch_iter`
