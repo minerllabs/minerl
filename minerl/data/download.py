@@ -5,29 +5,26 @@ import os
 from urllib.error import URLError
 from urllib.error import HTTPError
 
-import requests
 import shutil
 import tarfile
-import minerl
 import time
-import tqdm
 from threading import Thread
 
 from minerl.data.util import download_with_resume
 
 import logging
 
-from minerl.data.version import VERSION_FILE_NAME, DATA_VERSION, assert_version
+from minerl.data.version import DATA_VERSION, assert_version
+from minerl.herobraine import envs
 import tempfile
-import sys
 import coloredlogs
 
 logger = logging.getLogger(__name__)
 
 
-def download(directory=None, resolution='low', competition='minimal_all', texture_pack=0,
+def download(directory=None, resolution='low', texture_pack=0,
              update_environment_variables=True, disable_cache=False,
-             experiment=None):
+             environment=None, competition=None):
     """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
     download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
     
@@ -35,7 +32,6 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
         directory (os.path): destination root for downloading MineRLv0 datasets
         resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64,1024x1024 ]
             respectively (note: high resolution is not currently supported). Defaults to 'low'.
-        competition(str): One of ['diamond', 'basalt', 'all'], default is minimal_all
         texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults
             to 0.
         update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment
@@ -43,6 +39,7 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
         disable_cache (bool, optional): downloads temporary files to local directory. Defaults to False
         experiment (str, optional): specify the desired experiment to download. Will only download data for this
             experiment. Note there is no hash verification for individual experiments
+        competition (str, optional): One of ['diamond', 'basalt'].
     """
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
@@ -52,12 +49,6 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
     elif update_environment_variables:
         os.environ['MINERL_DATA_ROOT'] = os.path.expanduser(
             os.path.expandvars(os.path.normpath(directory)))
-
-    if experiment is not None:
-        logger.info("Downloading experiment {} to {}".format(experiment, directory))
-    else:
-        logger.info("Downloading dataset for competition(s) {} to {}".format(competition,
-                                                                             directory))
 
     if os.path.exists(directory):
         try:
@@ -84,14 +75,15 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
         "https://minerl-asia.s3.amazonaws.com/",
         "https://minerl-europe.s3.amazonaws.com/"]
 
-    if experiment is None:
-        assert competition in ('diamond', 'basalt', 'minimal_all'), "competition has " \
-                                                            "unsupported value" \
-                                                            " {}".format(competition)
-        logger.info("Downloading experiment set for {} competition(s)".format(competition))
+    if environment is None and competition is None:
+        competition = 'minimal_all'
+
+    if competition is not None:
+        logger.info("Downloading dataset for {} competition(s)".format(competition))
         competition_string = competition + '_'
         if competition == 'minimal_all':
             min_str = '_minimal'
+            competition_string = ''
         else:
             min_str = ''
         filename = "v{}/{}data_texture_{}_{}_res{}.tar".format(DATA_VERSION,
@@ -99,15 +91,12 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
                                                                texture_pack,
                                                                resolution,
                                                                min_str)
-        urls = [mirror + filename for mirror in mirrors]
-
     else:
-        # Check if experiment is already downloaded
-        if os.path.exists(os.path.join(directory, experiment)):
-            logger.warning("{} exists - skipping re-download!".format(os.path.join(directory, experiment)))
-            return directory
-        filename = "v{}/{}.tar".format(DATA_VERSION, experiment)
-        urls = [mirror + filename for mirror in mirrors]
+        logger.info(f"Downloading dataset for {environment} to {directory}")
+        filename = f"v{DATA_VERSION}/{environment}.tar"
+
+    urls = [mirror + filename for mirror in mirrors]
+
     try:
         logger.info("Fetching download hash ...")
         # obj.fetch_hash_sums() 
@@ -119,8 +108,8 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
         download_with_resume(urls, dest_file)
     except HTTPError as e:
         logger.error("HTTP {} error encountered when downloading files!".format(e.code))
-        if experiment is not None:
-            logger.error("Is \"{}\" a valid minerl environment?".format(experiment))
+        if environment is not None:
+            logger.error("Is \"{}\" a valid minerl environment?".format(environment))
         return None
     except URLError as e:
         logger.error("URL error encountered when downloading - please try again")
@@ -163,9 +152,43 @@ def download(directory=None, resolution='low', competition='minimal_all', textur
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--experiment", help="Specify a particular environment")
-    parser.add_argument("--competition", help="Explicitly download environments from either Diamond or BASALT")
+    description = """
+    Data download script for MineRL Diamond and BASALT competitions. Run this script with
+    no arguments to download a minimal dataset containing two demonstrations for every
+    environment.
+    """
+    parser = argparse.ArgumentParser(
+        description=description,
+    )
+
+    # Error if both --environment and --competition provided
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--environment",
+        help="""
+        Download the full dataset for a particular environment, e.g
+        "MineRLBasaltBuildVillageHouse-v0".
+        """,
+        type=str,
+        action="store",
+        default=None,
+    )
+    group.add_argument(
+        "--competition",
+        help="Download the full dataset for a particular competition.",
+        type=str,
+        choices=["diamond", "basalt"],
+        default=None,
+    )
     args = parser.parse_args()
     coloredlogs.install(logging.DEBUG)
-    download(experiment=args.experiment, competition=args.competition)
+
+    # Sanity check that args.environment is valid before we proceed to download.
+    if args.environment is not None:
+        env_names = [env_spec.name for env_spec in envs.HAS_DATASET_ENV_SPECS]
+        if args.environment not in env_names:
+            logger.error(f"Invalid environment value, '{args.environment}'")
+            logger.error(f"Allowed values are: {env_names}")
+            exit(1)
+
+    download(environment=args.environment, competition=args.competition)
