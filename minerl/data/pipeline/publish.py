@@ -488,7 +488,6 @@ def package(out_dir=DATA_DIR):
     os.chdir(out_dir)
 
     # Generate tar archives
-    _make_tar(os.path.join(out_dir, 'data_texture_0_low_res.tar'), exp_folders)
     _make_tar(os.path.join(out_dir, 'basalt_data_texture_0_low_res.tar'), basalt_folders)
     _make_tar(os.path.join(out_dir, 'diamond_data_texture_0_low_res.tar'), diamond_folders)
 
