@@ -72,7 +72,7 @@ public class MineRLTypeHelper {
             }
 
             boolean flagItemTypeMatches = regName.equals(targetRegName);
-            boolean flagItemMetadataMatches = (metadata == null) || (metadata == stack.getMetadata() % 16);
+            boolean flagItemMetadataMatches = (metadata == null) || (!stack.getHasSubtypes()) || (metadata == stack.getMetadata()) ;
 
             if (flagItemTypeMatches && flagItemMetadataMatches) {
                 return i;
