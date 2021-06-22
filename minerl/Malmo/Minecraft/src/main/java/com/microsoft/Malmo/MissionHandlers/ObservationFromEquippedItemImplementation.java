@@ -44,7 +44,7 @@ public class ObservationFromEquippedItemImplementation extends HandlerBase imple
                 String type = MineRLTypeHelper.getItemType(itemToAdd.getItem());
                 jobj.addProperty("type", type);
 		if (itemToAdd.getHasSubtypes()){
-                    jobj.addProperty("metadata", itemToAdd.getMetadata() % 16);
+                    jobj.addProperty("metadata", itemToAdd.getMetadata());
 		} else {
                     jobj.addProperty("metadata", 0);
 		}
