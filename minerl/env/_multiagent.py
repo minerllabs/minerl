@@ -108,6 +108,8 @@ class _MultiAgentEnv(gym.Env):
         self.record_agents = [ind for ind in range(self.task.agent_count)] if do_recording else []
         self.video_directory = pathlib.Path(video_record_path)
         self.video_directory.mkdir(parents=True, exist_ok=True)
+        # TODO this current solution does not work correctly and is setup
+        # to work with only one setup
         self.episode_counter = -1
         self.recording_seed_hashes = None
         self.hashed_seed_to_be_recorded = os.getenv('RECORD_HASHED_SEED', '')
@@ -468,7 +470,6 @@ class _MultiAgentEnv(gym.Env):
         Returns:
             The first observation of the environment. 
         """
-        self.episode_counter += 1
         try:
             # First reset the env spec and its handlers
             self.task.reset()
@@ -521,6 +522,7 @@ class _MultiAgentEnv(gym.Env):
             video_path = self.video_directory / "video.mp4"
             self.video_writers[agent_ind].open(video_path)
             self.video_writers[agent_ind].write_rgb_image(obs['pov'])
+        self.episode_counter += 1
 
     def _setup_spaces(self) -> None:
         self.observation_space = self.task.observation_space
