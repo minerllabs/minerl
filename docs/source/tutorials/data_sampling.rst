@@ -40,17 +40,27 @@ Or we can simply download a single experiment
 For a complete list of published experiments, `checkout the environment documentation`_. You can also download the data
 in your python scripts 
 
-Now we can build the datast for :code:`MineRLObtainDiamond-v0`
+Now we can build the dataset for :code:`MineRLObtainDiamond-v0`
+
+There are two ways of sampling from the MineRL dataset: the deprecated but still supported `batch_iter`, and
+`buffered_batch_iter`. `batch_iter` is the legacy method, which we've kept in the code to avoid breaking changes,
+but we have recently realized that, when using `batch_size > 1`, `batch_iter` can fail to return a substantial
+portion of the data in the epoch.
+
+**If you are not already using `data_pipeline.batch_iter`, we recommend against it, because of these issues"
+
+
+The recommended way of sampling from the dataset is:
 
 .. code-block:: python
 
+    from minerl.data import BufferedBatchIter
     data = minerl.data.make(
         'MineRLObtainDiamond-v0')
-    
+    iterator = BufferedBatchIter(data)
 
     for current_state, action, reward, next_state, done \
-        in data.batch_iter(
-            batch_size=1, num_epochs=1, seq_len=32):
+        in iterator.buffered_batch_iter(batch_size=1, num_epochs=1):
 
             # Print the POV @ the first step of the sequence
             print(current_state['pov'][0])
