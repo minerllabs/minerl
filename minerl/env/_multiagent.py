@@ -108,9 +108,7 @@ class _MultiAgentEnv(gym.Env):
         self.record_agents = [ind for ind in range(self.task.agent_count)] if do_recording else []
         self.video_directory = pathlib.Path(video_record_path)
         self.video_directory.mkdir(parents=True, exist_ok=True)
-        # TODO this current solution does not work correctly and is setup
-        # to work with only one setup
-        self.episode_counter = -1
+        self.episode_counter = 0
         self.recording_seed_hashes = None
         self.hashed_seed_to_be_recorded = os.getenv('RECORD_HASHED_SEED', '')
         video_dims = self.observation_space.spaces["pov"].shape
@@ -517,7 +515,8 @@ class _MultiAgentEnv(gym.Env):
         if self.video_writers[agent_ind].is_open():
             self.video_writers[agent_ind].close()
         if self.recording_seed_hashes is None:
-            self.recording_seed_hashes = self.instances[agent_ind].get_hashed_seeds()
+            # MineRL plays the seeds in reversed order
+            self.recording_seed_hashes = self.instances[agent_ind].get_hashed_seeds()[::-1]
         if self.recording_seed_hashes[self.episode_counter] == self.hashed_seed_to_be_recorded:
             video_path = self.video_directory / "video.mp4"
             self.video_writers[agent_ind].open(video_path)
