@@ -20,6 +20,8 @@ pip install .
 # Copy data to the ci machines if needed for tests
 az storage copy -s $AZ_MINERL_DATA -d $MINERL_DATA_ROOT --recursive --subscription sci
 
+ls $MINERL_DATA_ROOT
+
 pytest . -n 1
 pip uninstall -y minerl
 
