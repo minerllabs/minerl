@@ -1,7 +1,6 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
-import collections
 from typing import Dict, List
 
 import gym
@@ -92,9 +91,20 @@ MINERL_OBTAIN_TEST_DENSE_V0 = ObtainDiamondDebug(dense=True)
 MINERL_OBTAIN_TEST_DENSE_VEC_V0 = Vectorized(MINERL_OBTAIN_TEST_DENSE_V0)
 # MINERL_OBTAIN_TEST_DENSE_OBF_V0 = Obfuscated(MINERL_OBTAIN_TEST_DENSE_VEC_V0)
 
-MINERL_BASALT_FIND_CAVES_ENV_SPEC = basalt_specs.FindCavesEnvSpec()
-MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec()
-MINERL_BASALT_PEN_ANIMALS_ENV_SPEC = basalt_specs.PenAnimalsEnvSpec()
+MINERL_BASALT_FIND_CAVES_ENV_SPEC = basalt_specs.FindCaveEnvSpec(high_res=False)
+MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec(high_res=False)
+MINERL_BASALT_PEN_ANIMALS_PLAINS_ENV_SPEC = basalt_specs.PenAnimalsPlainsEnvSpec(high_res=False)
+MINERL_BASALT_PEN_ANIMALS_VILLAGE_ENV_SPEC = basalt_specs.PenAnimalsVillageEnvSpec(
+    high_res=False)
+MINERL_BASALT_VILLAGE_HOUSE_ENV_SPEC = basalt_specs.VillageMakeHouseEnvSpec(high_res=False)
+
+MINERL_BASALT_FIND_CAVES_HIGH_RES_ENV_SPEC = basalt_specs.FindCaveEnvSpec(high_res=True)
+MINERL_BASALT_MAKE_WATERFALL_HIGH_RES_ENV_SPEC = basalt_specs.MakeWaterfallEnvSpec(high_res=True)
+MINERL_BASALT_PEN_ANIMALS_PLAINS_HIGH_RES_ENV_SPEC = basalt_specs.PenAnimalsPlainsEnvSpec(
+    high_res=True)
+MINERL_BASALT_PEN_ANIMALS_VILLAGE_HIGH_RES_ENV_SPEC = basalt_specs.PenAnimalsVillageEnvSpec(
+    high_res=True)
+MINERL_BASALT_VILLAGE_HOUSE_HIGH_RES_ENV_SPEC = basalt_specs.VillageMakeHouseEnvSpec(high_res=True)
 
 # Register the envs.
 ENV_SPECS: List[EnvSpec] = [env for env in locals().values() if isinstance(env, EnvSpec)]
@@ -104,3 +114,42 @@ for env_spec in ENV_SPECS:
         env_spec.register()
         ENV_SPEC_MAPPINGS[env_spec.name] = env_spec
         # env.register(fake=True)
+
+
+# The following EnvSpec lists are used for Sphinx docs.
+
+BASIC_ENV_SPECS: List[EnvSpec] = [
+    MINERL_TREECHOP_V0,
+    MINERL_NAVIGATE_V0,
+    MINERL_NAVIGATE_DENSE_V0,
+    MINERL_NAVIGATE_EXTREME_V0,
+    MINERL_NAVIGATE_DENSE_EXTREME_V0,
+    MINERL_OBTAIN_DIAMOND_V0,
+    MINERL_OBTAIN_DIAMOND_DENSE_V0,
+    MINERL_OBTAIN_IRON_PICKAXE_V0,
+    MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0,
+]
+
+COMPETITION_ENV_SPECS: List[EnvSpec] = [
+    MINERL_TREECHOP_OBF_V0,
+    MINERL_NAVIGATE_OBF_V0,
+    MINERL_NAVIGATE_DENSE_OBF_V0,
+    MINERL_NAVIGATE_EXTREME_OBF_V0,
+    MINERL_NAVIGATE_DENSE_EXTREME_OBF_V0,
+    MINERL_OBTAIN_DIAMOND_OBF_V0,
+    MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0,
+    MINERL_OBTAIN_IRON_PICKAXE_OBF_V0,
+    MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0,
+]
+
+BASALT_COMPETITION_ENV_SPECS: List[EnvSpec] = [
+    MINERL_BASALT_FIND_CAVES_ENV_SPEC,
+    MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC,
+    MINERL_BASALT_PEN_ANIMALS_VILLAGE_ENV_SPEC,
+    MINERL_BASALT_VILLAGE_HOUSE_ENV_SPEC,
+]
+
+
+# The following EnvSpec list is used for dataset testing.
+HAS_DATASET_ENV_SPECS: List[EnvSpec] = (
+        BASIC_ENV_SPECS + COMPETITION_ENV_SPECS + BASALT_COMPETITION_ENV_SPECS)

@@ -351,6 +351,7 @@
             </xs:simpleType>
         </xs:attribute>
         <xs:attribute name="type" use="required" type="BlockOrItem"/>
+        <xs:attribute name="metadata" use="required" type="Metadata"/>
         <xs:attribute name="variant" use="optional" type="Variation"/>
         <xs:attribute name="colour" use="optional" type="Colour"/>
         <xs:attribute name="quantity" default="1">
@@ -565,6 +566,7 @@
                     <xs:element ref="MarkingDecorator"/>
                     <xs:element ref="NavigationDecorator"/>
                     <xs:element ref="RandomizedStartDecorator"/>
+                    <xs:element ref="VillageSpawnDecorator"/>
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>

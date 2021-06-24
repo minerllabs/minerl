@@ -3,21 +3,27 @@
 The merge stage makes sure to compile a MineRL parser program first, and the final
   publishing stage makes sure to write the necessary version file first.
 
-By default the render stage, generates low-res videos of dimensions 64x64.
+By default the render stage generates low-res videos of dimensions 64x64.
 To generate videos of a different resolution, set or `export` the
 MINERL_RENDER_WIDTH and MINERL_RENDER_HEIGHT environment variables.
 (e.g.: `export MINERL_RENDER_WIDTH=1920 MINERL_RENDER_HEIGHT=1080`).
+
+Alternatively, use the --high_res flag in this script to automatically set 1920x1080
+resolution.
 """
 
 import argparse
 import collections
+import contextlib
+import os
 import pathlib
 import shutil
 import subprocess
-from typing import Optional, Sequence
+from typing import Mapping, Optional, Sequence
 
 import bullet
 
+from minerl import data
 from minerl.data.pipeline import download2, generate, make_minecrafts, merge, publish, render
 
 
@@ -66,17 +72,12 @@ VERSION_PATH = pathlib.Path("~/minerl.data/output/data/VERSION").expanduser()
 
 
 def _publish_generate_version_file():
-    """Publish requires this text file as as an internal versioning sanity check.
-
-    None of the provided scripts builds this for us, and it would probably go against
-    the point of the sanity check for their scripts to auto-generate it, so we write
-    it ourselves via this function.
-    """
+    """Publish requires this text file as as an internal versioning sanity check."""
     path = VERSION_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(path, "w") as f:
-        f.write("4")
+        f.write(str(data.DATA_VERSION))
     print(f"Wrote to {path}.")
 
 
@@ -175,6 +176,18 @@ def choose_stages_and_execute(
         _execute_stages(stage_names, pipeline_kwargs)
 
 
+@contextlib.contextmanager
+def env_var_change_ctx(changes_dict: Mapping[str, str]):
+    """Context for temporarily making changes to environment variables."""
+    old_environ = os.environ.copy()
+    try:
+        for k, v in changes_dict.items():
+            os.environ[k] = v
+        yield
+    finally:
+        os.environ = old_environ
+
+
 def main() -> None:
     parser = argparse.ArgumentParser("MineRL Data Pipeline Omnibus Script")
     parser.add_argument(
@@ -184,6 +197,12 @@ def main() -> None:
         default=1,
         type=int,
         help="Number of jobs to run in parallel.",
+    )
+    parser.add_argument(
+        "--high_res",
+        action="store_true",
+        help=("When running the render stage, use 1920x1080 resolution by locally "
+              "overriding the MINERL_RENDER_{WIDTH,HEIGHT} variables.")
     )
 
     single_stage_mapping = collections.OrderedDict(
@@ -218,15 +237,20 @@ def main() -> None:
         raise ValueError("Must specify positive integer for jobs, but got: {opt.jobs}")
 
     pipeline_kwargs = dict(parallel=parallel, n_workers=opt.jobs)
+    env_changes = {}
+    if opt.high_res:
+        env_changes["MINERL_RENDER_WIDTH"] = "1920"
+        env_changes["MINERL_RENDER_HEIGHT"] = "1080"
 
-    if opt.single_stage is not None:
-        stage_fn = single_stage_mapping[opt.single_stage]
-        stage_fn(**pipeline_kwargs)
-    else:
-        choose_stages_and_execute(
-            interactive=opt.interactive,
-            pipeline_kwargs=pipeline_kwargs,
-        )
+    with env_var_change_ctx(env_changes):
+        if opt.single_stage is not None:
+            stage_fn = single_stage_mapping[opt.single_stage]
+            stage_fn(**pipeline_kwargs)
+        else:
+            choose_stages_and_execute(
+                interactive=opt.interactive,
+                pipeline_kwargs=pipeline_kwargs,
+            )
 
 
 if __name__ == "__main__":

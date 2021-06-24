@@ -235,10 +235,11 @@ class Enum(Discrete, MineRLSpace):
         values that the enum can take.
 
         Usage:
-        ```
-        x = Enum('none', 'type1', 'type2')
-        x['none'] # 0
-        x['type1'] # 1
+        >>> x = Enum('none', 'type1', 'type2')
+        >>> x['none']
+        0
+        >>> x['type1']
+        1
 
         Args:
             values (str):  An order argument list of values the enum can take.
@@ -298,6 +299,9 @@ class Enum(Discrete, MineRLSpace):
 
     def __str__(self):
         return "Enum(" + ','.join(self.values) + ")"
+
+    def __repr__(self):
+        return str(self)
 
     def __len__(self):
         return len(self.values)

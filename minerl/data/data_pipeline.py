@@ -134,7 +134,7 @@ class DataPipeline:
         x = list(target_space.spaces.items())
         target_space.spaces = collections.OrderedDict(
             sorted(x, key=lambda x:
-            x[0] if x[0] is not 'pov' else 'z')
+                   x[0] if x[0] != 'pov' else 'z')
         )
 
         # Now we just need to slice the dict.
@@ -375,13 +375,12 @@ class DataPipeline:
                    seq_len: int,
                    num_epochs: int = -1,
                    preload_buffer_size: int = 2,
-                   seed: int = None,
-                   include_metadata: bool = False,
-                   include_monitor_data: bool = False):
+                   seed: int = None):
         """Returns batches of sequences length SEQ_LEN of the data of size BATCH_SIZE.
         The iterator produces batches sequentially. If an element of a batch reaches the
-        end of its 
+        end of its episode, it will be appended with a new episode.
 
+        If you wish to obtain metadata of the episodes, consider using `load_data` instead.
 
         Args:
             batch_size (int): The batch size.
@@ -391,13 +390,20 @@ class DataPipeline:
                 prevent blocking, the queue size is the number of trajectories to load into the buffer.
                 Adjust based on memory constraints. Defaults to 32.
             seed (int, optional): [int]. NOT IMPLEMENTED Defaults to None.
+<<<<<<< HEAD
             include_metadata (bool, optional): Include metadata on the source trajectory. Defaults to False.
             include_monitor_data (bool, optional): Include monitor data (info dict)
                 on the source trajectory. Defaults to False
+=======
+>>>>>>> dev
 
         Returns:
             Generator: A generator that yields (sarsd) batches
         """
+        # TODO not implemented (requires adding support in minibatch_gen for stacking/concatenating dictionaries)
+        #      use load_data instead
+        include_monitor_data = False
+        include_metadata = False
         # Todo: Not implemented/
         input_queue = multiprocessing.Queue()
         trajectory_queue = multiprocessing.Queue(maxsize=preload_buffer_size)
@@ -409,7 +415,6 @@ class DataPipeline:
             workers[-1].start()
 
         for epoch in (range(num_epochs) if num_epochs > 0 else forever()):
-
             def traj_iter():
                 for _ in jobs:
                     yields = trajectory_queue.get()
@@ -431,8 +436,8 @@ class DataPipeline:
                     yield yield_dict
 
             # Careful with the ordering here
-            jobs = [(f, -1, None, include_monitor_data, include_metadata)
-                    for f in self._get_all_valid_recordings(self.data_dir)]
+
+            jobs = [(f, -1, None, include_monitor_data, include_metadata) for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
             for job in jobs:
                 input_queue.put(job)
@@ -530,7 +535,6 @@ class DataPipeline:
         """
         raise DeprecationWarning(
             "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
-
 
 def loader_func(input_queue, output_queue):
     while True:

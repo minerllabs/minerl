@@ -1,11 +1,9 @@
 ..  admonition:: Solution
     :class: toggle
 
-===============================
-Sampling The Dataset
-===============================
-
-.. _checkout the environment documentation: http://minerl.io/docs/environments/index.html#competition-environments
+====================================
+Downloading and Sampling The Dataset
+====================================
 
 .. role:: python(code)
    :language: python
@@ -13,40 +11,73 @@ Sampling The Dataset
 .. role:: bash(code)
    :language: bash
 
-Now that your agent can act in the environment, we should 
-show it how to leverage human demonstrations.
 
-To get started, let's ensure the data has been downloaded.
+Introduction
+============
+
+Now that your agent can act in the environment, we should show it how to leverage human
+demonstrations.
+
+To get started, let's download the minimal version of the dataset (two demonstrations from every
+environment). Since there are over 20 MineRL environments, this is still a sizeable download, at
+about 2 GB.
+
+Then we will sample a few state-action-reward-done tuples from the ``MineRLObtainDiamond-v0``
+dataset.
+
+
+Setting up environment variables
+================================
+
+The :code:`minerl` package uses the :code:`MINERL_DATA_ROOT` environment variable to locate the data
+directory. Please export :code:`MINERL_DATA_ROOT=/your/local/path/`.
+
+(Here are some tutorials on how to set environment variables on
+`Linux/Mac <https://phoenixnap.com/kb/linux-set-environment-variable>`_ and
+`Windows <https://support.shotgunsoftware.com/hc/en-us/articles/114094235653-Setting-global-environment-variables-on-Windows>`_
+computers.)
+
+
+Downloading the MineRL Dataset with :code:`minerl.data.download`
+================================================================
+
+To download the minimal dataset into ``MINERL_DATA_ROOT``, run the command:
 
 .. code-block:: bash
 
-    # Unix, Linux
-    $MINERL_DATA_ROOT="your/local/path" python3 -m minerl.data.download
-
-    # Windows
-    $env:MINERL_DATA_ROOT="your/local/path"; python3 -m minerl.data.download
+    python3 -m minerl.data.download
 
 
-Or we can simply download a single experiment
+.. note::
 
-.. code-block:: bash
+    The full dataset for a particular environment, or for a particular competition (Diamond or Basalt)
+    can be downloaded using the ``--environment ENV_NAME`` and ``--competition COMPETITION`` flags.
 
-    # Unix, Linux
-    $MINERL_DATA_ROOT="your/local/path" python3 -m minerl.data.download "MineRLObtainDiamond-v0"
+    ``ENV_NAME`` is any Gym environment name from the
+    :ref:`documented environments <environments>`.
 
-    # Windows
-    $env:MINERL_DATA_ROOT="your/local/path"; python3 -m minerl.data.download "MineRLObtainDiamond-v0"
+    ``COMPETITION`` is ``basalt`` or ``diamond``.
 
-For a complete list of published experiments, `checkout the environment documentation`_. You can also download the data
-in your python scripts 
+    For more information, run ``python3 -m minerl.data.download --help``.
 
-Now we can build the datast for :code:`MineRLObtainDiamond-v0`
+    As an example, to download the full dataset for "MineRLObtainDiamond-v0", you can run
+
+    .. code-block:: bash
+
+        python3 -m minerl.data.download --environment "MineRLObtainDiamond-v0"
+
+
+
+
+
+Sampling the Dataset with :code:`batch_iter`
+============================================
+
+Now we can build the dataset for :code:`MineRLObtainDiamond-v0`
 
 .. code-block:: python
 
-    data = minerl.data.make(
-        'MineRLObtainDiamond-v0')
-    
+    data = minerl.data.make('MineRLObtainDiamond-v0')
 
     for current_state, action, reward, next_state, done \
         in data.batch_iter(
@@ -66,20 +97,16 @@ Now we can build the datast for :code:`MineRLObtainDiamond-v0`
                   "can be < max_sequence_len", len(reward))
 
 
-.. warning:: 
-    The :code:`minerl` package uses environment variables to locate the data directory.
-    For portability, plese define :code:`MINERL_DATA_ROOT` as 
-    :code:`/your/local/path/` in your system environment variables.
 
 ..  admonition:: Solution
     :class: toggle
 
 
 Moderate Human Demonstrations
-_______________________________
+=============================
 
 MineRL-v0 uses community driven demonstrations to help researchers develop sample efficient techniques.
-Some of these demonstrations are less than optimal, however others could feacture bugs with the client,
+Some of these demonstrations are less than optimal, however others could feature bugs with the client,
 server errors, or adversarial behavior.
 
 Using the MineRL viewer, you can help curate this dataset by viewing these demonstrations manually and

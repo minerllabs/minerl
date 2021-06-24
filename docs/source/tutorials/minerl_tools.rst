@@ -10,6 +10,10 @@ the :code:`minerl` python package also provides a data trajectory viewer called
 :code:`minerl.viewer`:
 
 
+.. warning:: BASALT: ``minerl.viewer`` can load BASALT competition data, but is not yet updated to
+    display the ``use`` or ``equip`` actions yet.
+
+
 .. image:: ../assets/cropped_viewer.gif
   :width: 90 %
   :alt: 
@@ -18,7 +22,7 @@ the :code:`minerl` python package also provides a data trajectory viewer called
 
 The :code:`minerl.viewer` program lets you step through individual
 trajectories, 
-showing the observation seen the player, the action
+showing the observation seen by the player, the action
 they took (including camera, movement, and any action described by an MineRL
 environment's action space), and the reward they received.
 

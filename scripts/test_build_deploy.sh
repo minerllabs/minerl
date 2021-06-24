@@ -5,21 +5,23 @@ set -ex
 export PATH=$JAVA_HOME/bin:$PATH
 # env variables controlling the build version and location in GCS
 export MINERL_VERSION_NUMBER=0.3.7
-export DATE_SHORT=$(date +%Y%m%d-%H%M)
-export MINERL_BUILD_VERSION=${MINERL_VERSION_NUMBER}+openai.git.${BUILDKITE_COMMIT:0:7}.date.${DATE_SHORT}
+export MINERL_BUILD_VERSION="$BUILDKITE_COMMIT"
 
 # Adding a single head directly to the init.sh to avoid zombificiaiton from xvfb-run.
 Xvfb :0 -screen 0 1024x768x24 &
 
 #!/bin/bash
 set -ex
-mkdir -p $MINERL_DATA_ROOT
+mkdir -p "$MINERL_DATA_ROOT"
 
 # First, we run the tests in the repo
-pip install -e .
+pip install .
+
+# Copy data to the ci machines if needed for tests
 #az storage copy -s $AZ_MINERL_DATA -d $MINERL_DATA_ROOT --recursive --subscription sci
 
-pytest . -n 2
+# Note tests that lauch Minecraft MUST be marked serial via the "@pytest.mark.serial" annotation
+pytest . -n 4
 pip uninstall -y minerl
 
 pip list
@@ -37,8 +39,9 @@ pip list
 cur_dir=$(pwd)
 cd ..
 python -c "import minerl; import gym, logging; logging.basicConfig(level=logging.DEBUG); env=gym.make('minerl:MineRLTreechop-v0', is_fault_tolerant=False); env.reset(); env.close()"
-cd $cur_dir
+cd "$cur_dir"
 # Finally, if this is not a cron build, we deploy the wheel
+# TODO This may fail on subsequent builds with the same commit ID
 if [ "$BUILDKITE_SOURCE" != "schedule" ]; then
-    az storage copy --subscription sci -s dist/* -d $AZ_UPLOAD_LOCATION/$BUILDKITE_BRANCH/${MINERL_VERSION_NUMBER}-${DATE_SHORT}-${BUILDKITE_COMMIT:0:7}/$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)/
+    az storage copy --subscription sci -s dist/* -d "$AZ_UPLOAD_LOCATION"/
 fi

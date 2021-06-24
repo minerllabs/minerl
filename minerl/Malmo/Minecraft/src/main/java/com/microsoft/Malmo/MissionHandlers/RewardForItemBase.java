@@ -43,7 +43,7 @@ import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
 public abstract class RewardForItemBase extends RewardBase
 {
     List<ItemRewardMatcher> rewardMatchers = new ArrayList<ItemRewardMatcher>();
-    
+
     public static class ItemMatcher
     {
         List<String> allowedItemTypes = new ArrayList<String>();
@@ -91,6 +91,7 @@ public abstract class RewardForItemBase extends RewardBase
                 }
                 return false;   // The item we are matching against is the wrong variant.
             }
+
             return true;
         }
     }

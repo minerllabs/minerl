@@ -14,25 +14,25 @@ To generate videos of a different resolution, set or `export` the
 MINERL_RENDER_WIDTH and MINERL_RENDER_HEIGHT environment variables.
 (e.g.: `export MINERL_RENDER_WIDTH=1920 MINERL_RENDER_HEIGHT=1080`).
 """
+from datetime import datetime, timezone, timedelta
 import functools
-import multiprocessing
+import re
+import json
 import os
-import random
+from pathlib import Path
+import psutil
 import shutil
+from shutil import copyfile
+import time
+import traceback
+from typing import TextIO, List, Optional, Union
+import subprocess
 import sys
 import glob
+import zipfile
+
 import numpy as np
 import tqdm
-import zipfile
-import subprocess
-import json
-import time
-import shutil
-import psutil
-import traceback
-from pathlib import Path
-import re
-from shutil import copyfile
 
 from minerl.data.util.constants import (
     OUTPUT_DIR as WORKING_DIR,
@@ -72,7 +72,8 @@ from minerl.data.util.constants import (
     ZIP_ERROR_DIR,
     MISSING_RENDER_OUTPUT,
     OTHER_ERROR_DIR,
-    X11_ERROR_DIR
+    X11_ERROR_DIR,
+    RENDER_TIMEOUT_ERROR_DIR,
 )
 
 from minerl.data.util.constants import (BLACKLIST_TXT as BLACKLIST_PATH)
@@ -119,7 +120,9 @@ def construct_render_dirs(blacklist):
             NULL_PTR_EXCEP_DIR,
             ZIP_ERROR_DIR,
             MISSING_RENDER_OUTPUT,
-            X11_ERROR_DIR]
+            X11_ERROR_DIR,
+            RENDER_TIMEOUT_ERROR_DIR,
+            ]
 
     for dir in dirs:
         if not E(dir):
@@ -167,8 +170,7 @@ def render_metadata(renders: list):
                     recording = get_recording_archive(recording_name)
 
                     def extract(fname):
-                        return recording.extract(
-                            fname, render_path)
+                        return recording.extract(fname, render_path)
 
                     # If everything is good extract the metadata.
                     for mfile in METADATA_FILES:
@@ -337,6 +339,94 @@ def _render_videos(manager, file, debug=True):
     return ret
 
 
+def _get_most_recent_file(
+        parent_dir: Union[str, Path],
+        suffix: str = "",
+        min_mtime: Optional[float] = None,
+        debug_file_desc: Optional[str] = None,
+) -> Optional[Path]:
+    """Returns a Path to most recently modified file in the parent directory, or
+    None if no such file exists.
+
+    Args:
+        parent_dir: The Path is returned for a file inside this directory.
+        suffix: Files whose names don't end with this string are skipped.
+        min_mtime: Optional timestamp (in seconds since Unix epoch).
+            If all files have mtime less than this argument, then return None.
+        debug_file_desc: If provided, then print debug logs when None is returned
+            due to `min_mtime`.
+    """
+    parent_dir = Path(parent_dir)
+    paths = list(parent_dir.glob(f"*{suffix}"))
+    if len(paths) == 0:
+        return None
+    else:
+        result = max(paths, key=os.path.getmtime)
+        if min_mtime is not None and os.path.getmtime(result) < min_mtime:
+            if debug_file_desc is not None:
+                print(f"\tError! {debug_file_desc} is older than replay!")
+                print(f"\tskipping due to out-of-date {debug_file_desc}.")
+            return None
+        else:
+            return result
+
+
+def _get_error_dir(log_line: str, debug=False) -> Optional[str]:
+    if re.search(r"EOFException:", log_line):
+        if debug:
+            print("\tfound java.io.EOFException")
+        return EOF_EXCEP_DIR
+    elif re.search(r"Adding time keyframe at \d+ time -\d+", log_line):
+        if debug:
+            print("\tfound 0 length file")
+        return ZEROLEN_DIR
+    elif re.search(r"NullPointerException", log_line):
+        if not re.search(r'exceptionCaught', log_line):
+            if debug:
+                print("\tNullPointerException")
+            return NULL_PTR_EXCEP_DIR
+    elif re.search(r"zip error", log_line) or re.search(r"zip file close", log_line):
+        if debug:
+            print('ZIP file error')
+        return ZIP_ERROR_DIR
+    elif re.search(r'connect to X11 window server', log_line):
+        if debug:
+            print("X11 error")
+        return X11_ERROR_DIR
+    elif re.search(r'Xvfb failed to start', log_line):
+        if debug:
+            print("X11 error -- `apt install x11vnc`?")
+        return X11_ERROR_DIR
+    elif re.search(r'no lwjgl64 in java', log_line):
+        if debug:
+            print("missing lwjgl.")
+        return OTHER_ERROR_DIR
+    else:
+        return None
+
+    # elif re.search(r"Exception", logLine):
+    #   if debug:
+    #       print("Unknown exception!!!")
+    #   error_dir = OTHER_ERROR_DIR
+
+
+def _nonblocking_readlines(nonblocking_file_handler: TextIO) -> List[str]:
+    """
+    A non-blocking function that returns new lines in a file since the last call.
+
+    Args:
+        nonblocking_file_handler: A file handler opened with the `os.O_NONBLOCK` option.
+    """
+    results = []
+    while True:
+        line = nonblocking_file_handler.readline()
+        if len(line) > 0:
+            results.append(line)
+        else:
+            break
+    return results
+
+
 def render_videos(render: tuple, index=0, debug=False):
     """
     For every render directory, we render the videos.
@@ -370,7 +460,7 @@ def render_videos(render: tuple, index=0, debug=False):
         except IsADirectoryError:
             shutil.rmtree(messyFile)
 
-    p = None
+    p: subprocess.Popen = None
     try:
         recording_name, render_path = render
 
@@ -407,18 +497,16 @@ def render_videos(render: tuple, index=0, debug=False):
         p = launchMC(index)
 
         # Wait for completion (it creates a finished.txt file)
-        video_path = None
         notFound = True
-        errorDir = None
+        NO_RENDER_UPDATE_TIMEOUT = timedelta(minutes=10)
+        timeout_datetime: datetime = datetime.now(tz=timezone.utc) + NO_RENDER_UPDATE_TIMEOUT
+
         while notFound:
             if os.path.exists(FINISHED_FILE[index]) or p.poll() is not None:
                 if os.path.exists(FINISHED_FILE[index]):
                     os.remove(FINISHED_FILE[index])
-
                     notFound = False
                     numSuccessfulRenders += 1
-                else:
-                    notFound = True
 
                 try:
                     if debug:
@@ -427,9 +515,8 @@ def render_videos(render: tuple, index=0, debug=False):
                     if debug:
                         print("Minecraft closed")
                 except TimeoutError:
-                    tqdm.tqdm.write("Timeout")
-                    p.kill()
-                    # killMC(p)
+                    tqdm.tqdm.write("Minecraft close Timeout")
+                    killMC(p)
                 except:
                     tqdm.tqdm.write("Error stopping")
                 # p = launchMC(index)
@@ -441,100 +528,72 @@ def render_videos(render: tuple, index=0, debug=False):
                 #     p = launchMC()
                 break
             else:
-                logLine = logFile.readline()
-                if len(logLine) > 0:
+                log_lines = _nonblocking_readlines(logFile)
+                for log_line in log_lines:
                     lineCounter += 1
-                    if re.search(r"EOFException:", logLine):
+                    error_dir = _get_error_dir(log_line)
+                    if error_dir:
                         if debug:
-                            print("\tfound java.io.EOFException")
-                        errorDir = EOF_EXCEP_DIR
-
-                    elif re.search(r"Adding time keyframe at \d+ time -\d+", logLine):
-                        if debug:
-                            print("\tfound 0 length file")
-                        errorDir = ZEROLEN_DIR
-
-                    elif re.search(r"NullPointerException", logLine):
-                        if not re.search(r'exceptionCaught', logLine):
-                            if debug:
-                                print("\tNullPointerException")
-                            errorDir = NULL_PTR_EXCEP_DIR
-
-                    elif re.search(r"zip error", logLine) or re.search(r"zip file close", logLine):
-                        if debug:
-                            print('ZIP file error')
-                        errorDir = ZIP_ERROR_DIR
-
-                    elif re.search(r'connect to X11 window server', logLine):
-                        if debug:
-                            print("X11 error")
-                        errorDir = X11_ERROR_DIR
-                    elif re.search(r'no lwjgl64 in java', logLine):
-                        if debug:
-                            print("missing lwjgl.")
-                        errorDir = OTHER_ERROR_DIR
-
-                    # elif re.search(r"Exception", logLine):
-                    # if debug:
-                    #     print("Unknown exception!!!")
-                    # error_dir = OTHER_ERROR_DIR
-
-                    if errorDir:
-                        if debug:
-                            print("\tline {}: {}".format(lineCounter, logLine))
+                            print("\tline {}: {}".format(lineCounter, log_line))
+                        print(error_dir)
+                        logError(error_dir, recording_name, skip_path, index)
                         break
-                        # p = relaunchMC(p, errorDir, recording_name, skip_path)
+
+                artifact_paths = [
+                    _get_most_recent_file(RENDERED_VIDEO_PATH[index], ".mp4"),
+                    _get_most_recent_file(RENDERED_LOG_PATH[index], ".json"),
+                    _get_most_recent_file(RENDERED_VIDEO_PATH[index], ".json"),
+                ]
+                artifact_paths = [x for x in artifact_paths if x is not None]
+
+                if len(artifact_paths) > 0:
+                    # mtime is when the contents of the file was most recently updated,
+                    # stored as a UTC timestamp.
+                    # We first convert this timestamp to `datetime` for easy comparison.
+                    artifact_mtimes = [os.path.getmtime(path) for path in artifact_paths]
+                    most_recent_mtime = max(artifact_mtimes)
+                    most_recent_datetime = datetime.fromtimestamp(
+                        most_recent_mtime, tz=timezone.utc)
+                    possible_new_timeout = most_recent_datetime + NO_RENDER_UPDATE_TIMEOUT
+
+                    # Extend timeout if an artifact file was updated recently.
+                    # Under normal run conditions, this extension fires off almost every time.
+                    if possible_new_timeout > timeout_datetime:
+                        timeout_datetime = possible_new_timeout
+
+                # Timeout if no artifact files have been created or modified within
+                # the last `NO_RENDER_UPDATE_TIMEOUT` amount of time.
+                if datetime.now(tz=timezone.utc) > timeout_datetime:
+                    tqdm.tqdm.write(
+                        f"Rendering timed out ({NO_RENDER_UPDATE_TIMEOUT} "
+                        "time without artifact write)"
+                    )
+                    logError(RENDER_TIMEOUT_ERROR_DIR, recording_name, skip_path, index)
+                    break
+
+                time.sleep(1)  # Sleep to limit unnecessary polling.
 
         time.sleep(1)
         logFile.close()
-        if errorDir:
-            print(errorDir)
-            logError(errorDir, recording_name, skip_path, index)
         if notFound:
-            try:
-                os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
-            except:
-                pass
+            remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
             return 0
-
-        video_path = None
-        log_path = None
-        marker_path = None
+        else:
+            print("file found!")
 
         # GET RECORDING
-        list_of_files = glob.glob(J(RENDERED_VIDEO_PATH[index], '*.mp4'))
-        if len(list_of_files) > 0:
-            # Check that this render was created after we copied
-            video_path = max(list_of_files, key=os.path.getmtime)
-            if os.path.getmtime(video_path) < copy_time:
-                if debug:
-                    print("\tError! Rendered file is older than replay!")
-                    print("\tskipping out of date rendering")
-                video_path = None
+        video_path = _get_most_recent_file(
+            RENDERED_VIDEO_PATH[index], ".mp4", copy_time, "rendered video")
 
         # GET UNIVERSAL ACTION FORMAT
-        list_of_logs = glob.glob(J(RENDERED_LOG_PATH[index], '*.json'))
-        if len(list_of_logs) > 0:
-            # Check that this render was created after we copied
-            log_path = max(list_of_logs, key=os.path.getmtime)
-            if os.path.getmtime(log_path) < copy_time:
-                if debug:
-                    print("\tError! Rendered log is older than replay!")
-                    print("\tskipping out of date action json")
-                log_path = None
+        log_path = _get_most_recent_file(
+            RENDERED_LOG_PATH[index], ".json", copy_time, "action/univ json")
 
         # GET new markers.json
-        list_of_logs = glob.glob(J(RENDERED_VIDEO_PATH[index], '*.json'))
-        if len(list_of_logs) > 0:
-            # Check that this render was created after we copied
-            marker_path = max(list_of_logs, key=os.path.getmtime)
-            if os.path.getmtime(marker_path) < copy_time:
-                if debug:
-                    print("\tError! markers.json is older than replay!")
-                    print("\tskipping out of date markers.json")
-                marker_path = None
+        marker_path = _get_most_recent_file(
+            RENDERED_VIDEO_PATH[index], ".json", copy_time, "markers.json")
 
-        if not video_path is None and not log_path is None and not marker_path is None:
+        if video_path and log_path and marker_path:
             if debug:
                 print("\tCopying file", video_path, '==>\n\t',
                       render_path, 'created', os.path.getmtime(video_path))
@@ -547,11 +606,10 @@ def render_videos(render: tuple, index=0, debug=False):
             if debug:
                 print("\tRecording start and stop timestamp for video")
             metadata = json.load(open(J(render_path, 'stream_meta_data.json')))
-            videoFilename = video_path.split('/')[-1]
 
-            metadata['start_timestamp'] = int(videoFilename.split('_')[1])
+            metadata['start_timestamp'] = int(video_path.name.split('_')[1])
             metadata['stop_timestamp'] = int(
-                videoFilename.split('_')[2].split('-')[0])
+                video_path.name.split('_')[2].split('-')[0])
             with open(marker_path) as markerFile:
                 metadata['markers'] = json.load(markerFile)
             json.dump(metadata, open(
@@ -562,32 +620,34 @@ def render_videos(render: tuple, index=0, debug=False):
                 print("\tSkipping this file in the future")
                 print("\t{} {} {}".format(video_path, marker_path, log_path))
             logError(MISSING_RENDER_OUTPUT, recording_name, skip_path, index)
-            try:
-                os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
-            except:
-                pass
+            remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
             return 0
 
         # Remove mcpr file from dir
-        try:
-            os.remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
-        except:
-            pass
+        remove(J(RECORDING_PATH[index], (recording_name + ".mcpr")))
     finally:
         if p is not None:
+            # Didn't finish
             try:
-                p.wait(400)
+                p.wait(4)  # 4 seconds
             except (TimeoutError, subprocess.TimeoutExpired):
-                p.kill()
+                killMC(p)
             time.sleep(10)
     return 1
 
 
 def clean_render_dirs():
-    paths_to_clear = [RENDERED_VIDEO_PATH, RECORDING_PATH, RENDERED_LOG_PATH]
-    for p in paths_to_clear:
-        map(remove, [glob.glob(J(x, '*')) for x in p])
-    pass
+    paths_to_clear = []
+
+    for dir_list in [RENDERED_VIDEO_PATH, RECORDING_PATH, RENDERED_LOG_PATH]:
+        for d in dir_list:
+            paths_to_clear.extend(glob.glob(J(d, '*')))
+
+    paths_to_clear.extend(LOG_FILE)
+    paths_to_clear.extend(FINISHED_FILE)
+
+    for path in paths_to_clear:
+        remove(path)
 
 
 def main(n_workers=NUM_MINECRAFT_DIR, parallel=True):

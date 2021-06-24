@@ -2,7 +2,6 @@
 # Author: William H. Guss, Brandon Houghton
 
 from abc import abstractmethod
-import types
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 import typing
 from minerl.herobraine.hero.spaces import Dict
@@ -266,8 +265,8 @@ class EnvSpec(abc.ABC):
 
             env = jinja2.Environment(undefined=jinja2.StrictUndefined)
             template = env.from_string(fh.read())
-            xml = template.render(var_dict)
 
+        xml = template.render(var_dict)
         # Now do one more pretty printing
 
         xml = etree.tostring(etree.fromstring(xml.encode('utf-8')), pretty_print=True).decode('utf-8')
