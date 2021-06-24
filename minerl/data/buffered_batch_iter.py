@@ -59,8 +59,10 @@ class BufferedBatchIter:
         return multimap(stack, *ret_dict_list)
 
     def buffered_batch_iter(self, batch_size, num_epochs=None, num_batches=None):
-        assert num_batches is not None or num_epochs is not None, "One of num_epochs or num_batches must be not-None"
-        assert num_batches is None or num_epochs is None, "You cannot specify both num_batches and num_epochs"
+        assert num_batches is not None or num_epochs is not None, "One of num_epochs or " \
+                                                                  "num_batches must be not-None"
+        assert num_batches is None or num_epochs is None, "You cannot specify both " \
+                                                          "num_batches and num_epochs"
 
         epoch_count = 0
         batch_count = 0
@@ -70,8 +72,10 @@ class BufferedBatchIter:
             ret_batch = self.get_batch(batch_size=batch_size)
             batch_count += 1
             if len(self.data_buffer) < batch_size:
-                assert len(self.available_trajectories) == 0, "You've reached the end of your data buffer while still having " \
-                                                              "trajectories available; something seems to have gone wrong"
+                assert len(self.available_trajectories) == 0, "You've reached the end of your " \
+                                                              "data buffer while still having " \
+                                                              "trajectories available; " \
+                                                              "something seems to have gone wrong"
                 epoch_count += 1
                 self.available_trajectories = deepcopy(self.all_trajectories)
                 random.shuffle(self.available_trajectories)
@@ -81,7 +85,8 @@ class BufferedBatchIter:
             if num_batches is not None and batch_count >= num_batches:
                 return
 
-            yield ret_batch['obs'], ret_batch['act'], ret_batch['reward'], ret_batch['next_obs'], ret_batch['done']
+            keys = ('obs', 'act', 'reward', 'next_obs', 'done')
+            yield tuple([ret_batch[key] for key in keys])
 
 
 if __name__ == "__main__":
