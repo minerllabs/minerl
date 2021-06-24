@@ -1,4 +1,3 @@
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -289,3 +288,7 @@ minerl/Malmo/Minecraft/*.launch
 caches/
 native/
 wrapper/
+
+
+# Pytest artifacts
+tests/*.lock

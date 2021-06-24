@@ -63,7 +63,10 @@ class _MultiAgentEnv(gym.Env):
     
     """
 
-    metadata = {'render.modes': ['human']}
+    metadata = {
+        'render.modes': ['human', 'rgb_array'],
+        'video_frames_per_second': 20,
+    }
 
     def __init__(self,
                  env_spec: EnvSpec,
@@ -451,8 +454,8 @@ class _MultiAgentEnv(gym.Env):
         current_ac = self._last_ac
         current_pov = self._last_pov
 
-        if mode == 'human' and (
-                not 'AICROWD_IS_GRADING' in os.environ or os.environ['AICROWD_IS_GRADING'] is None):
+        assert mode in self.metadata['render.modes']
+        if mode == 'human' and os.environ.get('AICROWD_IS_GRADING') is None:
             if current_obs and current_ac:
                 self._renderObs(current_obs, current_ac)
         return current_pov
