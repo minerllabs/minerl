@@ -1,4 +1,5 @@
 from minerl.data.data_pipeline import DataPipeline
+from minerl.data.buffered_batch_iter import BufferedBatchIter
 from minerl.data.download import download
 import os
 
