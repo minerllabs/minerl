@@ -129,6 +129,7 @@ class TestVariantEnvs:
         spec.check_observation_space()
         spec.check_action_space()
 
+    @pytest.mark.serial
     def test_starting_inventory(self, spec):
         with spec.make() as env:
             obs = env.reset()
@@ -141,6 +142,7 @@ class TestVariantEnvs:
                 quantity = d["quantity"]
                 assert inv_obs[item_id] == quantity
 
+    @pytest.mark.serial
     def test_randomized_equips(self, spec):
         with spec.make() as env:
             env.reset()
