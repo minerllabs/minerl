@@ -42,8 +42,7 @@ class BufferedBatchIter:
             self.avg_traj_size = np.mean(self.traj_sizes)
             buffer_updated = True
         if buffer_updated:
-            print(f"New buffer size: {len(self.data_buffer)}")
-            print(f"Remaining trajectories: {len(self.available_trajectories)}")
+
             random.shuffle(self.data_buffer)
 
     def get_batch(self, batch_size):
@@ -68,6 +67,11 @@ class BufferedBatchIter:
         batch_count = 0
 
         while True:
+            if num_epochs is not None and epoch_count >= num_epochs:
+                return
+            if num_batches is not None and batch_count >= num_batches:
+                return
+
             self.optionally_fill_buffer()
             ret_batch = self.get_batch(batch_size=batch_size)
             batch_count += 1
@@ -79,11 +83,6 @@ class BufferedBatchIter:
                 epoch_count += 1
                 self.available_trajectories = deepcopy(self.all_trajectories)
                 random.shuffle(self.available_trajectories)
-
-            if num_epochs is not None and epoch_count >= num_epochs:
-                return
-            if num_batches is not None and batch_count >= num_batches:
-                return
 
             keys = ('obs', 'act', 'reward', 'next_obs', 'done')
             yield tuple([ret_batch[key] for key in keys])
