@@ -277,10 +277,6 @@ snowball to end episode.
             max_episode_steps=3*MINUTE,
             high_res=high_res,
             inventory=[
-                dict(type="water_bucket", quantity=1),
-                dict(type="cobblestone", quantity=20),
-                dict(type="stone_shovel", quantity=1),
-                dict(type="stone_pickaxe", quantity=1),
                 dict(type="snowball", quantity=1),
             ],
         )
