@@ -217,7 +217,6 @@ public class MalmoModClient
         if(this.stateMachine.getStableState() == ClientState.RUNNING){
             Logger logger = Logger.getLogger("MalmoModClient.onRightClickEvent");
             Minecraft mc = Minecraft.getMinecraft();
-            logger.log(Level.INFO, "Saw hit on " + mc.objectMouseOver.typeOfHit.toString());
             if (mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
                 BlockPos blockpos = mc.objectMouseOver.getBlockPos();
                 IBlockState blockState = mc.world.getBlockState(blockpos);
@@ -226,8 +225,6 @@ public class MalmoModClient
                     event.setUseBlock(Event.Result.DENY);
                     logger.log(Level.INFO, "Denied usage of " + blockState.getBlock().getRegistryName().toString());
                 }
-                else
-                    logger.log(Level.INFO, "Allowed usage of " + blockState.getBlock().getRegistryName().toString());
             } else if (mc.objectMouseOver.typeOfHit.equals(RayTraceResult.Type.ENTITY)) {
                 // This does not seem to be possible given the case logic in Minecraft.java @ line 1585
                 // Included here in the event objectMouseOver changes between these cases

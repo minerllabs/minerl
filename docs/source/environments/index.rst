@@ -1,4 +1,4 @@
-.. _MineRL competition environments: http://minerl.io/docs/environments/index.html#competition-environments
+.. _environments:
 
 General Information
 ================================
@@ -37,8 +37,9 @@ Basic Environments
 
 .. exec::
 
+    from minerl.herobraine import envs
     from minerl.utils import docs
-    for env_spec in docs.BASIC_ENV_SPECS:
+    for env_spec in envs.BASIC_ENV_SPECS:
         docs.print_env_spec_sphinx(env_spec)
 
 MineRL Diamond Competition Environments
@@ -46,8 +47,9 @@ MineRL Diamond Competition Environments
 
 .. exec::
 
+    from minerl.herobraine import envs
     from minerl.utils import docs
-    for env_spec in docs.COMPETITION_ENV_SPECS:
+    for env_spec in envs.COMPETITION_ENV_SPECS:
         docs.print_env_spec_sphinx(env_spec)
 
 MineRL BASALT Competition Environments
@@ -55,6 +57,7 @@ MineRL BASALT Competition Environments
 
 .. exec::
 
+    from minerl.herobraine import envs
     from minerl.utils import docs
-    for env_spec in docs.BASALT_COMPETITION_ENV_SPECS:
+    for env_spec in envs.BASALT_COMPETITION_ENV_SPECS:
         docs.print_env_spec_sphinx(env_spec)
