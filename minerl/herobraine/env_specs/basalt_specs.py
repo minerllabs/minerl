@@ -277,10 +277,6 @@ snowball to end episode.
             max_episode_steps=3*MINUTE,
             high_res=high_res,
             inventory=[
-                dict(type="water_bucket", quantity=1),
-                dict(type="cobblestone", quantity=20),
-                dict(type="stone_shovel", quantity=1),
-                dict(type="stone_pickaxe", quantity=1),
                 dict(type="snowball", quantity=1),
             ],
         )
@@ -312,9 +308,9 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
   :alt:
 
 After spawning in an extreme hills biome, use your waterbucket to make an beautiful waterfall.
-Then take an aesthetic "picture" of it by choosing a moving to a positioning the player's camera
-to have a nice view of the waterfall and throwing a snowball. Throwing the snowball
-ends the episode.
+Then take an aesthetic "picture" of it by moving to a good location, positioning
+player's camera to have a nice view of the waterfall, and throwing a snowball. Throwing
+the snowball ends the episode.
 """
 
     def __init__(self, high_res: bool):
@@ -363,7 +359,7 @@ Throw a snowball to end the episode.
 
     def __init__(self, high_res: bool):
         super().__init__(
-            name="MineRLBasaltCreateAnimalPenPlains-v0",
+            name="MineRLBasaltCreatePlainsAnimalPen-v0",
             demo_server_experiment_name="pen_animals",
             max_episode_steps=5*MINUTE,
             high_res=high_res,
@@ -411,7 +407,7 @@ Throw a snowball to end the episode.
 
     def __init__(self, high_res: bool):
         super().__init__(
-            name="MineRLBasaltCreateAnimalPenVillage-v0",
+            name="MineRLBasaltCreateVillageAnimalPen-v0",
             demo_server_experiment_name="village_pen_animals",
             max_episode_steps=5*MINUTE,
             high_res=high_res,

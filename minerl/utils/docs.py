@@ -3,7 +3,6 @@ import json
 import gym
 from typing import Union
 
-from minerl.herobraine import envs
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.env_specs import basalt_specs
 from minerl.herobraine.hero.handlers import util
@@ -24,38 +23,6 @@ def _format_dict(arg: dict) -> str:
     json_obj = json.dumps(arg, sort_keys=True, indent=8, default=lambda o: str(o))
     json_obj = json_obj[:-1] + "    })"
     return f'.. parsed-literal:: \n\n    Dict({json_obj}\n\n\n'
-
-
-BASIC_ENV_SPECS = [
-    envs.MINERL_TREECHOP_V0,
-    envs.MINERL_NAVIGATE_V0,
-    envs.MINERL_NAVIGATE_DENSE_V0,
-    envs.MINERL_NAVIGATE_EXTREME_V0,
-    envs.MINERL_NAVIGATE_DENSE_EXTREME_V0,
-    envs.MINERL_OBTAIN_DIAMOND_V0,
-    envs.MINERL_OBTAIN_DIAMOND_DENSE_V0,
-    envs.MINERL_OBTAIN_IRON_PICKAXE_V0,
-    envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_V0,
-]
-
-COMPETITION_ENV_SPECS = [
-    envs.MINERL_TREECHOP_OBF_V0,
-    envs.MINERL_NAVIGATE_OBF_V0,
-    envs.MINERL_NAVIGATE_DENSE_OBF_V0,
-    envs.MINERL_NAVIGATE_EXTREME_OBF_V0,
-    envs.MINERL_NAVIGATE_DENSE_EXTREME_OBF_V0,
-    envs.MINERL_OBTAIN_DIAMOND_OBF_V0,
-    envs.MINERL_OBTAIN_DIAMOND_DENSE_OBF_V0,
-    envs.MINERL_OBTAIN_IRON_PICKAXE_OBF_V0,
-    envs.MINERL_OBTAIN_IRON_PICKAXE_DENSE_OBF_V0,
-]
-
-BASALT_COMPETITION_ENV_SPECS = [
-    envs.MINERL_BASALT_FIND_CAVES_ENV_SPEC,
-    envs.MINERL_BASALT_MAKE_WATERFALL_ENV_SPEC,
-    envs.MINERL_BASALT_PEN_ANIMALS_VILLAGE_ENV_SPEC,
-    envs.MINERL_BASALT_VILLAGE_HOUSE_ENV_SPEC,
-]
 
 
 def print_env_spec_sphinx(env_spec: EnvSpec) -> None:

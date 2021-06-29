@@ -2,13 +2,15 @@
 # Author: William H. Guss, Brandon Houghton
 
 """
-render.py
-# This script renders the merged experiments into
-# actions and videos by doing the following
-# 1) Unzipping various mcprs and building render directories
-#    containing meta data.
-# 2) Running the action_rendering scripts
-# 3) Running the video_rendering scripts
+This script generates the actual datasets that are loaded by MineRL.
+
+The publish function uses the Handlers associated with every registered
+EnvSpec to generate an numpy file containing all the formatted observations and
+actions (these are processed from a file called univ.json), and places the
+video file and this numpy file in the same directory.
+
+The package function generates the .tar files that should be uploaded to
+s3://minerl/.
 """
 import logging
 import functools
@@ -488,7 +490,6 @@ def package(out_dir=DATA_DIR):
     os.chdir(out_dir)
 
     # Generate tar archives
-    _make_tar(os.path.join(out_dir, 'data_texture_0_low_res.tar'), exp_folders)
     _make_tar(os.path.join(out_dir, 'basalt_data_texture_0_low_res.tar'), basalt_folders)
     _make_tar(os.path.join(out_dir, 'diamond_data_texture_0_low_res.tar'), diamond_folders)
 

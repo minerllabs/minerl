@@ -141,6 +141,7 @@ class _ItemIDObservation(TranslationHandler):
                 head = head[key]
             item_type = head['type']
             metadata = head['metadata']
+            assert metadata in range(16)
             item_id = util.get_unique_matching_item_list_id(self._items, item_type, metadata)
             if item_id is None:
                 return self._other
@@ -163,6 +164,7 @@ class _ItemIDObservation(TranslationHandler):
 
                 item_type = mc.strip_item_prefix(equip_slot['name'])
                 metadata = equip_slot['variant']
+                assert metadata in range(16)
                 if item_type == 'air':
                     return self._default
 
