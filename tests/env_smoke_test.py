@@ -27,6 +27,7 @@ def test_envs_step_smoke(env_name):
             assert obs in env.observation_space
 
 
+@pytest.mark.serial
 @pytest.mark.parametrize("env_name", BASALT_ENV_NAMES)
 def test_basalt_end_soon_after_snowball(env_name):
     """Basalt environment should terminate within 20 steps
