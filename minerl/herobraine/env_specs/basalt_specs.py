@@ -92,20 +92,23 @@ class EndAfterSnowballThrowWrapper(gym.Wrapper):
     def reset(self):
         self._steps_till_done = None
         obs = super().reset()
+        snowball_count = obs["inventory"]["snowball"]
+        assert snowball_count == 1, "Should start with a snowball"
         return obs
 
     def step(self, action: dict):
         observation, reward, done, info = super().step(action)
         if self._steps_till_done is None:  # Snowball throw hasn't yet been detected.
-            if (observation["equipped_items"]["mainhand"]["type"] == "snowball"
-                    and action["use"] == 1):
+            snowball_count = observation["inventory"]["snowball"]
+            if snowball_count == 0:
+                # Snowball was thrown -- start the countdown.
                 self._steps_till_done = self.episode_end_delay
-        else:  # Snowball throw was detected. We will end episode soon.
-            if self._steps_till_done == 0:
-                done = True
-                self._steps_till_done = None
-            else:
-                self._steps_till_done -= 1  # pytype: disable=unsupported-operands
+        elif self._steps_till_done > 0:
+            # Snowball throw was detected, counting down.
+            self._steps_till_done -= 1  # pytype: disable=unsupported-operands
+        else:
+            # Snowball throw was detected and countdown is over. End episode.
+            done = True
         return observation, reward, done, info
 
 
