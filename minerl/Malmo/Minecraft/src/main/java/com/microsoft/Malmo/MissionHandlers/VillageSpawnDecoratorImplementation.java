@@ -63,23 +63,25 @@ public class VillageSpawnDecoratorImplementation extends HandlerBase implements 
 
     private void teleportAgents(MissionInit missionInit, World world)
     {
-        PosAndDirection pos = new PosAndDirection();
         // Force all players to being at a random starting position
         for (AgentSection as : missionInit.getMission().getAgentSection())
         {
             BlockPos blockPos = world.findNearestStructure("Village", world.getSpawnPoint(), false);
 
             BlockPos new_pos = PositionHelper.getTopSolidOrLiquidBlock(world, blockPos);
+            new_pos = new_pos.add(0.5, 0, 0.5);
+
             System.out.println("Selected start:" + new_pos.toString());
-            pos.setX(new BigDecimal(new_pos.getX() + 0.5));
-            pos.setY(new BigDecimal(new_pos.getY()));
-            pos.setZ(new BigDecimal(new_pos.getZ() + 0.5));
+            PosAndDirection xmlPos = new PosAndDirection();
+            xmlPos.setX(new BigDecimal(new_pos.getX()));
+            xmlPos.setY(new BigDecimal(new_pos.getY()));
+            xmlPos.setZ(new BigDecimal(new_pos.getZ()));
             System.out.println("Set start!");
 
             // I have no clue which of these statements is actually working...
             world.setSpawnPoint(new_pos);
-            this.startPosition = pos;
-            as.getAgentStart().setPlacement(pos);
+            this.startPosition = xmlPos;
+            as.getAgentStart().setPlacement(xmlPos);
         }
     }
 
