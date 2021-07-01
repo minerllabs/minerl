@@ -3,6 +3,7 @@ from typing import List, Optional, Sequence
 import gym
 
 from minerl.env import _fake, _singleagent
+from minerl.herobraine import wrappers
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.env_specs import simple_embodiment
 from minerl.herobraine.hero import handlers, mc
@@ -122,6 +123,13 @@ def _basalt_gym_entrypoint(
         env = _fake._FakeSingleAgentEnv(env_spec=env_spec)
     else:
         env = _singleagent._SingleAgentEnv(env_spec=env_spec)
+
+    if "Village" in env_spec.name:
+        # Quick hack to mitigate die-due-to-suffocate-in-wall-on-spawn problem.
+        # The proper solution is to make sure the VillageSpawnDecoratorImplementation.java
+        # chooses a spawn location that isn't instead a wall.
+        env = wrappers.RetryResetOnEarlyDeathWrapper(env)
+
     if end_after_snowball_throw:
         env = EndAfterSnowballThrowWrapper(env)
     return env

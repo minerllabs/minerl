@@ -76,7 +76,7 @@ public class VillageSpawnDecoratorImplementation extends HandlerBase implements 
             System.out.println("Selected start:" + blockPos.toString());
             PosAndDirection xmlPos = new PosAndDirection();
             xmlPos.setX(BigDecimal.valueOf(blockPos.getX() + 0.5));
-            xmlPos.setY(BigDecimal.valueOf(blockPos.getY()));
+            xmlPos.setY(BigDecimal.valueOf(blockPos.getY() + 2));
             xmlPos.setZ(BigDecimal.valueOf(blockPos.getZ() + 0.5));
 
             System.out.println(String.format("====2 xmlPos (%f, %f, %f)%n",
