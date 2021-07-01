@@ -69,10 +69,12 @@ class EquipAction(action.ItemWithMetadataListAction):
             expected_ignore_types = (  # Filter these out to reduce stderr clutter
                 "class net.minecraft.inventory.ContainerWorkbench",
                 "class net.minecraft.inventory.ContainerFurnace",
+                "class net.minecraft.inventory.ContainerChest",
+                "class net.minecraft.inventory.ContainerMerchant",
             )
 
             if slots_gui_type not in expected_ignore_types:
-                self.logger.warning(f"Unexpected slots_gui_type={slots_gui_type}, "
-                                    f"Abandoning processing and simply returning '{self._default}'"
-                                    )
+                self.logger.debug(f"Unexpected slots_gui_type={slots_gui_type}, "
+                                  f"Abandoning processing and simply returning '{self._default}'"
+                                  )
             return self._default
