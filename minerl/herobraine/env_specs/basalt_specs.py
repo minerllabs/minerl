@@ -3,6 +3,7 @@ from typing import List, Optional, Sequence
 import gym
 
 from minerl.env import _fake, _singleagent
+from minerl.herobraine import wrappers
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.env_specs import simple_embodiment
 from minerl.herobraine.hero import handlers, mc
@@ -92,20 +93,23 @@ class EndAfterSnowballThrowWrapper(gym.Wrapper):
     def reset(self):
         self._steps_till_done = None
         obs = super().reset()
+        snowball_count = obs["inventory"]["snowball"]
+        assert snowball_count == 1, "Should start with a snowball"
         return obs
 
     def step(self, action: dict):
         observation, reward, done, info = super().step(action)
         if self._steps_till_done is None:  # Snowball throw hasn't yet been detected.
-            if (observation["equipped_items"]["mainhand"]["type"] == "snowball"
-                    and action["use"] == 1):
+            snowball_count = observation["inventory"]["snowball"]
+            if snowball_count == 0:
+                # Snowball was thrown -- start the countdown.
                 self._steps_till_done = self.episode_end_delay
-        else:  # Snowball throw was detected. We will end episode soon.
-            if self._steps_till_done == 0:
-                done = True
-                self._steps_till_done = None
-            else:
-                self._steps_till_done -= 1  # pytype: disable=unsupported-operands
+        elif self._steps_till_done > 0:
+            # Snowball throw was detected, counting down.
+            self._steps_till_done -= 1  # pytype: disable=unsupported-operands
+        else:
+            # Snowball throw was detected and countdown is over. End episode.
+            done = True
         return observation, reward, done, info
 
 
@@ -119,6 +123,13 @@ def _basalt_gym_entrypoint(
         env = _fake._FakeSingleAgentEnv(env_spec=env_spec)
     else:
         env = _singleagent._SingleAgentEnv(env_spec=env_spec)
+
+    if "Village" in env_spec.name:
+        # Quick hack to mitigate die-due-to-suffocate-in-wall-on-spawn problem.
+        # The proper solution is to make sure the VillageSpawnDecoratorImplementation.java
+        # chooses a spawn location that isn't instead a wall.
+        env = wrappers.RetryResetOnEarlyDeathWrapper(env)
+
     if end_after_snowball_throw:
         env = EndAfterSnowballThrowWrapper(env)
     return env
