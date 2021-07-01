@@ -62,7 +62,6 @@ class RetryResetOnEarlyDeathWrapper(gym.Wrapper):
                     "MINERL_DEBUG_LOG=1 to see more Malmo/Minecraft logs."
                 )
 
-        # We failed to return
         raise RuntimeError(
             f"Agent died within {self.n_noops} steps every time in each of "
             f"{self.n_reset_attempts} attempts"
