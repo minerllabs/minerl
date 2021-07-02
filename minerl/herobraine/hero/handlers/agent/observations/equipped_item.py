@@ -6,6 +6,7 @@
 Not very proud of the code reuse in this module -- @wguss
 """
 
+import os
 from typing import List, Sequence
 
 from minerl.herobraine.hero import mc
@@ -171,7 +172,8 @@ class _ItemIDObservation(TranslationHandler):
                 item_id = util.get_unique_matching_item_list_id(
                     self._items, item_type, metadata)
                 if item_id is None:
-                    print(f"Unknown item: '{item_type}#{metadata}'")
+                    if os.environ.get("MINERL_DEBUG_LOG", False):
+                        print(f"Unknown item: '{item_type}#{metadata}'")
                     return self._other
                 else:
                     return item_id
