@@ -98,6 +98,7 @@ components:
    :caption: Notes
    :maxdepth: 2
 
+   notes/useful-links
    notes/windows
 
 
