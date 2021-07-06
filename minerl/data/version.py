@@ -4,7 +4,7 @@ import os
 import re
 import glob
 
-DATA_VERSION = 3
+DATA_VERSION = 4
 # Seems like this isn't used except for in visualizing a single trajectory?
 # Perhaps we should remove it
 

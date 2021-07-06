@@ -25,7 +25,7 @@ import shutil
 from shutil import copyfile
 import time
 import traceback
-from typing import TextIO, List, Optional, Union
+from typing import Callable, Container, List, Optional, TextIO, Tuple, Union
 import subprocess
 import sys
 import glob
@@ -107,7 +107,7 @@ def get_recording_archive(recording_name):
 # 1. Construct render working dirs.
 
 
-def construct_render_dirs(blacklist):
+def construct_render_dirs() -> None:
     """
     Constructs the render directories omitting
     elements on a blacklist.
@@ -128,24 +128,39 @@ def construct_render_dirs(blacklist):
         if not E(dir):
             os.makedirs(dir)
 
-            # We only care about unrendered directories.
+
+def select_demonstrations(
+        blacklist: Container[str],
+        regex_pattern: Optional[str] = None,
+) -> List[Tuple[str, str]]:
+    # We only care about unrendered directories.
     render_dirs = []
 
     for filename in tqdm.tqdm(os.listdir(MERGED_DIR)):
         if filename.endswith(".mcpr") and filename not in blacklist:
             recording_name = filename.split(".mcpr")[0]
             render_path = J(RENDER_DIR, recording_name)
-            print(render_path)
             if not E(render_path):
                 os.makedirs(render_path)
 
             render_dirs.append((recording_name, render_path))
 
-    return render_dirs
+    print(f"Found {len(render_dirs)} .mcpr files.")
+
+    if regex_pattern is None:
+        return render_dirs
+    else:
+        regex = re.compile(regex_pattern)
+        filtered_dirs = []
+        for recording_name, render_path in render_dirs:
+            if regex.search(recording_name):
+                filtered_dirs.append((recording_name, render_path))
+        print(f"Kept {len(filtered_dirs)} directories after applying regex '{regex_pattern}'.")
+        return filtered_dirs
 
 
 # 2. render metadata from the files.
-def render_metadata(renders: list):
+def render_metadata(renders: List[Tuple[str, str]]):
     """
     Unpacks the metadata of a recording and checks its validity.
     """
@@ -263,7 +278,7 @@ def render_actions(renders: list):
                 assert returncode == 0
 
                 good_renders.append((recording_name, render_path))
-            except AssertionError as e:
+            except AssertionError:
                 _, _, tb = sys.exc_info()
                 traceback.print_tb(tb)  # Fixed format
                 touch(J(render_path, BAD_MARKER_NAME))
@@ -650,7 +665,7 @@ def clean_render_dirs():
         remove(path)
 
 
-def main(n_workers=NUM_MINECRAFT_DIR, parallel=True):
+def main(n_workers=NUM_MINECRAFT_DIR, parallel=True, regex_pattern=None):
     """
     The main render script.
     """
@@ -658,16 +673,20 @@ def main(n_workers=NUM_MINECRAFT_DIR, parallel=True):
     blacklist = set(np.loadtxt(BLACKLIST_PATH, dtype=np.str).tolist())
 
     print("Constructing render directories.")
-    renders = construct_render_dirs(blacklist)
+    construct_render_dirs()
+    renders = select_demonstrations(blacklist, regex_pattern)
+
+    if len(renders) == 0:
+        print("No render jobs selected. Aborting.")
+        exit(1)
 
     print("Validating metadata from files:")
     valid_renders, invalid_renders = render_metadata(renders)
     print(len(valid_renders))
     # print("Rendering actions: ")
     # valid_renders, invalid_renders = render_actions(valid_renders)
-    print("... found {} valid recordings and {} invalid recordings"
-          " out of {} total files".format(
-        len(valid_renders), len(invalid_renders), len(os.listdir(MERGED_DIR))))
+    print("... found {} valid recordings out of {} selected demonstrations".format(
+        len(valid_renders), len(renders)))
 
     unfinished_renders = [v for v in valid_renders if
                           not len(glob.glob(J(v[1], '*.mp4')))

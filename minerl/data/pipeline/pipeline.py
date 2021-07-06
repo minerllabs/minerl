@@ -52,7 +52,8 @@ def _merge_compile_parser():
     result.check_returncode()
 
 
-def merge_fn(n_workers, parallel):
+def merge_fn(n_workers, parallel, match):
+    del match
     _merge_compile_parser()
     merge.main(parallel=parallel, n_workers=n_workers)
 
@@ -63,9 +64,9 @@ def _render_make_minecrafts(n_workers):
         make_minecrafts.main(n_workers)
 
 
-def render_fn(n_workers, parallel):
+def render_fn(n_workers, parallel, regex_pattern):
     _render_make_minecrafts(n_workers)
-    render.main(parallel=parallel, n_workers=n_workers)
+    render.main(parallel=parallel, n_workers=n_workers, regex_pattern=regex_pattern)
 
 
 VERSION_PATH = pathlib.Path("~/minerl.data/output/data/VERSION").expanduser()
@@ -81,9 +82,9 @@ def _publish_generate_version_file():
     print(f"Wrote to {path}.")
 
 
-def publish_fn(parallel, n_workers):
+def publish_fn(parallel, n_workers, regex_pattern):
     _publish_generate_version_file()
-    publish.main(n_workers=n_workers, parallel=parallel)
+    publish.main(n_workers=n_workers, parallel=parallel, regex_pattern=regex_pattern)
 
 
 interactive_stages = collections.OrderedDict(
@@ -204,12 +205,22 @@ def main() -> None:
         help=("When running the render stage, use 1920x1080 resolution by locally "
               "overriding the MINERL_RENDER_{WIDTH,HEIGHT} variables.")
     )
+    parser.add_argument(
+        "-m",
+        "--match",
+        type=str,
+        help=("A regex pattern, for example, 'accomplished_pattypan_squash_ghost.*' "
+              "which is used by the render stage to select a particular subset of "
+              "demonstrations to process."
+              )
+        # XXX: Could add regex functionality to the generate and publish stages later.
+    )
 
     single_stage_mapping = collections.OrderedDict(
         [
             ("download", download_fn),
-            ("render", render_fn),
             ("merge", merge_fn),
+            ("render", render_fn),
             ("generate", generate.main),
             ("publish", publish_fn),
         ],
@@ -236,7 +247,7 @@ def main() -> None:
     if opt.jobs < 1:
         raise ValueError("Must specify positive integer for jobs, but got: {opt.jobs}")
 
-    pipeline_kwargs = dict(parallel=parallel, n_workers=opt.jobs)
+    pipeline_kwargs = dict(parallel=parallel, n_workers=opt.jobs, regex_pattern=opt.match)
     env_changes = {}
     if opt.high_res:
         env_changes["MINERL_RENDER_WIDTH"] = "1920"
