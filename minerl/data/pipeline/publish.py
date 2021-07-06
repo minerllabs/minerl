@@ -431,7 +431,7 @@ def publish(n_workers=56, parallel=True, regex_pattern: Optional[str] = None):
     The main render script.
     """
     black_list = Blacklist()
-    valid_data = construct_data_dirs(black_list)
+    valid_data = construct_data_dirs(black_list, regex_pattern)
     print(valid_data)
 
     print("Publishing segments: ")
