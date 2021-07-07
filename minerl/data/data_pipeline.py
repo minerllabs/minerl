@@ -386,7 +386,9 @@ class DataPipeline:
             batch_size (int): The batch size.
             seq_len (int): The size of sequences to produce.
             num_epochs (int, optional): The number of epochs to iterate over the data. Defaults to -1.
-            preload_buffer_size (int, optional): Increase to IMPROVE PERFORMANCE. The data iterator uses a queue to prevent blocking, the queue size is the number of trajectories to load into the buffer. Adjust based on memory constraints. Defaults to 32.
+            preload_buffer_size (int, optional): Increase to IMPROVE PERFORMANCE. The data iterator
+             uses a queue to prevent blocking, the queue size is the number of trajectories to
+             load into the buffer. Adjust based on memory constraints. Defaults to 32.
             seed (int, optional): [int]. NOT IMPLEMENTED Defaults to None.
 
         Returns:
@@ -428,7 +430,8 @@ class DataPipeline:
                     yield yield_dict
 
             # Careful with the ordering here
-            jobs = [(f, -1, None, include_monitor_data, include_metadata) for f in self._get_all_valid_recordings(self.data_dir)]
+            jobs = [(f, -1, None, include_monitor_data, include_metadata)
+                    for f in self._get_all_valid_recordings(self.data_dir)]
             np.random.shuffle(jobs)
             for job in jobs:
                 input_queue.put(job)
@@ -526,6 +529,7 @@ class DataPipeline:
         """
         raise DeprecationWarning(
             "The `DataPipeline.sarsd_iter` method is deprecated! Please use DataPipeline.batch_iter().")
+
 
 def loader_func(input_queue, output_queue):
     while True:

@@ -73,6 +73,12 @@ Interactive Mode :code:`minerl.interactor`
 =============================================================
 
 
+.. warning::
+
+    The interactor does not function in MineRL version v0.4. If you wish to use this utility,
+    install an older version of MineRL ``pip install minerl=0.3.7``.
+
+
 Once you have started training agents, the next step is getting them to interact with human players.
 To help achieve this, the :code:`minerl` python package provides a interactive Minecraft client called
 :code:`minerl.interactor`:

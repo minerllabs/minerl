@@ -28,7 +28,6 @@ import com.microsoft.Malmo.Utils.PositionHelper;
 import com.microsoft.Malmo.Utils.SeedHelper;
 
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.math.BigDecimal;
@@ -48,7 +47,6 @@ public class VillageSpawnDecoratorImplementation extends HandlerBase implements 
     // Random number generators for path generation / block choosing:
     private Random rand = SeedHelper.getRandom("agentStart");;
 
-    private PosAndDirection startPosition = null;
     private VillageSpawnDecorator params = null;
 
 
@@ -63,23 +61,28 @@ public class VillageSpawnDecoratorImplementation extends HandlerBase implements 
 
     private void teleportAgents(MissionInit missionInit, World world)
     {
-        PosAndDirection pos = new PosAndDirection();
         // Force all players to being at a random starting position
         for (AgentSection as : missionInit.getMission().getAgentSection())
         {
             BlockPos blockPos = world.findNearestStructure("Village", world.getSpawnPoint(), false);
+            System.out.println("====0 blockPos (before getTopTeleportable)" + blockPos.toString());
 
-            BlockPos new_pos = PositionHelper.getTopSolidOrLiquidBlock(world, blockPos);
-            System.out.println("Selected start:" + new_pos.toString());
-            pos.setX(new BigDecimal(new_pos.getX() + 0.5));
-            pos.setY(new BigDecimal(new_pos.getY()));
-            pos.setZ(new BigDecimal(new_pos.getZ() + 0.5));
-            System.out.println("Set start!");
+            // `PositionHelper.getTopTeleportableBlock(world, blockPos);` has a more reassuring sounding name, but
+            // these two "getTop" helper functions seem to work about the same in terms of chance of spawning the
+            // player inside a wall, which leads to "suffocation" death within the first 5 frames.
+            blockPos = PositionHelper.getTopSolidOrLiquidBlock(world, blockPos);
+            System.out.println("====1 blockPos (after getTop..Block)" + blockPos.toString());
 
-            // I have no clue which of these statements is actually working...
-            world.setSpawnPoint(new_pos);
-            this.startPosition = pos;
-            as.getAgentStart().setPlacement(pos);
+            System.out.println("Selected start:" + blockPos.toString());
+            PosAndDirection xmlPos = new PosAndDirection();
+            xmlPos.setX(BigDecimal.valueOf(blockPos.getX() + 0.5));
+            xmlPos.setY(BigDecimal.valueOf(blockPos.getY() + 2));
+            xmlPos.setZ(BigDecimal.valueOf(blockPos.getZ() + 0.5));
+
+            System.out.println(String.format("====2 xmlPos (%f, %f, %f)%n",
+                    xmlPos.getX().floatValue(), xmlPos.getY().floatValue(), xmlPos.getZ().floatValue()));
+
+            as.getAgentStart().setPlacement(xmlPos);
         }
     }
 
@@ -93,17 +96,7 @@ public class VillageSpawnDecoratorImplementation extends HandlerBase implements 
     public void update(World world) {}
 
     @Override
-    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data)
-    {
-        // Also add our new start data:
-        Float x = this.startPosition.getX().floatValue();
-        Float y = this.startPosition.getY().floatValue();
-        Float z = this.startPosition.getZ().floatValue();
-        String posString = x.toString() + ":" + y.toString() + ":" + z.toString();
-        data.put("startPosition", posString);
-
-        return false;
-    }
+    public boolean getExtraAgentHandlersAndData(List<Object> handlers, Map<String, String> data) { return false; }
 
     @Override
     public void prepare(MissionInit missionInit)
