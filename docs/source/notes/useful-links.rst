@@ -1,5 +1,5 @@
-Useful links and projects
-=========================
+Links to papers and projects
+============================
 
 Here you can find useful links to the presentations, code and papers of the finalists in previous MineRL competitions, as well as other publications and projects that use MineRL.
 
