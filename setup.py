@@ -153,7 +153,7 @@ def build_minecraft(source_dir, build_dir):
 
 
 setuptools.setup(
-    name='minerl-shwang',
+    name='minerl',
     version=os.environ.get('MINERL_BUILD_VERSION', '0.4.0'),
     description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
     long_description=markdown,
