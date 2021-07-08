@@ -34,6 +34,7 @@ class ObservationFromDamageSource(TranslationHandlerGroup):
             ]
         )
 
+
 class _DamageSourceProperty(KeymapTranslationHandler):
     def to_hero(self, x) -> int:
         for key in self.hero_keys:
@@ -57,19 +58,23 @@ class _IsDead(_DamageSourceProperty):
     def __init__(self):
         super().__init__(key_list=['is_dead'], space=spaces.Box(low=0.0, high=1.0, shape=(), dtype=np.int))
 
+
 class _DamageAmount(_DamageSourceProperty):
     def __init__(self):
         super().__init__(key_list=['damage_amount'], space=spaces.Box(low=0.0, high=40.0, shape=(), dtype=np.float))
+
 
 class _DamageType(_DamageSourceProperty):
     def __init__(self):
         super().__init__(key_list=['damage_type'], space=spaces.Text(shape=()),
                          default_if_missing=np.str(""))
 
+
 class _DeathMessage(_DamageSourceProperty):
     def __init__(self):
         super().__init__(key_list=['death_message'], space=spaces.Text(shape=()),
                          default_if_missing=np.str(""))
+
 
 class _HungerDamage(_DamageSourceProperty):
     def __init__(self):
