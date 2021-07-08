@@ -154,6 +154,8 @@ def build_minecraft(source_dir, build_dir):
 
 setuptools.setup(
     name='minerl',
+    # TODO(shwang): Load from minerl.version.VERSION or something so we don't have to update
+    # multiple version strings.
     version=os.environ.get('MINERL_BUILD_VERSION', '0.4.0'),
     description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
     long_description=markdown,
