@@ -41,9 +41,6 @@ public class MineRLTypeHelper {
         if (metadata == null) {
             return;
         }
-        if (metadata < 0 || metadata > 15) {
-            throw new RuntimeException(String.format("Unexpected metadata value %d.", metadata));
-        }
     }
 
     /**
