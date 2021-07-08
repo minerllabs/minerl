@@ -154,7 +154,7 @@ def build_minecraft(source_dir, build_dir):
 
 # Don't build binaries (requires Java) on readthedocs.io server.
 if os.environ.get("READTHEDOCS"):
-    cmdclass = None
+    cmdclass = {}
 else:
     cmdclass = {
         'bdist_wheel': bdist_wheel,
@@ -163,7 +163,6 @@ else:
         'build_malmo': CustomBuild,
         'shadow_develop': ShadowInplace,
     }
-
 
 
 setuptools.setup(
