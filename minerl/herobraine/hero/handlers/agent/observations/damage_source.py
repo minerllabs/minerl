@@ -26,11 +26,11 @@ class ObservationFromDamageSource(TranslationHandlerGroup):
     def __init__(self):
         super(ObservationFromDamageSource, self).__init__(
             handlers=[
-                _DamageType(),
                 _HungerDamage(),
                 _DamageAmount(),
                 _IsDead(),
-                _DeathMessage(),
+                # _DamageType(),
+                # _DeathMessage(),
             ]
         )
 
@@ -64,16 +64,16 @@ class _DamageAmount(_DamageSourceProperty):
         super().__init__(key_list=['damage_amount'], space=spaces.Box(low=0.0, high=40.0, shape=(), dtype=np.float))
 
 
-class _DamageType(_DamageSourceProperty):
-    def __init__(self):
-        super().__init__(key_list=['damage_type'], space=spaces.Text(shape=()),
-                         default_if_missing=np.str(""))
-
-
-class _DeathMessage(_DamageSourceProperty):
-    def __init__(self):
-        super().__init__(key_list=['death_message'], space=spaces.Text(shape=()),
-                         default_if_missing=np.str(""))
+# class _DamageType(_DamageSourceProperty):
+#     def __init__(self):
+#         super().__init__(key_list=['damage_type'], space=spaces.Text(shape=()),
+#                          default_if_missing=np.str(""))
+#
+#
+# class _DeathMessage(_DamageSourceProperty):
+#     def __init__(self):
+#         super().__init__(key_list=['death_message'], space=spaces.Text(shape=()),
+#                          default_if_missing=np.str(""))
 
 
 class _HungerDamage(_DamageSourceProperty):
