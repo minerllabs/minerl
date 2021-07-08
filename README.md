@@ -1,5 +1,6 @@
 # The [MineRL](http://minerl.io) Python Package
 
+[![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=stable)](https://pip.pypa.io/en/stable/?badge=stable)
 [![Dev Build status](https://badge.buildkite.com/0717cd35b9a708f0b4ac0b2858eec9ca7d08f6768868d3ac08.svg?branch=dev)](https://buildkite.com/openai-mono/minerl-public-dev)
 [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
 [![PyPI version](https://badge.fury.io/py/minerl.svg)](https://badge.fury.io/py/minerl)
