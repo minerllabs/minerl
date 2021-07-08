@@ -35,7 +35,8 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
 
     def create_observables(self) -> List[TranslationHandler]:
         return [
-            handlers.POVObservation(self.resolution)
+            handlers.POVObservation(self.resolution),
+            handlers.ObservationFromDamageSource()
         ]
 
     def create_actionables(self) -> List[TranslationHandler]:

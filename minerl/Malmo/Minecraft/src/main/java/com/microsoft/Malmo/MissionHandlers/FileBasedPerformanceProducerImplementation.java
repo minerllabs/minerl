@@ -54,13 +54,26 @@ public class FileBasedPerformanceProducerImplementation extends HandlerBase impl
     }
 
     @Override
-    public void step(double reward, boolean done) {
+    public void step(double reward, boolean done, JsonObject info) {
         if(PerformanceHelper.performanceEnabled()){
             if(currentEpisodeJson != null && statusJson != null){
                 currentEpisodeJson.getAsJsonArray("rewards").add(new JsonPrimitive(reward));
                 currentEpisodeJson.addProperty("numTicks", 
                     currentEpisodeJson.get("numTicks").getAsLong() + 1L);
-                
+
+                // Update the damage type
+                if (info != null && info.has("damage_source") && info.get("damage_source").getAsJsonObject().has("damage_type")){
+                    currentEpisodeJson.addProperty("damageSource",
+                            info.get("damage_source").getAsJsonObject().get("damage_type").getAsString());
+                }
+
+                // Accumulate the total damage
+                if (info != null && info.has("damage_source") && info.get("damage_source").getAsJsonObject().has("damage_amount")){
+                    currentEpisodeJson.addProperty("damageAmount",
+                            currentEpisodeJson.get("damageAmount").getAsFloat() +
+                            info.get("damage_source").getAsJsonObject().get("damage_amount").getAsFloat());
+                }
+
                 // Update the global status
                 long totalNumberSteps =  statusJson.get("totalNumberSteps").getAsLong();
                 statusJson.addProperty("totalNumberSteps",totalNumberSteps + 1L);

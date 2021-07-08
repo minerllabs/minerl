@@ -70,18 +70,19 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         JsonObject damage_json = new JsonObject();
         json.addProperty("is_dead", player.isDead);
-        json.addProperty("livingDeathEventFired", this.hasDied);
+        json.addProperty("living_death_event_fired", this.hasDied);
         this.hasDied = false;
         
-        if (this.damageAmount != 0 && this.damageSource != null)
-            System.out.println(this.damageAmount + " of damage from " + this.damageSource.getDamageType());
+        if (this.damageAmount != 0 && this.damageSource != null) {
+            System.out.println(this.damageAmount + " of damage from " + this.damageSource.getDamageType()); 
+        }
 
         if (this.damageAmount != 0) {
             damage_json.addProperty("damage_amount", this.damageAmount);
         }
 
         if (this.damageSource != null) {
-            damage_json.addProperty("damage_source", this.damageSource.getDamageType());
+            damage_json.addProperty("damage_type", this.damageSource.getDamageType());
             damage_json.addProperty("hunger_damage", this.damageSource.getHungerDamage());
             damage_json.addProperty("is_damage_absolute", this.damageSource.isDamageAbsolute());
             damage_json.addProperty("is_fire_damage", this.damageSource.isFireDamage());

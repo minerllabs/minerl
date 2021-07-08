@@ -2197,6 +2197,8 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             Minecraft.getMinecraft().mcProfiler.startSection("malmoSendData");
             // Create the observation data:
             String data = "";
+            // Keep track of relevant performance info
+            JsonObject perfInfo = new JsonObject();
             Minecraft.getMinecraft().mcProfiler.startSection("malmoGatherObservationJSON");
 
             if (!worldstillExists) {
@@ -2210,6 +2212,12 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 JsonObject json = new JsonObject();
                 currentMissionBehaviour().observationProducer.writeObservationsToJSON(json, currentMissionInit());
+                if (currentMissionBehaviour().performanceProducer != null) {
+                    // Damage source - type of damage, amount of damage, etc.
+                    if (json.has("damage_source")) {
+                        perfInfo.add("damage_source", json.get("damage_source"));
+                    }
+                }
                 data = json.toString();
             }
             Minecraft.getMinecraft().mcProfiler.endSection(); //malmogatherjson
@@ -2245,7 +2253,7 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
             {
                 MultidimensionalReward reward = new MultidimensionalReward();
                 currentMissionBehaviour().rewardProducer.getReward(currentMissionInit(), reward);
-                
+
                 if (!reward.isEmpty())
                 {
 
@@ -2275,11 +2283,11 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     Minecraft.getMinecraft().mcProfiler.endSection(); //sendTCP reward.
                 }
                 if (currentMissionBehaviour().performanceProducer != null)
-                    currentMissionBehaviour().performanceProducer.step(reward.getRewardTotal(), done);
+                    currentMissionBehaviour().performanceProducer.step(reward.getRewardTotal(), done, perfInfo);
             }
             else if(currentMissionBehaviour() != null){
                 if (currentMissionBehaviour().performanceProducer != null)
-                currentMissionBehaviour().performanceProducer.step(0, done);
+                currentMissionBehaviour().performanceProducer.step(0, done, perfInfo);
             }
             Minecraft.getMinecraft().mcProfiler.endSection(); //Gather reward.
             Minecraft.getMinecraft().mcProfiler.endSection(); //sendData
