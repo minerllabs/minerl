@@ -30,7 +30,7 @@ class ObservationFromDamageSource(TranslationHandlerGroup):
                 _HungerDamage(),
                 _DamageAmount(),
                 _IsDead(),
-                __DeathMessage(),
+                _DeathMessage(),
             ]
         )
 
