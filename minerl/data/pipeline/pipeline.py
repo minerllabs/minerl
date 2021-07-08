@@ -52,8 +52,8 @@ def _merge_compile_parser():
     result.check_returncode()
 
 
-def merge_fn(n_workers, parallel, match):
-    del match
+def merge_fn(n_workers, parallel, regex_pattern):
+    del regex_pattern
     _merge_compile_parser()
     merge.main(parallel=parallel, n_workers=n_workers)
 

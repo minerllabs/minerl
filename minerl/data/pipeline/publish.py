@@ -494,8 +494,7 @@ def package(out_dir=DATA_DIR):
                                .format(minerl.data.DATA_VERSION, version_file_num))
 
     logging.info("Writing tar files to {}".format(out_dir))
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
+    os.makedirs(out_dir, exist_ok=True)
 
     # Collect experiment folders
     exp_folders = [f for f in os.listdir(DATA_DIR) if f.startswith('MineRL') and '.' not in f]

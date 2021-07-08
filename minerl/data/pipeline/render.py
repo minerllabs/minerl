@@ -140,15 +140,16 @@ def select_demonstrations(
         if filename.endswith(".mcpr") and filename not in blacklist:
             recording_name = filename.split(".mcpr")[0]
             render_path = J(RENDER_DIR, recording_name)
-            if not E(render_path):
-                os.makedirs(render_path)
 
             render_dirs.append((recording_name, render_path))
 
     print(f"Found {len(render_dirs)} .mcpr files.")
 
+    # TODO(shwang): Stop returning a Tuple[str, str] here and elsewhere.
+    #   Instead, use a single pathlib.Path, and use path.name to get the
+    #   "recording_name".
     if regex_pattern is None:
-        return render_dirs
+        result = render_dirs
     else:
         regex = re.compile(regex_pattern)
         filtered_dirs = []
@@ -156,7 +157,13 @@ def select_demonstrations(
             if regex.search(recording_name):
                 filtered_dirs.append((recording_name, render_path))
         print(f"Kept {len(filtered_dirs)} directories after applying regex '{regex_pattern}'.")
-        return filtered_dirs
+        result = filtered_dirs
+
+    for _, render_path in filtered_dirs:
+        if not E(render_path):
+            os.makedirs(render_path)
+
+    return result
 
 
 # 2. render metadata from the files.
