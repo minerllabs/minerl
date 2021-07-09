@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 
 
 def download(
+        directory: Optional[str] = None,
         environment: Optional[str] = None,
         competition: Optional[str] = None,
-        directory: Optional[str] = None,
         resolution: str = 'low',
         texture_pack: int = 0,
         update_environment_variables: bool = True,
@@ -43,6 +43,9 @@ def download(
     a particular environment or competition.
 
     Args:
+        directory: Destination folder for downloading MineRL datasets. If None, then use
+            the `MINERL_DATA_ROOT` environment variable, or error if this environment
+            variable is not set.
         environment: The name of a MineRL environment or None. If this argument is the
             name of a MineRL environment and `competition` is None, then this function
             downloads the full dataset for the specifies MineRL environment.
@@ -56,9 +59,6 @@ def download(
 
             If both `environment=None` and `competition=None`, then this function
             downloads a minimal dataset.
-        directory: Destination folder for downloading MineRL datasets. If None, then use
-            the `MINERL_DATA_ROOT` environment variable, or error if this environment
-            variable is not set.
         resolution: For internal use only. One of ['low', 'high'] corresponding to video
             resolutions of [64x64,1024x1024] respectively (note: high resolution is not currently
             supported).
