@@ -1,5 +1,15 @@
-FROM ubuntu:18.04 as base
+FROM ubuntu:18.04
 
+# This Docker image, tagged and uploaded as `springulum/minerl-circleci-base`,
+# bundles all of the Ubuntu packages needed to run and test minerl locally.
+# It does not include the minerl repository because this is meant to be downloaded
+# fresh by CircleCI, or whatever service is using the image.
+
+# TODO(shwang): Since we don't need any local files here, why not just
+# skip the Docker image part, and use a CircleCI Ubuntu executor?
+#
+# One nice thing about not needing local files is that this Docker image will not need to
+# be updated often.
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -q  # Fuse these two statements together when not in Dockerfile development
@@ -37,11 +47,4 @@ RUN apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip setuptools pytest
-
-COPY . minerl
-
-WORKDIR /minerl
-
-FROM base as dev
-RUN pip3 install -e .
+RUN pip3 install --upgrade pip setuptools

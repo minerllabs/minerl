@@ -1,0 +1,29 @@
+version: 2.1
+
+executors:
+  default:
+    docker:
+      - image: springulum/minerl-circleci-base
+    resource_class: xlarge
+    working_directory: /minerl
+
+
+# TODO(shwang): Maybe also try installing as wheel.
+# TODO(shwang): Add multiprocessing over tests.
+jobs:
+  pytest:
+    executor: default
+    steps:
+      - checkout
+      - run:
+          name: Install minerl
+          command: pip install -e .
+      - run:
+          name: pytest
+          command: pytest /minerl
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - pytest

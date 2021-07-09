@@ -21,3 +21,4 @@ jinja2>=2.11.2
 simple-term-menu
 bullet
 filelock
+pytest

@@ -1,7 +1,2 @@
-/data
-/data.bak
-/env
-/dist
-/docs/build
-/*.egg-info
-/scrap
+# Ignore all build context because we don't use minerl files
+*
