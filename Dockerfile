@@ -7,6 +7,7 @@ FROM ubuntu:18.04
 
 # TODO(shwang): Since we don't need any local files here, why not just
 # skip the Docker image part, and use a CircleCI Ubuntu executor?
+# See https://circleci.com/blog/how-to-build-a-docker-image-on-circleci-2-0/
 #
 # One nice thing about not needing local files is that this Docker image will not need to
 # be updated often.
