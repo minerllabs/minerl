@@ -29,7 +29,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
     private DamageSource damageSource;
     private float damageAmount;
     private EntityLivingBase entity;
-    private boolean hasDied;
+    private boolean hasDied = false;
 
 
 	@Override
@@ -64,6 +64,13 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             this.damageAmount = event.getAmount();
             this.entity = event.getEntityLiving();
         }
+    }
+
+    private void resetDamage(){
+	    this.damageAmount = 0;
+	    this.damageSource = null;
+	    this.entity = null;
+	    this.hasDied = false;
     }
 
 	@Override
@@ -114,8 +121,9 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
                 damage_json.addProperty("damage_pitch", asin(attack_vec.yCoord));
                 damage_json.addProperty("damage_yaw", atan2(attack_vec.xCoord, attack_vec.zCoord));
             }
-            this.damageSource = null;
         }
+
+        this.resetDamage()
 
         json.add("damage_source", damage_json);
     }

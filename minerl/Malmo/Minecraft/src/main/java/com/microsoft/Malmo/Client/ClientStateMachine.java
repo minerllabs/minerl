@@ -2216,8 +2216,6 @@ public class ClientStateMachine extends StateMachine implements IMalmoMessageLis
                     // Damage source - type of damage, amount of damage, etc.
                     if (json.has("damage_source")) {
                         perfInfo.add("damage_source", json.get("damage_source"));
-                    } else {
-                        perfInfo = null;
                     }
                 }
                 data = json.toString();
