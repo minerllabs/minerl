@@ -1,0 +1,7 @@
+/data
+/data.bak
+/env
+/dist
+/docs/build
+/*.egg-info
+/scrap
