@@ -40,6 +40,7 @@ public class FileBasedPerformanceProducerImplementation extends HandlerBase impl
         currentEpisodeJson.addProperty("damageSource", "");
         currentEpisodeJson.addProperty("mobName", "");
         currentEpisodeJson.addProperty("deathMessage", "");
+        currentEpisodeJson.addProperty("hasDied", false);
         currentEpisodeJson.add("rewards", new JsonArray());
 
         long numberOfEpisodes = statusJson.get("totalNumberEpisodes").getAsLong();
@@ -90,6 +91,13 @@ public class FileBasedPerformanceProducerImplementation extends HandlerBase impl
                     if (info.get("damage_source").getAsJsonObject().has("death_message")){
                         currentEpisodeJson.addProperty("deathMessage",
                                         info.get("damage_source").getAsJsonObject().get("death_message").getAsString());
+                    }
+
+                    // Record if the agent perished
+                    if (info.get("damage_source").getAsJsonObject().has("living_death_event_fired")
+                        && info.get("damage_source").getAsJsonObject().get("living_death_event_fired").getAsBoolean()){
+                        currentEpisodeJson.addProperty("hasDied",
+                                info.get("damage_source").getAsJsonObject().get("living_death_event_fired").getAsBoolean());
                     }
                 }
 
