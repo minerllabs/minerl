@@ -123,7 +123,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             }
         }
 
-        this.resetDamage()
+        this.resetDamage();
 
         json.add("damage_source", damage_json);
     }
