@@ -62,7 +62,6 @@ class KeymapTranslationHandler(TranslationHandler):
         self.hero_keys = hero_keys
         self.univ_keys = univ_keys
         self.default_if_missing = default_if_missing
-        # TODO (R): UNIFY THE LOGGING FRAMEWORK FOR MINERL
 
     @property
     def logger(self):
