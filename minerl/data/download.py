@@ -200,7 +200,7 @@ def main():
     no arguments to download a minimal dataset containing two demonstrations for every
     environment.
 
-    See https://minerl.io/docs/tutorials/data_sampling.html#setting-up-environment-variables
+    See https://minerl.readthedocs.io/en/latest/tutorials/data_sampling.html
     for example usage of this script.
     """
     parser = argparse.ArgumentParser(
