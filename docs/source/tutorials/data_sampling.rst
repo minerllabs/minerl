@@ -88,8 +88,7 @@ The recommended way of sampling from the dataset is:
 .. code-block:: python
 
     from minerl.data import BufferedBatchIter
-    data = minerl.data.make(
-        'MineRLObtainDiamond-v0')
+    data = minerl.data.make('MineRLObtainDiamond-v0')
     iterator = BufferedBatchIter(data)
     for current_state, action, reward, next_state, done \
         in iterator.buffered_batch_iter(batch_size=1, num_epochs=1):
