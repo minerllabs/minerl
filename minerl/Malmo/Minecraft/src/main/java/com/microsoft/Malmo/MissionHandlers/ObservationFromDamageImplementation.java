@@ -13,6 +13,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -32,12 +33,14 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
 
 
 	@Override
-	public void prepare(MissionInit missionInit) {}
+	public void prepare(MissionInit missionInit) {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
 
 	@Override
 	public void cleanup() {}
 
-    @SubscribeEvent()
+    @SubscribeEvent
     public void onClientTick(LivingDeathEvent event)
     {
         if (event.getEntityLiving().equals(Minecraft.getMinecraft().player)) {
@@ -50,7 +53,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
         }
     }
     
-    @SubscribeEvent()
+    @SubscribeEvent
     public void onDamage(LivingHurtEvent event)
     {
         if (event.getEntityLiving().equals(Minecraft.getMinecraft().player)) {
@@ -60,7 +63,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             this.damageSource = event.getSource();
             this.damageAmount = event.getAmount();
             this.entity = event.getEntityLiving();
-            System.out.println(this.damageAmount + " of damage from " + this.damageSource.getDamageType() + " for entity " + this.entity);
+            System.out.println(this.damageAmount + " of damage from " + this.damageSource.getDamageType() + " by entity " + event.getSource().getEntity());
         }
     }
 

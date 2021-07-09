@@ -111,7 +111,7 @@ class Obfuscated(EnvWrapper):
         return act_space
 
     def create_monitors(self):
-        return copy.deepcopy(self.env_to_wrap.monitors)
+        return [] # Disable monitors for obfuscated spaces
 
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
         obs['vector'] = self.obs_enc(obs['vector'])

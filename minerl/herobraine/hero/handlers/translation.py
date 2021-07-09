@@ -50,7 +50,8 @@ class KeymapTranslationHandler(TranslationHandler):
                  hero_keys: typing.List[str],
                  univ_keys: typing.List[str],
                  space: MineRLSpace, default_if_missing=None,
-                 to_string: str = None):
+                 to_string: str = None,
+                 ignore_missing = False):
         """
         Wrapper for simple observations which just remaps keys.
         :param keys: list of nested dictionary keys from the root of the observation dict
@@ -62,6 +63,7 @@ class KeymapTranslationHandler(TranslationHandler):
         self.hero_keys = hero_keys
         self.univ_keys = univ_keys
         self.default_if_missing = default_if_missing
+        self.ignore_missing = ignore_missing
         # TODO (R): UNIFY THE LOGGING FRAMEWORK FOR MINERL
         self.logger = logging.getLogger(f'{__name__}.{self.to_string()}')
 
@@ -71,7 +73,8 @@ class KeymapTranslationHandler(TranslationHandler):
                 d = d[key]
             else:
                 if self.default_if_missing is not None:
-                    self.logger.error(f"No {keys[-1]} observation! Yielding default value "
+                    if not self.ignore_missing:
+                        self.logger.error(f"No {keys[-1]} observation! Yielding default value "
                                       f"{self.default_if_missing} for {'/'.join(keys)}")
                     return np.array(self.default_if_missing)
                 else:

@@ -51,6 +51,4 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
                ]
 
     def create_monitors(self) -> List[TranslationHandler]:
-        return [
-            handlers.ObservationFromDamageSource()
-        ]  # Damage source monitor for performance information
+        return []  # No base monitor needed
