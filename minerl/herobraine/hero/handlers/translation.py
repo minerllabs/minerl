@@ -64,8 +64,11 @@ class KeymapTranslationHandler(TranslationHandler):
         self.univ_keys = univ_keys
         self.default_if_missing = default_if_missing
         self.ignore_missing = ignore_missing
-        # TODO (R): UNIFY THE LOGGING FRAMEWORK FOR MINERL
-        self.logger = logging.getLogger(f'{__name__}.{self.to_string()}')
+
+
+    @property
+    def logger(self):
+        return logging.getLogger(f'{__name__}.{self.to_string()}')
 
     def walk_dict(self, d, keys):
         for key in keys:
