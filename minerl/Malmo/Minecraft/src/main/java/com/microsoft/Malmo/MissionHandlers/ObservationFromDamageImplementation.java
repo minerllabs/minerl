@@ -63,7 +63,6 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             this.damageSource = event.getSource();
             this.damageAmount = event.getAmount();
             this.entity = event.getEntityLiving();
-            System.out.println(this.damageAmount + " of damage from " + this.damageSource.getDamageType() + " by entity " + event.getSource().getEntity());
         }
     }
 
@@ -77,7 +76,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
         this.hasDied = false;
         
         if (this.damageAmount != 0 && this.damageSource != null) {
-            System.out.println(this.damageAmount + " of damage from " + this.damageSource.getDamageType()); 
+            System.out.println(this.damageAmount + " damage from " + this.damageSource.getDamageType() + " by entity " + this.damageSource.getEntity());
         }
 
         if (this.damageAmount != 0) {
