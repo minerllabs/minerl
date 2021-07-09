@@ -1,6 +1,10 @@
 #!/bin/bash
+
+# This script runs the BuildKite testing suite. For the CircleCI
+# testing suite, see `scripts/docker_build_and_test.sh`.
+
 # Commands are printed out, and we quit on any error
-set -ex 
+set -ex
 
 export PATH=$JAVA_HOME/bin:$PATH
 # env variables controlling the build version and location in GCS
