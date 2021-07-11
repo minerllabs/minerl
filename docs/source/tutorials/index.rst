@@ -65,4 +65,9 @@ main python package, :code:`minerl`.
     **In order to run** :code:`minerl` **environments without a head use a software renderer
     such as** :code:`xvfb`::
 
-        xvfb-run python3 <your_script.py>
+        xvfb-run -a python3 <your_script.py>
+     
+    Alternatively, you can use an environment variable which automatically adds xvfb when
+    launching MineRL::
+        
+        MINERL_HEADLESS=1 python3 <your_script.py>
