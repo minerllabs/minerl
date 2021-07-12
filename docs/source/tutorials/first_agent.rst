@@ -52,9 +52,6 @@ To create the environment, simply invoke :code:`gym.make`
         MINERL_HEADLESS=1 python3 <your_script.py>
 
 .. note::
-    The first time you run this command to complete, it will take a while as it is recompiling
-    Minecraft with the MineRL simulator mod!
-
     If you're worried and want to make sure something is
     happening behind the scenes install a logger **before**
     you create the envrionment.
@@ -74,6 +71,11 @@ Taking actions
 
 Now we can reset this environment to its first position
 and get our first observation from the agent by resetting the environment.
+
+.. note::
+    The first time you run this command to complete, it will take a while as it is recompiling
+    Minecraft with the MineRL simulator mod (can be as long as 15-30 minutes)!
+
 
 .. code-block:: python
 
@@ -137,8 +139,9 @@ method.
 
 ..   :scale: 100 %
 
-After running this code you should see your agent move sporadically until the
-:code:`done` flag is set to true. To confirm that our agent is at least qualitatively
+After running this code the agent should move sporadically until :code:`done` flag is set to true.
+If you see a Minecraft window, it does not update while agent is playing, which is intended behaviour.
+To confirm that our agent is at least qualitatively
 acting randomly, on the right is a plot of the compass angle over the course of the experiment.
 
 .. image:: ../assets/compass_angle.png

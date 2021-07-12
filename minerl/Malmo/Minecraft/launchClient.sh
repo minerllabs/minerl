@@ -128,7 +128,7 @@ else
 fi
 # If build/libs/MalmoMod-0.37.0-fat.jar does not exist change command to 'test'
 
-if [ $(uname) == 'Linux' ] && [ "$MINERL_HEADLESS" == "1" ]; then
+if [ "$MINERL_HEADLESS" == "1" ]; then
   xvfb-run -a -s "-screen 0 1024x768x24" $cmd
 else
   $cmd
