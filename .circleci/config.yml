@@ -11,7 +11,17 @@ executors:
 # TODO(shwang): Maybe also try installing as wheel.
 # TODO(shwang): Add multiprocessing over tests.
 jobs:
-  pytest:
+  pytest-no-minecraft-launch:
+    executor: default
+    steps:
+      - checkout
+      - run:
+          name: Install minerl
+          command: pip install -e .
+      - run:
+          name: pytest
+          command: pytest -vv /minerl -m "not serial"
+  pytest-minecraft-launch:
     executor: default
     steps:
       - checkout
