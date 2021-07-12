@@ -35,5 +35,6 @@ main python package, :code:`minerl`.
         pip3 install --upgrade minerl
 
 .. note::
+        
         You may need the user flag:
         :code:`pip3 install --upgrade minerl --user` to install properly.
