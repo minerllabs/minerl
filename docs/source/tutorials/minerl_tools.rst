@@ -96,14 +96,14 @@ to the Minecraft world that your agent(s) is using and interact with the agent i
 .. note::
 
     For observation-only mode hit the :code:`t` key and type :code:`/gamemode sp` to enter
-    spectator mode and become invisible to your agen``t(s).
+    spectator mode and become invisible to your agent(s).
 
 
 .. exec::
 
-    import minerl.env.core
+    import minerl.env._multiagent
 
-    help_str = minerl.env.core.MineRLEnv.make_interactive.__doc__
+    help_str = minerl.env._multiagent._MultiAgentEnv.make_interactive.__doc__
 
     # print(".. code-block:: python\n")
     help_str = help_str.replace("\n        ", "\n")

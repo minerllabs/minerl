@@ -18,6 +18,8 @@ with open("README.md", "r") as fh:
     markdown = fh.read()
 with open("requirements.txt", "r") as fh:
     requirements = fh.read()
+with open("requirements-docs.txt", "r") as fh:
+    requirements_docs = fh.read()
 
 MALMO_BRANCH = "minerl"
 MALMO_VERSION = "0.37.0"
@@ -180,6 +182,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=requirements,
+    extras_require={"docs": requirements_docs},
     distclass=BinaryDistribution,
     include_package_data=True,
     cmdclass=cmdclass,
