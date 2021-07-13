@@ -7,4 +7,5 @@
 TMP="/tmp/processed.yml"
 
 circleci config process .circleci/config.yml > $TMP
-circleci local execute -c $TMP --job pytest
+circleci local execute -c $TMP --job pytest_no_minecraft_launch
+circleci local execute -c $TMP --job pytest_with_minecraft_launch

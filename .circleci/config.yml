@@ -11,7 +11,7 @@ executors:
 # TODO(shwang): Maybe also try installing as wheel.
 # TODO(shwang): Add multiprocessing over tests.
 jobs:
-  pytest-no-minecraft-launch:
+  pytest_no_minecraft_launch:
     executor: default
     steps:
       - checkout
@@ -21,7 +21,7 @@ jobs:
       - run:
           name: pytest
           command: pytest -vv /minerl -m "not serial"
-  pytest-minecraft-launch:
+  pytest_with_minecraft_launch:
     executor: default
     steps:
       - checkout
@@ -30,10 +30,12 @@ jobs:
           command: pip install -e .
       - run:
           name: pytest
-          command: pytest -vv /minerl
+          command: pytest -vv /minerl -m "serial"
 
 workflows:
   version: 2
   test:
     jobs:
-      - pytest
+      - pytest_no_minecraft_launch
+      # We don't have enough memory to run these tests
+      - pytest_with_minecraft_launch
