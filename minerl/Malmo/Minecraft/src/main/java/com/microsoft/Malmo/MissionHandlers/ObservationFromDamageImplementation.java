@@ -117,11 +117,12 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             damage_json.addProperty("death_message", this.damageSource.getDeathMessage(player).getUnformattedText());
 
             if (this.damageSource.getEntity() != null) {
-                damage_json.addProperty("damage_entity", this.damageSource.getEntity().getName());
-                damage_json.addProperty("damage_entity_id", this.damageSource.getEntity().getEntityId());
+                Entity entity = this.damageSource.getEntity();
+                damage_json.addProperty("damage_entity", entity.getName());
+                damage_json.addProperty("damage_entity_id",entity.getEntityId());
                 JsonArray entity_equipment = new JsonArray();
                 // TODO do we need to mark the equipment slot of this armor?
-                for (ItemStack item : this.damageSource.getEntity().getEquipmentAndArmor()) {
+                for (ItemStack item : entity.getEquipmentAndArmor()) {
                     if (item.getItem().getRegistryName() != null) {
                         JsonElement jitem = new JsonPrimitive(item.getItem().getRegistryName().toString());
                         entity_equipment.add(jitem);
