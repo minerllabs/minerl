@@ -337,7 +337,7 @@ class DataPipeline:
                 next_observation_data = unflatten(next_observation_data)[OBSERVABLE_KEY]
 
                 batches = [current_observation_data, action_data, reward_data, next_observation_data,
-                           np.array(done_data, dtype=np.bool)]
+                           np.array(done_data, dtype=bool)]
 
                 if include_monitor_data:
                     monitor_data = unflatten(monitor_data)[MONITOR_KEY]
