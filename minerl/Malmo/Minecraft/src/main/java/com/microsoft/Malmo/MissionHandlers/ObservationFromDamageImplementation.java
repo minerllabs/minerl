@@ -89,6 +89,12 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
         json.addProperty("is_dead", player.isDead);
         json.addProperty("living_death_event_fired", this.hasDied);
         this.hasDied = false;
+
+        // Note to user that there could be inaccuracies here
+        if (this.damageSourceReplaced) {
+            damage_json.addProperty("stale", true);
+            this.damageSourceReplaced = false;
+        }
         
         if (this.damageAmount != 0 && this.damageSource != null) {
             System.out.println(this.damageAmount + " damage from " + this.damageSource.getDamageType() + " by entity " + this.damageSource.getEntity());
