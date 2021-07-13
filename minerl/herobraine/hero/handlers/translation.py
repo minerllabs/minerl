@@ -57,6 +57,7 @@ class KeymapTranslationHandler(TranslationHandler):
         :param keys: list of nested dictionary keys from the root of the observation dict
         :param space: gym space corresponding to the shape of the returned value
         :param default_if_missing: value for handler to take if missing in the observation dict
+        :param ignore_missing: if we should throw a warning when    corresponding json field is missing from the observation
         """
         super().__init__(space)
         self._to_string = to_string if to_string else hero_keys[-1]

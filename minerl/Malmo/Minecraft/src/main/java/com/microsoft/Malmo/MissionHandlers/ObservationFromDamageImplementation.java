@@ -30,6 +30,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
     private float damageAmount;
     private EntityLivingBase entity;
     private boolean hasDied = false;
+    private boolean damageSourceReplaced = false;
 
 
 	@Override
@@ -45,7 +46,11 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
     {
         if (event.getEntityLiving().equals(Minecraft.getMinecraft().player)) {
             if (this.damageSource != null) {
-                System.out.println("Warning overwriting damage source - entity has died!");
+                // If the agent dies from damage, a LivingHurtEvent will precede the death event. Since death events do
+                // not include the damage amount we simply update the other fields to ensure the cause of death is
+                // properly reflected
+                //System.out.println("Warning overwriting damage source - entity has died!");
+                this.damageSourceReplaced = true;
             }
             this.damageSource = event.getSource();
             this.entity = event.getEntityLiving();
@@ -58,6 +63,9 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
     {
         if (event.getEntityLiving().equals(Minecraft.getMinecraft().player)) {
             if (this.damageSource != null) {
+                this.damageSourceReplaced = true;
+                // If multiple LivingHurtEvents pertain to the player, we keep the most recent one and record the fact
+                // that we are skipping a damage event in leiu of building an array based reporting system
                 System.out.println("Warning skipped damage event - multiple damage events in one tick!");
             }
             this.damageSource = event.getSource();

@@ -67,30 +67,32 @@ public class FileBasedPerformanceProducerImplementation extends HandlerBase impl
 
                 // Update the damage type
                 if (info != null && info.has("damage_source")) {
+                    JsonObject damage_source = info.get("damage_source").getAsJsonObject();
                     // Record damage type
-                    if (info.get("damage_source").getAsJsonObject().has("damage_type")){
+                    if (damage_source.has("damage_type")){
                         currentEpisodeJson.addProperty("damageSource",
-                                info.get("damage_source").getAsJsonObject().get("damage_type").getAsString());
+                                damage_source.get("damage_type").getAsString());
                     }
 
                     // Record the mob name if any
-                    if (info.get("damage_source").getAsJsonObject().has("damage_entity")){
+                    if (damage_source.has("damage_entity")){
                         currentEpisodeJson.addProperty("mobName",
-                                info.get("damage_source").getAsJsonObject().get("damage_entity").getAsString());
+                                damage_source.get("damage_entity").getAsString());
                     }
 
                     // Accumulate the total damage
-                    if (info.get("damage_source").getAsJsonObject().has("damage_amount")){
+                    if (damage_source.has("damage_amount")){
                         currentEpisodeJson.addProperty("damageAmount",
                                 currentEpisodeJson.get("damageAmount").getAsFloat() +
-                                info.get("damage_source").getAsJsonObject().get("damage_amount").getAsFloat());
+                                damage_source.get("damage_amount").getAsFloat());
                     }
 
                     // Record death message (if any)
-                    if (info.get("damage_source").getAsJsonObject().has("death_message")){
+                    if (damage_source.has("death_message")){
                         currentEpisodeJson.addProperty("deathMessage",
-                                        info.get("damage_source").getAsJsonObject().get("death_message").getAsString());
+                                damage_source.get("death_message").getAsString());
                     }
+
                 }
 
 
