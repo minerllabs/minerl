@@ -84,7 +84,6 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
         JsonObject damage_json = new JsonObject();
         json.addProperty("is_dead", player.isDead);
         json.addProperty("living_death_event_fired", this.hasDied);
-        this.hasDied = false;
 
         // Note to user that there could be inaccuracies here
         if (this.damageSourceReplaced) {
