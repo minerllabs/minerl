@@ -35,7 +35,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
 	@Override
 	public void prepare(MissionInit missionInit) {
         MinecraftForge.EVENT_BUS.register(this);
-    }
+      }
 
 	@Override
 	public void cleanup() {}
