@@ -18,14 +18,13 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-
-import static java.lang.Math.*;
+import static java.lang.Math.asin;
+import static java.lang.Math.atan2;
 
 /**
  * Simple IObservationProducer object that pings out a whole bunch of data.<br>
  */
-public class ObservationFromDamageImplementation extends HandlerBase implements IObservationProducer
-{
+public class ObservationFromDamageImplementation extends HandlerBase implements IObservationProducer {
     private DamageSource damageSource;
     private float damageAmount;
     private EntityLivingBase entity;
@@ -33,17 +32,17 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
     private boolean damageSourceReplaced = false;
 
 
-	@Override
-	public void prepare(MissionInit missionInit) {
+    @Override
+    public void prepare(MissionInit missionInit) {
         MinecraftForge.EVENT_BUS.register(this);
-      }
+    }
 
-	@Override
-	public void cleanup() {}
+    @Override
+    public void cleanup() {
+    }
 
     @SubscribeEvent
-    public void onDeath(LivingDeathEvent event)
-    {
+    public void onDeath(LivingDeathEvent event) {
         if (event.getEntityLiving().equals(Minecraft.getMinecraft().player)) {
             if (this.damageSource != null) {
                 // If the agent dies from damage, a LivingHurtEvent will precede the death event. Since death events do
@@ -56,10 +55,9 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             this.hasDied = true;
         }
     }
-    
+
     @SubscribeEvent
-    public void onDamage(LivingHurtEvent event)
-    {
+    public void onDamage(LivingHurtEvent event) {
         if (event.getEntityLiving().equals(Minecraft.getMinecraft().player)) {
             if (this.damageSource != null) {
                 this.damageSourceReplaced = true;
@@ -73,16 +71,15 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
         }
     }
 
-    private void resetDamage(){
-	    this.damageAmount = 0;
-	    this.damageSource = null;
-	    this.entity = null;
-	    this.hasDied = false;
+    private void resetDamage() {
+        this.damageAmount = 0;
+        this.damageSource = null;
+        this.entity = null;
+        this.hasDied = false;
     }
 
     @Override
-    public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
-    {
+    public void writeObservationsToJSON(JsonObject json, MissionInit missionInit) {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         JsonObject damage_json = new JsonObject();
         json.addProperty("is_dead", player.isDead);
@@ -94,7 +91,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             damage_json.addProperty("stale", true);
             this.damageSourceReplaced = false;
         }
-        
+
         if (this.damageAmount != 0 && this.damageSource != null) {
             System.out.println(this.damageAmount + " damage from " + this.damageSource.getDamageType() + " by entity " + this.damageSource.getEntity());
         }
@@ -118,7 +115,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             if (this.damageSource.getEntity() != null) {
                 Entity entity = this.damageSource.getEntity();
                 damage_json.addProperty("damage_entity", entity.getName());
-                damage_json.addProperty("damage_entity_id",entity.getEntityId());
+                damage_json.addProperty("damage_entity_id", entity.getEntityId());
                 JsonArray entity_equipment = new JsonArray();
                 // TODO do we need to mark the equipment slot of this armor?
                 for (ItemStack item : entity.getEquipmentAndArmor()) {
@@ -128,7 +125,8 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
                     }
                 }
                 damage_json.add("damage_entity_equipment", entity_equipment);
-            } if (this.damageSource.getDamageLocation() != null) {
+            }
+            if (this.damageSource.getDamageLocation() != null) {
                 damage_json.addProperty("damage_location", this.damageSource.getDamageLocation().toString());
                 damage_json.addProperty("damage_distance", this.damageSource.getDamageLocation().distanceTo(player.getPositionVector()));
                 Vec3d attack_vec = this.damageSource.getDamageLocation().subtract(player.getPositionVector());
