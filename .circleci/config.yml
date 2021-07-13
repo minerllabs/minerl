@@ -38,4 +38,6 @@ workflows:
     jobs:
       - pytest_no_minecraft_launch
       # We don't have enough memory to run these tests
-      - pytest_with_minecraft_launch
+      # TODO(shwang): Figure out how much memory we need for these
+      # tests, and then maybe purchase a XLarge CircleCI subscription.
+      # - pytest_with_minecraft_launch
