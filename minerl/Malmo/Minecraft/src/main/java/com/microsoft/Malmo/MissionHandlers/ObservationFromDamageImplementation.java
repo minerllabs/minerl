@@ -42,14 +42,13 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
 	public void cleanup() {}
 
     @SubscribeEvent
-    public void onClientTick(LivingDeathEvent event)
+    public void onDeath(LivingDeathEvent event)
     {
         if (event.getEntityLiving().equals(Minecraft.getMinecraft().player)) {
             if (this.damageSource != null) {
                 // If the agent dies from damage, a LivingHurtEvent will precede the death event. Since death events do
                 // not include the damage amount we simply update the other fields to ensure the cause of death is
                 // properly reflected
-                //System.out.println("Warning overwriting damage source - entity has died!");
                 this.damageSourceReplaced = true;
             }
             this.damageSource = event.getSource();

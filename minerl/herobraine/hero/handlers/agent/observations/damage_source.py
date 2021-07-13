@@ -28,6 +28,7 @@ class ObservationFromDamageSource(TranslationHandlerGroup):
                 _HungerDamage(),
                 _DamageAmount(),
                 _IsDead(),
+                # TODO implement str space processing for obs
                 # _DamageType(),
                 # _DeathMessage(),
             ]
