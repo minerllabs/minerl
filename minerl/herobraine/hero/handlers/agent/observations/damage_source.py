@@ -17,7 +17,7 @@ class ObservationFromDamageSource(TranslationHandlerGroup):
     """
 
     def xml_template(self) -> str:
-        return str("""<ObservationFromDamage/>""")
+        return """<ObservationFromDamage/>"""
 
     def to_string(self) -> str:
         return "damage_source"
@@ -51,7 +51,7 @@ class _DamageSourceProperty(KeymapTranslationHandler):
                          default_if_missing=default_if_missing, ignore_missing=True)
 
     def xml_template(self) -> str:
-        return str("""<ObservationFromDamageSource/>""")
+        return """<ObservationFromDamageSource/>"""
 
 
 class _IsDead(_DamageSourceProperty):
