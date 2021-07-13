@@ -176,7 +176,7 @@ def download(
     with tarfile.open(dest_file, mode="r:*") as tf:
         t = Thread(target=tf.extractall(path=directory))
         t.start()
-        while t.isAlive():
+        while t.is_alive():
             time.sleep(5)
             logging.info('.', end='')
 
