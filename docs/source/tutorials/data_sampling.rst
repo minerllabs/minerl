@@ -70,7 +70,7 @@ To download the minimal dataset into ``MINERL_DATA_ROOT``, run the command:
 
 
 
-Sampling the Dataset with :code:`batch_iter`
+Sampling the Dataset with :code:`buffered_batch_iter`
 ============================================
 
 Now we can build the dataset for :code:`MineRLObtainDiamond-v0`
@@ -80,7 +80,7 @@ There are two ways of sampling from the MineRL dataset: the deprecated but still
 but we have recently realized that, when using `batch_size > 1`, `batch_iter` can fail to return a substantial
 portion of the data in the epoch.
 
-**If you are not already using `data_pipeline.batch_iter`, we recommend against it, because of these issues"
+**If you are not already using `data_pipeline.batch_iter`, we recommend against it, because of these issues**
 
 
 The recommended way of sampling from the dataset is:
@@ -88,8 +88,7 @@ The recommended way of sampling from the dataset is:
 .. code-block:: python
 
     from minerl.data import BufferedBatchIter
-    data = minerl.data.make(
-        'MineRLObtainDiamond-v0')
+    data = minerl.data.make('MineRLObtainDiamond-v0')
     iterator = BufferedBatchIter(data)
     for current_state, action, reward, next_state, done \
         in iterator.buffered_batch_iter(batch_size=1, num_epochs=1):
