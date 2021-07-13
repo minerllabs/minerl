@@ -73,7 +73,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
 	    this.hasDied = false;
     }
 
-	@Override
+    @Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
