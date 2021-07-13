@@ -36,33 +36,5 @@ main python package, :code:`minerl`.
         pip3 install --upgrade minerl
 
 .. note::
-        depending on your system you may need the user flag:
-        :code:`pip3 install --upgrade minerl --user` to install property
-
-3. (Optional) Download the dataset ~ 60 GB:
-
-   .. code-block:: python
-
-        import minerl
-        minerl.data.download(directory="/your/local/path/")
-
-   Or simply download a single experiment
-
-   .. code-block:: python
-
-        minerl.data.download('/your/local/path',experiment='MineRLObtainDiamondVectorObf-v0')
-
-   For a complete list of published experiments, `checkout the environment documentation`_.
-   If you are here for the MineRL competition, `checkout the competition environments`_.
-
-**That's it! Now you're good to go :) 💯💯💯**
-
-.. caution::
-    Currently :code:`minerl` only supports environment rendering in **headed environments**
-    (machines with monitors attached). 
-
-
-    **In order to run** :code:`minerl` **environments without a head use a software renderer
-    such as** :code:`xvfb`::
-
-        xvfb-run python3 <your_script.py>
+        Depending on your system you may need the user flag:
+        :code:`pip3 install --upgrade minerl --user` to install property.
