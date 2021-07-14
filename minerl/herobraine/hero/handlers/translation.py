@@ -46,18 +46,22 @@ class TranslationHandler(Handler):
 # TODO: ONLY WORKS FOR OBSERVATIONS.
 # TODO: Consider moving this to observations.
 class KeymapTranslationHandler(TranslationHandler):
-    def __init__(self,
-                 hero_keys: typing.List[str],
-                 univ_keys: typing.List[str],
-                 space: MineRLSpace, default_if_missing=None,
-                 to_string: str = None,
-                 ignore_missing = False):
+    def __init__(
+            self,
+            hero_keys: typing.List[str],
+            univ_keys: typing.List[str],
+            space: MineRLSpace,
+            default_if_missing=None,
+            to_string: str = None,
+            ignore_missing: bool = False,
+    ):
         """
         Wrapper for simple observations which just remaps keys.
         :param keys: list of nested dictionary keys from the root of the observation dict
         :param space: gym space corresponding to the shape of the returned value
         :param default_if_missing: value for handler to take if missing in the observation dict
-        :param ignore_missing: if we should throw a warning when    corresponding json field is missing from the observation
+        :param ignore_missing: If we should throw a warning when corresponding json field is
+            missing from the observation.
         """
         super().__init__(space)
         self._to_string = to_string if to_string else hero_keys[-1]

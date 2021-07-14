@@ -118,7 +118,7 @@ TREECHOP_WORLD_GENERATOR_OPTIONS = '''{
 }'''
 
 
-class   Treechop(SimpleEmbodimentEnvSpec):
+class Treechop(SimpleEmbodimentEnvSpec):
     def __init__(self, *args, **kwargs):
         if 'name' not in kwargs:
             kwargs['name'] = 'MineRLTreechop-v0'
