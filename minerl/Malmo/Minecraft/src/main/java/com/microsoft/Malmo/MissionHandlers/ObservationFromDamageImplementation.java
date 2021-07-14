@@ -27,7 +27,6 @@ import static java.lang.Math.atan2;
 public class ObservationFromDamageImplementation extends HandlerBase implements IObservationProducer {
     private DamageSource damageSource;
     private float damageAmount;
-    private EntityLivingBase entity;
     private boolean hasDied = false;
     private boolean damageSourceReplaced = false;
 
@@ -51,7 +50,6 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
                 this.damageSourceReplaced = true;
             }
             this.damageSource = event.getSource();
-            this.entity = event.getEntityLiving();
             this.hasDied = true;
         }
     }
@@ -68,15 +66,14 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             }
             this.damageSource = event.getSource();
             this.damageAmount = event.getAmount();
-            this.entity = event.getEntityLiving();
         }
     }
 
     private void resetDamage() {
         this.damageAmount = 0;
         this.damageSource = null;
-        this.entity = null;
         this.hasDied = false;
+        this.damageSourceReplaced = false;
     }
 
     @Override
@@ -89,7 +86,6 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
         // Note to user that there could be inaccuracies here
         if (this.damageSourceReplaced) {
             damage_json.addProperty("stale", true);
-            this.damageSourceReplaced = false;
         }
 
         if (this.damageAmount != 0 && this.damageSource != null) {
@@ -135,6 +131,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
             }
         }
 
+        // Ensure we only report damage / death once
         this.resetDamage();
 
         json.add("damage_source", damage_json);
