@@ -134,8 +134,7 @@ class DataPipeline:
 
         x = list(target_space.spaces.items())
         target_space.spaces = collections.OrderedDict(
-            sorted(x, key=lambda x:
-            x[0] if x[0] != 'pov' else 'z')
+            sorted(x, key=lambda x: x[0] if x[0] != 'pov' else 'z')
         )
 
         # Now we just need to slice the dict.

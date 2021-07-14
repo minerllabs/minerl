@@ -422,7 +422,11 @@ def test_env_space_regressions():
         if old_agent_start is not None and 'Inventory' in old_agent_start:
             old_agent_start['Inventory']['InventoryObject']['@metadata'] = '0'
 
-        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions', 'Name', 'About', 'ObservationFromDamage'])
+        assert_equal_recursive(
+            new_xml_dict,
+            old_xml_dict,
+            ignore=['@generatorOptions', 'Name', 'About', 'ObservationFromDamage'],
+        )
 
 
 # #######################

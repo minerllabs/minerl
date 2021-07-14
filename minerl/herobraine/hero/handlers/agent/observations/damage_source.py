@@ -1,10 +1,10 @@
 # Copyright (c) 2021 All Rights Reserved
 # Author: Brandon Houghton
 
-import jinja2
 from typing import List
 
-from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler, TranslationHandlerGroup
+from minerl.herobraine.hero.handlers.translation import (KeymapTranslationHandler,
+                                                         TranslationHandlerGroup)
 from minerl.herobraine.hero import spaces
 import numpy as np
 
@@ -13,7 +13,8 @@ __all__ = ['ObservationFromDamageSource']
 
 class ObservationFromDamageSource(TranslationHandlerGroup):
     """
-    Includes the most recent damage event including the amount, type, location, and many other properties
+    Includes the most recent damage event including the amount, type, location, and
+    other properties.
     """
 
     def xml_template(self) -> str:
@@ -56,12 +57,18 @@ class _DamageSourceProperty(KeymapTranslationHandler):
 
 class _IsDead(_DamageSourceProperty):
     def __init__(self):
-        super().__init__(key_list=['is_dead'], space=spaces.Box(low=0.0, high=1.0, shape=(), dtype=np.int))
+        super().__init__(
+            key_list=['is_dead'],
+            space=spaces.Box(low=0.0, high=1.0, shape=(), dtype=np.int),
+        )
 
 
 class _DamageAmount(_DamageSourceProperty):
     def __init__(self):
-        super().__init__(key_list=['damage_amount'], space=spaces.Box(low=0.0, high=40.0, shape=(), dtype=np.float))
+        super().__init__(
+            key_list=['damage_amount'],
+            space=spaces.Box(low=0.0, high=40.0, shape=(), dtype=np.float),
+        )
 
 
 # class _DamageType(_DamageSourceProperty):
@@ -78,6 +85,9 @@ class _DamageAmount(_DamageSourceProperty):
 
 class _HungerDamage(_DamageSourceProperty):
     def __init__(self):
-        super().__init__(key_list=['hunger_damage'], space=spaces.Box(low=0, high=20, shape=(), dtype=np.float))
+        super().__init__(
+            key_list=['hunger_damage'],
+            space=spaces.Box(low=0, high=20, shape=(), dtype=np.float),
+        )
 
 # TODO create the rest of the fields in ObservationFromDamageImplementation.java
