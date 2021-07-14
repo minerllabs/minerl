@@ -62,7 +62,7 @@ public class ObservationFromDamageImplementation extends HandlerBase implements 
                 // If multiple LivingHurtEvents pertain to the player, we keep the most recent one and record the fact
                 // that we are skipping a damage event in lieu of building an array based reporting system
                 System.out.println("Warning skipped damage event - multiple damage events in one tick!");
-                System.out.println("This damage event will be marked as stale=True.")
+                System.out.println("This damage event will be marked as stale=True.");
             }
             this.damageSource = event.getSource();
             this.damageAmount = event.getAmount();
