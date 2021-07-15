@@ -17,30 +17,73 @@ import logging
 from minerl.data.version import DATA_VERSION, assert_version
 from minerl.herobraine import envs
 import tempfile
+from typing import Optional
 import coloredlogs
 
 logger = logging.getLogger(__name__)
 
 
-def download(directory=None, resolution='low', texture_pack=0,
-             update_environment_variables=True, disable_cache=False,
-             environment=None, competition=None):
-    """Downloads MineRLv0 to specified directory. If directory is None, attempts to 
-    download to $MINERL_DATA_ROOT. Raises ValueError if both are undefined.
-    
+def download(
+        directory: Optional[str] = None,
+        environment: Optional[str] = None,
+        competition: Optional[str] = None,
+        resolution: str = 'low',
+        texture_pack: int = 0,
+        update_environment_variables: bool = True,
+        disable_cache: bool = False,
+) -> None:
+    """Low-level interface for downloading MineRL dataset.
+
+    Using the `python -m minerl.data.download` CLI script is preferred because it performs
+    more input validation and hides internal-use arguments.
+
+    Run this command with `environment=None` and `competition=None` to download a minimal
+    dataset with 2 demonstrations from each environment.
+    Provide the `environment` or `competition` arguments to download a full dataset for
+    a particular environment or competition.
+
     Args:
-        directory (os.path): destination root for downloading MineRLv0 datasets
-        resolution (str, optional): one of [ 'low', 'high' ] corresponding to video resolutions of [ 64x64,1024x1024 ]
-            respectively (note: high resolution is not currently supported). Defaults to 'low'.
-        texture_pack (int, optional): 0: default Minecraft texture pack, 1: flat semi-realistic texture pack. Defaults
-            to 0.
-        update_environment_variables (bool, optional): enables / disables exporting of MINERL_DATA_ROOT environment
-            variable (note: for some os this is only for the current shell) Defaults to True.
-        disable_cache (bool, optional): downloads temporary files to local directory. Defaults to False
-        experiment (str, optional): specify the desired experiment to download. Will only download data for this
-            experiment. Note there is no hash verification for individual experiments
-        competition (str, optional): One of ['diamond', 'basalt'].
+        directory: Destination folder for downloading MineRL datasets. If None, then use
+            the `MINERL_DATA_ROOT` environment variable, or error if this environment
+            variable is not set.
+        environment: The name of a MineRL environment or None. If this argument is the
+            name of a MineRL environment and `competition` is None, then this function
+            downloads the full dataset for the specifies MineRL environment.
+
+            If both `environment=None` and `competition=None`, then this function
+            downloads a minimal dataset.
+        competition: The name of a MineRL competition ("diamond" or "basalt") or None. If
+            this argument is the name of a MineRL environment and `competition` is None,
+            then this function downloads the full dataset for the specified MineRL
+            competition.
+
+            If both `environment=None` and `competition=None`, then this function
+            downloads a minimal dataset.
+        resolution: For internal use only. One of ['low', 'high'] corresponding to video
+            resolutions of [64x64,1024x1024] respectively (note: high resolution is not currently
+            supported).
+        texture_pack: For internal use only. 0: default Minecraft texture
+            pack, 1: flat semi-realistic texture pack.
+        update_environment_variables: For internal use only. If True, then export of
+            MINERL_DATA_ROOT environment variable (note: for some os this is only for the
+            current shell).
+        disable_cache: If False (default), then the tar download and other temporary
+            download files are saved inside `directory`.
+
+            If disable_cache is False on
+            a future call to this function and temporary download files are detected, then
+            the download is resumed from previous download progress. If disable_cache is
+            False on a future call to this function and the completed tar file is
+            detected, then the download is skipped entirely and we immediately extract the tar
+            to `directory`.
     """
+    assert texture_pack in (0, 1)
+    if competition is not None and environment is not None:
+        raise ValueError(
+            f"At most one of the `competition={competition}` and `environment={environment}` "
+            "arguments can be non-None."
+        )
+
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
             directory = os.environ['MINERL_DATA_ROOT']
@@ -133,7 +176,7 @@ def download(directory=None, resolution='low', texture_pack=0,
     with tarfile.open(dest_file, mode="r:*") as tf:
         t = Thread(target=tf.extractall(path=directory))
         t.start()
-        while t.isAlive():
+        while t.is_alive():
             time.sleep(5)
             logging.info('.', end='')
 
@@ -151,11 +194,14 @@ def download(directory=None, resolution='low', texture_pack=0,
     return directory
 
 
-if __name__ == '__main__':
+def main():
     description = """
     Data download script for MineRL Diamond and BASALT competitions. Run this script with
     no arguments to download a minimal dataset containing two demonstrations for every
     environment.
+
+    See https://minerl.readthedocs.io/en/latest/tutorials/data_sampling.html
+    for example usage of this script.
     """
     parser = argparse.ArgumentParser(
         description=description,
@@ -192,3 +238,7 @@ if __name__ == '__main__':
             exit(1)
 
     download(environment=args.environment, competition=args.competition)
+
+
+if __name__ == '__main__':
+    main()

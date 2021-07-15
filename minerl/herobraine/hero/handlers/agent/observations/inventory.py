@@ -83,7 +83,7 @@ class FlatInventoryObservation(TranslationHandler):
         :param obs:
         :return:
         """
-        item_dict = {item_id:np.array(0) for item_id in self.items}  # Faster than Dict.no_op()
+        item_dict = {item_id: np.array(0) for item_id in self.items}  # Faster than Dict.no_op()
         # TODO: RE-ADDRESS THIS DUCK TYPED INVENTORY DATA FORMAT WHEN MOVING TO STRONG TYPING
         for stack in obs['inventory']:
             type_name = stack['type']

@@ -33,6 +33,7 @@ import queue
 import minerl.data.util
 from minerl.data.util import forever, minibatch_gen
 import concurrent
+
 if os.name != "nt":
     class WindowsError(OSError):
         pass
@@ -133,8 +134,7 @@ class DataPipeline:
 
         x = list(target_space.spaces.items())
         target_space.spaces = collections.OrderedDict(
-            sorted(x, key=lambda x:
-                   x[0] if x[0] != 'pov' else 'z')
+            sorted(x, key=lambda x: x[0] if x[0] != 'pov' else 'z')
         )
 
         # Now we just need to slice the dict.
@@ -336,7 +336,7 @@ class DataPipeline:
                 next_observation_data = unflatten(next_observation_data)[OBSERVABLE_KEY]
 
                 batches = [current_observation_data, action_data, reward_data, next_observation_data,
-                           np.array(done_data, dtype=np.bool)]
+                           np.array(done_data, dtype=bool)]
 
                 if include_monitor_data:
                     monitor_data = unflatten(monitor_data)[MONITOR_KEY]
@@ -446,7 +446,7 @@ class DataPipeline:
                       ] + (
                               (seg_batch['monitor'] if include_monitor_data else []) +
                               (seg_batch['meta'] if include_metadata else [])
-                            )
+                      )
 
         for _ in range(self.number_of_workers):
             input_queue.put(("SHUTDOWN",))

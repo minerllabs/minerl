@@ -101,7 +101,7 @@ navigate_action_space = spaces.Dict({
 navigate_observation_space = spaces.Dict({
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
     'inventory': spaces.Dict(spaces={
-        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int)
+        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=int)
     }),
     'compass': spaces.Dict(spaces={'angle': spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)})
 })
@@ -161,32 +161,32 @@ old_envs.append(dict(
 obtain_observation_space = spaces.Dict({
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
     'inventory': spaces.Dict({
-        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'coal': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'torch': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'log': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'planks': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'stick': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'crafting_table': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'wooden_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'stone': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'cobblestone': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'furnace': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'stone_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'stone_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'iron_ore': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'iron_ingot': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'iron_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'iron_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'coal': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'torch': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'log': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'planks': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'stick': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'crafting_table': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'wooden_axe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'stone': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'cobblestone': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'furnace': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'stone_axe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'stone_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'iron_ore': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'iron_ingot': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'iron_axe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'iron_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
     }),
     'equipped_items': spaces.Dict(
         dict(mainhand=spaces.Dict(
             dict(
                 type=spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
                                  'iron_axe', 'iron_pickaxe', 'other'),
-                damage=spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
-                maxDamage=spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
+                damage=spaces.Box(low=-1, high=1562, shape=(), dtype=int),
+                maxDamage=spaces.Box(low=-1, high=1562, shape=(), dtype=int),
             )
         )
         )
@@ -422,7 +422,11 @@ def test_env_space_regressions():
         if old_agent_start is not None and 'Inventory' in old_agent_start:
             old_agent_start['Inventory']['InventoryObject']['@metadata'] = '0'
 
-        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions', 'Name', 'About'])
+        assert_equal_recursive(
+            new_xml_dict,
+            old_xml_dict,
+            ignore=['@generatorOptions', 'Name', 'About', 'ObservationFromDamage'],
+        )
 
 
 # #######################

@@ -23,7 +23,7 @@ def _test_batch_map(stackable_space, batch_dims=(32, 16), no_op=False):
 
     # Now map it through
     unmapped = stackable_space.unmap(stackable_space.flat_map(batch))
-    if unmapped.dtype.type is np.float:
+    if unmapped.dtype.type is float:
         assert np.allclose(unmapped, batch)
     else:
         assert np.all(unmapped == batch)

@@ -17,8 +17,9 @@ import functools
 import hashlib
 import os
 import random
+import re
 import sys
-from typing import List
+from typing import List, Optional, Tuple
 
 import cv2
 import tqdm
@@ -197,7 +198,7 @@ def remove_initial_frames(universal):
 
 
 # 1. Construct data working dirs.
-def construct_data_dirs(black_list):
+def construct_data_dirs(black_list, regex_pattern: Optional[str] = None) -> List[Tuple[str, str]]:
     """
     Constructs the render directories omitting
     elements on a blacklist.
@@ -212,7 +213,21 @@ def construct_data_dirs(black_list):
             if not exp_folder.startswith('MineRL') \
                     and experiment_dir.split('g1_')[-1] not in black_list:
                 data_dirs.append((experiment_dir, exp_folder))
-    return data_dirs
+
+    print(f"Found {len(data_dirs)} publish jobs.")
+
+    if regex_pattern is None:
+        return data_dirs
+    else:
+        filtered_dir = []
+        regex = re.compile(regex_pattern)
+
+        for experiment_dir, exp_folder in data_dirs:
+            if regex.search(experiment_dir) or regex.search(exp_folder):
+                filtered_dir.append((experiment_dir, exp_folder))
+        print(
+            f"Kept {len(filtered_dir)} publish jobs after filtering with regex '{regex_pattern}'.")
+        return filtered_dir
 
 
 def _render_data(output_root, manager, input_tuple, parallel: bool = True):
@@ -411,12 +426,12 @@ def render_data(output_root, recording_dir, experiment_folder, black_list, lineN
     return rendered_envs
 
 
-def publish(n_workers=56, parallel=True):
+def publish(n_workers=56, parallel=True, regex_pattern: Optional[str] = None):
     """
     The main render script.
     """
     black_list = Blacklist()
-    valid_data = construct_data_dirs(black_list)
+    valid_data = construct_data_dirs(black_list, regex_pattern)
     print(valid_data)
 
     print("Publishing segments: ")
@@ -479,8 +494,7 @@ def package(out_dir=DATA_DIR):
                                .format(minerl.data.DATA_VERSION, version_file_num))
 
     logging.info("Writing tar files to {}".format(out_dir))
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
+    os.makedirs(out_dir, exist_ok=True)
 
     # Collect experiment folders
     exp_folders = [f for f in os.listdir(DATA_DIR) if f.startswith('MineRL') and '.' not in f]
@@ -525,8 +539,8 @@ def package(out_dir=DATA_DIR):
             sha256_file.write('{} {}\n'.format(hashlib.sha256(open(archive_dir, 'rb').read()).hexdigest(), archive))
 
 
-def main(parallel=True, n_workers=56):
-    publish(parallel=parallel, n_workers=n_workers)
+def main(parallel=True, n_workers=56, regex_pattern: Optional[str] = None):
+    publish(parallel=parallel, n_workers=n_workers, regex_pattern=regex_pattern)
     package()
 
 

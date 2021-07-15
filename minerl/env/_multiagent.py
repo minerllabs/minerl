@@ -782,7 +782,7 @@ class _MultiAgentEnv(gym.Env):
                 "more than once; restarting.".format(instance))
 
             instance.kill()
-            instance = self._get_new_instance(instance_id=self.instance.instance_id)
+            instance = self._get_new_instance(instance_id=instance.instance_id)
         else:
             instance.had_to_clean = True
 

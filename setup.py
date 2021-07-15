@@ -2,14 +2,11 @@
 # Author: William H. Guss, Brandon Houghton
 
 import os
-import sys
-from os.path import isdir
 
 import subprocess
 import pathlib
 import setuptools
 from setuptools import Command
-from setuptools.command.develop import develop
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from distutils.command.build import build
@@ -21,6 +18,8 @@ with open("README.md", "r") as fh:
     markdown = fh.read()
 with open("requirements.txt", "r") as fh:
     requirements = fh.read()
+with open("requirements-docs.txt", "r") as fh:
+    requirements_docs = fh.read()
 
 MALMO_BRANCH = "minerl"
 MALMO_VERSION = "0.37.0"
@@ -152,8 +151,23 @@ def build_minecraft(source_dir, build_dir):
     return build_dir
 
 
+# Don't build binaries (requires Java) on readthedocs.io server.
+if os.environ.get("READTHEDOCS"):
+    cmdclass = {}
+else:
+    cmdclass = {
+        'bdist_wheel': bdist_wheel,
+        'install': InstallPlatlib,
+        'install_lib': InstallWithMinecraftLib,
+        'build_malmo': CustomBuild,
+        'shadow_develop': ShadowInplace,
+    }
+
+
 setuptools.setup(
     name='minerl',
+    # TODO(shwang): Load from minerl.version.VERSION or something so we don't have to update
+    # multiple version strings.
     version=os.environ.get('MINERL_BUILD_VERSION', '0.4.0'),
     description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
     long_description=markdown,
@@ -168,14 +182,10 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=requirements,
+    extras_require={"docs": requirements_docs},
     distclass=BinaryDistribution,
     include_package_data=True,
-    cmdclass={
-        'bdist_wheel': bdist_wheel,
-        'install': InstallPlatlib,
-        'install_lib': InstallWithMinecraftLib,
-        'build_malmo': CustomBuild,
-        'shadow_develop': ShadowInplace},
+    cmdclass=cmdclass,
 )
 
 # global-exclude .git/*

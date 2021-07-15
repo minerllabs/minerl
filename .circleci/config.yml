@@ -1,0 +1,43 @@
+version: 2.1
+
+executors:
+  default:
+    docker:
+      - image: springulum/minerl-circleci-base
+    resource_class: medium
+    working_directory: /minerl
+
+
+# TODO(shwang): Maybe also try installing as wheel.
+# TODO(shwang): Add multiprocessing over tests.
+jobs:
+  pytest_no_minecraft_launch:
+    executor: default
+    steps:
+      - checkout
+      - run:
+          name: Install minerl
+          command: pip install -e .
+      - run:
+          name: pytest
+          command: pytest -vv /minerl -m "not serial"
+  pytest_with_minecraft_launch:
+    executor: default
+    steps:
+      - checkout
+      - run:
+          name: Install minerl
+          command: pip install -e .
+      - run:
+          name: pytest
+          command: pytest -vv /minerl -m "serial"
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - pytest_no_minecraft_launch
+      # We don't have enough memory to run these tests
+      # TODO(shwang): Figure out how much memory we need for these
+      # tests, and then maybe purchase a XLarge CircleCI subscription.
+      # - pytest_with_minecraft_launch
