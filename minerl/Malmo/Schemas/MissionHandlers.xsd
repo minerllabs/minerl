@@ -2283,6 +2283,20 @@
         <xs:complexType/>
     </xs:element>
 
+    <xs:element name="ObservationFromDamage">
+        <xs:annotation>
+            <xs:documentation>
+                When present, the mod will return a JSON object called "damage_source", containing the observation
+                "is_dead" telling if the player is dead. Additionally, if there was an unprocessed damage event, there
+                are a number of additional fields returned to inform us of the location, type of damage, amount of damage
+                entity responsible, and if the damage has various types such as fire or magic. See
+                ObservationFromDamageImplementation.java for the complete list. Note some fields are only present if non-
+                null.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexType/>
+    </xs:element>
+
     <xs:element name="ObservationFromRay">
         <xs:annotation>
             <xs:documentation>

@@ -1,6 +1,5 @@
 import pytest
 
-
 from minerl.herobraine.hero import handlers
 
 
@@ -154,7 +153,7 @@ def test_from_universal_logs_complex():
         dict(name='sandstone', variant=2, count=3),
         dict(name='air', variant=0, count=10),
         {}
-        ])
+    ])
     assert handler.from_universal(univ_obs) == {
         'log#0': 5,
         'planks': 3,

@@ -8,7 +8,6 @@ import gym
 import matplotlib.pyplot as plt
 import minerl
 import numpy as np
-from minerl.env.core import MineRLEnv
 
 import coloredlogs
 
@@ -20,7 +19,7 @@ coloredlogs.install(logging.DEBUG)
 NUM_EPISODES = 1
 
 
-def main():
+def test_navigate():
     """
     Tests running a simple environment.
     """
@@ -50,5 +49,21 @@ def main():
     print("Demo complete.")
 
 
+def test_obfuscated():
+    """
+    Tests running a simple environment.
+    """
+    env = gym.make('MineRLObtainDiamondVectorObf-v0')
+    env.seed(25)
+    _ = env.reset()
+    done = False
+    while not done:
+        random_act = env.action_space.sample()
+        obs, reward, done, info = env.step(
+            random_act)
+        env.render()
+
+    print("Demo complete.")
+
 if __name__ == "__main__":
-    main()
+    test_obfuscated()
