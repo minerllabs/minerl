@@ -14,9 +14,9 @@
     "MixinMergeStatsFix",
     "MixinForgeHookStatsFix"
   ],
-  "server": [
-  ],
+  "server": [],
   "client": [
+    "MixinUpdateChunksNoTimeout"
   ],
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.6.11",
