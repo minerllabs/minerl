@@ -172,7 +172,7 @@ the angle between the agent's movement direction and it's target,  :code:`compas
     while not done: 
         action = env.action_space.noop() 
     
-        action['camera'] = [0, 0.03*obs["compassAngle"]] 
+        action['camera'] = [0, 0.03*obs["compass"]["angle"]]
         action['back'] = 0 
         action['forward'] = 1 
         action['jump'] = 1 
