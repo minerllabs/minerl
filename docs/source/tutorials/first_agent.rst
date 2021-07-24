@@ -111,7 +111,7 @@ is useful for climbing steep inclines).
             [ 93, 116, 172],
             [ 93, 115, 171],
             [ 92, 115, 170]]], dtype=uint8),
-        'compassAngle': -63.48639,
+        'compass': {'angle': array(-63.48639)},
         'inventory': {'dirt': 0}
     }
 
@@ -172,7 +172,7 @@ the angle between the agent's movement direction and it's target,  :code:`compas
     while not done: 
         action = env.action_space.noop() 
     
-        action['camera'] = [0, 0.03*obs["compassAngle"]] 
+        action['camera'] = [0, 0.03*obs["compass"]["angle"]]
         action['back'] = 0 
         action['forward'] = 1 
         action['jump'] = 1 
