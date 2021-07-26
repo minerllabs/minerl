@@ -159,7 +159,7 @@ def select_demonstrations(
         print(f"Kept {len(filtered_dirs)} directories after applying regex '{regex_pattern}'.")
         result = filtered_dirs
 
-    for _, render_path in filtered_dirs:
+    for _, render_path in result:
         if not E(render_path):
             os.makedirs(render_path)
 
