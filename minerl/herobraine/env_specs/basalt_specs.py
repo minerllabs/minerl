@@ -124,11 +124,15 @@ def _basalt_gym_entrypoint(
     else:
         env = _singleagent._SingleAgentEnv(env_spec=env_spec)
 
-    if "Village" in env_spec.name:
-        # Quick hack to mitigate die-due-to-suffocate-in-wall-on-spawn problem.
-        # The proper solution is to make sure the VillageSpawnDecoratorImplementation.java
-        # chooses a spawn location that isn't instead a wall.
-        env = wrappers.RetryResetOnEarlyDeathWrapper(env)
+    # This was developed as a quick hack to mitigate Village-die-due-to-suffocate-in-wall-on-spawn
+    # problem. The telltale sign of immediate death on spawn is no snowball existing in the
+    # inventory on the first observation, which raises an AssertionError within
+    # EndAfterSnowballThrowWrapper.reset().
+    #
+    # We wrap every BASALT environment in this wrapper defensively because it is
+    # computationally when there is no spawning problem, and we have observed rare (and weird!)
+    # instances where even FindCaves-v0 spawns without a snowball.
+    env = wrappers.RetryResetOnEarlyDeathWrapper(env)
 
     if end_after_snowball_throw:
         env = EndAfterSnowballThrowWrapper(env)
