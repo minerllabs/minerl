@@ -69,7 +69,7 @@ class FlatInventoryObservation(TranslationHandler):
             for k in item_list
         }))
         self.num_items = len(item_list)
-        self.items = item_list
+        self.items = frozenset(item_list)
         self._other = _other
 
     def add_to_mission_spec(self, mission_spec):

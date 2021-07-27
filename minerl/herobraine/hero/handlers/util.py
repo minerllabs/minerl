@@ -1,4 +1,5 @@
 import collections
+from functools import lru_cache
 from typing import Tuple, Optional, Sequence, Dict, Set, List
 
 
@@ -62,8 +63,9 @@ def item_list_contains(
         return encode_item_with_metadata(item_type, metadata) in item_list
 
 
+@lru_cache(maxsize=2048)
 def get_unique_matching_item_list_id(
-        item_list: Sequence[str],
+        item_list: Set[str],
         item_type: str,
         metadata: int,
         clobber_logs=True,
@@ -78,7 +80,7 @@ def get_unique_matching_item_list_id(
     not have overlapping item identifiers.
 
     Args:
-        item_list: A list of item identifiers. Either just the item type ("wooden_pickaxe")
+        item_list: A set of item identifiers. Either just the item type ("wooden_pickaxe")
             or the item type with a metadata requirement ("planks#2").
         item_type: The item type to search for.
         metadata: The metadata to search for.

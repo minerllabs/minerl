@@ -91,6 +91,7 @@ class BaseItemListAction(Action):
             self._items.append(_other)
         if _default not in self._items:
             self._items.append(_default)
+        self._items = frozenset(items)
         self._default = _default
         self._other = _other
         super().__init__(

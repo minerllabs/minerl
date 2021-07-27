@@ -115,6 +115,7 @@ class _ItemIDObservation(TranslationHandler):
         of all of the spaces for each individual command.
         """
         self._items = sorted(items)
+        self._items_frozenset = frozenset(items)
         util.error_on_malformed_item_list(self._items, [_default, _other])
         self._keys = keys
         self._default = _default
@@ -143,7 +144,7 @@ class _ItemIDObservation(TranslationHandler):
             item_type = head['type']
             metadata = head['metadata']
             assert metadata in range(16)
-            item_id = util.get_unique_matching_item_list_id(self._items, item_type, metadata)
+            item_id = util.get_unique_matching_item_list_id(self._items_frozenset, item_type, metadata)
             if item_id is None:
                 return self._other
             else:
@@ -170,7 +171,7 @@ class _ItemIDObservation(TranslationHandler):
                     return self._default
 
                 item_id = util.get_unique_matching_item_list_id(
-                    self._items, item_type, metadata)
+                    self._items_frozenset, item_type, metadata)
                 if item_id is None:
                     if os.environ.get("MINERL_DEBUG_LOG", False):
                         print(f"Unknown item: '{item_type}#{metadata}'")
