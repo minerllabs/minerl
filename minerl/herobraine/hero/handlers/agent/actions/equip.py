@@ -44,7 +44,7 @@ class EquipAction(action.ItemWithMetadataListAction):
             item_type = mc.strip_item_prefix(hotbar_slot['name'])
             metadata = hotbar_slot['variant']
             assert metadata in range(16)
-            id = util.get_unique_matching_item_list_id(self.items, item_type, metadata,
+            id = util.get_unique_matching_item_list_id(self._items_frozenset, item_type, metadata,
                                                        clobber_logs=False)
             if id is None:
                 # Matching item ID not found because item_type + metadata is outside of item list.
