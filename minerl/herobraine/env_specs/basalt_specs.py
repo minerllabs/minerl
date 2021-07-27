@@ -130,8 +130,8 @@ def _basalt_gym_entrypoint(
     # EndAfterSnowballThrowWrapper.reset().
     #
     # We wrap every BASALT environment in this wrapper defensively because it is
-    # computationally when there is no spawning problem, and we have observed rare (and weird!)
-    # instances where even FindCaves-v0 spawns without a snowball.
+    # computationally cheap when there is no spawning problem, and we have observed rare
+    # (and weird!) instances where even FindCaves-v0 spawns without a snowball.
     env = wrappers.RetryResetOnEarlyDeathWrapper(env)
 
     if end_after_snowball_throw:
