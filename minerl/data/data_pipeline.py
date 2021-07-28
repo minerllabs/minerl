@@ -206,6 +206,11 @@ class DataPipeline:
         numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
         meta_path = str(os.path.join(file_dir, 'metadata.json'))
 
+        paths = [video_path, numpy_path, meta_path]
+        for path in paths:
+            if not os.path.isfile(path):
+                raise FileNotFoundError(f"Couldn't find path '{path}'.")
+
         try:
             # Start video decompression
             cap = cv2.VideoCapture(video_path)
