@@ -84,6 +84,13 @@ def download(
             "arguments can be non-None."
         )
 
+    if competition is None and environment is None:
+        logger.warning("DOWNLOADING ONLY THE MINIMAL DATASET by default.")
+        logger.info("For information on downloading full "
+            "datasets see the docstring for minerl.data.download or "
+            "https://minerl.readthedocs.io/en/latest/tutorials/data_sampling.html#downloading-the-minerl-dataset-with-minerl-data-download"
+        )
+
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
             directory = os.environ['MINERL_DATA_ROOT']
@@ -141,10 +148,10 @@ def download(
     urls = [mirror + filename for mirror in mirrors]
 
     try:
-        logger.info("Fetching download hash ...")
+        # logger.info("Fetching download hash ...")
         # obj.fetch_hash_sums() 
         # TODO: Add flag to verify hash
-        logger.warning("As of MineRL 0.3.0 automatic hash checking has been disabled.")
+        # logger.warning("As of MineRL 0.3.0 automatic hash checking has been disabled.")
         logger.info("Starting download ...")
         dest_file = os.path.join(download_path, filename)
         os.makedirs(os.path.dirname(dest_file), exist_ok=True)
