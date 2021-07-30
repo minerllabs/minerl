@@ -87,9 +87,9 @@ def download(
     if competition is None and environment is None:
         logger.warning("DOWNLOADING ONLY THE MINIMAL DATASET by default.")
         logger.info("For information on downloading full "
-            "datasets see the docstring for minerl.data.download or "
-            "https://minerl.readthedocs.io/en/latest/tutorials/data_sampling.html#downloading-the-minerl-dataset-with-minerl-data-download"
-        )
+                    "datasets see the docstring for minerl.data.download or "
+                    "https://minerl.readthedocs.io/en/latest/tutorials/data_sampling.html#downloading-the-minerl-dataset-with-minerl-data-download"  # noqa: E501
+                    )
 
     if directory is None:
         if 'MINERL_DATA_ROOT' in os.environ and len(os.environ['MINERL_DATA_ROOT']) > 0:
