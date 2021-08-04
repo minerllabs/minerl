@@ -36,7 +36,7 @@ MineRL papers
 2020 competitor code/papers
 ---------------------------
 
-- 1st place: `paper <https://openreview.net/forum?id=xA2L3co41EL>`_.
+- 1st place: `paper <https://arxiv.org/abs/2107.09540>`_, `code <https://github.com/ndrwmlnk/critic-guided-segmentation-of-rewarding-objects-in-first-person-views>`_, `website <https://ndrwmlnk.github.io/critic-guided-segmentation-of-rewarding-objects-in-first-person-views>`_.
 - 3rd place: `code <https://github.com/MichalOp/MineRL2020>`_.
 - 4th place: `code <https://github.com/Miffyli/minecraft-bc-2020>`_.
 
