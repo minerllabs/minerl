@@ -84,12 +84,12 @@ FROM dev as data-processing
 # - Run the interactive version of the script, single-threaded. Note that to download, you must
 #   attach your AWS credentials.
 # docker run -it --rm \
-#    -v local_minerl_data_dir:/root/minerl.data \
+#    -v ~/minerl.data:/root/minerl.data \
 #    -v ~/.aws/credentials:/root/.aws/credentials \
 #    springulum/minerl-data-processing
 #
 # - Run in noninteractive mode with 8 threads:
-# docker run --rm -v local_minerl_data_dir:/root/minerl.data springulum/minerl-data-processing \
+# docker run --rm -v ~/minerl.data:/root/minerl.data springulum/minerl-data-processing \
 #      python3 -m minerl.data.pipeline.pipeline -j 8
 #
 # - Show script help:
