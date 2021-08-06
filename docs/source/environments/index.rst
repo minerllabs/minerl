@@ -12,9 +12,11 @@ environment!
 
 
 .. caution::
-    In the MineRL Competition, many environments are provided for training,
-    however competition agents will only
-    be evaluated in :code:`MineRLObtainDiamondVectorObf-v0` which has **sparse** rewards. See `MineRLObtainDiamondVectorObf-v0`_.
+    In the MineRL Diamond Competition, many environments are provided for training.
+    However, competition agents will only be evaluated in the :code:`MineRLObtainDiamond-v0`
+    (Intro track) and :code:`MineRLObtainDiamondVectorObf-v0` (Research track) environments
+    which have **sparse** rewards. For more details see `MineRLObtainDiamond-v0`_
+    and `MineRLObtainDiamondVectorObf-v0`_.
 
 .. note::
     All environments offer a default no-op action via :code:`env.action_space.no_op()`
@@ -25,15 +27,8 @@ environment!
     :end-before: inclusion-marker-do-not-remove
 
 
-Basic Environments
-=======================================
-
-.. warning::
-
-    The following Basic Environments are NOT part of the MineRL Diamond and BASALT competitions!
-
-    Feel free to use them for personal exploration, but note that competitions agents may only
-    be trained on their corresponding competition environments.
+MineRL Diamond Competition Intro Track Environments
+===================================================
 
 .. exec::
 
@@ -42,8 +37,8 @@ Basic Environments
     for env_spec in envs.BASIC_ENV_SPECS:
         docs.print_env_spec_sphinx(env_spec)
 
-MineRL Diamond Competition Environments
-=======================================
+MineRL Diamond Competition Research Track Environments
+======================================================
 
 .. exec::
 
