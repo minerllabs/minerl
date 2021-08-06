@@ -12,8 +12,8 @@ environment!
 
 
 .. caution::
-    In the MineRL Diamond Competition, many environments are provided for training,
-    however competition agents will only be evaluated in :code:`MineRLObtainDiamond-v0`
+    In the MineRL Diamond Competition, many environments are provided for training.
+    However, competition agents will only be evaluated in the :code:`MineRLObtainDiamond-v0`
     (Intro track) and :code:`MineRLObtainDiamondVectorObf-v0` (Research track) environments
     which have **sparse** rewards. For more details see `MineRLObtainDiamond-v0`_
     and `MineRLObtainDiamondVectorObf-v0`_.
