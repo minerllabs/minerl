@@ -99,13 +99,12 @@ FROM dev as data-processing
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -q && apt-get install -y --no-install-recommends \
-    awscli \
-    p7zip \
+    p7zip-full \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Required for our download script
-RUN pip3 install boto3
+RUN pip3 install --upgrade boto3 awscli
 
 # This is the directory used for holding new datasets and raw demonstration packets downloaded
 # from S3. To save your results and prevent the container size from ballooning, mount a host
