@@ -12,8 +12,8 @@ simulator Malmo which enables **synchronous**, **stable**, and
 MineRLEnv
 ===========
 
-.. automodule:: minerl.env._multiagent
-    :members: _MultiAgentEnv
+.. automodule:: minerl.env._singleagent
+    :members: _SingleAgentEnv
     :undoc-members:
     :show-inheritance:
 
