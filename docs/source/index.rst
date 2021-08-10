@@ -84,6 +84,7 @@ components:
    tutorials/index
    tutorials/first_agent
    tutorials/data_sampling
+   tutorials/more_examples
    tutorials/k-means
    tutorials/minerl_tools
 
