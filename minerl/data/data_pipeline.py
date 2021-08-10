@@ -95,7 +95,7 @@ class DataPipeline:
     @property
     def observation_space(self):
         """
-        Returns: action space of current MineRL environment
+        Returns: observation space of current MineRL environment
         """
         return self._env_spec.observation_space
 
