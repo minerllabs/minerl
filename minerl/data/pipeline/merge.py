@@ -1,8 +1,8 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 """
-Merges similar trajectories (by stream name) into compressed zip archives.
-Uses 7z, which has the best compression ratios on the market, for zipping.
+Merges raw binary packet data from each "player stream" into compressed zip archives
+(MCPR files). Uses 7z, which has the best compression ratios on the market, for zipping.
 
 Requirements:
     * 7z: You can install `7z` on Ubuntu with `sudo apt install p7zip`.

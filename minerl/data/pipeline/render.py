@@ -8,6 +8,19 @@ render.py
 # 2) Running the action_rendering scripts
 # 3) Running the video_rendering scripts
 
+Inputs: MCPR files from merge.py script.
+Outputs:
+    * Unedited MP4 files for entire player stream, including lobby video and
+        several episodes in the same MP4 file (generate.py will slice out individual
+        episodes later).
+    * univ.json and metadata.json
+        * univ.json contains a plethora of information including equip swaps, item pickups,
+            "touched block" events, etc which is later processed into Numpy actions and
+            observations. Again, this is unsliced at this stage.
+        * metadata.json: ReplayMod metadata, doesn't seem important.
+        * markers.json: Contains stop- and start-recording timesteps used to slice
+            player streams into individual episodes.
+
 
 By default, this generates low-res videos of dimensions 64x64.
 To generate videos of a different resolution, set or `export` the
@@ -159,7 +172,7 @@ def select_demonstrations(
         print(f"Kept {len(filtered_dirs)} directories after applying regex '{regex_pattern}'.")
         result = filtered_dirs
 
-    for _, render_path in filtered_dirs:
+    for _, render_path in result:
         if not E(render_path):
             os.makedirs(render_path)
 

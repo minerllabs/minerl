@@ -27,26 +27,26 @@ MineRL papers
 2019 competitor code/papers
 ---------------------------
 
-- 1st place: `paper <https://arxiv.org/abs/1912.08664>`_.
-- 2nd place: `paper <https://arxiv.org/abs/2007.02701>`_, `code <https://github.com/amiranas/minerl_imitation_learning>`_.
-- 3rd place: `paper <https://arxiv.org/abs/2003.06066>`_, `code <https://github.com/metataro/minerl_agent>`_.
-- 4th place: `code <https://github.com/kaixin96/MineRL_submission>`_.
-- 5th place: `paper <https://arxiv.org/abs/2005.03374>`_, `code <https://github.com/Miffyli/minecraft-bc>`_.
+- 1st place: `paper <https://arxiv.org/abs/1912.08664>`__.
+- 2nd place: `paper <https://arxiv.org/abs/2007.02701>`__, `code <https://github.com/amiranas/minerl_imitation_learning>`__.
+- 3rd place: `paper <https://arxiv.org/abs/2003.06066>`__, `code <https://github.com/metataro/minerl_agent>`__.
+- 4th place: `code <https://github.com/kaixin96/MineRL_submission>`__.
+- 5th place: `paper <https://arxiv.org/abs/2005.03374>`__, `code <https://github.com/Miffyli/minecraft-bc>`__.
 
 2020 competitor code/papers
 ---------------------------
 
-- 1st place: `paper <https://openreview.net/forum?id=xA2L3co41EL>`_.
-- 3rd place: `code <https://github.com/MichalOp/MineRL2020>`_.
-- 4th place: `code <https://github.com/Miffyli/minecraft-bc-2020>`_.
+- 1st place: `paper <https://arxiv.org/abs/2107.09540>`__, `code <https://github.com/ndrwmlnk/critic-guided-segmentation-of-rewarding-objects-in-first-person-views>`__, `website <https://ndrwmlnk.github.io/critic-guided-segmentation-of-rewarding-objects-in-first-person-views>`__.
+- 3rd place: `code <https://github.com/MichalOp/MineRL2020>`__.
+- 4th place: `code <https://github.com/Miffyli/minecraft-bc-2020>`__.
 
 Other papers that use the MineRL environment
---------------------------------------
+--------------------------------------------
 
 - `PiCoEDL: Discovery and Learning of Minecraft Navigation Goals from Pixels and Coordinates <https://imatge.upc.edu/web/sites/default/files/pub/cNieto.pdf>`_ (CVPR Embodied AI Workshop, 2021)
 - `Universal Value Iteration Networks: When Spatially-Invariant Is Not Universal <https://ojs.aaai.org/index.php/AAAI/article/view/6157>`_ (AAAI, 2020)
 - `Multi-task curriculum learning in a complex, visual, hard-exploration domain: Minecraft <https://arxiv.org/abs/2106.14876>`_
-- Follow up paper from the #1 team in 2019 (obtains diamond): `paper <https://arxiv.org/abs/2006.09939>`_, `code <https://github.com/cog-isa/forger>`_.
+- Follow up paper from the #1 team in 2019 (obtains diamond): `paper <https://arxiv.org/abs/2006.09939>`__, `code <https://github.com/cog-isa/forger>`__.
 - Align-RUDDER: Learning From Few Demonstrations by Reward Redistribution (obtains diamond): `paper <https://arxiv.org/abs/2009.14108>`_, `code <https://github.com/ml-jku/align-rudder>`_.
 
 Other

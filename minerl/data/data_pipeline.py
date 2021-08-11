@@ -95,7 +95,7 @@ class DataPipeline:
     @property
     def observation_space(self):
         """
-        Returns: action space of current MineRL environment
+        Returns: observation space of current MineRL environment
         """
         return self._env_spec.observation_space
 
@@ -205,6 +205,11 @@ class DataPipeline:
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
         numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
         meta_path = str(os.path.join(file_dir, 'metadata.json'))
+
+        paths = [video_path, numpy_path, meta_path]
+        for path in paths:
+            if not os.path.isfile(path):
+                raise FileNotFoundError(f"Couldn't find path '{path}'.")
 
         try:
             # Start video decompression

@@ -29,7 +29,7 @@ To get started, let's download the `MineRLTreechopVectorObf-v0`_ environment.
 
 .. code-block:: bash
 
-    python -m minerl.data.download 'MineRLTreechopVectorObf-v0'
+    python -m minerl.data.download --environment 'MineRLTreechopVectorObf-v0'
 
 .. note::
 

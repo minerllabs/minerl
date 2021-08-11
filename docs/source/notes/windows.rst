@@ -4,6 +4,14 @@ Windows FAQ
 This note serves as a collection of fixes for errors which
 may occur on the Windows platform.
 
+The :code:`The system cannot find the path specified` error (installing)
+-------------------------------------------------------------------------
+
+If during installation you get errors regarding missing files or unspecified paths,
+followed by a long path string, you might be limited by the ``MAX_PATH`` setting on
+windows. Try removing this limitation with `these instructions <https://lifehacker.com/windows-10-allows-file-names-longer-than-260-characters-1785201032>`_.
+
+
 The :code:`freeze_support` error (multiprocessing)
 -------------------------------------------------------
 

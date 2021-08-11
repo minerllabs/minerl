@@ -33,6 +33,10 @@ class Obtain(SimpleEmbodimentEnvSpec):
         self.dense = dense
         suffix = snake_to_camel(self.target_item)
         dense_suffix = "Dense" if self.dense else ""
+        if self.dense:
+            self.reward_text = "every time it obtains an item"
+        else:
+            self.reward_text = "only once per item the first time it obtains that item"
         self.reward_schedule = reward_schedule
 
         super().__init__(*args,
@@ -202,7 +206,7 @@ The agent is given access to a selected summary of its inventory and GUI free
 crafting, smelting, and inventory management actions.
 
 
-During an episode the agent is rewarded **every** time it obtains an item
+During an episode **the agent is rewarded """ + self.reward_text + """**
 in the requisite item hierarchy to obtaining a diamond. The rewards for each
 item are given here::
 
@@ -275,8 +279,8 @@ The agent is given access to a selected view of its inventory and GUI free
 crafting, smelting, and inventory management actions.
 
 
-During an episode **the agent is rewarded only once per item the first time it obtains that item
-in the requisite item hierarchy for obtaining an iron pickaxe.** The reward for each
+During an episode **the agent is rewarded """ + self.reward_text + """**
+in the requisite item hierarchy for obtaining an iron pickaxe. The reward for each
 item is given here::
     <Item amount="1" reward="1" type="log" />
     <Item amount="1" reward="2" type="planks" />
