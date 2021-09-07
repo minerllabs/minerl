@@ -168,7 +168,7 @@ setuptools.setup(
     name='minerl',
     # TODO(shwang): Load from minerl.version.VERSION or something so we don't have to update
     # multiple version strings.
-    version=os.environ.get('MINERL_BUILD_VERSION', '0.4.2'),
+    version=os.environ.get('MINERL_BUILD_VERSION', '0.4.1'),
     description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
     long_description=markdown,
     long_description_content_type="text/markdown",
