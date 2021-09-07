@@ -597,18 +597,17 @@ class MinecraftInstance(object):
                     mine_log.close()
 
             logdir = os.environ.get('MALMO_MINECRAFT_OUTPUT_LOGDIR', '.')
+            self.running = True
             self._logger_thread = threading.Thread(target=functools.partial(log_to_file, logdir=logdir))
             self._logger_thread.setDaemon(True)
             self._logger_thread.start()
-
+            self._starting = False
 
         else:
             assert port is not None, "No existing port specified."
             self._port = port
-
-        self.running = True
-
-        self._starting = False
+            self._starting = False
+            self.running = True
 
         # Make a hook to kill
         if not daemonize:
