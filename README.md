@@ -1,5 +1,6 @@
 # The [MineRL](http://minerl.io) Python Package
 
+[![Documentation Status](https://readthedocs.org/projects/minerl/badge/?version=latest)](https://minerl.readthedocs.io/en/latest/?badge=latest)
 [![Dev Build status](https://badge.buildkite.com/0717cd35b9a708f0b4ac0b2858eec9ca7d08f6768868d3ac08.svg?branch=dev)](https://buildkite.com/openai-mono/minerl-public-dev)
 [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
 [![PyPI version](https://badge.fury.io/py/minerl.svg)](https://badge.fury.io/py/minerl)
@@ -58,8 +59,8 @@ data = minerl.data.make(
 
 # Iterate through a single epoch gathering sequences of at most 32 steps
 for current_state, action, reward, next_state, done \
-    in data.sarsd_iter(
-        num_epochs=1, max_sequence_len=32):
+    in data.batch_iter(
+        num_epochs=1, seq_len=32):
 
         # Print the POV @ the first step of the sequence
         print(current_state['pov'][0])

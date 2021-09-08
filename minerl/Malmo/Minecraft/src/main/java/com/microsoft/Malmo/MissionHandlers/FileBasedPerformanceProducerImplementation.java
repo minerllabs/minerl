@@ -36,6 +36,10 @@ public class FileBasedPerformanceProducerImplementation extends HandlerBase impl
         currentEpisodeJson = new JsonObject();
         currentEpisodeJson.addProperty("numTicks", 0);
         currentEpisodeJson.addProperty("environment", envName);
+        currentEpisodeJson.addProperty("damageAmount", 0);
+        currentEpisodeJson.addProperty("damageSource", "");
+        currentEpisodeJson.addProperty("mobName", "");
+        currentEpisodeJson.addProperty("deathMessage", "");
         currentEpisodeJson.add("rewards", new JsonArray());
 
         long numberOfEpisodes = statusJson.get("totalNumberEpisodes").getAsLong();
@@ -54,13 +58,44 @@ public class FileBasedPerformanceProducerImplementation extends HandlerBase impl
     }
 
     @Override
-    public void step(double reward, boolean done) {
+    public void step(double reward, boolean done, JsonObject info) {
         if(PerformanceHelper.performanceEnabled()){
             if(currentEpisodeJson != null && statusJson != null){
                 currentEpisodeJson.getAsJsonArray("rewards").add(new JsonPrimitive(reward));
                 currentEpisodeJson.addProperty("numTicks", 
                     currentEpisodeJson.get("numTicks").getAsLong() + 1L);
-                
+
+                // Update the damage type
+                if (info != null && info.has("damage_source")) {
+                    JsonObject damage_source = info.get("damage_source").getAsJsonObject();
+                    // Record damage type
+                    if (damage_source.has("damage_type")){
+                        currentEpisodeJson.addProperty("damageSource",
+                                damage_source.get("damage_type").getAsString());
+                    }
+
+                    // Record the mob name if any
+                    if (damage_source.has("damage_entity")){
+                        currentEpisodeJson.addProperty("mobName",
+                                damage_source.get("damage_entity").getAsString());
+                    }
+
+                    // Accumulate the total damage
+                    if (damage_source.has("damage_amount")){
+                        currentEpisodeJson.addProperty("damageAmount",
+                                currentEpisodeJson.get("damageAmount").getAsFloat() +
+                                damage_source.get("damage_amount").getAsFloat());
+                    }
+
+                    // Record death message (if any)
+                    if (damage_source.has("death_message")){
+                        currentEpisodeJson.addProperty("deathMessage",
+                                damage_source.get("death_message").getAsString());
+                    }
+
+                }
+
+
                 // Update the global status
                 long totalNumberSteps =  statusJson.get("totalNumberSteps").getAsLong();
                 statusJson.addProperty("totalNumberSteps",totalNumberSteps + 1L);

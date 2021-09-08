@@ -33,6 +33,7 @@ import queue
 import minerl.data.util
 from minerl.data.util import forever, minibatch_gen
 import concurrent
+
 if os.name != "nt":
     class WindowsError(OSError):
         pass
@@ -94,7 +95,7 @@ class DataPipeline:
     @property
     def observation_space(self):
         """
-        Returns: action space of current MineRL environment
+        Returns: observation space of current MineRL environment
         """
         return self._env_spec.observation_space
 
@@ -133,8 +134,7 @@ class DataPipeline:
 
         x = list(target_space.spaces.items())
         target_space.spaces = collections.OrderedDict(
-            sorted(x, key=lambda x:
-                   x[0] if x[0] != 'pov' else 'z')
+            sorted(x, key=lambda x: x[0] if x[0] != 'pov' else 'z')
         )
 
         # Now we just need to slice the dict.
@@ -205,6 +205,11 @@ class DataPipeline:
         video_path = str(os.path.join(file_dir, 'recording.mp4'))
         numpy_path = str(os.path.join(file_dir, 'rendered.npz'))
         meta_path = str(os.path.join(file_dir, 'metadata.json'))
+
+        paths = [video_path, numpy_path, meta_path]
+        for path in paths:
+            if not os.path.isfile(path):
+                raise FileNotFoundError(f"Couldn't find path '{path}'.")
 
         try:
             # Start video decompression
@@ -336,7 +341,7 @@ class DataPipeline:
                 next_observation_data = unflatten(next_observation_data)[OBSERVABLE_KEY]
 
                 batches = [current_observation_data, action_data, reward_data, next_observation_data,
-                           np.array(done_data, dtype=np.bool)]
+                           np.array(done_data, dtype=bool)]
 
                 if include_monitor_data:
                     monitor_data = unflatten(monitor_data)[MONITOR_KEY]
@@ -446,7 +451,7 @@ class DataPipeline:
                       ] + (
                               (seg_batch['monitor'] if include_monitor_data else []) +
                               (seg_batch['meta'] if include_metadata else [])
-                            )
+                      )
 
         for _ in range(self.number_of_workers):
             input_queue.put(("SHUTDOWN",))

@@ -128,9 +128,8 @@ else
 fi
 # If build/libs/MalmoMod-0.37.0-fat.jar does not exist change command to 'test'
 
-# TODO (R): Decide if this dependency on xvfb-run is deserved. Maybe this should go externally!
-if [ $(uname) == 'Linux' ]; then
-   xvfb-run -a -s "-screen 0 1024x768x24" $cmd
+if [ "$MINERL_HEADLESS" == "1" ]; then
+  xvfb-run -a -s "-screen 0 1024x768x24" $cmd
 else
   $cmd
 fi

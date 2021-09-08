@@ -84,6 +84,7 @@ components:
    tutorials/index
    tutorials/first_agent
    tutorials/data_sampling
+   tutorials/more_examples
    tutorials/k-means
    tutorials/minerl_tools
 
@@ -98,6 +99,8 @@ components:
    :caption: Notes
    :maxdepth: 2
 
+   notes/performance-tips
+   notes/useful-links
    notes/windows
 
 

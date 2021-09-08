@@ -314,7 +314,7 @@ class EnvSpec(abc.ABC):
             Either None, or a nonempty str describing why this demonstration should be
             blacklisted.
         """
-        if 'Survival' not in self.name:
+        if 'Survival' in self.name:
             return None
 
         # Various smoke-tests.

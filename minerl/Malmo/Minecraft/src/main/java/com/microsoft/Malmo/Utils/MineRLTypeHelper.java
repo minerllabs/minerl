@@ -27,9 +27,10 @@ public class MineRLTypeHelper {
     }
 
     public static void writeItemStackToJson(ItemStack stack, JsonObject jsonObject) {
-        // Mod by 16 to get the variant component of metadata. This could be a "in-the-wild" item stack with a metadata
-        // value above 15, unlike the items we spawn the player with.
-        int metadata = stack.getMetadata() % 16;
+        int metadata = 0;
+        if (stack.getHasSubtypes()){
+            metadata = stack.getMetadata();
+        }
         validateMetadata(metadata);
         jsonObject.addProperty("type", MineRLTypeHelper.getItemType(stack.getItem()));
         jsonObject.addProperty("metadata", metadata);
@@ -39,9 +40,6 @@ public class MineRLTypeHelper {
     private static void validateMetadata(Integer metadata) {
         if (metadata == null) {
             return;
-        }
-        if (metadata < 0 || metadata > 15) {
-            throw new RuntimeException(String.format("Unexpected metadata value %d.", metadata));
         }
     }
 
@@ -71,7 +69,7 @@ public class MineRLTypeHelper {
             }
 
             boolean flagItemTypeMatches = regName.equals(targetRegName);
-            boolean flagItemMetadataMatches = (metadata == null) || (metadata == stack.getMetadata() % 16);
+            boolean flagItemMetadataMatches = (metadata == null) || (!stack.getHasSubtypes()) || (metadata == stack.getMetadata()) ;
 
             if (flagItemTypeMatches && flagItemMetadataMatches) {
                 return i;

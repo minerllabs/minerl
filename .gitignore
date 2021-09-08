@@ -292,3 +292,7 @@ wrapper/
 
 # Pytest artifacts
 tests/*.lock
+
+
+# Minecraft
+minerl/Malmo/Minecraft/run

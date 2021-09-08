@@ -9,13 +9,14 @@ the items encountered (o_bed => o_bed/yellow).
 import functools
 from collections import OrderedDict
 import os
+import re
 import sys
 import time
-import numpy
 import tqdm
 import subprocess
 import json
 import traceback
+from typing import List, Optional, Tuple
 
 #######################
 ### UTILITIES
@@ -26,7 +27,6 @@ from minerl.data.util.constants import (
     EXP_MIN_LEN_TICKS,
     DATA_DIR,
     RENDER_DIR,
-    BLACKLIST_TXT as BLACKLIST_PATH,
     GOOD_MARKER_NAME,
     FAILED_COMMANDS,
     GENERATE_VERSION,
@@ -119,28 +119,37 @@ def parse_metadata(start_marker, stop_marker):
 ### PIPELINE
 #################
 
-# 1. Construct data working dirs.
-def construct_data_dirs(blacklist):
-    """
-    Constructs the render directories omitting
-    elements on a blacklist.
-    """
+# 0. Construct data working dirs.
+def construct_data_dirs():
+    """Constructs working directories used for this pipeline stage."""
     if not E(DATA_DIR):
         os.makedirs(DATA_DIR)
     if not E(RENDER_DIR):
         os.makedirs(RENDER_DIR)
 
-    render_dirs = []
+
+# 1. Select (and possibly filter) rendering jobs.
+def select_demonstrations(regex_pattern: str) -> List[Tuple[str, str]]:
+    unfiltered_dirs = []
     for filename in tqdm.tqdm(next(os.walk(RENDER_DIR))[1]):
         if filename not in black_list:
             render_path = J(RENDER_DIR, filename)
-
             if not E(render_path):
                 continue
+            unfiltered_dirs.append((filename, render_path))
 
-            render_dirs.append((filename, render_path))
+    print(f"Found {len(unfiltered_dirs)} generate jobs.")
 
-    return render_dirs
+    if regex_pattern is None:
+        return unfiltered_dirs
+    else:
+        regex = re.compile(regex_pattern)
+        filtered_dirs = []
+        for filename, render_path in unfiltered_dirs:
+            if regex.search(filename):
+                filtered_dirs.append((filename, render_path))
+        print(f"Kept {len(filtered_dirs)} generate jobs after applying regex '{regex_pattern}'.")
+        return filtered_dirs
 
 
 # 2. get metadata from the files.
@@ -543,7 +552,7 @@ def gen_sarsa_pairs(outputPath, inputPath, recordingName, lineNum=None, debug=Fa
     return numNewSegments
 
 
-def main(parallel: bool = True, n_workers: int = 2):
+def main(parallel: bool = True, n_workers: int = 2, regex_pattern: Optional[str] = None):
     """
     The main render script.
 
@@ -552,19 +561,19 @@ def main(parallel: bool = True, n_workers: int = 2):
             use multithreading which allows breakpoints and other debugging tools, but
             is slower.
     """
-
-    # 1. Load the blacklist.
-    blacklist = set(numpy.loadtxt(BLACKLIST_PATH, dtype=numpy.str).tolist())
-
     print("Constructing data directory.")
-    renders = construct_data_dirs(blacklist)
+    construct_data_dirs()
+    renders = select_demonstrations(regex_pattern)
+
+    if len(renders) == 0:
+        print("No generate jobs selected. Aborting.")
+        exit(1)
 
     print("Retrieving metadata from files:")
     valid_renders, invalid_renders = get_metadata(renders)
     print(len(valid_renders))
-    print("... found {} valid recordings and {} invalid recordings"
-          " out of {} total files".format(
-        len(valid_renders), len(invalid_renders), len(os.listdir(RENDER_DIR)))
+    print("... found {} valid recordings out of {} selected demonstrations".format(
+        len(valid_renders), len(renders)),
     )
     print("Rendering videos: ")
     numSegments = []
