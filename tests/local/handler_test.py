@@ -186,11 +186,8 @@ def test_dense_env():
 
 
 def test_env(environment='MineRLObtainTest-v0', interactive=False):
-    if not interactive:
-        # Disable tests for now
-        pass  # assert False
-    inst = InstanceManager.add_existing_instance(9001)
-    env = gym.make(environment, instances=[inst])
+
+    env = gym.make(environment)
     done = False
     inventories = []
     rewards = []
