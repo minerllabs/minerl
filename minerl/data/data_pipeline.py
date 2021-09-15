@@ -126,7 +126,7 @@ class DataPipeline:
         remainder = iter(seq[5:])
 
         monitor_seq = next(remainder) if include_monitor_data else None
-        meta = next(remainder) if include_monitor_data else None
+        meta = next(remainder) if include_metadata else None
 
         # make a copty  
         gym_spec = gym.envs.registration.spec(self.environment)
