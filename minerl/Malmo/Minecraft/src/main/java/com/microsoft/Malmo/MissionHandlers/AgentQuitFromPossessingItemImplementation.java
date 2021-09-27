@@ -48,11 +48,21 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
  * In order to quit the mission, the agent must have the requisite items in its inventory all at one time.
  */
 public class AgentQuitFromPossessingItemImplementation extends HandlerBase implements IWantToQuit {
+    // Anssi: A dirty patch for rewards not being counted if episode ends on posession of same item
+    // (e.g., ObtainDiamond, the diamond reward is not counted).
+    // This is because, for some reason, the RewardForPossessingItemImplementation functions
+    // are never called (main thread is too busy killing everything?).
+    // Patch around this by delaying the quitting by N `doIWantToQuit` calls.
+    // 20 worked in 10 out of 10 tests. 5 did not work.
+    private static final int QUIT_DELAY = 20;
+
     private AgentQuitFromPossessingItem params;
     private HashMap<String, Integer> possessedItems;
     private List<ItemQuitMatcher> matchers;
     private String quitCode = "";
     private boolean wantToQuit = false;
+    // Counter for keeping track of things
+    private int wantToQuitCounter = -1;
 
     public static class ItemQuitMatcher extends RewardForItemBase.ItemMatcher {
         String description;
@@ -81,6 +91,12 @@ public class AgentQuitFromPossessingItemImplementation extends HandlerBase imple
 
     @Override
     public boolean doIWantToQuit(MissionInit missionInit) {
+        // Check and update quit counter
+        if (this.wantToQuitCounter > 0) {
+            this.wantToQuitCounter--;
+            if (this.wantToQuitCounter == 0)
+                this.wantToQuit = true;
+        }
         return this.wantToQuit;
     }
 
@@ -215,11 +231,12 @@ public class AgentQuitFromPossessingItemImplementation extends HandlerBase imple
                     if (savedCollected != 0) {
                         if (is.getCount() + savedCollected >= matcher.matchSpec.getAmount()) {
                             this.quitCode = matcher.description();
-                            this.wantToQuit = true;
+                            // Set counter
+                            this.wantToQuitCounter = this.QUIT_DELAY;
                         }
                     } else if (is.getCount() >= matcher.matchSpec.getAmount()) {
                         this.quitCode = matcher.description();
-                        this.wantToQuit = true;
+                        this.wantToQuitCounter = this.QUIT_DELAY;
                     }
                 }
             }
