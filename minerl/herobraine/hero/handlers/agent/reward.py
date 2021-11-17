@@ -93,14 +93,19 @@ class _RewardForPosessingItemBase(RewardHandler):
 
 
 class RewardForCollectingItems(_RewardForPosessingItemBase):
-    def __init__(self, item_rewards: List[Dict[str, Union[str, int]]]):
-        """
+    """
         The standard malmo reward for collecting item.
 
-        rc = handlers.RewardForCollectingItems([
+        Example usage:
+        
+        .. code-block:: python
+
+            rc = handlers.RewardForCollectingItems([
                 dict(type="log", amount=1, reward=1.0),
             ])
-        """
+    """
+
+    def __init__(self, item_rewards: List[Dict[str, Union[str, int]]]):
         super().__init__(sparse=False, exclude_loops=True, item_rewards=item_rewards)
 
     def from_universal(self, x):
@@ -121,6 +126,9 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
     """
     The standard malmo reward for collecting item once.
 
+    Example usage:
+        
+    .. code-block:: python
         rc = handlers.RewardForCollectingItemsOnce([
             dict(type="log", amount=1, reward=1.0),
         ])

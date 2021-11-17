@@ -28,7 +28,14 @@ class ServerQuitFromTimeUp(Handler):
 
 class ServerQuitWhenAnyAgentFinishes(Handler):
     """ Forces the server to quit if any of the agents involved quits.
-    Has no parameters."""
+    Has no parameters.
+    
+    Example usage:
+
+    .. code-block:: python
+    
+        ServerQuitWhenAnyAgentFinishes()
+    """
 
     def to_string(self) -> str:
         return "server_quit_when_any_agent_finishes"

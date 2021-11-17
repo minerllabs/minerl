@@ -16,7 +16,7 @@ class Handler(ABC):
     @abstractmethod
     def to_string(self) -> str:
         """The unique identifier for the agent handler.
-        This is used for constructing aciton/observation spaces
+        This is used for constructing action/observation spaces
         and unioning different env specifications.
         """
         raise NotImplementedError()
@@ -27,7 +27,7 @@ class Handler(ABC):
     def xml_template(self) -> str:
         """Generates an XML representation of the handler.
 
-        This XML representaiton is templated via Jinja2 and
+        This XML representation is templated via Jinja2 and
         has access to all of the member variables of the class.
 
         Note: This is not an abstract method so that 
