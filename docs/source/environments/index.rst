@@ -26,6 +26,9 @@ environment!
 .. include:: handlers.rst
     :end-before: inclusion-marker-do-not-remove
 
+.. include:: custom_environments.rst
+    :end-before: inclusion-marker-do-not-remove
+
 
 MineRL Diamond Competition Intro Track Environments
 ===================================================
