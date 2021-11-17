@@ -8,7 +8,7 @@ which MineRL currently supports.
 
 .. toctree::
 
-    custom_environments
+    agent_handlers
 
 .. inclusion-marker-do-not-remove
 

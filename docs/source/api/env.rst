@@ -26,3 +26,31 @@ InstanceManager
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Agent Handlers
+=================
+
+Quit Handlers
+--------------
+
+.. automodule:: minerl.herobraine.hero.handlers.agent.quit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Reward Handlers
+--------------
+
+.. automodule:: minerl.herobraine.hero.handlers.agent.reward
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Start Handlers
+--------------
+
+.. automodule:: minerl.herobraine.hero.handlers.agent.start
+    :members:
+    :undoc-members:
+    :show-inheritance:
