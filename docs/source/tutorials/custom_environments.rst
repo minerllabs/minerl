@@ -1,3 +1,5 @@
+.. _Custom Env Tutorial
+
 ..  admonition:: Solution
     :class: toggle
 
@@ -15,19 +17,23 @@ Creating A Custom Environment
 Introduction
 ============
 
+
+
+
 MineRL supports many ways to customize the environment, including modifying the Minecraft world, adding 
 more observation data, and changing the rewards agents receive.
 
 MineRL provides support for these modifications using a variety of handlers.
 
 In this tutorial, we will introduce how these handlers work by building a simple parkour environment
-where an agent will perform an "`MLG water bucket jump`_" onto a block of gold.
+where an agent will perform an "MLG water bucket jump" onto a block of gold.
 
 .. image:: ../assets/mlg_water_bucket.gif
   :scale: 100 %
   :alt:
 
-.. _MLG water bucket jump: https://www.urbandictionary.com/define.php?term=MLG%20Water%20Bucket
+
+See the complete code `here <https://github.com/trigaten/MLGPK_gym>`_.
 
 Setup
 ============
@@ -60,13 +66,14 @@ Next, we will add the following variables:
 
     MLGWB_LENGTH = 8000
 
-:code:`MLGPK_LENGTH` specifies how many time steps the environment can last until termination.
+:code:`MLGWB_LENGTH` specifies how many time steps the environment can last until termination.
 
 
 Contruct the Environment Class
 ============
 
-In order to create our MineRL gym, we need to subclass :code:`SimpleEmbodimentEnvSpec`
+In order to create our MineRL gym, we need to inherit from :code:`SimpleEmbodimentEnvSpec`. This parent class
+provides default settings for the environment.
 
 
 .. code-block:: python
@@ -80,11 +87,14 @@ In order to create our MineRL gym, we need to subclass :code:`SimpleEmbodimentEn
                             max_episode_steps=MLGWB_LENGTH, reward_threshold=100.0,
                             **kwargs)
 
+:code:`reward_threshold` is a number specifying how much reward the agent must get for the episode to terminate.
 
-Modifying the World
+Now we will implement a number of methods which :code:`SimpleEmbodimentEnvSpec` requires.
+
+Modify the World
 ============
 
-Now lets build a custom Minecraft world. 
+Lets build a custom Minecraft world. 
 
 We'll use the :code:`FlatWorldGenerator` handler to make a super flat world and pass it a 
 :code:`generatorString` value to specify how we want the world layers to be created. "1;7,2x3,2;1" 
@@ -94,23 +104,22 @@ like "`Minecraft Tools`_"  to easily customize superflat world layers.
 .. code-block:: python
 
     def create_server_world_generators(self) -> List[Handler]:
-            return [
-                handlers.FlatWorldGenerator(generatorString="1;7,2x3,2;1")
-
-
-                # handlers.DrawingDecorator('<DrawSphere x="-50" y="20" z="0" radius="10" type="obsidian"/>')
-            ]
+        return [
+            handlers.FlatWorldGenerator(generatorString="1;7,2x3,2;1"),
+            handlers.DrawingDecorator("""
+                <DrawCuboid x1="2" y1="5" z1="2" x2="2" y2="5" z2="2" type="gold_block"/>
+                <DrawCuboid x1="-2" y1="9" z1="-2" x2="2" y2="9" z2="2" type="obsidian"/>
+            """)
+        ]
 
 .. _Minecraft Tools: https://minecraft.tools/en/flat.php?biome=1&bloc_1_nb=1&bloc_1_id=2&bloc_2_nb=2&bloc_2_id=3%2F00&bloc_3_nb=1&bloc_3_id=7&village_size=1&village_distance=32&mineshaft_chance=1&stronghold_count=3&stronghold_distance=32&stronghold_spread=3&oceanmonument_spacing=32&oceanmonument_separation=5&biome_1_distance=32&valid=Create+the+Preset#seed
-
-
 
 .. note::
     Make sure :code:`create_server_world_generators` and the following functions are indented under the :code:`MLGWB` class.
 
 
 
-Setting the Initial Agent Inventory
+Set the Initial Agent Inventory
 ============
 
 Lets now lets use the :code:`SimpleInventoryAgentStart` handler to give the agent a water bucket.
@@ -124,9 +133,8 @@ Lets now lets use the :code:`SimpleInventoryAgentStart` handler to give the agen
             ])
         ]
 
-
-Creating Reward Functionality
-============
+Create Reward Functionality
+====================================
 
 Lets use the :code:`RewardForTouchingBlockType` handler 
 so that the agent receives reward for getting to a gold block.
@@ -136,24 +144,131 @@ so that the agent receives reward for getting to a gold block.
     def create_rewardables(self) -> List[Handler]:
         return [
             handlers.RewardForTouchingBlockType([
-            dict(type="gold_block", behavior='onceOnly', reward=100.0),
-            dict(type="stone_block", behavior='onceOnly', reward=-1.0)
+                {'type':'gold_block', 'behaviour':'onceOnly', 'reward':'100'},
             ])
         ]
 
-:code:`reward_threshold` is a number specifying how much reward the agent must get for the episode to terminate.
+Construct a Quit Handler
+====================================
+We want the episode to terminate when the agent touches a gold block.
 
+.. code-block:: python 
 
+    def create_agent_handlers(self) -> List[Handler]:
+        return [
+            handlers.AgentQuitFromTouchingBlockType([
+                "gold_block"
+            ])
+        ]
 
+Allow the Agent to Place Water
+====================================
+We want the agent to be able to place the water bucket, but :code:`SimpleEmbodimentEnvSpec`
+does not provide this ability by default. Note that we call :code:`super().create_actionables()`
+so that we keep the actions which :code:`SimpleEmbodimentEnvSpec` does provide by default (like movement, jumping)
 
-
-Other Functions to Implement
-============
-
-MineRL requires that we implement these methods, but we don't need their functionality 
-in this environment.
 
 .. code-block:: python
 
-    def create_agent_handlers(self) -> List[Handler]:
+    def create_actionables(self) -> List[Handler]:
+        return super().create_actionables() + [
+            # allow agent to place water
+            handlers.PlaceBlock("water_bucket"),
+        ]
+
+Give Extra Observations
+====================================
+In addition to the POV image data the agent receives as an observation, lets provide
+it with compass data. We override :code:`create_observables` just like the previous step.
+
+.. code-block:: python
+
+    def create_observables(self) -> List[Handler]:
+        return super().create_observables() + [
+            # A compass observation which returns angle and distance information
+            handlers.CompassObservation(True, True)
+        ]
+
+Set the Time 
+======================
+Lets set the time to morning.
+
+.. code-block:: python
+
+    def create_server_initial_conditions(self) -> List[Handler]:
+        return [
+            # Sets time to morning and stops passing of time
+            handlers.TimeInitialCondition(False, 23000)
+        ]
+
+Other Functions to Implement
+====================================
+
+:code:`SimpleEmbodimentEnvSpec` requires that we implement these methods.
+
+.. code-block:: python
+
+    # see API reference for use cases of these first two functions
+
+    def create_server_quit_producers(self):
         return []
+    
+    def create_server_decorators(self) -> List[Handler]:
+        return []
+    
+    # the episode can terminate when this is True
+    def determine_success_from_rewards(self, rewards: list) -> bool:
+        return sum(rewards) >= self.reward_threshold
+
+    def is_from_folder(self, folder: str) -> bool:
+        return folder == 'mlgwb'
+
+    def get_docstring(self):
+        return MLGWB_DOC
+
+**Congrats!** You just made your first MineRL environment. Checkout the herobraine API reference 
+to see many other ways to modify the world and agent.
+
+Using the Environment
+========================
+
+Now you need to solve it 🙂.
+
+Create a new Jupyter Notebook (or Python) file in the same folder.
+
+In order to make an instance of the MLG Water Bucket Gym, we'll need to 
+register it with :code:`gym` then call :code:`gym.make`.
+
+.. code-block:: python
+
+    import gym
+    from mlg_wb_specs import MLGWB
+
+    abs_MLG = MLGWB()
+    abs_MLG.register()
+    env = gym.make("MLGWB-v0")
+
+    # this line might take a couple minutes to run
+    obs  = env.reset()
+
+Here is some more boilerplate to get you started:
+
+.. code-block:: python
+
+    done = False
+
+    while not done:
+
+        env.render()
+
+        # a dictionary of actions. Try indexing it and changing values.
+        action = env.action_space.noop()
+
+        obs, reward, done, info = env.step(action)
+
+Running the previous two code blocks should open a Minecaft instance which 
+will quickly be minimized. Then, it should open a window that shows the agent's view.
+
+I recommend using a Jupyter Notebook then running the first code block
+in one cell. In another cell, put the 3 lines from inside the while loop.
+Run the cell a couple times and try changing the action dictionary.

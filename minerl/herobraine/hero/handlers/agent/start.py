@@ -2,11 +2,12 @@
 # Author: William H. Guss, Brandon Houghton
 
 """
-Start handlers define agent start conditions such as inventory items and health.
+Agent start handlers define agent start conditions such as inventory items and health.
+
+When used to create a gym, they should be passed to create_agent_start.
 """
 from minerl.herobraine.hero.handler import Handler
 from typing import Dict, List, Union
-
 
 # <AgentStart>
 #     <Inventory>
@@ -23,8 +24,8 @@ from typing import Dict, List, Union
 # </AgentStart>
 class InventoryAgentStart(Handler):
     """
-    Creates an inventory agent start which sets the inventory of the
-    agent by slot id.
+
+    Sets the start inventory of the agent by slot id.
 
     Example usage:
     
@@ -38,6 +39,7 @@ class InventoryAgentStart(Handler):
             6: {'type':'log', 'quantity':2},
             32: {'type':'iron_ore', 'quantity':4
         })
+
         """
     def to_string(self) -> str:
         return "inventory_agent_start"
@@ -67,8 +69,7 @@ class InventoryAgentStart(Handler):
 
 
 class SimpleInventoryAgentStart(InventoryAgentStart):
-    """ An inventory agentstart specification which
-    just fills the inventory of the agent sequentially.
+    """ Sets the start inventory of the agent sequentially.
 
     Example usage:
 
@@ -80,6 +81,7 @@ class SimpleInventoryAgentStart(InventoryAgentStart):
             {'type':'log', 'quantity':1},
             {'type':'iron_ore', 'quantity':4}
         ])
+
     """
     def __init__(self, inventory : List[Dict[str, Union[str, int]]]):
         """ Creates a simple inventory agent start.
@@ -91,8 +93,7 @@ class SimpleInventoryAgentStart(InventoryAgentStart):
 
 
 class RandomInventoryAgentStart(InventoryAgentStart):
-    """ An inventory agentstart specification which places items in random
-    inventory positions
+    """ Sets the agent start inventory by randomly distributing the items throughout the inventory spaces
 
     Example usage:
 
@@ -101,6 +102,7 @@ class RandomInventoryAgentStart(InventoryAgentStart):
         RandomInventoryAgentStart(
             {'dirt': 10, 'planks': 5}
         )
+
     """
     def __init__(self, inventory: Dict[str, Union[str, int]], use_hotbar: bool = False):
         """ Creates an inventory where items are placed in random positions
@@ -128,6 +130,7 @@ class AgentStartBreakSpeedMultiplier(Handler):
     .. code-block:: python
 
         AgentStartBreakSpeedMultiplier(2.0)
+
     """
 
 
@@ -145,13 +148,14 @@ class AgentStartBreakSpeedMultiplier(Handler):
 
 class AgentStartPlacement(Handler):
     """
-    Specification for the agent's start location
+    Sets for the agent start location
 
     Example usage:
 
     .. code-block:: python
 
         AgentStartPlacement(x=5, y=70, z=4, yaw=0, pitch=0)
+
     """
     def to_string(self) -> str:
         return f"agent_start_placement({self.x}, {self.y}, {self.z}, {self.yaw}, {self.pitch})"
@@ -170,6 +174,16 @@ class AgentStartPlacement(Handler):
 
 
 class AgentStartNear(Handler):
+    """
+    Starts agent near another agent
+
+    Example usage:
+
+    .. code-block:: python
+
+        AgentStartNear("MineRLAgent0", min_distance=2, max_distance=10, max_vert_distance=3)
+        
+    """
     def to_string(self) -> str:
         return f"agent_start_near({self.anchor_name}, h {self.min_distance} - {self.max_distance}, v {self.max_vert_distance})"
 

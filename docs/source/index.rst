@@ -111,6 +111,7 @@ components:
 
     api/env
     api/data
+    api/herobraine
 
 
 

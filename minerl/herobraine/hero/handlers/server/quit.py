@@ -1,3 +1,7 @@
+"""These handlers allow episode termination based on server conditions (e.g. time passed)
+
+When used to create a gym, they should be passed to create_server_quit_producers.
+"""
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
@@ -8,7 +12,15 @@ from minerl.herobraine.hero.handler import Handler
 
 class ServerQuitFromTimeUp(Handler):
     """ Forces the server to quit after a certain time_limit_ms
-    also specifies a description parameter for the xml."""
+    also specifies a description parameter for the xml.
+    
+    Example usage
+
+    .. code-block:: python
+
+        ServerQuitFromTimeUp(50000)
+
+    """
 
     def to_string(self) -> str:
         return "server_quit_after_time_up"

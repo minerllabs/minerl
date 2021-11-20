@@ -3,8 +3,8 @@
 
 
 """
-Not very proud of the code reuse in this module -- @wguss
 """
+# Not very proud of the code reuse in this module -- @wguss
 
 import os
 from typing import List, Sequence

@@ -37,8 +37,8 @@ class TranslationHandler(Handler):
         raise NotImplementedError()
 
     def from_universal(self, x: typing.Dict[str, Any]):
-        """sure
-        Converts a universal representation of the handler (e.g. unviersal action/observation)
+        """
+        Converts a universal representation of the handler (e.g. universal action/observation)
         """
         raise NotImplementedError()
 

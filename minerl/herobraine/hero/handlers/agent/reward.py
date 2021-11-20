@@ -1,3 +1,9 @@
+"""
+These handlers modify what things the agent gets rewarded for. 
+
+When used to create a gym, they should be passed to create_rewardables
+
+"""
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
@@ -35,6 +41,7 @@ class RewardHandler(TranslationHandler):
 class ConstantReward(RewardHandler):
     """
     A constant reward handler
+
     """
 
     def __init__(self, constant):
@@ -71,6 +78,7 @@ class _RewardForPosessingItemBase(RewardHandler):
         inventory that are provided.
 
         See Malmo for documentation.
+
         """
         super().__init__()
         self.sparse = sparse
@@ -100,9 +108,10 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
         
         .. code-block:: python
 
-            rc = handlers.RewardForCollectingItems([
+            RewardForCollectingItems([
                 dict(type="log", amount=1, reward=1.0),
             ])
+
     """
 
     def __init__(self, item_rewards: List[Dict[str, Union[str, int]]]):
@@ -124,14 +133,16 @@ class RewardForCollectingItems(_RewardForPosessingItemBase):
 
 class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
     """
-    The standard malmo reward for collecting item once.
+        The standard malmo reward for collecting item once.
 
-    Example usage:
-        
-    .. code-block:: python
-        rc = handlers.RewardForCollectingItemsOnce([
-            dict(type="log", amount=1, reward=1.0),
-        ])
+        Example usage:
+            
+        .. code-block:: python
+
+            RewardForCollectingItemsOnce([
+                dict(type="log", amount=1, reward=1.0),
+            ])
+    
     """
 
     def __init__(self, item_rewards: List[Dict[str, Union[str, int]]]):
@@ -156,6 +167,16 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
 #     <Reward description="out_of_time" reward="0" />
 # </RewardForMissionEnd>
 class RewardForMissionEnd(RewardHandler):
+    """Creates a reward which is awarded when a mission ends.
+    
+    Example usage:
+    
+    .. code-block:: python
+
+        # awards a reward of 5 when mission ends
+        RewardForMissionEnd(reward=5.0, description="temporal termination")
+    """
+
     def to_string(self) -> str:
         return "reward_for_mission_end"
 
@@ -167,7 +188,6 @@ class RewardForMissionEnd(RewardHandler):
         )
 
     def __init__(self, reward: int, description: str = "out_of_time"):
-        """Creates a reward which is awarded when a mission ends."""
         super().__init__()
         self.reward = reward
         self.description = description
@@ -184,6 +204,17 @@ class RewardForMissionEnd(RewardHandler):
 #     <Block reward="189.0" type="diamond_block" behaviour="onceOnly"/>
 # </RewardForTouchingBlockType>
 class RewardForTouchingBlockType(RewardHandler):
+    """Creates a reward which is awarded when the player touches a block.
+        
+        Example usage:
+
+        .. code-block:: python
+
+            RewardForTouchingBlockType([
+                {'type':'diamond_block', 'behaviour':'onceOnly', 'reward':'10'},
+            ])
+    
+    """
     def to_string(self) -> str:
         return "reward_for_touching_block_type"
 
@@ -197,12 +228,7 @@ class RewardForTouchingBlockType(RewardHandler):
         )
 
     def __init__(self, blocks: List[Dict[str, Union[str, int, float]]]):
-        """Creates a reward which is awarded when the player touches a block.
-        An example of instantiating the class:
-
-        reward = RewardForTouchingBlockType([
-            {'type':'diamond_block', 'behaviour':'onceOnly', 'reward':'10'},
-        ])
+        """
         """
         super().__init__()
         self.blocks = blocks
@@ -229,6 +255,16 @@ class RewardForTouchingBlockType(RewardHandler):
 
 # <RewardForDistanceTraveledToCompassTarget rewardPerBlock="1" density="PER_TICK"/>
 class RewardForDistanceTraveledToCompassTarget(RewardHandler):
+    """Creates a reward which is awarded when the player reaches a certain distance from a target.
+    
+        Example usage:
+
+        .. code-block:: python
+
+            RewardForDistanceTraveledToCompassTarget(2)
+            
+    """
+
     def to_string(self) -> str:
         return "reward_for_distance_traveled_to_compass_target"
 
@@ -238,7 +274,6 @@ class RewardForDistanceTraveledToCompassTarget(RewardHandler):
         )
 
     def __init__(self, reward_per_block: int, density: str = 'PER_TICK'):
-        """Creates a reward which is awarded when the player reaches a certain distance from a target."""
         self.reward_per_block = reward_per_block
         self.density = density
         self._prev_delta = None

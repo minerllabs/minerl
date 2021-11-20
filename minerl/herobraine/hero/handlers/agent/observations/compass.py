@@ -1,6 +1,4 @@
-"""
-    Defines compass observations.
-"""
+
 import jinja2
 import numpy as np
 
@@ -14,6 +12,20 @@ __all__ = ['CompassObservation']
 
 
 class CompassObservation(TranslationHandlerGroup):
+    """
+    Defines compass observations.
+
+    Args:
+        angle (bool, optional): Whether or not to include angle observation. Defaults to True.
+        distance (bool, optional): Whether or not ot include distance observation. Defaults to False.
+
+    Example usage:
+
+    .. code-block:: python
+
+        # A compass observation object which gives angle and distance information
+        CompassObservation(True, True)
+    """
     def to_string(self) -> str:
         return "compass"
 
@@ -23,11 +35,9 @@ class CompassObservation(TranslationHandlerGroup):
         )
 
     def __init__(self, angle=True, distance=False):
-        """Initializes a compass observation. Forms
+        """Initializes a compass observation.
 
-        Args:
-            angle (bool, optional): Whether or not to include angle observation. Defaults to True.
-            distance (bool, optional): Whether or not ot include distance observation. Defaults to False.
+       
         """
         assert angle or distance, "Must observe either angle or distance"
 
