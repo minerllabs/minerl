@@ -140,7 +140,7 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
         .. code-block:: python
 
             RewardForCollectingItemsOnce([
-                dict(type="log", amount=1, reward=1.0),
+                dict(type="log", amount=1, reward=1),
             ])
     
     """

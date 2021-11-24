@@ -245,12 +245,12 @@ to see many other ways to modify the world and agent.
 Using the Environment
 ========================
 
-Now you need to solve it 🙂.
+Now you need to solve it 🙂
 
 Create a new Jupyter Notebook (or Python) file in the same folder.
 
 In order to make an instance of the MLG Water Bucket Gym, we'll need to 
-register it with :code:`gym` then call :code:`gym.make`.
+register it with :code:`gym` then call :code:`gym.make`
 
 .. code-block:: python
 
@@ -287,3 +287,7 @@ in one cell. In another cell, put the 3 lines from inside the while loop.
 Run the cell a couple times and try changing the action dictionary.
 
 See complete solution code `here <https://github.com/trigaten/MLGPK_gym/blob/main/solution.ipynb>`_.
+
+.. image:: ../assets/real_wb_success.gif
+  :scale: 100 %
+  :alt:
