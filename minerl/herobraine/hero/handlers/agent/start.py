@@ -4,7 +4,7 @@
 """
 Agent start handlers define agent start conditions such as inventory items and health.
 
-When used to create a gym, they should be passed to create_agent_start.
+When used to create a gym, they should be passed to :code:`create_agent_start`
 """
 from minerl.herobraine.hero.handler import Handler
 from typing import Dict, List, Union

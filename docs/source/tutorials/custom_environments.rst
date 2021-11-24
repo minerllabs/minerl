@@ -17,10 +17,7 @@ Creating A Custom Environment
 Introduction
 ============
 
-
-
-
-MineRL supports many ways to customize the environment, including modifying the Minecraft world, adding 
+MineRL supports many ways to customize environments, including modifying the Minecraft world, adding 
 more observation data, and changing the rewards agents receive.
 
 MineRL provides support for these modifications using a variety of handlers.
@@ -32,6 +29,7 @@ where an agent will perform an "MLG water bucket jump" onto a block of gold.
   :scale: 100 %
   :alt:
 
+The agent will then mine this gold block to terminate the episode.
 
 See the complete code `here <https://github.com/trigaten/MLGPK_gym>`_.
 
@@ -152,8 +150,10 @@ so that the agent receives reward for getting to a gold block.
         return [
             # reward the agent for touching a gold block (but only once)
             handlers.RewardForTouchingBlockType([
-                {'type':'gold_block', 'behaviour':'onceOnly', 'reward':'100'},
-            ])
+                {'type':'gold_block', 'behaviour':'onceOnly', 'reward':'50'},
+            ]),
+            # also reward on mission end
+            handlers.RewardForMissionEnd(50)
         ]
 
 Construct a Quit Handler
@@ -282,7 +282,7 @@ Here is some more boilerplate to get you started:
 Running the previous two code blocks should open a Minecaft instance which 
 will quickly be minimized. Then, it should open a window that shows the agent's view.
 
-I recommend using a Jupyter Notebook then running the first code block
+Try using a Jupyter Notebook and running the first code block
 in one cell. In another cell, put the 3 lines from inside the while loop.
 Run the cell a couple times and try changing the action dictionary.
 

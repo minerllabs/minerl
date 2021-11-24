@@ -5,7 +5,7 @@
 World handlers provide a number of ways to generate and modify the Minecraft world
 (e.g. specifying the type of world to be created, like Superflat, or drawing shapes and blocks in the world).
 
-When used to create a gym, they should be passed to create_server_world_generators
+When used to create a gym, they should be passed to :code:`create_server_world_generators`
 """
 
 from typing import Union
