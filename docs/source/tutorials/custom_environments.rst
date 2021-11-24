@@ -47,12 +47,9 @@ To start building our environment, let's import the necessary modules
 .. code-block:: python
 
     from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
-    from minerl.herobraine.hero.mc import MS_PER_STEP, STEPS_PER_MS
     from minerl.herobraine.hero.handler import Handler
-    from typing import List
-
     import minerl.herobraine.hero.handlers as handlers
-
+    from typing import List
 
 
 Next, we will add the following variables:
@@ -61,7 +58,7 @@ Next, we will add the following variables:
 .. code-block:: python
 
     MLGWB_DOC = """
-    In MLG Water Bucket, an agent must learn to perform an "MLG Water Bucket"
+    In MLG Water Bucket, an agent must perform an "MLG Water Bucket" jump
     """
 
     MLGWB_LENGTH = 8000
@@ -87,7 +84,7 @@ provides default settings for the environment.
                             max_episode_steps=MLGWB_LENGTH, reward_threshold=100.0,
                             **kwargs)
 
-:code:`reward_threshold` is a number specifying how much reward the agent must get for the episode to terminate.
+:code:`reward_threshold` is a number specifying how much reward the agent must get for the episode to be successful.
 
 Now we will implement a number of methods which :code:`SimpleEmbodimentEnvSpec` requires.
 
@@ -101,14 +98,18 @@ We'll use the :code:`FlatWorldGenerator` handler to make a super flat world and 
 represents 1 layer of grass blocks above 2 layers of dirt above 1 layer of bedrock. You can use websites
 like "`Minecraft Tools`_"  to easily customize superflat world layers.
 
+We also pass a :code:`DrawingDecorator` to "draw" blocks into the world.
+
 .. code-block:: python
 
     def create_server_world_generators(self) -> List[Handler]:
         return [
             handlers.FlatWorldGenerator(generatorString="1;7,2x3,2;1"),
+            # generate a 3x3 square of obsidian high in the air and a gold block
+            # somewhere below it on the ground
             handlers.DrawingDecorator("""
-                <DrawCuboid x1="2" y1="5" z1="2" x2="2" y2="5" z2="2" type="gold_block"/>
-                <DrawCuboid x1="-2" y1="9" z1="-2" x2="2" y2="9" z2="2" type="obsidian"/>
+                <DrawCuboid x1="0" y1="5" z1="-6" x2="0" y2="5" z2="-6" type="gold_block"/>
+                <DrawCuboid x1="-2" y1="88" z1="-2" x2="2" y2="88" z2="2" type="obsidian"/>
             """)
         ]
 
@@ -122,15 +123,21 @@ like "`Minecraft Tools`_"  to easily customize superflat world layers.
 Set the Initial Agent Inventory
 ============
 
-Lets now lets use the :code:`SimpleInventoryAgentStart` handler to give the agent a water bucket.
+Lets now lets use the :code:`SimpleInventoryAgentStart` handler to give the agent a water bucket and a diamond pickaxe. 
+
+Lets also make the agent spawn high in the air (on the obsidian platform) with the :code:`AgentStartPlacement` handler.
 
 .. code-block:: python
 
     def create_agent_start(self) -> List[Handler]:
         return [
+            # make the agent start with these items
             handlers.SimpleInventoryAgentStart([
-                dict(type="water_bucket", quantity=1)
-            ])
+                dict(type="water_bucket", quantity=1), 
+                dict(type="diamond_pickaxe", quantity=1)
+            ]),
+            # make the agent start 90 blocks high in the air
+            handlers.AgentStartPlacement(0, 90, 0, 0, 0)
         ]
 
 Create Reward Functionality
@@ -143,6 +150,7 @@ so that the agent receives reward for getting to a gold block.
 
     def create_rewardables(self) -> List[Handler]:
         return [
+            # reward the agent for touching a gold block (but only once)
             handlers.RewardForTouchingBlockType([
                 {'type':'gold_block', 'behaviour':'onceOnly', 'reward':'100'},
             ])
@@ -150,14 +158,15 @@ so that the agent receives reward for getting to a gold block.
 
 Construct a Quit Handler
 ====================================
-We want the episode to terminate when the agent touches a gold block.
+We want the episode to terminate when the agent obtains a gold block.
 
 .. code-block:: python 
 
     def create_agent_handlers(self) -> List[Handler]:
         return [
-            handlers.AgentQuitFromTouchingBlockType([
-                "gold_block"
+            # make the agent quit when it gets a gold block in its inventory
+            handlers.AgentQuitFromPossessingItem([
+                dict(type="gold_block", amount=1)
             ])
         ]
 
@@ -173,20 +182,24 @@ so that we keep the actions which :code:`SimpleEmbodimentEnvSpec` does provide b
     def create_actionables(self) -> List[Handler]:
         return super().create_actionables() + [
             # allow agent to place water
-            handlers.PlaceBlock("water_bucket"),
+            handlers.KeybasedCommandAction("use"),
+            # also allow it to equip the pickaxe
+            handlers.EquipAction(["diamond_pickaxe"])
         ]
 
 Give Extra Observations
 ====================================
 In addition to the POV image data the agent receives as an observation, lets provide
-it with compass data. We override :code:`create_observables` just like the previous step.
+it with compass and lifestats data. We override :code:`create_observables` just like the previous step.
 
 .. code-block:: python
 
     def create_observables(self) -> List[Handler]:
         return super().create_observables() + [
-            # A compass observation which returns angle and distance information
-            handlers.CompassObservation(True, True)
+            # current location and lifestats are returned as additional
+            # observations
+            handlers.ObservationFromCurrentLocation(),
+            handlers.ObservationFromLifeStats()
         ]
 
 Set the Time 
@@ -215,7 +228,7 @@ Other Functions to Implement
     
     def create_server_decorators(self) -> List[Handler]:
         return []
-    
+
     # the episode can terminate when this is True
     def determine_success_from_rewards(self, rewards: list) -> bool:
         return sum(rewards) >= self.reward_threshold
@@ -272,3 +285,5 @@ will quickly be minimized. Then, it should open a window that shows the agent's 
 I recommend using a Jupyter Notebook then running the first code block
 in one cell. In another cell, put the 3 lines from inside the while loop.
 Run the cell a couple times and try changing the action dictionary.
+
+See complete solution code `here <https://github.com/trigaten/MLGPK_gym/blob/main/solution.ipynb>`_.

@@ -72,7 +72,7 @@ Action Handlers
 Action handlers define what actions agents are allowed to take. 
 
 
-When used to create a gym, you should override create_actionables and pass them to this function.
+When used to create a gym, you should override create_actionables and pass the action handlers to this function.
 See the `Custom Environment Tutorial`_ for more.
 
 Camera
@@ -128,7 +128,7 @@ Observation Handlers
 
 Observation handlers define what observation data agents receive (e.g. POV image, lifestats)
 
-When used to create a gym, you should override create_observables and pass them to this function.
+When used to create a gym, you should override create_observables and pass the observation handlers to this function.
 See the `Custom Environment Tutorial`_ for more.
 
 Compass
