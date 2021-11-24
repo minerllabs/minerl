@@ -174,7 +174,7 @@ class RewardForMissionEnd(RewardHandler):
     .. code-block:: python
 
         # awards a reward of 5 when mission ends
-        RewardForMissionEnd(reward=5.0, description="temporal termination")
+        RewardForMissionEnd(reward=5.0, description="mission termination")
     """
 
     def to_string(self) -> str:
