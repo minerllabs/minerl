@@ -180,7 +180,7 @@ class RewardForMissionEnd(RewardHandler):
     def to_string(self) -> str:
         return "reward_for_mission_end"
 
-    def xml_element(self) -> str:
+    def xml_template(self) -> str:
         return str(
             """<RewardForMissionEnd>
                     <Reward description="{{ description }}" reward="{{ reward }}" />
