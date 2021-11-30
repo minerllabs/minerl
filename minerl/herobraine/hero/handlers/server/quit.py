@@ -1,6 +1,6 @@
 """These handlers allow episode termination based on server conditions (e.g. time passed)
 
-When used to create a gym, they should be passed to :code:`create_server_quit_producers`
+When used to create a Gym environment, they should be passed to :code:`create_server_quit_producers`
 """
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
