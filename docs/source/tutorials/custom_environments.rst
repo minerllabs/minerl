@@ -67,7 +67,7 @@ Next, we will add the following variables:
 Contruct the Environment Class
 ============
 
-In order to create our MineRL gym, we need to inherit from :code:`SimpleEmbodimentEnvSpec`. This parent class
+In order to create our MineRL Gym environment, we need to inherit from :code:`SimpleEmbodimentEnvSpec`. This parent class
 provides default settings for the environment.
 
 
