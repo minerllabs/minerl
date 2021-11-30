@@ -2,7 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 """Server start handlers allow you to set the initial state of the World (e.g. weather, time) 
 
-When used to create a gym, they should be passed to :code:`create_server_initial_conditions`
+When used to create a Gym environment, they should be passed to :code:`create_server_initial_conditions`
 """
 
 #  <BiomeGenerator forceReset="true" biome="3"/>

@@ -10,7 +10,7 @@ class NavigationDecorator(Handler):
     """ Specifies the navigate goal. 
         This class should enable the parameterization of all of the fields in the XML.
 
-        When used to create a gym, they should be passed to create_server_decorators.
+        When used to create a Gym environment, they should be passed to create_server_decorators.
     """
 
     def to_string(self) -> str:

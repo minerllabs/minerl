@@ -1,7 +1,7 @@
 """
 These handlers modify what things the agent gets rewarded for. 
 
-When used to create a gym, they should be passed to :code:`create_rewardables`
+When used to create a Gym environment, they should be passed to :code:`create_rewardables`
 
 """
 # Copyright (c) 2020 All Rights Reserved

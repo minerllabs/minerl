@@ -1,7 +1,7 @@
 """
 These handlers cause the episode to terminate based on certain agent conditions.
 
-When used to create a gym, they should be passed to :code:`create_agent_handlers`
+When used to create a Gym environment, they should be passed to :code:`create_agent_handlers`
 """
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
