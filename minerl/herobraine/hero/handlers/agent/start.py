@@ -23,8 +23,7 @@ from typing import Dict, List, Union
 #     </Inventory>
 # </AgentStart>
 class InventoryAgentStart(Handler):
-    """
-
+    """ 
     Sets the start inventory of the agent by slot id.
 
     Example usage:
@@ -39,8 +38,7 @@ class InventoryAgentStart(Handler):
             6: {'type':'log', 'quantity':2},
             32: {'type':'iron_ore', 'quantity':4
         })
-
-        """
+    """
     def to_string(self) -> str:
         return "inventory_agent_start"
 
@@ -61,7 +59,6 @@ class InventoryAgentStart(Handler):
 
     def __init__(self, inventory: Dict[int, Dict[str, Union[str, int]]]):
         """
-
         Args:
             inventory (Dict[int, Dict[str, Union[str,int]]]): The inventory slot description.
         """
@@ -69,7 +66,8 @@ class InventoryAgentStart(Handler):
 
 
 class SimpleInventoryAgentStart(InventoryAgentStart):
-    """ Sets the start inventory of the agent sequentially.
+    """ 
+    Sets the start inventory of the agent sequentially.
 
     Example usage:
 
@@ -81,8 +79,8 @@ class SimpleInventoryAgentStart(InventoryAgentStart):
             {'type':'log', 'quantity':1},
             {'type':'iron_ore', 'quantity':4}
         ])
-
     """
+
     def __init__(self, inventory : List[Dict[str, Union[str, int]]]):
         """ Creates a simple inventory agent start.
 
@@ -93,7 +91,9 @@ class SimpleInventoryAgentStart(InventoryAgentStart):
 
 
 class RandomInventoryAgentStart(InventoryAgentStart):
-    """ Sets the agent start inventory by randomly distributing the items throughout the inventory spaces
+    """ 
+    Sets the agent start inventory by randomly distributing items throughout its inventory slots.
+    Note: This has no effect on inventory observation handlers.
 
     Example usage:
 
@@ -102,7 +102,6 @@ class RandomInventoryAgentStart(InventoryAgentStart):
         RandomInventoryAgentStart(
             {'dirt': 10, 'planks': 5}
         )
-
     """
     def __init__(self, inventory: Dict[str, Union[str, int]], use_hotbar: bool = False):
         """ Creates an inventory where items are placed in random positions
@@ -130,7 +129,6 @@ class AgentStartBreakSpeedMultiplier(Handler):
     .. code-block:: python
 
         AgentStartBreakSpeedMultiplier(2.0)
-
     """
 
 
@@ -155,7 +153,6 @@ class AgentStartPlacement(Handler):
     .. code-block:: python
 
         AgentStartPlacement(x=5, y=70, z=4, yaw=0, pitch=0)
-
     """
     def to_string(self) -> str:
         return f"agent_start_placement({self.x}, {self.y}, {self.z}, {self.yaw}, {self.pitch})"
@@ -182,7 +179,6 @@ class AgentStartNear(Handler):
     .. code-block:: python
 
         AgentStartNear("MineRLAgent0", min_distance=2, max_distance=10, max_vert_distance=3)
-        
     """
     def to_string(self) -> str:
         return f"agent_start_near({self.anchor_name}, h {self.min_distance} - {self.max_distance}, v {self.max_vert_distance})"
@@ -239,17 +235,18 @@ class StartingHealthAgentStart(Handler):
 
 
 class StartingFoodAgentStart(Handler):
-    """Sets the starting food and/or food saturation of the agent.
+    """
+    Sets the starting food and/or food saturation of the agent.
 
-        Example usage:
+    Example usage:
 
-        .. code-block:: python
+    .. code-block:: python
 
-            StartingFoodAgentStart(food=2.5, food_saturation=1)
+        StartingFoodAgentStart(food=2.5, food_saturation=1)
 
-        Args:
-            :code:`food`: The amount of food the agent starts out with
-            :code:`food_saturation`: Determines how fast the hunger level depletes, defaults to 5
+    Args:
+        :code:`food`: The amount of food the agent starts out with
+        :code:`food_saturation`: Determines how fast the hunger level depletes, defaults to 5
     """
 
     def to_string(self) -> str:

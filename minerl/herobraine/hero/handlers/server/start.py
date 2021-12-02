@@ -1,6 +1,7 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
-"""Server start handlers allow you to set the initial state of the World (e.g. weather, time) 
+"""
+Server start handlers allow you to set the initial state of the World (e.g. weather, time) 
 
 When used to create a Gym environment, they should be passed to :code:`create_server_initial_conditions`
 """
@@ -15,10 +16,10 @@ import jinja2
 #     <AllowPassageOfTime>false</AllowPassageOfTime>
 # </Time>
 class TimeInitialCondition(Handler):
-    """Sets the initial world time as well as whether time can pass. 
-    
+    """
+    Sets the initial world time as well as whether time can pass. 
 
-    Usage example:
+    Example usage:
     
     .. code-block:: python
 

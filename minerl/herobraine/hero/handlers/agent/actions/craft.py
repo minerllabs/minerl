@@ -11,7 +11,6 @@ class CraftAction(ItemListAction):
 
     Note when used alongside Craft Item Nearby, block lists must be disjoint or from_universal will fire multiple
     times
-
     """
     _command = "craft"
 

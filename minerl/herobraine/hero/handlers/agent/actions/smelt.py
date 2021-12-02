@@ -11,8 +11,7 @@ class SmeltItemNearby(CraftAction):
     """
     An action handler for crafting items when agent is in view of a crafting table
 
-        Note when used along side Craft Item, block lists must be disjoint or from_universal will fire multiple times
-
+    Note when used along side Craft Item, block lists must be disjoint or from_universal will fire multiple times
     """
     _command = 'smeltNearby'
 

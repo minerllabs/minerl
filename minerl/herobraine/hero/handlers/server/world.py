@@ -40,7 +40,6 @@ class DefaultWorldGenerator(Handler):
         )
 
     def __init__(self, force_reset=True, generator_options: str = "{}"):
-        """"""
         self.force_reset = force_reset
         self.generator_options = generator_options
 
@@ -66,7 +65,8 @@ class FileWorldGenerator(Handler):
 
 #  <FlatWorldGenerator forceReset="true"/>
 class FlatWorldGenerator(Handler):
-    """Generates a world that is a flat landscape.
+    """
+    Generates a world that is a flat landscape.
     
     Example usage:
 
@@ -76,10 +76,7 @@ class FlatWorldGenerator(Handler):
         # You can use websites like "`Minecraft Tools`_" to easily customize superflat world layers.
         FlatWorldGenerator(generatorString="1;7,2x3,2;1")
 
-.. _Minecraft Tools: https://minecraft.tools/en/flat.php?biome=1&bloc_1_nb=1&bloc_1_id=2&bloc_2_nb=2&bloc_2_id=3%2F00&bloc_3_nb=1&bloc_3_id=7&village_size=1&village_distance=32&mineshaft_chance=1&stronghold_count=3&stronghold_distance=32&stronghold_spread=3&oceanmonument_spacing=32&oceanmonument_separation=5&biome_1_distance=32&valid=Create+the+Preset#seed
-
-
-        
+    .. _Minecraft Tools: https://minecraft.tools/en/flat.php?biome=1&bloc_1_nb=1&bloc_1_id=2&bloc_2_nb=2&bloc_2_id=3%2F00&bloc_3_nb=1&bloc_3_id=7&village_size=1&village_distance=32&mineshaft_chance=1&stronghold_count=3&stronghold_distance=32&stronghold_spread=3&oceanmonument_spacing=32&oceanmonument_separation=5&biome_1_distance=32&valid=Create+the+Preset#seed   
     """
 
     def to_string(self) -> str:
@@ -119,7 +116,8 @@ class BiomeGenerator(Handler):
 
 
 class DrawingDecorator(Handler):
-    """Draws shapes (e.g. spheres, cuboids) in the world.
+    """
+    Draws shapes (e.g. spheres, cuboids) in the world.
     
     Example usage:
     
@@ -134,7 +132,6 @@ class DrawingDecorator(Handler):
         ')
 
     See Project Malmo for more
-
     """
     def __init__(self, to_draw: str):
         self.to_draw = to_draw

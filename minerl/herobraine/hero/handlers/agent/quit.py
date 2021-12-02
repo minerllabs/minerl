@@ -26,7 +26,6 @@ class AgentQuitFromTouchingBlockType(Handler):
         AgentQuitFromTouchingBlockType([
             "gold_block", "oak_log"
         ])
-
     """
     def to_string(self) -> str:
         return "agent_quit_from_touching_block_type"
@@ -61,7 +60,6 @@ class AgentQuitFromCraftingItem(Handler):
         AgentQuitFromCraftingItem([
             dict(type="iron_axe", amount=1), dict(type="diamond_block", amount=5)
         ])
-
     """
     def to_string(self) -> str:
         return "agent_quit_from_crafting_item"
@@ -98,7 +96,6 @@ class AgentQuitFromPossessingItem(Handler):
         AgentQuitFromPossessingItem([
             dict(type="golden_apple", amount=3), dict(type="diamond", amount=1)
         ])
-        
     """
 
     def to_string(self) -> str:
@@ -114,12 +111,6 @@ class AgentQuitFromPossessingItem(Handler):
         )
 
     def __init__(self, items: List[Dict[str, Union[str, int]]]):
-        """Creates a reward which will cause the player to quit when they obtain something.
-        
-        aqfpi = AgentQuitFromPossessingItem([
-            dict(type="log", amount=64)
-        ])
-        """
         assert isinstance(items, list)
         self.items = items
         # Assert that all the items have the correct fields for the XML.

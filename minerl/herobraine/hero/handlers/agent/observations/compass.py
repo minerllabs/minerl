@@ -35,10 +35,8 @@ class CompassObservation(TranslationHandlerGroup):
         )
 
     def __init__(self, angle=True, distance=False):
-        """Initializes a compass observation.
-
-       
-        """
+        """Initializes a compass observation."""
+        
         assert angle or distance, "Must observe either angle or distance"
 
         handlers = []

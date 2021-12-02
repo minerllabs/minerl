@@ -22,7 +22,6 @@ class EquippedItemObservation(TranslationHandlerGroup):
     """
     Enables the observation of equipped items in the main, offhand,
     and armor slots of the agent.
-
     """
 
     def to_string(self) -> str:
