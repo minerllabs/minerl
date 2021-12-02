@@ -23,7 +23,9 @@ more observation data, and changing the rewards agents receive.
 MineRL provides support for these modifications using a variety of handlers.
 
 In this tutorial, we will introduce how these handlers work by building a simple parkour environment
-where an agent will perform an "MLG water bucket jump" onto a block of gold.
+where an agent will perform an "MLG water bucket jump" onto a block of gold. 
+
+"An MLG water is when a player is falling out of the air, or when a player jumps off of something, and they throw down water before they hit the ground to break the fall, and prevent themselves from dying by fall damage." --`Sportskeeda <https://www.sportskeeda.com/minecraft/mlg-minecraft#:~:text=MLG%20Water%20Bucket%20in%20Minecraft&text=MLG%20water%20is%20when%20a,from%20dying%20by%20fall%20damage.>`_
 
 .. image:: ../assets/mlg_water_bucket.gif
   :scale: 100 %
@@ -31,7 +33,7 @@ where an agent will perform an "MLG water bucket jump" onto a block of gold.
 
 The agent will then mine this gold block to terminate the episode.
 
-See the complete code `here <https://github.com/trigaten/MLGPK_gym>`_.
+See the complete code `here <https://github.com/minerllabs/minerl/tree/dev/examples>`_.
 
 Setup
 ============
@@ -79,8 +81,9 @@ provides default settings for the environment.
                 kwargs['name'] = 'MLGWB-v0'
 
             super().__init__(*args,
-                            max_episode_steps=MLGWB_LENGTH, reward_threshold=100.0,
-                            **kwargs)
+                        max_episode_steps=MLGWB_LENGTH, 
+                        reward_threshold=100.0,
+                        **kwargs)
 
 :code:`reward_threshold` is a number specifying how much reward the agent must get for the episode to be successful.
 
@@ -242,21 +245,26 @@ Other Functions to Implement
 **Congrats!** You just made your first MineRL environment. Checkout the herobraine API reference 
 to see many other ways to modify the world and agent.
 
+See complete environment code `here <https://github.com/minerllabs/minerl/tree/dev/examples/mlg_wb_specs.py>`_.
+
 Using the Environment
 ========================
 
 Now you need to solve it 🙂
 
-Create a new Jupyter Notebook (or Python) file in the same folder.
+Create a new Python file in the same folder.
 
-In order to make an instance of the MLG Water Bucket Gym, we'll need to 
-register it with :code:`gym` then call :code:`gym.make`
+Here is some code to get you started:
+
+You should see a Minecaft instance open then minimize. 
+Then, you should see a window that shows the agent's POV.
 
 .. code-block:: python
 
     import gym
     from mlg_wb_specs import MLGWB
 
+    # In order to use the environment as a gym you need to register it with gym
     abs_MLG = MLGWB()
     abs_MLG.register()
     env = gym.make("MLGWB-v0")
@@ -264,29 +272,16 @@ register it with :code:`gym` then call :code:`gym.make`
     # this line might take a couple minutes to run
     obs  = env.reset()
 
-Here is some more boilerplate to get you started:
-
-.. code-block:: python
-
+    # Renders the environment with the agent taking noops
     done = False
-
     while not done:
-
         env.render()
-
         # a dictionary of actions. Try indexing it and changing values.
         action = env.action_space.noop()
-
         obs, reward, done, info = env.step(action)
 
-Running the previous two code blocks should open a Minecaft instance which 
-will quickly be minimized. Then, it should open a window that shows the agent's view.
-
-Try using a Jupyter Notebook and running the first code block
-in one cell. In another cell, put the 3 lines from inside the while loop.
-Run the cell a couple times and try changing the action dictionary.
-
-See complete solution code `here <https://github.com/trigaten/MLGPK_gym/blob/main/solution.ipynb>`_.
+See complete solution code `here <https://github.com/minerllabs/minerl/tree/dev/examples/mlg_wb_solution.py>`_ 
+(Python file) or an interactive version `here <https://github.com/trigaten/MLGPK_gym/blob/main/solution.ipynb>`_ (Jupyter Notebook).
 
 .. image:: ../assets/real_wb_success.gif
   :scale: 100 %
