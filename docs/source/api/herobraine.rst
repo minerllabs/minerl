@@ -224,4 +224,4 @@ World Handlers
     :show-inheritance:
 
 
-.. _Custom Environment Tutorial: <http://minerl.io/docs/tutorials/custom_environments.html>
+.. _Custom Environment Tutorial: https://minerl.readthedocs.io/en/latest/tutorials/custom_environments.html 
