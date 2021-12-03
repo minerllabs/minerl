@@ -1,3 +1,8 @@
+"""
+These handlers cause the episode to terminate based on certain agent conditions.
+
+When used to create a Gym environment, they should be passed to :code:`create_agent_handlers`
+"""
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
@@ -11,6 +16,17 @@ from typing import List, Dict, Union
 #     <Block type="iron_block"/>
 # </AgentQuitFromTouchingBlockType>
 class AgentQuitFromTouchingBlockType(Handler):
+    """
+    Terminates episode when agent touches one of the blocks in :code:`blocks`
+
+    Example usage: 
+    
+    .. code-block:: python
+    
+        AgentQuitFromTouchingBlockType([
+            "gold_block", "oak_log"
+        ])
+    """
     def to_string(self) -> str:
         return "agent_quit_from_touching_block_type"
 
@@ -34,6 +50,17 @@ class AgentQuitFromTouchingBlockType(Handler):
 #     <Item type="chest"/>
 # </AgentQuitFromCraftingItem>
 class AgentQuitFromCraftingItem(Handler):
+    """
+    Terminates episode when agent crafts one of the items in :code:`items`
+
+    Example usage: 
+
+    .. code-block:: python
+
+        AgentQuitFromCraftingItem([
+            dict(type="iron_axe", amount=1), dict(type="diamond_block", amount=5)
+        ])
+    """
     def to_string(self) -> str:
         return "agent_quit_from_crafting_item"
 
@@ -59,8 +86,20 @@ class AgentQuitFromCraftingItem(Handler):
 #     <Item type="log" amount="64"/>
 # </AgentQuitFromPossessingItem>
 class AgentQuitFromPossessingItem(Handler):
+    """
+    Terminates episode when agent obtains one of the items in :code:`items`
+
+    Example usage: 
+
+    .. code-block:: python
+
+        AgentQuitFromPossessingItem([
+            dict(type="golden_apple", amount=3), dict(type="diamond", amount=1)
+        ])
+    """
+
     def to_string(self) -> str:
-        return "agent_quit_from_possessing_item"
+        return "agent_quit_from_possessing_item" 
 
     def xml_template(self) -> str:
         return str(
@@ -72,12 +111,6 @@ class AgentQuitFromPossessingItem(Handler):
         )
 
     def __init__(self, items: List[Dict[str, Union[str, int]]]):
-        """Creates a reward which will cause the player to quit when they obtain something.
-        
-        aqfpi = AgentQuitFromPossessingItem([
-            dict(type="log", amount=64)
-        ])
-        """
         assert isinstance(items, list)
         self.items = items
         # Assert that all the items have the correct fields for the XML.

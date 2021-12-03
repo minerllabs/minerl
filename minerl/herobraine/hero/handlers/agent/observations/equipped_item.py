@@ -3,8 +3,8 @@
 
 
 """
-Not very proud of the code reuse in this module -- @wguss
 """
+# Not very proud of the code reuse in this module -- @wguss
 
 import os
 from typing import List, Sequence
@@ -22,7 +22,6 @@ class EquippedItemObservation(TranslationHandlerGroup):
     """
     Enables the observation of equipped items in the main, offhand,
     and armor slots of the agent.
-
     """
 
     def to_string(self) -> str:

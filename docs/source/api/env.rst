@@ -18,7 +18,6 @@ MineRLEnv
     :show-inheritance:
 
 
-
 InstanceManager
 =================
 
@@ -26,3 +25,5 @@ InstanceManager
     :members:
     :undoc-members:
     :show-inheritance:
+
+

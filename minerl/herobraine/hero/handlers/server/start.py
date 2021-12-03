@@ -1,6 +1,10 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
+"""
+Server start handlers allow you to set the initial state of the World (e.g. weather, time) 
 
+When used to create a Gym environment, they should be passed to :code:`create_server_initial_conditions`
+"""
 
 #  <BiomeGenerator forceReset="true" biome="3"/>
 from minerl.herobraine.hero.handler import Handler
@@ -12,6 +16,17 @@ import jinja2
 #     <AllowPassageOfTime>false</AllowPassageOfTime>
 # </Time>
 class TimeInitialCondition(Handler):
+    """
+    Sets the initial world time as well as whether time can pass. 
+
+    Example usage:
+    
+    .. code-block:: python
+
+        # Sets time to morning and stops passing of time
+        TimeInitialCondition(False, 23000)
+    """
+
     def to_string(self) -> str:
         return "time_initial_condition"
 
@@ -32,6 +47,18 @@ class TimeInitialCondition(Handler):
 
 # <Weather>clear</Weather>
 class WeatherInitialCondition(Handler):
+    """
+    Sets the initial weather condition in the world.
+    
+    Example usage:
+
+    .. code-block:: python
+
+        # Sets weather to thunder
+        WeatherInitialCondition("thunder")
+
+    """
+
     def to_string(self) -> str:
         return "weather_initial_condition"
 

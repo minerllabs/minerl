@@ -16,24 +16,30 @@ class KeybasedCommandAction(Action):
     This is not to be confused with keyboard acitons, wehreby both anvil and malmo
     simulate and act on direct key codes.
 
-    Combinations of KeybasedCommandActions yield acitons like:
-    {
-			“move” : 1,
-			“jump”: 1 
-    } 
-    where move and jump are hte commands, which correspond to keys like 'W', 'SPACE', etc.
+    Combinations of KeybasedCommandActions yield actions like:
+    
+    .. code-block:: json
+
+        {
+            “move” : 1,
+            “jump”: 1 
+        } 
+    where move and jump are the commands, which correspond to keys like 'W', 'SPACE', etc.
 
     This is as opposed to keyboard actions (see the following class definition in keyboard.py)
     which yield actions like:
-    {
-        "keyboard" : {
-            "W" : 1,
-            "A": 1,
-            "S": 0,
-            "E": 1,
-            ...
+
+    .. code-block:: json
+    
+        {
+            "keyboard" : {
+                "W" : 1,
+                "A": 1,
+                "S": 0,
+                "E": 1,
+                ...
+            }
         }
-    }
     More information can be found in the unification document (internal).
     """
 

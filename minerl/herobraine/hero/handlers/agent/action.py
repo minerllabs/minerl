@@ -17,7 +17,7 @@ from collections.abc import Iterable
 class Action(TranslationHandler):
     """
     An action handler based on commands
-    # Todo: support blacklisting commands. (note this has to work with mergeing somehow)
+    # Todo: support blacklisting commands. (note this has to work with merging somehow)
     """
 
     def __init__(self, command: str, space: spaces.MineRLSpace):

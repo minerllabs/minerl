@@ -21,7 +21,7 @@ class PlaceBlock(ItemListAction):
     def __init__(self, blocks: list, _other=Optional[str], _default=Optional[str]):
         """
         Initializes the space of the handler to be one for each item in the list
-        Requires 0th item to be 'none' and last item to be 'other' coresponding to
+        Requires 0th item to be 'none' and last item to be 'other' corresponding to
         no-op and non-listed item respectively
         """
         self._items = blocks

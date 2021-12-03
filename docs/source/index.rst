@@ -87,6 +87,7 @@ components:
    tutorials/more_examples
    tutorials/k-means
    tutorials/minerl_tools
+   tutorials/custom_environments
 
 
 .. toctree::
@@ -110,6 +111,7 @@ components:
 
     api/env
     api/data
+    api/herobraine
 
 
 
