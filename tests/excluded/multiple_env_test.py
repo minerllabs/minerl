@@ -9,14 +9,10 @@ import gym
 import matplotlib.pyplot as plt
 import minerl
 import numpy as np
-from minerl.env.core import MineRLEnv
 
 import coloredlogs
 
 coloredlogs.install(logging.DEBUG)
-
-# import minerl.env.bootstrap
-# minerl.env.bootstrap._check_port_avail = lambda _,__: True
 
 NUM_EPISODES = 1
 NUM_ENVS = 2
@@ -42,7 +38,7 @@ class MineRLRunner(threading.Thread):
             while not done:
                 random_act = env.action_space.noop()
 
-                random_act['camera'] = [0, 0.1 * obs["compassAngle"]]
+                random_act['camera'] = [0, 0.1 * obs["compass"]["angle"]]
                 random_act['back'] = 0
                 random_act['forward'] = 1
                 random_act['jump'] = 1
