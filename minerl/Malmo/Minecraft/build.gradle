@@ -24,6 +24,16 @@ buildscript {
 
         classpath 'com.github.brandonhoughton:ForgeGradle:FG_2.2_patched-SNAPSHOT'
     }
+    configurations {
+        compileClasspath {
+            resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+                if (details.requested.group == 'org.apache.logging.log4j') {
+                    details.useVersion '2.15.0'
+                    details.because 'zero-day-exploits on log4j <2.15.0'
+                }
+            }
+        }
+    }
 }
 
 plugins {
