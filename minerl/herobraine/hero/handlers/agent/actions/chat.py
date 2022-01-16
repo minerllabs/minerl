@@ -25,13 +25,12 @@ class ChatAction(Action):
 
     .. code-block:: json
 
-        {"chat_command": "/summon creeper"}
+        {"chat": "/summon creeper"}
 
     """
 
     def to_string(self):
-        return 'chat_command'
-
+        return 'chat'
     
     def xml_template(self) -> str:
         return str("<ChatCommands> </ChatCommands>")
