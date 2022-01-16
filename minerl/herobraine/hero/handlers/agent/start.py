@@ -8,6 +8,7 @@ When used to create a Gym environment, they should be passed to :code:`create_ag
 """
 from minerl.herobraine.hero.handler import Handler
 from typing import Dict, List, Union
+import random
 
 # <AgentStart>
 #     <Inventory>
