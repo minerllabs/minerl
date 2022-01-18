@@ -13,7 +13,7 @@ class KeybasedCommandAction(Action):
     A command action which is generated from human keypresses in anvil.
     Examples of such actions are movement actions, etc.
 
-    This is not to be confused with keyboard actions, wehreby both anvil and malmo
+    This is not to be confused with keyboard actions, whereby both anvil and malmo
     simulate and act on direct key codes.
 
     Combinations of KeybasedCommandActions yield actions like:
