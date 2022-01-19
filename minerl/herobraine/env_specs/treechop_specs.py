@@ -119,12 +119,12 @@ TREECHOP_WORLD_GENERATOR_OPTIONS = '''{
 
 
 class Treechop(SimpleEmbodimentEnvSpec):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, agent_count=None, *args, **kwargs):
         if 'name' not in kwargs:
             kwargs['name'] = 'MineRLTreechop-v0'
 
         super().__init__(*args,
-                         max_episode_steps=TREECHOP_LENGTH, reward_threshold=64.0,
+                         max_episode_steps=TREECHOP_LENGTH, reward_threshold=64.0, agent_count=agent_count,
                          **kwargs)
 
     def create_rewardables(self) -> List[Handler]:

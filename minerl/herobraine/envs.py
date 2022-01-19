@@ -18,6 +18,9 @@ import os
 # Must load non-obfuscated envs first!
 # Publish.py depends on this order for black-listing streams
 MINERL_TREECHOP_V0 = Treechop()
+#
+# # Multi Agent Treechop environment
+MINERL_TREECHOP_MA_V0 = Treechop(agent_count=2, name="MineRLTreechop-v1")
 
 MINERL_NAVIGATE_V0 = Navigate(dense=False, extreme=False)
 MINERL_NAVIGATE_EXTREME_V0 = Navigate(dense=False, extreme=True)
