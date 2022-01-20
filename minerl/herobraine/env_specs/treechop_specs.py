@@ -10,6 +10,11 @@ import minerl.herobraine
 import minerl.herobraine.hero.handlers as handlers
 from minerl.herobraine.env_spec import EnvSpec
 
+
+
+none = 'none'
+other = 'other'
+
 TREECHOP_DOC = """
 .. image:: ../assets/treechop1.mp4.gif
   :scale: 100 %
@@ -34,6 +39,7 @@ The agent begins in a forest biome (near many trees) with an iron axe for cuttin
 is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent
 obtains 64 units.
 """
+
 TREECHOP_LENGTH = 8000
 TREECHOP_WORLD_GENERATOR_OPTIONS = '''{
     "coordinateScale": 684.412,
@@ -137,9 +143,43 @@ class Treechop(SimpleEmbodimentEnvSpec):
     def create_agent_start(self) -> List[Handler]:
         return [
             handlers.SimpleInventoryAgentStart([
-                dict(type="iron_axe", quantity=1)
+                dict(type="iron_axe", quantity=1),
+                dict(type="planks", quantity=20)
             ])
         ]
+
+    def create_observables(self) -> List[Handler]:
+        # TODO: Parameterize these observations.
+        return super().create_observables() + [
+            handlers.FlatInventoryObservation([
+                'dirt',
+                'coal',
+                'torch',
+                'log',
+                'planks',
+                'stick',
+                'crafting_table',
+                'wooden_axe',
+                'wooden_pickaxe',
+                'stone',
+                'cobblestone',
+                'furnace',
+                'stone_axe',
+                'stone_pickaxe',
+                'iron_ore',
+                'iron_ingot',
+                'iron_axe',
+                'iron_pickaxe'
+            ]),
+            handlers.EquippedItemObservation(items=[
+                'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', none,
+                # TODO (R): REMOVE NONE FOR MINERL-v1
+                other
+            ], _default='air', _other=other)
+        ]
+
+
+
 
     def create_agent_handlers(self) -> List[Handler]:
         return [
