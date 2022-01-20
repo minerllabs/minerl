@@ -26,8 +26,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 NS = "{http://ProjectMalmo.microsoft.com}"
 STEP_OPTIONS = 0
 
-MAX_WAIT = 600  # Time to wait before raising an exception (high value because some operations we wait on are very slow)
-SOCKTIME = 60.0 * 4  # After this much time a socket exception will be thrown.
+MAX_WAIT = 600 * 10   # TODO undo this at some pont # Time to wait before raising an exception (high value because some operations we wait on are very slow)
+SOCKTIME = 60.0 * 4 *10 # TODO undo this at some pont # After this much time a socket exception will be thrown.
 TICK_LENGTH = 0.05
 
 logger = logging.getLogger(__name__)

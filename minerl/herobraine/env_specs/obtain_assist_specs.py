@@ -10,26 +10,11 @@ import minerl.herobraine
 import minerl.herobraine.hero.handlers as handlers
 from minerl.herobraine.env_spec import EnvSpec
 
-TREECHOP_DOC = """
-.. image:: ../assets/treechop1.mp4.gif
-  :scale: 100 %
-  :alt:
-.. image:: ../assets/treechop2.mp4.gif
-  :scale: 100 %
-  :alt:
-.. image:: ../assets/treechop3.mp4.gif
-  :scale: 100 %
-  :alt:
-.. image:: ../assets/treechop4.mp4.gif
-  :scale: 100 %
-  :alt:
-In treechop, the agent must collect 64 `minecraft:log`. This replicates a common scenario
-in Minecraft, as logs are necessary to craft a large amount of items in the game and are a
-key resource in Minecraft.
-The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent
-is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent
-obtains 64 units.
-"""
+
+
+none = 'none'
+other = 'other'
+
 TREECHOP_LENGTH = 8000
 TREECHOP_WORLD_GENERATOR_OPTIONS = '''{
     "coordinateScale": 684.412,
@@ -114,13 +99,11 @@ TREECHOP_WORLD_GENERATOR_OPTIONS = '''{
 }'''
 
 
-class Treechop(SimpleEmbodimentEnvSpec):
-    def __init__(self, *args, **kwargs):
-        if 'name' not in kwargs:
-            kwargs['name'] = 'MineRLTreechop-v0'
-
+class ObtainMA(SimpleEmbodimentEnvSpec):
+    def __init__(self, agent_count=2, *args, **kwargs):
+        assert 'name' in kwargs
         super().__init__(*args,
-                         max_episode_steps=TREECHOP_LENGTH, reward_threshold=64.0,
+                         max_episode_steps=TREECHOP_LENGTH, reward_threshold=64.0, agent_count=agent_count,
                          **kwargs)
 
     def create_rewardables(self) -> List[Handler]:
@@ -133,16 +116,48 @@ class Treechop(SimpleEmbodimentEnvSpec):
     def create_agent_start(self) -> List[Handler]:
         return [
             handlers.SimpleInventoryAgentStart([
-                dict(type="iron_axe", quantity=1)
+                dict(type="planks", quantity=10)
             ])
         ]
 
-    def create_agent_handlers(self) -> List[Handler]:
-        return [
-            handlers.AgentQuitFromPossessingItem([
-                dict(type="log", amount=64)]
-            )
+    def create_actionables(self) -> List[Handler]:
+        """Will be used to reset agents health, etc. without resetting the entire environment"""
+        return super().create_actionables() + [
+            handlers.ChatAction()
         ]
+
+    def create_observables(self) -> List[Handler]:
+        # TODO: Parameterize these observations.
+        return super().create_observables() + [
+            handlers.FlatInventoryObservation([
+                'dirt',
+                'coal',
+                'torch',
+                'log',
+                'planks',
+                'stick',
+                'crafting_table',
+                'wooden_axe',
+                'wooden_pickaxe',
+                'stone',
+                'cobblestone',
+                'furnace',
+                'stone_axe',
+                'stone_pickaxe',
+                'iron_ore',
+                'iron_ingot',
+                'iron_axe',
+                'iron_pickaxe'
+            ]),
+            handlers.EquippedItemObservation(items=[
+                'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', none,
+                # TODO (R): REMOVE NONE FOR MINERL-v1
+                other
+            ], _default='air', _other=other)
+        ]
+
+    def create_agent_handlers(self) -> List[Handler]:
+        return []
 
     def create_server_world_generators(self) -> List[Handler]:
         return [
@@ -178,4 +193,4 @@ class Treechop(SimpleEmbodimentEnvSpec):
         return folder == 'survivaltreechop'
 
     def get_docstring(self):
-        return TREECHOP_DOC
+        return ""
