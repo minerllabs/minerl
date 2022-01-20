@@ -148,6 +148,12 @@ class Treechop(SimpleEmbodimentEnvSpec):
             ])
         ]
 
+    def create_actionables(self) -> List[Handler]:
+        """Will be used to reset agents health, etc. without resetting the entire environment"""
+        return super().create_actionables() + [
+            handlers.ChatAction()
+        ]
+
     def create_observables(self) -> List[Handler]:
         # TODO: Parameterize these observations.
         return super().create_observables() + [
@@ -178,15 +184,8 @@ class Treechop(SimpleEmbodimentEnvSpec):
             ], _default='air', _other=other)
         ]
 
-
-
-
     def create_agent_handlers(self) -> List[Handler]:
-        return [
-            handlers.AgentQuitFromPossessingItem([
-                dict(type="log", amount=64)]
-            )
-        ]
+        return []
 
     def create_server_world_generators(self) -> List[Handler]:
         return [

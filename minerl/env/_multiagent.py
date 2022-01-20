@@ -96,6 +96,9 @@ class _MultiAgentEnv(gym.Env):
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
 
+        # agent_0 can send Minecraft messages/commands each step
+        self.next_chat_message = None
+
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
     # These systems are not generally mutated episodically (via reset) and therefore
@@ -269,6 +272,11 @@ class _MultiAgentEnv(gym.Env):
     def step(self, actions) -> Tuple[dict, dict, bool, dict]:
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
+
+            # add chat action if there is one
+            if self.next_chat_message:
+                actions["agent_0"]["chat"] = self.next_chat_message
+            self.next_chat_message = None
 
             multi_obs = {}
             multi_reward = {}
@@ -676,6 +684,13 @@ class _MultiAgentEnv(gym.Env):
 
     def is_closed(self):
         return self._already_closed
+
+    def set_next_chat_message(self, chat):
+        """Sets the next chat message to be sent to Minecraft by agent_0
+        This can be used to send Minecraft commands
+        Make sure you have the ChatAction handler enabled in your environment
+        """
+        self.next_chat_message = chat
 
     ############# AUX HELPER METHODS ###########
 

@@ -463,10 +463,10 @@ class Text(MineRLSpace):
     # TODO:
     [['a text string', ..., 'last_text_string']]
     Example usage:
-    self.observation_space = spaces.Text(1)
+    self.observation_space = spaces.Text([1])
     """
 
-    def no_op(self):
+    def no_op(self, batch_shape=None):
         return ""
 
     def create_flattened_space(self):
@@ -482,14 +482,20 @@ class Text(MineRLSpace):
 
     def __init__(self, shape):
         super().__init__(shape, np.unicode_)
+        import warnings
+        warnings.warn("The Text MineRLSpace class is not fully implemented. This may cause problems when sampling an action of this type (even when getting a noop).")
 
-    def sample(self):
-        total_strings = np.prod(self.shape)
-        strings = [
-            "".join([random.choice(string.ascii_lowercase) for _ in range(random.randint(0, Text.MAX_STR_LEN))])
-            for _ in range(total_strings)
-        ]
-        return np.array(np.reshape(strings, self.shape), np.dtype)
+    def sample(self, bs):
+        return ""
+
+        # TODO fix this?
+
+        # total_strings = np.prod(self.shape)
+        # strings = [
+        #     "".join([random.choice(string.ascii_lowercase) for _ in range(random.randint(0, Text.MAX_STR_LEN))])
+        #     for _ in range(total_strings)
+        # ]
+        # return np.array(np.reshape(strings, self.shape), np.dtype)
 
     def contains(self, x):
         contained = False  # ? TODO (R): Look back in git.
