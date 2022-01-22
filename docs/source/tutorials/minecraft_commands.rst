@@ -13,6 +13,9 @@ Using Minecraft Commands
 .. role:: bash(code)
    :language: bash
 
+.. 
+    sphinx should really support minecraft language markdown :(
+
 .. role:: minecraft(code)
    :language: minecraft
 
@@ -32,7 +35,7 @@ this feature can be _very_ useful for for speeding up training.
    This feature is in BETA: it comes with a number of restrictions
 
    Only chats from the first agent (“agent_0”) are supported. 
-   You must add ChatAction handler to your envspec. 
+   You must add :code:`ChatAction` handler to your envspec. 
    You can only execute one chat action per time step, 
 
 
@@ -53,11 +56,11 @@ This could be accomplished with the following Minecraft commands:
 
    /effect ...
 
-Adding the ChatAction to your envspec
+Adding the :code:`ChatAction` to your envspec
 --------------------------------------------
 
-In order to send Minecraft commands, you need to add the ChatAction 
-handler to your envspec. The ChatAction allows the sending of regular 
+In order to send Minecraft commands, you need to add the :code:`ChatAction` 
+handler to your envspec. The :code:`ChatAction` allows the sending of regular 
 Minecraft chats as well as Minecraft commands. 
 This can be accomplished by adding the following
 function to your envspec:
@@ -74,10 +77,10 @@ function to your envspec:
 See more about adding action handlers in the 
 custom env tututorial and herobraine API docs.
 
-Using the ChatAction to send a Minecraft Command
+Using the :code:`ChatAction` to send a Minecraft Command
 --------------------------------------------------
 
-We can use the ChatAction just like other actions, 
+We can use the :code:`ChatAction` just like other actions, 
 by using the actions dictionary. 
 
 .. code-block:: python
@@ -92,7 +95,7 @@ Since the ability to send Minecraft commands is such an important feature,
 MineRL provides an additional level of abtraction to make its use
 slightly easier.
 
-All environments which use the ChatAction handler also support 
+All environments which use the :code:`ChatAction` handler also support 
 the set_next_chat_message function. This function takes a String 
 and sends it as a chat message the next time the environment 
 is stepped.
