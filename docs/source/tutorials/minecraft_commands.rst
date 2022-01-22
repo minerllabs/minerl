@@ -97,7 +97,7 @@ the set_next_chat_message function. This function takes a String
 and sends it as a chat message the next time the environment 
 is stepped.
 
-Here is sample use:
+Example use:
 
 .. code-block:: python
     # no actions
