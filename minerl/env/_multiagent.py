@@ -281,9 +281,9 @@ class _MultiAgentEnv(gym.Env):
                 actions[self.task.agent_names[0]]["chat"] = self.next_chat_message
                 self.next_chat_message = None
                 if self.has_chat_handler is None:
-                    self.has_chat_handler = any([isinstance(a, handlers.CameraAction) for a in l])
+                    self.has_chat_handler = any([isinstance(actionable, handlers.ChatAction) for actionable in self.task.actionables])
                 if not self.has_chat_handler:
-                    raise ValueError("Tried to use chat action but no ChatAction is present (see docs).")
+                    raise RuntimeError("Tried to use chat action but no ChatAction handler is present (see docs on how to send Minecraft commands).")
 
             multi_obs = {}
             multi_reward = {}
