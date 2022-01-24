@@ -34,7 +34,7 @@ this feature can be *very* useful for speeding up training.
 
    This feature is in BETA; it comes with a number of restrictions.
 
-   Only messages from the first agent (“agent_0”) are supported in the multiagent setting. 
+   Only messages from the first agent are supported in the multiagent setting. 
 
    You must add the :code:`ChatAction` handler to your envspec. 
 
@@ -84,9 +84,7 @@ Abstracted Command Sending
 All environments which use the :code:`ChatAction` handler will support 
 the ``set_next_chat_message`` function. This function takes a string 
 and sends it as a chat message the next time the environment
-is stepped.
-
-Example usage:
+is stepped:
 
 .. code-block:: python
 
@@ -102,15 +100,6 @@ Example usage:
     # teleports a random agent to the given coordinates
     env.step(actions)
 
-You can also send chat messages a part of the actions. This example
-is for the multiagent setting (note that ``agent_0`` has to be one calling
-commands in the multiagent setting).
-
-.. code-block:: python
-
-    # give all agents an apple
-    actions["agent_0"]["chat"] = "/give @a apple"
-    env.step(actions)
 
 Advanced use 
 ---------------

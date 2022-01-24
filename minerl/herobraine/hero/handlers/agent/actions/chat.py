@@ -16,7 +16,7 @@ class ChatAction(Action):
     This can be used to execute MINECRAFT COMMANDS !!!
 
     Example usage:
-    
+
     .. code-block:: python
 
         ChatAction()
@@ -31,14 +31,11 @@ class ChatAction(Action):
 
     def to_string(self):
         return 'chat'
-    
+
     def xml_template(self) -> str:
         return str("<ChatCommands> </ChatCommands>")
 
     def __init__(self):
-        import warnings
-        warnings.warn("Currently, only agent_0 can use this handler")
-
         self._command = 'chat'
         super().__init__(self.command, spaces.Text([1]))
 
