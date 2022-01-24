@@ -8,3 +8,4 @@ from .equip import *
 from .keyboard import *
 from .place import *
 from .smelt import *
+from .chat import *

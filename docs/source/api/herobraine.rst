@@ -123,6 +123,14 @@ Smelt
     :undoc-members:
     :show-inheritance:
 
+Chat
+^^^^^^^^^^
+
+.. automodule:: minerl.herobraine.hero.handlers.agent.actions.chat
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Observation Handlers 
 ----------------------
 

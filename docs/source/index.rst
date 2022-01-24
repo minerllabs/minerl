@@ -88,6 +88,7 @@ components:
    tutorials/k-means
    tutorials/minerl_tools
    tutorials/custom_environments
+   tutorials/minecraft_commands
 
 
 .. toctree::

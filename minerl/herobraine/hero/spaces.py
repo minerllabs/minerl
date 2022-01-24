@@ -463,7 +463,7 @@ class Text(MineRLSpace):
     # TODO:
     [['a text string', ..., 'last_text_string']]
     Example usage:
-    self.observation_space = spaces.Text(1)
+    self.observation_space = spaces.Text([1])
     """
 
     def no_op(self):
@@ -482,6 +482,7 @@ class Text(MineRLSpace):
 
     def __init__(self, shape):
         super().__init__(shape, np.unicode_)
+        warnings.warn("The Text MineRLSpace class is not fully implemented. This may cause problems when sampling an action of this type (even when getting a noop).")
 
     def sample(self):
         total_strings = np.prod(self.shape)

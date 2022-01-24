@@ -8,6 +8,7 @@ from minerl.env.comms import retry
 from minerl.env.exceptions import MissionInitException
 import os
 from minerl.herobraine.wrapper import EnvWrapper
+import minerl.herobraine.hero.handlers as handlers
 import struct
 from minerl.env.malmo import InstanceManager, MinecraftInstance, launch_queue_logger_thread, malmo_version
 import uuid
@@ -95,6 +96,11 @@ class _MultiAgentEnv(gym.Env):
         self._init_interactive()
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
+
+        # first agent can send Minecraft messages/commands each step
+        self.next_chat_message = None
+        # This will be checked first time chat is tried to be used
+        self.has_chat_handler = None
 
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
@@ -269,6 +275,15 @@ class _MultiAgentEnv(gym.Env):
     def step(self, actions) -> Tuple[dict, dict, bool, dict]:
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
+
+            # add chat action if there is one
+            if self.next_chat_message:
+                actions[self.task.agent_names[0]]["chat"] = self.next_chat_message
+                self.next_chat_message = None
+                if self.has_chat_handler is None:
+                    self.has_chat_handler = any([isinstance(actionable, handlers.ChatAction) for actionable in self.task.actionables])
+                if not self.has_chat_handler:
+                    raise RuntimeError("Tried to use chat action but no ChatAction handler is present (see docs on how to send Minecraft commands).")
 
             multi_obs = {}
             multi_reward = {}
@@ -677,6 +692,14 @@ class _MultiAgentEnv(gym.Env):
     def is_closed(self):
         return self._already_closed
 
+    def set_next_chat_message(self, chat):
+        """
+        Sets the next chat message to be sent to Minecraft by agent_0
+        This can be used to send Minecraft commands
+        Make sure you have the ChatAction handler enabled in your environment
+        """
+        self.next_chat_message = chat
+
     ############# AUX HELPER METHODS ###########
 
     # TODO - make a custom Logger with this integrated (See LogHelper.java)
@@ -815,3 +838,5 @@ class _MultiAgentEnv(gym.Env):
 
     def _clean_connection(self):
         pass
+
+    
