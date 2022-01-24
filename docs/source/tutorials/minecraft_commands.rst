@@ -25,17 +25,19 @@ Introduction
 MineRL provides support for sending Minecraft Commands to the world. 
 In addition to opening up numerous custom environment possibilities 
 (Minecraft commands can be used to move players, 
-summon or destroy mobs and blocks, reset player h
-ealth/food, apply potions effects, and much more),
-this feature can be _very_ useful for for speeding up training. 
+summon or destroy mobs and blocks, reset player 
+health/food, apply potions effects, and much more),
+this feature can be *very* useful for for speeding up training. 
 
 
 .. warning::
 
-   This feature is in BETA: it comes with a number of restrictions
+   This feature is in BETA; it comes with a number of restrictions.
 
    Only chats from the first agent (“agent_0”) are supported. 
-   You must add :code:`ChatAction` handler to your envspec. 
+
+   You must add the :code:`ChatAction` handler to your envspec. 
+
    You can only execute one chat action per time step, 
 
 
@@ -43,8 +45,8 @@ How Can MC Commands speed up training?
 -----------------------------------------------
 
 Consider an agent attempting the Navigate task. 
-Every episode it attempts getting to the objective and after 
-it fails or succeeds the Minecraft world is reset. This is
+Every episode it attempts to get to the objective and after 
+it fails or succeeds the Minecraft world is reset. Resetting the world is
 very computationally costly and it would be better to just 
 reset the position, health, and food of the agent.
 
@@ -52,9 +54,14 @@ This could be accomplished with the following Minecraft commands:
 
 .. code-block:: minecraft
 
-   /tp @a 0 ~ 0
+    # teleport all agents to (x=0, z=0)
+    /tp @a 0 ~ 0
 
-   /effect ...
+    # reset health of all agents
+    /effect @a minecraft:instant_health 1 100 true
+
+    # reset food of all agents
+    /effect @a minecraft:saturation 1 255 true
 
 Adding the :code:`ChatAction` to your envspec
 --------------------------------------------
@@ -85,14 +92,14 @@ by using the actions dictionary.
 
 .. code-block:: python
 
-    # gives all agents an apple
+    # give all agents an apple
     actions[“agent_0”][“chat”] = “/give @a apple”
     env.step(actions)
 
 Abstracted Command Sending 
 ------------------------------
 Since the ability to send Minecraft commands is such an important feature,
-MineRL provides an additional level of abtraction to make its use
+MineRL provides an additional level of abstraction to make its use
 slightly easier.
 
 All environments which use the :code:`ChatAction` handler also support 
@@ -100,9 +107,10 @@ the set_next_chat_message function. This function takes a String
 and sends it as a chat message the next time the environment 
 is stepped.
 
-Example use:
+Example usage:
 
 .. code-block:: python
+
     # no actions
     actions = {}
     env.set_next_chat_message("/gamemode @a adventure")
@@ -118,8 +126,9 @@ Example use:
 Advanced use 
 ---------------
 If for some reason you need to execute multiple commands in 
-the same time step, you can either spawn in a series of 
-Minecraft Command Blocks or load a World from file 
+the *same* time step, you can either spawn in a chain of 
+Minecraft Command Blocks or load a world from file 
 with a chain of command blocks. This level of complexity 
 shouldn’t be needed, but could be useful if you need to 
-execute many distinct commands in a row.
+execute many distinct commands and dont want to spread them 
+over multiple time steps.
