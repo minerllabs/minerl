@@ -22,19 +22,19 @@ Using Minecraft Commands
 Introduction
 ============
 
-MineRL provides support for sending Minecraft Commands to the world. 
+MineRL provides support for sending `Minecraft commands <https://minecraft.fandom.com/wiki/Commands>`_. 
 In addition to opening up numerous custom environment possibilities 
 (Minecraft commands can be used to move players, 
 summon or destroy mobs and blocks, reset player 
 health/food, apply potions effects, and much more),
-this feature can be *very* useful for for speeding up training. 
+this feature can be *very* useful for speeding up training. 
 
 
 .. warning::
 
    This feature is in BETA; it comes with a number of restrictions.
 
-   Only chats from the first agent (“agent_0”) are supported. 
+   Only messages from the first agent (“agent_0”) are supported in the multiagent setting. 
 
    You must add the :code:`ChatAction` handler to your envspec. 
 
@@ -45,9 +45,8 @@ How Can MC Commands speed up training?
 -----------------------------------------------
 
 Consider an agent attempting the Navigate task. 
-Every episode it attempts to get to the objective and after 
-it fails or succeeds the Minecraft world is reset. Resetting the world is
-very computationally costly and it would be better to just 
+After each attempt to get to the objective the Minecraft world is reset.
+Resetting the world is very computationally costly and it would be better to just 
 reset the position, health, and food of the agent.
 
 This could be accomplished with the following Minecraft commands:
@@ -67,10 +66,10 @@ Adding the :code:`ChatAction` to your envspec
 --------------------------------------------
 
 In order to send Minecraft commands, you need to add the :code:`ChatAction` 
-handler to your envspec. The :code:`ChatAction` allows the sending of regular 
-Minecraft chats as well as Minecraft commands. 
-This can be accomplished by adding the following
-function to your envspec:
+handler to your environment's envspec. See `this tutorial <https://minerl.readthedocs.io/en/latest/tutorials/custom_environments.html>`_ on how to make custom environments and envspecs.
+
+The :code:`ChatAction` allows the sending of regular Minecraft chat messages as well as Minecraft commands. 
+This can be accomplished by adding the ``ChatAction`` handler to your envspec:
 
 .. code-block:: python
 
@@ -80,31 +79,11 @@ function to your envspec:
             handlers.ChatAction()
         ]
 
-
-See more about adding action handlers in the 
-custom env tututorial and herobraine API docs.
-
-Using the :code:`ChatAction` to send a Minecraft Command
---------------------------------------------------
-
-We can use the :code:`ChatAction` just like other actions, 
-by using the actions dictionary. 
-
-.. code-block:: python
-
-    # give all agents an apple
-    actions[“agent_0”][“chat”] = “/give @a apple”
-    env.step(actions)
-
 Abstracted Command Sending 
 ------------------------------
-Since the ability to send Minecraft commands is such an important feature,
-MineRL provides an additional level of abstraction to make its use
-slightly easier.
-
-All environments which use the :code:`ChatAction` handler also support 
-the set_next_chat_message function. This function takes a String 
-and sends it as a chat message the next time the environment 
+All environments which use the :code:`ChatAction` handler will support 
+the ``set_next_chat_message`` function. This function takes a string 
+and sends it as a chat message the next time the environment
 is stepped.
 
 Example usage:
@@ -123,12 +102,22 @@ Example usage:
     # teleports a random agent to the given coordinates
     env.step(actions)
 
+You can also send chat messages a part of the actions. This example
+is for the multiagent setting (note that ``agent_0`` has to be one calling
+commands in the multiagent setting).
+
+.. code-block:: python
+
+    # give all agents an apple
+    actions["agent_0"]["chat"] = "/give @a apple"
+    env.step(actions)
+
 Advanced use 
 ---------------
 If for some reason you need to execute multiple commands in 
 the *same* time step, you can either spawn in a chain of 
-Minecraft Command Blocks or load a world from file 
+Minecraft Command Blocks or load a world from the file 
 with a chain of command blocks. This level of complexity 
-shouldn’t be needed, but could be useful if you need to 
-execute many distinct commands and dont want to spread them 
+shouldn’t be needed but could be useful if you need to 
+execute many distinct commands and don't want to spread them 
 over multiple time steps.
