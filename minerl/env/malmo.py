@@ -758,17 +758,17 @@ class MinecraftInstance(object):
             # Wait for the process to start.
             time.sleep(1)
             # kill the minecraft process and its subprocesses
-            try:
-                shutil.rmtree(self.instance_dir)
-            except:
-                print("Failed to delete the temporary minecraft directory.")
-
             if self._kill_minecraft_via_malmoenv(self.host, self.port):
                 # Let the minecraft process term on its own terms.
                 time.sleep(2)
 
             # Now lets try and end the process if anything is laying around
             minerl.utils.process_watcher.reap_process_and_children(self.minecraft_process)
+
+            try:
+                shutil.rmtree(self.instance_dir)
+            except:
+                print("Failed to delete the temporary minecraft directory.")
 
             if self in InstanceManager._instance_pool:
                 InstanceManager._instance_pool.remove(self)
