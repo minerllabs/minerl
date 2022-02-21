@@ -42,7 +42,7 @@ this feature can be *very* useful for speeding up training.
 
 
 How Can MC Commands speed up training?
------------------------------------------------
+=============================================
 
 Consider an agent attempting the Navigate task. 
 After each attempt to get to the objective the Minecraft world is reset.
@@ -63,7 +63,7 @@ This could be accomplished with the following Minecraft commands:
     /effect @a minecraft:saturation 1 255 true
 
 Adding the :code:`ChatAction` to your envspec
---------------------------------------------
+=======================================================
 
 In order to send Minecraft commands, you need to add the :code:`ChatAction` 
 handler to your environment's envspec. See `this tutorial <https://minerl.readthedocs.io/en/latest/tutorials/custom_environments.html>`_ on how to make custom environments and envspecs.
@@ -80,7 +80,7 @@ This can be accomplished by adding the ``ChatAction`` handler to your envspec:
         ]
 
 Abstracted Command Sending 
-------------------------------
+=================================
 All environments which use the :code:`ChatAction` handler will support 
 the ``set_next_chat_message`` function. This function takes a string 
 and sends it as a chat message the next time the environment
@@ -102,7 +102,7 @@ is stepped:
 
 
 Advanced use 
----------------
+======================
 If for some reason you need to execute multiple commands in 
 the *same* time step, you can either spawn in a chain of 
 Minecraft Command Blocks or load a world from the file 
