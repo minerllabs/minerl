@@ -478,6 +478,7 @@ class _MultiAgentEnv(gym.Env):
             # the port/ip of the master agent send the remaining XMLS.
 
             self._send_mission(self.instances[0], agent_xmls[0], self._get_token(0, ep_uid))  # Master
+            time.sleep(10)
             if self.task.agent_count > 1:
                 mc_server_ip, mc_server_port = self._TO_MOVE_find_ip_and_port(self.instances[0],
                                                                               self._get_token(1, ep_uid))
