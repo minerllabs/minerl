@@ -37,6 +37,7 @@ MineRL papers
 ---------------------------
 
 - 1st place: `paper <https://arxiv.org/abs/2107.09540>`__, `code <https://github.com/ndrwmlnk/critic-guided-segmentation-of-rewarding-objects-in-first-person-views>`__, `website <https://ndrwmlnk.github.io/critic-guided-segmentation-of-rewarding-objects-in-first-person-views>`__.
+- 2nd place: `paper <https://arxiv.org/abs/2111.08857>`__.
 - 3rd place: `code <https://github.com/MichalOp/MineRL2020>`__.
 - 4th place: `code <https://github.com/Miffyli/minecraft-bc-2020>`__.
 
