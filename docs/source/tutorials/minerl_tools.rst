@@ -75,8 +75,9 @@ Interactive Mode :code:`minerl.interactor`
 
 .. warning::
 
-    The interactor does not function in MineRL version v0.4. If you wish to use this utility,
-    install an older version of MineRL ``pip install minerl=0.3.7``.
+    Interactor works in MineRL versions 0.3.7 and 0.4.4 (or above). 
+    Install 0.3.7 with ``pip install minerl==0.3.7``, or the newest MineRL
+    with ``pip install git+https://github.com/minerllabs/minerl.git@dev``.
 
 
 Once you have started training agents, the next step is getting them to interact with human players.

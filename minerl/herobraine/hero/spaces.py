@@ -203,7 +203,6 @@ class Discrete(gym.spaces.Discrete, MineRLSpace):
     def __init__(self, *args, **kwargs):
         super(Discrete, self).__init__(*args, **kwargs)
         self.eye = np.eye(self.n, dtype=np.float32)
-        self.shape = ()
 
     def no_op(self, batch_shape=()):
         if len(batch_shape) == 0:
