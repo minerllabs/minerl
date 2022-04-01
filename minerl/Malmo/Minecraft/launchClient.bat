@@ -28,7 +28,7 @@ setlocal enableDelayedExpansion
 ::
 :: The order of the definitions is not important.
 ::
-set "options=-port:0 -replaceable: -scorepolicy:0 -env: -runDir:run  -performanceDir:NONE -seed:NONE"
+set "options=-port:0 -replaceable: -scorepolicy:0 -env: -runDir:run  -performanceDir:NONE -seed:NONE -updateDisplay:"
 
 :: Set the default option values
 for %%O in (%options%) do for /f "tokens=1,* delims=:" %%A in ("%%O") do set "%%A=%%~B"
@@ -89,11 +89,15 @@ if "!-env!"=="true" (
     echo B:env=!-env!
     echo }
     )
+
+echo runtype {
 if "!-replaceable!"=="true" (
-    echo runtype {
     echo B:replaceable=!-replaceable!
-    echo }
     )
+if "!-updateDisplay!"=="true" (
+    echo B:updateDisplay=!-updateDisplay!
+    )
+echo }
 ) > "run\config\malmomodCLIENT.cfg"
 
 :launchLoop

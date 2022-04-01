@@ -472,7 +472,7 @@ class MinecraftInstance(object):
     def actor_name(self):
         return f"actor{self.role}"
 
-    def launch(self, daemonize=False, replaceable=True):
+    def launch(self, daemonize=False, replaceable=True, updateDisplay=False):
         port = self._target_port
         self._starting = True
 
@@ -493,7 +493,8 @@ class MinecraftInstance(object):
                 port,
                 InstanceManager.headless,
                 self.minecraft_dir,
-                replaceable=replaceable)
+                replaceable=replaceable,
+                updateDisplay=updateDisplay)
 
             # 2. Create a watcher process to ensure things get cleaned up
             if not daemonize:
@@ -677,7 +678,7 @@ class MinecraftInstance(object):
     ###########################
     ##### PRIVATE METHODS #####
     ###########################
-    def _launch_minecraft(self, port, headless, minecraft_dir, replaceable=True):
+    def _launch_minecraft(self, port, headless, minecraft_dir, replaceable=True, updateDisplay=False):
         """Launch Minecraft listening for malmoenv connections.
         Args:
             port:  the TCP port to listen on.
@@ -710,6 +711,8 @@ class MinecraftInstance(object):
 
         if replaceable:
             cmd.append('-replaceable')
+        if updateDisplay:
+            cmd.append('-updateDisplay')
         preexec_fn = os.setsid if 'linux' in str(sys.platform) or sys.platform == 'darwin' else None
         # print(preexec_fn)
         minecraft_process = psutil.Popen(cmd,
