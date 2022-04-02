@@ -26,7 +26,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.Timer;
 import net.minecraft.world.World;
-import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.Event;
@@ -54,7 +53,6 @@ public class TimeHelper
     private static long lastUpdateTimeMs;
     public static int frameSkip = 1; // Note: Not fully implemented
     public static Boolean isWindows = System.getProperty("os.name").startsWith("Windows");
-    private static Boolean isUpdateWindow = false;  // Update Window for Plyer with Interactive Mode on Windows OS 
 
     static public class FlushableStateMachine {
         // We should really just use locks.
@@ -310,12 +308,6 @@ public class TimeHelper
     static public Boolean isPaused(){
         return paused;
     }
-
-    /** Initialize malmo env configuration.*/
-    static public void update(Configuration configs) {
-        isUpdateWindow = configs.getBoolean("updateDisplay", "runtype", false, "Update display even on Windows os");
-    }
-
     static public void updateDisplay()
     {
         long timeNow = System.currentTimeMillis();        
@@ -329,11 +321,7 @@ public class TimeHelper
         // This has the side-effect of Minecraft window being blank and
         // reported as "not responding".
         // TODO what is the real cause behind the issues
-
-        // Added an option to refresh the display on Windows for players who use interactive mode.
-        if (
-            (!isWindows || isUpdateWindow)
-            && timeNow - lastUpdateTimeMs > displayGranularityMs)
+        if (!isWindows && timeNow - lastUpdateTimeMs > displayGranularityMs)
         {
             Minecraft.getMinecraft().updateDisplay();
             lastUpdateTimeMs = timeNow;

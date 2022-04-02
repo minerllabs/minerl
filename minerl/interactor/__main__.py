@@ -52,7 +52,7 @@ def run_interactor(ip, port, interactor_port=INTERACTOR_PORT):
     except AssertionError as e:
         logger.warning("No existing interactor found on port {}. Starting a new interactor.".format(interactor_port))
         instance = MinecraftInstance(interactor_port)
-        instance.launch(daemonize=True, updateDisplay=True)
+        instance.launch(daemonize=True)
 
     request_interactor(
         instance, '{}:{}'.format(ip, port)

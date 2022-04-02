@@ -121,7 +121,6 @@ public class MalmoMod
         MalmoEnvServer.update(this.sessionConfig);
         PerformanceHelper.update(this.sessionConfig);
         SeedHelper.update(this.sessionConfig);
-        TimeHelper.update(this.sessionConfig);
 
         network = NetworkRegistry.INSTANCE.newSimpleChannel("Malmo");
 
