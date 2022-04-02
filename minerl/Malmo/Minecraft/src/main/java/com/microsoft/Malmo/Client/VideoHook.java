@@ -50,6 +50,7 @@ import com.microsoft.Malmo.Schemas.MissionDiagnostics.VideoData;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Utils.TCPSocketChannel;
 import com.microsoft.Malmo.Utils.TextureHelper;
+import com.microsoft.Malmo.Utils.TimeHelper;
 
 
 /**
@@ -133,6 +134,9 @@ public class VideoHook {
         resizeIfNeeded();
 //        Display.setResizable(false); // prevent the user from resizing using the window borders
 
+        // Don't update display for Agent window
+        TimeHelper.isUpdateWindow = false;
+            
         ClientAgentConnection cac = missionInit.getClientAgentConnection();
         if (cac == null)
             return;	// Don't start up if we don't have any connection details.

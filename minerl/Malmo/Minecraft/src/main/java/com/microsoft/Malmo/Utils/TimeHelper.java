@@ -53,6 +53,7 @@ public class TimeHelper
     private static long lastUpdateTimeMs;
     public static int frameSkip = 1; // Note: Not fully implemented
     public static Boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+    public static Boolean isUpdateWindow = true;  // Update Window for Plyer with Interactive Mode on Windows OS 
 
     static public class FlushableStateMachine {
         // We should really just use locks.
@@ -321,7 +322,11 @@ public class TimeHelper
         // This has the side-effect of Minecraft window being blank and
         // reported as "not responding".
         // TODO what is the real cause behind the issues
-        if (!isWindows && timeNow - lastUpdateTimeMs > displayGranularityMs)
+
+        // Added an public variables to refresh the display on Windows for players who use interactive mode.
+        if (
+            (!isWindows || isUpdateWindow)
+            && timeNow - lastUpdateTimeMs > displayGranularityMs)
         {
             Minecraft.getMinecraft().updateDisplay();
             lastUpdateTimeMs = timeNow;
