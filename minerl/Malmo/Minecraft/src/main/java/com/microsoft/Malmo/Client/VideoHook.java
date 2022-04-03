@@ -134,7 +134,8 @@ public class VideoHook {
         resizeIfNeeded();
 //        Display.setResizable(false); // prevent the user from resizing using the window borders
 
-        // Don't update display for Agent window
+        // Don't update display for Agent window when running a mission
+        // (true by default to allow interactive mode to refresh the window)
         TimeHelper.isUpdateWindow = false;
             
         ClientAgentConnection cac = missionInit.getClientAgentConnection();
