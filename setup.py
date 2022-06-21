@@ -157,7 +157,18 @@ def prep_mcp():
         # Windows is picky about being in the right directory to run gradle
         old_dir = os.getcwd()
         os.chdir(workdir)
-    subprocess.check_call('{} downloadAssets'.format(gradlew).split(' '), cwd=workdir)
+    
+    # This may fail on the first try. Try few times
+    n_trials = 3
+    for i in range(n_trials):
+        try:
+            subprocess.check_call('{} downloadAssets'.format(gradlew).split(' '), cwd=workdir)
+        except subprocess.CalledProcessError as e:
+            if i == n_trials - 1:
+                raise e
+        else:
+            break
+
     unpack_assets()
     subprocess.check_call('{} clean build shadowJar'.format(gradlew).split(' '), cwd=workdir)
     if os.name == 'nt':
