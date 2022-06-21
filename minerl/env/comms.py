@@ -37,18 +37,19 @@ def retry(func):
         for i in range(retry_count):
             try:
                 return func(*args, **kwargs)
-            except Pyro4.errors.PyroError as e: 
+            except Pyro4.errors.PyroError as e:
                 logger.error("An error occurred contacting the instance manager. Is it started!?")
                 raise e
-            except Exception as e:
+            except (socket.timeout, socket.error, RuntimeError) as e:
                 if retry_exc is None:
                     retry_exc = e
                 if i < retry_count - 1:
-                    logger.debug("Pause before retry on " + str(e))
-                    # raise e
+                    logger.debug(f"Pause before retry on " + str(e))
+                    raise e
                     time.sleep(retry_timeout)
                     logger.debug("Pause complete.")
         raise retry_exc
+
     return wrapper
 
 
@@ -81,11 +82,9 @@ class QueueLogger(logging.StreamHandler):
     def __init__(self, queue):
         self._queue = queue
         return super().__init__(None)
-    
+
     def flush(self):
         pass
 
-    
     def emit(self, record):
         self._queue.append((self.level, record))
-

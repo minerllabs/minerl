@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 """
 minerl.herobraine.hero -- The interface between Hero (Malmo) and the minerl.herobraine package.
 """
@@ -9,7 +12,4 @@ logger = logging.getLogger(__name__)
 import minerl.herobraine.hero.mc
 import minerl.herobraine.hero.spaces
 
-# from minerl.herobraine.hero.instance_manager import InstanceManager
-from minerl.herobraine.hero.agent_handler import AgentHandler
-# from minerl.herobraine.hero.env import HeroEnv
 from minerl.herobraine.hero.mc import KEYMAP

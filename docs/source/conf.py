@@ -22,7 +22,7 @@ copyright = '2020, William H. Guss, Brandon Houghton'
 author = 'William H. Guss, Brandon Houghton'
 
 # The full version, including alpha/beta/rc tags
-release = '0.3.0'
+release = '0.4.0'  # TODO(shwang): Load from minerl.version.VERSION or something
 
 # -- General configuration ---------------------------------------------------
 
@@ -115,5 +115,5 @@ class ExecDirective(Directive):
 
 
 def setup(app):
-    app.add_stylesheet('custom.css')
+    app.add_css_file('custom.css')
     app.add_directive('exec', ExecDirective)

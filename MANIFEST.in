@@ -1,4 +1,22 @@
-recursive-include projectname *.py
-include README
+include README.md
 include requirements.txt
 include LICENSE
+recursive-include minerl/herobraine/env_specs *
+include minerl/herobraine/hero/mc_constants.json
+include minerl/herobraine/hero/mc_constants.1.16.json
+include minerl/herobraine/hero/mission.xml.j2
+include minerl/env/info.npz
+recursive-include minerl/data/assets *
+recursive-include minerl/Malmo/Minecraft *
+recursive-include minerl/Malmo/Schemas *
+recursive-include minerl/data/pipeline/parser *
+recursive-include minerl/MCP-Reborn *
+prune minerl/Malmo/Minecraft/.gradle
+prune minerl/Malmo/Minecraft/bin
+prune minerl/Malmo/Minecraft/build
+prune minerl/Malmo/Minecraft/run/gradle
+prune minerl/Malmo/Minecraft/.minecraft
+prune minerl/Malmo/Minecraft/.minecraftserver
+prune minerl/Malmo/Minecraft/run/saves
+global-exclude *.lock
+global-exclude *fuse_hidden*

@@ -10,6 +10,10 @@ the :code:`minerl` python package also provides a data trajectory viewer called
 :code:`minerl.viewer`:
 
 
+.. warning:: BASALT: ``minerl.viewer`` can load BASALT competition data, but is not yet updated to
+    display the ``use`` or ``equip`` actions yet.
+
+
 .. image:: ../assets/cropped_viewer.gif
   :width: 90 %
   :alt: 
@@ -18,7 +22,7 @@ the :code:`minerl` python package also provides a data trajectory viewer called
 
 The :code:`minerl.viewer` program lets you step through individual
 trajectories, 
-showing the observation seen the player, the action
+showing the observation seen by the player, the action
 they took (including camera, movement, and any action described by an MineRL
 environment's action space), and the reward they received.
 
@@ -69,6 +73,13 @@ Interactive Mode :code:`minerl.interactor`
 =============================================================
 
 
+.. warning::
+
+    Interactor works in MineRL versions 0.3.7 and 0.4.4 (or above). 
+    Install 0.3.7 with ``pip install minerl==0.3.7``, or the newest MineRL
+    with ``pip install git+https://github.com/minerllabs/minerl.git@dev``.
+
+
 Once you have started training agents, the next step is getting them to interact with human players.
 To help achieve this, the :code:`minerl` python package provides a interactive Minecraft client called
 :code:`minerl.interactor`:
@@ -86,14 +97,14 @@ to the Minecraft world that your agent(s) is using and interact with the agent i
 .. note::
 
     For observation-only mode hit the :code:`t` key and type :code:`/gamemode sp` to enter
-    spectator mode and become invisible to your agen``t(s).
+    spectator mode and become invisible to your agent(s).
 
 
 .. exec::
 
-    import minerl.env.core
+    import minerl.env._multiagent
 
-    help_str = minerl.env.core.MineRLEnv.make_interactive.__doc__
+    help_str = minerl.env._multiagent._MultiAgentEnv.make_interactive.__doc__
 
     # print(".. code-block:: python\n")
     help_str = help_str.replace("\n        ", "\n")

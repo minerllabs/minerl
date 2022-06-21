@@ -1,4 +1,7 @@
-.. _MineRL competition environments: http://minerl.io/docs/environments/index.html#competition-environments
+.. _environments:
+
+.. role:: python(code)
+   :language: python
 
 General Information
 ================================
@@ -9,227 +12,47 @@ This page describes each of the included environments, provides usage samples,
 and describes the exact action and observation space provided by each
 environment!
 
-
-
-.. caution:: 
-    In the MineRL Competition, many environments are provided for training,
-    however competition agents will only
-    be evaluated in :code:`MineRLObtainDiamondVectorObf-v0` which has **sparse** rewards. See `MineRLObtainDiamondVectorObf-v0`_.
-
 .. note::
     All environments offer a default no-op action via :code:`env.action_space.no_op()`
     and a random action via :code:`env.action_space.sample()`.
 
-.. include:: handlers.rst
-    :end-before: inclusion-marker-do-not-remove
 
-Basic Environments
-=======================================
+Action Space
+------------------
 
-.. warning::
+All environments use the same action space, which is a dictionary containing a 
+multitude of different actions. Note that :code:`Discrete` and :code:`Box` are 
+actions spaces defined by Gym.
 
-    The following basic environments are NOT part of the 2020 MineRL Competition! Feel free to use them for exploration
-    but agents may only be trained on `MineRL competition environments`_!
+.. code-block:: python
 
-.. exec::
+    Dict(ESC:Discrete(2), attack:Discrete(2), back:Discrete(2), 
+    camera:Box(low=-180.0, high=180.0, shape=(2,)), drop:Discrete(2), 
+    forward:Discrete(2), hotbar.1:Discrete(2), hotbar.2:Discrete(2), 
+    hotbar.3:Discrete(2), hotbar.4:Discrete(2), hotbar.5:Discrete(2), 
+    hotbar.6:Discrete(2), hotbar.7:Discrete(2), hotbar.8:Discrete(2), 
+    hotbar.9:Discrete(2), inventory:Discrete(2), jump:Discrete(2), 
+    left:Discrete(2), pickItem:Discrete(2), right:Discrete(2), 
+    sneak:Discrete(2), sprint:Discrete(2), swapHands:Discrete(2), 
+    use:Discrete(2))
 
-    def print_actions_for_id(id):
-        import minerl
-        import gym
-        import json
+Here is an example action:
 
-        def print_json(arg):
-            import json
-            arg = {":ref:`{} <{}>`".format(k,k): arg[k] for k in arg}
-            json_obj = json.dumps(arg, sort_keys=True, indent=8,
-                default=lambda o: str(o))
-            json_obj= json_obj[:-1] + "    })"
-            
-            print('.. parsed-literal:: \n\n    Dict(%s\n\n\n' % json_obj)
-         
-        def prep_space(space):
-            import gym
-            if isinstance(space, gym.spaces.Dict):
-                dct = {}
-                for k in space.spaces:
-                    dct[k] = prep_space(space.spaces[k])
-                return dct
-            else:
-                return space
-   
+.. code-block:: python
 
-   
-        envspec = gym.spec(id)
+    {"ESC":1, "camera":[10, 45], "swapHands":1}
 
+:code:`ESC`
+************************
 
-        print("______________")
-        print("{}".format(id))
-        print("______________")
-        
-        if 'docstr' in envspec._kwargs:
-            print(envspec._kwargs['docstr'])
+The :code:`ESC` action is used to end the episode.
 
+.. Observation Space
+.. ------------------
 
+.. All environments use the same observation space, which 
 
-        action_space = prep_space(envspec._kwargs['action_space'])
-        state_space = prep_space(envspec._kwargs['observation_space'])
+.. .. code-block:: python
 
-        print(".......")
-        print("Observation Space")
-        print(".......")
-        print_json(state_space)
+..     Dict(pov:Box(low=0, high=255, shape=(360, 640, 3)))
 
-
-        print(".......")
-        print("Action Space") 
-        print(".......")
-        print_json(action_space)
-
-        print(".......")
-        print("Usage")
-        print(".......")
-
-
-        usage_str = '''.. code-block:: python
-
-            import gym
-            import minerl
-            
-            # Run a random agent through the environment
-            env = gym.make("{}") # A {} env
-
-            obs = env.reset()
-            done = False
-
-            while not done:
-                # Take a no-op through the environment.
-                obs, rew, done, _ = env.step(env.action_space.noop()) 
-                # Do something 
-                
-            ######################################
-
-            # Sample some data from the dataset!
-            data = minerl.data.make("{}")
- 
-            # Iterate through a single epoch using sequences of at most 32 steps
-            for obs, rew, done, act in data.seq_iter(num_epochs=1, batch_size=32):
-                # Do something 
-        '''.format(id,id,id)
-        print(usage_str) 
- 
-
-    ids = ['MineRLTreechop-v0',
-           'MineRLNavigate-v0',
-            'MineRLNavigateExtreme-v0',
-            'MineRLNavigateDense-v0',
-            'MineRLNavigateExtremeDense-v0',
-            'MineRLObtainDiamond-v0',
-            'MineRLObtainDiamondDense-v0',
-            'MineRLObtainIronPickaxe-v0',
-            'MineRLObtainIronPickaxeDense-v0',]
-
-    for i in ids:
-        print_actions_for_id(i)
-
-Competition Environments
-=======================================
-
-.. exec::
-
-    def print_actions_for_id(id):
-        import minerl
-        import gym
-        import json
-
-        def print_json(arg):
-            import json
-            arg = {":ref:`{} <{}>`".format(k,k): arg[k] for k in arg}
-            json_obj = json.dumps(arg, sort_keys=True, indent=8,
-                default=lambda o: str(o))
-            json_obj= json_obj[:-1] + "    })"
-
-            print('.. parsed-literal:: \n\n    Dict(%s\n\n\n' % json_obj)
-
-        def prep_space(space):
-            import gym
-            if isinstance(space, gym.spaces.Dict):
-                dct = {}
-                for k in space.spaces:
-                    dct[k] = prep_space(space.spaces[k])
-                return dct
-            else:
-                return space
-
-
-
-        envspec = gym.spec(id)
-
-
-        print("______________")
-        print("{}".format(id))
-        print("______________")
-
-        if 'docstr' in envspec._kwargs:
-            print(envspec._kwargs['docstr'])
-
-
-
-        action_space = prep_space(envspec._kwargs['action_space'])
-        state_space = prep_space(envspec._kwargs['observation_space'])
-
-        print(".......")
-        print("Observation Space")
-        print(".......")
-        print_json(state_space)
-
-
-        print(".......")
-        print("Action Space")
-        print(".......")
-        print_json(action_space)
-
-        print(".......")
-        print("Usage")
-        print(".......")
-
-
-        usage_str = '''.. code-block:: python
-
-            import gym
-            import minerl
-
-            # Run a random agent through the environment
-            env = gym.make("{}") # A {} env
-
-            obs = env.reset()
-            done = False
-
-            while not done:
-                # Take a no-op through the environment.
-                obs, rew, done, _ = env.step(env.action_space.noop())
-                # Do something
-
-            ######################################
-
-            # Sample some data from the dataset!
-            data = minerl.data.make("{}")
-
-            # Iterate through a single epoch using sequences of at most 32 steps
-            for obs, rew, done, act in data.seq_iter(num_epochs=1, batch_size=32):
-                # Do something
-        '''.format(id,id,id)
-        print(usage_str)
-
-
-    ids = ['MineRLTreechopVectorObf-v0',
-            'MineRLNavigateVectorObf-v0',
-            'MineRLNavigateExtremeVectorObf-v0',
-            'MineRLNavigateDenseVectorObf-v0',
-            'MineRLNavigateExtremeDenseVectorObf-v0',
-            'MineRLObtainDiamondVectorObf-v0',
-            'MineRLObtainDiamondDenseVectorObf-v0',
-            'MineRLObtainIronPickaxeVectorObf-v0',
-            'MineRLObtainIronPickaxeDenseVectorObf-v0',]
-
-    for i in ids:
-        print_actions_for_id(i)

@@ -1,96 +1,64 @@
-# The [MineRL](http://minerl.io) Python Package
+# MineRL v1.0.0 Beta
 
-[![Build Status](https://travis-ci.com/minerllabs/minerl.svg?branch=master)](https://travis-ci.com/minerllabs/minerl)
-[![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
-[![PyPI version](https://badge.fury.io/py/minerl.svg)](https://badge.fury.io/py/minerl)
-[!["Open Issues"](https://img.shields.io/github/issues-raw/minerllabs/minerl.svg)](https://github.com/minerllabs/minerl/issues)
-[![GitHub issues by-label](https://img.shields.io/github/issues/minerllabs/minerl/bug.svg?color=red)](https://github.com/minerllabs/minerl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Abug)
-[![Discord](https://img.shields.io/discord/565639094860775436.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BT9uegr)
+This is preliminary release of MineRL v1.0.0, with minimal docs for people to get started and find out bugs.
+This will be the MineRL version for the MineRL [BASALT 2022](https://www.aicrowd.com/challenges/neurips-2022-minerl-basalt-competition) competition.
 
-[![Support us on patron](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Fwguss_imushroom&style=for-the-badge)](https://www.patreon.com/wguss_imushroom)
+To help us out, **please** report any bugs/errors/confusions to us via Github issues or via the Discord server! This will greatly help us get this package ready.
 
-Python package providing easy to use gym environments and a simple data api for the MineRLv0 dataset. 
+Note: Docs are being worked on. This README is currently all there is.
 
-**To [get started please read the docs here](http://minerl.io/docs/)!**
-
-**We develop `minerl` in our spare time, [please consider supporting us on Patreon <3](https://www.patreon.com/wguss_imushroom)**
-
-![](http://www.minerl.io/docs/_images/demo.gif)
 ## Installation
 
-With JDK-8 installed run this command
-```
-pip3 install --upgrade minerl
-```
+Requirements:
 
-## Basic Usage
+- Windows or Linux machines. Tested Windows 10 and Ubuntu. MacOS is untested.
+- Python 3. Tested on Python 3.9 and 3.10. Python >3.6 will likely work.
+- Java JDK 8. The Java instructions [here](https://minerl.readthedocs.io/en/latest/tutorials/index.html) still work. On Windows, make sure no other Java JRE or JDK installations exist. The safest approach is to uninstall all other Java installations before installing JDK 8 on Windows.
+- `bash` as a valid command. On Windows you have at least two options:
+  - Install [Git](https://git-scm.com/), which comes with Git's version of bash. You might need to reboot computer after installation. Try calling `bash` in powershell/cmd. Or alternatively...
+  - Install [WSL](https://docs.microsoft.com/en-us/windows/wsl/) (tested WSL 2).
 
-Running an environment:
+Installation:
+1. Clone this repository: `git clone -b v1.0.0 https://github.com/minerllabs/minerl`
+2. Enter the cloned repository: `cd minerl`
+3. Install with `pip install .` (note that `-e` flag might not work, same with `python setup.py ....` calls)
+4. Wait for ~30min. As long there are no errors the installation is on-going, and takes a long time.
+
+## Usage
+
+Can be used much like any Gym environment:
+
 ```python
-import minerl
 import gym
-env = gym.make('MineRLNavigateDense-v0')
+import minerl
 
+# Uncomment to see more logs of the MineRL launch
+# import coloredlogs
+# coloredlogs.install(logging.DEBUG)
 
+env = gym.make("MineRLBasaltFindCave-v0")
 obs = env.reset()
 
-done = False
 while not done:
-    action = env.action_space.sample() 
- 
-    # One can also take a no_op action with
-    # action =env.action_space.noop()
-    
- 
-    obs, reward, done, info = env.step(
-        action)
-
+    ac = env.action_space.sample()
+    # ESC button will quit the game, so lets set that to zero
+    ac["ESC"] = 0 
+    obs, reward, done, info = env.step(ac)
+    env.render()
+env.close()
 ```
 
-Sampling the dataset:
+Valid environments are:
+- `MineRLBasaltFindCave-v0`
+- `MineRLBasaltMakeWaterfall-v0`
+- `MineRLBasaltCreateVillageAnimalPen-v0`
+- `MineRLBasaltBuildVillageHouse-v0`
 
-```python
-import minerl
+You can find old environment descriptions [here](https://minerl.readthedocs.io/en/latest/environments/index.html#minerl-basalt-competition-environments), but some aspects have been changed (e.g., different observations and actions, villages may be of different types of villages).
 
-# YOU ONLY NEED TO DO THIS ONCE!
-minerl.data.download('/your/local/path')
+## Changes from previous versions (0.3.7, 0.4.4)
 
-data = minerl.data.make(
-    'MineRLObtainDiamond-v0',
-    data_dir='/your/local/path')
-
-# Iterate through a single epoch gathering sequences of at most 32 steps
-for current_state, action, reward, next_state, done \
-    in data.sarsd_iter(
-        num_epochs=1, max_sequence_len=32):
-
-        # Print the POV @ the first step of the sequence
-        print(current_state['pov'][0])
-
-        # Print the final reward pf the sequence!
-        print(reward[-1])
-
-        # Check if final (next_state) is terminal.
-        print(done[-1])
-
-        # ... do something with the data.
-        print("At the end of trajectories the length"
-              "can be < max_sequence_len", len(reward))
-```
-
-
-Visualizing the dataset:
-
-![viewer|540x272](http://www.minerl.io/docs/_images/cropped_viewer.gif)
-```bash
-
-# Make sure your MINERL_DATA_ROOT is set!
-export MINERL_DATA_ROOT='/your/local/path'
-
-# Visualizes a random trajectory of MineRLObtainDiamondDense-v0
-python3 -m minerl.viewer MineRLObtainDiamondDense-v0
-
-```
-
-## MineRL Competition
-If you're here for the MineRL competition. Please check [the main competition website here](https://www.aicrowd.com/challenges/neurips-2020-minerl-competition).
+- New Minecraft version (11.2 -> 16.5)
+- Larger resolution by default (64x64 -> 640x360)
+- Near-human action-space: no more `craft` and `smelt` actions. Only GUI and mouse control (camera action moves mouse around).
+- Observation space is only pixels, no more inventory observation by default.

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com">
+    <About>
+        <Summary>$(ENV_NAME)</Summary>
+    </About>
+
+    <ModSettings>
+        <MsPerTick>50</MsPerTick>
+    </ModSettings>
+
+    <ServerSection>
+        <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>true</AllowPassageOfTime>
+            </Time>
+            <AllowSpawning>true</AllowSpawning>
+
+        </ServerInitialConditions>
+        <ServerHandlers>
+            <DefaultWorldGenerator forceReset="true"/>
+            <ServerQuitFromTimeUp timeLimitMs="300000" description="out_of_time"/>
+            <ServerQuitWhenAnyAgentFinishes/>
+        </ServerHandlers>
+    </ServerSection>
+
+    <AgentSection mode="Survival">
+        <Name>MineRLAgent</Name>
+        <AgentStart/>
+        <AgentHandlers>
+            <!--  Observations     -->
+            <VideoProducer want_depth="false">
+                <Width>64</Width>
+                <Height>64</Height>
+            </VideoProducer>
+            <FileBasedPerformanceProducer/>
+            <ObservationFromFullInventory flat="false"/>
+            <ObservationFromFullStats/>
+            <ObservationFromEquippedItem/>
+
+            <!--  Commands   -->
+            <HumanLevelCommands/>
+            <EquipCommands/>
+            <CameraCommands/>
+            <SimpleCraftCommands/>
+            <NearbyCraftCommands/>
+            <NearbySmeltCommands/>
+            <PlaceCommands/>
+            <PauseCommand/>
+
+            <!--  Rewards   -->
+            <RewardForMissionEnd>
+                <Reward description="out_of_time" reward="0"/>
+            </RewardForMissionEnd>
+            <RewardForPossessingItem sparse="true" excludeLoops="true">
+                <Item amount="1" reward="1" type="log"/>
+                <Item amount="1" reward="2" type="planks"/>
+                <Item amount="1" reward="4" type="stick"/>
+                <Item amount="1" reward="4" type="crafting_table"/>
+                <Item amount="1" reward="8" type="wooden_pickaxe"/>
+                <Item amount="1" reward="16" type="cobblestone"/>
+                <Item amount="1" reward="32" type="furnace"/>
+                <Item amount="1" reward="32" type="stone_pickaxe"/>
+                <Item amount="1" reward="64" type="iron_ore"/>
+                <Item amount="1" reward="128" type="iron_ingot"/>
+                <Item amount="1" reward="256" type="iron_pickaxe"/>
+            </RewardForPossessingItem>
+            <AgentQuitFromCraftingItem>
+                <Item type="iron_pickaxe" amount="1"/>
+            </AgentQuitFromCraftingItem>
+        </AgentHandlers>
+    </AgentSection>
+</Mission>

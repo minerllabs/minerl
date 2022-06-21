@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 ### TESTS ###
 
 # A method which asserts equality between an ordered dict of numpy arrays and another
@@ -30,7 +33,6 @@ def test_obf_wrapper(base_env=envs.MINERL_OBTAIN_DIAMOND_V0,
     vec_env.action_space.seed(1)
     vec_env.observation_space.seed(1)
     for _ in range(100):
-
         s = base_env.action_space.sample()
         ws = vec_env.wrap_action(s)
         us = vec_env.unwrap_action(ws)

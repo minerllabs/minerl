@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 from pathlib import Path
 from typing import Union
 
@@ -87,7 +90,8 @@ class Obfuscated(EnvWrapper):
         ac_enc, ac_dec = make_func(ac_enc), make_func(ac_dec)
 
         # obs_enc, obs_dec = dill.load(f)
-        obs_enc, obs_dec = np.load(os.path.join(obfuscator_dir, OBSERVATION_OBFUSCATOR_FILE_NAME), allow_pickle=True)['arr_0']
+        obs_enc, obs_dec = np.load(os.path.join(obfuscator_dir, OBSERVATION_OBFUSCATOR_FILE_NAME), allow_pickle=True)[
+            'arr_0']
         obs_enc, obs_dec = make_func(obs_enc), make_func(obs_dec)
 
         return obf_vector_len, ac_enc, ac_dec, obs_enc, obs_dec
@@ -105,6 +109,10 @@ class Obfuscated(EnvWrapper):
         act_space = copy.deepcopy(self.env_to_wrap.action_space)
         act_space.spaces['vector'] = spaces.Box(low=-1.05, high=1.05, shape=[self.obf_vector_len])
         return act_space
+
+    def create_monitors(self):
+        # We want to not preserve any original monitor information as its obfuscated.
+        return []
 
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
         obs['vector'] = self.obs_enc(obs['vector'])

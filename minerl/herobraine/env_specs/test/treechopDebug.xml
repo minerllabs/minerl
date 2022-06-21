@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com">
+    <About>
+        <Summary>$(ENV_NAME)</Summary>
+    </About>
+
+    <ModSettings>
+        <MsPerTick>50</MsPerTick>
+        <!--<PrioritiseOffscreenRendering>true</PrioritiseOffscreenRendering>-->
+    </ModSettings>
+
+
+    <ServerSection>
+        <ServerInitialConditions>
+            <Time>
+                <!--<StartTime>0</StartTime>-->
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+            <AllowSpawning>true</AllowSpawning>
+
+        </ServerInitialConditions>
+        <ServerHandlers>
+            <FileWorldGenerator
+                    src="$(MISSIONS_DIR)/forest_survival"
+                    forceReset="true"/>
+            <RandomizedStartDecorator/>
+            <ServerQuitFromTimeUp timeLimitMs="400000"/>
+            <ServerQuitWhenAnyAgentFinishes/>
+        </ServerHandlers>
+    </ServerSection>
+
+    <AgentSection mode="Survival">
+        <Name>MineRLAgent</Name>
+        <AgentStart>
+            <!-- <Randomized>true</Randomized> -->
+            <Inventory>
+                <InventoryObject slot="0" type="iron_axe"/>
+            </Inventory>
+        </AgentStart>
+        <AgentHandlers>
+            <ObservationFromFullInventory flat="false"/>
+            <ObservationFromFullStats/>
+            <HumanLevelCommands/>
+            <CameraCommands/>
+            <PauseCommand/>
+            <RewardForPossessingItem sparse="false">
+                <!-- <RewardForPossessingItem Sparse="false"> -->
+                <Item reward="1" type="log" amount="2"/>
+            </RewardForPossessingItem>
+            <AgentQuitFromPossessingItem>
+                <Item type="log" amount="2"/>
+            </AgentQuitFromPossessingItem>
+            <VideoProducer want_depth="false">
+                <Width>64</Width>
+                <Height>64</Height>
+            </VideoProducer>
+            <FileBasedPerformanceProducer/>
+        </AgentHandlers>
+    </AgentSection>
+</Mission>

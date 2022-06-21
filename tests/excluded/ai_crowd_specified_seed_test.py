@@ -21,16 +21,18 @@ import time
 import threading
 import Pyro4
 
+
 def launch_ns():
     """Launches the pyro4-ns if it doesn't already exist.
 
     Returns the process.
     """
-    return subprocess.Popen(["pyro4-ns"],  shell=False)
+    return subprocess.Popen(["pyro4-ns"], shell=False)
 
 
 def launch_im():
-    return subprocess.Popen('python3 scripts/launch_instance_manager.py --seeding_type=3 --seeds=1,1,1,1;2,2,2,2'.split(' '), shell=False)
+    return subprocess.Popen(
+        'python3 scripts/launch_instance_manager.py --seeding_type=3 --seeds=1,1,1,1;2,2,2,2'.split(' '), shell=False)
 
 
 def main():
@@ -44,8 +46,7 @@ def main():
     #     im = launch_im()
     #     time.sleep(2)
 
-        # envs = []
-
+    # envs = []
 
     import gym
     os.environ['MINERL_INSTANCE_MANAGER_REMOTE'] = '1'
@@ -58,27 +59,22 @@ def main():
             print("Pyro traceback:")
             print("".join(Pyro4.util.getPyroTraceback()))
             raise e
- 
+
         for _ in range(3):
             env.reset()
             for _ in range(100):
                 env.step(env.action_space.no_op())
                 # env.render()
-        
 
     thrs = [threading.Thread(target=run_env) for _ in range(2)]
-    for t in  thrs:
+    for t in thrs:
         time.sleep(1)
         t.start()
 
     for t in thrs:
         t.join()
-    
-        
 
     # finally:
-
-
 
 
 if __name__ == '__main__':

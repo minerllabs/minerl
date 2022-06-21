@@ -11,11 +11,12 @@ import numpy as np
 from minerl.env.core import MineRLEnv
 
 import coloredlogs
+
 coloredlogs.install(logging.DEBUG)
 
 
-#import minerl.env.bootstrap
-#minerl.env.bootstrap._check_port_avail = lambda _,__: True
+# import minerl.env.bootstrap
+# minerl.env.bootstrap._check_port_avail = lambda _,__: True
 
 def gen_obtain_debug_actions(env):
     actions = []
@@ -25,7 +26,6 @@ def gen_obtain_debug_actions(env):
         for key, value in kwargs.items():
             action[key] = value
         actions.append(action)
-    
 
     [act(forward=1, jump=1) for _ in range(10)]
 
@@ -34,18 +34,16 @@ def gen_obtain_debug_actions(env):
 
     act(camera=np.array([45.0, 0.0], dtype=np.float32))
 
-
     [act(forward=1, jump=1) for _ in range(3)]
 
     [act(forward=1) for _ in range(5)]
-
 
     act(camera=np.array([-90, 0.0], dtype=np.float32))
 
     [act(attack=1) for _ in range(40)]
 
-
     return actions
+
 
 def main():
     """
@@ -66,12 +64,9 @@ def main():
         if done:
             print('done!')
             break
-            
-
-
-
 
     print("Demo complete.")
+
 
 if __name__ == "__main__":
     main()

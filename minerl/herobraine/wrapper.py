@@ -1,3 +1,6 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 import abc
 import copy
 from collections import OrderedDict
@@ -17,7 +20,7 @@ class EnvWrapper(EnvSpec):
             self._unwrap_act_fn = self.env_to_wrap.unwrap_action
             self._unwrap_obs_fn = self.env_to_wrap.unwrap_observation
 
-        super().__init__(self._update_name(env_to_wrap.name), env_to_wrap.xml,
+        super().__init__(self._update_name(env_to_wrap.name),
                          max_episode_steps=env_to_wrap.max_episode_steps,
                          reward_threshold=env_to_wrap.reward_threshold)
 
@@ -105,11 +108,33 @@ class EnvWrapper(EnvSpec):
     def is_from_folder(self, folder: str) -> bool:
         return self.env_to_wrap.is_from_folder(folder)
 
-    def create_mission_handlers(self):
-        return self.env_to_wrap.create_mission_handlers()
-
+    # TODO: SEE IF THIS SHOULD BE CALLED OR NOT.
     def create_actionables(self):
         return self.env_to_wrap.create_actionables()
 
     def create_observables(self):
         return self.env_to_wrap.create_observables()
+
+    def create_rewardables(self):
+        return self.env_to_wrap.create_rewardables()
+
+    def create_agent_start(self):
+        return self.env_to_wrap.create_agent_start()
+
+    def create_agent_handlers(self):
+        return self.env_to_wrap.create_agent_handlers()
+
+    def create_server_world_generators(self):
+        return self.env_to_wrap.create_server_world_generators()
+
+    def create_server_quit_producers(self):
+        return self.env_to_wrap.create_server_quit_producers()
+
+    def create_server_decorators(self):
+        return self.env_to_wrap.create_server_decorators()
+
+    def create_server_initial_conditions(self):
+        return self.env_to_wrap.create_server_initial_conditions()
+
+    def create_monitors(self):
+        return self.env_to_wrap.create_monitors()

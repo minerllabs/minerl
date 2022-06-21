@@ -1,3 +1,5 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
 
 
 #### TESTS
@@ -8,7 +10,8 @@ from minerl.herobraine.hero.spaces import Box, Dict, Discrete, MultiDiscrete, En
 import collections
 import numpy as np
 
-def _test_batch_map(stackable_space, batch_dims = (32,16), no_op=False):
+
+def _test_batch_map(stackable_space, batch_dims=(32, 16), no_op=False):
     n_in_batch = np.prod(batch_dims).astype(int)
     if no_op:
         batch = stackable_space.no_op(batch_dims)
@@ -16,11 +19,11 @@ def _test_batch_map(stackable_space, batch_dims = (32,16), no_op=False):
         batch = np.array([stackable_space.sample() for _ in range(n_in_batch)])
 
         # Reshape into the batch dim
-        batch =batch.reshape(list(batch_dims) + list(batch[0].shape))
-    
+        batch = batch.reshape(list(batch_dims) + list(batch[0].shape))
+
     # Now map it through
     unmapped = stackable_space.unmap(stackable_space.flat_map(batch))
-    if  unmapped.dtype.type is np.float:
+    if unmapped.dtype.type is np.float:
         assert np.allclose(unmapped, batch)
     else:
         assert np.all(unmapped == batch)
@@ -35,11 +38,9 @@ def test_batch_flat_map():
         MultiDiscrete([3, 4]),
         MultiDiscrete([3]),
         Discrete(94),
-        Enum('asd','sd','asdads','qweqwe')]:
+        Enum('asd', 'sd', 'asdads', 'qweqwe')]:
         _test_batch_map(space)
         _test_batch_map(space, no_op=True)
-
-
 
 
 def test_unmap_flat_map():
@@ -58,10 +59,13 @@ def test_box_flat_map():
 
 # A method which asserts equality between an ordered dict of numpy arrays and another
 # ordered dict - WTH
-def assert_equal_recursive(npa_dict, dict_to_test, atol=1.e-8):
+def assert_equal_recursive(npa_dict, dict_to_test, atol=1.e-8, ignore=None):
+    ignore = [] if ignore is None else ignore
     assert isinstance(npa_dict, collections.OrderedDict)
     assert isinstance(dict_to_test, collections.OrderedDict)
     for key, value in npa_dict.items():
+        if key in ignore:
+            continue
         if isinstance(value, np.ndarray):
             if key == 'camera':
                 assert np.allclose(value, dict_to_test[key], atol=1.5)
@@ -71,7 +75,7 @@ def assert_equal_recursive(npa_dict, dict_to_test, atol=1.e-8):
                 assert np.allclose(value, dict_to_test[key], atol=atol)
             # assert np.array_equal(value, dict_to_test[key])
         elif isinstance(value, collections.OrderedDict):
-            assert_equal_recursive(value, dict_to_test[key], atol)
+            assert_equal_recursive(value, dict_to_test[key], atol, ignore)
         else:
             assert value == dict_to_test[key]
 
@@ -150,5 +154,3 @@ def test_all_flat_map_nested_dict():
     })
     x = all_spaces.sample()
     assert_equal_recursive(all_spaces.unmap(all_spaces.flat_map(x)), x)
-
-

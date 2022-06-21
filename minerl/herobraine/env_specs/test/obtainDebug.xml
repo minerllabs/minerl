@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<Mission xmlns="http://ProjectMalmo.microsoft.com">
+    <About>
+        <Summary>MineRLObtainDiamondDebug-v0</Summary>
+    </About>
+
+    <ModSettings>
+        <MsPerTick>50</MsPerTick>
+    </ModSettings>
+
+    <ServerSection>
+        <ServerInitialConditions>
+            <Time>
+                <StartTime>6000</StartTime>
+                <AllowPassageOfTime>false</AllowPassageOfTime>
+            </Time>
+
+            <Weather>clear</Weather>
+            <AllowSpawning>false</AllowSpawning>
+        </ServerInitialConditions>
+        <ServerHandlers>
+            <FlatWorldGenerator forceReset="true"/>
+            <ServerQuitFromTimeUp timeLimitMs="100000" description="out_of_time"/>
+            <ServerQuitWhenAnyAgentFinishes/>
+        </ServerHandlers>
+    </ServerSection>
+
+    <AgentSection mode="Survival">
+        <Name>MineRLAgent</Name>
+        <AgentStart>
+            <Inventory>
+                <InventoryObject slot="0" type="dirt"/>
+                <InventoryObject slot="1" type="planks" quantity="3"/>
+                <InventoryObject slot="2" type="log2" quantity="2"/>
+                <InventoryObject slot="3" type="log" quantity="3"/>
+                <InventoryObject slot="4" type="iron_ore" quantity="4"/>
+                <InventoryObject slot="5" type="diamond_ore" quantity="2"/>
+                <InventoryObject slot="6" type="cobblestone" quantity="17"/>
+                <InventoryObject slot="7" type="red_flower" quantity="1"/>
+            </Inventory>
+        </AgentStart>
+        <AgentHandlers>
+            <!--  Observations     -->
+            <VideoProducer want_depth="false">
+                <Width>64</Width>
+                <Height>64</Height>
+            </VideoProducer>
+            <FileBasedPerformanceProducer/>
+            <ObservationFromFullInventory flat="false"/>
+            <ObservationFromFullStats/>
+            <ObservationFromEquippedItem/>
+
+            <!--  Commands   -->
+            <HumanLevelCommands/>
+            <CameraCommands/>
+            <SimpleCraftCommands/>
+            <!--        <Item type="minecraft:stick"/>-->
+            <!--        <Item type="minecraft:planks"/>-->
+            <!--        <Item type="minecraft:torch"/>-->
+            <NearbyCraftCommands/>
+            <!--        <Item type="minecraft:wooden_axe"/>-->
+            <!--        <Item type="minecraft:wooden_pickaxe"/>-->
+            <!--        <Item type="minecraft:stone_axe"/>-->
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
+            <NearbySmeltCommands/>
+            <!--        <Item type="minecraft:iron_ingot"/>-->
+            <PlaceCommands/>
+            <!--          <Item type="minecraft:crafting_table"/>-->
+            <!--          <Item type="minecraft:furnace"/>-->
+            <!--          <Item type="minecraft:torch"/>-->
+            <EquipCommands/>
+            <!--        <Item type="minecraft:stone_pickaxe"/>-->
+            <!--        <Item type="minecraft:iron_pickaxe"/>-->
+            <PauseCommand/>
+
+            <!--  Rewards   -->
+            <RewardForMissionEnd>
+                <Reward description="out_of_time" reward="0"/>
+            </RewardForMissionEnd>
+            <!-- Working for sparse rewards -->
+            <RewardForPossessingItem sparse="true">
+                <!-- <RewardForPossessingItem Sparse='false'> -->
+                <Item amount="1" reward="1" type="log"/>
+                <Item amount="1" reward="2" type="planks"/>
+                <Item amount="1" reward="4" type="stick"/>
+                <Item amount="1" reward="4" type="crafting_table"/>
+                <Item amount="1" reward="8" type="wooden_pickaxe"/>
+                <Item amount="1" reward="16" type="cobblestone"/>
+                <Item amount="1" reward="32" type="furnace"/>
+                <Item amount="1" reward="32" type="stone_pickaxe"/>
+                <Item amount="1" reward="64" type="iron_ore"/>
+                <Item amount="1" reward="128" type="iron_ingot"/>
+                <Item amount="1" reward="256" type="iron_pickaxe"/>
+                <Item amount="1" reward="1024" type="diamond"/>
+            </RewardForPossessingItem>
+            <!-- </RewardForCollectingItemQuantity> -->
+            <AgentQuitFromPossessingItem>
+                <Item type="diamond" amount="2"/>
+            </AgentQuitFromPossessingItem>
+        </AgentHandlers>
+    </AgentSection>
+</Mission>

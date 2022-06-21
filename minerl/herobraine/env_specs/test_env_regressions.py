@@ -1,11 +1,14 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
 
 from minerl.herobraine.hero import spaces
-from minerl.herobraine.env_spec import MISSIONS_DIR
 import os
+from minerl.herobraine.hero.test_spaces import assert_equal_recursive
 import numpy as np
 import gym
+import xmltodict
 
-missions_dir = MISSIONS_DIR
+missions_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test')
 old_envs = []
 
 old_envs.append(dict(
@@ -17,13 +20,13 @@ old_envs.append(dict(
             'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
         }),
         'action_space': spaces.Dict(spaces={
-            "forward": spaces.Discrete(2), 
-            "back": spaces.Discrete(2), 
-            "left": spaces.Discrete(2), 
-            "right": spaces.Discrete(2), 
-            "jump": spaces.Discrete(2), 
-            "sneak": spaces.Discrete(2), 
-            "sprint": spaces.Discrete(2), 
+            "forward": spaces.Discrete(2),
+            "back": spaces.Discrete(2),
+            "left": spaces.Discrete(2),
+            "right": spaces.Discrete(2),
+            "jump": spaces.Discrete(2),
+            "sneak": spaces.Discrete(2),
+            "sprint": spaces.Discrete(2),
             "attack": spaces.Discrete(2),
             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
         }),
@@ -70,7 +73,7 @@ In this task, the agent must move to a goal location denoted by a diamond block.
 The agent is given a sparse reward (+100 upon reaching the goal, at which point the episode terminates). """
     if dense:
         navigate_text += "**This variant of the environment is dense reward-shaped where the agent is given a reward every tick for how much closer (or negative reward for farther) the agent gets to the target.**\n"
-    else: 
+    else:
         navigate_text += "**This variant of the environment is sparse.**\n"
 
     if top is "normal":
@@ -97,9 +100,9 @@ navigate_action_space = spaces.Dict({
 navigate_observation_space = spaces.Dict({
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
     'inventory': spaces.Dict(spaces={
-        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int)
+        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=int)
     }),
-    'compassAngle': spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)
+    'compass': spaces.Dict(spaces={'angle': spaces.Box(low=-180.0, high=180.0, shape=(), dtype=np.float32)})
 })
 
 old_envs.append(dict(
@@ -126,7 +129,6 @@ old_envs.append(dict(
     max_episode_steps=6000,
 ))
 
-
 old_envs.append(dict(
     id='MineRLNavigateExtreme-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -134,7 +136,7 @@ old_envs.append(dict(
         'xml': os.path.join(missions_dir, 'navigationExtreme.xml'),
         'observation_space': navigate_observation_space,
         'action_space': navigate_action_space,
-        'docstr': make_navigate_text('extreme', False) 
+        'docstr': make_navigate_text('extreme', False)
     },
     max_episode_steps=6000,
 ))
@@ -146,11 +148,10 @@ old_envs.append(dict(
         'xml': os.path.join(missions_dir, 'navigationExtremeDense.xml'),
         'observation_space': navigate_observation_space,
         'action_space': navigate_action_space,
-        'docstr': make_navigate_text('extreme', True)  
+        'docstr': make_navigate_text('extreme', True)
     },
     max_episode_steps=6000,
 ))
-
 
 #######################
 #     Obtain Iron     #
@@ -159,29 +160,36 @@ old_envs.append(dict(
 obtain_observation_space = spaces.Dict({
     'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
     'inventory': spaces.Dict({
-        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'coal': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'torch': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'log': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'planks': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'stick': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'crafting_table': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'wooden_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'stone': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'cobblestone': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'furnace': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'stone_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'stone_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'iron_ore': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'iron_ingot': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'iron_axe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
-        'iron_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=np.int),
+        'dirt': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'coal': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'torch': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'log': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'planks': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'stick': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'crafting_table': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'wooden_axe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'wooden_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'stone': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'cobblestone': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'furnace': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'stone_axe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'stone_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'iron_ore': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'iron_ingot': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'iron_axe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
+        'iron_pickaxe': spaces.Box(low=0, high=2304, shape=(), dtype=int),
     }),
-    'equipped_items.mainhand.type': spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
-                                'iron_axe', 'iron_pickaxe', 'other'),
-    'equipped_items.mainhand.damage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
-    'equipped_items.mainhand.maxDamage': spaces.Box(low=-1, high=1562, shape=(), dtype=np.int),
+    'equipped_items': spaces.Dict(
+        dict(mainhand=spaces.Dict(
+            dict(
+                type=spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe',
+                                 'iron_axe', 'iron_pickaxe', 'other'),
+                damage=spaces.Box(low=-1, high=1562, shape=(), dtype=int),
+                maxDamage=spaces.Box(low=-1, high=1562, shape=(), dtype=int),
+            )
+        )
+        )
+    )
 
 })
 
@@ -196,12 +204,13 @@ obtain_action_space = spaces.Dict({
     "attack": spaces.Discrete(2),
     "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
     "place": spaces.Enum('none', 'dirt', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch'),
-    "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
+    "equip": spaces.Enum('none', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe',
+                         'iron_pickaxe'),
     "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
-    "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
+    "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe',
+                               'iron_pickaxe', 'furnace'),
     "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')}
 )
-
 
 old_envs.append(dict(
     id='MineRLObtainIronPickaxe-v0',
@@ -245,7 +254,6 @@ item is given here::
     max_episode_steps=6000,
 ))
 
-
 old_envs.append(dict(
     id='MineRLObtainIronPickaxeDense-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -287,7 +295,6 @@ item are given here::
     },
     max_episode_steps=6000,
 ))
-
 
 #######################
 #   Obtain Diamond    #
@@ -339,7 +346,6 @@ item is given here::
     max_episode_steps=18000,
 ))
 
-
 old_envs.append(dict(
     id='MineRLObtainDiamondDense-v0',
     entry_point='minerl.env:MineRLEnv',
@@ -383,121 +389,39 @@ item are given here::
     max_episode_steps=18000,
 ))
 
-
-
-# old_envs.append(dict(
-#     id='MineRLNavigateDenseFixed-v0',
-#     entry_point='minerl.env:MineRLEnv',
-#     kwargs={
-#         'xml': os.path.join(missions_dir, 'navigationDenseFixedMap.xml'),
-#         'observation_space': navigate_observation_space,
-#         'action_space': navigate_action_space,
-#     },
-#     max_episode_steps=6000,
-# ))
-
-# old_envs.append(dict(
-#     id='MineRLTreechopDebug-v0',
-#     entry_point='minerl.env:MineRLEnv',
-#     kwargs={
-#         'xml': os.path.join(missions_dir, 'treechopDebug.xml'),
-#         'observation_space': spaces.Dict({
-#             'pov': spaces.Box(low=0, high=255, shape=(64, 64, 3), dtype=np.uint8),
-#         }),
-#         'action_space': spaces.Dict(spaces={
-#             "forward": spaces.Discrete(2), 
-#             "back": spaces.Discrete(2), 
-#             "left": spaces.Discrete(2), 
-#             "right": spaces.Discrete(2), 
-#             "jump": spaces.Discrete(2), 
-#             "sneak": spaces.Discrete(2), 
-#             "sprint": spaces.Discrete(2), 
-#             "attack": spaces.Discrete(2),
-#             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),
-#         }),
-#         'docstr': """
-#         In treechop debug, the agent must collect 2 `minercaft:log`. This tests the handlers for rewards and completion.
-#         The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.\n"""
-#             },
-#             max_episode_steps=1000,
-#             reward_threshold=2.0,
-# ))
-
-# old_envs.append(dict(
-#     id='MineRLObtainTest-v0',
-#     entry_point='minerl.env:MineRLEnv',
-#     kwargs={
-#         'xml': os.path.join(missions_dir, 'obtainDebug.xml'),
-#         'observation_space': obtain_observation_space,
-#         'action_space':  spaces.Dict({
-#             "forward": spaces.Discrete(2),
-#             "back": spaces.Discrete(2),
-#             "left": spaces.Discrete(2),
-#             "right": spaces.Discrete(2),
-#             "jump": spaces.Discrete(2),
-#             "sneak": spaces.Discrete(2),
-#             "sprint": spaces.Discrete(2),
-#             "attack": spaces.Discrete(2),
-#             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-#             "place": spaces.Enum('none', 'dirt', 'log', 'log2', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'diamond_ore'),
-#             "equip": spaces.Enum('none', 'red_flower', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
-#             "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
-#             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
-#             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')})
-#     },
-#     max_episode_steps=2000,
-# ))
-
-# old_envs.append(dict(
-#     id='MineRLObtainTestDense-v0',
-#     entry_point='minerl.env:MineRLEnv',
-#     kwargs={
-#         'xml': os.path.join(missions_dir, 'obtainDebugDense.xml'),
-#         'observation_space': obtain_observation_space,
-#         'action_space':  spaces.Dict({
-#             "forward": spaces.Discrete(2),
-#             "back": spaces.Discrete(2),
-#             "left": spaces.Discrete(2),
-#             "right": spaces.Discrete(2),
-#             "jump": spaces.Discrete(2),
-#             "sneak": spaces.Discrete(2),
-#             "sprint": spaces.Discrete(2),
-#             "attack": spaces.Discrete(2),
-#             "camera": spaces.Box(low=-180, high=180, shape=(2,), dtype=np.float32),  # Pitch, Yaw
-#             "place": spaces.Enum('none', 'dirt', 'log', 'log2', 'stone', 'cobblestone', 'crafting_table', 'furnace', 'torch', 'diamond_ore'),
-#             "equip": spaces.Enum('none', 'red_flower', 'air', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe'),
-#             "craft": spaces.Enum('none', 'torch', 'stick', 'planks', 'crafting_table'),
-#             "nearbyCraft": spaces.Enum('none', 'wooden_axe', 'wooden_pickaxe', 'stone_axe', 'stone_pickaxe', 'iron_axe', 'iron_pickaxe', 'furnace'),
-#             "nearbySmelt": spaces.Enum('none', 'iron_ingot', 'coal')})
-#     },
-#     max_episode_steps=2000,
-# ))
-
-
-
 for e in old_envs:
     if not 'reward_threshold' in e:
         e['reward_threshold'] = None
     e['kwargs']['env_spec'] = None
 
 
-
-def test_env_regressions():
+def test_env_space_regressions():
     import minerl.herobraine.env_specs
     for env in old_envs:
         newspec = gym.envs.registration.spec(env['id'])
         k1 = newspec._kwargs
         k2 = env['kwargs']
-        assert newspec._kwargs['action_space'] == env['kwargs']['action_space']
-        assert newspec._kwargs['observation_space'] == env['kwargs']['observation_space']
-        print(k1.keys(), k2.keys())
-        assert set(k1.keys()) == set(k2.keys())
+        task = k1['env_spec']
+        # print(k1)
+        assert task.action_space == env['kwargs']['action_space']
+        assert task.observation_space == env['kwargs']['observation_space']
+
+        # assert set(k1.keys()) == set(k2.keys()), Invalid as of MineRL 0.4.0
         assert newspec.max_episode_steps == env['max_episode_steps']
-        if 'reward_threshold' in env or hasattr(newspec, 'reward_threshold'): 
+        if 'reward_threshold' in env or hasattr(newspec, 'reward_threshold'):
             assert newspec.reward_threshold == env['reward_threshold']
 
+        with open(env['kwargs']['xml'], 'rt') as f:
+            old_env_xml = f.read()
+        new_env_xml = newspec._kwargs['env_spec'].to_xml()
+        old_xml_dict = xmltodict.parse(old_env_xml)
+        new_xml_dict = xmltodict.parse(new_env_xml)
+        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions', 'Name', 'About'])
 
 
 # #######################
 # #        DEBUG        #
 # #######################
+
+if __name__ == '__main__':
+    test_env_space_regressions()

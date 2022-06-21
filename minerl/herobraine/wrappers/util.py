@@ -1,16 +1,19 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
 import collections
+from minerl.herobraine.hero.handler import Handler
 import numpy as np
 from functools import reduce
 
 from typing import List, Tuple
 
-from minerl.herobraine.hero import AgentHandler
 from minerl.herobraine.hero.spaces import Box, Dict, Enum, MineRLSpace
 
 
 # TODO: Make a test.
 # TODO: Refactor this. This iss unioning handlers, not sapces.
-def union_spaces(hdls_1: List[AgentHandler], hdls_2: List[AgentHandler]) -> List[MineRLSpace]:
+def union_spaces(hdls_1: List[Handler], hdls_2: List[Handler]) -> List[MineRLSpace]:
     # Merge action/observation spaces from two environments
     hdls = hdls_1 + hdls_2
     hdl_dict = collections.defaultdict(list)
@@ -18,7 +21,6 @@ def union_spaces(hdls_1: List[AgentHandler], hdls_2: List[AgentHandler]) -> List
     merged_hdls = [reduce(lambda a, b: a | b, matching) for matching in hdl_dict.values()]
 
     return merged_hdls
-
 
 
 # TODO: make a test.
@@ -36,7 +38,7 @@ def intersect_space(space, sample):
         return new_sample
     elif isinstance(space, Enum):
         if sample not in space:
-            return space.default    
+            return space.default
         else:
             return sample
     else:
@@ -45,7 +47,7 @@ def intersect_space(space, sample):
 
 
 # TODO: make a test
-def flatten_spaces(hdls: List[AgentHandler]) -> Tuple[list, List[Tuple[str, MineRLSpace]]]:
+def flatten_spaces(hdls: List[Handler]) -> Tuple[list, List[Tuple[str, MineRLSpace]]]:
     return [hdl.space.flattened for hdl in hdls if hdl.space.is_flattenable()], \
            [(hdl.to_string(), hdl.space) for hdl in hdls if
             not hdl.space.is_flattenable()]

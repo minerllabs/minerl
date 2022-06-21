@@ -1,3 +1,8 @@
+# Copyright (c) 2020 All Rights Reserved
+# Author: William H. Guss, Brandon Houghton
+
+
+# TODO: DEPRECRATE.
 import json
 import logging
 import multiprocessing
@@ -50,9 +55,9 @@ class DataPipelineWithReward:
 
         self.processing_pool = Pool(self.number_of_workers)
         self.m = multiprocessing.Manager()
-        self.data_queue = self.m.Queue(maxsize=self.size_to_dequeue//self.worker_batch_size*4)
+        self.data_queue = self.m.Queue(maxsize=self.size_to_dequeue // self.worker_batch_size * 4)
 
-        pool_size = self.size_to_dequeue*4
+        pool_size = self.size_to_dequeue * 4
         self.random_queue = PriorityQueue(maxsize=pool_size)
 
     def batch_iter(self, batch_size):
@@ -78,12 +83,12 @@ class DataPipelineWithReward:
         start = 0
         incr = 0
         while not map_promise.ready() or not self.data_queue.empty() or not self.random_queue.empty():
-            #print("d: {} r: {}".format(data_queue.qsize(), random_queue.qsize()))
+            # print("d: {} r: {}".format(data_queue.qsize(), random_queue.qsize()))
 
             while not self.data_queue.empty() and not self.random_queue.full():
                 for ex in self.data_queue.get():
                     if not self.random_queue.full():
-                        r_num = np.random.rand(1)[0]*(1 - start) + start
+                        r_num = np.random.rand(1)[0] * (1 - start) + start
                         self.random_queue.put(
                             (r_num, ex)
                         )
@@ -100,7 +105,7 @@ class DataPipelineWithReward:
                         continue
                 batch_with_incr = [self.random_queue.get() for _ in range(batch_size)]
 
-                r1, batch  = zip(*batch_with_incr)
+                r1, batch = zip(*batch_with_incr)
                 start = 0
                 traj_obs, traj_acts, traj_handlers, traj_n_obs, discounted_rewards, elapsed = zip(*batch)
 
@@ -135,7 +140,7 @@ class DataPipelineWithReward:
             logger.error("Failure in data pipeline: {}".format(e))
 
         logger.info("Epoch complete.")
-        
+
     def close(self):
         self.processing_pool.close()
         self.processing_pool.join()
@@ -170,11 +175,11 @@ class DataPipelineWithReward:
                 frame_num = 0
                 while True:
                     ret, frame = cap.read()
-                    
+
                     if not ret or frame_num >= len(univ):
                         break
                     else:
-                        #print("Batches {} and worker batch size {}".format(len(batches), self.worker_batch_size))
+                        # print("Batches {} and worker batch size {}".format(len(batches), self.worker_batch_size))
                         if len(batches) >= worker_batch_size:
                             data_queue.put(batches)
                             batches = []
@@ -196,7 +201,7 @@ class DataPipelineWithReward:
                                     pass
                             rewards.append(cur_reward)
 
-                            #print("Frames queue size {}".format(frames_queue.qsize()))
+                            # print("Frames queue size {}".format(frames_queue.qsize()))
                             frames_queue.put(frame)
                             if frames_queue.full():
                                 next_obs = [o.from_universal(frame) for o in observables]
@@ -210,8 +215,11 @@ class DataPipelineWithReward:
                                     except NotImplementedError:
                                         mission.append(None)
                                         pass
-                            
-                                batches.append((obs, act, mission, next_obs, DataPipelineWithReward._calculate_discount_rew(rewards[-nsteps:], gamma), frame_num + 1 - nsteps))
+
+                                batches.append((obs, act, mission, next_obs,
+                                                DataPipelineWithReward._calculate_discount_rew(rewards[-nsteps:],
+                                                                                               gamma),
+                                                frame_num + 1 - nsteps))
                         except Exception as e:
                             # If there is some error constructing the batch we just start a new sequence
                             # at the point that the exception was observed
@@ -225,6 +233,7 @@ class DataPipelineWithReward:
                 logger.error("Caught Exception")
                 raise e
                 return None
+
         return _load_data
 
     @staticmethod

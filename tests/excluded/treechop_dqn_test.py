@@ -15,8 +15,8 @@ from baselines.common.schedules import LinearSchedule
 import logging
 
 import coloredlogs
-coloredlogs.install(logging.DEBUG)
 
+coloredlogs.install(logging.DEBUG)
 
 model = deepq.models.cnn_to_mlp(
     convs=[(32, 8, 4), (64, 4, 2), (64, 3, 1)],
@@ -28,36 +28,36 @@ model = deepq.models.cnn_to_mlp(
 def action_wrapper(action_int):
     act = {
         "forward": 1,
-        "back": 0, 
-        "left": 0, 
-        "right": 0, 
-        "jump": 0, 
-        "sneak": 0, 
-        "sprint": 0, 
-        "attack" : 1, 
-        "camera": [0,0],
-       # "placeblock": 'none'
+        "back": 0,
+        "left": 0,
+        "right": 0,
+        "jump": 0,
+        "sneak": 0,
+        "sprint": 0,
+        "attack": 1,
+        "camera": [0, 0],
+        # "placeblock": 'none'
     }
     if action_int == 0:
         act['jump'] = 1
-    elif action_int  == 1:
+    elif action_int == 1:
         act['camera'] = [0, 10]
-    elif action_int  == 2:
+    elif action_int == 2:
         act['camera'] = [0, -10]
     elif action_int == 3:
         act['forward'] = 0
 
-
     return act.copy()
 
-def observation_wrapper(obs):
-    pov = obs['pov'].astype(np.float32)/255.0- 0.5
-    #compass = obs['compassAngle']
 
-    #compass_channel = np.ones(shape=list(pov.shape[:-1]) + [1], dtype=np.float32)*compass
-    #compass_channel /= 180.0
-    
-    #return np.concatenate([pov, compass_channel], axis=-1)
+def observation_wrapper(obs):
+    pov = obs['pov'].astype(np.float32) / 255.0 - 0.5
+    # compass = obs['compassAngle']
+
+    # compass_channel = np.ones(shape=list(pov.shape[:-1]) + [1], dtype=np.float32)*compass
+    # compass_channel /= 180.0
+
+    # return np.concatenate([pov, compass_channel], axis=-1)
     return pov
 
 
@@ -67,13 +67,12 @@ if __name__ == '__main__':
         env = gym.make("MineRLTreechop-v0")
         spaces = env.observation_space.spaces['pov']
         shape = list(spaces.shape)
-        #shape[-1] += 1
-
+        # shape[-1] += 1
 
         # Create all the functions necessary to train the model
         act, train, update_target, debug = deepq.build_train(
             make_obs_ph=lambda name: U.BatchInput(shape
-                , name=name),
+                                                  , name=name),
             q_func=model,
             num_actions=5,
             gamma=0.99,
@@ -93,14 +92,14 @@ if __name__ == '__main__':
         obs = (env.reset())
         # obs = test_obs
         print(obs)
-        
+
         obs = observation_wrapper(obs)
-        
+
         for t in tqdm.tqdm(itertools.count()):
             # Take action and update exploration to the newest value
             # print(obs[None].shape)
             action = act(obs[None], update_eps=exploration.value(t))[0]
-            
+
             new_obs, rew, done, _ = env.step(action_wrapper(action))
             # new_obs,  rew, done  = test_obs, 1, 0
             new_obs = observation_wrapper(new_obs)
@@ -112,7 +111,7 @@ if __name__ == '__main__':
             episode_rewards[-1] += rew
             if done:
                 obs = env.reset()
-                
+
                 obs = observation_wrapper(obs)
                 episode_rewards.append(0)
 

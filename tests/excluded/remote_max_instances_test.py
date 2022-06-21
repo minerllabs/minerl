@@ -12,6 +12,7 @@ from minerl.env.core import MineRLEnv
 from minerl.env.malmo import InstanceManager
 
 import coloredlogs
+
 coloredlogs.install(logging.INFO)
 
 
@@ -19,7 +20,7 @@ def main():
     """
     Tests running a simple environment.
     """
-#    InstanceManager.MAXINSTANCES = 1
+    #    InstanceManager.MAXINSTANCES = 1
     env = gym.make('MineRLNavigateDense-v0')
     try:
         gym.make('MineRLObtainDiamondDense-v0')
@@ -28,6 +29,7 @@ def main():
         pass
 
     print("Demo complete.")
+
 
 if __name__ == "__main__":
     main()
