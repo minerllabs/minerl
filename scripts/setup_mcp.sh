@@ -2,6 +2,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DIR="$DIR/../minerl"
 cd $DIR
+rm -rf MCP-Reborn
 git clone https://github.com/Hexeption/MCP-Reborn.git
 cd MCP-Reborn
 git checkout 1.16.5-20210115

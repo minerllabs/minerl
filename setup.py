@@ -143,16 +143,30 @@ def prep_mcp():
                     environment with `sudo apt update; sudo apt install openjdk-8-jdk`.
                     """
                 )
+            elif "Cannot lock task history" in setup_output:
+                raise RuntimeError(
+                    """
+                    Installation failed probably due to Java processes dangling around from previous attempts.
+                    Try killing all Java processes in Windows and WSL (if you use it). Rebooting machine
+                    should also work.
+                    """
+                )
             subprocess.check_call(['bash.exe', 'patch_mcp.sh'])
         except subprocess.CalledProcessError as e:
             raise RuntimeError(
                 """
-                `bash` command not found. You have at least two options to fix this:
-                 1. Install Windows Subsystem for Linux (WSL. Tested on WSL 2).
+                Running install scripts failed. Check error logs above for more information.
+
+                If errors are about `bash` command not found, You have at least two options to fix this:
+                 1. Install Windows Subsystem for Linux (WSL. Tested on WSL 2). Note that installation with WSL
+                    may seem especially slow/stuck, but it is not; it is just a bit slow.
                  2. Install bash along some other tools. E.g., git will come with bash: https://git-scm.com/downloads .
                     After installation, you may have to update environment variables to include a path which contains
                     'bash.exe'. For above git tools, this is [installation-dir]/bin.
                 After installation, you should have 'bash' command in your command line/powershell.
+
+                If errors are about "could not create work tree dir...", try cloning the MineRL repository
+                to a different location and try installation again.
                 """
             )
 
