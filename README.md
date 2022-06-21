@@ -37,13 +37,14 @@ import minerl
 # import coloredlogs
 # coloredlogs.install(logging.DEBUG)
 
-env = gym.make("MineRLBasaltFindCave-v0")
+env = gym.make("MineRLBasaltBuildVillageHouse-v0")
 obs = env.reset()
 
+done = False
 while not done:
-    ac = env.action_space.sample()
-    # ESC button will quit the game, so lets set that to zero
-    ac["ESC"] = 0 
+    ac = env.action_space.noop()
+    # Spin around to see what is around us
+    ac["camera"] = [0, 3]
     obs, reward, done, info = env.step(ac)
     env.render()
 env.close()
