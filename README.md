@@ -16,7 +16,7 @@ Requirements:
 - Java JDK 8. The Java instructions [here](https://minerl.readthedocs.io/en/latest/tutorials/index.html) still work. On Windows, make sure no other Java JRE or JDK installations exist. The safest approach is to uninstall all other Java installations before installing JDK 8 on Windows.
 - `bash` as a valid command. On Windows you have at least two options:
   - Install [Git](https://git-scm.com/), which comes with Git's version of bash. You might need to reboot computer after installation. Try calling `bash` in powershell/cmd. Or alternatively...
-  - Install [WSL](https://docs.microsoft.com/en-us/windows/wsl/) (tested WSL 2).
+  - Install [WSL](https://docs.microsoft.com/en-us/windows/wsl/) (tested WSL 2). Note that you do not have to install the library in WSL: it is enough to have WSL installed and `bash` command available to powershell/cmd.
 - If you are running the code on a headless machine (no monitor) or on WSL, you need `xvfb` to run it in a virtual buffer (e.g. `xvfb-run -a python [minerl script]`)
 
 Installation:
