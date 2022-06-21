@@ -17,6 +17,7 @@ Requirements:
 - `bash` as a valid command. On Windows you have at least two options:
   - Install [Git](https://git-scm.com/), which comes with Git's version of bash. You might need to reboot computer after installation. Try calling `bash` in powershell/cmd. Or alternatively...
   - Install [WSL](https://docs.microsoft.com/en-us/windows/wsl/) (tested WSL 2).
+- If you are running the code on a headless machine (no monitor) or on WSL, you need `xvfb` to run it in a virtual buffer (e.g. `xvfb-run -a python [minerl script]`)
 
 Installation:
 1. Clone this repository: `git clone -b v1.0.0 https://github.com/minerllabs/minerl`
