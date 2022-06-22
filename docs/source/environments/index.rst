@@ -47,6 +47,20 @@ Here is an example action:
 
 The :code:`ESC` action is used to end the episode.
 
+:code:`inventory`
+************************
+The :code:`inventory` opens the inventory GUI. This will yield an observation
+image something like the following:
+
+.. image:: ../assets/inventory.jpg
+
+:code:`camera`
+************************
+This action changes the orientation of the agent’s head by the corresponding number 
+of degrees. The head changes its orientation 
+pitch by the first component and its yaw by the second component. 
+Both components are limited to [-180, 180] inclusive/
+
 .. Observation Space
 .. ------------------
 
