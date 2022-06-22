@@ -71,6 +71,7 @@ We develop :code:`minerl` in our spare time, `please consider supporting us on P
 
    environments/index
    environments/basalt
+   environments/diamond
    
 
 .. toctree::

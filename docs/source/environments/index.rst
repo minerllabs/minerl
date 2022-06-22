@@ -20,7 +20,7 @@ environment!
 Action Space
 ------------------
 
-All environments use the same action space, which is a dictionary containing a 
+Most environments use the same action space, which is a dictionary containing a 
 multitude of different actions. Note that :code:`Discrete` and :code:`Box` are 
 actions spaces defined by Gym.
 

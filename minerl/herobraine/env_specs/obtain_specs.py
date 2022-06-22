@@ -74,6 +74,7 @@ def _obtain_diamond_shovel_gym_entrypoint(env_spec, fake=False):
 OBTAIN_DIAMOND_SHOVEL_ENTRY_POINT = "minerl.herobraine.env_specs.obtain_specs:_obtain_diamond_shovel_gym_entrypoint"
 
 class ObtainDiamondShovelEnvSpec(HumanSurvival):
+    """"""
     def __init__(self):
         super().__init__(
             name="MineRLObtainDiamondShovel-v0",
