@@ -9,8 +9,8 @@ judged by real humans to be effective at solving a given task. This calls for
 training on human-feedback, whether it is training from demonstrations, training on human preferences or using humans to correct agents’ actions.
 
 .. exec::
-
-    from minerl.herobraine import envs
-    from minerl.utils import docs
-    for env_spec in envs.BASALT_COMPETITION_ENV_SPECS:
-        docs.print_env_spec_sphinx(env_spec)
+    from minerl.herobraine.env_specs.basalt_specs import FindCaveEnvSpec, PenAnimalsVillageEnvSpec, MakeWaterfallEnvSpec, VillageMakeHouseEnvSpec
+    env_specs = [FindCaveEnvSpec, PenAnimalsVillageEnvSpec, MakeWaterfallEnvSpec, VillageMakeHouseEnvSpec]
+    from minerl.utils import documentation
+    for env_spec in env_specs:
+        documentation.print_env_spec_sphinx(env_spec)

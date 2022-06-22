@@ -26,10 +26,11 @@ def _format_dict(arg: dict) -> str:
 
 
 def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
-    print("_" * len(env_spec.name))
-    print(f"{env_spec.name}")
-    print("_" * len(env_spec.name))
-    print(env_spec.get_docstring())
+    env = env_spec()
+    print("_" * len(env.name))
+    print(f"{env.name}")
+    print("_" * len(env.name))
+    print(env.get_docstring())
 
     if isinstance(env_spec, basalt_specs.BasaltBaseEnvSpec):
         print("..................")

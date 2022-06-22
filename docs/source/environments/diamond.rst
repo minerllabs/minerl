@@ -3,14 +3,15 @@ MineRL Diamond Competition Environments
 
 The goal of these environments is to obtain diamond or some item made of diamond.
 
-.. automodule:: minerl.herobraine.env_specs.basalt_specs.FindCaveEnvSpec
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. note::
+
+    :code:`ESC` is not used in Diamond environments
+
+.. note::
+    Diamond environments also receive direct inventory observations (e.g. :code:`"apple":5` if the agent has five apples)
 
 .. exec::
 
-    from minerl.herobraine import envs
-    from minerl.utils import docs
-    for env_spec in envs.COMPETITION_ENV_SPECS:
-        docs.print_env_spec_sphinx(env_spec)
+    from minerl.herobraine.env_specs.obtain_specs import ObtainDiamondShovelEnvSpec
+    from minerl.utils import documentation
+    documentation.print_env_spec_sphinx(ObtainDiamondShovelEnvSpec)
