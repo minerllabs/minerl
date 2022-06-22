@@ -31,13 +31,6 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     print("_" * len(env_spec.name))
     print(env_spec.get_docstring())
 
-    action_space = _gym_space_to_dict(env_spec.action_space)
-
-    print("............")
-    print("Action Space")
-    print("............")
-    print(_format_dict(action_space))
-
     if isinstance(env_spec, basalt_specs.BasaltBaseEnvSpec):
         print("..................")
         print("Starting Inventory")
@@ -53,21 +46,6 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     print(".....")
 
     usage_str = f'''.. code-block:: python
-        import gym
-        import minerl
-        # Run a random agent through the environment
         env = gym.make("{env_spec.name}")  # A {env_spec.name} env
-        obs = env.reset()
-        done = False
-        while not done:
-            # Take a no-op through the environment.
-            obs, rew, done, _ = env.step(env.action_space.noop())
-            # Do something
-        ######################################
-        # Sample some data from the dataset!
-        data = minerl.data.make("{env_spec.name}")
-        # Iterate through a single epoch using sequences of at most 32 steps
-        for obs, rew, done, act in data.batch_iter(num_epochs=1, batch_size=32):
-            # Do something
     '''
     print(usage_str)
