@@ -1,7 +1,9 @@
-# MineRL v1.0.0 Beta
+# MineRL v1.0.0 Beta for OpenAI VPT and BASALT 2022
 
 This is preliminary release of MineRL v1.0.0, with minimal docs for people to get started and find out bugs.
 This will be the MineRL version for the MineRL [BASALT 2022](https://www.aicrowd.com/challenges/neurips-2022-minerl-basalt-competition) competition.
+
+This is also the version you need for the OpenAI's VPT models: https://github.com/openai/Video-Pre-Training.
 
 To help us out, **please** report any bugs/errors/confusions to us via Github issues or via the Discord server! This will greatly help us get this package ready.
 
@@ -19,7 +21,9 @@ Requirements:
   - Install [WSL](https://docs.microsoft.com/en-us/windows/wsl/) (tested WSL 2). Note that you do not have to install the library in WSL: it is enough to have WSL installed and `bash` command available to powershell/cmd. **Note** that you also need to install Java JDK 8 on WSL if you use this method (on Debian-based systems: `sudo apt update; sudo apt install openjdk-8-jdk`).
 - If you are running the code on a headless machine (no monitor) or on WSL, you need `xvfb` to run it in a virtual buffer (e.g. `xvfb-run -a python [minerl script]`)
 
-Installation:
+Installation: `pip install git+https://github.com/minerllabs/minerl@v1.0.0`
+
+Installation the manual way:
 1. Clone this repository: `git clone -b v1.0.0 https://github.com/minerllabs/minerl`
 2. Enter the cloned repository: `cd minerl`
 3. Install with `pip install .` (note that `-e` flag might not work, same with `python setup.py ....` calls)
