@@ -368,24 +368,10 @@ class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
 Build a house in the style of the village without damaging the village. Give a tour of
 the house and then end the episode by setting "ESC" action to one.
 
-.. note::
-  In the observation and action spaces, the following (internal Minecraft) item IDs can be
-  interpreted as follows:
-
-    - ``log#0`` is oak logs.
-    - ``log#1`` is spruce logs.
-    - ``log2#0`` is acacia logs.
-    - ``planks#0`` is oak planks.
-    - ``planks#1`` is spruce planks.
-    - ``planks#4`` is acacia planks.
-    - ``sandstone#0`` is cracked sandstone.
-    - ``sandstone#2`` is smooth sandstone.
-
 .. tip::
   You can find detailed information on which materials are used in each biome-specific
   village (plains, savannah, taiga, desert) here:
-  https://minecraft.fandom.com/wiki/Village/Structure_(old)/Blueprints#Village_generation
-
+  https://minecraft.fandom.com/wiki/Village/Structure/Blueprints
 """
     def __init__(self):
         super().__init__(
