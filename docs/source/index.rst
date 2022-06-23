@@ -79,16 +79,6 @@ in the develpment of various aspects of artificial intelligence within Minecraft
    notes/versions
 
 
-.. toctree::
-    :maxdepth: 2
-    :caption: MineRL package API Reference
-
-    api/env
-    api/data
-    api/herobraine
-
-
-
 Indices and tables
 ---------------------
 
