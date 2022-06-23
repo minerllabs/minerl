@@ -1,3 +1,5 @@
+### Note: If you are looking for MineRL v1.0 for [OpenAI VPT](https://openai.com/blog/vpt/), you can find it [here](https://github.com/minerllabs/minerl/tree/v1.0.0)
+
 # The [MineRL](http://minerl.io) Python Package
 
 [![Documentation Status](https://readthedocs.org/projects/minerl/badge/?version=latest)](https://minerl.readthedocs.io/en/latest/?badge=latest)
