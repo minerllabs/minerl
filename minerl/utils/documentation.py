@@ -27,9 +27,10 @@ def _format_dict(arg: dict) -> str:
 
 def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     env = env_spec()
-    print("_" * len(env.name))
-    print(f"{env.name}")
-    print("_" * len(env.name))
+    env_name = env.name
+    print("_" * len(env_name))
+    print(f"{env_name}")
+    print("_" * len(env_name))
     print(env.get_docstring())
 
     if hasattr(env, "inventory"):
@@ -47,6 +48,6 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     print(".....")
 
     usage_str = f'''.. code-block:: python
-        env = gym.make("{env.name}")  # A {env.name} env
+        env = gym.make("{env_name}")  # A {env_name} env
     '''
     print(usage_str)
