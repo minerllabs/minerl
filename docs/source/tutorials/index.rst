@@ -9,7 +9,7 @@ To start using the MineRL dataset and Gym environments comprising MineRL, you'll
 main python package, :code:`minerl`.
 
 .. _OpenJDK 8: https://openjdk.java.net/install/
-.. _Windows installer: https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+.. _Windows installer: https://www.oracle.com/java/technologies/downloads/#java8-windows
 .. _checkout the environment documentation: http://minerl.io/docs/environments/
 .. _checkout the competition environments: http://minerl.io/docs/environments/#competition-environments
 .. _Git: https://git-scm.com/
@@ -17,8 +17,8 @@ main python package, :code:`minerl`.
 1. First **make sure you have JDK 8** installed on your
    system.
 
-   a. `Windows installer`_  -- On windows go this link and follow the
-      instructions to install JDK 8.
+   a. `Windows installer`_ -- On windows go this link and follow the
+      instructions to install JDK 8. Install x64 version.
 
    b. On Mac, you can install Java 8 using homebrew and AdoptOpenJDK (an open source mirror, used here to get around the fact that Java8 binaries are no longer available directly from Oracle)::
 

@@ -13,7 +13,7 @@ Requirements:
 
 - Windows or Linux machines. Tested Windows 10 and Ubuntu. MacOS is untested.
 - Python 3. Tested on Python 3.9 and 3.10. Python >3.6 will likely work.
-- Java JDK 8. The Java instructions [here](https://minerl.readthedocs.io/en/latest/tutorials/index.html) still work. On Windows, make sure no other Java JRE or JDK installations exist. The safest approach is to uninstall all other Java installations before installing JDK 8 on Windows.
+- Java JDK 8. See instructions [here](https://minerl.readthedocs.io/en/v1.0.0/tutorials/index.html). On Windows, make sure no other Java JRE or JDK installations exist. The safest approach is to uninstall all other Java installations before installing JDK 8 on Windows.
 - `bash` as a valid command. On Windows you have at least two options:
   - Install [Git](https://git-scm.com/), which comes with Git's version of bash. You might need to reboot computer after installation. Try calling `bash` in powershell/cmd. Or alternatively...
   - Install [WSL](https://docs.microsoft.com/en-us/windows/wsl/) (tested WSL 2). Note that you do not have to install the library in WSL: it is enough to have WSL installed and `bash` command available to powershell/cmd. **Note** that you also need to install Java JDK 8 on WSL if you use this method (on Debian-based systems: `sudo apt update; sudo apt install openjdk-8-jdk`).
