@@ -31,8 +31,6 @@ MineRL: Towards AI in Minecraft
   :scale: 100 %
   :alt:
 
-*These videos do not represent the new MineRL environment or the new dataset.*
-
 .. |biohazard| image:: https://pepy.tech/badge/minerl
 
 |biohazard| :raw-html:`<br/><br/>`
@@ -50,11 +48,7 @@ MineRL is a rich python3 library which provides a gym-like interface for interac
 with the videogame Minecraft.
 
 Started as a research project at Carnegie Mellon University, MineRL aims to assist
-in the develpment of various aspects of artificial intelligence within Minecraft. 
-  
-We develop :code:`minerl` in our spare time, `please consider supporting us on Patreon`_
-
-.. _please consider supporting us on Patreon: https://www.patreon.com/wguss_imushroom
+in the develpment of various aspects of artificial intelligence within Minecraft.
 
 .. toctree::
    :caption: Tutorials and Guides

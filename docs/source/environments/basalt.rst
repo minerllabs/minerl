@@ -1,6 +1,8 @@
 MineRL BASALT Competition Environments
 =======================================
-*The videos on this page do not represent the new MineRL environment or the new dataset.*
+
+.. warning::
+    The videos on this page represent the v0.4 dataset, not the v1.0 dataset.
 
 In the Benchmark for Agents that Solve Almost-Lifelike Task (BASALT) 
 competition, your task is to solve tasks based on human judgement, 
