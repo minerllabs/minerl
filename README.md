@@ -7,7 +7,7 @@ This is also the version you need for the OpenAI's VPT models: https://github.co
 
 To help us out, **please** report any bugs/errors/confusions to us via Github issues or via the Discord server! This will greatly help us get this package ready.
 
-Note: Docs are being worked on. This README is currently all there is.
+Note: Docs are being worked on but available [here](https://minerl.readthedocs.io/en/v1.0.0/). This README contains most you need to know for now.
 
 ## Installation
 
