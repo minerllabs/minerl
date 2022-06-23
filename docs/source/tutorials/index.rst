@@ -13,7 +13,7 @@ main python package, :code:`minerl`.
 .. _checkout the environment documentation: http://minerl.io/docs/environments/
 .. _checkout the competition environments: http://minerl.io/docs/environments/#competition-environments
 
-1. First **make sure you have JDK 1.8** installed on your
+1. First **make sure you have JDK 8** installed on your
    system.
 
    a. `Windows installer`_  -- On windows go this link and follow the

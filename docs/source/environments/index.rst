@@ -16,25 +16,28 @@ environment!
     All environments offer a default no-op action via :code:`env.action_space.no_op()`
     and a random action via :code:`env.action_space.sample()`.
 
+Observation Space
+------------------
+
+Most environments use the same observation space (just an RGB image):
+
+.. code-block:: python
+
+    Dict(pov:Box(low=0, high=255, shape=(360, 640, 3)))
 
 Action Space
 ------------------
 
-All environments use the same action space, which is a dictionary containing a 
+Most environments use the same action space, which is a dictionary containing a 
 multitude of different actions. Note that :code:`Discrete` and :code:`Box` are 
 actions spaces defined by Gym.
 
-.. code-block:: python
+.. exec::
+    from minerl.herobraine.env_specs.basalt_specs import FindCaveEnvSpec
+    from minerl.utils.documentation import _format_dict 
 
-    Dict(ESC:Discrete(2), attack:Discrete(2), back:Discrete(2), 
-    camera:Box(low=-180.0, high=180.0, shape=(2,)), drop:Discrete(2), 
-    forward:Discrete(2), hotbar.1:Discrete(2), hotbar.2:Discrete(2), 
-    hotbar.3:Discrete(2), hotbar.4:Discrete(2), hotbar.5:Discrete(2), 
-    hotbar.6:Discrete(2), hotbar.7:Discrete(2), hotbar.8:Discrete(2), 
-    hotbar.9:Discrete(2), inventory:Discrete(2), jump:Discrete(2), 
-    left:Discrete(2), pickItem:Discrete(2), right:Discrete(2), 
-    sneak:Discrete(2), sprint:Discrete(2), swapHands:Discrete(2), 
-    use:Discrete(2))
+    print(_format_dict(FindCaveEnvSpec().action_space))
+    
 
 Here is an example action:
 
@@ -47,12 +50,19 @@ Here is an example action:
 
 The :code:`ESC` action is used to end the episode.
 
-.. Observation Space
-.. ------------------
+:code:`inventory`
+************************
+The :code:`inventory` opens the inventory GUI. This will yield an observation
+image something like the following:
 
-.. All environments use the same observation space, which 
+.. image:: ../assets/inventory.jpg
 
-.. .. code-block:: python
+:code:`camera`
+************************
+This action changes the orientation of the agent’s head by the corresponding number 
+of degrees. The head changes its orientation 
+pitch by the first component and its yaw by the second component. 
+Both components are limited to [-180, 180] inclusive.
 
-..     Dict(pov:Box(low=0, high=255, shape=(360, 640, 3)))
+
 
