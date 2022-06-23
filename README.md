@@ -11,7 +11,7 @@ Note: Docs are being worked on but available [here](https://minerl.readthedocs.i
 
 ## Installation
 
-Requirements:
+**Requirements**
 
 - Windows or Linux machines. Tested Windows 10 and Ubuntu. MacOS is untested.
 - Python 3. Tested on Python 3.9 and 3.10. Python >3.6 will likely work.
@@ -21,13 +21,16 @@ Requirements:
   - Install [WSL](https://docs.microsoft.com/en-us/windows/wsl/) (tested WSL 2). Note that you do not have to install the library in WSL: it is enough to have WSL installed and `bash` command available to powershell/cmd. **Note** that you also need to install Java JDK 8 on WSL if you use this method (on Debian-based systems: `sudo apt update; sudo apt install openjdk-8-jdk`).
 - If you are running the code on a headless machine (no monitor) or on WSL, you need `xvfb` to run it in a virtual buffer (e.g. `xvfb-run -a python [minerl script]`)
 
-Installation: `pip install git+https://github.com/minerllabs/minerl@v1.0.0`
+**Installation**
+
+Note: Installation may take 30min or longer, especially on Windows! Installation is on-going as long there are no errors.
+
+Quick installation: `pip install git+https://github.com/minerllabs/minerl@v1.0.0` 
 
 Installation the manual way:
 1. Clone this repository: `git clone -b v1.0.0 https://github.com/minerllabs/minerl`
 2. Enter the cloned repository: `cd minerl`
 3. Install with `pip install .` (note that `-e` flag might not work, same with `python setup.py ....` calls)
-4. Wait for ~30min. As long there are no errors the installation is on-going, and takes a long time. On Windows this may even take longer: the communication from/to WSL slows things down, and Windows' anti-malware system likes to inspect every little thing.
 
 ## Usage
 
