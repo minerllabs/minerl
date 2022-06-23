@@ -33,16 +33,10 @@ multitude of different actions. Note that :code:`Discrete` and :code:`Box` are
 actions spaces defined by Gym.
 
 .. exec::
-    from minerl.utils import documentation 
-    print(_format_dict(Dict(ESC:Discrete(2), attack:Discrete(2), back:Discrete(2), 
-    camera:Box(low=-180.0, high=180.0, shape=(2,)), drop:Discrete(2), 
-    forward:Discrete(2), hotbar.1:Discrete(2), hotbar.2:Discrete(2), 
-    hotbar.3:Discrete(2), hotbar.4:Discrete(2), hotbar.5:Discrete(2), 
-    hotbar.6:Discrete(2), hotbar.7:Discrete(2), hotbar.8:Discrete(2), 
-    hotbar.9:Discrete(2), inventory:Discrete(2), jump:Discrete(2), 
-    left:Discrete(2), pickItem:Discrete(2), right:Discrete(2), 
-    sneak:Discrete(2), sprint:Discrete(2), swapHands:Discrete(2), 
-    use:Discrete(2))))
+    from minerl.herobraine.env_specs.basalt_specs import FindCaveEnvSpec
+    from minerl.utils.documentation import _format_dict 
+
+    print(_format_dict(FindCaveEnvSpec().action_space))
     
 
 Here is an example action:

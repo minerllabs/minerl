@@ -11,6 +11,6 @@ training on human-feedback, whether it is training from demonstrations, training
 .. exec::
     from minerl.herobraine.env_specs.basalt_specs import FindCaveEnvSpec, PenAnimalsVillageEnvSpec, MakeWaterfallEnvSpec, VillageMakeHouseEnvSpec
     env_specs = [FindCaveEnvSpec, PenAnimalsVillageEnvSpec, MakeWaterfallEnvSpec, VillageMakeHouseEnvSpec]
-    from minerl.utils import documentation
+    from minerl.utils.documentation import print_env_spec_sphinx
     for env_spec in env_specs:
-        documentation.print_env_spec_sphinx(env_spec)
+        print_env_spec_sphinx(env_spec)

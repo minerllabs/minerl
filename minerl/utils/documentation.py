@@ -32,12 +32,12 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     print("_" * len(env.name))
     print(env.get_docstring())
 
-    if isinstance(env_spec, basalt_specs.BasaltBaseEnvSpec):
+    if hasattr(env, "inventory"):
         print("..................")
         print("Starting Inventory")
         print("..................")
         starting_inv_canonical = {}
-        for stack in env_spec.inventory:
+        for stack in env.inventory:
             item_id = util.encode_item_with_metadata(stack["type"], stack.get("metadata"))
             starting_inv_canonical[item_id] = stack["quantity"]
         print(_format_dict(starting_inv_canonical))
@@ -47,6 +47,6 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     print(".....")
 
     usage_str = f'''.. code-block:: python
-        env = gym.make("{env_spec.name}")  # A {env_spec.name} env
+        env = gym.make("{env.name}")  # A {env.name} env
     '''
     print(usage_str)
