@@ -48,7 +48,8 @@ Here is an example action:
 :code:`ESC`
 ************************
 
-The :code:`ESC` action is used to end the episode.
+The :code:`ESC` action may be used in some environments to end the episode (e.g., BASALT environments).
+Otherwise it does nothing.
 
 :code:`inventory`
 ************************
@@ -59,7 +60,7 @@ image something like the following:
 
 :code:`camera`
 ************************
-This action changes the orientation of the agent’s head by the corresponding number 
+This action changes the orientation of the agent's heading by the corresponding number 
 of degrees. The head changes its orientation 
 pitch by the first component and its yaw by the second component. 
 Both components are limited to [-180, 180] inclusive.
