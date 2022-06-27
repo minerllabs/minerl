@@ -29,9 +29,12 @@ main python package, :code:`minerl`.
         sudo add-apt-repository ppa:openjdk-r/ppa
         sudo apt-get update
         sudo apt-get install openjdk-8-jdk
-        # Verify
-        java -version # verify openjdk version "1.8.X_XXX"
-        sudo update-alternatives --config java # Change to java-8-openjdk if necessary
+
+        # Verify installation
+        java -version # this should output "1.8.X_XXX"
+        # If you are still seeing a wrong Java version, you may use
+        # the following line to update it
+        # sudo update-alternatives --config java 
 
 2. Now install the :code:`minerl` package!::
 
