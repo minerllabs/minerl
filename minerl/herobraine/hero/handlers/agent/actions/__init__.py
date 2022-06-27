@@ -3,6 +3,7 @@
 
 
 from .camera import *
+from .chat import *
 from .mousewheel import *
 from .craft import *
 from .equip import *
