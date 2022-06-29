@@ -261,6 +261,7 @@ minerl/MCP-Reborn/src/main/resources/*
 
 #Run files
 # runclient
+minerl/MCP-Reborn/*
 minerl/MCP-Reborn/world/*
 minerl/MCP-Reborn/crash-reports/*
 minerl/MCP-Reborn/recordings/*

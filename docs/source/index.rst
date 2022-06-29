@@ -46,15 +46,11 @@ project and its related repositories and components!
 What is MineRL
 ---------------
 
-MineRL is a rich python3 library which provides a gym-like interface for interacting 
-with the videogame Minecraft.
+MineRL is a rich Python 3 library which provides a `OpenAI Gym`_ interface for interacting 
+with the video game Minecraft, accompanied with datasets of human gameplay.
 
 Started as a research project at Carnegie Mellon University, MineRL aims to assist
-in the develpment of various aspects of artificial intelligence within Minecraft. 
-  
-We develop :code:`minerl` in our spare time, `please consider supporting us on Patreon`_
-
-.. _please consider supporting us on Patreon: https://www.patreon.com/wguss_imushroom
+in the develpment of various aspects of artificial intelligence within Minecraft.
 
 .. toctree::
    :caption: Tutorials and Guides
@@ -62,7 +58,6 @@ We develop :code:`minerl` in our spare time, `please consider supporting us on P
 
    tutorials/index
    tutorials/first_agent
-   tutorials/minerl_tools
 
 
 .. toctree::
@@ -71,7 +66,6 @@ We develop :code:`minerl` in our spare time, `please consider supporting us on P
 
    environments/index
    environments/basalt
-   environments/diamond
    
 
 .. toctree::
@@ -83,16 +77,6 @@ We develop :code:`minerl` in our spare time, `please consider supporting us on P
    notes/faq
    notes/windows
    notes/versions
-
-
-.. toctree::
-    :maxdepth: 2
-    :caption: MineRL package API Reference
-
-    api/env
-    api/data
-    api/herobraine
-
 
 
 Indices and tables

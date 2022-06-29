@@ -133,16 +133,41 @@ def prep_mcp():
         os.chdir(os.path.join(mydir, 'scripts'))
 
         try:
-            subprocess.check_call(['bash.exe', 'setup_mcp.sh'])
+            setup_output = subprocess.check_output(['bash.exe', 'setup_mcp.sh']).decode()
+            if "ERROR: JAVA_HOME" in setup_output:
+                raise RuntimeError(
+                    """
+                    `java` and/or `javac` commands were not found by the installation script.
+                    Make sure you have installed Java JDK 8.
+                    On Windows, if you installed WSL/WSL2, you may need to install JDK 8 in your WSL
+                    environment with `sudo apt update; sudo apt install openjdk-8-jdk`.
+                    """
+                )
+            elif "Cannot lock task history" in setup_output:
+                raise RuntimeError(
+                    """
+                    Installation failed probably due to Java processes dangling around from previous attempts.
+                    Try killing all Java processes in Windows and WSL (if you use it). Rebooting machine
+                    should also work.
+                    """
+                )
             subprocess.check_call(['bash.exe', 'patch_mcp.sh'])
-        except Exception as e:
+        except subprocess.CalledProcessError as e:
             raise RuntimeError(
-                "\n\n`bash` command not found. You have at least two options to fix this:"
-                " 1. Install Windows Subsystem for Linux (WSL. Tested on WSL 2)."
-                " 2. Install bash along some other tools. E.g., git will come with bash: https://git-scm.com/downloads ."
-                "    After installation, you may have to update environment variables to include a path which contains"
-                "    'bash.exe'. For above git tools, this is [installation-dir]/bin."
-                "After installation, you should have 'bash' command in your command line/powershell.\n\n"
+                """
+                Running install scripts failed. Check error logs above for more information.
+
+                If errors are about `bash` command not found, You have at least two options to fix this:
+                 1. Install Windows Subsystem for Linux (WSL. Tested on WSL 2). Note that installation with WSL
+                    may seem especially slow/stuck, but it is not; it is just a bit slow.
+                 2. Install bash along some other tools. E.g., git will come with bash: https://git-scm.com/downloads .
+                    After installation, you may have to update environment variables to include a path which contains
+                    'bash.exe'. For above git tools, this is [installation-dir]/bin.
+                After installation, you should have 'bash' command in your command line/powershell.
+
+                If errors are about "could not create work tree dir...", try cloning the MineRL repository
+                to a different location and try installation again.
+                """
             )
 
         os.chdir(old_dir)
@@ -157,7 +182,18 @@ def prep_mcp():
         # Windows is picky about being in the right directory to run gradle
         old_dir = os.getcwd()
         os.chdir(workdir)
-    subprocess.check_call('{} downloadAssets'.format(gradlew).split(' '), cwd=workdir)
+    
+    # This may fail on the first try. Try few times
+    n_trials = 3
+    for i in range(n_trials):
+        try:
+            subprocess.check_call('{} downloadAssets'.format(gradlew).split(' '), cwd=workdir)
+        except subprocess.CalledProcessError as e:
+            if i == n_trials - 1:
+                raise e
+        else:
+            break
+
     unpack_assets()
     subprocess.check_call('{} clean build shadowJar'.format(gradlew).split(' '), cwd=workdir)
     if os.name == 'nt':

@@ -4,8 +4,6 @@ import gym
 from typing import Union
 
 from minerl.herobraine.env_spec import EnvSpec
-from minerl.herobraine.env_specs import basalt_specs
-from minerl.herobraine.hero.handlers import util
 
 
 def _gym_space_to_dict(space: Union[dict, gym.Space]) -> dict:
@@ -39,15 +37,6 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
         print("..................")
         starting_inv_canonical = {}
         for stack in env.inventory:
-            item_id = util.encode_item_with_metadata(stack["type"], stack.get("metadata"))
+            item_id = stack["type"]
             starting_inv_canonical[item_id] = stack["quantity"]
         print(_format_dict(starting_inv_canonical))
-
-    print(".....")
-    print("Usage")
-    print(".....")
-
-    # usage_str = f'''.. code-block:: python
-    #     env = gym.make("{env_name}")  # A {env_name} env
-    # '''
-    # print(usage_str)
