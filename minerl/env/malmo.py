@@ -579,7 +579,7 @@ class MinecraftInstance(object):
             cmd += ['-seed', ",".join([str(x) for x in self._seed])]
         if self._max_mem:
             cmd += ['-maxMem', self._max_mem]
-        
+
         if headless:
             cmd = ["/usr/bin/xvfb-run", "-a"] + cmd
 
