@@ -581,7 +581,7 @@ class MinecraftInstance(object):
             cmd += ['-maxMem', self._max_mem]
 
         if headless:
-            cmd = ["/usr/bin/xvfb-run", "-a"] + cmd
+            cmd = ["xvfb-run", "-a"] + cmd
 
         cmd_to_print = cmd[:] if not self._seed else cmd[:-2]
         self._logger.info("Starting Minecraft process: " + str(cmd_to_print))
