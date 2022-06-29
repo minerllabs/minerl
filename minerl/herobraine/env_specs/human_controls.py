@@ -39,10 +39,10 @@ class HumanControlEnvSpec(EnvSpec, ABC):
 
 
     def __init__(self, name, *args,
-            resolution=(1280, 720),
-            guiscale_range=[2, 2],
+            resolution=(640, 360),
+            guiscale_range=[1, 1],
             gamma_range=[2.0, 2.0],
-            fov_range=[130.0,130.0],
+            fov_range=[70.0, 70.0],
             cursor_size_range=[16, 16],
             **kwargs):
 
