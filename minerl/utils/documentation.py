@@ -26,7 +26,7 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     print("_" * len(env_name))
     print(f"{env_name}")
     print("_" * len(env_name))
-    print(env.get_docstring())
+    print(env.__doc__)
     if hasattr(env, "inventory"):
         print("..................")
         print("Starting Inventory")
@@ -40,7 +40,6 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
         print("..................")
         print("Max Episode Steps")
         print("..................")
-        
         print(f":code:`{env.max_episode_steps}`")
     print(".....")
     print("Usage")
