@@ -32,7 +32,7 @@ main python package, :code:`minerl`.
 
 2. Now install the :code:`minerl` v1.0 package!::
 
-        pip install git+https://github.com/minerllabs/minerl@v1.0.0
+        pip install --upgrade minerl
 
 .. note::
         
