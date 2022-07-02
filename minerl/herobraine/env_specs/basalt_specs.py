@@ -246,7 +246,7 @@ class FindCaveEnvSpec(BasaltBaseEnvSpec):
   :alt:
 
 After spawning in a plains biome, explore and find a cave. When inside a cave, end
-the episode by setting "ESC" action to one.
+the episode by setting the "ESC" action to 1.
 """
 
     def __init__(self):
@@ -277,10 +277,10 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-After spawning in an extreme hills biome, use your waterbucket to make an beautiful waterfall.
+After spawning in an extreme hills biome, use your waterbucket to make a beautiful waterfall.
 Then take an aesthetic "picture" of it by moving to a good location, positioning
-player's camera to have a nice view of the waterfall, and end the episode by
-setting "ESC" action to one.
+player's camera to have a nice view of the waterfall, and ending the episode by
+setting "ESC" action to 1.
 """
 
     def __init__(self):
@@ -316,8 +316,8 @@ class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-After spawning in a plains village, surround two or more animals of the same type in a
-fenced area (a pen), constructed near the house.
+After spawning in a plains village, surround two or more animals of the same 
+type in a fenced area (a pen), constructed near a village house.
 You can't have more than one type of animal in your enclosed area.
 Allowed animals are chickens, sheep, cows, and pigs.
 
@@ -365,8 +365,11 @@ class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-Build a house in the style of the village without damaging the village. Give a tour of
-the house and then end the episode by setting "ESC" action to one.
+Build a house in the style of the village without damaging the village. It 
+should be in an appropriate location  (e.g. next to the path through the village)
+Then, give a brief tour of the house (i.e. spin around slowly such that all of the 
+walls and the roof are visible)
+Finally, end the episode by setting the "ESC" action to 1.
 
 .. tip::
   You can find detailed information on which materials are used in each biome-specific
