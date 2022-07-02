@@ -30,11 +30,11 @@ main python package, :code:`minerl`.
         sudo apt-get update
         sudo apt-get install openjdk-8-jdk
 
-2. Now install the :code:`minerl` package!::
+2. Now install the :code:`minerl` v1.0 package!::
 
-        pip3 install --upgrade minerl
+        pip install git+https://github.com/minerllabs/minerl@v1.0.0
 
 .. note::
         
         You may need the user flag:
-        :code:`pip3 install --upgrade minerl --user` to install properly.
+        :code:`pip install --upgrade minerl --user` to install properly.
