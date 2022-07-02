@@ -4,6 +4,17 @@ General FAQ
 For Version 1.0.0
 **************************
 
+`Failed to initialize GLFW or GLX problems <https://github.com/minerllabs/minerl/issues/637>`_
+--------------------------------------------------------------------------------------------
+This can occur when attempting to run on a headless system without using something like xvfb.
+
+Try :code:`xvfb-run -a python [path to your code]`
+
+When trying to run MineRL, why do I get Java or JDK related errors?
+------------------------------------------------------------------------------------------------------
+Make sure you are using the correct JDK version for MineRL (must be Java JDK 8, the x64 version)
+On Windows, the best option may be to remove all Javas from machine with the uninstall utility, 
+and then install JDK 8 from the Oracle website.
 
 For Version 0.0.4
 **************************
@@ -22,8 +33,3 @@ Why do MineRL windows sometimes just crash?
 ---------------------------------------------------
 Unfortunately, there are bugs in Minecraft which sometimes cause crashes :(
 
-When trying to run MineRL, why do I get Java or JDK related errors?
-------------------------------------------------------------------------------------------------------
-Make sure you are using the correct JDK version for MineRL (must be Java JDK 8)
-On Windows, the best option may be to remove all Javas from machine with the uninstall utility, 
-and then install JDK 8 from the Oracle website.
