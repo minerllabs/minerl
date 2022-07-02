@@ -58,6 +58,7 @@ in the develpment of various aspects of artificial intelligence within Minecraft
 
    tutorials/index
    tutorials/first_agent
+   tutorials/more_tutorials
 
 
 .. toctree::
@@ -77,6 +78,7 @@ in the develpment of various aspects of artificial intelligence within Minecraft
    notes/faq
    notes/windows
    notes/versions
+   notes/interfaces
 
 
 Indices and tables

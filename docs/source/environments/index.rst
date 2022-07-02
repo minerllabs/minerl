@@ -65,5 +65,12 @@ of degrees. The head changes its orientation
 pitch by the first component and its yaw by the second component. 
 Both components are limited to [-180, 180] inclusive.
 
+:code:`pickItem`
+************************
+When an agent looks at a block and executes this action, if that block type is
+in the agents inventory, it will be put it into the agent's main hand.
 
+:code:`swapHands`
+************************
+Swaps the items in agent main hand and secondary slot.
 

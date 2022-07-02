@@ -1,9 +1,12 @@
 General FAQ
 ==========================
 
-.. warning::
-    FAQ is for MineRL version 0.4.4
+For Version 1.0.0
+**************************
 
+
+For Version 0.0.4
+**************************
 
 When I run MineRL, a tiny window pops up and I cant see what my agent is doing. Is something wrong?
 ------------------------------------------------------------------------------------------------------------------
