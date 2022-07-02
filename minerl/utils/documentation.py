@@ -30,7 +30,6 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     print(f"{env_name}")
     print("_" * len(env_name))
     print(env.get_docstring())
-
     if hasattr(env, "inventory"):
         print("..................")
         print("Starting Inventory")
@@ -40,19 +39,17 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
             item_id = stack["type"]
             starting_inv_canonical[item_id] = stack["quantity"]
         print(_format_dict(starting_inv_canonical))
-
     if hasattr(env, "max_episode_steps"):
         print("..................")
         print("Max Episode Steps")
         print("..................")
         
         print(f":code:`{env.max_episode_steps}`")
-
     print(".....")
     print("Usage")
     print(".....")
-
     usage_str = f'''.. code-block:: python
+    
         env = gym.make("{env.name}")
     '''
     print(usage_str)
