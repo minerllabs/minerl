@@ -31,8 +31,6 @@ MineRL: Towards AI in Minecraft
   :scale: 100 %
   :alt:
 
-*These videos do not represent the new MineRL environment or the new dataset.*
-
 .. |biohazard| image:: https://pepy.tech/badge/minerl
 
 |biohazard| :raw-html:`<br/><br/>`
