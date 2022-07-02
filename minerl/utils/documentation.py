@@ -53,7 +53,7 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
     print(".....")
 
     usage_str = f'''.. code-block:: python
-        env = gym.make("{env_spec.name}")
+        env = gym.make("{env.name}")
     '''
     print(usage_str)
 
