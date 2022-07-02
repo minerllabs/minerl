@@ -1,7 +1,7 @@
 General FAQ
 ==========================
 
-For Version 1.0.0
+For Version 1.x
 **************************
 
 Why does this MineRL version take so long to install?
@@ -23,7 +23,9 @@ Make sure you are using the correct JDK version for MineRL (must be Java JDK 8, 
 On Windows, the best option may be to remove all Javas from machine with the uninstall utility, 
 and then install JDK 8 from the Oracle website.
 
-For Version 0.0.4
+------------
+
+For Version 0.4.x
 **************************
 
 When I run MineRL, a tiny window pops up and I cant see what my agent is doing. Is something wrong?

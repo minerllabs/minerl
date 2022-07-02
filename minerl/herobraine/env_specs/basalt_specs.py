@@ -247,6 +247,8 @@ class FindCaveEnvSpec(BasaltBaseEnvSpec):
 
 After spawning in a plains biome, explore and find a cave. When inside a cave, end
 the episode by setting the "ESC" action to 1.
+
+You are not allowed to dig down from the surface to find a cave.
 """
 
     def __init__(self):
@@ -316,10 +318,12 @@ class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-After spawning in a plains village, surround two or more animals of the same 
-type in a fenced area (a pen), constructed near a village house.
-You can't have more than one type of animal in your enclosed area.
-Allowed animals are chickens, sheep, cows, and pigs.
+After spawning in a village, build an animal pen next to one of the houses in a village.
+Use your fence posts to build one animal pen that contains at least two of the same animal.
+(You are only allowed to pen chickens, cows, pigs, or sheep.)
+There should be at least one gate that allows players to enter and exit easily.
+The animal pen should not contain more than one type of animal.
+(You may kill any extra types of animals that accidentally got into the pen.)
 
 Do not harm villagers or existing village structures in the process.
 
@@ -365,11 +369,12 @@ class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-Build a house in the style of the village without damaging the village. It 
+Build a house in the style of the village without damaging the village. It
 should be in an appropriate location  (e.g. next to the path through the village)
-Then, give a brief tour of the house (i.e. spin around slowly such that all of the 
-walls and the roof are visible)
+Then, give a brief tour of the house (i.e. spin around slowly such that all of the
+walls and the roof are visible).
 Finally, end the episode by setting the "ESC" action to 1.
+
 
 .. tip::
   You can find detailed information on which materials are used in each biome-specific

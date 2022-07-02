@@ -43,7 +43,7 @@ Here is an example action:
 
 .. code-block:: python
 
-    {"ESC":1, "camera":[10, 45], "swapHands":1}
+    {"ESC":0, "camera":[10, 45], "swapHands":1}
 
 :code:`ESC`
 ************************

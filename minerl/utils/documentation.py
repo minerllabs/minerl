@@ -41,7 +41,7 @@ def print_env_spec_sphinx(env_spec: EnvSpec) -> None:
         print("Max Episode Steps")
         print("..................")
         print(f":code:`{env.max_episode_steps}`")
-    print(".....")
+    print("\n.....")
     print("Usage")
     print(".....")
     usage_str = f'''.. code-block:: python

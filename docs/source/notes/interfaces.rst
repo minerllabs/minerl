@@ -1,7 +1,7 @@
-Minecraft Interfaces
+Other Minecraft Interfaces
 ======================================================
 
-This page lists and compares a number of different Minecraft Interfaces.
+This page lists and compares a number of different Minecraft Interfaces other than MineRL.
 
 .. list-table:: 
    :widths: 25 25 25 25 25 25
