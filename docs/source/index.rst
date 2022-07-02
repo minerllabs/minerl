@@ -67,6 +67,7 @@ in the develpment of various aspects of artificial intelligence within Minecraft
 
    environments/index
    environments/basalt
+   environments/diamond
    
 
 .. toctree::
