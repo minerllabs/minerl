@@ -71,12 +71,9 @@ def get_unique_matching_item_list_id(
     """
     Assuming that `item_list` doesn't have duplicate elements, returns the string
     identifier in `item_list` that corresponds to `item_type` and `metadata`.
-
     If there is no matching strings, returns None.
-
     If there are multiple matching strings, raises a ValueError, because item_lists should
     not have overlapping item identifiers.
-
     Args:
         item_list: A list of item identifiers. Either just the item type ("wooden_pickaxe")
             or the item type with a metadata requirement ("planks#2").
@@ -87,7 +84,6 @@ def get_unique_matching_item_list_id(
             useful for MineRLTreeChop-v0 where obtaining acacia logs ("log2") should also
             count as obtaining regular logs. Note that no clobbering will occur if any
             log item IDs include metadata, or there's any log2 item IDs in the `item_list`.
-
             A potentially less tricky solution than this clobbering
             behavior could be adding a special type "log*" type which matches both "log"
             and "log2".
@@ -119,7 +115,6 @@ def inventory_start_spec_to_item_ids(inv_spec: Sequence[dict]) -> List[str]:
     """Converts the argument of SimpleInventoryAgentStart into a list of equivalent
     item ids suitable for passing into other handlers, like FlatInventoryObservation and
     EquipAction.
-
     [dict(type=planks, metadata=2, quantity=3),
      dict(type=wooden_pickaxe, quantity=1), ...] => ["planks#2", "wooden_pickaxe", ...]
     """

@@ -20,8 +20,7 @@ logger = logging.getLogger(__name__)
 
 def request_interactor(instance, ip):
     sock = get_socket(instance)
-    comms.send_message(sock,
-                       ("<MalmoEnv" + malmo_version + "/>").encode())
+    _MultiAgentEnv._TO_MOVE_hello(sock)
 
     comms.send_message(sock,
                        ("<Interact>" + ip + "</Interact>").encode())

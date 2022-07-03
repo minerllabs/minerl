@@ -2,11 +2,15 @@
 # Author: William H. Guss, Brandon Houghton
 
 import os
+import sys
+import json
+from os.path import isdir
 
 import subprocess
 import pathlib
 import setuptools
 from setuptools import Command
+from setuptools.command.develop import develop
 from setuptools.command.install import install
 from setuptools.command.install_lib import install_lib
 from distutils.command.build import build
@@ -18,8 +22,6 @@ with open("README.md", "r") as fh:
     markdown = fh.read()
 with open("requirements.txt", "r") as fh:
     requirements = fh.read()
-with open("requirements-docs.txt", "r") as fh:
-    requirements_docs = fh.read()
 
 MALMO_BRANCH = "minerl"
 MALMO_VERSION = "0.37.0"
@@ -68,6 +70,23 @@ class BinaryDistribution(Distribution):
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+def unpack_assets():
+    asset_dir = os.path.join(os.path.expanduser('~'), '.gradle', 'caches', 'forge_gradle', 'assets')
+    output_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'minerl', 'MCP-Reborn', 'src', 'main', 'resources')
+    index = load_asset_index(os.path.join(asset_dir, 'indexes', '1.16.json'))
+    unpack_assets_impl(index, asset_dir, output_dir)
+
+def load_asset_index(index_file):
+    with open(index_file) as f:
+        return json.load(f)
+
+def unpack_assets_impl(index, asset_dir, output_dir):
+    for k, v in index['objects'].items():
+        asset_hash = v["hash"]
+        src = os.path.join(asset_dir, 'objects', asset_hash[:2], asset_hash)
+        dst = os.path.join(output_dir, k)
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy(src, dst)
 
 class InstallPlatlib(install):
     def finalize_options(self):
@@ -84,19 +103,10 @@ class InstallWithMinecraftLib(install_lib):
 
     def build(self):
         super().build()
-        # Install Minecraft to the build directory. Let's first print it.
-        build_minecraft(MALMO_DIR, os.path.join(
-            self.build_dir, 'minerl', 'Malmo'
-        ))
-        # TODO (R): Build the parser [not necessary at the moment]
-
 
 class CustomBuild(build):
     def run(self):
         super().run()
-        build_minecraft(MALMO_DIR, os.path.join(
-            self.build_lib, 'minerl', 'Malmo'
-        ))
 
 
 class ShadowInplace(Command):
@@ -109,66 +119,91 @@ class ShadowInplace(Command):
         pass
 
     def run(self):
-        build_minecraft(MALMO_DIR, MALMO_DIR)
+        pass
 
+def prep_mcp():
+    mydir = os.path.abspath(os.path.dirname(__file__))
 
-def build_minecraft(source_dir, build_dir):
-    """Set up Minecraft for use with the MalmoEnv gym environment"""
-    print("building Minecraft from  %s, build dir: %s" % (source_dir, build_dir))
+    # First, get MCP and patch it with our source.
+    if os.name == 'nt':
+        # Windows is picky about this, too... If you have WSL, you have
+        # bash command, but an absolute path won't work. So lets instead
+        # use relative paths
+        old_dir = os.getcwd()
+        os.chdir(os.path.join(mydir, 'scripts'))
 
-    # 1. Copy the source dir to the build directory if they are not equivalent
-    if source_dir != build_dir:
-        print("copying source dir")
-        if os.path.exists(build_dir):
-            shutil.rmtree(build_dir)
-        shutil.copytree(source_dir, build_dir,
-                        ignore=BINARIES_IGNORE
-                        )
+        try:
+            setup_output = subprocess.check_output(['bash.exe', 'setup_mcp.sh']).decode()
+            if "ERROR: JAVA_HOME" in setup_output:
+                raise RuntimeError(
+                    """
+                    `java` and/or `javac` commands were not found by the installation script.
+                    Make sure you have installed Java JDK 8.
+                    On Windows, if you installed WSL/WSL2, you may need to install JDK 8 in your WSL
+                    environment with `sudo apt update; sudo apt install openjdk-8-jdk`.
+                    """
+                )
+            elif "Cannot lock task history" in setup_output:
+                raise RuntimeError(
+                    """
+                    Installation failed probably due to Java processes dangling around from previous attempts.
+                    Try killing all Java processes in Windows and WSL (if you use it). Rebooting machine
+                    should also work.
+                    """
+                )
+            subprocess.check_call(['bash.exe', 'patch_mcp.sh'])
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                """
+                Running install scripts failed. Check error logs above for more information.
 
+                If errors are about `bash` command not found, You have at least two options to fix this:
+                 1. Install Windows Subsystem for Linux (WSL. Tested on WSL 2). Note that installation with WSL
+                    may seem especially slow/stuck, but it is not; it is just a bit slow.
+                 2. Install bash along some other tools. E.g., git will come with bash: https://git-scm.com/downloads .
+                    After installation, you may have to update environment variables to include a path which contains
+                    'bash.exe'. For above git tools, this is [installation-dir]/bin.
+                After installation, you should have 'bash' command in your command line/powershell.
+
+                If errors are about "could not create work tree dir...", try cloning the MineRL repository
+                to a different location and try installation again.
+                """
+            )
+
+        os.chdir(old_dir)
+    else:
+        subprocess.check_call(['bash', os.path.join(mydir, 'scripts', 'setup_mcp.sh')])
+        subprocess.check_call(['bash', os.path.join(mydir, 'scripts', 'patch_mcp.sh')])
+
+    # Next, move onto building the MCP source
     gradlew = 'gradlew.bat' if os.name == 'nt' else './gradlew'
+    workdir = os.path.join(mydir, 'minerl', 'MCP-Reborn')
+    if os.name == 'nt':
+        # Windows is picky about being in the right directory to run gradle
+        old_dir = os.getcwd()
+        os.chdir(workdir)
+    
+    # This may fail on the first try. Try few times
+    n_trials = 3
+    for i in range(n_trials):
+        try:
+            subprocess.check_call('{} downloadAssets'.format(gradlew).split(' '), cwd=workdir)
+        except subprocess.CalledProcessError as e:
+            if i == n_trials - 1:
+                raise e
+        else:
+            break
 
-    # TODO: Remove the change directoty.
-    # 2. Change to the directory and build it; perhaps it need live inside of MineRL
-    cwd = os.getcwd()
-    # change to join of build dir and 'Minecraft'
-    os.chdir(os.path.join(build_dir, 'Minecraft'))
-    try:
-        # Create the version properties file.
-        pathlib.Path("src/main/resources/version.properties").write_text("malmomod.version={}\n".format(MALMO_VERSION))
-        minecraft_dir = os.getcwd()
-        print("CALLING SETUP.")
-        os.environ['GRADLE_USER_HOME'] = os.path.join(minecraft_dir, 'run')
-        subprocess.check_call('{} -g run/gradle shadowJar'.format(gradlew).split(' '))
-
-        # Now delete all the *.lock files recursively  in the Minecraft_dir. Should be platform agnostic.
-        for root, dirs, files in os.walk(minecraft_dir):
-            for lockfile in files:
-                if lockfile.endswith('.lock'):
-                    print("Deleting %s" % (lockfile))
-                    os.remove(os.path.join(root, lockfile))
-    finally:
-        os.chdir(cwd)
-    return build_dir
+    unpack_assets()
+    subprocess.check_call('{} clean build shadowJar'.format(gradlew).split(' '), cwd=workdir)
+    if os.name == 'nt':
+        os.chdir(old_dir)
 
 
-# Don't build binaries (requires Java) on readthedocs.io server.
-if os.environ.get("READTHEDOCS"):
-    cmdclass = {}
-else:
-    cmdclass = {
-        'bdist_wheel': bdist_wheel,
-        'install': InstallPlatlib,
-        'install_lib': InstallWithMinecraftLib,
-        'build_malmo': CustomBuild,
-        'shadow_develop': ShadowInplace,
-    }
-
-
+prep_mcp()
 setuptools.setup(
     name='minerl',
-    # TODO(shwang): Load from minerl.version.VERSION or something so we don't have to update
-    # multiple version strings.
-    version=os.environ.get('MINERL_BUILD_VERSION', '0.4.4'),
+    version=os.environ.get('MINERL_BUILD_VERSION', '1.0.0'),
     description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
     long_description=markdown,
     long_description_content_type="text/markdown",
@@ -182,14 +217,12 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=requirements,
-    extras_require={"docs": requirements_docs},
     distclass=BinaryDistribution,
     include_package_data=True,
-    cmdclass=cmdclass,
-    data_files=['requirements-docs.txt'],
+    cmdclass={
+        'bdist_wheel': bdist_wheel,
+        'install': InstallPlatlib,
+        'install_lib': InstallWithMinecraftLib,
+        'build_malmo': CustomBuild,
+        'shadow_develop': ShadowInplace},
 )
-
-# global-exclude .git/*
-# global-exclude  build/ bin/ dists/ caches/  native/ doc/ *.lock 
-# global-exclude  *.gradle/* *.minecraft/ *.minecraftserver/
-# global-exclude  *.fuse_hidden*

@@ -54,7 +54,6 @@ import com.microsoft.Malmo.Schemas.ShapeTypes;
 import com.microsoft.Malmo.Schemas.StoneTypes;
 import com.microsoft.Malmo.Schemas.Variation;
 import com.microsoft.Malmo.Schemas.WoodTypes;
-import org.jetbrains.annotations.Nullable;
 
 /**
  *  Utility functions for dealing with Minecraft block types, item types, etc.
@@ -418,6 +417,7 @@ public class MinecraftTypeHelper
             di.setColour(col);
             di.setVariant(var);
         }
+        // Use the item registry name for the item - this is what we use in Types.XSD
         Object obj = Item.REGISTRY.getNameForObject(is.getItem());
         String publicName;
         if (obj instanceof ResourceLocation)
@@ -480,6 +480,7 @@ public class MinecraftTypeHelper
             IBlockState block = MinecraftTypeHelper.ParseBlockType(i.getType());
             if (block != null)
             {
+                // It is - apply the modifications:
                 block = BlockDrawingHelper.applyModifications(block, i.getColour(), i.getFace(), i.getVariant());
                 // And try to return as an item:
                 if (block != null && block.getBlock() != null && Item.getItemFromBlock(block.getBlock()) != null)

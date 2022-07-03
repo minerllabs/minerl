@@ -1,5 +1,8 @@
 .. _environments:
 
+.. role:: python(code)
+   :language: python
+
 General Information
 ================================
 
@@ -9,50 +12,65 @@ This page describes each of the included environments, provides usage samples,
 and describes the exact action and observation space provided by each
 environment!
 
-
-
-.. caution::
-    In the MineRL Diamond Competition, many environments are provided for training.
-    However, competition agents will only be evaluated in the :code:`MineRLObtainDiamond-v0`
-    (Intro track) and :code:`MineRLObtainDiamondVectorObf-v0` (Research track) environments
-    which have **sparse** rewards. For more details see `MineRLObtainDiamond-v0`_
-    and `MineRLObtainDiamondVectorObf-v0`_.
-
 .. note::
     All environments offer a default no-op action via :code:`env.action_space.no_op()`
     and a random action via :code:`env.action_space.sample()`.
 
+Observation Space
+------------------
 
-.. include:: handlers.rst
-    :end-before: inclusion-marker-do-not-remove
+Most environments use the same observation space (just an RGB image):
 
+.. code-block:: python
 
-MineRL Diamond Competition Intro Track Environments
-===================================================
+    Dict(pov:Box(low=0, high=255, shape=(360, 640, 3)))
 
-.. exec::
+Action Space
+------------------
 
-    from minerl.herobraine import envs
-    from minerl.utils import docs
-    for env_spec in envs.BASIC_ENV_SPECS:
-        docs.print_env_spec_sphinx(env_spec)
-
-MineRL Diamond Competition Research Track Environments
-======================================================
+Most environments use the same action space, which is a dictionary containing a 
+multitude of different actions. Note that :code:`Discrete` and :code:`Box` are 
+actions spaces defined by Gym.
 
 .. exec::
+    from minerl.herobraine.env_specs.basalt_specs import FindCaveEnvSpec
+    from minerl.utils.documentation import _format_dict 
 
-    from minerl.herobraine import envs
-    from minerl.utils import docs
-    for env_spec in envs.COMPETITION_ENV_SPECS:
-        docs.print_env_spec_sphinx(env_spec)
+    print(_format_dict(FindCaveEnvSpec().action_space))
+    
 
-MineRL BASALT Competition Environments
-=======================================
+Here is an example action:
 
-.. exec::
+.. code-block:: python
 
-    from minerl.herobraine import envs
-    from minerl.utils import docs
-    for env_spec in envs.BASALT_COMPETITION_ENV_SPECS:
-        docs.print_env_spec_sphinx(env_spec)
+    {"ESC":0, "camera":[10, 45], "swapHands":1}
+
+:code:`ESC`
+************************
+
+The :code:`ESC` action may be used in some environments to end the episode (e.g., BASALT environments).
+Otherwise it does nothing.
+
+:code:`inventory`
+************************
+The :code:`inventory` opens the inventory GUI. This will yield an observation
+image something like the following:
+
+.. image:: ../assets/inventory.jpg
+
+:code:`camera`
+************************
+This action changes the orientation of the agent's heading by the corresponding number 
+of degrees. The head changes its orientation 
+pitch by the first component and its yaw by the second component. 
+Both components are limited to [-180, 180] inclusive.
+
+:code:`pickItem`
+************************
+When an agent looks at a block and executes this action, if that block type is
+in the agents inventory, it will be put it into the agent's main hand.
+
+:code:`swapHands`
+************************
+Swaps the items in agent main hand and secondary slot.
+

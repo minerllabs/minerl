@@ -1,8 +1,3 @@
-"""
-These handlers modify what things the agent gets rewarded for. 
-
-When used to create a Gym environment, they should be passed to :code:`create_rewardables`
-"""
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
@@ -38,7 +33,9 @@ class RewardHandler(TranslationHandler):
 
 
 class ConstantReward(RewardHandler):
-    """A constant reward handler"""
+    """
+    A constant reward handler
+    """
 
     def __init__(self, constant):
         super().__init__()
@@ -70,8 +67,7 @@ class _RewardForPosessingItemBase(RewardHandler):
         )
 
     def __init__(self, sparse: bool, exclude_loops: bool, item_rewards: List[Dict[str, Union[str, int]]]):
-        """
-        Creates a reward which gives rewards based on items in the 
+        """Creates a reward which gives rewards based on items in the 
         inventory that are provided.
 
         See Malmo for documentation.
@@ -97,19 +93,14 @@ class _RewardForPosessingItemBase(RewardHandler):
 
 
 class RewardForCollectingItems(_RewardForPosessingItemBase):
-    """
-    The standard malmo reward for collecting item.
-
-    Example usage:
-    
-    .. code-block:: python
-
-        RewardForCollectingItems([
-            dict(type="log", amount=1, reward=1.0),
-        ])
-    """
-
     def __init__(self, item_rewards: List[Dict[str, Union[str, int]]]):
+        """
+        The standard malmo reward for collecting item.
+
+        rc = handlers.RewardForCollectingItems([
+                dict(type="log", amount=1, reward=1.0),
+            ])
+        """
         super().__init__(sparse=False, exclude_loops=True, item_rewards=item_rewards)
 
     def from_universal(self, x):
@@ -130,12 +121,8 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
     """
     The standard malmo reward for collecting item once.
 
-    Example usage:
-        
-    .. code-block:: python
-
-        RewardForCollectingItemsOnce([
-            dict(type="log", amount=1, reward=1),
+        rc = handlers.RewardForCollectingItemsOnce([
+            dict(type="log", amount=1, reward=1.0),
         ])
     """
 
@@ -161,21 +148,10 @@ class RewardForCollectingItemsOnce(_RewardForPosessingItemBase):
 #     <Reward description="out_of_time" reward="0" />
 # </RewardForMissionEnd>
 class RewardForMissionEnd(RewardHandler):
-    """
-    Creates a reward which is awarded when a mission ends.
-    
-    Example usage:
-    
-    .. code-block:: python
-
-        # awards a reward of 5 when mission ends
-        RewardForMissionEnd(reward=5.0, description="mission termination")
-    """
-
     def to_string(self) -> str:
         return "reward_for_mission_end"
 
-    def xml_template(self) -> str:
+    def xml_element(self) -> str:
         return str(
             """<RewardForMissionEnd>
                     <Reward description="{{ description }}" reward="{{ reward }}" />
@@ -183,6 +159,7 @@ class RewardForMissionEnd(RewardHandler):
         )
 
     def __init__(self, reward: int, description: str = "out_of_time"):
+        """Creates a reward which is awarded when a mission ends."""
         super().__init__()
         self.reward = reward
         self.description = description
@@ -199,17 +176,6 @@ class RewardForMissionEnd(RewardHandler):
 #     <Block reward="189.0" type="diamond_block" behaviour="onceOnly"/>
 # </RewardForTouchingBlockType>
 class RewardForTouchingBlockType(RewardHandler):
-    """
-    Creates a reward which is awarded when the player touches a block.
-        
-    Example usage:
-
-    .. code-block:: python
-
-        RewardForTouchingBlockType([
-            {'type':'diamond_block', 'behaviour':'onceOnly', 'reward':'10'},
-        ])
-    """
     def to_string(self) -> str:
         return "reward_for_touching_block_type"
 
@@ -223,6 +189,13 @@ class RewardForTouchingBlockType(RewardHandler):
         )
 
     def __init__(self, blocks: List[Dict[str, Union[str, int, float]]]):
+        """Creates a reward which is awarded when the player touches a block.
+        An example of instantiating the class:
+
+        reward = RewardForTouchingBlockType([
+            {'type':'diamond_block', 'behaviour':'onceOnly', 'reward':'10'},
+        ])
+        """
         super().__init__()
         self.blocks = blocks
         self.fired = {bl['type']: False for bl in self.blocks}
@@ -236,7 +209,7 @@ class RewardForTouchingBlockType(RewardHandler):
             for block in obs['touched_blocks']:
                 for bl in self.blocks:
                     if bl['type'] in block['name'] and (
-                            not self.fired[bl['type']] or bl['behaviour'] != "onlyOnce"):
+                            not self.fired[bl['type']] or bl['behaviour'] is not "onlyOnce"):
                         reward += bl['reward']
                         self.fired[bl['type']] = True
 
@@ -248,16 +221,6 @@ class RewardForTouchingBlockType(RewardHandler):
 
 # <RewardForDistanceTraveledToCompassTarget rewardPerBlock="1" density="PER_TICK"/>
 class RewardForDistanceTraveledToCompassTarget(RewardHandler):
-    """
-    Creates a reward which is awarded when the player reaches a certain distance from a target.
-    
-    Example usage:
-
-    .. code-block:: python
-
-        RewardForDistanceTraveledToCompassTarget(2)
-    """
-
     def to_string(self) -> str:
         return "reward_for_distance_traveled_to_compass_target"
 
@@ -267,6 +230,7 @@ class RewardForDistanceTraveledToCompassTarget(RewardHandler):
         )
 
     def __init__(self, reward_per_block: int, density: str = 'PER_TICK'):
+        """Creates a reward which is awarded when the player reaches a certain distance from a target."""
         self.reward_per_block = reward_per_block
         self.density = density
         self._prev_delta = None

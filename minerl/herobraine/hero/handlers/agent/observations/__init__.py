@@ -9,4 +9,4 @@ from .guicontainer import *
 from .inventory import *
 from .lifestats import *
 from .pov import *
-from .damage_source import *
+from .is_gui_open import *

@@ -22,7 +22,6 @@ package com.microsoft.Malmo.MissionHandlers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.microsoft.Malmo.MissionHandlerInterfaces.IAudioProducer;
 import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
@@ -35,9 +34,9 @@ import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldDecorator;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IWorldGenerator;
 import com.microsoft.Malmo.Schemas.AgentHandlers;
 import com.microsoft.Malmo.Schemas.AgentSection;
+import com.microsoft.Malmo.Schemas.AgentStart;
 import com.microsoft.Malmo.Schemas.MissionInit;
 import com.microsoft.Malmo.Schemas.ServerHandlers;
-import com.microsoft.Malmo.Utils.TimeHelper;
 
 /** Holder class for the various MissionHandler interfaces that together define the behaviour of the mission.<br>
  */
@@ -52,6 +51,10 @@ public class MissionBehaviour
     public IWorldGenerator worldGenerator = null;
     public IPerformanceProducer performanceProducer = null;
     public IWantToQuit quitProducer = null;
+    public boolean lowLevelInputs = false;
+    public Integer guiScale = null;
+    public Float gammaSetting = null;
+    public Float fovSetting = null;
 
     private String failedHandlers = "";
     
@@ -103,6 +106,7 @@ public class MissionBehaviour
         this.performanceProducer = null;
     }
 
+
     private void initAgent(MissionInit missionInit)
     {
         reset();
@@ -116,6 +120,15 @@ public class MissionBehaviour
         List<AgentSection> agents = missionInit.getMission().getAgentSection();
         if (agents != null && agents.size() > 1)
             addHandler(new RewardFromTeamImplementation());
+        // TODO hack - low level inputs are read from first agent. Ideally they should be either agent-specific,
+        // or mission-level
+        AgentStart a0start = agents.get(0).getAgentStart();
+        lowLevelInputs = a0start.isLowLevelInputs() != null && a0start.isLowLevelInputs();
+     
+        // Graphics Settings
+        guiScale = (a0start.getGuiScale() == null) ? 2 : a0start.getGuiScale();
+        gammaSetting = (a0start.getGammaSetting() == null) ? (float) 2.0 : a0start.getGammaSetting();
+        fovSetting = (a0start.getFOVSetting() == null) ? (float) 130.0 : a0start.getFOVSetting();
     }
 
     public boolean addExtraHandlers(List<Object> handlers)

@@ -7,116 +7,87 @@ from minerl.herobraine import wrappers
 from minerl.herobraine.env_spec import EnvSpec
 from minerl.herobraine.env_specs import simple_embodiment
 from minerl.herobraine.hero import handlers, mc
-from minerl.herobraine.hero.handlers import util
 
-BUTTON_ACTIONS = set(simple_embodiment.SIMPLE_KEYBOARD_ACTION + ["use"])
-
-DEFAULT_ITEMS = (
-    "stone_shovel",
-    "stone_pickaxe",
-    "snowball",
-    "cobblestone",
-    "water_bucket",
-    "bucket",
-    "fence",
-    "fence_gate",
-    "wheat_seeds",
-    "carrot",
-    "wheat",
-)
+from minerl.herobraine.env_specs.human_controls import HumanControlEnvSpec
 
 
 MAKE_HOUSE_VILLAGE_INVENTORY = [
     dict(type="stone_pickaxe", quantity=1),
     dict(type="stone_axe", quantity=1),
     dict(type="cobblestone", quantity=64),
-    dict(type="stone_stairs", quantity=64),
-    dict(type="fence", quantity=64),
-    dict(type="spruce_fence", quantity=64),
-    dict(type="acacia_fence", quantity=64),
-    dict(type="glass", quantity=64),
-    dict(type="ladder", quantity=64),
+    dict(type="oak_log", quantity=64),
+    dict(type="glass_pane", quantity=64),
     dict(type="torch", quantity=64),
-    dict(type="planks", quantity=64, metadata=0),
-    dict(type="planks", quantity=64, metadata=1),
-    dict(type="planks", quantity=64, metadata=4),
-    dict(type="log", quantity=64, metadata=0),  # oak
-    dict(type="log", quantity=64, metadata=1),  # spruce
-    dict(type="log2", quantity=64, metadata=0),  # acacia
-    dict(type="sandstone", quantity=64, metadata=0),
-    dict(type="sandstone", quantity=64, metadata=2),
-    dict(type="sandstone_stairs", quantity=64),
-    dict(type="wooden_door", quantity=64),
-    dict(type="acacia_door", quantity=64),
-    dict(type="spruce_door", quantity=64),
-    dict(type="wooden_pressure_plate", quantity=64),
-    dict(type="sand", quantity=64),
     dict(type="dirt", quantity=64),
-    dict(type="red_flower", quantity=3),
-    dict(type="flower_pot", quantity=3),
-    dict(type="cactus", quantity=3),
-    dict(type="snowball", quantity=1),
+    dict(type="grass_block", quantity=64),
+    dict(type="poppy", quantity=64),
+    dict(type="spruce_log", quantity=64),
+    dict(type="acacia_log", quantity=64),
+    dict(type="jungle_log", quantity=64),
+    dict(type="sand", quantity=64),
+    dict(type="sandstone", quantity=64),
+    dict(type="smooth_sandstone", quantity=64),
+    dict(type="terracotta", quantity=64),
+    dict(type="packed_ice", quantity=64),
+    dict(type="snow_block", quantity=64),
+    dict(type="cobweb", quantity=64),
+    dict(type="white_wool", quantity=64),
+    dict(type="black_dye", quantity=64),
+    dict(type="blue_dye", quantity=64),
+    dict(type="brown_dye", quantity=64),
+    dict(type="green_dye", quantity=64),
+    dict(type="red_dye", quantity=64),
+    dict(type="white_dye", quantity=64),
+    dict(type="yellow_dye", quantity=64),
+    dict(type="flower_pot", quantity=64),
+    dict(type="cactus", quantity=64),
+    dict(type="lantern", quantity=64),
 ]
 
-MAKE_HOUSE_VILLAGE_ITEM_IDS = util.inventory_start_spec_to_item_ids(
-    MAKE_HOUSE_VILLAGE_INVENTORY)
-
-# TypeObservation claims that item list needs to begin with 'none' and end with 'other'.
-DEFAULT_EQUIP_ITEMS = ('none', 'air', ) + DEFAULT_ITEMS + ('other', )
-
-obs_handler_inventory = handlers.FlatInventoryObservation(list(DEFAULT_ITEMS))
-obs_handler_equip = handlers.EquippedItemObservation(list(DEFAULT_EQUIP_ITEMS))
-
-DEFAULT_OBS_HANDLERS = (obs_handler_inventory, obs_handler_equip)
-
-
-def _get_keyboard_act_handler(k):
-    v = mc.INVERSE_KEYMAP[k]
-    return handlers.KeybasedCommandAction(k, v)
-
-
-act_handlers_keyboard = tuple(
-    _get_keyboard_act_handler(k) for k in BUTTON_ACTIONS)
-act_handler_camera = handlers.CameraAction()
-act_handler_equip = handlers.EquipAction(list(DEFAULT_EQUIP_ITEMS))
-
-DEFAULT_ACT_HANDLERS = act_handlers_keyboard + (act_handler_camera, act_handler_equip)
-
-
-class EndAfterSnowballThrowWrapper(gym.Wrapper):
-    def __init__(self, env, episode_end_delay=10):
+class BasaltTimeoutWrapper(gym.Wrapper):
+    """Timeout wrapper specifically crafted for the BASALT environments"""
+    def __init__(self, env):
         super().__init__(env)
-        assert episode_end_delay >= 0
-        self.episode_end_delay = episode_end_delay
-        self._steps_till_done = None
+        self.timeout = self.env.task.max_episode_steps
+        self.num_steps = 0
 
     def reset(self):
-        self._steps_till_done = None
-        obs = super().reset()
-        snowball_count = obs["inventory"]["snowball"]
-        assert snowball_count == 1, "Should start with a snowball"
-        return obs
+        self.timeout = self.env.task.max_episode_steps
+        return super().reset()
 
-    def step(self, action: dict):
+    def step(self, action):
         observation, reward, done, info = super().step(action)
-        if self._steps_till_done is None:  # Snowball throw hasn't yet been detected.
-            snowball_count = observation["inventory"]["snowball"]
-            if snowball_count == 0:
-                # Snowball was thrown -- start the countdown.
-                self._steps_till_done = self.episode_end_delay
-        elif self._steps_till_done > 0:
-            # Snowball throw was detected, counting down.
-            self._steps_till_done -= 1  # pytype: disable=unsupported-operands
-        else:
-            # Snowball throw was detected and countdown is over. End episode.
+        self.num_steps += 1
+        if self.num_steps >= self.timeout:
             done = True
+        return observation, reward, done, info
+
+
+class DoneOnESCWrapper(gym.Wrapper):
+    """
+    Use the "ESC" action of the MineRL 1.0.0 to end
+    an episode (if 1, step will return done=True)
+    """
+    def __init__(self, env):
+        super().__init__(env)
+        self.episode_over = False
+    
+    def reset(self):
+        self.episode_over = False
+        return self.env.reset()
+
+    def step(self, action):
+        if self.episode_over:
+            raise RuntimeError("Expected `reset` after episode terminated, not `step`.")
+        observation, reward, done, info = self.env.step(action)
+        done = done or bool(action["ESC"])
+        self.episode_over = done
         return observation, reward, done, info
 
 
 def _basalt_gym_entrypoint(
         env_spec: "BasaltBaseEnvSpec",
         fake: bool = False,
-        end_after_snowball_throw: bool = True,
 ) -> _singleagent._SingleAgentEnv:
     """Used as entrypoint for `gym.make`."""
     if fake:
@@ -124,25 +95,15 @@ def _basalt_gym_entrypoint(
     else:
         env = _singleagent._SingleAgentEnv(env_spec=env_spec)
 
-    # This was developed as a quick hack to mitigate Village-die-due-to-suffocate-in-wall-on-spawn
-    # problem. The telltale sign of immediate death on spawn is no snowball existing in the
-    # inventory on the first observation, which raises an AssertionError within
-    # EndAfterSnowballThrowWrapper.reset().
-    #
-    # We wrap every BASALT environment in this wrapper defensively because it is
-    # computationally cheap when there is no spawning problem, and we have observed rare
-    # (and weird!) instances where even FindCaves-v0 spawns without a snowball.
-    env = wrappers.RetryResetOnEarlyDeathWrapper(env)
-
-    if end_after_snowball_throw:
-        env = EndAfterSnowballThrowWrapper(env)
+    env = BasaltTimeoutWrapper(env)
+    env = DoneOnESCWrapper(env)
     return env
 
 
 BASALT_GYM_ENTRY_POINT = "minerl.herobraine.env_specs.basalt_specs:_basalt_gym_entrypoint"
 
 
-class BasaltBaseEnvSpec(EnvSpec):
+class BasaltBaseEnvSpec(HumanControlEnvSpec):
 
     LOW_RES_SIZE = 64
     HIGH_RES_SIZE = 1024
@@ -151,21 +112,23 @@ class BasaltBaseEnvSpec(EnvSpec):
             self,
             name,
             demo_server_experiment_name,
-            high_res: bool,
             max_episode_steps=2400,
             inventory: Sequence[dict] = (),
+            preferred_spawn_biome: str = "plains"
     ):
-        assert "/" not in demo_server_experiment_name
-        if high_res:
-            # update env and demo identifiers to include HighRes
-            task, ver = name.split('-')
-            name = task + "HighRes-" + ver
-            demo_server_experiment_name += "-highres"
-        self.demo_server_experiment_name = demo_server_experiment_name
-        self.high_res = high_res
-        self.pov_size = self.HIGH_RES_SIZE if high_res else self.LOW_RES_SIZE
         self.inventory = inventory  # Used by minerl.util.docs to construct Sphinx docs.
-        super().__init__(name=name, max_episode_steps=max_episode_steps)
+        self.preferred_spawn_biome = preferred_spawn_biome
+        self.demo_server_experiment_name = demo_server_experiment_name
+        super().__init__(
+            name=name,
+            max_episode_steps=max_episode_steps,
+            # Hardcoded variables to match the pretrained models
+            fov_range=[70, 70],
+            resolution=[640, 360],
+            gamma_range=[2, 2],
+            guiscale_range=[1, 1],
+            cursor_size_range=[16.0, 16.0]
+        )
 
     def is_from_folder(self, folder: str) -> bool:
         # Implements abstractmethod.
@@ -177,17 +140,23 @@ class BasaltBaseEnvSpec(EnvSpec):
         return BASALT_GYM_ENTRY_POINT
 
     def create_observables(self):
-        obs_handler_pov = handlers.POVObservation([self.pov_size] * 2)
-        return [obs_handler_pov] + list(DEFAULT_OBS_HANDLERS)
-
-    def create_actionables(self):
-        return DEFAULT_ACT_HANDLERS
+        # Only POV
+        obs_handler_pov = handlers.POVObservation(self.resolution)
+        return [obs_handler_pov]
 
     def create_agent_start(self) -> List[handlers.Handler]:
-        return [handlers.SimpleInventoryAgentStart(self.inventory)]
+        return super().create_agent_start() + [
+            handlers.SimpleInventoryAgentStart(self.inventory),
+            handlers.PreferredSpawnBiome(self.preferred_spawn_biome),
+            handlers.DoneOnDeath()
+        ]
 
     def create_agent_handlers(self) -> List[handlers.Handler]:
         return []
+
+    def create_server_world_generators(self) -> List[handlers.Handler]:
+        # TODO the original biome forced is not implemented yet. Use this for now.
+        return [handlers.DefaultWorldGenerator(force_reset=True)]
 
     def create_server_quit_producers(self) -> List[handlers.Handler]:
         return [
@@ -218,6 +187,7 @@ class BasaltBaseEnvSpec(EnvSpec):
         """
         # TODO(shwang): Waterfall demos should also check for water_bucket use.
         #               AnimalPen demos should also check for fencepost or fence gate use.
+        # TODO Clean up snowball stuff (not used anymore)
         equip = npz_data.get("observation$equipped_items$mainhand$type")
         use = npz_data.get("action$use")
         if equip is None:
@@ -275,27 +245,20 @@ class FindCaveEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-After spawning in a plains biome, explore and find a cave. When inside a cave, throw a
-snowball to end episode.
+After spawning in a plains biome, explore and find a cave. When inside a cave, end
+the episode by setting the "ESC" action to 1.
+
+You are not allowed to dig down from the surface to find a cave.
 """
 
-    def __init__(self, high_res: bool):
+    def __init__(self):
         super().__init__(
             name="MineRLBasaltFindCave-v0",
             demo_server_experiment_name="findcaves",
             max_episode_steps=3*MINUTE,
-            high_res=high_res,
-            inventory=[
-                dict(type="snowball", quantity=1),
-            ],
+            preferred_spawn_biome="plains",
+            inventory=[],
         )
-
-    def create_agent_start(self) -> List[handlers.Handler]:
-        inventory = [dict(type="snowball", quantity=1)]
-        return [handlers.SimpleInventoryAgentStart(inventory)]
-
-    def create_server_world_generators(self) -> List[handlers.Handler]:
-        return [handlers.BiomeGenerator("plains")]
 
 
 class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
@@ -316,74 +279,25 @@ class MakeWaterfallEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-After spawning in an extreme hills biome, use your waterbucket to make an beautiful waterfall.
+After spawning in an extreme hills biome, use your waterbucket to make a beautiful waterfall.
 Then take an aesthetic "picture" of it by moving to a good location, positioning
-player's camera to have a nice view of the waterfall, and throwing a snowball. Throwing
-the snowball ends the episode.
+player's camera to have a nice view of the waterfall, and ending the episode by
+setting "ESC" action to 1.
 """
 
-    def __init__(self, high_res: bool):
+    def __init__(self):
         super().__init__(
             name="MineRLBasaltMakeWaterfall-v0",
             demo_server_experiment_name="waterfall",
             max_episode_steps=5*MINUTE,
-            high_res=high_res,
+            preferred_spawn_biome="extreme_hills",
             inventory=[
                 dict(type="water_bucket", quantity=1),
                 dict(type="cobblestone", quantity=20),
                 dict(type="stone_shovel", quantity=1),
                 dict(type="stone_pickaxe", quantity=1),
-                dict(type="snowball", quantity=1),
             ],
         )
-
-    def create_server_world_generators(self) -> List[handlers.Handler]:
-        return [handlers.BiomeGenerator("extreme_hills")]
-
-
-class PenAnimalsPlainsEnvSpec(BasaltBaseEnvSpec):
-    """
-.. image:: ../assets/basalt/animal_pen_plains2_0-30.gif
-  :scale: 100 %
-  :alt:
-
-.. image:: ../assets/basalt/animal_pen_plains3_0-30.gif
-  :scale: 100 %
-  :alt:
-
-.. image:: ../assets/basalt/animal_pen_plains_4_0-05.gif
-  :scale: 100 %
-  :alt:
-
-.. image:: ../assets/basalt/animal_pen_plains_4_0-30.gif
-  :scale: 100 %
-  :alt:
-
-Surround two or more animals of the same type in a fenced area (a pen).
-You can't have more than one type of animal in your enclosed area.
-Allowed animals are chickens, sheep, cows, and pigs.
-
-Throw a snowball to end the episode.
-"""
-
-    def __init__(self, high_res: bool):
-        super().__init__(
-            name="MineRLBasaltCreatePlainsAnimalPen-v0",
-            demo_server_experiment_name="pen_animals",
-            max_episode_steps=5*MINUTE,
-            high_res=high_res,
-            inventory=[
-                dict(type="fence", quantity=64),
-                dict(type="fence_gate", quantity=64),
-                dict(type="carrot", quantity=1),
-                dict(type="wheat_seeds", quantity=1),
-                dict(type="wheat", quantity=1),
-                dict(type="snowball", quantity=1),
-            ],
-        )
-
-    def create_server_world_generators(self) -> List[handlers.Handler]:
-        return [handlers.BiomeGenerator("plains")]
 
 
 class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
@@ -404,37 +318,37 @@ class PenAnimalsVillageEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-After spawning in a plains village, surround two or more animals of the same type in a
-fenced area (a pen), constructed near the house.
-You can't have more than one type of animal in your enclosed area.
-Allowed animals are chickens, sheep, cows, and pigs.
+After spawning in a village, build an animal pen next to one of the houses in a village.
+Use your fence posts to build one animal pen that contains at least two of the same animal.
+(You are only allowed to pen chickens, cows, pigs, or sheep.)
+There should be at least one gate that allows players to enter and exit easily.
+The animal pen should not contain more than one type of animal.
+(You may kill any extra types of animals that accidentally got into the pen.)
 
 Do not harm villagers or existing village structures in the process.
 
-Throw a snowball to end the episode.
+Send 1 for "ESC" key to end the episode.
 """
 
-    def __init__(self, high_res: bool):
+    def __init__(self):
         super().__init__(
             name="MineRLBasaltCreateVillageAnimalPen-v0",
             demo_server_experiment_name="village_pen_animals",
             max_episode_steps=5*MINUTE,
-            high_res=high_res,
+            preferred_spawn_biome="plains",
             inventory=[
-                dict(type="fence", quantity=64),
-                dict(type="fence_gate", quantity=64),
+                dict(type="oak_fence", quantity=64),
+                dict(type="oak_fence_gate", quantity=64),
                 dict(type="carrot", quantity=1),
                 dict(type="wheat_seeds", quantity=1),
                 dict(type="wheat", quantity=1),
-                dict(type="snowball", quantity=1),
             ],
         )
 
-    def create_server_world_generators(self) -> List[handlers.Handler]:
-        return [handlers.BiomeGenerator("plains")]
-
-    def create_server_decorators(self) -> List[handlers.Handler]:
-        return [handlers.VillageSpawnDecorator()]
+    def create_agent_start(self) -> List[handlers.Handler]:
+        return super().create_agent_start() + [
+            handlers.SpawnInVillage()
+        ]
 
 
 class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
@@ -455,65 +369,28 @@ class VillageMakeHouseEnvSpec(BasaltBaseEnvSpec):
   :scale: 100 %
   :alt:
 
-Build a house in the style of the village without damaging the village. Give a tour of
-the house and then throw a snowball to end the episode.
+Build a house in the style of the village without damaging the village. It
+should be in an appropriate location  (e.g. next to the path through the village)
+Then, give a brief tour of the house (i.e. spin around slowly such that all of the
+walls and the roof are visible).
+Finally, end the episode by setting the "ESC" action to 1.
 
-.. note::
-  In the observation and action spaces, the following (internal Minecraft) item IDs can be
-  interpreted as follows:
-
-    - ``log#0`` is oak logs.
-    - ``log#1`` is spruce logs.
-    - ``log2#0`` is acacia logs.
-    - ``planks#0`` is oak planks.
-    - ``planks#1`` is spruce planks.
-    - ``planks#4`` is acacia planks.
-    - ``sandstone#0`` is cracked sandstone.
-    - ``sandstone#2`` is smooth sandstone.
 
 .. tip::
   You can find detailed information on which materials are used in each biome-specific
   village (plains, savannah, taiga, desert) here:
-  https://minecraft.fandom.com/wiki/Village/Structure_(old)/Blueprints#Village_generation
-
+  https://minecraft.fandom.com/wiki/Village/Structure/Blueprints
 """
-    def __init__(self, high_res: bool):
+    def __init__(self):
         super().__init__(
             name="MineRLBasaltBuildVillageHouse-v0",
             demo_server_experiment_name="village_make_house",
             max_episode_steps=12*MINUTE,
-            high_res=high_res,
+            preferred_spawn_biome="plains",
             inventory=MAKE_HOUSE_VILLAGE_INVENTORY,
         )
 
-    def create_server_world_generators(self) -> List[handlers.Handler]:
-        return [handlers.DefaultWorldGenerator()]
-
-    def create_server_decorators(self) -> List[handlers.Handler]:
-        return [handlers.VillageSpawnDecorator()]
-
-    def create_observables(self):
-        observables = [
-            x for x in super().create_observables()
-            if not isinstance(x, (
-                handlers.FlatInventoryObservation,
-                handlers.EquippedItemObservation,
-            ))
+    def create_agent_start(self) -> List[handlers.Handler]:
+        return super().create_agent_start() + [
+            handlers.SpawnInVillage()
         ]
-        observables.append(
-            handlers.FlatInventoryObservation(MAKE_HOUSE_VILLAGE_ITEM_IDS))
-        observables.append(
-            handlers.EquippedItemObservation(MAKE_HOUSE_VILLAGE_ITEM_IDS))
-        return observables
-
-    def create_actionables(self):
-        actionables = [
-            x for x in super().create_actionables()
-            if not isinstance(x, (
-                handlers.EquipAction,
-            ))
-        ]
-        actionables.append(
-            handlers.EquipAction(MAKE_HOUSE_VILLAGE_ITEM_IDS),
-        )
-        return actionables

@@ -2,7 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 from minerl.herobraine.env_specs.simple_embodiment import SimpleEmbodimentEnvSpec
 from minerl.herobraine.hero.handler import Handler
-from typing import List, Optional
+from typing import List
 
 import gym
 

@@ -17,9 +17,9 @@
                 An absolute position in the 3D Minecraft world.
             </xs:documentation>
         </xs:annotation>
-        <xs:attribute name="x" type="xs:decimal" use="required"/>
-        <xs:attribute name="y" type="xs:decimal" use="required"/>
-        <xs:attribute name="z" type="xs:decimal" use="required"/>
+        <xs:attribute name="x" type="xs:float" use="required"/>
+        <xs:attribute name="y" type="xs:float" use="required"/>
+        <xs:attribute name="z" type="xs:float" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="PosAndDirection">
@@ -37,7 +37,7 @@
                         </xs:documentation>
                     </xs:annotation>
                     <xs:simpleType>
-                        <xs:restriction base="xs:decimal">
+                        <xs:restriction base="xs:float">
                             <xs:minInclusive value="-360"/>
                             <xs:maxInclusive value="360"/>
                         </xs:restriction>
@@ -50,7 +50,7 @@
                         </xs:documentation>
                     </xs:annotation>
                     <xs:simpleType>
-                        <xs:restriction base="xs:decimal">
+                        <xs:restriction base="xs:float">
                             <xs:minInclusive value="-90"/>
                             <xs:maxInclusive value="90"/>
                         </xs:restriction>
@@ -1241,18 +1241,6 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:element name="VillageSpawnDecorator">
-        <xs:annotation>
-            <xs:documentation>
-                Spawns the player in a village, assuming the spawn point is in a valid biome for a village (plains, savannah, taiga, desert). In the absence of a way to modify the agent spawn, also spawns the agent at (0, 0).
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-            <xs:attribute name="test" type="xs:string" use="optional" default=""/>
-        </xs:complexType>
-    </xs:element>
-
-
     <!--============================================== QUIT PRODUCERS ===============================================-->
 
     <xs:element name="ServerQuitFromTimeUp">
@@ -2278,20 +2266,6 @@
             <xs:documentation>
                 When present, the Mod will return information on the current performance of the Minecraft system - eg
                 tick speeds, etc.
-            </xs:documentation>
-        </xs:annotation>
-        <xs:complexType/>
-    </xs:element>
-
-    <xs:element name="ObservationFromDamage">
-        <xs:annotation>
-            <xs:documentation>
-                When present, the mod will return a JSON object called "damage_source", containing the observation
-                "is_dead" telling if the player is dead. Additionally, if there was an unprocessed damage event, there
-                are a number of additional fields returned to inform us of the location, type of damage, amount of damage
-                entity responsible, and if the damage has various types such as fire or magic. See
-                ObservationFromDamageImplementation.java for the complete list. Note some fields are only present if non-
-                null.
             </xs:documentation>
         </xs:annotation>
         <xs:complexType/>

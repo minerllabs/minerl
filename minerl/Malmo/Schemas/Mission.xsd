@@ -157,11 +157,45 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
+                <xs:element name="PreferredSpawnBiome" type="xs:string" minOccurs="0" maxOccurs="1">
+                   <xs:annotation>
+                        <xs:documentation>
+                            Preferred spawn biome category for the agent. World generation is not affected by this
+                            option, only starting location of the agent. As such, incompatible with Placement.
+                            Spawning in this biome is not guaranteed because a) Minecraft will search in 1024 radius circle
+                            for this biome, and place agent in a default biome if the requested biome is not found
+                            b) there is certain randomness in the agent placement, so even if the biome is found, agent may
+                            be placed near, but not in the requested biome.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="SpawnInVillage" type="xs:boolean" default="false"  minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            If true, try to spawn the agent to a village.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="DoneOnDeath" type="xs:boolean" default="false"  minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            If true, environment will return done=True when agent dies.
+                            (Note: this is in AgentStart as quit section is not supported by current Java code)
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
                 <xs:element name="Placement" type="PosAndDirection" minOccurs="0" maxOccurs="1">
                     <xs:annotation>
                         <xs:documentation>
                             The player's starting location; if unspecified, will be the game's randomly-chosen spawn
                             point.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="Velocity" type="Pos" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The player's starting velocity; if unspecified, will be 0
                         </xs:documentation>
                     </xs:annotation>
                 </xs:element>
@@ -235,6 +269,85 @@
                         <xs:attribute name="foodSaturation" type="xs:float" use="optional" />
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="LowLevelInputs" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            If set to true, inputs to malmo are disabled and instead given via a virtual keyboard and mouse (instead of higher level commands)
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="GuiScale" type="xs:float" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Overrides default gui scale
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="GammaSetting" type="xs:float" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Overrides gamma setting (brightness)
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="FOVSetting" type="xs:float" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Overrides field of view setting
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="LoadWorldFile" type="xs:string" default="false" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            If provided, load the world from this file
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="WorldSeed" type="xs:long" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            If provided, use this seed for world generation. Ignored if the world is loaded from a save file
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="BonusChest" type="xs:boolean" default="false"  minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Whether bonus chest is present near agent starting point in the generated world. Ignored if the world is loaded from a save file
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="GenerateFeatures" type="xs:boolean" default="true"  minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Whether world features are generated. Ignored if the world is loaded from file.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="EnableRecorder" type="xs:boolean" default="false" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Whether minerec should record video and the actions taken in the environment
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="FakeCursorSize" type="xs:int" default="0" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Size of the fake mouse cursor (in pixels) to be shown in gui. Set to 0 to disable the fake
+                            mouse cursor. When the value is below 16, cursor sprite is cropped
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="MultiplayerUsername" type="xs:string" default="0" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Username to use when playing online
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+
             </xs:all>
         </xs:complexType>
     </xs:element>
@@ -249,6 +362,13 @@
             <xs:all>
                 <xs:element ref="Time" minOccurs="0" maxOccurs="1"/>
                 <xs:element ref="Weather" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="RemoteServer" type="xs:string" minOccurs="0" maxOccurs="1">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Address of a server to connect to
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
 
                 <xs:element name="AllowSpawning" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false">
                     <xs:annotation>
@@ -346,12 +466,11 @@
             <xs:simpleType>
                 <xs:restriction base="xs:int">
                     <xs:minInclusive value="0"/>
-                    <xs:maxInclusive value="363"/>
+                    <xs:maxInclusive value="39"/>
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
         <xs:attribute name="type" use="required" type="BlockOrItem"/>
-        <xs:attribute name="metadata" use="required" type="Metadata"/>
         <xs:attribute name="variant" use="optional" type="Variation"/>
         <xs:attribute name="colour" use="optional" type="Colour"/>
         <xs:attribute name="quantity" default="1">
@@ -441,7 +560,6 @@
             <xs:element ref="ObservationFromGrid" minOccurs="0"/>
             <xs:element ref="ObservationFromHotBar" minOccurs="0"/>
             <xs:element ref="ObservationFromHuman" minOccurs="0"/>
-            <xs:element ref="ObservationFromDamage" minOccurs="0"/>
             <xs:element ref="ObservationFromNearbyEntities" minOccurs="0"/>
             <xs:element ref="ObservationFromRay" minOccurs="0"/>
             <xs:element ref="ObservationFromRecentCommands" minOccurs="0"/>
@@ -567,7 +685,6 @@
                     <xs:element ref="MarkingDecorator"/>
                     <xs:element ref="NavigationDecorator"/>
                     <xs:element ref="RandomizedStartDecorator"/>
-                    <xs:element ref="VillageSpawnDecorator"/>
                 </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:annotation>

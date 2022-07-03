@@ -11,7 +11,7 @@ __all__ = ['ObservationFromLifeStats']
 
 
 class ObservationFromLifeStats(TranslationHandlerGroup):
-    """Groups all of the lifestats observations together to correspond to one XML element."""
+    """Groups all of the lifestats observations together to correspond to one XML element.."""
 
     def to_string(self) -> str:
         return "life_stats"
@@ -67,7 +67,7 @@ class _LifeObservation(LifeStatsObservation):
     def __init__(self):
         keys = ['life']
         super().__init__(hero_keys=keys, univ_keys=keys,
-                         space=spaces.Box(low=0, high=mc.MAX_LIFE, shape=(), dtype=np.float),
+                         space=spaces.Box(low=0, high=mc.MAX_LIFE, shape=(), dtype=float),
                          default_if_missing=mc.MAX_LIFE)
 
 
@@ -79,7 +79,7 @@ class _ScoreObservation(LifeStatsObservation):
     def __init__(self):
         keys = ['score']
         super().__init__(univ_keys=keys, hero_keys=keys,
-                         space=spaces.Box(low=0, high=mc.MAX_SCORE, shape=(), dtype=np.int),
+                         space=spaces.Box(low=0, high=mc.MAX_SCORE, shape=(), dtype=int),
                          default_if_missing=0)
 
 
@@ -91,21 +91,21 @@ class _FoodObservation(LifeStatsObservation):
 
     def __init__(self):
         super().__init__(hero_keys=['food'], univ_keys=['food'],
-                         space=spaces.Box(low=0, high=mc.MAX_FOOD, shape=(), dtype=np.int),
+                         space=spaces.Box(low=0, high=mc.MAX_FOOD, shape=(), dtype=int),
                          default_if_missing=mc.MAX_FOOD)
 
 
 class _SaturationObservation(LifeStatsObservation):
     """
     Returns the food saturation observation which determines how fast the hunger level depletes and is controlled by the
-    kinds of food the player has eaten. Its maximum value always equals foodLevel's value and decreases with the hunger
-    level. Its initial value on world creation is 5. - https://minecraft.gamepedia.com/Hunger#Mechanics
+     kinds of food the player has eaten. Its maximum value always equals foodLevel's value and decreases with the hunger
+     level. Its initial value on world creation is 5. - https://minecraft.gamepedia.com/Hunger#Mechanics
     """
 
     def __init__(self):
         super().__init__(hero_keys=['saturation'], univ_keys=['saturation'],
                          space=spaces.Box(low=0, high=mc.MAX_FOOD_SATURATION, shape=(),
-                                          dtype=np.float), default_if_missing=5.0)
+                                          dtype=float), default_if_missing=5.0)
 
 
 class _XPObservation(LifeStatsObservation):
@@ -117,18 +117,18 @@ class _XPObservation(LifeStatsObservation):
     def __init__(self):
         keys = ['xp']
         super().__init__(hero_keys=keys, univ_keys=keys,
-                         space=spaces.Box(low=0, high=mc.MAX_XP, shape=(), dtype=np.int),
+                         space=spaces.Box(low=0, high=mc.MAX_XP, shape=(), dtype=int),
                          default_if_missing=0)
 
 
 class _BreathObservation(LifeStatsObservation):
     """
-    Handles observation of breath which tracks the amount of air remaining before beginning to suffocate
+        Handles observation of breath which tracks the amount of air remaining before beginning to suffocate
     """
 
     def __init__(self):
         super().__init__(hero_keys=['air'], univ_keys=['air'], space=spaces.Box(low=0, high=mc.MAX_BREATH, shape=(),
-                                                                                dtype=np.int), default_if_missing=300)
+                                                                                dtype=int), default_if_missing=300)
 
 # class DeathObservation(TranslationHandler):
 

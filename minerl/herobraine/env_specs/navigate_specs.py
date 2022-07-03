@@ -65,7 +65,7 @@ class Navigate(SimpleEmbodimentEnvSpec):
         if self.extreme:
             return [
                 handlers.BiomeGenerator(
-                    biome=3,
+                    biome_id=3,
                     force_reset=True
                 )
             ]
@@ -143,7 +143,7 @@ The agent is given a sparse reward (+100 upon reaching the goal, at which point 
     else:
         navigate_text += "**This variant of the environment is sparse.**\n"
 
-    if top == "normal":
+    if top is "normal":
         navigate_text += "\nIn this environment, the agent spawns on a random survival map.\n"
         navigate_text = navigate_text.format(*["" for _ in range(4)])
     else:

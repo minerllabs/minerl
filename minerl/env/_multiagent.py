@@ -1,6 +1,6 @@
 # # Copyright (c) 2020 All Rights Reserved
 # # Author: William H. Guss, Brandon Houghton
-
+import traceback
 from copy import deepcopy
 import json
 import logging
@@ -8,7 +8,6 @@ from minerl.env.comms import retry
 from minerl.env.exceptions import MissionInitException
 import os
 from minerl.herobraine.wrapper import EnvWrapper
-import minerl.herobraine.hero.handlers as handlers
 import struct
 from minerl.env.malmo import InstanceManager, MinecraftInstance, launch_queue_logger_thread, malmo_version
 import uuid
@@ -20,6 +19,7 @@ from lxml import etree
 from minerl.env import comms
 import xmltodict
 from concurrent.futures import ThreadPoolExecutor
+import cv2
 
 from minerl.herobraine.env_spec import EnvSpec
 from typing import Any, Callable, Dict, List, Optional, Tuple
@@ -60,10 +60,7 @@ class _MultiAgentEnv(gym.Env):
     
     """
 
-    metadata = {
-        'render.modes': ['human', 'rgb_array'],
-        'video_frames_per_second': 20,
-    }
+    metadata = {'render.modes': ['human']}
 
     def __init__(self,
                  env_spec: EnvSpec,
@@ -71,6 +68,7 @@ class _MultiAgentEnv(gym.Env):
                  is_fault_tolerant: bool = True,
                  verbose: bool = False,
                  _xml_mutator_to_be_deprecated: Optional[Callable] = None,
+                 refresh_instances_every: Optional[int] = None,
                  ):
         """
         Constructor of MineRLEnv.
@@ -80,12 +78,17 @@ class _MultiAgentEnv(gym.Env):
         :param is_fault_tolerant: If the instance is fault tolerant.
         :param verbose: If the MineRL env is verbose.
         :param _xml_mutator_to_be_deprecated: A function which mutates the mission XML when called.
+        :param refresh_instances_every: As a band-aid to memory leaks, completely kill and rebuild the instances every
+           N setups.
         """
         self.task = env_spec
         self.instances = instances if instances is not None else []  # type: List[MinecraftInstance]
 
         # TO DEPRECATE (FOR ENV_SPECS)
         self._xml_mutator_to_be_deprecated = _xml_mutator_to_be_deprecated or (lambda x: x)
+        self._refresh_inst_every = refresh_instances_every
+        self._inst_setup_cntr = 0
+        self.render_open = False
 
         # We use the env_spec's initial observation and action space
         # to satify the gym API
@@ -96,11 +99,6 @@ class _MultiAgentEnv(gym.Env):
         self._init_interactive()
         self._init_fault_tolerance(is_fault_tolerant)
         self._init_logging(verbose)
-
-        # first agent can send Minecraft messages/commands each step
-        self.next_chat_message = None
-        # This will be checked first time chat is tried to be used
-        self.has_chat_handler = None
 
     ############ INIT METHODS ##########
     # These methods are used to first initialize different systems in the environment
@@ -272,18 +270,10 @@ class _MultiAgentEnv(gym.Env):
         # TODO (R): Move this to env_spec in some reasonable way.
         return action in env_spec.action_space[actor_name]
 
-    def step(self, actions) -> Tuple[dict, dict, bool, dict]:
+    def step(self, actions) -> Tuple[
+        Dict[str, Dict[str, Any]], Dict[str, float], bool, Dict[str, Dict[str, Any]]]:
         if not self.done:
             assert STEP_OPTIONS == 0 or STEP_OPTIONS == 2
-
-            # add chat action if there is one
-            if self.next_chat_message:
-                actions[self.task.agent_names[0]]["chat"] = self.next_chat_message
-                self.next_chat_message = None
-                if self.has_chat_handler is None:
-                    self.has_chat_handler = any([isinstance(actionable, handlers.ChatAction) for actionable in self.task.actionables])
-                if not self.has_chat_handler:
-                    raise RuntimeError("Tried to use chat action but no ChatAction handler is present (see docs on how to send Minecraft commands).")
 
             multi_obs = {}
             multi_reward = {}
@@ -302,21 +292,23 @@ class _MultiAgentEnv(gym.Env):
                                        "</StepClient" + str(STEP_OPTIONS) + " >"
 
                         # Send Actions.
-                        instance.client_socket_send_message(step_message.encode())
+                        comms.send_message(instance.client_socket, step_message.encode())
 
                         # Receive the observation.
-                        obs = instance.client_socket_recv_message()
+                        obs = comms.recv_message(instance.client_socket)
 
                         # Receive reward done and sent.
-                        reply = instance.client_socket_recv_message()
+                        reply = comms.recv_message(instance.client_socket)
                         reward, done, sent = struct.unpack("!dbb", reply)
                         # TODO: REFACTOR TO USE REWARD HANDLERS INSTEAD OF MALMO REWARD.
                         done = (done == 1)
+                        if done:
+                            logger.info("Agent {} has finished".format(actor_name))
 
                         self.has_finished[actor_name] = self.has_finished[actor_name] or done
 
                         # Receive info from the environment.
-                        _malmo_json = instance.client_socket_recv_message().decode("utf-8")
+                        _malmo_json = comms.recv_message(instance.client_socket).decode("utf-8")
 
                         # Process the observation and done state.
                         out_obs, monitor = self._process_observation(actor_name, obs, _malmo_json)
@@ -342,6 +334,7 @@ class _MultiAgentEnv(gym.Env):
                         "To account for this failure case in your code check to see if `'error' in info` where info is "
                         "the info dictionary returned by the step function."
                     )
+                    logger.error(traceback.format_exc())
                     return (
                         {agent: self.observation_space.sample() for agent in actions},
                         {agent: 0 for agent in actions},
@@ -358,11 +351,11 @@ class _MultiAgentEnv(gym.Env):
                 step_message = "<StepServer></StepServer>"
 
                 # Send Actions.
-                instance.client_socket_send_message(step_message.encode())
+                comms.send_message(instance.client_socket, step_message.encode())
 
             except (socket.timeout, socket.error, TypeError) as e:
                 # If the socket times out some how! We need to catch this and reset the environment.
-                self._clean_connection()
+                self._TO_MOVE_clean_connection()
                 self.done = True
                 logger.error(
                     "Failed to take a step (timeout or error). Terminating episode and sending random observation, be aware. "
@@ -406,42 +399,15 @@ class _MultiAgentEnv(gym.Env):
 
     ########### RENDERING METHODS #########
 
-    def _renderObs(self, obs, ac=None):
-
-        for agent in self.task.agent_names:
-            if agent not in self.viewers:
-                from minerl.viewer.trajectory_display import HumanTrajectoryDisplay, VectorTrajectoryDisplay
-                vector_display = 'Vector' in self.task.name
-                header = self.task.name
-                # TODO: env_specs should specify renderers.
-                instructions = '{}.render()\n Actions listed below.'.format(header)
-                subtext = agent
-                cum_rewards = None
-                if not vector_display:
-                    agent_viewer = HumanTrajectoryDisplay(
-                        header, subtext, instructions=instructions,
-                        cum_rewards=cum_rewards)
-
-                else:
-                    agent_viewer = VectorTrajectoryDisplay(
-                        header, subtext, instructions=instructions,
-                        cum_rewards=cum_rewards)
-                self.viewers[agent] = agent_viewer
-            # Todo: support more information to the render
-            self.viewers[agent].render(obs[agent], 0, 0, ac[agent], 0, 1)
-
-        return all([v.isopen for v in self.viewers.values()])
-
     def render(self, mode='human'):
-        current_obs = self._last_obs
-        current_ac = self._last_ac
-        current_pov = self._last_pov
+        assert len(self.task.agent_names) == 1, "Render only supports single agent for now."
+        if mode == 'human':
+            obs = self._last_obs[self.task.agent_names[0]]
+            pov = obs["pov"]
+            cv2.imshow("MineRL Render", pov[:, :, ::-1])
+            cv2.waitKey(1)
 
-        assert mode in self.metadata['render.modes']
-        if mode == 'human' and os.environ.get('AICROWD_IS_GRADING') is None:
-            if current_obs and current_ac:
-                self._renderObs(current_obs, current_ac)
-        return current_pov
+        return self._last_pov
 
     ########### RESET METHODS #########
 
@@ -478,7 +444,6 @@ class _MultiAgentEnv(gym.Env):
             # the port/ip of the master agent send the remaining XMLS.
 
             self._send_mission(self.instances[0], agent_xmls[0], self._get_token(0, ep_uid))  # Master
-            time.sleep(10)
             if self.task.agent_count > 1:
                 mc_server_ip, mc_server_port = self._TO_MOVE_find_ip_and_port(self.instances[0],
                                                                               self._get_token(1, ep_uid))
@@ -492,6 +457,7 @@ class _MultiAgentEnv(gym.Env):
             return self._peek_obs()
 
         finally:
+
             # We don't force the same seed every episode, you gotta send it yourself queen.
             # TODO: THIS IS PERHAPS THE WRONG WAY TO DO THIS.
             # perhaps the first seed sets the seed of the random engine which then seeds
@@ -564,6 +530,7 @@ class _MultiAgentEnv(gym.Env):
         """Sets up the instances for the environment 
         """
         num_instances_to_start = self.task.agent_count - len(self.instances)
+        num_old_instances = len(self.instances)
         instance_futures = []
         if num_instances_to_start > 0:
             with ThreadPoolExecutor(max_workers=num_instances_to_start) as tpe:
@@ -571,6 +538,14 @@ class _MultiAgentEnv(gym.Env):
                     instance_futures.append(tpe.submit(self._get_new_instance))
             self.instances.extend([f.result() for f in instance_futures])
             self.instances = self.instances[:self.task.agent_count]
+        # self.instances = [self._get_new_instance(port=12000)]
+
+        # Refresh old instances every N setups
+        if self._refresh_inst_every is not None and self._inst_setup_cntr % self._refresh_inst_every == 0:
+            for i in reversed(range(num_old_instances)):
+                self.instances[i].kill()
+                self.instances[i] = self._get_new_instance(instance_id=self.instances[i].instance_id)
+        self._inst_setup_cntr += 1
 
         # Now let's clean and establish new socket connections.
         # Note: it is important that all clients are informed of the episode end BEFORE the
@@ -624,10 +599,10 @@ class _MultiAgentEnv(gym.Env):
             if self._seed is not None:
                 token += ":{}".format(self._seed)
             token = token.encode()
-            instance.client_socket_send_message(mission_xml)
-            instance.client_socket_send_message(token)
+            comms.send_message(instance.client_socket, mission_xml)
+            comms.send_message(instance.client_socket, token)
 
-            reply = instance.client_socket_recv_message()
+            reply = comms.recv_message(instance.client_socket)
             ok, = struct.unpack("!I", reply)
             if ok != 1:
                 num_retries += 1
@@ -646,17 +621,18 @@ class _MultiAgentEnv(gym.Env):
             multi_done = True
             for actor_name, instance in zip(self.task.agent_names, self.instances):
                 start_time = time.time()
-                instance.client_socket_send_message(peek_message.encode())
-                obs = instance.client_socket_recv_message()
-                info = instance.client_socket_recv_message().decode('utf-8')
+                comms.send_message(instance.client_socket, peek_message.encode())
+                obs = comms.recv_message(instance.client_socket)
+                info = comms.recv_message(instance.client_socket).decode('utf-8')
 
-                reply = instance.client_socket_recv_message()
+                reply = comms.recv_message(instance.client_socket)
                 done, = struct.unpack('!b', reply)
                 self.has_finished[actor_name] = self.has_finished[actor_name] or done
                 multi_done = multi_done and done == 1
                 if obs is None or len(obs) == 0:
                     if time.time() - start_time > MAX_WAIT:
-                        instance.client_socket_close()
+                        instance.client_socket.close()
+                        instance.client_socket = None
                         raise MissionInitException(
                             'too long waiting for first observation')
                     time.sleep(0.1)
@@ -675,9 +651,8 @@ class _MultiAgentEnv(gym.Env):
         """gym api close"""
         logger.debug("Closing MineRL env...")
 
-        if self.viewers is not None:
-            [viewer.close() for viewer in self.viewers]
-            self.viewers = None
+        if self.render_open:
+            cv2.destroyWindow("MineRL Render")
 
         if self._already_closed:
             return
@@ -692,14 +667,6 @@ class _MultiAgentEnv(gym.Env):
 
     def is_closed(self):
         return self._already_closed
-
-    def set_next_chat_message(self, chat):
-        """
-        Sets the next chat message to be sent to Minecraft by agent_0
-        This can be used to send Minecraft commands
-        Make sure you have the ChatAction handler enabled in your environment
-        """
-        self.next_chat_message = chat
 
     ############# AUX HELPER METHODS ###########
 
@@ -733,16 +700,18 @@ class _MultiAgentEnv(gym.Env):
         Cleans the conenction with a given instance.
         """
         try:
-            if instance.has_client_socket():
+            if instance.client_socket:
                 # Try to disconnect gracefully.
                 try:
-                    instance.client_socket_send_message("<Disconnect/>".encode())
+                    comms.send_message(instance.client_socket, "<Disconnect/>".encode())
                 except:
                     pass
-                instance.client_socket_shutdown(socket.SHUT_RDWR)
+                instance.client_socket.shutdown(socket.SHUT_RDWR)
+                instance.client_socket.close()
         except (BrokenPipeError, OSError, socket.error):
             # There is no connection left!
             pass
+
             instance.client_socket = None
 
     def _TO_MOVE_handle_frozen_minecraft(self, instance):
@@ -753,7 +722,7 @@ class _MultiAgentEnv(gym.Env):
                 "more than once; restarting.".format(instance))
 
             instance.kill()
-            instance = self._get_new_instance(instance_id=instance.instance_id)
+            instance = self._get_new_instance(instance_id=self.instance.instance_id)
         else:
             instance.had_to_clean = True
 
@@ -761,9 +730,14 @@ class _MultiAgentEnv(gym.Env):
     def _TO_MOVE_create_connection(self, instance: MinecraftInstance) -> None:
         try:
             logger.debug("Creating socket connection {instance}".format(instance=instance))
-            instance.create_multiagent_instance_socket(socktime=SOCKTIME)
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            sock.settimeout(SOCKTIME)
+            sock.connect((instance.host, instance.port))
             logger.debug("Saying hello for client: {instance}".format(instance=instance))
-            self._TO_MOVE_hello(instance)
+            self._TO_MOVE_hello(sock)
+
+            instance.client_socket = sock
         except (socket.timeout, socket.error, ConnectionRefusedError) as e:
             instance.had_to_clean = True
             logger.error("Failed to reset (socket error), trying again!")
@@ -777,8 +751,8 @@ class _MultiAgentEnv(gym.Env):
 
         logger.info("Attempting to quit: {instance}".format(instance=instance))
         # while not has_quit:
-        instance.client_socket_send_message("<Quit/>".encode())
-        reply = instance.client_socket_recv_message()
+        comms.send_message(instance.client_socket, "<Quit/>".encode())
+        reply = comms.recv_message(instance.client_socket)
         ok, = struct.unpack('!I', reply)
         has_quit = not (ok == 0)
         # TODO: Get this to work properly
@@ -812,8 +786,8 @@ class _MultiAgentEnv(gym.Env):
         return instance.host, str(port)
 
     @staticmethod
-    def _TO_MOVE_hello(instance):
-        instance.client_socket_send_message(("<MalmoEnv" + malmo_version + "/>").encode())
+    def _TO_MOVE_hello(sock):
+        comms.send_message(sock, ("<MalmoEnv" + malmo_version + "/>").encode())
 
     def _get_new_instance(self, port=None, instance_id=None):
         """
@@ -839,5 +813,3 @@ class _MultiAgentEnv(gym.Env):
 
     def _clean_connection(self):
         pass
-
-    

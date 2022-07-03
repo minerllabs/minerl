@@ -46,12 +46,12 @@
             {{ x }}
             {% endfor %}
 
+
         </AgentStart>
         <AgentHandlers>
             <!-- These area  bit of boilerplate that
              we always expect to be included ... -->
             <FileBasedPerformanceProducer/>
-            <ObservationFromDamage/>
             <PauseCommand/>
 
             <!--  Observations     -->
@@ -60,11 +60,6 @@
             {{ x }}
             {% endfor %}
 
-            <!--  Monitors     -->
-
-            {% for x in get_consolidated_xml((monitors)) %}
-            {{ x }}
-            {% endfor %}
 
             <!--  Actions   -->
 
@@ -84,9 +79,9 @@
             {% endfor %}
 
             <!-- Env Monitors? -->
-            {# {% for m in monitors %} }
+            {% for m in monitors %}
             {{ m.xml() }}
-            {% endfor %} #}
+            {% endfor %}
         </AgentHandlers>
     </AgentSection>
     {% endfor %}

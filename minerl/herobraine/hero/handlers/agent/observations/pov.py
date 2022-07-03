@@ -1,7 +1,11 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
+import os
+import logging
+import warnings
 
+import jinja2
 from minerl.herobraine.hero.handlers.translation import KeymapTranslationHandler
 from minerl.herobraine.hero import spaces
 from typing import Tuple
@@ -16,14 +20,6 @@ class POVObservation(KeymapTranslationHandler):
     def to_string(self):
         return 'pov'
 
-    def __repr__(self):
-        result = f'POVObservation(video_resolution={self.video_resolution}'
-        if self.include_depth:
-            result += ', include_depth=True'
-        result += ')'
-        result = f'{result}:{self.to_string()}'
-        return result
-
     def xml_template(self) -> str:
         return str("""
             <VideoProducer 
@@ -35,11 +31,11 @@ class POVObservation(KeymapTranslationHandler):
     def __init__(self, video_resolution: Tuple[int, int], include_depth: bool = False):
         self.include_depth = include_depth
         self.video_resolution = video_resolution
+
         space = None
         if include_depth:
             space = spaces.Box(0, 255, list(video_resolution)[::-1] + [4], dtype=np.uint8)
             self.video_depth = 4
-
         else:
             space = spaces.Box(0, 255, list(video_resolution)[::-1] + [3], dtype=np.uint8)
             self.video_depth = 3

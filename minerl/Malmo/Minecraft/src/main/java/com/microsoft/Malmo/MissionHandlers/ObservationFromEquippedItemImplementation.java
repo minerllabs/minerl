@@ -1,15 +1,23 @@
 package com.microsoft.Malmo.MissionHandlers;
 
-import com.microsoft.Malmo.Utils.MineRLTypeHelper;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.microsoft.Malmo.MissionHandlerInterfaces.IObservationProducer;
+import com.microsoft.Malmo.Schemas.DrawItem;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import org.jetbrains.annotations.Nullable;
+import com.microsoft.Malmo.Utils.JSONWorldDataHelper;
+import com.microsoft.Malmo.Utils.MinecraftTypeHelper;
+
+import java.util.List;
 
 /**
  * Simple IObservationProducer object that pings out a whole bunch of data.<br>
@@ -25,29 +33,26 @@ public class ObservationFromEquippedItemImplementation extends HandlerBase imple
 	@Override
     public void writeObservationsToJSON(JsonObject json, MissionInit missionInit)
     {
-        json.add("equipped_items", getEquipmentJSON());
-    }
-
-    public static JsonObject getEquipmentJSON() {
         EntityPlayerSP player = Minecraft.getMinecraft().player;
         JsonObject equipment = new JsonObject();
         for(EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-            equipment.add(slot.getName(), getInventoryJson(player.inventory.getStackInSlot(slot.getSlotIndex())));
+            equipment.add(slot.getName(), getInventoryJson(player.getItemStackFromSlot(slot)));
         }
-        return equipment;
+       
+        json.add("equipped_items", equipment);
     }
 
-    public static JsonObject getInventoryJson(@Nullable ItemStack itemToAdd){
+    public static JsonObject getInventoryJson(ItemStack itemToAdd){
             JsonObject jobj = new JsonObject();
             if (itemToAdd != null && !itemToAdd.isEmpty())
             {
-                String type = MineRLTypeHelper.getItemType(itemToAdd.getItem());
-                jobj.addProperty("type", type);
-	              if (itemToAdd.getHasSubtypes()){
-                    jobj.addProperty("metadata", itemToAdd.getMetadata());
-	              } else {
-                    jobj.addProperty("metadata", 0);
-	              }
+                DrawItem di = MinecraftTypeHelper.getDrawItemFromItemStack(itemToAdd);
+                String name = di.getType();
+                if (di.getColour() != null)
+                    jobj.addProperty("colour", di.getColour().value());
+                if (di.getVariant() != null)
+                    jobj.addProperty("variant", di.getVariant().getValue());
+                jobj.addProperty("type", name);
                 jobj.addProperty("quantity", itemToAdd.getCount());
                 if(itemToAdd.isItemStackDamageable()){
                     jobj.addProperty("currentDamage", itemToAdd.getItemDamage());

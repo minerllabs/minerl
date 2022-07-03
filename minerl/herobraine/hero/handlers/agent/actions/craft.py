@@ -2,15 +2,18 @@
 # Author: William H. Guss, Brandon Houghton
 from typing import Optional
 
-from minerl.herobraine.hero.handlers.agent.action import ItemListAction
+from minerl.herobraine.hero.handlers.agent.action import Action, ItemListAction
+import jinja2
+import minerl.herobraine.hero.spaces as spaces
 
 
 class CraftAction(ItemListAction):
     """
     An action handler for crafting items
 
-    Note when used alongside Craft Item Nearby, block lists must be disjoint or from_universal will fire multiple
-    times
+        Note when used along side Craft Item Nearby, block lists must be disjoint or from_universal will fire multiple
+        times
+
     """
     _command = "craft"
 
@@ -32,7 +35,8 @@ class CraftAction(ItemListAction):
             kwargs['_other'] = _other
         if _default is not None:
             kwargs['_default'] = _default
-        super().__init__(self._command, items, **kwargs)
+        super().__init__(
+            self._command, items, **kwargs)
 
     def from_universal(self, obs):
         if 'diff' in obs and 'crafted' in obs['diff'] and len(obs['diff']['crafted']) > 0:
@@ -50,7 +54,7 @@ class CraftNearbyAction(CraftAction):
     """
     An action handler for crafting items when agent is in view of a crafting table
 
-    Note when used along side Craft Item, item lists must be disjoint or from_universal will fire multiple times
+        Note when used along side Craft Item, item lists must be disjoint or from_universal will fire multiple times
 
     """
     _command = "craftNearby"

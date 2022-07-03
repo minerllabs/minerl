@@ -6,8 +6,7 @@ buildscript {
         jcenter()
         mavenCentral()
         maven {
-            name = "forge"
-            url = "https://maven.minecraftforge.net/"
+            url = "https://files.minecraftforge.net/maven"
         }
         maven {
             name = "sonatype"
@@ -21,18 +20,7 @@ buildscript {
             // and putting mixin right here will place it before forge in the class loader
             exclude group: 'org.ow2.asm', module: 'asm-debug-all'
         }
-
-        classpath 'com.github.brandonhoughton:ForgeGradle:FG_2.2_patched-SNAPSHOT'
-    }
-    configurations {
-        compileClasspath {
-            resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-                if (details.requested.group == 'org.apache.logging.log4j') {
-                    details.useVersion '2.16.0'
-                    details.because 'zero-day-exploits on log4j <2.15.0'
-                }
-            }
-        }
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 
@@ -41,16 +29,21 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.4'
 }
 
-dependencies {
-    implementation 'com.github.brandonhoughton:forgegradle:FG_2.2_patched-SNAPSHOT'
-}
-
+// For versions >= 1.8
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
-
+// For versions < 1.8
+// apply plugin: 'forge'
 
 apply plugin: 'java'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+
+// ext {
+//     mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
+//     mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.malmo.refmap.json')
+// }
+
 
 // Read the version number from the Mod's version properties file.
 if (!file('src/main/resources/version.properties').exists()) {
@@ -67,9 +60,9 @@ archivesBaseName = "MalmoMod"
 
 
 minecraft {
-    version = "1.11.2-13.20.1.2588"
+    version = "1.11.2-13.20.0.2228"
     runDir = "run"
-
+    
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
@@ -80,7 +73,7 @@ minecraft {
 }
 
 
-runClient {
+runClient { 
     if (project.hasProperty("runDir")) {
         minecraft.runDir = project.getProperty("runDir")
     }
@@ -112,7 +105,6 @@ jar {
 
 // And add to the jvm args so that it is also loaded when running using gradle runClient:
 JavaExec exec = project.getTasks().getByName("runClient") as JavaExec
-
 exec.jvmArgs(["-Xmx2G", "-Xdebug", "-Dmixin.debug=true"])
 
 // If we have a jvm_debug_port defined and valid (>0), then set it for JDWP debugging.
@@ -139,8 +131,11 @@ if (project.hasProperty("jvm_debug_port")) {
 exec.getOutputs().upToDateWhen( { return false } )
 
 dependencies {
+    // compile 'com.github.SpongePowered:Mixin:404f5da' // 0.7.5-SNAPSHOT
+    // ^ mixin doesn't compile on jitpack, so we'll have to depend on the SNAPSHOT and build it manually for reprod
+    //shade group: 'org.apache.commons', name: 'com.springsource.org.apache.commons.codec', version: '1.6.0'
     compile 'org.spongepowered:mixin:0.7.5-SNAPSHOT'
-    compile 'org.jetbrains:annotations:16.0.2'
+
 }
 
 processResources
@@ -152,11 +147,11 @@ processResources
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-
+                
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-
+        
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
@@ -200,7 +195,7 @@ project.tasks.idea.dependsOn copySrg
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 compileJava.doLast {
-    File refmapFile =  compileJava.ext.refMapFile
+    File refmapFile =  compileJava.ext.refMapFile 
     if (refmapFile.exists()) {
         def ordered
         ordered = {
@@ -314,7 +309,7 @@ task jaxb() {
 
     inputs.files fileTree( dir: 'src/main/resources', include:'*.xsd' )
     outputs.dir 'src/main/java/com/microsoft/Malmo/Schemas'
-
+    
     doLast {
         // first clear the old .java files out of the folder in case some are no longer current
         delete fileTree(dir: 'src/main/java/com/microsoft/Malmo/Schemas', include: '*.java')
