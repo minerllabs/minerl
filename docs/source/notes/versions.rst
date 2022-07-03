@@ -24,3 +24,5 @@ their functionalities.
      - BASALT 2022
      - [Minecraft: 1.16.5] Slower than previous versions, but has more realistic action spaces (e.g. no autocrafting) and Minecraft Nether Update version.
      - :code:`pip install git+https://github.com/minerllabs/minerl@v1.0.0`
+
+See `this issue <https://minerl-official.slack.com/archives/C01SB528NSW/p1626177385155000>`_ for additional speed comparisons.

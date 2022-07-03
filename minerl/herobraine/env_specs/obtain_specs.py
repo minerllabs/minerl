@@ -74,6 +74,29 @@ def _obtain_diamond_shovel_gym_entrypoint(env_spec, fake=False):
 OBTAIN_DIAMOND_SHOVEL_ENTRY_POINT = "minerl.herobraine.env_specs.obtain_specs:_obtain_diamond_shovel_gym_entrypoint"
 
 class ObtainDiamondShovelEnvSpec(HumanSurvival):
+    r"""
+In this environment the agent is required to obtain a diamond shovel.
+The agent begins in a random starting location on a random survival map
+without any items, matching the normal starting conditions for human players in Minecraft.
+
+During an episode the agent is rewarded according to the requisite item
+hierarchy needed to obtain a diamond shovel. The rewards for each item are
+given here::
+
+    <Item reward="1" type="log" />
+    <Item reward="2" type="planks" />
+    <Item reward="4" type="stick" />
+    <Item reward="4" type="crafting_table" />
+    <Item reward="8" type="wooden_pickaxe" />
+    <Item reward="16" type="cobblestone" />
+    <Item reward="32" type="furnace" />
+    <Item reward="32" type="stone_pickaxe" />
+    <Item reward="64" type="iron_ore" />
+    <Item reward="128" type="iron_ingot" />
+    <Item reward="256" type="iron_pickaxe" />
+    <Item reward="1024" type="diamond" />
+    <Item reward="2048" type="diamond_shovel" />
+"""
     def __init__(self):
         super().__init__(
             name="MineRLObtainDiamondShovel-v0",
@@ -85,7 +108,7 @@ class ObtainDiamondShovelEnvSpec(HumanSurvival):
             guiscale_range=[1, 1],
             cursor_size_range=[16.0, 16.0]
         )
-    
+
     def _entry_point(self, fake: bool) -> str:
         return OBTAIN_DIAMOND_SHOVEL_ENTRY_POINT
 
@@ -97,4 +120,5 @@ class ObtainDiamondShovelEnvSpec(HumanSurvival):
 
     def create_monitors(self) -> List[TranslationHandler]:
         return []
+
 

@@ -43,12 +43,7 @@ To create the environment, simply invoke :code:`gym.make`
     such as** :code:`xvfb`::
 
         xvfb-run python3 <your_script.py>
-    
-    
-    Alternatively, you can use an environment variable which automatically adds xvfb when
-    launching MineRL::
-        
-        MINERL_HEADLESS=1 python3 <your_script.py>
+
 
 .. note::
     If you're worried and want to make sure something is
