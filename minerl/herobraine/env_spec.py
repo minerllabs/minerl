@@ -2,11 +2,12 @@
 # Author: William H. Guss, Brandon Houghton
 
 from abc import abstractmethod
+import types
 from minerl.herobraine.hero.handlers.translation import TranslationHandler
 import typing
 from minerl.herobraine.hero.spaces import Dict
 from minerl.herobraine.hero.handler import Handler
-from typing import List, Optional
+from typing import List
 
 import jinja2
 import gym
@@ -26,7 +27,7 @@ class EnvSpec(abc.ABC):
     U_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._singleagent:_SingleAgentEnv'
     U_FAKE_SINGLE_AGENT_ENTRYPOINT = 'minerl.env._fake:_FakeSingleAgentEnv'
 
-    def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=None):
+    def __init__(self, name, max_episode_steps=None, reward_threshold=None, agent_count=None, **kwargs):
         self.name = name
         self.max_episode_steps = max_episode_steps
         self.reward_threshold = reward_threshold
@@ -265,8 +266,8 @@ class EnvSpec(abc.ABC):
 
             env = jinja2.Environment(undefined=jinja2.StrictUndefined)
             template = env.from_string(fh.read())
+            xml = template.render(var_dict)
 
-        xml = template.render(var_dict)
         # Now do one more pretty printing
 
         xml = etree.tostring(etree.fromstring(xml.encode('utf-8')), pretty_print=True).decode('utf-8')
@@ -279,7 +280,7 @@ class EnvSpec(abc.ABC):
 
         Deduplication happens by first getting all of the handler.xml() strings
         of the handlers, and then converting them into etrees. After that we check
-        if there are any top level elements that are duplicated and pick the first of them
+        if the there are any top level elements that are duplicated and pick the first of them
         to retain. We then convert the remaining etrees back into strings and join them with new lines.
 
         Args:
@@ -299,39 +300,3 @@ class EnvSpec(abc.ABC):
 
         return [etree.tostring(t, pretty_print=True).decode('utf-8')
                 for t in consolidated_trees]
-
-    def get_blacklist_reason(self, npz_data: dict) -> Optional[str]:
-        """Return a non-empty str if `publish.py` should blacklist a demonstration.
-
-        We can't catch all cases of bad demonstrations automatically, but overriding this
-        method can allow for some quick, automatic filtering.
-
-        Args:
-            npz_data: A dict of numpy values from this demonstration about to be saved
-            as "rendered.npz" by the publish.py stage of the dataset pipeline.
-
-        Returns:
-            Either None, or a nonempty str describing why this demonstration should be
-            blacklisted.
-        """
-        if 'Survival' in self.name:
-            return None
-
-        # Various smoke-tests.
-        ep_return = sum(npz_data['reward'])
-        if ep_return == 1024.0 and 'Obtain' in self.name and 'SimonSays' not in self.name:
-            return f"ep_return={ep_return} in non-SimonSays Obtain env was unexpectedly 1024"
-
-        if ep_return < 64 and ('Obtain' not in self.name):
-            return f"ep_return={ep_return} in non-Obtain env was unexpectedly low (<64)"
-
-        if ep_return == 0.0:
-            return "zero reward"
-
-        if sum(npz_data['action$forward']) == 0:
-            return "no forward movement"
-
-        if sum(npz_data['action$attack']) == 0 and 'Navigate' not in self.name:
-            return "no attack action on non-Navigate env"
-
-        return None

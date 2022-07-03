@@ -47,7 +47,7 @@ def launch(parent_pid, child_pid, *temp_dirs):
     Returns:
         psutil.Process: The process object of the watcher.
     """
-    logger.info("Launhing process watcher daemonizer.")
+    logger.info("Launching process watcher daemonizer.")
     subprocess.check_call([
                               sys.executable, '-m', 'minerl.utils.process_watcher',
                               str(parent_pid), str(child_pid),

@@ -10,7 +10,6 @@ venv/*
 
 # Distribution / packaging
 .Python
-build/
 _build/
 develop-eggs/
 dist/
@@ -244,55 +243,53 @@ __pycache__/
 venv/*
 *logs*
 
-# Distribution / packaging
-.Python
-build/
-_build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-build/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# IDE files
-.idea/
-.vscode
-
-*.DS_store
-*.iml
-*Minecraft.ipr
-*Minecraft.iws
-
-*/logs/
-
 tests/logs/
 .vscode/settings.json
 */performance
 
 
-# Jenkins
-jenkins_home/
 
-#eclipse
-minerl/Malmo/Minecraft/*.launch
-*minerl_watchers/
-caches/
-native/
-wrapper/
+build/
+minerl/MCP-Reborn/src/main/resources/*
 
-
-# Pytest artifacts
-tests/*.lock
+*.iws
+*.swp
+*.ipr
+*.tar.bz2
 
 
-# Minecraft
-minerl/Malmo/Minecraft/run
+
+#Run files
+# runclient
+minerl/MCP-Reborn/*
+minerl/MCP-Reborn/world/*
+minerl/MCP-Reborn/crash-reports/*
+minerl/MCP-Reborn/recordings/*
+minerl/MCP-Reborn/saves/*
+minerl/MCP-Reborn/logs/*
+minerl/MCP-Reborn/.classpath
+minerl/MCP-Reborn/.settings
+minerl/MCP-Reborn/.project
+minerl/MCP-Reborn/projects
+minerl/MCP-Reborn/bin
+minerl/MCP-Reborn/src/main/java/com/microsoft/Malmo/Schemas
+
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+*.jar
+
+#IDE files
+.idea
+*.iml
+run/
+.DS_Store
+
+out/
+
+# Gradle
+.gradle
+!minerl/MCP-Reborn/gradle/wrapper/gradle-wrapper.jar
+minerl/MCP-Reborn/usercache.json

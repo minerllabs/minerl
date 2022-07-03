@@ -225,7 +225,7 @@ public class ObservationFromRayImplementation extends HandlerBase implements IOb
                     if (distance >= 0)
                     {
                         pointedEntity = entity;
-                        hitVec = (movingobjectposition == null) ? eyePos : movingobjectposition.hitVec;
+                        hitVec = (movingobjectposition == null) ? eyePos : mop.hitVec;
                         distance = 0.0D;
                     }
                 }

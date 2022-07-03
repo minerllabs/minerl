@@ -1,33 +1,13 @@
 # Copyright (c) 2020 All Rights Reserved
 # Author: William H. Guss, Brandon Houghton
 
-"""
-World handlers provide a number of ways to generate and modify the Minecraft world
-(e.g. specifying the type of world to be created, like Superflat, or drawing shapes and blocks in the world).
+"""Handlers relating to world generation."""
 
-When used to create a Gym environment, they should be passed to :code:`create_server_world_generators`
-"""
-
-from typing import Union
-from minerl.herobraine.hero import mc
+import jinja2
 from minerl.herobraine.hero.handler import Handler
 
 
 class DefaultWorldGenerator(Handler):
-    """Generates a world using minecraft procedural generation (this is the default world type in minecraft).
-    
-    Args:
-        force_reset (bool, optional): If the world should be reset every episode.. Defaults to True.
-        generator_options: A JSON object specifying parameters to the procedural generator.
-
-    Example usage:
-
-    .. code-block:: python
-
-        # Generates a default world that does not reset every episode (e.g. if blocks get broken in one episode
-        # they will not be replaced in the next)
-        DefaultWorldGenerator(False, "")
-    """
     def to_string(self) -> str:
         return "default_world_generator"
 
@@ -40,6 +20,12 @@ class DefaultWorldGenerator(Handler):
         )
 
     def __init__(self, force_reset=True, generator_options: str = "{}"):
+        """Generates a world using minecraft procedural generation.
+
+        Args:
+            force_reset (bool, optional): If the world should be reset every episode.. Defaults to True.
+            generator_options: A JSON object specifying parameters to the procedural generator.
+        """
         self.force_reset = force_reset
         self.generator_options = generator_options
 
@@ -65,19 +51,7 @@ class FileWorldGenerator(Handler):
 
 #  <FlatWorldGenerator forceReset="true"/>
 class FlatWorldGenerator(Handler):
-    """
-    Generates a world that is a flat landscape.
-    
-    Example usage:
-
-    .. code-block:: python
-        # Create a superflat world with layers as follow:
-        # 1 layer of grass blocks above 2 layers of dirt above 1 layer of bedrock
-        # You can use websites like "`Minecraft Tools`_" to easily customize superflat world layers.
-        FlatWorldGenerator(generatorString="1;7,2x3,2;1")
-
-    .. _Minecraft Tools: https://minecraft.tools/en/flat.php?biome=1&bloc_1_nb=1&bloc_1_id=2&bloc_2_nb=2&bloc_2_id=3%2F00&bloc_3_nb=1&bloc_3_id=7&village_size=1&village_distance=32&mineshaft_chance=1&stronghold_count=3&stronghold_distance=32&stronghold_spread=3&oceanmonument_spacing=32&oceanmonument_separation=5&biome_1_distance=32&valid=Create+the+Preset#seed   
-    """
+    """Generates a world that is a flat landscape."""
 
     def to_string(self) -> str:
         return "flat_world_generator"
@@ -95,6 +69,7 @@ class FlatWorldGenerator(Handler):
         self.generatorString = generatorString
 
 
+
 #  <BiomeGenerator forceReset="true" biome="3"/>
 class BiomeGenerator(Handler):
     def to_string(self) -> str:
@@ -108,31 +83,12 @@ class BiomeGenerator(Handler):
             """
         )
 
-    def __init__(self, biome: Union[int, str], force_reset: bool = True):
-        if isinstance(biome, str):
-            biome = mc.BIOMES_MAP[biome]
-        self.biome_id = biome
+    def __init__(self, biome_id: int, force_reset: bool = True):
+        self.biome_id = biome_id
         self.force_reset = force_reset
 
 
 class DrawingDecorator(Handler):
-    """
-    Draws shapes (e.g. spheres, cuboids) in the world.
-    
-    Example usage:
-    
-    .. code-block:: python
-
-        # draws an empty square of gold blocks
-        DrawingDecorator('
-            <DrawCuboid x1="3" y1="4" z1="3" x2="3" y2="6" z2="-3" type="gold_block"/>
-            <DrawCuboid x1="3" y1="4" z1="3" x2="-3" y2="6" z2="3" type="gold_block"/>
-            <DrawCuboid x1="-3" y1="4" z1="-3" x2="3" y2="6" z2="-3" type="gold_block"/>
-            <DrawCuboid x1="-3" y1="4" z1="-3" x2="-3" y2="6" z2="3" type="gold_block"/>
-        ')
-
-    See Project Malmo for more
-    """
     def __init__(self, to_draw: str):
         self.to_draw = to_draw
 
@@ -143,11 +99,17 @@ class DrawingDecorator(Handler):
     def to_string(self) -> str:
         return "drawing_decorator"
 
+class RemoteServer(Handler):
+    def __init__(self, address: str):
+        self.address = address
 
-class VillageSpawnDecorator(Handler):
     def xml_template(self) -> str:
-        tmp = """<VillageSpawnDecorator />"""
-        return tmp
+        address = self.address
+        if callable(address):
+            address = address()
+        if not isinstance(address, str):
+            raise ValueError(f"address should be a string (provided {address})")
+        return f"<RemoteServer>{address}</RemoteServer>"
 
     def to_string(self) -> str:
-        return "village_spawn"
+        return "remote_server"

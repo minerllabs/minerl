@@ -203,6 +203,7 @@ class Discrete(gym.spaces.Discrete, MineRLSpace):
     def __init__(self, *args, **kwargs):
         super(Discrete, self).__init__(*args, **kwargs)
         self.eye = np.eye(self.n, dtype=np.float32)
+        self.shape = ()
 
     def no_op(self, batch_shape=()):
         if len(batch_shape) == 0:
@@ -234,11 +235,10 @@ class Enum(Discrete, MineRLSpace):
         values that the enum can take.
 
         Usage:
-        >>> x = Enum('none', 'type1', 'type2')
-        >>> x['none']
-        0
-        >>> x['type1']
-        1
+        ```
+        x = Enum('none', 'type1', 'type2')
+        x['none'] # 0
+        x['type1'] # 1
 
         Args:
             values (str):  An order argument list of values the enum can take.
@@ -298,9 +298,6 @@ class Enum(Discrete, MineRLSpace):
 
     def __str__(self):
         return "Enum(" + ','.join(self.values) + ")"
-
-    def __repr__(self):
-        return str(self)
 
     def __len__(self):
         return len(self.values)
@@ -462,7 +459,7 @@ class Text(MineRLSpace):
     # TODO:
     [['a text string', ..., 'last_text_string']]
     Example usage:
-    self.observation_space = spaces.Text([1])
+    self.observation_space = spaces.Text(1)
     """
 
     def no_op(self):
@@ -481,7 +478,6 @@ class Text(MineRLSpace):
 
     def __init__(self, shape):
         super().__init__(shape, np.unicode_)
-        warnings.warn("The Text MineRLSpace class is not fully implemented. This may cause problems when sampling an action of this type (even when getting a noop).")
 
     def sample(self):
         total_strings = np.prod(self.shape)

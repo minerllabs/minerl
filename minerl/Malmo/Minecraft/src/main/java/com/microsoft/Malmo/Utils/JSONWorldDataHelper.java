@@ -257,8 +257,6 @@ public class JSONWorldDataHelper
 
         JsonArray arr = new JsonArray();
         BlockPos pos = new BlockPos(player.posX, player.posY, player.posZ);
-        // TODO peterz implement projection in any direction, not only down in y
-        // direction
         if (environmentDimensions.projectDown)
         {
             for (int z = environmentDimensions.zMin; z <= environmentDimensions.zMax; z++)

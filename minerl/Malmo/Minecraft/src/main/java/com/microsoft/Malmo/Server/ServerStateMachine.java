@@ -40,7 +40,6 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.server.MinecraftServer;
@@ -91,7 +90,6 @@ import com.microsoft.Malmo.Utils.SchemaHelper;
 import com.microsoft.Malmo.Utils.ScreenHelper;
 import com.microsoft.Malmo.Utils.SeedHelper;
 import com.microsoft.Malmo.Utils.TimeHelper;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Class designed to track and control the state of the mod, especially regarding mission launching/running.<br>
@@ -1120,15 +1118,18 @@ public class ServerStateMachine extends StateMachine
                 onError(null);  // We've lost a connection - abort the mission.
         }
 
-        @NotNull
         private ItemStack itemStackFromInventoryObject(InventoryObjectType obj)
         {
-            Item item = MinecraftTypeHelper.ParseItemType(obj.getType(), true);
-            if (item == null) {
-                throw new RuntimeException(String.format("Could not parse item type '%s'", obj.getType()));
+            DrawItem di = new DrawItem();
+            di.setColour(obj.getColour());
+            di.setVariant(obj.getVariant());
+            di.setType(obj.getType());
+            ItemStack item = MinecraftTypeHelper.getItemStackFromDrawItem(di);
+            if( item != null )
+            {
+                item.setCount(obj.getQuantity());
             }
-            ItemStack result = new ItemStack(item, obj.getQuantity(), obj.getMetadata());
-            return result;
+            return item;
         }
 
         private void initialiseInventory(EntityPlayerMP player, Inventory inventory)
@@ -1143,9 +1144,11 @@ public class ServerStateMachine extends StateMachine
             for (JAXBElement<? extends InventoryObjectType> el : inventory.getInventoryObject())
             {
                 InventoryObjectType obj = el.getValue();
-                if (obj == null) throw new RuntimeException();
-                ItemStack stack = itemStackFromInventoryObject(obj);
-                player.inventory.setInventorySlotContents(obj.getSlot(), stack);
+                ItemStack item = itemStackFromInventoryObject(obj);
+                if( item != null )
+                {
+                    player.inventory.setInventorySlotContents(obj.getSlot(), item);
+                }
             }
         }
 
@@ -1155,8 +1158,11 @@ public class ServerStateMachine extends StateMachine
             for (JAXBElement<? extends InventoryObjectType> el : inventory.getInventoryObject())
             {
                 InventoryObjectType obj = el.getValue();
-                ItemStack stack = itemStackFromInventoryObject(obj);
-                player.getInventoryEnderChest().setInventorySlotContents(obj.getSlot(), stack);
+                ItemStack item = itemStackFromInventoryObject(obj);
+                if( item != null )
+                {
+                    player.getInventoryEnderChest().setInventorySlotContents(obj.getSlot(), item);
+                }
             }
         }
     }

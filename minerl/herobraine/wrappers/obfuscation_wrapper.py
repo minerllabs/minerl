@@ -2,7 +2,7 @@
 # Author: William H. Guss, Brandon Houghton
 
 from pathlib import Path
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 from collections import OrderedDict
@@ -111,7 +111,8 @@ class Obfuscated(EnvWrapper):
         return act_space
 
     def create_monitors(self):
-        return []  # Disable monitors for obfuscated spaces
+        # We want to not preserve any original monitor information as its obfuscated.
+        return []
 
     def _wrap_observation(self, obs: OrderedDict) -> OrderedDict:
         obs['vector'] = self.obs_enc(obs['vector'])
@@ -136,7 +137,3 @@ class Obfuscated(EnvWrapper):
     def get_docstring(self):
         # TODO fix this
         return super().get_docstring()
-
-    def get_blacklist_reason(self, npz_data: dict) -> Optional[str]:
-        # Obfuscated demonstrations are never blacklisted.
-        return None

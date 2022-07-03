@@ -32,7 +32,7 @@ class ObserveFromFullStats(TranslationHandlerGroup):
         else:
             self.stat_key = stat_key
             super(ObserveFromFullStats, self).__init__(
-                handlers=[_FullStatsObservation(statKeys) for statKeys in mc.ALL_STAT_KEYS if statKeys[1] == stat_key]
+                handlers=[_FullStatsObservation(statKeys) for statKeys in mc.ALL_STAT_KEYS if stat_key in statKeys]
             )
 
 
@@ -45,11 +45,11 @@ class _FullStatsObservation(KeymapTranslationHandler):
     def __init__(self, key_list: List[str], space=None, default_if_missing=None):
         if space is None:
             if 'achievement' == key_list[0]:
-                space = spaces.Box(low=0, high=1, shape=(), dtype=np.int)
+                space = spaces.Box(low=0, high=1, shape=(), dtype=int)
             else:
-                space = spaces.Box(low=0, high=np.inf, shape=(), dtype=np.int)
+                space = spaces.Box(low=0, high=np.inf, shape=(), dtype=int)
         if default_if_missing is None:
-            default_if_missing = np.zeros((), dtype=np.float)
+            default_if_missing = np.zeros((), dtype=float)
 
         super().__init__(hero_keys=key_list, univ_keys=key_list, space=space,
                          default_if_missing=default_if_missing)

@@ -3,6 +3,18 @@
 
 import json
 import os
+import numpy as np
+
+SIMPLE_KEYBOARD_ACTION = [
+    "forward",
+    "back",
+    "left",
+    "right",
+    "jump",
+    "sneak",
+    "sprint",
+    "attack"
+]
 
 MC_ITEM_IDS = [
     "minecraft:acacia_boat",
@@ -516,17 +528,11 @@ def get_key_from_id(id: str) -> str:
 
 
 mc_constants_file = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "mc_constants.json"
+    os.path.dirname(os.path.abspath(__file__)), "mc_constants.1.16.json"
 )
 all_data = json.load(open(mc_constants_file))
 
 ALL_ITEMS = [item["type"] for item in all_data["items"]]
-ALL_ITEM_VARIANTS = [
-    f"{item['type']}_{variant}"
-    for item in all_data["items"]
-    if 'variant' in item for variant in item['variant']
-]
-
 ALL_STATS = [stat["statID"] for stat in all_data["stats"]]
 ALL_STAT_KEYS = [stat["minerl_keys"] for stat in all_data["stats"]]
 
@@ -541,21 +547,21 @@ ITEMS_BY_CATEGORY = {
     # Items which take 2 seconds to USE
     'edible': [item['type'] for item in all_data['items'] if item['useAction'] in {'EAT', 'DRINK'}],
     # Items which have ongoing effect when equipped (includes armor)
-    'tool': [item['type'] for item in all_data['items'] if item['tab'] in {'tools', 'combat'}],
+    'tool': [], # [item['type'] for item in all_data['items'] if item['tab'] in {'tools', 'combat'}],
     # Items which are used for building
-    'building_block': [item['type'] for item in all_data['items'] if item['tab'] in {'buildingBlock'}],
+    'building_block': [], # [item['type'] for item in all_data['items'] if item['tab'] in {'buildingBlock'}],
     # Redstone items (doors, buttons, levers)
-    'redstone': [item['type'] for item in all_data['items'] if item['tab'] in {'redstone'}],
+    'redstone': [], # [item['type'] for item in all_data['items'] if item['tab'] in {'redstone'}],
     # Brewing items
-    'brewing': [item['type'] for item in all_data['items'] if item['tab'] in {'brewing'}],
+    'brewing': [], # [item['type'] for item in all_data['items'] if item['tab'] in {'brewing'}],
     # Decoration items (includes torch)
-    'decoration': [item['type'] for item in all_data['items'] if item['tab'] in {'decoration'}]
+    'decoration': [], # [item['type'] for item in all_data['items'] if item['tab'] in {'decoration'}]
 }
 
 # Check that all edible items have the same maxUseDuration
 use_times = {item['maxUseDuration'] for item in all_data['items'] if item['useAction'] in {'EAT', 'DRINK'}}
-assert len(use_times) == 1, "Edible items with multiple different eating times."
-EDIBLE_USE_TICKS = use_times.pop()
+# assert len(use_times) == 1, "Edible items with multiple different eating times."
+# EDIBLE_USE_TICKS = use_times.pop()
 
 
 def recursive_dict_eq(d1, d2):
@@ -602,8 +608,8 @@ def sort_recipes_by_output(json):
     return result
 
 
-CRAFTING_RECIPES_BY_OUTPUT = sort_recipes_by_output(all_data["craftingRecipes"])
-SMELTING_RECIPES_BY_OUTPUT = sort_recipes_by_output(all_data["smeltingRecipes"])
+CRAFTING_RECIPES_BY_OUTPUT = {} # sort_recipes_by_output(all_data["craftingRecipes"])
+SMELTING_RECIPES_BY_OUTPUT = {} # sort_recipes_by_output(all_data["smeltingRecipes"])
 
 ALL_PERSONAL_CRAFTING_ITEMS = [
                                   "none",  # empty inventory slot (for obs); take no action (for actions).
@@ -664,6 +670,35 @@ BEST_ITEMS_PER_EQUIPMENT_SLOT = {
 MS_PER_STEP = 50
 STEPS_PER_MS = 1 / 50
 
+CAMERA_SCALER = 360 / 2400
+
+
+KEYMAP = {
+    "key.keyboard.w": "forward",
+    "key.keyboard.a": "left",
+    "key.keyboard.s": "back",
+    "key.keyboard.d": "right",
+    "key.keyboard.space": "jump",
+    "key.keyboard.e": "inventory",
+    "key.keyboard.q": "drop",
+    "key.keyboard.f": "swapHands",
+    "key.keyboard.left.shift": "sneak",
+    "key.keyboard.left.control": "sprint",
+    "mouse.0": "attack",  # BUTTON0 Left Click
+    "mouse.1": "use",  # BUTTON1 Right Click
+    "mouse.2": "pickItem",
+    "key.keyboard.1": "hotbar.1",
+    "key.keyboard.2": "hotbar.2",
+    "key.keyboard.3": "hotbar.3",
+    "key.keyboard.4": "hotbar.4",
+    "key.keyboard.5": "hotbar.5",
+    "key.keyboard.6": "hotbar.6",
+    "key.keyboard.7": "hotbar.7",
+    "key.keyboard.8": "hotbar.8",
+    "key.keyboard.9": "hotbar.9",
+    "key.keyboard.escape": "ESC",
+}
+
 
 def strip_item_prefix(minecraft_name):
     # Names in minecraft start with 'minecraft:', like:
@@ -674,69 +709,86 @@ def strip_item_prefix(minecraft_name):
     return minecraft_name
 
 
-# Transcribed from: https://minecraft.gamepedia.com/index.php?title=Biome&oldid=1057817,
-#   which has the biomes as they were during the minecraft version at the time: 1.11.2
-# _m indicates that the terrain is more mountainous
-# _f indicates that the terrain has trees where the base biome does not.
-BIOMES_MAP = {
-    "ice_plains": 12,
-    "ice_plains_spikes": 140,
-    "cold_taiga": 30,
-    "cold_taiga_m": 158,
-    "frozen_river": 11,
-    "cold_beach": 26,
-    "extreme_hills": 3,
-    "extreme_hills_m": 131,
-    "extreme_hills_plus": 34,
-    "extreme_hills_plus_m": 162,
-    "taiga": 5,
-    "taiga_m": 133,
-    "mega_taiga": 32,
-    "mega_spruce_taiga": 160,
-    "stone_beach": 25,
-    "plains": 1,
-    "sunflower_plains": 129,
-    "forest": 4,
-    "flower_forest": 132,
-    "birch_forest": 27,
-    "birch_forest_m": 155,
-    "roofed_forest": 29,
-    "roofed_forest_m": 157,
-    "swampland": 8,
-    "swampland_m": 134,
-    "jungle": 21,
-    "jungle_m": 149,
-    "jungle_edge": 23,
-    "jungle_edge_m": 151,
-    "river": 7,
-    "beach": 16,
-    "mushroom_island": 14,
-    "mushroom_island_shore": 15,
-    "desert": 2,
-    "desert_m": 130,
-    "savanna": 35,
-    "savanna_m": 163,
-    "mesa": 37,
-    "mesa_bryce": 165,
-    "mesa_plateau_f": 38,
-    "mesa_plateau_f_m": 166,
-    "savanna_plateau": 36,
-    "mesa_plateau": 39,
-    "savanna_plateau_m": 164,
-    "mesa_plateau_m": 167,
-    "ocean": 0,
-    "deep_ocean": 24,
-    "ice_mountains": 13,
-    "desert_hills": 17,
-    "forest_hills": 18,
-    "taiga_hills": 19,
-    "jungle_hills": 22,
-    "birch_forest_hills": 28,
-    "cold_taiga_hills": 31,
-    "mega_taiga_hills": 33,
-    "tall_birch_hills": 156,
-    "mega_spruce_taiga_hills": 161,
-    "plains_m": 128,
-    "frozen_ocean": 10,
-    "extreme_hills_edge": 20
-}
+def minerec_to_minerl_action(minerec_action, next_action=None, gui_camera_scaler=1.0, esc_to_inventory=True):
+    '''
+    Convert minerec action into minerl action.
+    :param minerec_action: action in minerec format
+    :param next_action: next action (optional). If not None, camera is inferred by difference
+                        between states instead of from action directly.
+    :param gui_camera_scaler: additional factor to be applied to camera when gui is open. Useful
+                               when replaying actions recorded with old (<=5.8 versions) of minerec
+                               recorder (should be set to 0.5)
+    :param esc_to_inventory: if True, map ESC key presses to inventory (e) when gui is open.
+    :returns action in minerl format
+    '''
+    ac = {v: 0 for v in KEYMAP.values()}
+    ac["camera"] = np.zeros(2)
+    # Requires current action mouse and keyboard to be present, as well as next action mouse
+    # (if next action is provided at all). Otherwise, returns a noop action.
+    if minerec_action.get("mouse") is None or minerec_action.get("keyboard") is None or \
+       (next_action is not None and next_action.get("mouse") is None):
+            return ac
+
+    keys_pressed = set()
+    keys_pressed.update(minerec_action["keyboard"]["keys"])
+    keys_pressed.update(f"mouse.{b}" for b in minerec_action["mouse"]["buttons"])
+    ac["camera"] = mouse_to_camera(minerec_action["mouse"])
+
+    for key, keyac in KEYMAP.items():
+        if keyac == 'ESC' and minerec_action['isGuiOpen'] and esc_to_inventory and key in keys_pressed:
+            keyac = 'inventory'
+        ac[keyac] = int(key in keys_pressed)
+    if minerec_action['isGuiOpen']:
+        ac["camera"] *= gui_camera_scaler
+
+    # if next_action is provided, camera action can be inferred more accurately
+    # based on next action. Also, next action allows us to convert scroll
+    # into hotbar actions
+    if next_action is not None:
+        if not minerec_action['isGuiOpen']:
+            # if gui is not open, then camera action affects (and can be inferred from)
+            # rotation angles of the agent
+            dpitch = next_action["pitch"] - minerec_action["pitch"]
+            dyaw = next_action["yaw"] - minerec_action["yaw"]
+            ac["camera"] = np.array([dpitch, dyaw])
+        elif next_action['isGuiOpen']:
+            # OTOH, if GUI is open in both current and next step,
+            # camera action moves mouse, so it can be inferred from difference of mouse
+            # positions.
+            # We need to check if the gui is open on the next step, because whenever GUI
+            # is closed, the mouse position is reset to the center of the screen.
+            # Without this check, there would be a "ghost" camera jerk whenever
+            # gui is closed.
+            if "scaledX" in next_action["mouse"]:
+                # scaledX and scaledY report coordinates scaled by guiScale, and as such, are not
+                # affected if player were to switch to a full screen mode. We use them if
+                # available (recordings with newer minerec version)...
+                dpitch = (next_action["mouse"]["scaledY"] - minerec_action["mouse"]["scaledY"]) * CAMERA_SCALER
+                dyaw = (next_action["mouse"]["scaledX"] - minerec_action["mouse"]["scaledX"]) * CAMERA_SCALER
+            else:
+                # ... otherwise, we assume guiScale at recording == 2
+                dpitch = (next_action["mouse"]["y"] - minerec_action["mouse"]["y"]) / 2 * CAMERA_SCALER
+                dyaw = (next_action["mouse"]["x"] - minerec_action["mouse"]["x"])  / 2 * CAMERA_SCALER
+            ac["camera"] = np.array([dpitch, dyaw])
+        if "hotbar" in next_action:
+            # if hotbar state is available, use to to infer hotbar presses
+            if next_action["hotbar"] != minerec_action["hotbar"]:
+                ac[f"hotbar.{next_action['hotbar'] + 1}"] = 1
+        else:
+            # otherwise, propagate dwheel (scroll) action
+            ac["dwheel"] = minerec_action["mouse"]["dwheel"]
+    return ac
+
+# NOTE camera actions are ordered as "pitch" (vertical angle), "yaw" (horizontal angle)
+# hence the unusual conversion ordering
+def mouse_to_camera(mouse_ac):
+    '''
+    Convert mouse movement (dx, dy) (in minerec format) into camera angles (pitch, yaw) (minerl format)
+    '''
+    return CAMERA_SCALER * np.array([mouse_ac["dy"], mouse_ac["dx"]])
+
+def camera_to_mouse(camera_ac):
+    '''
+    Convert camera angles (pitch, yaw) (minerl format) to mouse movement (dx, dy) (minerec format)
+    '''
+    return {"dx": camera_ac[1] / CAMERA_SCALER, "dy": camera_ac[0] / CAMERA_SCALER}

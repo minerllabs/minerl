@@ -4,19 +4,20 @@
   "mixins": [
     "MixinEntityRandom",
     "MixinLargeInventory",
-    "MixinLargeInventorySlots",
     "MixinMinecraftGameloop",
     "MixinMinecraftServerRun",
     "MixinNoGuiInteract",
     "MixinRandomSkinTexture",
-    "MixinSyncClientStats",
     "MixinWorldProviderSpawn",
-    "MixinMergeStatsFix",
-    "MixinForgeHookStatsFix"
+    "MixinKeyboard",
+    "MixinMouse", 
+    "MixinDisplay",
+    "MixinSyncClientStats",
+    "MixinWorldProviderSpawn"
   ],
-  "server": [],
+  "server": [
+  ],
   "client": [
-    "MixinUpdateChunksNoTimeout"
   ],
   "compatibilityLevel": "JAVA_8",
   "minVersion": "0.6.11",

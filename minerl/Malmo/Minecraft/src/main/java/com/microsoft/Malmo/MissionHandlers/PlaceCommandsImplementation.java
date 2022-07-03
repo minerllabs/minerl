@@ -65,7 +65,6 @@ public class PlaceCommandsImplementation extends CommandBase implements ICommand
     private boolean isOverriding;
 
 
-    // TODO: Allow placing items of particular metadata. E.g. MineRL can send "place planks#2" and "place planks".
     public static class PlaceMessage implements IMessage
     {
         public BlockPos pos;

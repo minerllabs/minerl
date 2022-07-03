@@ -48,7 +48,7 @@ Other papers that use the MineRL environment
 - `Multi-task curriculum learning in a complex, visual, hard-exploration domain: Minecraft <https://arxiv.org/abs/2106.14876>`_
 - Follow up paper from the #1 team in 2019 (obtains diamond): `paper <https://arxiv.org/abs/2006.09939>`__, `code <https://github.com/cog-isa/forger>`__.
 - Align-RUDDER: Learning From Few Demonstrations by Reward Redistribution (obtains diamond): `paper <https://arxiv.org/abs/2009.14108>`_, `code <https://github.com/ml-jku/align-rudder>`_.
-
+- IGLU: Interactive Grounded Language Understanding in a Collaborative Environment: `paper <https://arxiv.org/abs/2205.13771>`_ (NEURIPS, 2022)
 Other
 -----
 

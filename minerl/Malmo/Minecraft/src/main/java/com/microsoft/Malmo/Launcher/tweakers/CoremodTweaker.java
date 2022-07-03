@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -90,6 +91,11 @@ public class CoremodTweaker implements ITweaker
                     }
                 }
             }
+
+            Field cleField = classLoader.getClass().getDeclaredField("classLoaderExceptions");
+            cleField.setAccessible(true);
+            Set<String> exceptions = (Set<String>) cleField.get(classLoader);
+            exceptions.remove("org.lwjgl.");
         }
         catch (Throwable t)
         {

@@ -57,12 +57,12 @@ public class PerformanceHelper
     private static String outDir;
     private static boolean performanceEnabled = false;
 
-    /** Initialize scoring. */
+    /** Initialize scoing. */
     static public void update(Configuration configs)
     {
 
         outDir = configs.get(MalmoMod.PERFORMANCE_CONFIGS, "outDir", "").getString();
-        if(outDir.isEmpty() || outDir.equals("NONE") ||  ! Files.exists(Paths.get(outDir)) ){
+        if(outDir.isEmpty() || outDir == "NONE" ||  ! Files.exists(Paths.get(outDir)) ){
             performanceEnabled = false;
             System.out.println("[LOGTOPY] Performance directory not specified.");
         }

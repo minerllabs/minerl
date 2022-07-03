@@ -7,7 +7,6 @@ from minerl.herobraine.hero.test_spaces import assert_equal_recursive
 import numpy as np
 import gym
 import xmltodict
-import pytest
 
 missions_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test')
 old_envs = []
@@ -44,7 +43,7 @@ old_envs.append(dict(
 .. image:: ../assets/treechop4.mp4.gif
   :scale: 100 %
   :alt: 
-In treechop, the agent must collect 64 `minecraft:log`. This replicates a common scenario in Minecraft, as logs are necessary to craft a large amount of items in the game, and are a key resource in Minecraft.
+In treechop, the agent must collect 64 `minercaft:log`. This replicates a common scenario in Minecraft, as logs are necessary to craft a large amount of items in the game, and are a key resource in Minecraft.
 The agent begins in a forest biome (near many trees) with an iron axe for cutting trees. The agent is given +1 reward for obtaining each unit of wood, and the episode terminates once the agent obtains 64 units.\n"""
     },
     max_episode_steps=8000,
@@ -417,16 +416,7 @@ def test_env_space_regressions():
         new_env_xml = newspec._kwargs['env_spec'].to_xml()
         old_xml_dict = xmltodict.parse(old_env_xml)
         new_xml_dict = xmltodict.parse(new_env_xml)
-
-        old_agent_start = old_xml_dict['Mission']['AgentSection']['AgentStart']
-        if old_agent_start is not None and 'Inventory' in old_agent_start:
-            old_agent_start['Inventory']['InventoryObject']['@metadata'] = '0'
-
-        assert_equal_recursive(
-            new_xml_dict,
-            old_xml_dict,
-            ignore=['@generatorOptions', 'Name', 'About', 'ObservationFromDamage'],
-        )
+        assert_equal_recursive(new_xml_dict, old_xml_dict, ignore=['@generatorOptions', 'Name', 'About'])
 
 
 # #######################

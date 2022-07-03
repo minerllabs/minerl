@@ -1,96 +1,64 @@
-### Note: If you are looking for MineRL v1.0 for [OpenAI VPT](https://openai.com/blog/vpt/), you can find it [here](https://github.com/minerllabs/minerl/tree/v1.0.0)
-
 # The [MineRL](http://minerl.io) Python Package
 
 [![Documentation Status](https://readthedocs.org/projects/minerl/badge/?version=latest)](https://minerl.readthedocs.io/en/latest/?badge=latest)
-[![Dev Build status](https://badge.buildkite.com/0717cd35b9a708f0b4ac0b2858eec9ca7d08f6768868d3ac08.svg?branch=dev)](https://buildkite.com/openai-mono/minerl-public-dev)
 [![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
 [![PyPI version](https://badge.fury.io/py/minerl.svg)](https://badge.fury.io/py/minerl)
 [!["Open Issues"](https://img.shields.io/github/issues-raw/minerllabs/minerl.svg)](https://github.com/minerllabs/minerl/issues)
 [![GitHub issues by-label](https://img.shields.io/github/issues/minerllabs/minerl/bug.svg?color=red)](https://github.com/minerllabs/minerl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Abug)
 [![Discord](https://img.shields.io/discord/565639094860775436.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BT9uegr)
 
-
-Python package providing easy to use gym environments and a simple data api for the MineRLv0 dataset. 
+Python package providing easy to use Gym environments and data access for training agents in Minecraft.
 
 **To [get started please read the docs here](http://minerl.io/docs/)!**
 
-![](http://www.minerl.io/docs/_images/demo.gif)
+## MineRL Versions
+
+MineRL consists of three unique versions, each with a slightly different sets of features. See full comparison [here](https://minerl.readthedocs.io/en/v1.0.0/notes/versions.html).
+
+* v1.0: [[Code](https://github.com/minerllabs/minerl)][[Docs](https://minerl.readthedocs.io/en/latest/)]
+  This version you are looking at. Needed for the [OpenAI VPT](https://github.com/openai/Video-Pre-Training) models and the [MineRL BASALT 2022](https://www.aicrowd.com/challenges/neurips-2022-minerl-basalt-competition) competition.
+* v0.4: [[Code](https://github.com/minerllabs/minerl/tree/v0.4)][[Docs](https://minerl.readthedocs.io/en/v0.4.4/)]
+  Version used in the 2021 competitions (Diamond and BASALT). Supports the original [MineRL-v0 dataset](https://arxiv.org/abs/1907.13440). Install with `pip install minerl==0.4`
+* v0.3: [[Code](https://github.com/minerllabs/minerl/tree/pypi_0.3.7)][[Docs](https://minerl.readthedocs.io/en/v0.3.7/)]
+  Version used prior to 2021, including the first two MineRL competitions (2019 and 2020). Supports the original [MineRL-v0 dataset](https://arxiv.org/abs/1907.13440). Install with `pip install minerl==0.3`
+
 ## Installation
 
-With JDK-8 installed run this command
+Install [requirements](https://minerl.readthedocs.io/en/latest/tutorials/index.html) (Java JDK 8 is **required**) and then install MineRL with
 ```
-pip3 install --upgrade minerl
+pip install git+https://github.com/minerllabs/minerl
 ```
 
 ## Basic Usage
 
-Running an environment:
+Can be used much like any Gym environment:
+
 ```python
-import minerl
 import gym
-env = gym.make('MineRLNavigateDense-v0')
+import minerl
 
+# Uncomment to see more logs of the MineRL launch
+# import coloredlogs
+# coloredlogs.install(logging.DEBUG)
 
+env = gym.make("MineRLBasaltBuildVillageHouse-v0")
 obs = env.reset()
 
 done = False
 while not done:
-    action = env.action_space.sample() 
- 
-    # One can also take a no_op action with
-    # action =env.action_space.noop()
-    
- 
-    obs, reward, done, info = env.step(
-        action)
-
+    ac = env.action_space.noop()
+    # Spin around to see what is around us
+    ac["camera"] = [0, 3]
+    obs, reward, done, info = env.step(ac)
+    env.render()
+env.close()
 ```
 
-Sampling the dataset:
+Check the [documentation](https://minerl.readthedocs.io/en/latest) for further examples and notes.
 
-```python
-import minerl
+## Major changes in v1.0
 
-# YOU ONLY NEED TO DO THIS ONCE!
-minerl.data.download('/your/local/path')
-
-data = minerl.data.make(
-    'MineRLObtainDiamond-v0',
-    data_dir='/your/local/path')
-
-# Iterate through a single epoch gathering sequences of at most 32 steps
-for current_state, action, reward, next_state, done \
-    in data.batch_iter(
-        num_epochs=1, seq_len=32):
-
-        # Print the POV @ the first step of the sequence
-        print(current_state['pov'][0])
-
-        # Print the final reward pf the sequence!
-        print(reward[-1])
-
-        # Check if final (next_state) is terminal.
-        print(done[-1])
-
-        # ... do something with the data.
-        print("At the end of trajectories the length"
-              "can be < max_sequence_len", len(reward))
-```
-
-
-Visualizing the dataset:
-
-![viewer|540x272](http://www.minerl.io/docs/_images/cropped_viewer.gif)
-```bash
-
-# Make sure your MINERL_DATA_ROOT is set!
-export MINERL_DATA_ROOT='/your/local/path'
-
-# Visualizes a random trajectory of MineRLObtainDiamondDense-v0
-python3 -m minerl.viewer MineRLObtainDiamondDense-v0
-
-```
-
-## MineRL Competition
-If you're here for the MineRL competition. Please check [the main competition website here](https://www.aicrowd.com/challenges/neurips-2021-minerl-competition).
+- New Minecraft version (11.2 -> 16.5)
+- Larger resolution by default (64x64 -> 640x360)
+- Near-human action-space: no more `craft` and `smelt` actions. Only GUI and mouse control (camera action moves mouse around).
+- Observation space is only pixels, no more inventory observation by default.

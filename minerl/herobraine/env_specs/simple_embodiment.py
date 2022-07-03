@@ -35,7 +35,7 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
 
     def create_observables(self) -> List[TranslationHandler]:
         return [
-            handlers.POVObservation(self.resolution),
+            handlers.POVObservation(self.resolution)
         ]
 
     def create_actionables(self) -> List[TranslationHandler]:
@@ -51,4 +51,4 @@ class SimpleEmbodimentEnvSpec(EnvSpec, ABC):
                ]
 
     def create_monitors(self) -> List[TranslationHandler]:
-        return []  # No base monitor needed
+        return []  # No monitors by default!
