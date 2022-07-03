@@ -1,38 +1,35 @@
-# MineRL v1.0.0 Beta for OpenAI VPT and BASALT 2022
+# The [MineRL](http://minerl.io) Python Package
 
-This is preliminary release of MineRL v1.0.0, with minimal docs for people to get started and find out bugs.
-This will be the MineRL version for the MineRL [BASALT 2022](https://www.aicrowd.com/challenges/neurips-2022-minerl-basalt-competition) competition.
+[![Documentation Status](https://readthedocs.org/projects/minerl/badge/?version=latest)](https://minerl.readthedocs.io/en/latest/?badge=latest)
+[![Downloads](https://pepy.tech/badge/minerl)](https://pepy.tech/project/minerl)
+[![PyPI version](https://badge.fury.io/py/minerl.svg)](https://badge.fury.io/py/minerl)
+[!["Open Issues"](https://img.shields.io/github/issues-raw/minerllabs/minerl.svg)](https://github.com/minerllabs/minerl/issues)
+[![GitHub issues by-label](https://img.shields.io/github/issues/minerllabs/minerl/bug.svg?color=red)](https://github.com/minerllabs/minerl/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3Abug)
+[![Discord](https://img.shields.io/discord/565639094860775436.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/BT9uegr)
 
-This is also the version you need for the OpenAI's VPT models: https://github.com/openai/Video-Pre-Training.
+Python package providing easy to use Gym environments and data access for training agents in Minecraft.
 
-To help us out, **please** report any bugs/errors/confusions to us via Github issues or via the Discord server! This will greatly help us get this package ready.
+**To [get started please read the docs here](http://minerl.io/docs/)!**
 
-Note: Docs are being worked on but available [here](https://minerl.readthedocs.io/en/v1.0.0/). This README contains most you need to know for now.
+## MineRL Versions
+
+MineRL consists of three unique versions, each with a slightly different sets of features. See full comparison [here](https://minerl.readthedocs.io/en/v1.0.0/notes/versions.html).
+
+* v1.0: [[Code](https://github.com/minerllabs/minerl)][[Docs](https://minerl.readthedocs.io/en/latest/)]
+  This version you are looking at. Needed for the [OpenAI VPT](https://github.com/openai/Video-Pre-Training) models and the [MineRL BASALT 2022](https://www.aicrowd.com/challenges/neurips-2022-minerl-basalt-competition) competition.
+* v0.4: [[Code](https://github.com/minerllabs/minerl/tree/v0.4)][[Docs](https://minerl.readthedocs.io/en/v0.4.4/)]
+  Version used in the 2021 competitions (Diamond and BASALT). Supports the original [MineRL-v0 dataset](https://arxiv.org/abs/1907.13440). Install with `pip install minerl==0.4`
+* v0.3: [[Code](https://github.com/minerllabs/minerl/tree/pypi_0.3.7)][[Docs](https://minerl.readthedocs.io/en/v0.3.7/)]
+  Version used prior to 2021, including the first two MineRL competitions (2019 and 2020). Supports the original [MineRL-v0 dataset](https://arxiv.org/abs/1907.13440). Install with `pip install minerl==0.3`
 
 ## Installation
 
-**Requirements**
+Install [requirements](https://minerl.readthedocs.io/en/latest/tutorials/index.html) (Java JDK 8 is **required**) and then install MineRL with
+```
+pip install git+https://github.com/minerllabs/minerl
+```
 
-- Windows or Linux machines. Tested Windows 10 and Ubuntu. MacOS is untested.
-- Python 3. Tested on Python 3.9 and 3.10. Python >3.6 will likely work.
-- Java JDK 8. See instructions [here](https://minerl.readthedocs.io/en/v1.0.0/tutorials/index.html). On Windows, make sure no other Java JRE or JDK installations exist. The safest approach is to uninstall all other Java installations before installing JDK 8 on Windows.
-- `bash` as a valid command. On Windows you have at least two options:
-  - Install [Git](https://git-scm.com/), which comes with Git's version of bash. You might need to reboot computer after installation. Try calling `bash` in powershell/cmd. Or alternatively...
-  - Install [WSL](https://docs.microsoft.com/en-us/windows/wsl/) (tested WSL 2). Note that you do not have to install the library in WSL: it is enough to have WSL installed and `bash` command available to powershell/cmd. **Note** that you also need to install Java JDK 8 on WSL if you use this method (on Debian-based systems: `sudo apt update; sudo apt install openjdk-8-jdk`).
-- If you are running the code on a headless machine (no monitor) or on WSL, you need `xvfb` to run it in a virtual buffer (e.g. `xvfb-run -a python [minerl script]`)
-
-**Installation**
-
-Note: Installation may take 30min or longer, especially on Windows! Installation is on-going as long there are no errors.
-
-Quick installation: `pip install git+https://github.com/minerllabs/minerl@v1.0.0` 
-
-Installation the manual way:
-1. Clone this repository: `git clone -b v1.0.0 https://github.com/minerllabs/minerl`
-2. Enter the cloned repository: `cd minerl`
-3. Install with `pip install .` (note that `-e` flag might not work, same with `python setup.py ....` calls)
-
-## Usage
+## Basic Usage
 
 Can be used much like any Gym environment:
 
@@ -57,15 +54,9 @@ while not done:
 env.close()
 ```
 
-Valid environments are:
-- `MineRLBasaltFindCave-v0`
-- `MineRLBasaltMakeWaterfall-v0`
-- `MineRLBasaltCreateVillageAnimalPen-v0`
-- `MineRLBasaltBuildVillageHouse-v0`
+Check the [documentation](https://minerl.readthedocs.io/en/latest) for further examples and notes.
 
-You can find old environment descriptions [here](https://minerl.readthedocs.io/en/latest/environments/index.html#minerl-basalt-competition-environments), but some aspects have been changed (e.g., different observations and actions, villages may be of different types of villages).
-
-## Changes from previous versions (0.3.7, 0.4.4)
+## Major changes in v1.0
 
 - New Minecraft version (11.2 -> 16.5)
 - Larger resolution by default (64x64 -> 640x360)
