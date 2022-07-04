@@ -57,7 +57,11 @@ def setup(build=True, installdir=malmo_dir):
     return minecraft_dir
 
 
-download()
+if os.environ.get("READTHEDOCS"):
+    # Don't build binaries (requires Java) on readthedocs.io server.
+    print("Skipping Java binaries download/install since READTHEDOCS is set.")
+else:
+    download()
 
 def package_files(directory):
     paths = []
