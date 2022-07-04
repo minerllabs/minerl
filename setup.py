@@ -202,6 +202,7 @@ def prep_mcp():
 
 # Don't build binaries (requires Java) on readthedocs.io server.
 if os.environ.get("READTHEDOCS"):
+    print("READTHEDOCS env var is set; performing partial package install only.")
     cmdclass = {}
 else:
     cmdclass = {
@@ -211,9 +212,9 @@ else:
         'build_malmo': CustomBuild,
         'shadow_develop': ShadowInplace,
     }
+    prep_mcp()
 
 
-prep_mcp()
 setuptools.setup(
     name='minerl',
     version=os.environ.get('MINERL_BUILD_VERSION', '1.0.0'),
