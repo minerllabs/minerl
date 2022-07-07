@@ -53,6 +53,7 @@ class BasaltTimeoutWrapper(gym.Wrapper):
 
     def reset(self):
         self.timeout = self.env.task.max_episode_steps
+        self.num_steps = 0
         return super().reset()
 
     def step(self, action):
@@ -71,7 +72,7 @@ class DoneOnESCWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
         self.episode_over = False
-    
+
     def reset(self):
         self.episode_over = False
         return self.env.reset()
