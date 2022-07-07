@@ -199,8 +199,20 @@ def prep_mcp():
     if os.name == 'nt':
         os.chdir(old_dir)
 
+# Don't build binaries (requires Java) on readthedocs.io server.
+if os.environ.get("READTHEDOCS"):
+    print("READTHEDOCS env var is set; performing partial package install only.")
+    cmdclass = {}
+else:
+    cmdclass = {
+        'bdist_wheel': bdist_wheel,
+        'install': InstallPlatlib,
+        'install_lib': InstallWithMinecraftLib,
+        'build_malmo': CustomBuild,
+        'shadow_develop': ShadowInplace,
+    }
+    prep_mcp()
 
-prep_mcp()
 setuptools.setup(
     name='minerl',
     version=os.environ.get('MINERL_BUILD_VERSION', '1.0.0'),
@@ -219,10 +231,5 @@ setuptools.setup(
     install_requires=requirements,
     distclass=BinaryDistribution,
     include_package_data=True,
-    cmdclass={
-        'bdist_wheel': bdist_wheel,
-        'install': InstallPlatlib,
-        'install_lib': InstallWithMinecraftLib,
-        'build_malmo': CustomBuild,
-        'shadow_develop': ShadowInplace},
+    cmdclass=cmdclass,
 )
