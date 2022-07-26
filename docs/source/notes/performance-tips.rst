@@ -33,7 +33,8 @@ All credits go to Tencent researchers who kindly shared this piece of informatio
 Docker images for headless rendering with GPU
 ------------------------------------------------
 
-The above instructions might not work with a server without root access. You may use `this <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ prebuilt docker (an alternative can be found `here <https://github.com/MineDojo/egl-docker>`_) instead.
+The above instructions might not work with a server without root access. You may use `this <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ prebuilt docker (an alternative can be found `here <https://github.com/MineDojo/egl-docker>`_) instead. These docker images are brought to you by `Seungmin Kim <https://github.com/ehfd>`_, `Xiaojian Ma <https://github.com/jeasinema>`_ and the `MineDoJo <https://minedojo.org>`_ team.
+
 
 To begin with, pull & run this docker on your server. Please make sure your container is running using ``docker ps``
 
@@ -60,7 +61,7 @@ Inside the container, use the following command to verify if the GPU rendering i
 	vglrun /opt/VirtualGL/bin/glxspheres64
 
 
-Then you may install and run ``MineRL`` in the container. Please keep in mind that you need to append `vglrun` to all your runs with GPU rendering. 
+Then you may install and run ``MineRL`` in the container. Please keep in mind that you need to append `vglrun` to all your runs with GPU rendering.
 
 
 
