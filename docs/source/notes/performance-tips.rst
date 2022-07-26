@@ -35,13 +35,11 @@ Docker images for headless rendering with GPU
 
 The above instructions might not work with a server without root access. You may use `this <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ prebuilt docker (an alternative can be found `here <https://github.com/MineDojo/egl-docker>`_) instead. These docker images are brought to you by `Seungmin Kim <https://github.com/ehfd>`_, `Xiaojian Ma <https://github.com/jeasinema>`_ and the `MineDoJo <https://minedojo.org>`_ team.
 
-
 To begin with, pull & run this docker on your server. Please make sure your container is running using ``docker ps``
 
 .. code-block:: bash
 	
 	docker run --gpus 1 -it -e TZ=UTC -e SIZEW=1920 -e SIZEH=1080 -e REFRESH=60 -e DPI=96 -e CDEPTH=24 -e PASSWD=mypasswd -e WEBRTC_ENCODER=nvh264enc -e BASIC_AUTH_PASSWORD=mypasswd -p 8080:8080 ghcr.io/ehfd/nvidia-egl-desktop:latest
-
 
 In another terminal, attach to the previous docker container
 
@@ -60,8 +58,7 @@ Inside the container, use the following command to verify if the GPU rendering i
 	export DISPLAY=:0
 	vglrun /opt/VirtualGL/bin/glxspheres64
 
-
-Then you may install and run ``MineRL`` in the container. Please keep in mind that you need to append `vglrun` to all your runs with GPU rendering.
+Then you may install and run ``MineRL`` in the container. Please keep in mind that you need to append `vglrun` to all your runs to enable GPU rendering.
 
 
 
