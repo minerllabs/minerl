@@ -51,4 +51,4 @@ Inside the container, use the following command to verify if the GPU rendering i
 
 You're good to go! Just prepand your commands with ``vglrun`` to enable GPU rendering.
 
-**Acknoledgement**: This docker image is brought to you by `Xiaojian Ma <https://github.com/jeasinema>`_ and the `MineDoJo <https://minedojo.org>`_ team, and it is developed upon `this <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ project by `Seungmin Kim <https://github.com/ehfd>`_. 
+**Acknoledgement**: This docker image is brought to you by `Xiaojian Ma <https://github.com/jeasinema>`_ and the `MineDoJo <https://minedojo.org>`_ team, and it is developed upon `this project <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ by `Seungmin Kim <https://github.com/ehfd>`_. 
