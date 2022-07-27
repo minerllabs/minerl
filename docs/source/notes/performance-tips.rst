@@ -28,3 +28,27 @@ All credits go to Tencent researchers who kindly shared this piece of informatio
   sudo service lightdm stop
   sudo vglserver_config
   sudo service lightdm start
+  
+  
+Docker images for headless rendering with GPU
+------------------------------------------------
+
+The above instructions might not work with a server without root access. You may use `this <https://github.com/jeasinema/egl-docker>`_ docker file (alternatives can be found `here <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ and `here <https://github.com/MineDojo/egl-docker>`_ instead). 
+
+To begin with, build & run this docker on your server.
+
+.. code-block:: bash
+	
+	git clone https://github.com/jeasinema/egl-docker && cd egl-docker
+	docker build . -t <docker_name>
+	docker run --gpus all -it <docker_name>:latest /bin/bash
+
+Inside the container, use the following command to verify if the GPU rendering is working. If you can see something like ``OpenGL Renderer: NVIDIA GeForce RTX 3090/PCIe/SSE2``, congratulations. Otherwise output like ``OpenGL Renderer: llvmpipe (LLVM 12.0.0, 256 bits)`` indicates you're still using CPU. Feel free to post to `this repo <https://github.com/jeasinema/egl-docker>`_ if you have any issues.
+
+.. code-block:: bash
+
+	vglrun /opt/VirtualGL/bin/glxspheres64
+
+You're good to go! Just prepend your commands with ``vglrun`` to enable GPU rendering.
+
+**Acknowledgements**: This docker image is brought to you by `Xiaojian Ma <https://github.com/jeasinema>`_ and the `MineDoJo <https://minedojo.org>`_ team, and it is developed upon `this project <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ by `Seungmin Kim <https://github.com/ehfd>`_. 
