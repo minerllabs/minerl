@@ -43,7 +43,7 @@ To begin with, build & run this docker on your server.
 	docker build . -t <docker_name>
 	docker run --gpus all -it <docker_name>:latest /bin/bash
 
-Inside the container, use the following command to verify if the GPU rendering is working. If you can see something like ``OpenGL Renderer: NVIDIA GeForce RTX 3090/PCIe/SSE2``, congradtulations. Otherwise output like ``OpenGL Renderer: llvmpipe (LLVM 12.0.0, 256 bits)`` indicates you're still using CPU. Fee free to post to `this repo <https://github.com/jeasinema/egl-docker>`_ if you have any issues.
+Inside the container, use the following command to verify if the GPU rendering is working. If you can see something like ``OpenGL Renderer: NVIDIA GeForce RTX 3090/PCIe/SSE2``, congratulations. Otherwise output like ``OpenGL Renderer: llvmpipe (LLVM 12.0.0, 256 bits)`` indicates you're still using CPU. Fee free to post to `this repo <https://github.com/jeasinema/egl-docker>`_ if you have any issues.
 
 .. code-block:: bash
 
