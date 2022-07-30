@@ -48,9 +48,9 @@ main python package, :code:`minerl`.
 
 3. Now install the :code:`minerl` package!::
 
-        pip install git+https://github.com/minerllabs/minerl@v1.0.0
+        pip install git+https://github.com/minerllabs/minerl
 
 .. note::
 
         You may need the user flag:
-        :code:`pip install git+https://github.com/minerllabs/minerl@v1.0.0 --user` to install properly.
+        :code:`pip install git+https://github.com/minerllabs/minerl --user` to install properly.
