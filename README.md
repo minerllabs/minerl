@@ -9,7 +9,9 @@
 
 Python package providing easy to use Gym environments and data access for training agents in Minecraft.
 
-**To [get started please read the docs here](http://minerl.io/docs/)!**
+Curious to see what people have done with MineRL? See [this page where we collect projects using MineRL](https://minerl.readthedocs.io/en/latest/notes/useful-links.html). **Got a project using MineRL (academic or fun hobby project)?** Edit [this file](https://github.com/minerllabs/minerl/blob/dev/docs/source/notes/useful-links.rst), add links to your projects and create a PR!
+
+To get started with MineRL, [check out the docs here](http://minerl.io/docs/)!
 
 ## MineRL Versions
 
