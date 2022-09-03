@@ -52,7 +52,7 @@ diff -u1 -rN MCP-Reborn-vanilla/README.md MCP-Reborn/README.md
 +- Once you have reached a final result you are happy with, there is a bit of a process to turn it into a JAR file that
 +  can actually run from the game launcher. Go to the "build" folder in the gradle tasks, an run the "build" task. This
 +  will generate the new executable JAR file in the "build/libs/" directory.
-+
++  
 +<img width="266" alt="a647ab0eb336062ffd80c8e053e10266" src="https://user-images.githubusercontent.com/4052647/46925963-a297eb80-d026-11e8-8b02-cb621b559511.png">
 +
 +- With that jar generated, open your Minecraft versions folder. On Linux, this defaults to ~/.minecraft/versions. On
@@ -140,7 +140,7 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 +    }
      }
 @@ -12,4 +35,145 @@
-
+ 
 -apply plugin: 'eclipse'
 +project.repositories.clear()
 +repositories {
@@ -285,7 +285,7 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 +// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 +//
 +// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+ 
 @@ -21,3 +185,7 @@
  group = 'me.yourname'
 -version = '1.0.0'
@@ -294,14 +294,14 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 +mixin {
 +    add sourceSets.main, "modid.refmap.json"
 +}
-
+ 
 @@ -30,6 +198,2 @@
-
+ 
 -repositories {
 -    mavenCentral()
 -
 -}
-
+ 
 @@ -42,4 +206,39 @@
  //    compile 'package-here'
 +    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
@@ -309,7 +309,7 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 +    compile group: 'org.openpnp', name: 'opencv', version: '3.4.2-0'
 +    compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.6.5'
 +
-+    // specify lwjgl deps explicitly to force the download of natives for all
++    // specify lwjgl deps explicitly to force the download of natives for all 
 +    // platforms
 +    compile group: 'org.lwjgl', name: 'lwjgl', version: '3.2.1', classifier: "natives-windows"
 +    // compile group: 'org.lwjgl', name: 'lwjgl', version: '3.2.1', classifier: "natives-osx"
@@ -339,7 +339,7 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 +    // compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version: '3.2.1', classifier: "natives-osx"
 +    compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version: '3.2.1', classifier: "natives-linux"
  }
-
+ 
 +
  project(':mcp') {
 @@ -62,9 +261,18 @@
@@ -356,12 +356,12 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
      }
 +    zip64 = true
  }
-
+ 
 +
 +
 +if (project.hasProperty("args")) {
 +    ext.cmdargs = project.getProperty("args")
-+} else {
++} else { 
 +    ext.cmdargs = ""
 +}
  task runclient(type: JavaExec) {
@@ -441,7 +441,7 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 +
 +    inputs.files fileTree( dir: 'src/main/resources', include:'*.xsd' )
 +    outputs.dir 'src/main/java/com/microsoft/Malmo/Schemas'
-+
++    
 +    doLast {
 +        // first clear the old .java files out of the folder in case some are no longer current
 +        delete fileTree(dir: 'src/main/java/com/microsoft/Malmo/Schemas', include: '*.java')
@@ -577,7 +577,7 @@ diff -u1 -rN MCP-Reborn-vanilla/launchClient.sh MCP-Reborn/launchClient.sh
 +    esac
 +    shift
 +done
-+
++  
 +if ! [[ $port =~ ^-?[0-9]+$ ]]; then
 +    echo "Port value should be numeric"
 +    exit 1
@@ -604,23 +604,23 @@ diff -u1 -rN MCP-Reborn-vanilla/settings.gradle MCP-Reborn/settings.gradle
 @@ -1,2 +1,2 @@
 -rootProject.name = 'mcp-reborn'
 +rootProject.name = 'mcprec'
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/microsoft/Malmo/Utils/CraftingHelper.java MCP-Reborn/src/main/java/com/microsoft/Malmo/Utils/CraftingHelper.java
 --- MCP-Reborn-vanilla/src/main/java/com/microsoft/Malmo/Utils/CraftingHelper.java	1970-01-01 01:00:00.000000000 +0100
 +++ MCP-Reborn/src/main/java/com/microsoft/Malmo/Utils/CraftingHelper.java	2022-06-23 00:28:27.211515359 +0100
 @@ -0,0 +1,807 @@
 +// --------------------------------------------------------------------------------------------------
 +//  Copyright (c) 2016 Microsoft Corporation
-+//
++//  
 +//  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 +//  associated documentation files (the "Software"), to deal in the Software without restriction,
 +//  including without limitation the rights to use, copy, modify, merge, publish, distribute,
 +//  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 +//  furnished to do so, subject to the following conditions:
-+//
++//  
 +//  The above copyright notice and this permission notice shall be included in all copies or
 +//  substantial portions of the Software.
-+//
++//  
 +//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 +//  NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 +//  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -1422,16 +1422,16 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/microsoft/Malmo/Utils/JSONWorl
 @@ -0,0 +1,295 @@
 +// --------------------------------------------------------------------------------------------------
 +//  Copyright (c) 2016 Microsoft Corporation
-+//
++//  
 +//  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 +//  associated documentation files (the "Software"), to deal in the Software without restriction,
 +//  including without limitation the rights to use, copy, modify, merge, publish, distribute,
 +//  sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
 +//  furnished to do so, subject to the following conditions:
-+//
++//  
 +//  The above copyright notice and this permission notice shall be included in all copies or
 +//  substantial portions of the Software.
-+//
++//  
 +//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
 +//  NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 +//  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
@@ -2151,7 +2151,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +            Minecraft.getInstance().getSession().setUsername(username);
 +        }
 +    }
-+
++    
 +    private void setGameSetttings(MissionInit missionInit) {
 +        Minecraft mc = Minecraft.getInstance();
 +        GameSettings settings = mc.gameSettings;
@@ -2355,7 +2355,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +    private Stream<Object> getAgentHandlers() {
 +        return missionInit.getMission().getAgentSection().get(0).getAgentHandlers().getAgentMissionHandlers().stream();
 +    }
-+
++    
 +    private static ServerInitialConditions getServerInit(MissionInit missionInit) {
 +        return missionInit.getMission().getServerSection().getServerInitialConditions();
 +    }
@@ -2372,9 +2372,9 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +                        JSONWorldDataHelper.buildAllStats(infoJson, mc.player);
 +                    });
 +            getAgentHandlers().filter(h -> h instanceof ObservationFromEquippedItem).limit(1)
-+                    .forEach(h -> {
-+                        infoJson.add("equipped_items", getEquippedItemJson());
-+                    });
++		    .forEach(h -> {
++		        infoJson.add("equipped_items", getEquippedItemJson());
++		    });
 +        }
 +
 +        infoJson.addProperty("isGuiOpen", mc.currentScreen != null);
@@ -2394,7 +2394,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +        }
 +        return result;
 +    }
-+
++    
 +    public static JsonObject getEquippedItemJson() {
 +        JsonObject result = new JsonObject();
 +        PlayerEntity player = Minecraft.getInstance().player;
@@ -3315,7 +3315,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/GameSettings.
 +   public int fakeCursorSize = 0;
 +   public String loadWorldFile = null;
 +   public String replayFile = null;
-
+ 
 @@ -182,3 +189,8 @@
        this.syncChunkWrites = Util.getOSType() == Util.OS.WINDOWS;
 -      this.loadOptions();
@@ -3327,7 +3327,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/GameSettings.
 +      // this.loadOptions();
     }
 @@ -680,2 +692,104 @@
-
+ 
 +   public JsonObject optionsJson() {
 +      JsonObject retVal = new JsonObject();
 +
@@ -3435,7 +3435,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListener.java	2022-06-23 00:30:26.581515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/KeyboardListener.java	2022-06-23 00:28:27.231515359 +0100
 @@ -2,4 +2,11 @@
-
+ 
 -import java.util.Locale;
 +import java.util.*;
 +import java.util.stream.Collectors;
@@ -3453,7 +3453,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +   private Set<Integer> accumKeysPressed = new HashSet<>();
 +   private Set<Integer> keysNewlyPressed = new HashSet<>();
 +   private List<Integer> charsPressed = new ArrayList<>();
-
+ 
 @@ -207,3 +218,2 @@
           }
 -
@@ -3491,7 +3491,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +         }
 +      }
 +   }
-
+ 
 -            if (this.mc.gameSettings.keyBindScreenshot.matchesKey(key, scanCode)) {
 -               if (Screen.hasControlDown()) {
 -               }
@@ -3511,7 +3511,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +         this.lastDebugCrashWarning = Util.milliTime();
 +         this.debugCrashWarningsSent = 0L;
 +      }
-
+ 
 -               ScreenShotHelper.saveScreenshot(this.mc.gameDir, this.mc.getMainWindow().getFramebufferWidth(), this.mc.getMainWindow().getFramebufferHeight(), this.mc.getFramebuffer(), (p_212449_1_) -> {
 -                  this.mc.execute(() -> {
 -                     this.mc.ingameGUI.getChatGUI().printChatMessage(p_212449_1_);
@@ -3527,7 +3527,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +            this.mc.gameSettings.saveOptions();
 +            return;
           }
-
+ 
 -         boolean flag = inestedguieventhandler == null || !(inestedguieventhandler.getListener() instanceof TextFieldWidget) || !((TextFieldWidget)inestedguieventhandler.getListener()).canWrite();
 -         if (action != 0 && key == 66 && Screen.hasControlDown() && flag) {
 -            AbstractOption.NARRATOR.setValueIndex(this.mc.gameSettings, 1);
@@ -3537,7 +3537,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +            if (Screen.hasControlDown()) {
              }
 -         }
-
+ 
 -         if (inestedguieventhandler != null) {
 -            boolean[] aboolean = new boolean[]{false};
 -            Screen.wrapScreenError(() -> {
@@ -3556,7 +3556,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +            return;
 +         }
 +      }
-
+ 
 -            }, "keyPressed event handler", inestedguieventhandler.getClass().getCanonicalName());
 -            if (aboolean[0]) {
 -               return;
@@ -3568,7 +3568,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +            ((WithNarratorSettingsScreen)inestedguieventhandler).func_243317_i();
           }
 +      }
-
+ 
 -         if (this.mc.currentScreen == null || this.mc.currentScreen.passEvents) {
 -            InputMappings.Input inputmappings$input = InputMappings.getInputByCode(key, scanCode);
 -            if (action == 0) {
@@ -3594,7 +3594,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 -               }
 +               aboolean[0] = inestedguieventhandler.keyPressed(key, scanCode, modifiers);
 +            }
-
+ 
 -               boolean flag1 = false;
 -               if (this.mc.currentScreen == null) {
 -                  if (key == 256) {
@@ -3613,7 +3613,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +            return;
 +         }
 +      }
-
+ 
 -               if (flag1) {
 -                  KeyBinding.setKeyBindState(inputmappings$input, false);
 +      if (this.mc.currentScreen == null || this.mc.currentScreen.passEvents) {
@@ -3642,7 +3642,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +                  boolean flag2 = InputMappings.isKeyDown(Minecraft.getInstance().getMainWindow().getHandle(), 292);
 +                  this.mc.displayInGameMenu(flag2);
                 }
-
+ 
 -               if (this.mc.gameSettings.showDebugProfilerChart && key >= 48 && key <= 57) {
 -                  this.mc.updateDebugProfilerName(key - 48);
 +               flag1 = InputMappings.isKeyDown(Minecraft.getInstance().getMainWindow().getHandle(), 292) && this.processKeyF3(key);
@@ -3652,7 +3652,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
                 }
              }
 -         }
-
+ 
 +            if (flag1) {
 +               KeyBinding.setKeyBindState(inputmappings$input, false);
 +            } else {
@@ -3666,7 +3666,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 +         }
        }
 @@ -351,20 +378,27 @@
-
+ 
 -   private void onCharEvent(long windowPointer, int codePoint, int modifiers) {
 +   public void onCharEvent(long windowPointer, int codePoint, int modifiers) {
        if (windowPointer == this.mc.getMainWindow().getHandle()) {
@@ -3701,12 +3701,12 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/KeyboardListe
 -               }
              }
 +         }
-
+ 
           }
 -      }
     }
 @@ -387,2 +421,3 @@
-
+ 
 +
     public String getClipboardString() {
 @@ -426,2 +461,44 @@
@@ -3763,7 +3763,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MainWindow.ja
 +      GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
        this.handle = GLFW.glfwCreateWindow(this.width, this.height, titleIn, this.fullscreen && monitor != null ? monitor.getMonitorPointer() : 0L, 0L);
 @@ -280,5 +282,25 @@
-
+ 
 +   public void resize(int newWidth, int newHeight) {
 +      if (width == newWidth && height == newHeight) {
 +         return;
@@ -3790,7 +3790,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MainWindow.ja
 +         this.mc.setGameFocused(true);
        }
 @@ -393,3 +415,7 @@
-
+ 
 -      return i;
 +      double frameBufferToSizeRatio = framebufferWidth / width;
 +      if (framebufferHeight / height != frameBufferToSizeRatio) {
@@ -3836,7 +3836,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 +import net.minecraft.resources.*;
  import net.minecraft.resources.data.PackMetadataSection;
 @@ -242,2 +229,4 @@
-
+ 
 +import static java.lang.Thread.currentThread;
 +
  @OnlyIn(Dist.CLIENT)
@@ -3865,9 +3865,9 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
     public void run() {
 -      this.thread = Thread.currentThread();
 +      this.thread = currentThread();
-
+ 
 @@ -934,10 +924,26 @@
-
+ 
 +      int j = this.timer.getPartialTicks(Util.milliTime());
        if (renderWorldIn) {
 -         int j = this.timer.getPartialTicks(Util.milliTime());
@@ -3881,7 +3881,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 -         this.profiler.startSection("tick");
 +         this.profiler.endStartSection("tick");
 +
-
+ 
           for(int k = 0; k < Math.min(10, j); ++k) {
 +            if (k == 0) {
 +               this.profiler.startSection("PlayRecorderTick");
@@ -3901,7 +3901,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 -
           this.profiler.endSection();
 @@ -949,3 +954,4 @@
-
+ 
 -      this.mouseHelper.updatePlayerLook();
 +
 +      // this.mouseHelper.updatePlayerLook();
@@ -3919,7 +3919,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 +//      if ((double)i1 < AbstractOption.FRAMERATE_LIMIT.getMaxValue()) {
 +//         RenderSystem.limitDisplayFPS(i1);
 +//      }
-
+ 
        this.profiler.endStartSection("yield");
 -      Thread.yield();
 +      // Thread.yield();
@@ -3974,7 +3974,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 -         this.gameTimeTracker.func_233506_b_();
 +         this.gameTimeTracker.stopTracking();
        }
-
+ 
 -      this.profiler = LongTickDetector.func_233523_a_(this.gameTimeTracker.func_233508_d_(), detector);
 +      this.profiler = LongTickDetector.getProfiler(this.gameTimeTracker.getProfiler(), detector);
     }
@@ -3984,7 +3984,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 +         this.profilerResult = this.gameTimeTracker.getResults();
        } else {
 @@ -1055,3 +1084,3 @@
-
+ 
 -      this.profiler = this.gameTimeTracker.func_233508_d_();
 +      this.profiler = this.gameTimeTracker.getProfiler();
     }
@@ -4008,7 +4008,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 +      this.loadWorld(saveFormat.getSavesDir(), worldName, dynamicRegistriesIn, (p_238179_1_) -> {
           return worldSettings.getDatapackCodec();
 @@ -1657,6 +1690,6 @@
-
+ 
 -   private void loadWorld(String worldName, DynamicRegistries.Impl dynamicRegistries, Function<SaveFormat.LevelSave, DatapackCodec> levelSaveToDatapackFunction, Function4<SaveFormat.LevelSave, DynamicRegistries.Impl, IResourceManager, DatapackCodec, IServerConfiguration> quadFunction, boolean vanillaOnly, Minecraft.WorldSelectionType selectionType) {
 +   private void loadWorld(Path savePath, String worldName, DynamicRegistries.Impl dynamicRegistries, Function<SaveFormat.LevelSave, DatapackCodec> levelSaveToDatapackFunction, Function4<SaveFormat.LevelSave, DynamicRegistries.Impl, IResourceManager, DatapackCodec, IServerConfiguration> quadFunction, boolean vanillaOnly, Minecraft.WorldSelectionType selectionType) {
        SaveFormat.LevelSave saveformat$levelsave;
@@ -4053,7 +4053,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 +            this.loadWorld(savePath, worldName, dynamicRegistries, levelSaveToDatapackFunction, quadFunction, vanillaOnly, Minecraft.WorldSelectionType.NONE);
           });
 @@ -1861,3 +1906,3 @@
-
+ 
 -            while(!integratedserver.isThreadAlive()) {
 +            while(!integratedserver.isThreadAlive() && !gameSettings.syncIntegratedServer) {
                 this.runGameLoop(false);
@@ -4067,7 +4067,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/Minecraft.jav
 +   public void setHasPlayerRespawned(boolean hasRespawned) {
 +      this.hasPlayerRespawned = hasRespawned;
 +   }
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.java MCP-Reborn/src/main/java/net/minecraft/client/MouseHelper.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.java	2022-06-23 00:30:26.581515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/MouseHelper.java	2022-06-23 00:28:27.231515359 +0100
@@ -4088,9 +4088,9 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +   private Set<Integer> buttonsPressed = new HashSet<>();
 +   private Set<Integer> accumButtonsPressed = new HashSet<>();
 +   private Set<Integer> buttonsNewlyPressed = new HashSet<>();
-
+ 
 @@ -42,106 +50,126 @@
-
+ 
 -   private void mouseButtonCallback(long handle, int button, int action, int mods) {
 -      if (handle == this.minecraft.getMainWindow().getHandle()) {
 -         boolean flag = action == 1;
@@ -4137,7 +4137,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +            --this.simulatedRightClicks;
 +         }
 +      }
-
+ 
 -            this.activeButton = i;
 -            this.eventTime = NativeUtil.getTime();
 -         } else if (this.activeButton != -1) {
@@ -4149,7 +4149,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +         if (this.minecraft.gameSettings.touchscreen && this.touchScreenCounter++ > 0) {
 +            return;
 +         }
-
+ 
 -            this.activeButton = -1;
 +         this.activeButton = i;
 +         this.eventTime = NativeUtil.getTime();
@@ -4157,7 +4157,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +         if (this.minecraft.gameSettings.touchscreen && --this.touchScreenCounter > 0) {
 +            return;
           }
-
+ 
 -         boolean[] aboolean = new boolean[]{false};
 -         if (this.minecraft.loadingGui == null) {
 -            if (this.minecraft.currentScreen == null) {
@@ -4198,7 +4198,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
              }
           }
 +      }
-
+ 
 -         if (!aboolean[0] && (this.minecraft.currentScreen == null || this.minecraft.currentScreen.passEvents) && this.minecraft.loadingGui == null) {
 -            if (i == 0) {
 -               this.leftDown = flag;
@@ -4215,7 +4215,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +         } else if (i == 1) {
 +            this.rightDown = flag;
 +         }
-
+ 
 -            KeyBinding.setKeyBindState(InputMappings.Type.MOUSE.getOrMakeInput(i), flag);
 -            if (flag) {
 -               if (this.minecraft.player.isSpectator() && i == 2) {
@@ -4233,7 +4233,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
           }
 +      }
 +   }
-
+ 
 +   void scrollCallback(long handle, double xoffset, double yoffset) {
 +      if (handle == minecraft.getMainWindow().getHandle()) {
 +         if (humanInput) {
@@ -4242,7 +4242,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
        }
 +      this.accumDwheel += yoffset;
     }
-
+ 
 -   private void scrollCallback(long handle, double xoffset, double yoffset) {
 -      if (handle == Minecraft.getInstance().getMainWindow().getHandle()) {
 -         double d0 = (this.minecraft.gameSettings.discreteMouseScroll ? Math.signum(yoffset) : yoffset) * this.minecraft.gameSettings.mouseWheelSensitivity;
@@ -4266,7 +4266,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +            if (this.accumulatedScrollDelta != 0.0D && Math.signum(d0) != Math.signum(this.accumulatedScrollDelta)) {
 +               this.accumulatedScrollDelta = 0.0D;
 +            }
-
+ 
 -               this.accumulatedScrollDelta += d0;
 -               float f1 = (float)((int)this.accumulatedScrollDelta);
 -               if (f1 == 0.0F) {
@@ -4277,7 +4277,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +            if (f1 == 0.0F) {
 +               return;
 +            }
-
+ 
 -               this.accumulatedScrollDelta -= (double)f1;
 -               if (this.minecraft.player.isSpectator()) {
 -                  if (this.minecraft.ingameGUI.getSpectatorGui().isMenuActive()) {
@@ -4339,7 +4339,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +            this.addPacksToScreen(window, Arrays.asList(apath));
           });
 @@ -185,4 +217,10 @@
-
+ 
 -   private void cursorPosCallback(long handle, double xpos, double ypos) {
 -      if (handle == Minecraft.getInstance().getMainWindow().getHandle()) {
 +   public void executeIfHuman(Runnable runnable) {
@@ -4352,7 +4352,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +      if (handle == minecraft.getMainWindow().getHandle()) {
           if (this.ignoreFirstMove) {
 @@ -193,29 +231,38 @@
-
+ 
 -         IGuiEventListener iguieventlistener = this.minecraft.currentScreen;
 -         if (iguieventlistener != null && this.minecraft.loadingGui == null) {
 -            double d0 = xpos * (double)this.minecraft.getMainWindow().getScaledWidth() / (double)this.minecraft.getMainWindow().getWidth();
@@ -4375,7 +4375,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
           }
 +      }
 +   }
-
+ 
 -         this.minecraft.getProfiler().startSection("mouse");
 -         if (this.isMouseGrabbed() && this.minecraft.isGameFocused()) {
 -            this.xVelocity += xpos - this.mouseX;
@@ -4396,7 +4396,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +            }, "mouseDragged event handler", iguieventlistener.getClass().getCanonicalName());
           }
 +      }
-
+ 
 -         this.updatePlayerLook();
 -         this.mouseX = xpos;
 -         this.mouseY = ypos;
@@ -4450,7 +4450,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +         double xvel = this.xVelocity;
           this.xVelocity = 0.0D;
 @@ -250,5 +297,5 @@
-
+ 
 -         this.minecraft.getTutorial().onMouseMove(d2, d3);
 +         this.minecraft.getTutorial().onMouseMove(yaw, pitch);
           if (this.minecraft.player != null) {
@@ -4458,7 +4458,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/MouseHelper.j
 +            this.minecraft.player.rotateTowards(yaw, pitch * (double)i);
           }
 @@ -277,6 +324,2 @@
-
+ 
 -   public void setIgnoreFirstMove() {
 -      this.ignoreFirstMove = true;
 -   }
@@ -5014,7 +5014,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Cr
 -   public final WorldOptionsScreen field_238934_c_;
 +   private GameRules gameRules = new GameRules();
 +   public final WorldOptionsScreen worldOptionsScreen;
-
+ 
 -   public CreateWorldScreen(@Nullable Screen p_i242064_1_, WorldSettings p_i242064_2_, DimensionGeneratorSettings p_i242064_3_, @Nullable Path p_i242064_4_, DatapackCodec p_i242064_5_, DynamicRegistries.Impl p_i242064_6_) {
 -      this(p_i242064_1_, p_i242064_5_, new WorldOptionsScreen(p_i242064_6_, p_i242064_3_, BiomeGeneratorTypeScreens.func_239079_a_(p_i242064_3_), OptionalLong.of(p_i242064_3_.getSeed())));
 +   public CreateWorldScreen(@Nullable Screen p_i242064_1_, WorldSettings p_i242064_2_, DimensionGeneratorSettings dimensionGeneratorSettings, @Nullable Path p_i242064_4_, DatapackCodec p_i242064_5_, DynamicRegistries.Impl dynamicRegistries) {
@@ -5101,7 +5101,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Cr
 -            worldsettings = new WorldSettings(this.worldNameField.getText().trim(), this.field_228197_f_.field_228218_f_, this.hardCoreMode, this.field_238937_w_, this.allowCheats && !this.hardCoreMode, this.field_238932_M_, this.field_238933_b_);
 +            worldsettings = new WorldSettings(this.worldNameField.getText().trim(), this.gameMode.gameType, this.hardCoreMode, this.difficulty, this.allowCheats && !this.hardCoreMode, this.gameRules, this.datapackCodec);
           }
-
+ 
 -         this.minecraft.createWorld(this.saveDirName, worldsettings, this.field_238934_c_.func_239055_b_(), dimensiongeneratorsettings);
 +         this.minecraft.createWorld(this.saveDirName, worldsettings, this.worldOptionsScreen.getDynamicRegistries(), dimensiongeneratorsettings);
        }
@@ -5120,7 +5120,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Cr
 +         this.difficulty = this.field_238936_v_;
           this.field_238929_E_.active = true;
 @@ -286,3 +292,3 @@
-
+ 
 -      this.field_228197_f_ = p_228200_1_;
 +      this.gameMode = p_228200_1_;
        this.func_228199_a_();
@@ -5135,7 +5135,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Cr
 +            this.field_228198_g_ = this.gameMode;
           }
 @@ -317,3 +323,3 @@
-
+ 
 -      this.field_238934_c_.func_239059_b_(this.inMoreWorldOptionsDisplay);
 +      this.worldOptionsScreen.func_239059_b_(this.inMoreWorldOptionsDisplay);
        this.worldNameField.setVisible(!this.inMoreWorldOptionsDisplay);
@@ -5184,7 +5184,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Cr
 +                  this.worldOptionsScreen.func_243447_a(p_241623_2_);
                    p_241623_2_.close();
 @@ -547,3 +554,3 @@
-
+ 
 -         this.field_243416_G.setEnabledPacks(this.field_238933_b_.getEnabled());
 +         this.field_243416_G.setEnabledPacks(this.datapackCodec.getEnabled());
           return Pair.of(file1, this.field_243416_G);
@@ -5192,7 +5192,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Cr
        private final String field_228217_e_;
 -      private final GameType field_228218_f_;
 +      private final GameType gameType;
-
+ 
 @@ -573,3 +580,3 @@
           this.field_228217_e_ = p_i225940_3_;
 -         this.field_228218_f_ = p_i225940_4_;
@@ -5217,7 +5217,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Ed
        this.addButton(new Button(this.width / 2 - 100, this.height / 4 + 120 + 5, 200, 20, new TranslationTextComponent("selectWorld.edit.export_worldgen_settings"), (p_239023_1_) -> {
 -         DynamicRegistries.Impl dynamicregistries$impl = DynamicRegistries.func_239770_b_();
 +         DynamicRegistries.Impl dynamicregistries$impl = DynamicRegistries.getImpl();
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/EnchantmentScreen.java MCP-Reborn/src/main/java/net/minecraft/client/gui/screen/EnchantmentScreen.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/EnchantmentScreen.java	2022-06-23 00:30:26.581515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/gui/screen/EnchantmentScreen.java	2022-06-23 00:28:27.241515359 +0100
@@ -5279,7 +5279,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Ma
 +import net.minecraft.profiler.IResultableProfiler;
  import net.minecraft.realms.RealmsBridgeScreen;
 @@ -37,2 +48,3 @@
-
+ 
 +
  @OnlyIn(Dist.CLIENT)
 @@ -64,3 +76,3 @@
@@ -5341,7 +5341,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Op
     public static OptimizeWorldScreen func_239025_a_(Minecraft p_239025_0_, BooleanConsumer p_239025_1_, DataFixer p_239025_2_, SaveFormat.LevelSave p_239025_3_, boolean p_239025_4_) {
 -      DynamicRegistries.Impl dynamicregistries$impl = DynamicRegistries.func_239770_b_();
 +      DynamicRegistries.Impl dynamicregistries$impl = DynamicRegistries.getImpl();
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/OptionsScreen.java MCP-Reborn/src/main/java/net/minecraft/client/gui/screen/OptionsScreen.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/OptionsScreen.java	2022-06-23 00:30:26.581515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/gui/screen/OptionsScreen.java	2022-06-23 00:28:27.241515359 +0100
@@ -5385,7 +5385,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +   private DimensionGeneratorSettings dimensionGeneratorSettings;
     private Optional<BiomeGeneratorTypeScreens> field_239040_n_;
 @@ -72,5 +74,5 @@
-
+ 
 -   public WorldOptionsScreen(DynamicRegistries.Impl p_i242065_1_, DimensionGeneratorSettings p_i242065_2_, Optional<BiomeGeneratorTypeScreens> p_i242065_3_, OptionalLong p_i242065_4_) {
 -      this.field_239038_l_ = p_i242065_1_;
 -      this.field_239039_m_ = p_i242065_2_;
@@ -5453,7 +5453,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +      this.dimensionGeneratorSettings = p_239043_1_;
     }
 @@ -258,8 +260,11 @@
-
+ 
 -   public DimensionGeneratorSettings func_239054_a_(boolean p_239054_1_) {
 -      OptionalLong optionallong = this.func_243449_f();
 -      return this.field_239039_m_.create(p_239054_1_, optionallong);
@@ -5464,7 +5464,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +      }
 +      return this.dimensionGeneratorSettings.create(isHardcore, optionalSeed);
     }
-
+ 
 -   private OptionalLong func_243449_f() {
 +   private OptionalLong getWorldSeed() {
        String s = this.field_239033_g_.getText();
@@ -5479,7 +5479,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +      if (this.dimensionGeneratorSettings.isDebug()) {
           this.field_239034_h_.visible = false;
 @@ -301,4 +306,4 @@
-
+ 
 -   public DynamicRegistries.Impl func_239055_b_() {
 -      return this.field_239038_l_;
 +   public DynamicRegistries.Impl getDynamicRegistries() {
@@ -5511,7 +5511,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +         WorldSummary worldsummary = entry.worldSelector;
           NarratorChatListener.INSTANCE.say((new TranslationTextComponent("narrator.select", new TranslationTextComponent("narrator.select.world", worldsummary.getDisplayName(), new Date(worldsummary.getLastTimePlayed()), worldsummary.isHardcoreModeEnabled() ? new TranslationTextComponent("gameMode.hardcore") : new TranslationTextComponent("gameMode." + worldsummary.getEnumGameType().getName()), worldsummary.getCheatsEnabled() ? new TranslationTextComponent("selectWorld.cheats") : StringTextComponent.EMPTY, worldsummary.getVersionName()))).getString());
 @@ -127,3 +127,3 @@
-
+ 
 -      this.worldSelection.func_214324_a(entry != null && !entry.field_214451_d.isLocked());
 +      this.worldSelection.setActive(entry != null && !entry.worldSelector.isLocked());
     }
@@ -5543,7 +5543,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +         String s1 = this.worldSelector.getFileName() + " (" + WorldSelectionList.field_214377_b.format(new Date(this.worldSelector.getLastTimePlayed())) + ")";
           if (StringUtils.isEmpty(s)) {
 @@ -176,8 +176,8 @@
-
+ 
 -         ITextComponent itextcomponent = this.field_214451_d.getDescription();
 -         this.field_214449_b.fontRenderer.drawString(p_230432_1_, s, (float)(p_230432_4_ + 32 + 3), (float)(p_230432_3_ + 1), 16777215);
 -         this.field_214449_b.fontRenderer.drawString(p_230432_1_, s1, (float)(p_230432_4_ + 32 + 3), (float)(p_230432_3_ + 9 + 3), 8421504);
@@ -5596,7 +5596,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +               this.loadWorld();
                 return true;
 @@ -236,15 +236,15 @@
-
+ 
 -      public void func_214438_a() {
 -         if (!this.field_214451_d.isLocked()) {
 -            if (this.field_214451_d.askToCreateBackup()) {
@@ -5611,7 +5611,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
                    if (p_214436_1_) {
 -                     String s = this.field_214451_d.getFileName();
 +                     String s = this.worldSelector.getFileName();
-
+ 
 -                     try (SaveFormat.LevelSave saveformat$levelsave = this.field_214449_b.getSaveLoader().getLevelSave(s)) {
 +                     try (SaveFormat.LevelSave saveformat$levelsave = this.minecraft.getSaveLoader().getLevelSave(s)) {
                          EditWorldScreen.func_239019_a_(saveformat$levelsave);
@@ -5620,7 +5620,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +                        SystemToast.func_238535_a_(this.minecraft, s);
                          WorldSelectionList.LOGGER.error("Failed to backup level {}", s, ioexception);
 @@ -253,13 +253,13 @@
-
+ 
 -                  this.func_214443_e();
 +                  this.loadWorldImpl();
                 }, itextcomponent, itextcomponent1, false));
@@ -5644,7 +5644,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 -                     this.field_214449_b.displayGuiScreen(this.field_214450_c);
 +                     this.minecraft.displayGuiScreen(this.field_214450_c);
                    }
-
+ 
 -               }, new TranslationTextComponent("selectWorld.versionQuestion"), new TranslationTextComponent("selectWorld.versionWarning", this.field_214451_d.getVersionName(), new TranslationTextComponent("selectWorld.versionJoinButton"), DialogTexts.GUI_CANCEL)));
 +               }, new TranslationTextComponent("selectWorld.versionQuestion"), new TranslationTextComponent("selectWorld.versionWarning", this.worldSelector.getVersionName(), new TranslationTextComponent("selectWorld.versionJoinButton"), DialogTexts.GUI_CANCEL)));
              } else {
@@ -5662,14 +5662,14 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +               this.minecraft.displayGuiScreen(new WorkingScreen());
 +               SaveFormat saveformat = this.minecraft.getSaveLoader();
 +               String s = this.worldSelector.getFileName();
-
+ 
 @@ -288,3 +288,3 @@
                 } catch (IOException ioexception) {
 -                  SystemToast.func_238538_b_(this.field_214449_b, s);
 +                  SystemToast.func_238538_b_(this.minecraft, s);
                    WorldSelectionList.LOGGER.error("Failed to delete world {}", s, ioexception);
 @@ -297,4 +297,4 @@
-
+ 
 -            this.field_214449_b.displayGuiScreen(this.field_214450_c);
 -         }, new TranslationTextComponent("selectWorld.deleteQuestion"), new TranslationTextComponent("selectWorld.deleteWarning", this.field_214451_d.getDisplayName()), new TranslationTextComponent("selectWorld.deleteButton"), DialogTexts.GUI_CANCEL));
 +            this.minecraft.displayGuiScreen(this.field_214450_c);
@@ -5679,7 +5679,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
        public void func_214444_c() {
 -         String s = this.field_214451_d.getFileName();
 +         String s = this.worldSelector.getFileName();
-
+ 
           try {
 -            SaveFormat.LevelSave saveformat$levelsave = this.field_214449_b.getSaveLoader().getLevelSave(s);
 -            this.field_214449_b.displayGuiScreen(new EditWorldScreen((p_239096_3_) -> {
@@ -5687,7 +5687,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +            this.minecraft.displayGuiScreen(new EditWorldScreen((p_239096_3_) -> {
                 try {
 @@ -319,6 +319,6 @@
-
+ 
 -               this.field_214449_b.displayGuiScreen(this.field_214450_c);
 +               this.minecraft.displayGuiScreen(this.field_214450_c);
              }, saveformat$levelsave));
@@ -5701,7 +5701,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 -         DynamicRegistries.Impl dynamicregistries$impl = DynamicRegistries.func_239770_b_();
 +         this.showLoadWorldScreen();
 +         DynamicRegistries.Impl dynamicregistries$impl = DynamicRegistries.getImpl();
-
+ 
           try (
 -            SaveFormat.LevelSave saveformat$levelsave = this.field_214449_b.getSaveLoader().getLevelSave(this.field_214451_d.getFileName());
 -            Minecraft.PackManager minecraft$packmanager = this.field_214449_b.reloadDatapacks(dynamicregistries$impl, Minecraft::loadDataPackCodec, Minecraft::loadWorld, false, saveformat$levelsave);
@@ -5733,7 +5733,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +               this.minecraft.displayGuiScreen(this.field_214450_c);
              }, new TranslationTextComponent("selectWorld.recreate.error.title"), new TranslationTextComponent("selectWorld.recreate.error.text")));
 @@ -359,7 +359,7 @@
-
+ 
 -      private void func_214443_e() {
 -         this.field_214449_b.getSoundHandler().play(SimpleSound.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 -         if (this.field_214449_b.getSaveLoader().canLoadWorld(this.field_214451_d.getFileName())) {
@@ -5746,7 +5746,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +            this.minecraft.loadWorld(this.worldSelector.getFileName());
           }
 @@ -368,4 +368,4 @@
-
+ 
 -      private void func_241653_f_() {
 -         this.field_214449_b.forcedScreenTick(new DirtMessageScreen(new TranslationTextComponent("selectWorld.data_read")));
 +      private void showLoadWorldScreen() {
@@ -5780,7 +5780,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/gui/screen/Wo
 +      this.setActive(false);
        this.setFocusedDefault(this.searchField);
 @@ -99,7 +99,7 @@
-
+ 
 -   public void func_214324_a(boolean p_214324_1_) {
 -      this.selectButton.active = p_214324_1_;
 -      this.deleteButton.active = p_214324_1_;
@@ -5862,12 +5862,12 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/network/play/
     private Set<RegistryKey<World>> field_239162_s_;
 -   private DynamicRegistries field_239163_t_ = DynamicRegistries.func_239770_b_();
 +   private DynamicRegistries field_239163_t_ = DynamicRegistries.getImpl();
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/BubbleColumnUpParticle.java MCP-Reborn/src/main/java/net/minecraft/client/particle/BubbleColumnUpParticle.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/BubbleColumnUpParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/BubbleColumnUpParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -15,6 +16,6 @@
@@ -5885,7 +5885,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Bubb
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/BubbleParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/BubbleParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -15,6 +16,6 @@
@@ -5903,7 +5903,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Clou
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/CloudParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/CloudParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -23,3 +24,3 @@
@@ -5920,7 +5920,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Crit
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/CritParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/CritParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -18,3 +19,3 @@
@@ -5937,7 +5937,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Curr
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/CurrentDownParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/CurrentDownParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -16,3 +17,3 @@
@@ -5949,7 +5949,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Dece
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/DeceleratingParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/DeceleratingParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -16,3 +17,3 @@
@@ -5961,7 +5961,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Drip
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/DripParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/DripParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -253,3 +254,3 @@
@@ -5993,7 +5993,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Ench
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/EnchantmentTableParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/EnchantmentTableParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -33,3 +34,3 @@
@@ -6024,7 +6024,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Lava
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/LavaParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/LavaParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -17,3 +18,3 @@
@@ -6068,7 +6068,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Poof
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/PoofParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/PoofParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -14,5 +15,5 @@
@@ -6084,7 +6084,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Port
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/PortalParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/PortalParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -29,3 +30,3 @@
@@ -6096,7 +6096,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Rain
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/RainParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/RainParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -14,3 +15,3 @@
@@ -6118,7 +6118,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Reds
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/RedstoneParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/RedstoneParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -18,8 +19,8 @@
@@ -6139,7 +6139,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Reve
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/ReversePortalParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/ReversePortalParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -12,3 +13,3 @@
@@ -6169,7 +6169,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Squi
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/SquidInkParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/SquidInkParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -15,3 +16,3 @@
@@ -6181,7 +6181,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Susp
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/SuspendedTownParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/SuspendedTownParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -20,3 +21,3 @@
@@ -6211,7 +6211,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/Wate
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/particle/WaterWakeParticle.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/particle/WaterWakeParticle.java	2022-06-23 00:28:27.251515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import net.minecraft.client.world.ClientWorld;
 @@ -15,6 +16,6 @@
@@ -6298,7 +6298,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/renderer/enti
     private static final ResourceLocation ENDERMAN_TEXTURES = new ResourceLocation("textures/entity/enderman/enderman.png");
 -   private final Random rnd = new Random();
 +   private final Random rnd = new Random(0);
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/renderer/entity/FallingBlockRenderer.java MCP-Reborn/src/main/java/net/minecraft/client/renderer/entity/FallingBlockRenderer.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/renderer/entity/FallingBlockRenderer.java	2022-06-23 00:30:26.591515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/renderer/entity/FallingBlockRenderer.java	2022-06-23 00:28:27.251515359 +0100
@@ -6314,7 +6314,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/renderer/enti
     private final net.minecraft.client.renderer.ItemRenderer itemRenderer;
 -   private final Random random = new Random();
 +   private final Random random = new Random(0);
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/renderer/tileentity/PistonTileEntityRenderer.java MCP-Reborn/src/main/java/net/minecraft/client/renderer/tileentity/PistonTileEntityRenderer.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/renderer/tileentity/PistonTileEntityRenderer.java	2022-06-23 00:30:26.601515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/renderer/tileentity/PistonTileEntityRenderer.java	2022-06-23 00:28:27.261515359 +0100
@@ -6353,14 +6353,14 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/util/ClientRe
 +import java.util.Comparator;
  import java.util.List;
 @@ -31,4 +32,4 @@
-
+ 
 -   public void func_243196_a(Iterable<IRecipe<?>> p_243196_1_) {
 -      Map<RecipeBookCategories, List<List<IRecipe<?>>>> map = func_243201_b(p_243196_1_);
 +   public void func_243196_a(Iterable<IRecipe<?>> recipes) {
 +      Map<RecipeBookCategories, List<List<IRecipe<?>>>> map = categorize(recipes);
        Map<RecipeBookCategories, List<RecipeList>> map1 = Maps.newHashMap();
 @@ -47,3 +48,3 @@
-
+ 
 -   private static Map<RecipeBookCategories, List<List<IRecipe<?>>>> func_243201_b(Iterable<IRecipe<?>> p_243201_0_) {
 +   private static Map<RecipeBookCategories, List<List<IRecipe<?>>>> categorize(Iterable<IRecipe<?>> p_243201_0_) {
        Map<RecipeBookCategories, List<List<IRecipe<?>>>> map = Maps.newHashMap();
@@ -6384,7 +6384,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/util/InputMap
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/client/util/InputMappings.java	2022-06-23 00:30:26.601515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/client/util/InputMappings.java	2022-06-23 00:28:27.271515359 +0100
 @@ -64,7 +64,7 @@
-
+ 
 -   public static void setMouseCallbacks(long p_216503_0_, GLFWCursorPosCallbackI p_216503_2_, GLFWMouseButtonCallbackI p_216503_3_, GLFWScrollCallbackI p_216503_4_, GLFWDropCallbackI p_216503_5_) {
 -      GLFW.glfwSetCursorPosCallback(p_216503_0_, p_216503_2_);
 -      GLFW.glfwSetMouseButtonCallback(p_216503_0_, p_216503_3_);
@@ -6428,7 +6428,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/world/ClientW
 +         this.entitiesByUUID.remove(entity.getUniqueID());
           entity.remove();
 @@ -327,2 +329,7 @@
-
+ 
 +   @Nullable
 +   public Entity getEntityByUUID(UUID uuid) {
 +      return this.entitiesById.get(this.entitiesByUUID.get(uuid));
@@ -6444,22 +6444,22 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/command/Commands.jav
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/command/Commands.java	2022-06-23 00:30:26.611515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/command/Commands.java	2022-06-23 00:28:27.271515359 +0100
 @@ -169,3 +169,3 @@
-
+ 
 -      if (envType.field_237220_e_) {
 +      if (envType.dedicated) {
           BanIpCommand.register(this.dispatcher);
 @@ -185,3 +185,3 @@
-
+ 
 -      if (envType.field_237219_d_) {
 +      if (envType.integrated) {
           PublishCommand.register(this.dispatcher);
 @@ -355,8 +355,8 @@
-
+ 
 -      private final boolean field_237219_d_;
 -      private final boolean field_237220_e_;
 +      private final boolean integrated;
 +      private final boolean dedicated;
-
+ 
 -      private EnvironmentType(boolean p_i232149_3_, boolean p_i232149_4_) {
 -         this.field_237219_d_ = p_i232149_3_;
 -         this.field_237220_e_ = p_i232149_4_;
@@ -6566,7 +6566,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/entity/LivingEntity.
 +               this.attackedAtYaw = (float)((int)(RandomHelper.nextDouble("attackEntityFrom") * 2.0D) * 180);
              }
 @@ -1869,3 +1869,3 @@
-
+ 
 -   public void travel(Vector3d travelVector) {
 +      public void travel(Vector3d travelVector) {
        if (this.isServerWorld() || this.canPassengerSteer()) {
@@ -6648,7 +6648,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/entity/ai/RandomPosi
        double d0 = Double.NEGATIVE_INFINITY;
 -      BlockPos blockpos = p_226339_0_.getPosition();
 +      BlockPos blockpos = creatureEntity.getPosition();
-
+ 
 @@ -98,5 +100,5 @@
              int l = blockpos1.getZ();
 -            if (p_226339_0_.detachHome() && p_226339_1_ > 1) {
@@ -6659,12 +6659,12 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/entity/ai/RandomPosi
 +               if (creatureEntity.getPosX() > (double)blockpos2.getX()) {
                    j -= random.nextInt(p_226339_1_ / 2);
 @@ -106,3 +108,3 @@
-
+ 
 -               if (p_226339_0_.getPosZ() > (double)blockpos2.getZ()) {
 +               if (creatureEntity.getPosZ() > (double)blockpos2.getZ()) {
                    l -= random.nextInt(p_226339_1_ / 2);
 @@ -113,7 +115,7 @@
-
+ 
 -            BlockPos blockpos3 = new BlockPos((double)j + p_226339_0_.getPosX(), (double)k + p_226339_0_.getPosY(), (double)l + p_226339_0_.getPosZ());
 -            if (blockpos3.getY() >= 0 && blockpos3.getY() <= p_226339_0_.world.getHeight() && (!flag || p_226339_0_.isWithinHomeDistanceFromPosition(blockpos3)) && (!p_226339_12_ || pathnavigator.canEntityStandOnPos(blockpos3))) {
 +            BlockPos blockpos3 = new BlockPos((double)j + creatureEntity.getPosX(), (double)k + creatureEntity.getPosY(), (double)l + creatureEntity.getPosZ());
@@ -6676,7 +6676,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/entity/ai/RandomPosi
 +                     return creatureEntity.world.getBlockState(p_226341_1_).getMaterial().isSolid();
                    });
 @@ -121,5 +123,5 @@
-
+ 
 -               if (p_226339_5_ || !p_226339_0_.world.getFluidState(blockpos3).isTagged(FluidTags.WATER)) {
 -                  PathNodeType pathnodetype = WalkNodeProcessor.func_237231_a_(p_226339_0_.world, blockpos3.toMutable());
 -                  if (p_226339_0_.getPathPriority(pathnodetype) == 0.0F) {
@@ -6738,7 +6738,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/entity/player/Server
           int j1 = this.func_205735_q(i1);
 -         int k1 = (new Random()).nextInt(i1);
 +         int k1 = (new Random(0)).nextInt(i1);
-
+ 
 @@ -927,6 +927,3 @@
        if (!(containerToSend.getSlot(slotInd) instanceof CraftingResultSlot)) {
 -         if (containerToSend == this.container) {
@@ -6762,7 +6762,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/inventory/InventoryH
  public class InventoryHelper {
 -   private static final Random RANDOM = new Random();
 +   private static final Random RANDOM = new Random(0);
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/inventory/container/EnchantmentContainer.java MCP-Reborn/src/main/java/net/minecraft/inventory/container/EnchantmentContainer.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/inventory/container/EnchantmentContainer.java	2022-06-23 00:30:26.631515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/inventory/container/EnchantmentContainer.java	2022-06-23 00:28:27.301515359 +0100
@@ -6852,7 +6852,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/profiler/LongTickDet
     private final File field_233520_e_ = null;
 -   private IResultableProfiler field_233521_f_;
 +   private IResultableProfiler profiler;
-
+ 
 -   public IProfiler func_233522_a_() {
 -      this.field_233521_f_ = new Profiler(this.field_233517_b_, () -> {
 -         return this.field_233519_d_;
@@ -6875,7 +6875,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/profiler/LongTickDet
 +         this.profiler = EmptyProfiler.INSTANCE;
           if (iprofileresult.nanoTime() >= this.field_233518_c_) {
 @@ -44,4 +44,4 @@
-
+ 
 -   public static IProfiler func_233523_a_(IProfiler p_233523_0_, @Nullable LongTickDetector p_233523_1_) {
 -      return p_233523_1_ != null ? IProfiler.func_233513_a_(p_233523_1_.func_233522_a_(), p_233523_0_) : p_233523_0_;
 +   public static IProfiler getProfiler(IProfiler p_233523_0_, @Nullable LongTickDetector p_233523_1_) {
@@ -6888,7 +6888,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/profiler/Profiler.ja
     private Profiler.Section field_230079_k_;
 -   private final boolean field_226230_l_;
 +   private final boolean warnSlow;
-
+ 
 -   public Profiler(LongSupplier p_i231482_1_, IntSupplier p_i231482_2_, boolean p_i231482_3_) {
 -      this.startTime = p_i231482_1_.getAsLong();
 -      this.field_233501_g_ = p_i231482_1_;
@@ -6918,7 +6918,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/profiler/TimeTracker
 +   private final LongSupplier nanoTimeSupplier;
 +   private final IntSupplier tickSupplier;
 +   private IResultableProfiler profiler = EmptyProfiler.INSTANCE;
-
+ 
 -   public TimeTracker(LongSupplier p_i231483_1_, IntSupplier p_i231483_2_) {
 -      this.field_233502_a_ = p_i231483_1_;
 -      this.field_233503_b_ = p_i231483_2_;
@@ -6926,31 +6926,31 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/profiler/TimeTracker
 +      this.nanoTimeSupplier = nanoTimeSupplier;
 +      this.tickSupplier = tickSupplier;
     }
-
+ 
 -   public boolean func_233505_a_() {
 -      return this.field_233504_c_ != EmptyProfiler.INSTANCE;
 +   public boolean isTracking() {
 +      return this.profiler != EmptyProfiler.INSTANCE;
     }
-
+ 
 -   public void func_233506_b_() {
 -      this.field_233504_c_ = EmptyProfiler.INSTANCE;
 +   public void stopTracking() {
 +      this.profiler = EmptyProfiler.INSTANCE;
     }
-
+ 
 -   public void func_233507_c_() {
 -      this.field_233504_c_ = new Profiler(this.field_233502_a_, this.field_233503_b_, true);
 +   public void startTracking() {
 +      this.profiler = new Profiler(this.nanoTimeSupplier, this.tickSupplier, true);
     }
-
+ 
 -   public IProfiler func_233508_d_() {
 -      return this.field_233504_c_;
 +   public IProfiler getProfiler() {
 +      return this.profiler;
     }
-
+ 
 -   public IProfileResult func_233509_e_() {
 -      return this.field_233504_c_.getResults();
 +   public IProfileResult getResults() {
@@ -6964,7 +6964,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/resources/FallbackRe
 +      this.resourcePacks.add(new JavaResourcePack());
     }
 @@ -47,3 +48,3 @@
-
+ 
 -      for(int i = this.resourcePacks.size() - 1; i >= 0; --i) {
 +      for(int i = 0; i < resourcePacks.size(); i++) {
           IResourcePack iresourcepack1 = this.resourcePacks.get(i);
@@ -7099,7 +7099,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/Main.java MCP
 +               dimensiongeneratorsettings = DimensionGeneratorSettings.fromDynamicRegistries(dynamicregistries$impl);
              } else {
 @@ -166,4 +168,14 @@
-
+ 
 +
              return dedicatedserver1;
           });
@@ -7149,7 +7149,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +   private float tickTimeRaw;
     private final Executor backgroundExecutor;
 @@ -228,2 +233,9 @@
-
+ 
 +   private String worldZipPrefix;
 +   private String uploadPath;
 +   private Future uploadFuture;
@@ -7164,7 +7164,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +         atomicreference.get().serverLoop();
        }, "Server thread");
 @@ -303,3 +315,3 @@
-
+ 
 -   protected void func_240800_l__() {
 +   protected void loadWorld() {
        this.setResourcePackFromWorld();
@@ -7184,7 +7184,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +            findSpawnPos(serverworld, iserverworldinfo, dimensiongeneratorsettings.hasBonusChest(), flag, true);
              iserverworldinfo.setInitialized(true);
 @@ -382,15 +394,13 @@
-
+ 
 -   private static void func_240786_a_(ServerWorld p_240786_0_, IServerWorldInfo p_240786_1_, boolean hasBonusChest, boolean p_240786_3_, boolean p_240786_4_) {
 -      ChunkGenerator chunkgenerator = p_240786_0_.getChunkProvider().getChunkGenerator();
 +   private static void findSpawnPos(ServerWorld world, IServerWorldInfo worldInfo, boolean hasBonusChest, boolean p_240786_3_, boolean p_240786_4_) {
@@ -7207,7 +7207,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +
           if (blockpos == null) {
 @@ -399,2 +409,11 @@
-
+ 
 +         if (spawnInVillage) {
 +            blockpos = chunkgenerator.func_235956_a_(world, Structure.VILLAGE, blockpos, 1024, false);
 +            if (blockpos == null) {
@@ -7219,7 +7219,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +
           boolean flag = false;
 @@ -408,3 +427,3 @@
-
+ 
 -         p_240786_1_.setSpawn(chunkpos.asBlockPos().add(8, chunkgenerator.getGroundHeight(), 8), 0.0F);
 +         worldInfo.setSpawn(chunkpos.asBlockPos().add(8, chunkgenerator.getGroundHeight(), 8), 0.0F);
           int i1 = 0;
@@ -7241,7 +7241,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 -
     }
 @@ -613,3 +631,3 @@
-
+ 
 -   protected void func_240802_v_() {
 +   protected void serverLoop() {
        try {
@@ -7251,7 +7251,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +                  this.tick(this::isAheadOfTime);
                 this.profiler.endStartSection("nextTickWait");
 @@ -679,2 +697,21 @@
-
+ 
 +   public void runTickAndTasks() {
 +      this.tick(this::isAheadOfTime);
 +      this.isRunningScheduledTasks = true;
@@ -7273,7 +7273,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +
     private boolean isAheadOfTime() {
 @@ -720,2 +757,9 @@
-
+ 
 +   private void drainTasksSync() {
 +      while (super.driveOne());
 +      for (ServerWorld serverworld : this.getWorlds()) {
@@ -7287,7 +7287,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +
        ++this.tickCounter;
 @@ -789,7 +834,6 @@
-
+ 
 -      if (this.tickCounter % 6000 == 0) {
 +      if (autosavePeriod > 0 && tickCounter % autosavePeriod == 0) {
           LOGGER.debug("Autosave started");
@@ -7303,19 +7303,19 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +      this.tickTime = this.tickTime * 0.8F +  (float)l / 1000000.0F* 0.19999999F;
        long i1 = Util.nanoTime();
 @@ -982,3 +1027,3 @@
-
+ 
 -   protected void func_244801_P() {
 +   protected void generateKeypair() {
        LOGGER.info("Generating keypair");
 @@ -1416,2 +1461,6 @@
-
+ 
 +   public float getTickTimeRaw() {
 +      return this.tickTimeRaw;
 +   }
 +
     public int getPermissionLevel(GameProfile profile) {
 @@ -1525,24 +1574,24 @@
-
+ 
 -   private void func_240773_a_(@Nullable LongTickDetector p_240773_1_) {
 +   private void func_240773_a_(@Nullable LongTickDetector longTickDetector) {
        if (this.startProfiling) {
@@ -7323,11 +7323,11 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 -         this.timeTracker.func_233507_c_();
 +         this.timeTracker.startTracking();
        }
-
+ 
 -      this.profiler = LongTickDetector.func_233523_a_(this.timeTracker.func_233508_d_(), p_240773_1_);
 +      this.profiler = LongTickDetector.getProfiler(this.timeTracker.getProfiler(), longTickDetector);
     }
-
+ 
 -   private void func_240795_b_(@Nullable LongTickDetector p_240795_1_) {
 -      if (p_240795_1_ != null) {
 -         p_240795_1_.func_233525_b_();
@@ -7335,17 +7335,17 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +      if (longTickDetector != null) {
 +         longTickDetector.func_233525_b_();
        }
-
+ 
 -      this.profiler = this.timeTracker.func_233508_d_();
 +      this.profiler = this.timeTracker.getProfiler();
     }
-
+ 
 -   public boolean func_240789_aP_() {
 -      return this.timeTracker.func_233505_a_();
 +   public boolean isProfiling() {
 +      return this.timeTracker.isTracking();
     }
-
+ 
 -   public void func_240790_aQ_() {
 +   public void startProfiling() {
        this.startProfiling = true;
@@ -7357,7 +7357,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/MinecraftServ
 +      this.timeTracker.stopTracking();
        return iprofileresult;
 @@ -1556,4 +1605,4 @@
-
+ 
 -   public Path func_240776_a_(FolderName p_240776_1_) {
 -      return this.anvilConverterForAnvilFile.resolveFilePath(p_240776_1_);
 +   public Path resolveSavePath(FolderName folderName) {
@@ -7454,7 +7454,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/SessionLockMa
 +         filechannel.write(BYTE_BUFFER.duplicate());
           filechannel.force(true);
 @@ -49,5 +49,5 @@
-
+ 
 -   private SessionLockManager(FileChannel p_i231437_1_, FileLock p_i231437_2_) {
 -      this.field_232994_a_ = p_i231437_1_;
 -      this.field_232995_b_ = p_i231437_2_;
@@ -7476,7 +7476,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/SessionLockMa
 +            this.fileChannel.close();
           }
 @@ -68,4 +68,4 @@
-
+ 
 -   public boolean func_232997_a_() {
 -      return this.field_232995_b_.isValid();
 +   public boolean isLockValid() {
@@ -7488,7 +7488,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/SessionLockMa
 -      Path path = p_232999_0_.resolve("session.lock");
 +   public static boolean isUnlocked(Path p) throws IOException {
 +      Path path = p.resolve("session.lock");
-
+ 
 @@ -90,5 +90,5 @@
        byte[] abyte = "\u2603".getBytes(Charsets.UTF_8);
 -      field_232996_c_ = ByteBuffer.allocateDirect(abyte.length);
@@ -7502,7 +7502,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/server/dedicated/Ded
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java	2022-06-23 00:30:26.651515958 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java	2022-06-23 00:28:27.321515359 +0100
 @@ -132,3 +132,3 @@
-
+ 
 -      this.func_244801_P();
 +      this.generateKeypair();
        LOGGER.info("Starting Minecraft server on {}:{}", this.getServerHostname().isEmpty() ? "*" : this.getServerHostname(), this.getServerPort());
@@ -7580,7 +7580,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/stats/ServerStatisti
 -      if (i - this.lastStatRequest > 300) {
 -         this.lastStatRequest = i;
 +      this.lastStatRequest = i;
-
+ 
 -         for(Stat<?> stat : this.getDirty()) {
 -            object2intmap.put(stat, this.getValue(stat));
 -         }
@@ -7689,7 +7689,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/util/Session.java MC
 +   public void  setUsername(String username) {
 +      this.username = username;
 +   }
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/util/WeightedList.java MCP-Reborn/src/main/java/net/minecraft/util/WeightedList.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/util/WeightedList.java	2022-06-23 00:30:26.661515959 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/util/WeightedList.java	2022-06-23 00:28:27.331515359 +0100
@@ -7697,7 +7697,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/util/WeightedList.ja
     protected final List<WeightedList.Entry<U>> field_220658_a;
 -   private final Random random = new Random();
 +   private final Random random = new Random(0);
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/util/datafix/fixes/ZombieProfToType.java MCP-Reborn/src/main/java/net/minecraft/util/datafix/fixes/ZombieProfToType.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/util/datafix/fixes/ZombieProfToType.java	2022-06-23 00:30:26.671515959 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/util/datafix/fixes/ZombieProfToType.java	2022-06-23 00:28:27.341515359 +0100
@@ -7705,7 +7705,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/util/datafix/fixes/Z
  public class ZombieProfToType extends NamedEntityFix {
 -   private static final Random RANDOM = new Random();
 +   private static final Random RANDOM = new Random(0);
-
+ 
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/util/math/MathHelper.java MCP-Reborn/src/main/java/net/minecraft/util/math/MathHelper.java
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/util/math/MathHelper.java	2022-06-23 00:30:26.671515959 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/util/math/MathHelper.java	2022-06-23 00:28:27.341515359 +0100
@@ -7718,7 +7718,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/util/registry/Dynami
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/util/registry/DynamicRegistries.java	2022-06-23 00:30:26.671515959 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/util/registry/DynamicRegistries.java	2022-06-23 00:28:27.341515359 +0100
 @@ -76,3 +76,3 @@
-
+ 
 -   public static DynamicRegistries.Impl func_239770_b_() {
 +   public static DynamicRegistries.Impl getImpl() {
        DynamicRegistries.Impl dynamicregistries$impl = new DynamicRegistries.Impl();
@@ -7865,12 +7865,12 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/chunk/storage/
 +         int k = getLowestByte(i);
           int l = k * 4096;
 @@ -178,3 +178,3 @@
-
+ 
 -   private static int func_227131_a_(int p_227131_0_) {
 +   private static int getLowestByte(int p_227131_0_) {
        return p_227131_0_ & 255;
 @@ -182,3 +182,3 @@
-
+ 
 -   private static int func_227142_b_(int p_227142_0_) {
 +   private static int getHigherBytes(int p_227142_0_) {
        return p_227142_0_ >> 8 & 16777215;
@@ -7889,7 +7889,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/chunk/storage/
 +      int l = getLowestByte(j);
        int i1 = p_227135_2_.remaining();
 @@ -316,4 +316,4 @@
-
+ 
 -   private static int getIndex(ChunkPos p_222668_0_) {
 -      return p_222668_0_.getRegionPositionX() + p_222668_0_.getRegionPositionZ() * 32;
 +   private static int getIndex(ChunkPos chunkPos) {
@@ -7920,7 +7920,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/end/DragonFigh
 +      Features.END_GATEWAY_DELAYED.generate(this.world, this.world.getChunkProvider().getChunkGenerator(), new Random(0), pos);
     }
 @@ -379,3 +379,3 @@
-
+ 
 -      endpodiumfeature.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG).generate(this.world, this.world.getChunkProvider().getChunkGenerator(), new Random(), this.exitPortalLocation);
 +      endpodiumfeature.withConfiguration(IFeatureConfig.NO_FEATURE_CONFIG).generate(this.world, this.world.getChunkProvider().getChunkGenerator(), new Random(0), this.exitPortalLocation);
     }
@@ -7947,12 +7947,12 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/gen/layer/Laye
     private static final Logger LOGGER = LogManager.getLogger();
 -   private final LazyArea field_215742_b;
 +   private final LazyArea lazyArea;
-
+ 
     public Layer(IAreaFactory<LazyArea> lazyAreaFactoryIn) {
 -      this.field_215742_b = lazyAreaFactoryIn.make();
 +      this.lazyArea = lazyAreaFactoryIn.make();
     }
-
+ 
 -   public Biome func_242936_a(Registry<Biome> p_242936_1_, int p_242936_2_, int p_242936_3_) {
 -      int i = this.field_215742_b.getValue(p_242936_2_, p_242936_3_);
 +   public Biome getLayer(Registry<Biome> biomeRegistry, int x, int z) {
@@ -7986,7 +7986,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/gen/settings/D
 -      return Dimension.func_236060_a_(this.seed, this.field_236208_h_);
 +      return Dimension.func_236060_a_(this.seed, this.dimensionsRegistry);
     }
-
+ 
 -   public DimensionGeneratorSettings(long seed, boolean generateFeatures, boolean bonusChest, SimpleRegistry<Dimension> p_i231914_5_) {
 -      this(seed, generateFeatures, bonusChest, p_i231914_5_, Optional.empty());
 -      Dimension dimension = p_i231914_5_.getValueForKey(Dimension.OVERWORLD);
@@ -7995,7 +7995,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/gen/settings/D
 +      Dimension dimension = dimensionsRegistry.getValueForKey(Dimension.OVERWORLD);
        if (dimension == null) {
 @@ -76,3 +76,3 @@
-
+ 
 -   private DimensionGeneratorSettings(long seed, boolean generateFeatures, boolean bonusChest, SimpleRegistry<Dimension> p_i231915_5_, Optional<String> p_i231915_6_) {
 +   private DimensionGeneratorSettings(long seed, boolean generateFeatures, boolean bonusChest, SimpleRegistry<Dimension> dimensionsRegistry, Optional<String> p_i231915_6_) {
        this.seed = seed;
@@ -8005,7 +8005,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/gen/settings/D
 +      this.dimensionsRegistry = dimensionsRegistry;
        this.field_236209_i_ = p_i231915_6_;
 @@ -84,16 +84,19 @@
-
+ 
 -   public static DimensionGeneratorSettings func_242752_a(DynamicRegistries p_242752_0_) {
 -      Registry<Biome> registry = p_242752_0_.getRegistry(Registry.BIOME_KEY);
 -      int i = "North Carolina".hashCode();
@@ -8016,7 +8016,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/gen/settings/D
 +      long i = (long) "North Carolina".hashCode();
 +      return fromDynamicRegistries(dynamicRegistries, i, true, true);
     }
-
+ 
 +   public static DimensionGeneratorSettings fromDynamicRegistries(DynamicRegistries dynamicRegistries, long seed, boolean generateFeatures, boolean bonusChest) {
 +      Registry<Biome> registry = dynamicRegistries.getRegistry(Registry.BIOME_KEY);
 +      Registry<DimensionType> registry1 = dynamicRegistries.getRegistry(Registry.DIMENSION_TYPE_KEY);
@@ -8029,7 +8029,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/gen/settings/D
 +      long i = (new Random(0)).nextLong();
 +      return new DimensionGeneratorSettings(i, true, false, func_242749_a(p_242751_0_, DimensionType.getDefaultSimpleRegistry(p_242751_0_, p_242751_1_, p_242751_2_, i), getNoiseChunkGenerator(p_242751_1_, p_242751_2_, i)));
     }
-
+ 
 -   public static NoiseChunkGenerator func_242750_a(Registry<Biome> p_242750_0_, Registry<DimensionSettings> p_242750_1_, long p_242750_2_) {
 +   public static NoiseChunkGenerator getNoiseChunkGenerator(Registry<Biome> p_242750_0_, Registry<DimensionSettings> p_242750_1_, long p_242750_2_) {
        return new NoiseChunkGenerator(new OverworldBiomeProvider(p_242750_2_, false, false, p_242750_0_), p_242750_2_, () -> {
@@ -8038,14 +8038,14 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/gen/settings/D
 -      return this.field_236208_h_;
 +      return this.dimensionsRegistry;
     }
-
+ 
 -   public ChunkGenerator func_236225_f_() {
 -      Dimension dimension = this.field_236208_h_.getValueForKey(Dimension.OVERWORLD);
 +   public ChunkGenerator getChunkGenerator() {
 +      Dimension dimension = this.dimensionsRegistry.getValueForKey(Dimension.OVERWORLD);
        if (dimension == null) {
 @@ -156,4 +159,4 @@
-
+ 
 -   public boolean func_236227_h_() {
 -      return this.func_236225_f_() instanceof DebugChunkGenerator;
 +   public boolean isDebug() {
@@ -8082,7 +8082,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/gen/settings/D
 +         return new DimensionGeneratorSettings(i, flag, false, func_242749_a(registry2, simpleregistry, getNoiseChunkGenerator(registry, registry1, i)));
        }
 @@ -242,8 +245,8 @@
-
+ 
 -         for(Entry<RegistryKey<Dimension>, Dimension> entry : this.field_236208_h_.getEntries()) {
 +         for(Entry<RegistryKey<Dimension>, Dimension> entry : this.dimensionsRegistry.getEntries()) {
              RegistryKey<Dimension> registrykey = entry.getKey();
@@ -8130,7 +8130,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/server/ChunkHo
 +      return this.chunkFuture;
     }
 @@ -229,5 +229,5 @@
-
+ 
 -   public CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> func_219276_a(ChunkStatus p_219276_1_, ChunkManager p_219276_2_) {
 -      int i = p_219276_1_.ordinal();
 -      CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> completablefuture = this.field_219312_g.get(i);
@@ -8139,7 +8139,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/server/ChunkHo
 +      CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> completablefuture = this.futuresByStatus.get(i);
        if (completablefuture != null) {
 @@ -239,6 +239,6 @@
-
+ 
 -      if (getChunkStatusFromLevel(this.chunkLevel).isAtLeast(p_219276_1_)) {
 -         CompletableFuture<Either<IChunk, ChunkHolder.IChunkLoadingError>> completablefuture1 = p_219276_2_.func_219244_a(this, p_219276_1_);
 +      if (getChunkStatusFromLevel(this.chunkLevel).isAtLeast(chunkStatus)) {
@@ -8184,7 +8184,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/server/ChunkMa
 -               int i = aclassinheritancemultimap.length;
 +               ClassInheritanceMultiMap<Entity>[] entityLists = chunk.getEntityLists();
 +               int i = entityLists.length;
-
+ 
                 for(int j = 0; j < i; ++j) {
 -                  for(Entity entity : aclassinheritancemultimap[j]) {
 +                  for(Entity entity : entityLists[j]) {
@@ -8261,7 +8261,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/spawner/WorldE
 --- MCP-Reborn-vanilla/src/main/java/net/minecraft/world/spawner/WorldEntitySpawner.java	2022-06-23 00:30:26.691515959 +0100
 +++ MCP-Reborn/src/main/java/net/minecraft/world/spawner/WorldEntitySpawner.java	2022-06-23 00:28:27.361515359 +0100
 @@ -2,2 +2,3 @@
-
+ 
 +import com.minerl.multiagent.RandomHelper;
  import it.unimi.dsi.fastutil.objects.Object2IntMap;
 @@ -56,3 +57,3 @@
@@ -8270,7 +8270,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/spawner/WorldE
 +   private static final EntityClassification[] entityClassifications = Stream.of(EntityClassification.values()).filter((p_234965_0_) -> {
        return p_234965_0_ != EntityClassification.MISC;
 @@ -104,11 +105,12 @@
-
+ 
 -   public static void func_234979_a_(ServerWorld p_234979_0_, Chunk p_234979_1_, WorldEntitySpawner.EntityDensityManager p_234979_2_, boolean p_234979_3_, boolean p_234979_4_, boolean p_234979_5_) {
 -      p_234979_0_.getProfiler().startSection("spawner");
 -
@@ -8291,12 +8291,12 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/spawner/WorldE
 +               entityDensityManager.func_234990_a_(p_234970_1_, p_234970_2_);
              });
 @@ -117,3 +119,3 @@
-
+ 
 -      p_234979_0_.getProfiler().endSection();
 +      world.getProfiler().endSection();
     }
 @@ -127,8 +129,11 @@
-
+ 
 -   public static void func_234966_a_(EntityClassification p_234966_0_, ServerWorld p_234966_1_, IChunk p_234966_2_, BlockPos p_234966_3_, WorldEntitySpawner.IDensityCheck p_234966_4_, WorldEntitySpawner.IOnSpawnDensityAdder p_234966_5_) {
 -      StructureManager structuremanager = p_234966_1_.func_241112_a_();
 -      ChunkGenerator chunkgenerator = p_234966_1_.getChunkProvider().getChunkGenerator();
@@ -8346,18 +8346,18 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/spawner/WorldE
 +                        mobspawninfo$spawners = func_234977_a_(world, structuremanager, chunkgenerator, entityClassification, rand, blockpos$mutable);
                          if (mobspawninfo$spawners == null) {
 @@ -161,7 +167,7 @@
-
+ 
 -                        k1 = mobspawninfo$spawners.minCount + p_234966_1_.rand.nextInt(1 + mobspawninfo$spawners.maxCount - mobspawninfo$spawners.minCount);
 +                        k1 = mobspawninfo$spawners.minCount + rand.nextInt(1 + mobspawninfo$spawners.maxCount - mobspawninfo$spawners.minCount);
                       }
-
+ 
 -                     if (func_234975_a_(p_234966_1_, p_234966_0_, structuremanager, chunkgenerator, mobspawninfo$spawners, blockpos$mutable, d2) && p_234966_4_.test(mobspawninfo$spawners.type, blockpos$mutable, p_234966_2_)) {
 -                        MobEntity mobentity = func_234973_a_(p_234966_1_, mobspawninfo$spawners.type);
 +                     if (func_234975_a_(world, entityClassification, structuremanager, chunkgenerator, mobspawninfo$spawners, blockpos$mutable, d2) && p_234966_4_.test(mobspawninfo$spawners.type, blockpos$mutable, chunk)) {
 +                        MobEntity mobentity = func_234973_a_(world, mobspawninfo$spawners.type);
                          if (mobentity == null) {
 @@ -170,9 +176,10 @@
-
+ 
 -                        mobentity.setLocationAndAngles(d0, (double)i, d1, p_234966_1_.rand.nextFloat() * 360.0F, 0.0F);
 -                        if (func_234974_a_(p_234966_1_, mobentity, d2)) {
 -                           ilivingentitydata = mobentity.onInitialSpawn(p_234966_1_, p_234966_1_.getDifficultyForLocation(mobentity.getPosition()), SpawnReason.NATURAL, ilivingentitydata, (CompoundNBT)null);
@@ -8373,7 +8373,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/spawner/WorldE
 +                           p_234966_5_.run(mobentity, chunk);
                             if (j >= mobentity.getMaxSpawnedInChunk()) {
 @@ -267,8 +274,10 @@
-
+ 
 -   private static BlockPos getRandomHeight(World worldIn, Chunk p_222262_1_) {
 -      ChunkPos chunkpos = p_222262_1_.getPos();
 -      int i = chunkpos.getXStart() + worldIn.rand.nextInt(16);
@@ -8420,7 +8420,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/world/storage/SaveFo
 +      return new SaveFormat.LevelSave(savePath, saveName);
     }
 @@ -266,6 +270,6 @@
-
+ 
 -      public LevelSave(String saveName) throws IOException {
 +      public LevelSave(Path savePath, String saveName) throws IOException {
           this.saveName = saveName;
