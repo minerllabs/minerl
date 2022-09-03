@@ -209,7 +209,7 @@ class RewardForTouchingBlockType(RewardHandler):
             for block in obs['touched_blocks']:
                 for bl in self.blocks:
                     if bl['type'] in block['name'] and (
-                            not self.fired[bl['type']] or bl['behaviour'] is not "onlyOnce"):
+                            not self.fired[bl['type']] or bl['behaviour'] != "onlyOnce"):
                         reward += bl['reward']
                         self.fired[bl['type']] = True
 
