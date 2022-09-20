@@ -62,7 +62,8 @@ class HumanPlayInterface(gym.Wrapper):
             vsync=False,
             resizable=False
         )
-        self.clock = pyglet.clock.get_default()
+        self.start_time = time.time()
+        self.end_time = time.time()
         self.pressed_keys = defaultdict(lambda: False)
         self.window.on_mouse_motion = self._on_mouse_motion
         self.window.on_mouse_drag = self._on_mouse_drag
@@ -166,7 +167,6 @@ class HumanPlayInterface(gym.Wrapper):
         self._show_message("Resetting environment...")
         obs = self.env.reset()
         self._update_image(obs["pov"])
-        self.clock.tick()
         return obs
 
     def step(self, action: Optional[dict] = None, override_if_human_input: bool = False):
@@ -181,9 +181,11 @@ class HumanPlayInterface(gym.Wrapper):
 
         The executed action will be added to the info dict as "taken_action".
         """
-        time_to_sleep = MINERL_FRAME_TIME - self.clock.tick()
+        self.end_time = time.time()
+        time_to_sleep = MINERL_FRAME_TIME - (self.end_time - self.start_time)
         if time_to_sleep > 0:
-            self.clock.sleep(int(time_to_sleep * 1000))
+            time.sleep(time_to_sleep)
+        self.start_time = time.time()
         if not action or override_if_human_input:
             self.window.dispatch_events()
             human_action = self._get_human_action()
