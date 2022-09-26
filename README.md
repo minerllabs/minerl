@@ -20,9 +20,9 @@ MineRL consists of three unique versions, each with a slightly different sets of
 * v1.0: [[Code](https://github.com/minerllabs/minerl)][[Docs](https://minerl.readthedocs.io/en/latest/)]
   This version you are looking at. Needed for the [OpenAI VPT](https://github.com/openai/Video-Pre-Training) models and the [MineRL BASALT 2022](https://www.aicrowd.com/challenges/neurips-2022-minerl-basalt-competition) competition.
 * v0.4: [[Code](https://github.com/minerllabs/minerl/tree/v0.4)][[Docs](https://minerl.readthedocs.io/en/v0.4.4/)]
-  Version used in the 2021 competitions (Diamond and BASALT). Supports the original [MineRL-v0 dataset](https://arxiv.org/abs/1907.13440). Install with `pip install minerl==0.4`
+  Version used in the 2021 competitions (Diamond and BASALT). Supports the original [MineRL-v0 dataset](https://arxiv.org/abs/1907.13440). Install with `pip install minerl==0.4.4`
 * v0.3: [[Code](https://github.com/minerllabs/minerl/tree/pypi_0.3.7)][[Docs](https://minerl.readthedocs.io/en/v0.3.7/)]
-  Version used prior to 2021, including the first two MineRL competitions (2019 and 2020). Supports the original [MineRL-v0 dataset](https://arxiv.org/abs/1907.13440). Install with `pip install minerl==0.3`
+  Version used prior to 2021, including the first two MineRL competitions (2019 and 2020). Supports the original [MineRL-v0 dataset](https://arxiv.org/abs/1907.13440). Install with `pip install minerl==0.3.7`
 
 ## Installation
 
