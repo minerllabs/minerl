@@ -3295,8 +3295,8 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/net/minecraft/client/GameSettings.
 +      for (SoundCategory sc : SoundCategory.values()) {
 +         this.soundLevels.put(sc, 0.2f);
 +      }
-+      // disable loading option
-+      // this.loadOptions();
++      // NOTE: this was disabled originally. Place options.txt next to `MCP-Reborn/launchClient.sh`
++      this.loadOptions();
     }
 @@ -680,2 +692,104 @@
  
