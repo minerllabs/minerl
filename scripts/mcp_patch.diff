@@ -1818,7 +1818,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/RandomHelper
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServer.java MCP-Reborn/src/main/java/com/minerl/multiagent/env/EnvServer.java
 --- MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServer.java	1970-01-01 01:00:00.000000000 +0100
 +++ MCP-Reborn/src/main/java/com/minerl/multiagent/env/EnvServer.java	2022-06-23 00:28:31.911515382 +0100
-@@ -0,0 +1,687 @@
+@@ -0,0 +1,715 @@
 +package com.minerl.multiagent.env;
 +
 +import com.google.common.base.Charsets;
@@ -1836,7 +1836,9 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +import net.minecraft.client.gui.screen.MainMenuScreen;
 +import net.minecraft.client.multiplayer.ServerAddress;
 +import net.minecraft.client.multiplayer.ServerData;
++import net.minecraft.entity.player.PlayerEntity;
 +import net.minecraft.entity.player.PlayerInventory;
++import net.minecraft.inventory.EquipmentSlotType;
 +import net.minecraft.item.Item;
 +import net.minecraft.item.ItemStack;
 +import net.minecraft.profiler.IResultableProfiler;
@@ -2369,6 +2371,10 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +                    .forEach(h -> {
 +                        JSONWorldDataHelper.buildAllStats(infoJson, mc.player);
 +                    });
++            getAgentHandlers().filter(h -> h instanceof ObservationFromEquippedItem).limit(1)
++		    .forEach(h -> {
++		        infoJson.add("equipped_items", getEquippedItemJson());
++		    });
 +        }
 +
 +        infoJson.addProperty("isGuiOpen", mc.currentScreen != null);
@@ -2387,6 +2393,28 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +            }
 +        }
 +        return result;
++    }
++    
++    public static JsonObject getEquippedItemJson() {
++        JsonObject result = new JsonObject();
++        PlayerEntity player = Minecraft.getInstance().player;
++        assert player != null;
++        result.addProperty("mainhand", getEquipmentJsonObjectFromPlayer(player, EquipmentSlotType.MAINHAND));
++        result.addProperty("offhand", getEquipmentJsonObjectFromPlayer(player, EquipmentSlotType.OFFHAND));
++        result.addProperty("head", getEquipmentJsonObjectFromPlayer(player, EquipmentSlotType.HEAD));
++        result.addProperty("chest", getEquipmentJsonObjectFromPlayer(player, EquipmentSlotType.CHEST));
++        result.addProperty("legs", getEquipmentJsonObjectFromPlayer(player, EquipmentSlotType.LEGS));
++        result.addProperty("feet", getEquipmentJsonObjectFromPlayer(player, EquipmentSlotType.FEET));
++        return result;
++    }
++
++    private static String getEquipmentJsonObjectFromPlayer(PlayerEntity player, EquipmentSlotType type) {
++        JsonObject result = new JsonObject();
++        ItemStack item = player.getItemStackFromSlot(type);
++        result.addProperty("type", item.getItem().toString());
++        result.addProperty("maxDamage", item.getMaxDamage());
++        result.addProperty("damage", item.getDamage());
++        return result.toString();
 +    }
 +
 +    public static void execActions(String actions, int options) {
