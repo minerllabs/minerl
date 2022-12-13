@@ -1818,7 +1818,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/RandomHelper
 diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServer.java MCP-Reborn/src/main/java/com/minerl/multiagent/env/EnvServer.java
 --- MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServer.java	1970-01-01 01:00:00.000000000 +0100
 +++ MCP-Reborn/src/main/java/com/minerl/multiagent/env/EnvServer.java	2022-06-23 00:28:31.911515382 +0100
-@@ -0,0 +1,687 @@
+@@ -0,0 +1,699 @@
 +package com.minerl.multiagent.env;
 +
 +import com.google.common.base.Charsets;
@@ -2238,7 +2238,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +        }
 +
 +
-+        WorldSettings worldSettings = new WorldSettings(worldName, GameType.SURVIVAL, false, Difficulty.HARD, false, new GameRules(), DatapackCodec.VANILLA_CODEC);
++        WorldSettings worldSettings = new WorldSettings(worldName, GameType.SURVIVAL, false, Difficulty.HARD, true, new GameRules(), DatapackCodec.VANILLA_CODEC);
 +        DimensionGeneratorSettings dms = DimensionGeneratorSettings.fromDynamicRegistries(DynamicRegistries.getImpl(), seed, generateFeatures, bonusChest);
 +        mc.createWorld(worldName, worldSettings, DynamicRegistries.getImpl(), dms);
 +    }
@@ -2390,17 +2390,29 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +    }
 +
 +    public static void execActions(String actions, int options) {
++        doChatActions(actions);
 +        KeyboardListener.State keysState = constructKeyboardState(actions);
 +        MouseHelper.State mouseState = constructMouseState(actions);
 +        PlayRecorder.getInstance().setMouseKeyboardState(mouseState, keysState);
 +        ReplaySender.getInstance().addAction(mouseState, keysState);
++    }
++    
++    
++    public static void doChatActions(String actions) {
++        for (String action: actions.split("\n")) {
++           String[] splitAction = action.trim().split(" ");
++           if (splitAction[0].equals("chat") && splitAction.length > 1) {
++              String chatMessage = action.trim().substring(splitAction[0].length()).trim();
++              Minecraft.getInstance().player.sendChatMessage(chatMessage);
++           }
++        }
 +    }
 +
 +    private static KeyboardListener.State constructKeyboardState(String actions) {
 +        List<String> keysPressed = new ArrayList<>();
 +        for (String action: actions.split("\n")) {
 +           String[] splitAction = action.trim().split(" ");
-+           if (!splitAction[0].equals("camera") && !splitAction[0].equals("dwheel")) {
++           if (!splitAction[0].equals("camera") && !splitAction[0].equals("dwheel") && !splitAction[0].equals("chat")) {
 +               if (splitAction.length > 1 && Integer.parseInt(splitAction[1]) == 1) {
 +                   String key = actionToKey(splitAction[0]);
 +                   if (key != null) {
@@ -2431,7 +2443,7 @@ diff -u1 -rN MCP-Reborn-vanilla/src/main/java/com/minerl/multiagent/env/EnvServe
 +                dy = Double.parseDouble(splitAction[1]) * sensitivity;
 +            } else if (splitAction[0].equals("dwheel")) {
 +                dwheel = Double.parseDouble(splitAction[1]);
-+            } else {
++            } else if (!splitAction[0].equals("chat")){
 +                if (splitAction.length > 1 && Integer.parseInt(splitAction[1]) == 1) {
 +                    Integer key = actionToMouseButton(splitAction[0]);
 +                    if (key != null) {
