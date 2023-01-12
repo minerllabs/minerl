@@ -48,7 +48,6 @@ MAKE_HOUSE_VILLAGE_INVENTORY = [
 
 class ForceSeedsAndRecordWrapper(gym.Wrapper):
     """Read seeds from MINERL_RECORD_SEEDS env variable and force and record them"""
-    VIDEO_DIRECTORY = "seed_videos"
     def __init__(self, env):
         super().__init__(env)
         seed_list = os.environ.get("MINERL_RECORD_SEEDS", None)
@@ -56,6 +55,9 @@ class ForceSeedsAndRecordWrapper(gym.Wrapper):
             raise ValueError("MINERL_RECORD_SEEDS not set")
         os.makedirs(ForceSeedsAndRecordWrapper.VIDEO_DIRECTORY, exist_ok=True)
         self.seeds = [int(s) for s in seed_list.split()]
+        self.video_directory = os.environ.get("MINERL_RECORD_VIDEO_DIRECTORY", None)
+        if self.video_directory is None:
+            raise ValueError("MINERL_RECORD_VIDEO_DIRECTORY not set")
         self.seed_index = 0
         self.video_recorder = None
 
@@ -71,7 +73,7 @@ class ForceSeedsAndRecordWrapper(gym.Wrapper):
         seed = self.seeds[self.seed_index]
         self.seed(seed)
         self.seed_index += 1
-        video_path = os.path.join(ForceSeedsAndRecordWrapper.VIDEO_DIRECTORY, "seed_{}.mp4".format(seed))
+        video_path = os.path.join(self.video_directory, "seed_{}.mp4".format(seed))
         print(f"Writing video to {video_path}")
         self.video_recorder = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*"mp4v"), 20, (640, 360))
         obs = super().reset()
