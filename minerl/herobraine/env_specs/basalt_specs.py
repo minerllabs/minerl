@@ -1,5 +1,7 @@
 from typing import List, Optional, Sequence
+import os
 
+import cv2
 import gym
 
 from minerl.env import _fake, _singleagent
@@ -43,6 +45,43 @@ MAKE_HOUSE_VILLAGE_INVENTORY = [
     dict(type="cactus", quantity=64),
     dict(type="lantern", quantity=64),
 ]
+
+class ForceSeedsAndRecordWrapper(gym.Wrapper):
+    """Read seeds from MINERL_RECORD_SEEDS env variable and force and record them"""
+    VIDEO_DIRECTORY = "seed_videos"
+    def __init__(self, env):
+        super().__init__(env)
+        seed_list = os.environ.get("MINERL_RECORD_SEEDS", None)
+        if seed_list is None:
+            raise ValueError("MINERL_RECORD_SEEDS not set")
+        os.makedirs(ForceSeedsAndRecordWrapper.VIDEO_DIRECTORY, exist_ok=True)
+        self.seeds = [int(s) for s in seed_list.split()]
+        self.seed_index = 0
+        self.video_recorder = None
+
+    def _store_frame(self, obs):
+        self.video_recorder.write(obs["pov"][..., ::-1])
+
+    def reset(self):
+        if self.video_recorder is not None:
+            self.video_recorder.release()
+            self.video_recorder = None
+        if self.seed_index >= len(self.seeds):
+            raise RuntimeError("Tried to play more episodes than the number of seeds in MINERL_RECORD_SEEDS")
+        seed = self.seeds[self.seed_index]
+        self.seed(seed)
+        self.seed_index += 1
+        video_path = os.path.join(ForceSeedsAndRecordWrapper.VIDEO_DIRECTORY, "seed_{}.mp4".format(seed))
+        print(f"Writing video to {video_path}")
+        self.video_recorder = cv2.VideoWriter(video_path, cv2.VideoWriter_fourcc(*"mp4v"), 20, (640, 360))
+        obs = super().reset()
+        self._store_frame(obs)
+        return obs
+
+    def step(self, action):
+        obs, reward, done, info = super().step(action)
+        self._store_frame(obs)
+        return obs, reward, done, info
 
 class BasaltTimeoutWrapper(gym.Wrapper):
     """Timeout wrapper specifically crafted for the BASALT environments"""
@@ -98,6 +137,7 @@ def _basalt_gym_entrypoint(
 
     env = BasaltTimeoutWrapper(env)
     env = DoneOnESCWrapper(env)
+    env = ForceSeedsAndRecordWrapper(env)
     return env
 
 
