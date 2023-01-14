@@ -53,11 +53,11 @@ class ForceSeedsAndRecordWrapper(gym.Wrapper):
         seed_list = os.environ.get("MINERL_RECORD_SEEDS", None)
         if seed_list is None:
             raise ValueError("MINERL_RECORD_SEEDS not set")
-        os.makedirs(ForceSeedsAndRecordWrapper.VIDEO_DIRECTORY, exist_ok=True)
         self.seeds = [int(s) for s in seed_list.split()]
         self.video_directory = os.environ.get("MINERL_RECORD_VIDEO_DIRECTORY", None)
         if self.video_directory is None:
             raise ValueError("MINERL_RECORD_VIDEO_DIRECTORY not set")
+        os.makedirs(self.video_directory, exist_ok=True)
         self.seed_index = 0
         self.video_recorder = None
 
