@@ -37,14 +37,7 @@ main python package, :code:`minerl`.
         # the following line to update it
         # sudo update-alternatives --config java 
 
-2. If you are using Windows, you will also need :code:`bash` command. There are at least two ways to do this:
-
-   a. Install Windows Subsystem for Linux (WSL. Tested on WSL 2). Note that installing MineRL this way
-      may seem especially slow/stuck, but it is not; it is just a bit slow. You can also install MineRL
-      on the WSL system itself, but you may need :code:`xvfb` to run the environment.
-   b. Install bash along some other tools. E.g., `Git`_ will come with bash.
-      After installation, you may have to update environment variables to include a path which contains
-      bash.exe. For above git tools, this is [installation-dir]/bin.
+2. If you are using Windows, you will also need :code:`bash` command. The best way to do is to install Windows Subsystem for Linux (WSL. Tested on WSL 2). Note that installing MineRL may seem especially slow/stuck, but it is not; it is just a bit slow. You can also install MineRL on the WSL system itself, but you may need :code:`xvfb` to run the environment. Note that you need to install correct Java version on the WSL, too!
 
 3. Now install the :code:`minerl` package!::
 
