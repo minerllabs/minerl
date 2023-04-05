@@ -12,6 +12,7 @@ main python package, :code:`minerl`.
 .. _Windows installer: https://www.oracle.com/java/technologies/downloads/#java8-windows
 .. _checkout the environment documentation: http://minerl.io/docs/environments/
 .. _checkout the competition environments: http://minerl.io/docs/environments/#competition-environments
+.. _these steps for Mac: https://github.com/minerllabs/minerl/issues/659#issuecomment-1306635414
 .. _Git: https://git-scm.com/
 
 1. First **make sure you have JDK 8** installed on your
@@ -20,7 +21,7 @@ main python package, :code:`minerl`.
    a. `Windows installer`_ -- On windows go this link and follow the
       instructions to install JDK 8. Install x64 version.
 
-   b. On Mac, you can install Java 8 using homebrew and AdoptOpenJDK (an open source mirror, used here to get around the fact that Java8 binaries are no longer available directly from Oracle)::
+   b. On Mac, you can install Java 8 using homebrew and AdoptOpenJDK (an open source mirror, used here to get around the fact that Java8 binaries are no longer available directly from Oracle). If you encounter errors installing MineRL, try `these steps for Mac`_::
 
         brew tap AdoptOpenJDK/openjdk
         brew install --cask adoptopenjdk8
