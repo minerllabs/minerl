@@ -120,7 +120,7 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 -        classpath 'net.minecraftforge.gradle:ForgeGradle:3.0.+'
 +        classpath 'net.minecraftforge.gradle:ForgeGradle:4.1.10'
 +        // classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
++        // 22-05-2023 (Miffyli) Removed as not needed and failed the build // classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
 +        // classpath group: 'com.googlecode.mavennatives', name: 'maven-nativedependencies-plugin', version: '0.0.5'
 +        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
 +
@@ -151,7 +151,7 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 +
 +// apply plugin: 'net.minecraftforge.gradle'
  apply plugin: 'net.minecraftforge.gradle.forgedev.patcher'
-+apply plugin: 'org.spongepowered.mixin'
++// 22-05-2023 (Miffyli) Removed as not needed and failed the build // apply plugin: 'org.spongepowered.mixin'
 +// apply plugin: 'unpacknatives'
 +
 +apply plugin: 'eclipse'
@@ -291,9 +291,9 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 -version = '1.0.0'
 +version = '6.13'
 +
-+mixin {
++/* // 22-05-2023 (Miffyli) Removed as not needed and failed the build // mixin {
 +    add sourceSets.main, "modid.refmap.json"
-+}
++}*/
  
 @@ -30,6 +198,2 @@
  
