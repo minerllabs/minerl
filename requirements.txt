@@ -1,4 +1,4 @@
-git+https://github.com/minerllabs/gym@minerl-fix
+gym @ git+https://github.com/minerllabs/gym@minerl-fix
 opencv-python>=4.1.0.25
 setuptools>=49.2.0
 tqdm>=4.32.2
