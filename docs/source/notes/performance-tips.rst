@@ -51,4 +51,12 @@ Inside the container, use the following command to verify if the GPU rendering i
 
 You're good to go! Just prepend your commands with ``vglrun`` to enable GPU rendering.
 
-**Acknowledgements**: This docker image is brought to you by `Xiaojian Ma <https://github.com/jeasinema>`_ and the `MineDoJo <https://minedojo.org>`_ team, and it is developed upon `this project <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ by `Seungmin Kim <https://github.com/ehfd>`_. 
+**Acknowledgements**: This docker image is brought to you by `Xiaojian Ma <https://github.com/jeasinema>`_ and the `MineDoJo <https://minedojo.org>`_ team, and it is developed upon `this project <https://github.com/ehfd/docker-nvidia-egl-desktop>`_ by `Seungmin Kim <https://github.com/ehfd>`_.
+
+Singularity container for headless rendering with GPU
+------------------------------------------------------
+
+There is also a Singularity container based on the docker image above `here <https://github.com/Sanfee18/singularity-minerl>`_. 
+All the information on how to build and run the container are specified inside this github repo, plus some things you will have to take into consideration before being able to use it.
+
+**Acknowledgements**: This singularity container is brought you by `David Sanfelix <https://github.com/Sanfee18>`_.
