@@ -59,8 +59,8 @@ class _IsAliveObservation(LifeStatsObservation):
     def __init__(self):
         keys = ['is_alive']
         super().__init__(hero_keys=keys, univ_keys=keys,
-                         space=spaces.Box(low=False, high=True, shape=(), dtype=bool),
-                         default_if_missing=True)
+                         space=spaces.Box(low=0, high=1, shape=(), dtype=bool),
+                         default_if_missing=1)
 
 
 class _LifeObservation(LifeStatsObservation):
