@@ -90,7 +90,7 @@ class _ScoreObservation(LifeStatsObservation):
 class _FoodObservation(LifeStatsObservation):
     """
     Handles food_level observation representing the player's current hunger level, shown on the hunger bar. Its initial
-    value on world creation is 20 (full bar) - https://minecraft.gamepedia.com/Hunger#Mechanics
+    value on world creation is 20 (full bar) - https://minecraft.wiki/w/Hunger#Mechanics
     """
 
     def __init__(self):
@@ -103,7 +103,7 @@ class _SaturationObservation(LifeStatsObservation):
     """
     Returns the food saturation observation which determines how fast the hunger level depletes and is controlled by the
      kinds of food the player has eaten. Its maximum value always equals foodLevel's value and decreases with the hunger
-     level. Its initial value on world creation is 5. - https://minecraft.gamepedia.com/Hunger#Mechanics
+     level. Its initial value on world creation is 5. - https://minecraft.wiki/w/Hunger#Mechanics
     """
 
     def __init__(self):
@@ -115,7 +115,7 @@ class _SaturationObservation(LifeStatsObservation):
 class _XPObservation(LifeStatsObservation):
     """
     Handles observation of experience points 1395 experience corresponds with level 30
-    - see https://minecraft.gamepedia.com/Experience for more details
+    - see https://minecraft.wiki/w/Experience for more details
     """
 
     def __init__(self):
