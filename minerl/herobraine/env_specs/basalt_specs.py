@@ -380,7 +380,7 @@ Finally, end the episode by setting the "ESC" action to 1.
 .. tip::
   You can find detailed information on which materials are used in each biome-specific
   village (plains, savannah, taiga, desert) here:
-  https://minecraft.fandom.com/wiki/Village/Structure/Blueprints
+  https://minecraft.wiki/w/Village/Structure/Blueprints
 """
     def __init__(self):
         super().__init__(
