@@ -22,18 +22,16 @@ package com.microsoft.Malmo.MissionHandlers;
 import io.netty.buffer.ByteBuf;
 
 import com.microsoft.Malmo.MalmoMod;
-import com.microsoft.Malmo.MissionHandlerInterfaces.ICommandHandler;
 import com.microsoft.Malmo.Schemas.*;
 import com.microsoft.Malmo.Schemas.MissionInit;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -75,7 +73,6 @@ public class EquipCommandsImplementation extends CommandBase {
             if (player == null)
                 return null;
 
-
             Item item = Item.getByNameOrId(message.parameters);
             if (item == null || item.getRegistryName() == null)
                 return null;
@@ -95,16 +92,21 @@ public class EquipCommandsImplementation extends CommandBase {
 
             // We don't have that item in our inventories
             if (!itemInInventory)
-                return null;  // Returning true here as this handler should capture the place command
+                return null;
 
-            // Swap current hotbar item with found inventory item (if not the same)
-            int hotbarIdx = player.inventory.currentItem;
-            System.out.println("got harbar " + hotbarIdx);
-            System.out.println("got slot " + stackIndex);
+            // Equip the item to the item's 'best' slot rather than always using mainhand
+            EntityEquipmentSlot equipmentSlot = EntityLiving.getSlotForItemStack(new ItemStack(item));
 
-            ItemStack prevEquip = inv.getStackInSlot(hotbarIdx).copy();
-            inv.setInventorySlotContents(hotbarIdx, stackInInventory);
-            inv.setInventorySlotContents(stackIndex, prevEquip);
+            // Hard-coded hack to allow agents to hold pumpkins and skulls which are otherwise seen as helmets
+            if (item == Item.getItemFromBlock(Blocks.PUMPKIN) || item == Items.SKULL) {
+                equipmentSlot = EntityEquipmentSlot.MAINHAND;
+            }
+
+            // Swap the items between the destination slot and the slot with the matching item
+            ItemStack prev = player.getItemStackFromSlot(equipmentSlot);
+            player.setItemStackToSlot(equipmentSlot, stackInInventory);
+            player.inventory.setInventorySlotContents(stackIndex, prev);
+
             return null;
         }
     }
