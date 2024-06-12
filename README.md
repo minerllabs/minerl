@@ -11,7 +11,7 @@ Python package providing easy to use Gym environments and data access for traini
 
 Curious to see what people have done with MineRL? See [this page where we collect projects using MineRL](https://minerl.readthedocs.io/en/latest/notes/useful-links.html). **Got a project using MineRL (academic or fun hobby project)?** Edit [this file](https://github.com/minerllabs/minerl/blob/dev/docs/source/notes/useful-links.rst), add links to your projects and create a PR!
 
-To get started with MineRL, [check out the docs here](http://minerl.io/docs/)!
+To get started with MineRL, [check out the docs here](https://minerl.readthedocs.io/en/latest/)!
 
 ## MineRL Versions
 
@@ -26,7 +26,7 @@ MineRL consists of three unique versions, each with a slightly different sets of
 
 ## Installation
 
-Install [requirements](https://minerl.readthedocs.io/en/latest/tutorials/index.html) (Java JDK 8 is **required**) and then install MineRL with
+Install [requirements](https://minerl.readthedocs.io/en/latest/tutorials/index.html) (Java JDK 8 is **required**. Mac may require [additional steps](https://github.com/minerllabs/minerl/issues/659#issuecomment-1306635414)) and then install MineRL with
 ```
 pip install git+https://github.com/minerllabs/minerl
 ```
