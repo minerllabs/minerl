@@ -491,7 +491,7 @@ class MinecraftInstance(object):
 
             logdir = os.environ.get('MALMO_MINECRAFT_OUTPUT_LOGDIR', '.')
             self._logger_thread = threading.Thread(target=functools.partial(log_to_file, logdir=logdir))
-            self._logger_thread.setDaemon(True)
+            self._logger_thread.daemon = True
             self._logger_thread.start()
 
 
@@ -679,7 +679,7 @@ class MinecraftInstance(object):
         ):
             self._logger.error(msg)
         elif 'WARN' in msg:
-            self._logger.warn(msg)
+            self._logger.warning(msg)
         elif 'LOGTOPY' in msg:
             self._logger.info(msg)
         else:

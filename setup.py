@@ -215,7 +215,7 @@ else:
 
 setuptools.setup(
     name='minerl',
-    version=os.environ.get('MINERL_BUILD_VERSION', '1.0.0'),
+    version=os.environ.get('MINERL_BUILD_VERSION', '1.0.2'),
     description='MineRL environment and data loader for reinforcement learning from human demonstration in Minecraft',
     long_description=markdown,
     long_description_content_type="text/markdown",
