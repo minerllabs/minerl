@@ -311,33 +311,33 @@ diff -u1 -rN MCP-Reborn-vanilla/build.gradle MCP-Reborn/build.gradle
 +
 +    // specify lwjgl deps explicitly to force the download of natives for all 
 +    // platforms
-+    compile group: 'org.lwjgl', name: 'lwjgl', version: '3.2.1', classifier: "natives-windows"
-+    // compile group: 'org.lwjgl', name: 'lwjgl', version: '3.2.1', classifier: "natives-osx"
-+    compile group: 'org.lwjgl', name: 'lwjgl', version: '3.2.1', classifier: "natives-linux"
++    compile group: 'org.lwjgl', name: 'lwjgl', version: '3.3.1', classifier: "natives-windows"
++    // compile group: 'org.lwjgl', name: 'lwjgl', version: '3.3.1', classifier: "natives-osx"
++    compile group: 'org.lwjgl', name: 'lwjgl', version: '3.3.1', classifier: "natives-linux"
 +
-+    compile group: 'org.lwjgl', name: 'lwjgl-glfw', version: '3.2.1', classifier: "natives-windows"
-+    // compile group: 'org.lwjgl', name: 'lwjgl-glfw', version: '3.2.1', classifier: "natives-osx"
-+    compile group: 'org.lwjgl', name: 'lwjgl-glfw', version: '3.2.1', classifier: "natives-linux"
++    compile group: 'org.lwjgl', name: 'lwjgl-glfw', version: '3.3.1', classifier: "natives-windows"
++    // compile group: 'org.lwjgl', name: 'lwjgl-glfw', version: '3.3.1', classifier: "natives-osx"
++    compile group: 'org.lwjgl', name: 'lwjgl-glfw', version: '3.3.1', classifier: "natives-linux"
 +
-+    compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version: '3.2.1', classifier: "natives-windows"
-+    // compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version: '3.2.1', classifier: "natives-osx"
-+    compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version: '3.2.1', classifier: "natives-linux"
++    compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version: '3.3.1', classifier: "natives-windows"
++    // compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version: '3.3.1', classifier: "natives-osx"
++    compile group: 'org.lwjgl', name: 'lwjgl-jemalloc', version: '3.3.1', classifier: "natives-linux"
 +
-+    compile group: 'org.lwjgl', name: 'lwjgl-openal', version: '3.2.1', classifier: "natives-windows"
-+    // compile group: 'org.lwjgl', name: 'lwjgl-openal', version: '3.2.1', classifier: "natives-osx"
-+    compile group: 'org.lwjgl', name: 'lwjgl-openal', version: '3.2.1', classifier: "natives-linux"
++    compile group: 'org.lwjgl', name: 'lwjgl-openal', version: '3.3.1', classifier: "natives-windows"
++    // compile group: 'org.lwjgl', name: 'lwjgl-openal', version: '3.3.1', classifier: "natives-osx"
++    compile group: 'org.lwjgl', name: 'lwjgl-openal', version: '3.3.1', classifier: "natives-linux"
 +
-+    compile group: 'org.lwjgl', name: 'lwjgl-opengl', version: '3.2.1', classifier: "natives-windows"
-+    // compile group: 'org.lwjgl', name: 'lwjgl-opengl', version: '3.2.1', classifier: "natives-osx"
-+    compile group: 'org.lwjgl', name: 'lwjgl-opengl', version: '3.2.1', classifier: "natives-linux"
++    compile group: 'org.lwjgl', name: 'lwjgl-opengl', version: '3.3.1', classifier: "natives-windows"
++    // compile group: 'org.lwjgl', name: 'lwjgl-opengl', version: '3.3.1', classifier: "natives-osx"
++    compile group: 'org.lwjgl', name: 'lwjgl-opengl', version: '3.3.1', classifier: "natives-linux"
 +
-+    compile group: 'org.lwjgl', name: 'lwjgl-stb', version: '3.2.1', classifier: "natives-windows"
-+    // compile group: 'org.lwjgl', name: 'lwjgl-stb', version: '3.2.1', classifier: "natives-osx"
-+    compile group: 'org.lwjgl', name: 'lwjgl-stb', version: '3.2.1', classifier: "natives-linux"
++    compile group: 'org.lwjgl', name: 'lwjgl-stb', version: '3.3.1', classifier: "natives-windows"
++    // compile group: 'org.lwjgl', name: 'lwjgl-stb', version: '3.3.1', classifier: "natives-osx"
++    compile group: 'org.lwjgl', name: 'lwjgl-stb', version: '3.3.1', classifier: "natives-linux"
 +
-+    compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version: '3.2.1', classifier: "natives-windows"
-+    // compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version: '3.2.1', classifier: "natives-osx"
-+    compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version: '3.2.1', classifier: "natives-linux"
++    compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version: '3.3.1', classifier: "natives-windows"
++    // compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version: '3.3.1', classifier: "natives-osx"
++    compile group: 'org.lwjgl', name: 'lwjgl-tinyfd', version: '3.3.1', classifier: "natives-linux"
  }
  
 +
