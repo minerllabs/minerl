@@ -78,12 +78,12 @@ public abstract class MixinMinecraftGameloop {
     @Shadow public Snooper usageSnooper;
     @Shadow public abstract int getLimitFramerate();
     @Shadow public abstract boolean isFramerateLimitBelowMax();
-    
-    @Shadow public boolean inGameHasFocus; 
+
+    @Shadow public boolean inGameHasFocus;
     @Shadow private int leftClickCounter; 
 
     @Shadow public abstract void displayGuiScreen(GuiScreen guiScreen);
-    
+
     private  int numTicksPassed = 0;
 
 
@@ -268,14 +268,14 @@ public abstract class MixinMinecraftGameloop {
 
         this.mcProfiler.endSection(); //root
     }
-    
+
     @Overwrite
     public void setIngameFocus()
     {
         if (!this.inGameHasFocus) {
             this.inGameHasFocus = true;
             this.displayGuiScreen((GuiScreen) null);
-            this.leftClickCounter = 10000;
+            this.leftClickCounter = 0;
         }
     }
 
