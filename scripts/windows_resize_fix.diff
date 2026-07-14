@@ -1,0 +1,18 @@
+--- a/src/main/java/net/minecraft/client/MainWindow.java
++++ b/src/main/java/net/minecraft/client/MainWindow.java
+@@ -90,2 +90,4 @@
+       GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
++      // decorated windows can't be resized below Windows' minimum caption width
++      GLFW.glfwWindowHint(GLFW.GLFW_DECORATED, GLFW.GLFW_FALSE);
+       this.handle = GLFW.glfwCreateWindow(this.width, this.height, titleIn, this.fullscreen && monitor != null ? monitor.getMonitorPointer() : 0L, 0L);
+@@ -294,4 +296,8 @@
+       // frameBuffer / width == framebufferHeight / height
+-      while ((fbWidth == framebufferWidth && fbWidth == framebufferHeight) ||
+-              (framebufferHeight * newWidth != framebufferWidth * newHeight)) {
++      // glfwWaitEventsTimeout pumps the message queue so WM_SIZE is actually delivered on Windows;
++      // remainingTries is a safety net in case the framebuffer still doesn't converge
++      int remainingTries = 50;
++      while (((fbWidth == framebufferWidth && fbWidth == framebufferHeight) ||
++              (framebufferHeight * newWidth != framebufferWidth * newHeight)) && remainingTries-- > 0) {
++         GLFW.glfwWaitEventsTimeout(0.1);
+          updateFramebufferSize();
